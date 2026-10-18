@@ -1,0 +1,83 @@
+\section{Unified Mobile Private Contacts and Recipient Resolution}
+\label{sec:pilot-unified-mobile-contacts}
+
+Pilot's unified mobile application now presents the existing Personal Pilot contact authority as
+a dedicated private Contacts surface.  The mother brain remains the canonical owner of contacts
+and routing information.  The phone provides possession-bound inspection and editing; shared
+television surfaces receive neither email addresses nor telephone numbers and cannot silently
+choose a recipient.
+
+\subsection{Contact Model and Routes}
+
+A contact belongs to exactly one private persona and may contain one or more independently
+validated routes:
+\begin{itemize}
+  \item a Pilot persona and mother-brain identity for encrypted Pilot-to-Pilot delivery;
+  \item an international telephone number for an authorized WhatsApp handoff; and
+  \item an email address for an authorized email adapter.
+\end{itemize}
+
+The owner may select a preferred route.  If the selected route is unavailable, Pilot does not
+invent an endpoint.  Contact creation requires at least one usable route, validates email and
+international-number syntax, and validates the shape of remote Pilot identifiers.  Contact data
+is not itself authority to send: communication, task delegation and external-provider execution
+retain their own proposal, approval and receipt boundaries.
+
+\subsection{Mobile Experience}
+
+The Personal mode now includes a Contacts shortcut.  A connected user can list and search their
+own contacts, add a contact manually, edit an existing record, choose the preferred route, and
+remove a contact.  Where the browser exposes the privacy-preserving Contact Picker API, the user
+may deliberately select one phone contact and copy its proposed name, email and telephone number
+into the form.  Pilot still requires the user to review and save that form.  Browsers without the
+picker show a clear manual-entry path rather than requesting broad address-book access.
+
+Pilot-to-Pilot identifiers are placed in a secondary disclosure panel because they are normally
+learned through a trusted invitation rather than typed by ordinary users.  No contact operation
+sends a message, creates a task or grants access to another mother brain.
+
+\subsection{Possession and Privacy Boundary}
+
+Contact operations use three separately leased capabilities:
+\begin{itemize}
+  \item \texttt{contacts.read} for listing private contact routes;
+  \item \texttt{contacts.write} for creation, editing and removal; and
+  \item \texttt{contacts.resolve} for turning a typed or recognized name into a proposed recipient.
+\end{itemize}
+
+Every request is signed by the phone's non-exportable Ed25519 key and validated against its active
+certificate, persona and short-lived lease.  A phone cannot substitute another persona identifier.
+The general Personal Pilot summary exposes only contact names and available route types; exact
+addresses are returned only through the dedicated possession-authorized Contacts endpoint.
+
+\subsection{Safe Recipient Resolution}
+
+Resolution first attempts a normalized exact-name match.  If none exists, Pilot applies the
+existing bounded phonetic matcher intended for local speech-recognition errors.  A unique phonetic
+match may be proposed, but the result is explicitly labelled as phonetic.  Zero matches return
+\texttt{not\_found}; multiple matches return \texttt{ambiguous} with a private choice list.  Pilot
+never chooses the first ambiguous person.
+
+The resolved record identifies the proposed route and recipient reference, but its
+\texttt{external\_effect} value remains false.  A later communication or delegation stage must show the exact
+recipient and content and obtain its own private approval before delivery.
+
+\subsection{Durability, Removal and Historical Evidence}
+
+Mobile contact writes use idempotency keys bound to a canonical hash of the exact owner, contact
+and route fields.  An identical retry returns the original contact.  Reusing the key with changed
+content fails closed.  Removal is a soft revocation: the contact disappears from active search and
+resolution while historical tasks, messages and delivery receipts continue to reference the
+original contact identifier.  Repeated removal returns the existing result instead of mutating
+history twice.
+
+\subsection{Verification}
+
+Automated evidence covers persona filtering, exact-route visibility on the private phone, contact
+creation, repeat-request deduplication, unique phonetic resolution, unavailable-route rejection,
+soft removal, removal replay and cross-person denial.  Surface checks verify the dedicated
+Contacts experience and all signed mother-brain routes.  At coded closure of \texttt{MOB-0505},
+all 458 AION Fabric tests passed and the optimized Next.js application compiled and statically
+generated the unified mobile route.  Real WhatsApp, email and Pilot-to-Pilot delivery remain
+separate governed execution stages; this capability resolves recipients but deliberately sends
+nothing.

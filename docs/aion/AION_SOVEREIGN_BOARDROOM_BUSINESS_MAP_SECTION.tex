@@ -1,0 +1,102 @@
+\section{Sovereign Brain Integration with the Existing Boardroom Business Map}
+\label{sec:sovereign-boardroom-business-map}
+
+\subsection{Architectural decision}
+
+The Sovereign Business Brain does not introduce a replacement Business Map.
+The existing Boardroom \texttt{BusinessMapContainer} remains the canonical source
+of business truth.  The sovereign brain's business-map store is a registry of
+bindings to that authority; it does not contain a copied collection of facts.
+This prevents two maps from developing different revisions, permissions or
+answers.
+
+The surrounding Boardroom container family already models Business Identity,
+Business Structure, Department Intelligence, the Financial Model, the Operating
+Model, Organisation Authority, Brand Foundation, operational state and
+Boardroom snapshots.  The Boardroom consumes the persisted map only after the
+user confirms its exact revision and payload hash.  An earlier browser-local
+map compiler is deliberately inert, so it cannot become another source of
+truth.
+
+\subsection{Sovereign binding}
+
+First run creates a versioned binding identifying
+\texttt{boardroom\_business\_containers} as the source of truth and explicitly
+sets \texttt{parallel\_business\_map\_allowed} to false.  The binding contains
+workspace identifiers and contract metadata, but no company facts.  New
+business workspaces can be created as evidence-empty instances of the existing
+Business Identity, Business Structure, Business Map and Department
+Intelligence contracts.  They contain no example company, revenue, customer or
+operating assumptions.
+
+An existing Boardroom workspace is validated through the existing Pydantic
+contract and registered without rewriting its Business Map.  Status reports its
+revision, hash, present container types and bounded counts of facts,
+assumptions, unknowns, conflicts, unanswered fields and department gaps.  This
+allows the downloadable brain to adopt an established Boardroom safely rather
+than forcing the business to repeat setup.
+
+\subsection{Existing capabilities retained}
+
+The implementation audit confirmed that Boardroom already provides:
+
+\begin{itemize}
+  \item a schema-driven voice and text foundation interview;
+  \item persisted Business Map revisions and optimistic write checks;
+  \item source references, confidence and verification metadata on modern facts;
+  \item explicit assumptions, unknowns, conflicts and discovery gaps;
+  \item founder confirmation bound to the current map revision and hash;
+  \item local file, text, PDF, Word and spreadsheet knowledge extraction;
+  \item owner review before extracted claims become searchable truth;
+  \item department-scoped knowledge projection and Organisation Authority;
+  \item existing read-side Gmail, Calendar, CRM/Sales, file and Xero foundations;
+  \item Boardroom and Department Pilot context assembled from the same persisted
+  containers; and
+  \item evidence and execution receipts that remain separate from model output.
+\end{itemize}
+
+\subsection{Governed Business Map lifecycle}
+
+A new lifecycle service operates on the existing Business Map repository.
+Every newly governed fact proposal requires a field, value, source reference,
+bounded confidence and proposer.  It begins in an owner-review state and may be
+approved, corrected or rejected.  Correction retains a hash of the previous
+value.  Selective deletion requires an explicit deletion confirmation and emits
+a durable tombstone receipt containing before and after hashes without retaining
+the deleted business value in the receipt.
+
+All mutations support an expected revision, preventing stale interfaces from
+silently overwriting a newer map.  The governance ledger records action,
+workspace, resulting map revision, evidence hash and time.  A hash-bound export
+returns the canonical Boardroom map rather than a sovereign reconstruction.
+
+\subsection{Knowledge-quality queues}
+
+The same lifecycle authority produces bounded queues for proposed facts, stale
+facts, legacy facts missing source or confidence, proposals without a nominated
+review owner, declared unknowns, contradictions, unanswered foundation fields
+and incomplete department discovery.  Expiry is calculated from explicit
+effective dates; AION does not invent a stale date merely because a fact is old.
+
+\subsection{Remaining Phase 2 work}
+
+The existing foundation is substantial, but Phase~2 is not yet closed.  The
+following work remains:
+
+\begin{enumerate}
+  \item make onboarding progress backend-authoritative and resumable across
+  devices rather than dependent on browser-local state;
+  \item normalize legacy relationships so every relevant edge has source,
+  confidence and review state;
+  \item expose map inspection, merge, correction and selective deletion through
+  the non-technical interface;
+  \item add entity linking to the existing provenance-preserving document claims;
+  \item present existing read-only connectors in one setup flow and prove each
+  connector's map projection;
+  \item implement retention, legal hold and source-revocation consequences; and
+  \item run a reconstruction and access-isolation exercise with representative
+  organisations and restricted users.
+\end{enumerate}
+
+The design rule is therefore fixed: the downloadable AION brain adopts and
+governs the Boardroom's existing Business Map; it never forks it.

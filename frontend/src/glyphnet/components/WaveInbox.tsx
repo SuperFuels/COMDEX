@@ -19,6 +19,7 @@ type VoiceTrack = { channel: string; mime: string; chunks: VoiceChunk[]; updated
 
 const MAX_ITEMS = 200;
 const STORAGE_PREFIX = "gnet:inbox:";
+const processInbox = new Map<string, string>();
 
 // SSR-safe location (for invite URL + hash deep-link)
 function getLoc() {
@@ -94,7 +95,7 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
   // Restore cache on topic change
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem(storageKey);
+      const raw = processInbox.get(storageKey);
       if (raw) {
         const cached: InboxItem[] = JSON.parse(raw);
         setItems(cached);
@@ -204,7 +205,7 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
       setItems((prev) => {
         const merged = [...nextItems, ...prev].slice(0, MAX_ITEMS);
         try {
-          sessionStorage.setItem(storageKey, JSON.stringify(merged));
+          processInbox.set(storageKey, JSON.stringify(merged));
         } catch {}
         return merged;
       });

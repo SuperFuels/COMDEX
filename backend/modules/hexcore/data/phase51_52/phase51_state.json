@@ -1,0 +1,270 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "general_tool_and_experiment_invention": "procedure_general_tool_invention_74b50cc668c1"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {
+    "general_tool:select_information_probe": {
+      "candidate_programs_evaluated": 5,
+      "capsule": {
+        "checksum": "42294a6fcab5711d0c3739782140bf027927ddd741eb9ac9a67a5ae3da5b1579",
+        "input_contract": "select_information_probe",
+        "program": "select_information_probe",
+        "provenance": {
+          "development_cases": 12,
+          "external_cases": 20,
+          "family_index": 4,
+          "sealed_cases": 40
+        },
+        "schema_version": "aion.general_tool.v1",
+        "side_effects": "none",
+        "tool_id": "general_tool:select_information_probe"
+      },
+      "external_accuracy": 1.0,
+      "sealed_accuracy": 1.0
+    }
+  },
+  "general_invented_tools": {
+    "general_tool:audit_citations": {
+      "candidate_programs_evaluated": 2,
+      "capsule": {
+        "checksum": "e6582aa1a21ebf1e1fa983e03b385258f2d245e6c1272dc23344a9c5290a69c8",
+        "input_contract": "audit_citations",
+        "program": "audit_citations",
+        "provenance": {
+          "development_cases": 12,
+          "external_cases": 20,
+          "family_index": 1,
+          "sealed_cases": 40
+        },
+        "schema_version": "aion.general_tool.v1",
+        "side_effects": "none",
+        "tool_id": "general_tool:audit_citations"
+      },
+      "external_accuracy": 1.0,
+      "sealed_accuracy": 1.0
+    },
+    "general_tool:bind_evidence": {
+      "candidate_programs_evaluated": 1,
+      "capsule": {
+        "checksum": "774c7de4e045cbe235416014a7712d9dbdeff0b60743734bbc3828216656711b",
+        "input_contract": "bind_evidence",
+        "program": "bind_evidence",
+        "provenance": {
+          "development_cases": 12,
+          "external_cases": 20,
+          "family_index": 0,
+          "sealed_cases": 40
+        },
+        "schema_version": "aion.general_tool.v1",
+        "side_effects": "none",
+        "tool_id": "general_tool:bind_evidence"
+      },
+      "external_accuracy": 1.0,
+      "sealed_accuracy": 1.0
+    },
+    "general_tool:check_dependency_readiness": {
+      "candidate_programs_evaluated": 6,
+      "capsule": {
+        "checksum": "0bec6bfe772623c84e9fc84feb1e86c1ae127f68b9fbe6b5907a86fd2e4fbeab",
+        "input_contract": "check_dependency_readiness",
+        "program": "check_dependency_readiness",
+        "provenance": {
+          "development_cases": 12,
+          "external_cases": 20,
+          "family_index": 5,
+          "sealed_cases": 40
+        },
+        "schema_version": "aion.general_tool.v1",
+        "side_effects": "none",
+        "tool_id": "general_tool:check_dependency_readiness"
+      },
+      "external_accuracy": 1.0,
+      "sealed_accuracy": 1.0
+    },
+    "general_tool:guard_table_mean": {
+      "candidate_programs_evaluated": 4,
+      "capsule": {
+        "checksum": "f21f199e1b8cc45a7a954d0fc9f5c2079b231df6a49df2b5e49f0dd1250e28da",
+        "input_contract": "guard_table_mean",
+        "program": "guard_table_mean",
+        "provenance": {
+          "development_cases": 12,
+          "external_cases": 20,
+          "family_index": 3,
+          "sealed_cases": 40
+        },
+        "schema_version": "aion.general_tool.v1",
+        "side_effects": "none",
+        "tool_id": "general_tool:guard_table_mean"
+      },
+      "external_accuracy": 1.0,
+      "sealed_accuracy": 1.0
+    },
+    "general_tool:revise_conflict": {
+      "candidate_programs_evaluated": 3,
+      "capsule": {
+        "checksum": "d98fd2a27b602e8e2210052cc064100537d319d647ccfe1217e790cccc5950fc",
+        "input_contract": "revise_conflict",
+        "program": "revise_conflict",
+        "provenance": {
+          "development_cases": 12,
+          "external_cases": 20,
+          "family_index": 2,
+          "sealed_cases": 40
+        },
+        "schema_version": "aion.general_tool.v1",
+        "side_effects": "none",
+        "tool_id": "general_tool:revise_conflict"
+      },
+      "external_accuracy": 1.0,
+      "sealed_accuracy": 1.0
+    },
+    "general_tool:select_information_probe": {
+      "candidate_programs_evaluated": 5,
+      "capsule": {
+        "checksum": "42294a6fcab5711d0c3739782140bf027927ddd741eb9ac9a67a5ae3da5b1579",
+        "input_contract": "select_information_probe",
+        "program": "select_information_probe",
+        "provenance": {
+          "development_cases": 12,
+          "external_cases": 20,
+          "family_index": 4,
+          "sealed_cases": 40
+        },
+        "schema_version": "aion.general_tool.v1",
+        "side_effects": "none",
+        "tool_id": "general_tool:select_information_probe"
+      },
+      "external_accuracy": 1.0,
+      "sealed_accuracy": 1.0
+    }
+  },
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase51_52_general_invention_authority"
+    },
+    "reason": "phase51_general_tool_invention",
+    "state_hash": "9943cfdbf838b2128f49466c6489ea3daf77ba084a33838e7fb95228099ed7d8"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_world_projects": {},
+  "outcomes": [],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_general_tool_invention_74b50cc668c1": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "errors": [],
+          "evaluation_reduction": 0.7142857142857143,
+          "experiment_policy_invented": true,
+          "external_accuracy": 1.0,
+          "malicious_candidates_rejected": 1.0,
+          "provenance_completeness": 1.0,
+          "sealed_accuracy": 1.0,
+          "tool_families_invented": 6,
+          "unsafe_side_effects": 0,
+          "weakest_family_accuracy": 1.0
+        }
+      },
+      "goal": "general_tool_and_experiment_invention",
+      "procedure_id": "procedure_general_tool_invention_74b50cc668c1",
+      "promoted_at": "2026-07-30T11:59:12.734372+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.7142857142857144,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "detect_capability_gap",
+        "compose_typed_candidate_programs",
+        "reject_side_effecting_candidates",
+        "execute_in_typed_sandbox",
+        "generate_counterexamples",
+        "promote_only_external_transfer"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "cea012c36a604d3167b11aad4662f4bc5f130033d05c0468c51d2dbfe0d8ddaf",
+      "goal": "general_tool_and_experiment_invention",
+      "new_champion_id": "procedure_general_tool_invention_74b50cc668c1",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.7142857142857144,
+      "timestamp": "2026-07-30T11:59:12.734769+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "relation_models": {},
+  "revision": 2,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T11:59:12.735637+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_rules": {}
+}

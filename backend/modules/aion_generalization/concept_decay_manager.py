@@ -1,93 +1,130 @@
 #!/usr/bin/env python3
-"""
-♻️  Aion Concept Decay Manager - Phase 35.2
-───────────────────────────────────────────────────────────────────────────────
-Scans AKG for obsolete or weak links (low strength, old timestamp),
-decays or removes them, and exports a snapshot for evolution visualization.
+"""Governed decay of customer-learned AION concepts."""
 
-* Reads reinforcement history from concept_reinforcement.log
-* Decays neglected concept edges
-* Exports summary for evolution_dashboard
-"""
+from __future__ import annotations
 
-import json, time, sqlite3
+from datetime import UTC, datetime
+import json
 from pathlib import Path
-from backend.modules.aion_knowledge import knowledge_graph_core as akg
+import time
+from typing import Any
+from uuid import uuid4
 
-DB_PATH = Path("data/knowledge/aion_knowledge_graph.db")
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    guardian_mode_requested,
+)
+from backend.modules.aion_knowledge.knowledge_graph_core import (
+    AionKnowledgeGraphStore,
+)
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+
+
 REINFORCE_LOG = Path("data/feedback/concept_reinforcement.log")
 SNAPSHOT_PATH = Path("data/feedback/concept_evolution_snapshot.jsonl")
-
-# ─────────────────────────────────────────────
-# Parameters
-# ─────────────────────────────────────────────
-DECAY_INTERVAL = 3600 * 4        # 4 hours without reinforcement -> decay
-DECAY_FACTOR = 0.97              # decay multiplier
-MIN_STRENGTH = 0.25              # remove links weaker than this
+DECAY_INTERVAL = 3600 * 4
+DECAY_FACTOR = 0.97
+MIN_STRENGTH = 0.25
 EXPORT_LIMIT = 1000
 
-def parse_reinforcement_log():
-    """Return {concept_name: last_timestamp} dict."""
-    if not REINFORCE_LOG.exists():
+
+def parse_reinforcement_log(
+    path: str | Path | None = None,
+) -> dict[str, float]:
+    """Read an explicit retained legacy reinforcement source.
+
+    Guardian mode refuses an implicit application-relative source. The live
+    protected caller must supply governed reinforcement evidence instead.
+    """
+    if path is None and guardian_mode_requested():
+        raise RuntimeError("concept_decay_guardian_reinforcement_input_required")
+    source = Path(path or REINFORCE_LOG)
+    if not source.is_file():
         return {}
-    last_seen = {}
-    with REINFORCE_LOG.open() as f:
-        for line in f:
-            try:
-                ts, msg = line.strip().split(" ", 1)
-                if msg.startswith("reinforce"):
-                    cname = msg.split()[1]
-                    last_seen[cname] = float(ts)
-            except Exception:
-                continue
+    last_seen: dict[str, float] = {}
+    for line in source.read_text(encoding="utf-8").splitlines():
+        try:
+            timestamp, message = line.strip().split(" ", 1)
+            if message.startswith("reinforce"):
+                last_seen[message.split()[1]] = float(timestamp)
+        except (IndexError, TypeError, ValueError):
+            continue
     return last_seen
 
-def decay_stale_links(last_seen: dict):
-    """Decay or remove stale 'is_a' links in AKG."""
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    tables = [r[0] for r in cur.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
-    table = "triplets" if "triplets" in tables else "knowledge"
 
-    cur.execute(f"SELECT subject,predicate,object,strength,timestamp FROM {table} WHERE predicate='is_a'")
-    rows = cur.fetchall()
-    now = time.time()
-    updates, deletions = 0, 0
-
-    for s,p,o,w,ts in rows:
-        cname = o.replace("concept:", "")
-        t_last = last_seen.get(cname, 0)
-        age = now - t_last
-        if age > DECAY_INTERVAL:
-            new_strength = w * DECAY_FACTOR
-            if new_strength < MIN_STRENGTH:
-                cur.execute(f"DELETE FROM {table} WHERE subject=? AND object=?", (s,o))
+def decay_stale_links(
+    last_seen: dict[str, float],
+    *,
+    store: AionKnowledgeGraphStore | None = None,
+    now: float | None = None,
+) -> tuple[int, int]:
+    graph = store or AionKnowledgeGraphStore()
+    current_time = float(now if now is not None else time.time())
+    updates = 0
+    deletions = 0
+    for row in graph.search(predicate="is_a"):
+        concept_name = row["object"].removeprefix("concept:")
+        age = current_time - float(last_seen.get(concept_name, 0.0))
+        if age <= DECAY_INTERVAL:
+            continue
+        next_strength = float(row["strength"]) * DECAY_FACTOR
+        if next_strength < MIN_STRENGTH:
+            if graph.delete(row["subject"], row["predicate"], row["object"]):
                 deletions += 1
-            else:
-                cur.execute(f"UPDATE {table} SET strength=? WHERE subject=? AND object=?", (new_strength,s,o))
-                updates += 1
-    conn.commit()
-    conn.close()
-    print(f"⚖️  Decayed {updates} links, removed {deletions} obsolete edges.")
+            continue
+        graph.put(
+            row["subject"],
+            row["predicate"],
+            row["object"],
+            vec=row.get("vec"),
+            strength=next_strength,
+            reinforce_existing=False,
+            provenance_class=str(
+                row.get("provenance_class") or "customer_derived"
+            ),
+        )
+        updates += 1
     return updates, deletions
 
-def export_snapshot():
-    """Write current AKG concept snapshot for visualization."""
-    concepts = akg.export_concepts()
-    snapshot = {
-        "timestamp": time.time(),
-        "concepts": {k: len(v) for k, v in concepts.items()}
-    }
-    with SNAPSHOT_PATH.open("a") as f:
-        f.write(json.dumps(snapshot) + "\n")
-    print(f"📤 Snapshot written to {SNAPSHOT_PATH} ({len(concepts)} concepts).")
 
-def main():
-    print("🧹 Running Aion Concept Decay Manager (Phase 35.2)...")
+def export_snapshot(
+    *,
+    store: AionKnowledgeGraphStore | None = None,
+    learning_store: AionLearningVaultStore | None = None,
+    legacy_snapshot_path: str | Path | None = None,
+) -> dict[str, Any]:
+    graph = store or AionKnowledgeGraphStore()
+    concepts: dict[str, int] = {}
+    for row in graph.search(predicate="is_a")[:EXPORT_LIMIT]:
+        concept = row["object"].removeprefix("concept:")
+        concepts[concept] = concepts.get(concept, 0) + 1
+    event_id = f"concept-evolution-{uuid4().hex}"
+    payload = {
+        "event_id": event_id,
+        "event_type": "concept_evolution_snapshot",
+        "ts_utc": datetime.now(UTC).replace(microsecond=0).isoformat(),
+        "vault_order_ns": time.time_ns(),
+        "concepts": concepts,
+    }
+    audit = learning_store or AionLearningVaultStore()
+    if audit.enabled:
+        audit.append_event(event_id, payload)
+        return payload
+    destination = Path(legacy_snapshot_path or SNAPSHOT_PATH)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    return payload
+
+
+def main() -> None:
     last_seen = parse_reinforcement_log()
-    decay_stale_links(last_seen)
-    export_snapshot()
-    print("✅ Obsolete-link decay cycle complete.")
+    updates, deletions = decay_stale_links(last_seen)
+    snapshot = export_snapshot()
+    print(
+        "AION concept decay complete:",
+        {"updated": updates, "deleted": deletions, "snapshot": snapshot["event_id"]},
+    )
+
 
 if __name__ == "__main__":
     main()

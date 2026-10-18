@@ -1,0 +1,403 @@
+{
+  "schema_version": "aion.hexcore.continuous_world_model_maintenance.v3",
+  "benchmark": "unsegmented_recurring_and_stochastic_structural_change",
+  "language_provider_used": false,
+  "early_late_boundaries_supplied": false,
+  "development": {
+    "policies": [
+      {
+        "policy": {
+          "policy_id": "change_gate_85_stable_4",
+          "posterior_gate": 0.85,
+          "stability_blocks": 4,
+          "diagnostic_trials": 5,
+          "maximum_revisions": 4,
+          "provisional_stability_blocks": 2,
+          "complexity": 9
+        },
+        "result": {
+          "policy": {
+            "policy_id": "change_gate_85_stable_4",
+            "posterior_gate": 0.85,
+            "stability_blocks": 4,
+            "diagnostic_trials": 5,
+            "maximum_revisions": 4,
+            "provisional_stability_blocks": 2,
+            "complexity": 9
+          },
+          "worlds": 20,
+          "change_recall": 1.0,
+          "false_revision_rate": 0.0,
+          "change_point_mae": 0.0,
+          "active_graph_accuracy": 0.9291666666666666,
+          "adaptive_goal_success": 0.93125,
+          "static_goal_success": 0.75625,
+          "average_revisions": 0.75,
+          "by_family": {
+            "permanent_change": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9583333333333334,
+              "adaptive_goal_success": 0.9666666666666666,
+              "static_goal_success": 0.4583333333333333
+            },
+            "recurring_change": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9166666666666666,
+              "adaptive_goal_success": 0.95,
+              "static_goal_success": 0.7416666666666666
+            },
+            "temporary_disturbance": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9583333333333334,
+              "adaptive_goal_success": 0.9416666666666667,
+              "static_goal_success": 0.9333333333333333
+            },
+            "stochastic_flicker": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.8833333333333334,
+              "adaptive_goal_success": 0.8666666666666666,
+              "static_goal_success": 0.8916666666666666
+            }
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "change_gate_90_stable_4",
+          "posterior_gate": 0.9,
+          "stability_blocks": 4,
+          "diagnostic_trials": 5,
+          "maximum_revisions": 4,
+          "provisional_stability_blocks": 2,
+          "complexity": 9
+        },
+        "result": {
+          "policy": {
+            "policy_id": "change_gate_90_stable_4",
+            "posterior_gate": 0.9,
+            "stability_blocks": 4,
+            "diagnostic_trials": 5,
+            "maximum_revisions": 4,
+            "provisional_stability_blocks": 2,
+            "complexity": 9
+          },
+          "worlds": 20,
+          "change_recall": 1.0,
+          "false_revision_rate": 0.0,
+          "change_point_mae": 0.0,
+          "active_graph_accuracy": 0.9291666666666666,
+          "adaptive_goal_success": 0.93125,
+          "static_goal_success": 0.75625,
+          "average_revisions": 0.75,
+          "by_family": {
+            "permanent_change": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9583333333333334,
+              "adaptive_goal_success": 0.9666666666666666,
+              "static_goal_success": 0.4583333333333333
+            },
+            "recurring_change": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9166666666666666,
+              "adaptive_goal_success": 0.95,
+              "static_goal_success": 0.7416666666666666
+            },
+            "temporary_disturbance": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9583333333333334,
+              "adaptive_goal_success": 0.9416666666666667,
+              "static_goal_success": 0.9333333333333333
+            },
+            "stochastic_flicker": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.8833333333333334,
+              "adaptive_goal_success": 0.8666666666666666,
+              "static_goal_success": 0.8916666666666666
+            }
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "change_gate_95_stable_4",
+          "posterior_gate": 0.95,
+          "stability_blocks": 4,
+          "diagnostic_trials": 5,
+          "maximum_revisions": 4,
+          "provisional_stability_blocks": 2,
+          "complexity": 9
+        },
+        "result": {
+          "policy": {
+            "policy_id": "change_gate_95_stable_4",
+            "posterior_gate": 0.95,
+            "stability_blocks": 4,
+            "diagnostic_trials": 5,
+            "maximum_revisions": 4,
+            "provisional_stability_blocks": 2,
+            "complexity": 9
+          },
+          "worlds": 20,
+          "change_recall": 1.0,
+          "false_revision_rate": 0.0,
+          "change_point_mae": 0.0,
+          "active_graph_accuracy": 0.9291666666666666,
+          "adaptive_goal_success": 0.93125,
+          "static_goal_success": 0.75625,
+          "average_revisions": 0.75,
+          "by_family": {
+            "permanent_change": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9583333333333334,
+              "adaptive_goal_success": 0.9666666666666666,
+              "static_goal_success": 0.4583333333333333
+            },
+            "recurring_change": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9166666666666666,
+              "adaptive_goal_success": 0.95,
+              "static_goal_success": 0.7416666666666666
+            },
+            "temporary_disturbance": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9583333333333334,
+              "adaptive_goal_success": 0.9416666666666667,
+              "static_goal_success": 0.9333333333333333
+            },
+            "stochastic_flicker": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.8833333333333334,
+              "adaptive_goal_success": 0.8666666666666666,
+              "static_goal_success": 0.8916666666666666
+            }
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "change_gate_90_stable_5",
+          "posterior_gate": 0.9,
+          "stability_blocks": 5,
+          "diagnostic_trials": 5,
+          "maximum_revisions": 4,
+          "provisional_stability_blocks": 2,
+          "complexity": 10
+        },
+        "result": {
+          "policy": {
+            "policy_id": "change_gate_90_stable_5",
+            "posterior_gate": 0.9,
+            "stability_blocks": 5,
+            "diagnostic_trials": 5,
+            "maximum_revisions": 4,
+            "provisional_stability_blocks": 2,
+            "complexity": 10
+          },
+          "worlds": 20,
+          "change_recall": 1.0,
+          "false_revision_rate": 0.0,
+          "change_point_mae": 0.0,
+          "active_graph_accuracy": 0.9291666666666666,
+          "adaptive_goal_success": 0.93125,
+          "static_goal_success": 0.75625,
+          "average_revisions": 0.75,
+          "by_family": {
+            "permanent_change": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9583333333333334,
+              "adaptive_goal_success": 0.9666666666666666,
+              "static_goal_success": 0.4583333333333333
+            },
+            "recurring_change": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9166666666666666,
+              "adaptive_goal_success": 0.95,
+              "static_goal_success": 0.7416666666666666
+            },
+            "temporary_disturbance": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.9583333333333334,
+              "adaptive_goal_success": 0.9416666666666667,
+              "static_goal_success": 0.9333333333333333
+            },
+            "stochastic_flicker": {
+              "worlds": 5,
+              "change_recall": 1.0,
+              "false_revisions": 0,
+              "active_graph_accuracy": 0.8833333333333334,
+              "adaptive_goal_success": 0.8666666666666666,
+              "static_goal_success": 0.8916666666666666
+            }
+          }
+        }
+      }
+    ],
+    "selected_policy": {
+      "policy_id": "change_gate_85_stable_4",
+      "posterior_gate": 0.85,
+      "stability_blocks": 4,
+      "diagnostic_trials": 5,
+      "maximum_revisions": 4,
+      "provisional_stability_blocks": 2,
+      "complexity": 9
+    }
+  },
+  "sealed": {
+    "result": {
+      "policy": {
+        "policy_id": "change_gate_85_stable_4",
+        "posterior_gate": 0.85,
+        "stability_blocks": 4,
+        "diagnostic_trials": 5,
+        "maximum_revisions": 4,
+        "provisional_stability_blocks": 2,
+        "complexity": 9
+      },
+      "worlds": 32,
+      "change_recall": 1.0,
+      "false_revision_rate": 0.0,
+      "change_point_mae": 0.0,
+      "active_graph_accuracy": 0.9296875,
+      "adaptive_goal_success": 0.9270833333333334,
+      "static_goal_success": 0.7526041666666666,
+      "average_revisions": 0.75,
+      "by_family": {
+        "permanent_change": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9583333333333334,
+          "adaptive_goal_success": 0.9427083333333334,
+          "static_goal_success": 0.4947916666666667
+        },
+        "recurring_change": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9166666666666666,
+          "adaptive_goal_success": 0.9166666666666666,
+          "static_goal_success": 0.7135416666666666
+        },
+        "temporary_disturbance": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9583333333333334,
+          "adaptive_goal_success": 0.9479166666666666,
+          "static_goal_success": 0.9270833333333333
+        },
+        "stochastic_flicker": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.8854166666666666,
+          "adaptive_goal_success": 0.9010416666666666,
+          "static_goal_success": 0.875
+        }
+      }
+    },
+    "gate": {
+      "accepted": true,
+      "errors": [],
+      "change_recall": 1.0,
+      "false_revision_rate": 0.0,
+      "change_point_mae": 0.0,
+      "active_graph_accuracy": 0.9296875,
+      "adaptive_goal_gain": 0.17447916666666674,
+      "adaptive_goal_success": 0.9270833333333334
+    }
+  },
+  "promotion": {
+    "candidate": {
+      "procedure_id": "procedure_continuous_world_maintenance_56d6520b131c",
+      "goal": "continuous_world_model_maintenance",
+      "steps": [
+        "stream_intervention_response_observations",
+        "maintain_competing_graph_posteriors",
+        "accumulate_change_candidate_stability",
+        "infer_change_point",
+        "promote_or_reject_graph_revision",
+        "preserve_graph_lineage_and_outcomes"
+      ],
+      "score": 2.8567708333333335,
+      "success": true,
+      "evidence": {
+        "evaluation": "phase15_continuous_source_disjoint_sealed",
+        "gate": {
+          "accepted": true,
+          "errors": [],
+          "change_recall": 1.0,
+          "false_revision_rate": 0.0,
+          "change_point_mae": 0.0,
+          "active_graph_accuracy": 0.9296875,
+          "adaptive_goal_gain": 0.17447916666666674,
+          "adaptive_goal_success": 0.9270833333333334
+        }
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "decision": {
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT",
+      "champion_id": "procedure_continuous_world_maintenance_56d6520b131c",
+      "commit": {
+        "reason": "procedure_promotion:procedure_continuous_world_maintenance_56d6520b131c",
+        "authority": {
+          "allow_learn": true,
+          "goal": "maintain_coherence",
+          "source": "continuous_change_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "0616355c5cc5c9fb055118ab3d4134c8df2c202b01823a265ecfd5e8c8133bbc"
+      }
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "champion_id": "procedure_continuous_world_maintenance_56d6520b131c",
+    "graph_lineages_retained": true,
+    "environment_change_sessions": 32,
+    "relearning_worlds": 0
+  },
+  "gates": {
+    "unsegmented_stream": true,
+    "competing_hypotheses_retained": true,
+    "sealed_gate_passed": true,
+    "cau_promoted_if_safe": true,
+    "restart_retention": true
+  },
+  "boundary_statement": "The stream uses bounded graph permutations and four supplied change families. This does not establish unrestricted non-stationary world-model discovery.",
+  "passed": true
+}

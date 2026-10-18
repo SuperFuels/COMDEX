@@ -1,0 +1,108 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22C.1: Full Chess Real Evaluation Function Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22C.1 introduces AION's first deterministic real chess evaluation function.
+
+\begin{quote}
+\textbf{Status: LOCKED --- local real chess evaluation function implemented and tested.}
+\end{quote}
+
+\section{Purpose}
+
+Earlier phases proved that AION could generate legal moves, send live Lichess moves, complete a live game, and perform post-game review.
+
+Phase 22C.1 moves the chess stack toward real strategic selection by evaluating board positions numerically.
+
+\section{Evaluation Terms}
+
+The evaluation function scores:
+
+\begin{itemize}
+  \item material balance;
+  \item king safety;
+  \item piece activity;
+  \item centre control;
+  \item development;
+  \item pawn structure;
+  \item repetition-risk penalty;
+  \item check pressure;
+  \item terminal mate or draw awareness.
+\end{itemize}
+
+\section{Learning Integration}
+
+The evaluator may load policy weights from:
+
+\begin{verbatim}
+data/aion_games/full_chess_post_game_blunder_review_memory.json
+\end{verbatim}
+
+The loaded weights can influence:
+
+\begin{itemize}
+  \item king-safety weighting;
+  \item piece-activity weighting;
+  \item repetition penalty weighting;
+  \item queen-activity penalty weighting.
+\end{itemize}
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_real_evaluation_function_kernel.py
+\end{verbatim}
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_real_evaluation_function_memory.json
+\end{verbatim}
+
+This file is runtime evaluation telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Boundary}
+
+This phase does not use:
+
+\begin{itemize}
+  \item Stockfish;
+  \item cloud engines;
+  \item external chess engines;
+  \item LLM move judgement;
+  \item human move scoring.
+\end{itemize}
+
+It is a deterministic local evaluator.
+
+\section{Next Step}
+
+The next phase SHOULD connect this evaluator to move selection.
+
+\begin{verbatim}
+22C.2 -- Evaluation-Guided Move Selection
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22C1-FULL-CHESS-REAL-EVALUATION-FUNCTION-KERNEL-LOCK\\
+Status: LOCKED --- deterministic local chess evaluation function implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

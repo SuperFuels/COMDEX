@@ -1,0 +1,560 @@
+{
+  "benchmark": "persistent_long_horizon_project_intelligence",
+  "boundary_statement": "Phase 48 demonstrates persistent multi-stage project execution, interruption recovery and revision under an externally changing numeric rule. Milestone schemas, change events, tools, simulator and correctness checks remain engineered. It does not demonstrate unrestricted autonomous projects, web monitoring or AGI.",
+  "created_at": "2026-07-29T23:23:16.870073+00:00",
+  "gate": {
+    "accepted": true,
+    "accuracy_gain": 0.875,
+    "errors": [],
+    "plan_revision_accuracy": 1.0,
+    "project_accuracy": 1.0,
+    "projects_resumed": 1.0,
+    "provenance_complete": 1.0,
+    "stateless_control_accuracy": 0.125,
+    "unresolved_questions_closed": 1.0,
+    "weakest_domain_accuracy": 1.0
+  },
+  "passed": true,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "evaluation": "phase48_sealed",
+        "gate": {
+          "accepted": true,
+          "accuracy_gain": 0.875,
+          "errors": [],
+          "plan_revision_accuracy": 1.0,
+          "project_accuracy": 1.0,
+          "projects_resumed": 1.0,
+          "provenance_complete": 1.0,
+          "stateless_control_accuracy": 0.125,
+          "unresolved_questions_closed": 1.0,
+          "weakest_domain_accuracy": 1.0
+        }
+      },
+      "goal": "long_horizon_project_intelligence",
+      "procedure_id": "procedure_long_horizon_project_466318894969",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.875,
+      "source_rules": [],
+      "steps": [
+        "decompose_project_into_persistent_milestones",
+        "track_unresolved_questions",
+        "checkpoint_and_resume_after_interruption",
+        "monitor_external_rule_revision",
+        "revise_only_affected_plan_steps",
+        "execute_and_verify_with_provenance"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_long_horizon_project_466318894969",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase48_long_horizon_project_authority"
+        },
+        "reason": "procedure_promotion:procedure_long_horizon_project_466318894969",
+        "state_hash": "eb3455c62169c951deac40e9f0db460654f1be0ed20f4b945aae88f6f1bf722f"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "all_projects_retained": true,
+    "all_revision_events_retained": true,
+    "champion_retained": true,
+    "relearning_projects": 0
+  },
+  "schema_version": "aion.hexcore.long_horizon_project.v1",
+  "sealed": {
+    "projects": 48,
+    "rows": [
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "environmental permit review",
+        "project_id": "sealed_project_000",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "supply-chain release",
+        "project_id": "sealed_project_001",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "laboratory calibration",
+        "project_id": "sealed_project_002",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "energy dispatch",
+        "project_id": "sealed_project_003",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "clinical inventory audit",
+        "project_id": "sealed_project_004",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "software migration",
+        "project_id": "sealed_project_005",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "environmental permit review",
+        "project_id": "sealed_project_006",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": true,
+        "correct": true,
+        "domain": "supply-chain release",
+        "project_id": "sealed_project_007",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "laboratory calibration",
+        "project_id": "sealed_project_008",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "energy dispatch",
+        "project_id": "sealed_project_009",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "clinical inventory audit",
+        "project_id": "sealed_project_010",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "software migration",
+        "project_id": "sealed_project_011",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "environmental permit review",
+        "project_id": "sealed_project_012",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "supply-chain release",
+        "project_id": "sealed_project_013",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "laboratory calibration",
+        "project_id": "sealed_project_014",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "energy dispatch",
+        "project_id": "sealed_project_015",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "clinical inventory audit",
+        "project_id": "sealed_project_016",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "software migration",
+        "project_id": "sealed_project_017",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "environmental permit review",
+        "project_id": "sealed_project_018",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "supply-chain release",
+        "project_id": "sealed_project_019",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": true,
+        "correct": true,
+        "domain": "laboratory calibration",
+        "project_id": "sealed_project_020",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "energy dispatch",
+        "project_id": "sealed_project_021",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "clinical inventory audit",
+        "project_id": "sealed_project_022",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "software migration",
+        "project_id": "sealed_project_023",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "environmental permit review",
+        "project_id": "sealed_project_024",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "supply-chain release",
+        "project_id": "sealed_project_025",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": true,
+        "correct": true,
+        "domain": "laboratory calibration",
+        "project_id": "sealed_project_026",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "energy dispatch",
+        "project_id": "sealed_project_027",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "clinical inventory audit",
+        "project_id": "sealed_project_028",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "software migration",
+        "project_id": "sealed_project_029",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": true,
+        "correct": true,
+        "domain": "environmental permit review",
+        "project_id": "sealed_project_030",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "supply-chain release",
+        "project_id": "sealed_project_031",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "laboratory calibration",
+        "project_id": "sealed_project_032",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "energy dispatch",
+        "project_id": "sealed_project_033",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "clinical inventory audit",
+        "project_id": "sealed_project_034",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "software migration",
+        "project_id": "sealed_project_035",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "environmental permit review",
+        "project_id": "sealed_project_036",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "supply-chain release",
+        "project_id": "sealed_project_037",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "laboratory calibration",
+        "project_id": "sealed_project_038",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "energy dispatch",
+        "project_id": "sealed_project_039",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": true,
+        "correct": true,
+        "domain": "clinical inventory audit",
+        "project_id": "sealed_project_040",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "software migration",
+        "project_id": "sealed_project_041",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "environmental permit review",
+        "project_id": "sealed_project_042",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "supply-chain release",
+        "project_id": "sealed_project_043",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "laboratory calibration",
+        "project_id": "sealed_project_044",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "energy dispatch",
+        "project_id": "sealed_project_045",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": true,
+        "correct": true,
+        "domain": "clinical inventory audit",
+        "project_id": "sealed_project_046",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      },
+      {
+        "all_questions_resolved": true,
+        "control_correct": false,
+        "correct": true,
+        "domain": "software migration",
+        "project_id": "sealed_project_047",
+        "provenance_complete": true,
+        "restarts": 3,
+        "revision_count": 1
+      }
+    ]
+  }
+}

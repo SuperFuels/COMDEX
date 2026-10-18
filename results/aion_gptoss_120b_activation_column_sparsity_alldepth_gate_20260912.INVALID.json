@@ -1,0 +1,8 @@
+{
+  "schema": "aion.evidence-invalidation.v1",
+  "status": "INVALID_PHYSICAL_TRAFFIC_FORMULA",
+  "invalidated_file": "results/aion_gptoss_120b_activation_column_sparsity_alldepth_gate_20260912.json",
+  "invalidated_file_sha256": "98c0a3cf922eae3936792ba7cbcf3a329be2620ea9f40ef25247e5cc7804f11c",
+  "reason": "The numerical observations remain valid, but the reported 1.25x traffic projection omitted the mandatory MXFP4 scale stream. A split coordinate-plane representation must deliver three scale bytes plus retained code nibbles for the three expert matrices. The corrected 80/80 projection is 51/(3+16*(2*0.8+0.8)) = 1.231884x.",
+  "replacement": "results/aion_gptoss_120b_activation_column_sparsity_alldepth_gate_v2_20260912.json"
+}

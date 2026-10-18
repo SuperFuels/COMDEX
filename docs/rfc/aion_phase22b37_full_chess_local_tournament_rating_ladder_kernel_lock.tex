@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.37: Full Chess Local Tournament / Rating Ladder Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.37 defines the AION Full Chess Local Tournament / Rating Ladder Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can run a deterministic local tournament ladder and estimate a bounded local rating band.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.37 evaluates AION across increasing local chess tiers.
+
+The result is a bounded local ladder estimate, not an official rating.
+
+\section{Ladder Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{ladder\_mode};
+  \item \texttt{network\_call\_performed};
+  \item \texttt{human\_approval\_required};
+  \item \texttt{tier\_count};
+  \item \texttt{total\_games\_played};
+  \item \texttt{total\_wins};
+  \item \texttt{total\_draws};
+  \item \texttt{total\_losses};
+  \item \texttt{total\_score};
+  \item \texttt{total\_score\_percentage};
+  \item \texttt{passed\_tier\_count};
+  \item \texttt{failed\_tier\_count};
+  \item \texttt{highest\_passed\_tier};
+  \item \texttt{lowest\_failed\_tier};
+  \item \texttt{estimated\_rating\_floor};
+  \item \texttt{estimated\_rating\_ceiling};
+  \item \texttt{estimated\_rating\_band\_label};
+  \item \texttt{ladder\_passed};
+  \item \texttt{tier\_results};
+  \item \texttt{ladder\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates local deterministic ladder testing only.
+
+It does not perform live Lichess play, claim official rating, prove grandmaster-strength play, Stockfish-level calculation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B37-FULL-CHESS-LOCAL-TOURNAMENT-RATING-LADDER-KERNEL-LOCK\\
+Status: LOCKED --- full chess local tournament rating ladder kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -2,14 +2,13 @@ export type AgentIdentity = {
   agentId: string;  // short fingerprint
   wa: string;       // e.g. ucs://self/<fp>
   pubkey_b64: string;
-  privkey_b64: string; // for now; later move from localStorage
 };
 
-const KEY_DB = "gnet:identity:v1";
+let processIdentity: AgentIdentity | null = null;
+let processPrivateKey: CryptoKey | null = null;
 
 export async function getIdentity(): Promise<AgentIdentity> {
-  const cached = localStorage.getItem(KEY_DB);
-  if (cached) return JSON.parse(cached);
+  if (processIdentity) return processIdentity;
 
   const kp = await window.crypto.subtle.generateKey(
     { name: "Ed25519", namedCurve: "Ed25519" } as any,
@@ -18,6 +17,14 @@ export async function getIdentity(): Promise<AgentIdentity> {
   );
   const pub = new Uint8Array(await crypto.subtle.exportKey("raw", kp.publicKey));
   const priv = new Uint8Array(await crypto.subtle.exportKey("pkcs8", kp.privateKey));
+  processPrivateKey = await crypto.subtle.importKey(
+    "pkcs8",
+    priv,
+    { name: "Ed25519" },
+    false,
+    ["sign"],
+  );
+  priv.fill(0);
 
   const fpBuf = await crypto.subtle.digest("SHA-256", pub);
   const fp = Array.from(new Uint8Array(fpBuf))
@@ -31,9 +38,22 @@ export async function getIdentity(): Promise<AgentIdentity> {
     agentId: fp,
     wa,
     pubkey_b64: btoa(String.fromCharCode(...pub)),
-    privkey_b64: btoa(String.fromCharCode(...priv)),
   };
 
-  localStorage.setItem(KEY_DB, JSON.stringify(id));
+  processIdentity = id;
   return id;
+}
+
+export async function signIdentityPayload(payload: string | Uint8Array): Promise<string> {
+  await getIdentity();
+  if (!processPrivateKey) throw new Error("Identity key is unavailable");
+  const bytes = typeof payload === "string" ? new TextEncoder().encode(payload) : payload;
+  const data = bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
+  const signature = new Uint8Array(
+    await crypto.subtle.sign("Ed25519", processPrivateKey, data),
+  );
+  return btoa(String.fromCharCode(...signature));
 }

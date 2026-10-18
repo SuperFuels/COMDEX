@@ -1,0 +1,400 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "file": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_capture_20260314T230711Z.jsonl",
+      "name": "phase_probe_0.0000",
+      "phi": 0.0,
+      "amplitude": 1.0,
+      "frequency": 1.0,
+      "harmonics": [
+        1,
+        2
+      ],
+      "ticks": 40,
+      "internal_voltage_mean": 0.993474513862376,
+      "internal_voltage_std": 0.026788861938583545,
+      "internal_stability_mean": 0.9788591957818824,
+      "internal_stability_std": 0.011148074224448447,
+      "channels": {
+        "pickup_voltage": {
+          "mean": 0.9540719918880805,
+          "std": 0.025747471189235278,
+          "min": 0.9004564619193438,
+          "max": 0.9952777705147352
+        },
+        "aux_adc_1": {
+          "mean": 0.3491103314990484,
+          "std": 0.006886090938880137,
+          "min": 0.3360997842993422,
+          "max": 0.3606004704459431
+        },
+        "aux_adc_2": {
+          "mean": 0.35947838823299233,
+          "std": 0.005676754997563644,
+          "min": 0.35046181234381113,
+          "max": 0.36976070632427716
+        },
+        "magnetometer_x": {
+          "mean": 0.05941373388034124,
+          "std": 0.002826023741573042,
+          "min": 0.05536634898523718,
+          "max": 0.0647226414766882
+        },
+        "magnetometer_y": {
+          "mean": 0.003953076257494725,
+          "std": 0.002843855153352108,
+          "min": -0.00042130939403754643,
+          "max": 0.009304343823285682
+        },
+        "magnetometer_z": {
+          "mean": 0.023106116355734885,
+          "std": 0.01854702946273743,
+          "min": -0.007550138605281724,
+          "max": 0.03944123032562646
+        },
+        "temperature_c": {
+          "mean": 24.83334988703772,
+          "std": 0.017461243599361388,
+          "min": 24.799548081619164,
+          "max": 24.858685877632
+        }
+      },
+      "symbol_quality_score": 2.886043
+    },
+    {
+      "file": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_capture_20260314T230726Z.jsonl",
+      "name": "phase_probe_1.5708",
+      "phi": 1.57079632679,
+      "amplitude": 1.0,
+      "frequency": 1.0,
+      "harmonics": [
+        1,
+        2,
+        3
+      ],
+      "ticks": 40,
+      "internal_voltage_mean": 0.9952689251977463,
+      "internal_voltage_std": 0.03882291046284083,
+      "internal_stability_mean": 0.9708896815981537,
+      "internal_stability_std": 0.015902608448096562,
+      "channels": {
+        "pickup_voltage": {
+          "mean": 0.8098851299455687,
+          "std": 0.027447952275665582,
+          "min": 0.7533634290211269,
+          "max": 0.8559101588190743
+        },
+        "aux_adc_1": {
+          "mean": 0.3984225399897292,
+          "std": 0.007341730256873824,
+          "min": 0.38405796800216263,
+          "max": 0.4119104896412292
+        },
+        "aux_adc_2": {
+          "mean": 0.21939502211460934,
+          "std": 0.005684776679695188,
+          "min": 0.21029301172612425,
+          "max": 0.2296639204472064
+        },
+        "magnetometer_x": {
+          "mean": 0.019336743585801938,
+          "std": 0.002838952936016247,
+          "min": 0.015165973389937353,
+          "max": 0.024824252471498286
+        },
+        "magnetometer_y": {
+          "mean": 0.04543455708576681,
+          "std": 0.002852303747481255,
+          "min": 0.04104090300655656,
+          "max": 0.0508017437532586
+        },
+        "magnetometer_z": {
+          "mean": 0.029204161256510465,
+          "std": 0.0023175310616674483,
+          "min": 0.025206673800357793,
+          "max": 0.033630653816946424
+        },
+        "temperature_c": {
+          "mean": 24.842552315984125,
+          "std": 0.017684093829319434,
+          "min": 24.806707772218967,
+          "max": 24.868672755387628
+        }
+      },
+      "symbol_quality_score": 2.724217
+    },
+    {
+      "file": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_capture_20260314T230747Z.jsonl",
+      "name": "phase_probe_3.1416",
+      "phi": 3.14159265359,
+      "amplitude": 1.0,
+      "frequency": 1.0,
+      "harmonics": [
+        1
+      ],
+      "ticks": 40,
+      "internal_voltage_mean": 0.1025523527371959,
+      "internal_voltage_std": 0.13254616536101835,
+      "internal_stability_mean": 0.8163784727990564,
+      "internal_stability_std": 0.2600424541061175,
+      "channels": {
+        "pickup_voltage": {
+          "mean": 0.23488548917981797,
+          "std": 0.023358354247545635,
+          "min": 0.1890807010721884,
+          "max": 0.27589598879238736
+        },
+        "aux_adc_1": {
+          "mean": 0.1624404998089849,
+          "std": 0.006292870059723668,
+          "min": 0.1525046656380168,
+          "max": 0.17191780354474495
+        },
+        "aux_adc_2": {
+          "mean": 0.07947842033323654,
+          "std": 0.005676754430995866,
+          "min": 0.07046191442090495,
+          "max": 0.08976076116405719
+        },
+        "magnetometer_x": {
+          "mean": -0.03551799275848496,
+          "std": 0.002827657921532138,
+          "min": -0.039607927429525625,
+          "max": -0.03028342711017842
+        },
+        "magnetometer_y": {
+          "mean": 0.0024345690086894915,
+          "std": 0.0028522981120059077,
+          "min": -0.0019590639661576335,
+          "max": 0.007801748474917549
+        },
+        "magnetometer_z": {
+          "mean": 0.003907315628289231,
+          "std": 0.0023157546237773815,
+          "min": -6.934221745244712e-05,
+          "max": 0.00831515076341131
+        },
+        "temperature_c": {
+          "mean": 24.59937384988285,
+          "std": 0.01743224446159471,
+          "min": 24.568479935486483,
+          "max": 24.623575306335574
+        }
+      },
+      "symbol_quality_score": 1.844284
+    }
+  ],
+  "top_channel_separations": [
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_3.1416",
+      "channel": "aux_adc_2",
+      "mean_a": 0.359478,
+      "mean_b": 0.079478,
+      "std_a": 0.005677,
+      "std_b": 0.005677,
+      "separation_score": 49.32395
+    },
+    {
+      "state_a": "phase_probe_1.5708",
+      "state_b": "phase_probe_3.1416",
+      "channel": "aux_adc_1",
+      "mean_a": 0.398423,
+      "mean_b": 0.16244,
+      "std_a": 0.007342,
+      "std_b": 0.006293,
+      "separation_score": 34.615175
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_3.1416",
+      "channel": "magnetometer_x",
+      "mean_a": 0.059414,
+      "mean_b": -0.035518,
+      "std_a": 0.002826,
+      "std_b": 0.002828,
+      "separation_score": 33.582268
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_3.1416",
+      "channel": "pickup_voltage",
+      "mean_a": 0.954072,
+      "mean_b": 0.234885,
+      "std_a": 0.025747,
+      "std_b": 0.023358,
+      "separation_score": 29.291291
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_3.1416",
+      "channel": "aux_adc_1",
+      "mean_a": 0.34911,
+      "mean_b": 0.16244,
+      "std_a": 0.006886,
+      "std_b": 0.006293,
+      "separation_score": 28.32846
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_1.5708",
+      "channel": "aux_adc_2",
+      "mean_a": 0.359478,
+      "mean_b": 0.219395,
+      "std_a": 0.005677,
+      "std_b": 0.005685,
+      "separation_score": 24.65924
+    },
+    {
+      "state_a": "phase_probe_1.5708",
+      "state_b": "phase_probe_3.1416",
+      "channel": "aux_adc_2",
+      "mean_a": 0.219395,
+      "mean_b": 0.079478,
+      "std_a": 0.005685,
+      "std_b": 0.005677,
+      "separation_score": 24.629885
+    },
+    {
+      "state_a": "phase_probe_1.5708",
+      "state_b": "phase_probe_3.1416",
+      "channel": "pickup_voltage",
+      "mean_a": 0.809885,
+      "mean_b": 0.234885,
+      "std_a": 0.027448,
+      "std_b": 0.023358,
+      "separation_score": 22.634971
+    },
+    {
+      "state_a": "phase_probe_1.5708",
+      "state_b": "phase_probe_3.1416",
+      "channel": "magnetometer_x",
+      "mean_a": 0.019337,
+      "mean_b": -0.035518,
+      "std_a": 0.002839,
+      "std_b": 0.002828,
+      "separation_score": 19.360686
+    },
+    {
+      "state_a": "phase_probe_1.5708",
+      "state_b": "phase_probe_3.1416",
+      "channel": "magnetometer_y",
+      "mean_a": 0.045435,
+      "mean_b": 0.002435,
+      "std_a": 0.002852,
+      "std_b": 0.002852,
+      "separation_score": 15.075544
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_1.5708",
+      "channel": "magnetometer_y",
+      "mean_a": 0.003953,
+      "mean_b": 0.045435,
+      "std_a": 0.002844,
+      "std_b": 0.002852,
+      "separation_score": 14.56472
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_1.5708",
+      "channel": "magnetometer_x",
+      "mean_a": 0.059414,
+      "mean_b": 0.019337,
+      "std_a": 0.002826,
+      "std_b": 0.002839,
+      "separation_score": 14.14904
+    },
+    {
+      "state_a": "phase_probe_1.5708",
+      "state_b": "phase_probe_3.1416",
+      "channel": "temperature_c",
+      "mean_a": 24.842552,
+      "mean_b": 24.599374,
+      "std_a": 0.017684,
+      "std_b": 0.017432,
+      "separation_score": 13.849876
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_3.1416",
+      "channel": "temperature_c",
+      "mean_a": 24.83335,
+      "mean_b": 24.599374,
+      "std_a": 0.017461,
+      "std_b": 0.017432,
+      "separation_score": 13.410871
+    },
+    {
+      "state_a": "phase_probe_1.5708",
+      "state_b": "phase_probe_3.1416",
+      "channel": "magnetometer_z",
+      "mean_a": 0.029204,
+      "mean_b": 0.003907,
+      "std_a": 0.002318,
+      "std_b": 0.002316,
+      "separation_score": 10.919614
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_1.5708",
+      "channel": "aux_adc_1",
+      "mean_a": 0.34911,
+      "mean_b": 0.398423,
+      "std_a": 0.006886,
+      "std_b": 0.007342,
+      "separation_score": 6.9318
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_1.5708",
+      "channel": "pickup_voltage",
+      "mean_a": 0.954072,
+      "mean_b": 0.809885,
+      "std_a": 0.025747,
+      "std_b": 0.027448,
+      "separation_score": 5.421025
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_3.1416",
+      "channel": "magnetometer_z",
+      "mean_a": 0.023106,
+      "mean_b": 0.003907,
+      "std_a": 0.018547,
+      "std_b": 0.002316,
+      "separation_score": 1.840483
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_1.5708",
+      "channel": "magnetometer_z",
+      "mean_a": 0.023106,
+      "mean_b": 0.029204,
+      "std_a": 0.018547,
+      "std_b": 0.002318,
+      "separation_score": 0.584536
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_3.1416",
+      "channel": "magnetometer_y",
+      "mean_a": 0.003953,
+      "mean_b": 0.002435,
+      "std_a": 0.002844,
+      "std_b": 0.002852,
+      "separation_score": 0.533169
+    },
+    {
+      "state_a": "phase_probe_0.0000",
+      "state_b": "phase_probe_1.5708",
+      "channel": "temperature_c",
+      "mean_a": 24.83335,
+      "mean_b": 24.842552,
+      "std_a": 0.017461,
+      "std_b": 0.017684,
+      "separation_score": 0.523679
+    }
+  ]
+}

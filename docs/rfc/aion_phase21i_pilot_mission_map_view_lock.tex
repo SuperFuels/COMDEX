@@ -1,0 +1,61 @@
+\section{Phase 21I --- Pilot Canvas / Mission Map View}
+\label{sec:aion-phase21i-pilot-mission-map-view}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21I defines the Pilot mission map read model.
+
+\subsection{Purpose}
+
+The Pilot mission map gives the user a visible step-by-step view of what AION Pilot is doing.
+
+It shows mission steps, lanes, artifact links, receipt links, replay/proof links and blocked actions.
+
+\subsection{Read Model Rule}
+
+The mission map is a read model only.
+
+It MUST NOT execute tools directly.
+
+It MUST NOT mutate provider state, live memory, reputation, templates, payment state, deployment state, booking state, escrow state or external messages.
+
+\subsection{Visible Lanes}
+
+The mission map supports:
+
+\begin{itemize}
+  \item autonomous preview;
+  \item approval required;
+  \item human task required;
+  \item blocked.
+\end{itemize}
+
+\subsection{Safety Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21i_pilot_mission_map_view_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{The Pilot mission map may show steps, artifacts, receipts, proof, replay and blocked actions, but it MUST remain a non-executing read model.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21I-PILOT-MISSION-MAP-VIEW
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

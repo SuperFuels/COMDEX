@@ -11,6 +11,17 @@ cd "$REPO_ROOT" || exit 1
 LOG_DIR="$REPO_ROOT/data/logs"
 mkdir -p "$LOG_DIR"
 
+# Force venv python if present
+PY_BIN="$REPO_ROOT/.venv/bin/python"
+if [[ ! -x "$PY_BIN" ]]; then
+  PY_BIN="$(command -v python3 || true)"
+fi
+if [[ -z "$PY_BIN" ]]; then
+  echo "❌ No python found. Activate venv or install python3."
+  exit 1
+fi
+echo "🐍 Using python: $PY_BIN"
+
 # How long to wait before ready check (seconds)
 READY_WAIT_SECS="${READY_WAIT_SECS:-4}"
 
@@ -65,47 +76,47 @@ start_bg() {
 # ─────────────────────────────────────────────
 start_bg "🪶 Starting Symbolic Resonance Export Layer (SREL) [port 8001]" \
   "$LOG_DIR/srel.log" \
-  "python backend/modules/aion_integrity/symbolic_resonance_export_layer.py" \
+  "$PY_BIN backend/modules/aion_integrity/symbolic_resonance_export_layer.py" \
   "8001"
 
 start_bg "📈 Starting Resonant Analytics Layer (RAL) [port 8002]" \
   "$LOG_DIR/ral.log" \
-  "python backend/modules/aion_integrity/resonant_analytics_layer.py" \
+  "$PY_BIN backend/modules/aion_integrity/resonant_analytics_layer.py" \
   "8002"
 
 start_bg "📡 Starting Meta-Resonant Telemetry Consolidator (MRTC)" \
   "$LOG_DIR/mrtc.log" \
-  "python backend/modules/aion_integrity/meta_resonant_telemetry_consolidator.py"
+  "$PY_BIN backend/modules/aion_integrity/meta_resonant_telemetry_consolidator.py"
 
 start_bg "🔁 Starting Resonant Quantum Feedback Synchronizer (RQFS) [port 8006]" \
   "$LOG_DIR/rqfs.log" \
-  "python backend/modules/aion_integrity/resonant_quantum_feedback_synchronizer.py" \
+  "$PY_BIN backend/modules/aion_integrity/resonant_quantum_feedback_synchronizer.py" \
   "8006"
 
 start_bg "⚙️ Starting Resonant Optimizer Loop (ROL)" \
   "$LOG_DIR/rol.log" \
-  "python backend/modules/aion_resonance/resonant_optimizer_loop.py"
+  "$PY_BIN backend/modules/aion_resonance/resonant_optimizer_loop.py"
 
 start_bg "🌀 Starting Resonant Feedback Daemon (RFD)" \
   "$LOG_DIR/rfd.log" \
-  "python backend/modules/aion_resonance/resonant_feedback_daemon.py"
+  "$PY_BIN backend/modules/aion_resonance/resonant_feedback_daemon.py"
 
 start_bg "🧠 Starting Tessaris Cognitive Fusion Kernel (TCFK) [port 8005]" \
   "$LOG_DIR/tcfk.log" \
-  "python backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py" \
+  "$PY_BIN backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py" \
   "8005"
 
 start_bg "🔗 Starting Fusion → QFC bridge (streams TCFK into HUD/QFC)" \
   "$LOG_DIR/fusion_qfc_bridge.log" \
-  "python backend/modules/visualization/stream_qfc_from_fusion.py"
+  "$PY_BIN backend/modules/visualization/stream_qfc_from_fusion.py"
 
 start_bg "🧠 Starting Θ Orchestrator (Thinking Loop Controller)" \
   "$LOG_DIR/theta_orchestrator.log" \
-  "python backend/modules/aion_thinking/theta_orchestrator.py"
+  "$PY_BIN backend/modules/aion_thinking/theta_orchestrator.py"
 
 start_bg "🧬 Starting Adaptive Quantum Control Interface (AQCI) [port 8004]" \
   "$LOG_DIR/aqci.log" \
-  "python backend/modules/aion_control/adaptive_quantum_control_interface.py" \
+  "$PY_BIN backend/modules/aion_control/adaptive_quantum_control_interface.py" \
   "8004"
 
 # 🖥️ Uvicorn is NOT launched here — assume already running
@@ -113,13 +124,7 @@ echo "🖥️ Skipping Uvicorn launch (handled externally at port 8000)"
 
 start_bg "🧪 Starting PAL snapshot watcher (every 60s)" \
   "$LOG_DIR/pal_snapshot.log" \
-  "python backend/modules/aion_analysis/pal_snapshot.py --watch 60 --export-csv --plot"
-
-# ─────────────────────────────────────────────
-# 🧩 Optional: Local Perceptual Learning Monitor
-# ─────────────────────────────────────────────
-# Uncomment to auto-run Aion's perceptual training in background
-# PYTHONPATH=. nohup python backend/modules/aion_perception/pal_core.py >> "$LOG_DIR/pal.log" 2>&1 &
+  "$PY_BIN backend/modules/aion_analysis/pal_snapshot.py --watch 60 --export-csv --plot"
 
 echo "✅ All Tessaris modules launched."
 echo "   - SREL → ws://localhost:8001/ws/symatics"
@@ -144,7 +149,7 @@ for p in 8000 8001 8002 8004 8005 8006; do
 done
 
 echo "🩺 Running AION ready check..."
-if ! PYTHONPATH=. python backend/modules/aion_runtime/aion_ready_check.py; then
+if ! PYTHONPATH=. "$PY_BIN" backend/modules/aion_runtime/aion_ready_check.py; then
   echo "⚠️ Ready check failed (required services not all up). Review logs in $LOG_DIR"
   echo "📄 Recent log tails:"
   for f in "$LOG_DIR"/*.log; do

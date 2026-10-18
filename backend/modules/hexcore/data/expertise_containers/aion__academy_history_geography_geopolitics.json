@@ -1,0 +1,211 @@
+{
+  "competence_awarded": false,
+  "container_refs": [],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:history_geography_geopolitics:historical_method",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:history_geography_geopolitics:physical_geography",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:history_geography_geopolitics:institutions",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:history_geography_geopolitics:trade",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:history_geography_geopolitics:conflict_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:history_geography_geopolitics:cultural_context",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "label": "History, geography and geopolitics",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:history_geography_geopolitics:historical_method",
+      "label": "historical method",
+      "subject_id": "history_geography_geopolitics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:history_geography_geopolitics:physical_geography",
+      "label": "physical geography",
+      "subject_id": "history_geography_geopolitics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:history_geography_geopolitics:institutions",
+      "label": "institutions",
+      "subject_id": "history_geography_geopolitics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:history_geography_geopolitics:trade",
+      "label": "trade",
+      "subject_id": "history_geography_geopolitics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:history_geography_geopolitics:conflict_analysis",
+      "label": "conflict analysis",
+      "subject_id": "history_geography_geopolitics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:history_geography_geopolitics:cultural_context",
+      "label": "cultural context",
+      "subject_id": "history_geography_geopolitics",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_history_geography_geopolitics",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:history_geography_geopolitics:historical_method",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:history_geography_geopolitics:physical_geography",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:history_geography_geopolitics:institutions",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:history_geography_geopolitics:trade",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:history_geography_geopolitics:conflict_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:history_geography_geopolitics:cultural_context",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "label": "History, geography and geopolitics",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:history_geography_geopolitics:historical_method",
+        "label": "historical method",
+        "subject_id": "history_geography_geopolitics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:history_geography_geopolitics:physical_geography",
+        "label": "physical geography",
+        "subject_id": "history_geography_geopolitics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:history_geography_geopolitics:institutions",
+        "label": "institutions",
+        "subject_id": "history_geography_geopolitics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:history_geography_geopolitics:trade",
+        "label": "trade",
+        "subject_id": "history_geography_geopolitics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:history_geography_geopolitics:conflict_analysis",
+        "label": "conflict analysis",
+        "subject_id": "history_geography_geopolitics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:history_geography_geopolitics:cultural_context",
+        "label": "cultural context",
+        "subject_id": "history_geography_geopolitics",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "history_geography_geopolitics",
+    "title": "AION Academy \u00b7 History, geography and geopolitics"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

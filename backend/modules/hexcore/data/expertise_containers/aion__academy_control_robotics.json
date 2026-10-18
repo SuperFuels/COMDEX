@@ -1,0 +1,258 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_linear_algebra",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:linear_algebra",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_calculus_analysis",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:calculus_analysis",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_sensors_instrumentation",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:control_robotics:feedback",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:control_robotics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:control_robotics:stability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:control_robotics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:control_robotics:state_estimation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:control_robotics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:control_robotics:motion_planning",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:control_robotics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:control_robotics:robot_kinematics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:control_robotics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:control_robotics:autonomy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:control_robotics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:control_robotics:safety",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:control_robotics",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "engineering",
+      "id": "work:aion@wave.tp:subject:control_robotics",
+      "label": "Control theory and robotics",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:control_robotics:feedback",
+      "label": "feedback",
+      "subject_id": "control_robotics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:control_robotics:stability",
+      "label": "stability",
+      "subject_id": "control_robotics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:control_robotics:state_estimation",
+      "label": "state estimation",
+      "subject_id": "control_robotics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:control_robotics:motion_planning",
+      "label": "motion planning",
+      "subject_id": "control_robotics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:control_robotics:robot_kinematics",
+      "label": "robot kinematics",
+      "subject_id": "control_robotics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:control_robotics:autonomy",
+      "label": "autonomy",
+      "subject_id": "control_robotics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:control_robotics:safety",
+      "label": "safety",
+      "subject_id": "control_robotics",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_control_robotics",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:control_robotics:feedback",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:control_robotics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:control_robotics:stability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:control_robotics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:control_robotics:state_estimation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:control_robotics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:control_robotics:motion_planning",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:control_robotics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:control_robotics:robot_kinematics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:control_robotics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:control_robotics:autonomy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:control_robotics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:control_robotics:safety",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:control_robotics",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "engineering",
+        "id": "work:aion@wave.tp:subject:control_robotics",
+        "label": "Control theory and robotics",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:control_robotics:feedback",
+        "label": "feedback",
+        "subject_id": "control_robotics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:control_robotics:stability",
+        "label": "stability",
+        "subject_id": "control_robotics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:control_robotics:state_estimation",
+        "label": "state estimation",
+        "subject_id": "control_robotics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:control_robotics:motion_planning",
+        "label": "motion planning",
+        "subject_id": "control_robotics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:control_robotics:robot_kinematics",
+        "label": "robot kinematics",
+        "subject_id": "control_robotics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:control_robotics:autonomy",
+        "label": "autonomy",
+        "subject_id": "control_robotics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:control_robotics:safety",
+        "label": "safety",
+        "subject_id": "control_robotics",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "engineering",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "control_robotics",
+    "title": "AION Academy \u00b7 Control theory and robotics"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

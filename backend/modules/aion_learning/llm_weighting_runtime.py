@@ -3,9 +3,13 @@ from __future__ import annotations
 
 import json
 import time
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 
 SCHEMA_VERSION = "aion.llm_weighting_runtime.v1"
@@ -256,8 +260,27 @@ class LLMWeightingRuntime:
     - non-breaking additive summary outputs
     """
 
-    def __init__(self, accuracy_log_path: Path = DEFAULT_ACCURACY_LOG_PATH):
-        self.accuracy_log_path = Path(accuracy_log_path)
+    def __init__(
+        self,
+        accuracy_log_path: Path | None = None,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
+    ):
+        explicit_path = accuracy_log_path is not None
+        self.accuracy_log_path = Path(accuracy_log_path or DEFAULT_ACCURACY_LOG_PATH)
+        self.vault_store = vault_store
+        if vault_store is None and not explicit_path and guardian_mode_requested():
+            self.vault_store = AionLearningVaultStore(workspace_id=workspace_id)
+
+    def _rows(self) -> List[Dict[str, Any]]:
+        if self.vault_store is not None:
+            return [
+                row
+                for row in self.vault_store.list_events()
+                if row.get("record_type") == "llm_accuracy"
+            ]
+        return _iter_jsonl(self.accuracy_log_path)
 
     # ----------------------------
     # P3A / P3B: tracking
@@ -309,13 +332,22 @@ class LLMWeightingRuntime:
         ).validate()
 
         row = rec.to_dict()
-        _append_jsonl(self.accuracy_log_path, row)
+        if self.vault_store is not None:
+            event_id = f"llm-accuracy-{uuid.uuid4()}"
+            self.vault_store.append_event(
+                event_id,
+                {"event_id": event_id, **row},
+            )
+            location = f"vault://learning.audit/{self.vault_store.workspace_id}/{event_id}"
+        else:
+            _append_jsonl(self.accuracy_log_path, row)
+            location = str(self.accuracy_log_path)
 
         return {
             "ok": True,
             "schema_version": SCHEMA_VERSION,
             "logged": row,
-            "path": str(self.accuracy_log_path),
+            "path": location,
         }
 
     def _metric_counter_template(self) -> Dict[str, Any]:
@@ -497,7 +529,7 @@ class LLMWeightingRuntime:
         include_breakdowns: bool = True,  # additive default-on for P3B
         top_k: int = 10,
     ) -> Dict[str, Any]:
-        rows = _iter_jsonl(self.accuracy_log_path)
+        rows = self._rows()
         if lookback_rows and lookback_rows > 0:
             rows = rows[-int(lookback_rows):]
 

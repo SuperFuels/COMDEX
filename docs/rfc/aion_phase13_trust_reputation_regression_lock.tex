@@ -1,0 +1,76 @@
+\section{Phase 13H --- Trust/Reputation Regression v0}
+\label{sec:aion-phase13h-trust-reputation-regression-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- trust/reputation regression tests passing with focused suite membership.}
+\end{quote}
+
+Phase 13H locks the trust and reputation read-model boundary for the AION
+Gateway surface.
+
+The trust/reputation layer may summarize confidence, reputation, trust state,
+risk posture, evidence quality, and public/A2A readiness. It MUST NOT create
+bookings, move money, release escrow, send external messages, or auto-approve
+live work.
+
+\subsection{Locked Contract}
+
+\begin{itemize}
+  \item Trust/reputation outputs are read-model or preview-only summaries.
+  \item Trust/reputation scores MUST NOT create live bookings.
+  \item Trust/reputation scores MUST NOT create payments.
+  \item Trust/reputation scores MUST NOT release escrow.
+  \item Trust/reputation scores MUST NOT send external messages.
+  \item Trust/reputation scores MUST NOT bypass human review.
+  \item Trust/reputation identities MUST remain deterministic/hash-compatible.
+  \item Runtime-random identity sources such as \texttt{uuid.uuid4},
+  \texttt{random.uuid}, \texttt{secrets.token}, \texttt{random\_id}, and
+  \texttt{runtime\_random} are forbidden.
+\end{itemize}
+
+\subsection{Guarded Boundary}
+
+The trust/reputation layer may inform a human review queue or preview surface,
+but it is not an execution authority.
+
+The following are explicitly forbidden inside this lock:
+
+\begin{itemize}
+  \item \texttt{create\_payment}
+  \item \texttt{capture\_payment}
+  \item \texttt{release\_payment}
+  \item \texttt{release\_escrow}
+  \item \texttt{transfer\_funds}
+  \item \texttt{create\_booking}
+  \item \texttt{book\_job}
+  \item \texttt{dispatch\_job}
+  \item \texttt{send\_external\_message}
+  \item \texttt{auto\_approve\_by\_reputation}
+\end{itemize}
+
+\subsection{Validation Commands}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_trust_reputation_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_trust_reputation_regression_lock_doc.py
+\end{verbatim}
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13H-TRUST-REPUTATION-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

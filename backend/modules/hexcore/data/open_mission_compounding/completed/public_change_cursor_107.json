@@ -1,0 +1,40 @@
+{
+  "commitment": "cabdd2d9a99face757486b5b2aa39267531deba65ceecd8b2eb146857b04db86",
+  "created_at": 1786224449.608841,
+  "cursor": 107,
+  "last_known_outcome_hash": "1732b126547e77c7f606e8877d8da695be90132f2c61e5849adf28b95c34e99b",
+  "mission_hash": "a7cbecb84c1f79d04f3e9e45a00c90bada140a221e430dc7525b3b7e042bc305",
+  "mission_id": "moonshot_public_change_forecast_v2_cursor_107",
+  "proposals": {
+    "aion_no_memory": {
+      "available": true,
+      "latency_seconds": 0.1981298339999995,
+      "memory": false,
+      "prediction": []
+    },
+    "aion_no_repair": {
+      "available": true,
+      "latency_seconds": 0.24401420799999585,
+      "memory": true,
+      "prediction": []
+    },
+    "cold_aion": {
+      "available": true,
+      "latency_seconds": 0.21493266699999936,
+      "memory": false,
+      "prediction": []
+    },
+    "full_aion": {
+      "available": true,
+      "latency_seconds": 2.6939975410000017,
+      "memory": true,
+      "prediction": []
+    },
+    "proposer_only": {
+      "available": true,
+      "latency_seconds": 0.23665629200000637,
+      "memory": false,
+      "prediction": []
+    }
+  }
+}

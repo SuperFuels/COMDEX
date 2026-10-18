@@ -1,0 +1,383 @@
+\section{GlyphNet Sovereign Communications and GlyphChain Proof Layer}
+\label{sec:pilot-glyphnet-proof-layer}
+
+\subsection{Decision and Product Boundary}
+
+Pilot will reuse the substantial communications, identity, transport and ledger
+infrastructure already present in GlyphNet, GlyphChain and the wider AION
+runtime. It will not create a second, incompatible messaging stack. GlyphNet
+becomes the common communications substrate for Personal Pilot, external
+workspaces and Boardroom, while GlyphChain becomes a privacy-preserving proof
+rail for consequential requests and actions.
+
+The first product release will expose familiar capabilities---conversations,
+voice notes, push-to-talk, tasks, approvals and agent-to-agent requests---through
+the unified Pilot application. The implementation may use GlyphNet internally
+without requiring an ordinary user to understand Wave addresses, radio routing,
+blockchain terminology or token economics.
+
+The PHO currency, PhotonPay, TESS, wrapped GLYPH, Glyph bonds, experimental
+wallet balances and related economic controls will remain dormant behind
+separate build-time and run-time feature flags. Their code and schemas are to be
+preserved for future evaluation, but they are not dependencies of messaging,
+identity, task delivery, service execution or the Pilot adoption loop.
+
+\begin{quote}
+\textbf{Decided architecture:} GlyphNet carries human and agent communication.
+GlyphChain proves governed authorization and outcome. Existing payment
+providers move money. PHO remains hidden until its security, economics,
+settlement, custody and regulatory model are independently ready.
+\end{quote}
+
+\subsection{Existing Infrastructure to Retain}
+
+The earlier implementation contains more than a visual prototype. The following
+capabilities are sufficiently developed to form the starting point of the new
+build, although each remains subject to the production hardening requirements
+in this section:
+
+\begin{itemize}
+  \item typed one-to-one and threaded conversations;
+  \item voice notes and browser microphone capture;
+  \item press-and-hold push-to-talk with release-to-send behaviour;
+  \item a floor-lock protocol that prevents simultaneous push-to-talk speakers,
+        with bounded expiry and renewal;
+  \item file-attachment, recipient and contact interface foundations;
+  \item real-time WebSocket delivery, reconnect handling and delivery telemetry;
+  \item WebRTC call signalling for offers, answers, network candidates,
+        rejection, cancellation and termination;
+  \item persistent local conversation and event journalling in SQLite;
+  \item distinct personal and work conversation graphs;
+  \item stable person or agent attribution separated from temporary browser-tab
+        and transport identities;
+  \item Wave-address and Wave-number identity concepts intended to span
+        messaging, push-to-talk, devices and future payments;
+  \item automatic selection between ordinary IP transport and an available
+        radio bridge;
+  \item bounded radio frames, fragmentation, queues, reconnection, local
+        broadcast and store-and-forward foundations;
+  \item offline mesh transaction and reconciliation data structures;
+  \item wallet, PhotonPay and chain-simulation components retained as dormant
+        experimental infrastructure; and
+  \item persistent GlyphChain simulation and AION proof-commit and proof-lookup
+        foundations.
+\end{itemize}
+
+This inventory records existing foundations, not production certification. In
+particular, some development routes use fixed identities, placeholder
+signatures, demonstration balances or mock transports. Those paths must never
+be enabled merely because their user interface exists.
+
+\subsection{One Communication Model Across Pilot}
+
+Every user-visible communication will use one normalized envelope regardless of
+the space in which it originates. The same envelope can represent a human
+message, an agent request, a delegated task, an approval proposal, a reminder,
+a call signal, a voice note or a provider handoff.
+
+\begin{verbatim}
+Pilot Inbox
+  +-- Personal conversations
+  +-- Household and trusted-contact channels
+  +-- Pilot-to-Pilot requests
+  +-- Tasks, reminders and approvals
+  +-- External workspaces
+  +-- Boardroom communications
+            |
+            v
+     GlyphNet message envelope
+            |
+     +------+------+----------------+
+     |             |                 |
+     v             v                 v
+ Local/VPN     Internet relay    Radio/mesh bridge
+            |
+            v
+  Delivery or provider receipt
+            |
+            v
+  Selective GlyphChain proof commitment
+\end{verbatim}
+
+The envelope will contain a version, opaque message identifier, conversation
+identifier, sender identity, recipient identity or channel, originating space,
+message type, creation and expiry times, reply and task relationships, transport
+policy, encryption metadata, attachment references, idempotency key and a
+content hash. Private content is encrypted payload, not ledger data.
+
+Personal, household, workspace and Boardroom messages use the same protocol but
+remain different authorization domains. Membership of one domain conveys no
+right to read or act in another. A person's Pilot may participate in several
+spaces, but the active space, role, capability lease and intended recipient must
+be resolved before a message or action is accepted.
+
+\subsection{Pilot-to-Pilot and Human Communication}
+
+When both parties use Pilot, communication is delivered directly to the
+recipient's persona-bound Pilot inbox. Structured requests may include a
+human-readable message and a machine-readable proposal. For example, ``ask Alex
+to collect the dry cleaning'' becomes a recipient-addressed task proposal, not
+an immediate modification of Alex's private list. Alex or Alex's governed Pilot
+must accept it before it becomes an assigned task.
+
+When the recipient does not use Pilot, Pilot may prepare a message for an
+authorized email, SMS, WhatsApp or equivalent adapter. It must resolve the exact
+contact privately, display the exact channel, recipient and content, obtain any
+required approval, execute through an officially permitted interface, verify a
+provider receipt and only then report delivery. A useful handoff may include an
+invitation to Pilot, but joining Pilot is never required merely to read an
+ordinary message sent through an existing channel.
+
+This provides the intended adoption loop:
+
+\begin{enumerate}
+  \item a user asks Pilot to coordinate something useful with another person;
+  \item the recipient receives a clear request through Pilot or an existing
+        authorized channel;
+  \item a Pilot recipient may accept, decline, delegate, schedule or ask their
+        own agent to handle the request;
+  \item a non-user can respond normally and may optionally activate Pilot to
+        obtain the richer agent-to-agent workflow; and
+  \item both sides receive only the state and receipts they are authorized to
+        see.
+\end{enumerate}
+
+\subsection{Voice Notes, Push-to-Talk and Calls}
+
+Push-to-talk is retained as a first-class communication mode rather than a
+decorative voice button. Holding the control requests a short-lived floor lock;
+successful ownership starts bounded audio capture; the lock is renewed only
+while the sender remains active; release finalizes and sends the voice payload;
+and expiry frees the channel after interruption or disconnection. The visible
+interface must distinguish requesting, recording, sending, delivered, failed
+and waiting-for-floor states.
+
+Voice notes, push-to-talk frames and call signalling use the same persona,
+conversation and space boundary as text. Calls may use WebRTC for media
+transport, but the current demonstration frame-encryption and placeholder
+insertable-stream implementation are not sufficient for a production claim of
+end-to-end encrypted calling. Production calls require audited key agreement,
+authenticated participants, key rotation, replay protection, device revocation,
+clear recording indicators and tested behaviour across supported browsers and
+native clients.
+
+Candidate uses include personal and family conversation, household channels,
+field teams, external workspaces, Boardroom discussion, connectivity-loss mode
+and Pilot Guardian. Emergency permissions must remain distinct from ordinary
+contact permissions.
+
+\subsection{Transport Selection and Wave Operation}
+
+The word ``Wave'' describes a transport-independent identity and delivery
+model. It does not imply that an ordinary telephone or laptop can transmit over
+special long-range radio frequencies without compatible hardware. Pilot will
+select a route according to availability, policy, recipient reachability,
+latency, size and sensitivity:
+
+\begin{enumerate}
+  \item direct local-network delivery when both authorized nodes are reachable;
+  \item the user's private VPN or customer-selected secure tunnel;
+  \item normal encrypted internet relay where permitted;
+  \item a paired GlyphNet radio bridge and store-and-forward mesh where
+        compatible hardware is present; or
+  \item an authorized external messaging provider for a non-Pilot recipient.
+\end{enumerate}
+
+The existing radio-node design supports serial-connected hardware, regional
+band profiles, bounded frame sizes, fragmentation, queues, reconnects and a
+bridge based on an ESP32-class or Raspberry Pi-class device with a compatible
+radio such as an SX1262 LoRa module. Until physical radio hardware is installed
+and qualified, the product operates through normal local or internet networking.
+
+Radio support will initially remain an advanced capability flag. Production
+activation requires complete inbound payload reconstruction, authenticated
+bridge pairing, real driver tests, encryption that is independent of the radio,
+message expiry, duplicate suppression, congestion handling, regional duty-cycle
+compliance and end-to-end field tests with the internet disabled. BLE and
+Wi-Fi Direct routing remain later transport adapters rather than claimed
+capabilities of the first release.
+
+\subsection{GlyphChain as a Selective Proof Rail}
+
+GlyphChain is useful immediately when restricted to proofs of governed activity.
+For a consequential action, Pilot creates a local authorization and execution
+record. Once the result is known, it may commit a compact, tamper-evident proof
+containing:
+
+\begin{itemize}
+  \item opaque request, action and receipt identifiers;
+  \item hashes of the approved scope and relevant result;
+  \item pseudonymous actor, owner, device and executing-agent references;
+  \item policy and capability-lease versions;
+  \item timestamps, expiry, idempotency and replay information;
+  \item the adapter or transport class used;
+  \item success, failure, cancellation or recipient-acceptance state; and
+  \item a reference to a mother-private provider receipt where applicable.
+\end{itemize}
+
+The following material must never be written directly to the chain:
+
+\begin{itemize}
+  \item message bodies, voice recordings or call media;
+  \item documents, photographs, attachments or extracted private text;
+  \item names, telephone numbers, email addresses or address-book contents;
+  \item passwords, tokens, cookies, private keys, payment-card data or account
+        identifiers;
+  \item private memory, calendar descriptions, medical information or raw
+        location history; and
+  \item plaintext task, purchase, booking or Boardroom contents.
+\end{itemize}
+
+The proof rail records that a precisely scoped event occurred; the encrypted
+source record remains on the owner-controlled mother brain. Verification can
+recompute a hash from an authorized local record without disclosing that record
+to the chain. Retention, deletion and legal-hold policy apply to the private
+record separately from the immutable proof. Where erasure is required, the
+remaining chain commitment must be deliberately non-identifying and unusable to
+reconstruct the deleted content.
+
+\subsection{PHO and the Dormant Economic Layer}
+
+The PHO and PhotonPay work is retained because its schemas may later support
+machine-to-machine settlement, offline community exchange, metered capabilities
+or incentives. It is not activated in the initial Pilot build. The following
+must remain unavailable to ordinary users and agents:
+
+\begin{itemize}
+  \item minting, transfers and balance mutation through development routes;
+  \item demonstration accounts, balances and transaction signatures;
+  \item token purchasing, exchange, staking, bonding or investment language;
+  \item offline credit that could be mistaken for settled funds; and
+  \item any interface implying that a simulated chain commit constitutes a real
+        payment.
+\end{itemize}
+
+Future activation is a separate programme requiring audited cryptography and
+key custody, deterministic settlement, conflict and double-spend handling,
+economic and governance review, recovery procedures, operational monitoring,
+consumer disclosures, jurisdiction-specific legal and regulatory review, and
+an explicit product decision. Messaging and the proof rail must continue to
+operate when the complete economic layer is disabled.
+
+\subsection{Production Security Requirements}
+
+Before public release, the reused implementation must be brought under the same
+identity and capability model as the AION Device Fabric. The minimum security
+work is:
+
+\begin{enumerate}
+  \item replace fixed development tokens with signed, persona-bound device
+        possession and expiring capability leases;
+  \item replace the static Wave directory with private, recoverable and
+        revocable Pilot identities;
+  \item encrypt message and attachment storage at rest with keys unavailable to
+        shared television and peripheral nodes;
+  \item use authenticated end-to-end encryption for message payloads and audited
+        key establishment rather than demonstration QKD shims;
+  \item authenticate every WebSocket, relay and radio-bridge session and bind it
+        to an exact identity, space and permitted operation;
+  \item enforce message-size, attachment, rate, replay, expiry and duplicate
+        limits before persistence or fan-out;
+  \item complete inbound radio payload reconstruction and verify integrity
+        before delivering an application envelope;
+  \item remove mock signatures, placeholder settlement and development wallet
+        authority from production builds;
+  \item complete and audit call-media encryption before presenting calls as
+        end-to-end encrypted;
+  \item provide device loss, session revocation, account recovery, export,
+        deletion, blocking and abuse-reporting controls; and
+  \item resolve the standalone GlyphNet Browser build dependency and reproduce
+        signed builds from a locked dependency manifest.
+\end{enumerate}
+
+Ledger proofs are not a substitute for these controls. A valid proof can show
+that a vulnerable system performed an action; it cannot make the action safe.
+
+\subsection{First Build Scope}
+
+The initial integration will concentrate on the useful, already demonstrated
+communications path:
+
+\begin{enumerate}
+  \item define and version the normalized GlyphNet/Pilot envelope;
+  \item map production Pilot personas, trusted devices and spaces onto GlyphNet
+        sender, recipient and channel identities;
+  \item place text conversations, agent requests, delegated tasks, voice notes
+        and push-to-talk in one Pilot Inbox service;
+  \item expose the same inbox through the mobile Personal, Workspace and
+        Boardroom modes without merging their authorization boundaries;
+  \item persist encrypted conversation state on the owner-selected mother brain;
+  \item implement direct local/VPN delivery and a production relay abstraction;
+  \item connect approved non-Pilot email or messaging handoffs through the
+        existing governed service-adapter pattern;
+  \item emit private delivery receipts and selective GlyphChain proof receipts
+        for consequential actions;
+  \item keep radio transport detectable but disabled unless a qualified bridge
+        is explicitly enrolled; and
+  \item exclude every PHO, PhotonPay and wallet route from the normal application
+        manifest and consumer interface.
+\end{enumerate}
+
+The first acceptance demonstration is:
+
+\begin{quote}
+A user asks Pilot to send another named Pilot user a task. Pilot resolves the
+recipient privately, shows the exact proposal, obtains the required approval,
+delivers an encrypted structured request, allows the recipient to accept or
+decline it, synchronizes the resulting task state, records delivery and
+acceptance receipts, and commits only non-identifying proof hashes to
+GlyphChain. The same flow fails closed when identity, authority or delivery
+cannot be verified.
+\end{quote}
+
+\subsection{Deferred Work Register}
+
+The following capabilities are intentionally recorded for later implementation
+or qualification rather than lost:
+
+\begin{itemize}
+  \item native iOS and Android background delivery and push notifications;
+  \item audited end-to-end encrypted audio and video calling;
+  \item encrypted multi-device history synchronization and recovery;
+  \item contact discovery that does not upload a readable address book;
+  \item message reactions, group administration, moderation and abuse controls;
+  \item complete BLE and Wi-Fi Direct transports;
+  \item physical LoRa/radio bridge qualification, offline routing and regional
+        certification;
+  \item delayed, disconnected and intermittently connected agent-to-agent work;
+  \item Guardian-grade emergency push-to-talk and connectivity fallback;
+  \item optional Wave-address federation between independently hosted Pilot
+        mothers;
+  \item production consensus, validator operations and proof availability;
+  \item PHO, PhotonPay, TESS, wrapped GLYPH, bonds and any other economic
+        activation programme; and
+  \item independent security, privacy, regulatory and adversarial review.
+\end{itemize}
+
+\subsection{Acceptance and Truthfulness Criteria}
+
+The communication layer is not complete merely because a message appears in a
+local user interface. Completion requires independently testable evidence that:
+
+\begin{itemize}
+  \item the correct persona and space authorized the exact communication;
+  \item an unauthorized household, workspace or Boardroom identity cannot read
+        or alter it;
+  \item reconnect and retry do not duplicate a task, message or external action;
+  \item the recipient or provider acknowledged delivery;
+  \item acceptance, rejection, cancellation and failure propagate correctly;
+  \item private content remains absent from GlyphChain and diagnostic logs;
+  \item the useful messaging product works with PHO and radio features disabled;
+  \item the local/VPN path remains useful without a paid AI provider;
+  \item offline radio claims are made only after a real enrolled bridge completes
+        an internet-disconnected field test; and
+  \item the interface never labels prepared, queued or simulated work as sent,
+        paid, settled, accepted or completed.
+\end{itemize}
+
+This boundary allows Pilot to capitalize on the earlier AION and GlyphNet work
+immediately while keeping experimental economics and unfinished transports out
+of the consumer trust boundary. It also creates the communications foundation
+for the intended wider product: one privately owned intelligence that can
+coordinate a person's home, personal life, professional work and organisations
+through a simple, familiar inbox.

@@ -1,0 +1,1866 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "open_world_knowledge_ingestion": "procedure_open_world_ingestion_d83f863ebb24"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase53_54_external_ingestion_authority"
+    },
+    "reason": "phase54_open_world_ingestion",
+    "state_hash": "520efedd2d6bedd43f792778fdece8a149ce32537df918448f90cf223ff10026"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_world_claims": {
+    "source:000:bcd0b2707bc0:claim:00": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 153,
+        "kind": "character_offset",
+        "start": 22
+      },
+      "exact_evidence": "<</Type/Catalog/Pages 2 0 R/Lang(en) /StructTreeRoot 97 0 R/MarkInfo<</Marked true>>/Metadata 6158 0 R/ViewerPreferences 6159 0 R>>",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:01": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 378,
+        "kind": "character_offset",
+        "start": 172
+      },
+      "exact_evidence": "<</Type/Pages/Count 25/Kids[ 3 0 R 32 0 R 34 0 R 40 0 R 42 0 R 44 0 R 46 0 R 55 0 R 57 0 R 60 0 R 65 0 R 67 0 R 69 0 R 71 0 R 73 0 R 75 0 R 77 0 R 79 0 R 81 0 R 83 0 R 85 0 R 87 0 R 89 0 R 91 0 R 93 0 R] >>",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:02": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 788,
+        "kind": "character_offset",
+        "start": 753
+      },
+      "exact_evidence": "<</Filter/FlateDecode/Length 7307>>",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:03": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 817,
+        "kind": "character_offset",
+        "start": 798
+      },
+      "exact_evidence": "x]Y6~7\u0000U[\u00167-Q۱3ܙN<\u0018",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:04": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 857,
+        "kind": "character_offset",
+        "start": 818
+      },
+      "exact_evidence": "2R^j'{G/ᢅ*I\u000e\u0010wDg\u0016q\u0010}o.J:Z\u000f\u0017_.W_H\u0004DI$",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:05": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 888,
+        "kind": "character_offset",
+        "start": 858
+      },
+      "exact_evidence": "\u00113\u001a\u0005\u0017z\u0015=|q7\u001fIDH\u0017P:<s\u0011eY^\u0016,>\u0012k|",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:06": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 976,
+        "kind": "character_offset",
+        "start": 938
+      },
+      "exact_evidence": "x^\u000eK8.\u00198yr>@4\u0019'm\u001f8Ih\u0005]\u0019\u000e\u0001\u001afx&q!\u0019KX,_",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:07": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1099,
+        "kind": "character_offset",
+        "start": 1056
+      },
+      "exact_evidence": "-Ss7ݩGRBeoJf\u0018\u0019KbB5~U|m\t7gAbY\u00198+Bx\u0012\u0004}k\u0012\u001bl}ĆU",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:08": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1206,
+        "kind": "character_offset",
+        "start": 1116
+      },
+      "exact_evidence": "&\tc+.p.bk$]\bH߂s|%䄭.D\u001fW+O\\\\2R\u0002\u0000+\u0002?;\u0018ps)?Hޯ\u0004P\u0000\u001a\u0000\u0003~\u001aH5k9\u0015\u0019dA3`٬\"\b0\tY\u0004\u0016\u001a,\u001f(V4DT+Jf%TsZ5DR\ba",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:09": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1266,
+        "kind": "character_offset",
+        "start": 1208
+      },
+      "exact_evidence": "P%9\u0001֓+\u0011{&%)\u001fW-xB7\u0011FZeJ\u0010/y\"~i?\"\u0013JZrS\u0007xZe^,39^)ۓ_Ó|vD\u0017\u0007]?\"\u000f",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:10": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1290,
+        "kind": "character_offset",
+        "start": 1269
+      },
+      "exact_evidence": "kz{k\u001b\u000fR\b4bܴh\u0017[[Fc¼՝Cb",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:000:bcd0b2707bc0:claim:11": {
+      "claim_id": "source:000:bcd0b2707bc0:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1329,
+        "kind": "character_offset",
+        "start": 1302
+      },
+      "exact_evidence": "pE\u0018nkvh\u0016g'/$\u0010\u0010H\u0000E$vɊuV5@5\u0006P",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:000:bcd0b2707bc0",
+      "source_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:00": {
+      "claim_id": "source:001:fae135c84dad:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 131,
+        "kind": "character_offset",
+        "start": 95
+      },
+      "exact_evidence": "<</Filter /FlateDecode /Length 807>>",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:01": {
+      "claim_id": "source:001:fae135c84dad:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 178,
+        "kind": "character_offset",
+        "start": 147
+      },
+      "exact_evidence": "\u0010 m\u0001ղ\u0014b[`\u0001D\"U^3\u0014-^5yҞs\u0004z\u0015ӫ;x\u0010C(",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:02": {
+      "claim_id": "source:001:fae135c84dad:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 214,
+        "kind": "character_offset",
+        "start": 190
+      },
+      "exact_evidence": "t}\u0010\u0016k4\u001bx\u0016[ͭP\u0012\u0002Oۇ\u0004u\u001a\"-Y\u001a:",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:03": {
+      "claim_id": "source:001:fae135c84dad:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 255,
+        "kind": "character_offset",
+        "start": 215
+      },
+      "exact_evidence": "\u001am\tlC\u0000:=(Sש\"eEtSg?ݰ\u0013\u0006\u0001Ju\u00065\u0007 [z2\u0016{\u0018\t?\u0018U+G",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:04": {
+      "claim_id": "source:001:fae135c84dad:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 350,
+        "kind": "character_offset",
+        "start": 272
+      },
+      "exact_evidence": "\u001a\u00041:Ѣ\u0005C\u0000\u000ffԅwzA\u001a:~\u0016G\u000f\u001aY]\u0000!fs\u0014˂m\u0011\u000fYNEWE4V\u000f7Ɓ\u001ak#Hj4\u0018l\u0002,\u001aѰ+gg\u0011+\u0016HeS-oą̨\b\u0016!\u0005+l\u001a\u0002 $",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:05": {
+      "claim_id": "source:001:fae135c84dad:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 385,
+        "kind": "character_offset",
+        "start": 352
+      },
+      "exact_evidence": "XSYЦ\u0005D3m\u0015}о璷$Auߩ:x2}ir{'w\u0014^Ȇ-\u0012唀x",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:06": {
+      "claim_id": "source:001:fae135c84dad:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 430,
+        "kind": "character_offset",
+        "start": 386
+      },
+      "exact_evidence": ",Y\u0001v}yfi|$-a{e*-\u001aO\u000f׏\\3F#\u0016Xb\u0012\u0007zA`-Mj@ݦ\b>v^R\u0002",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:07": {
+      "claim_id": "source:001:fae135c84dad:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 460,
+        "kind": "character_offset",
+        "start": 436
+      },
+      "exact_evidence": "i8S@\"Z0\u001f\u001fG!(\u0001\u0015\u0012Dr/}Jea\u0002W",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:08": {
+      "claim_id": "source:001:fae135c84dad:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 496,
+        "kind": "character_offset",
+        "start": 461
+      },
+      "exact_evidence": "ߗ_KJ\u0016Z7d&6˺(bEy\u0018\u0005\u0007̢,.\u0012MC:f.vQeuFE\u0013X",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:09": {
+      "claim_id": "source:001:fae135c84dad:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 554,
+        "kind": "character_offset",
+        "start": 530
+      },
+      "exact_evidence": "G:/uԾ<k,ڌ\u0010LU׭ZpU\u0011:Cӑ~7\u0011:",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:10": {
+      "claim_id": "source:001:fae135c84dad:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 694,
+        "kind": "character_offset",
+        "start": 658
+      },
+      "exact_evidence": "<</Filter /FlateDecode /Length 302>>",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:001:fae135c84dad:claim:11": {
+      "claim_id": "source:001:fae135c84dad:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 777,
+        "kind": "character_offset",
+        "start": 702
+      },
+      "exact_evidence": "xeJ0\u0014\u0014(livNŉ\"L0>@lH$kM;:\u0019^\u0004#1^\u0017\u0011d\u0018\u0016\u000f\u0002\u0018(8I\u0010\u0007/\u0010O3\u001be\u0010%\u0016T%\\E{h{\u0006\\o[\u0019ϑ%9KNͫj\b\u0012q",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:001:fae135c84dad",
+      "source_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:00": {
+      "claim_id": "source:002:c232ad1f37c9:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 100,
+        "kind": "character_offset",
+        "start": 0
+      },
+      "exact_evidence": "# AION HexCore Phases 48–50 — External Evaluation, Open Documents, and Autonomous Knowledge Projects",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:01": {
+      "claim_id": "source:002:c232ad1f37c9:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 124,
+        "kind": "character_offset",
+        "start": 102
+      },
+      "exact_evidence": "**Date:** 30 July 2026",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:02": {
+      "claim_id": "source:002:c232ad1f37c9:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 187,
+        "kind": "character_offset",
+        "start": 125
+      },
+      "exact_evidence": "**Status:** Bounded V1 implementations completed and promoted.",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:03": {
+      "claim_id": "source:002:c232ad1f37c9:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 274,
+        "kind": "character_offset",
+        "start": 201
+      },
+      "exact_evidence": "These phases test whether the Phase 47 dual-process architecture survives",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:04": {
+      "claim_id": "source:002:c232ad1f37c9:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 806,
+        "kind": "character_offset",
+        "start": 759
+      },
+      "exact_evidence": "## Phase 48 — Public external-source evaluation",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:05": {
+      "claim_id": "source:002:c232ad1f37c9:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 982,
+        "kind": "character_offset",
+        "start": 910
+      },
+      "exact_evidence": "120 examples selected deterministically from held-out validation splits:",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:06": {
+      "claim_id": "source:002:c232ad1f37c9:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1040,
+        "kind": "character_offset",
+        "start": 984
+      },
+      "exact_evidence": "- 40 naturally occurring BoolQ yes/no reading questions;",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:07": {
+      "claim_id": "source:002:c232ad1f37c9:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1087,
+        "kind": "character_offset",
+        "start": 1041
+      },
+      "exact_evidence": "- 40 human-authored AI2 ARC science questions;",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:08": {
+      "claim_id": "source:002:c232ad1f37c9:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1127,
+        "kind": "character_offset",
+        "start": 1088
+      },
+      "exact_evidence": "- 40 SQuAD 2.0 answerability decisions.",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:09": {
+      "claim_id": "source:002:c232ad1f37c9:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1279,
+        "kind": "character_offset",
+        "start": 1207
+      },
+      "exact_evidence": "SHA-256 checksums were recorded. No evaluation example was used for AION",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:10": {
+      "claim_id": "source:002:c232ad1f37c9:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1396,
+        "kind": "character_offset",
+        "start": 1324
+      },
+      "exact_evidence": "The source licences recorded by their dataset cards are CC BY-SA 3.0 for",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:002:c232ad1f37c9:claim:11": {
+      "claim_id": "source:002:c232ad1f37c9:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1473,
+        "kind": "character_offset",
+        "start": 1397
+      },
+      "exact_evidence": "BoolQ and CC BY-SA 4.0 for AI2 ARC. SQuAD 2.0 is retained under its existing",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:002:c232ad1f37c9",
+      "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:00": {
+      "claim_id": "source:003:4a78c77ec369:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 95,
+        "kind": "character_offset",
+        "start": 0
+      },
+      "exact_evidence": "# AION HexCore Phases 51–52 — General Tool Invention and Continual Multi-Track Self-Improvement",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:01": {
+      "claim_id": "source:003:4a78c77ec369:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 119,
+        "kind": "character_offset",
+        "start": 97
+      },
+      "exact_evidence": "**Date:** 30 July 2026",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:02": {
+      "claim_id": "source:003:4a78c77ec369:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 180,
+        "kind": "character_offset",
+        "start": 121
+      },
+      "exact_evidence": "**Status:** Bounded V1 implementations passed and promoted.",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:03": {
+      "claim_id": "source:003:4a78c77ec369:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 268,
+        "kind": "character_offset",
+        "start": 196
+      },
+      "exact_evidence": "Phases 51 and 52 extend the externally grounded Phase 48–50 chain into a",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:04": {
+      "claim_id": "source:003:4a78c77ec369:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 702,
+        "kind": "character_offset",
+        "start": 651
+      },
+      "exact_evidence": "## Phase 51 — General tool and experiment invention",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:05": {
+      "claim_id": "source:003:4a78c77ec369:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 796,
+        "kind": "character_offset",
+        "start": 723
+      },
+      "exact_evidence": "The earlier Photon inventor was restricted to scalar arithmetic. Phase 51",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:06": {
+      "claim_id": "source:003:4a78c77ec369:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 904,
+        "kind": "character_offset",
+        "start": 872
+      },
+      "exact_evidence": "1. question-to-evidence binding;",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:07": {
+      "claim_id": "source:003:4a78c77ec369:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 936,
+        "kind": "character_offset",
+        "start": 905
+      },
+      "exact_evidence": "2. citation integrity auditing;",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:08": {
+      "claim_id": "source:003:4a78c77ec369:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 977,
+        "kind": "character_offset",
+        "start": 937
+      },
+      "exact_evidence": "3. contradiction and revision detection;",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:09": {
+      "claim_id": "source:003:4a78c77ec369:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1014,
+        "kind": "character_offset",
+        "start": 978
+      },
+      "exact_evidence": "4. tabular mean/threshold decisions;",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:10": {
+      "claim_id": "source:003:4a78c77ec369:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1060,
+        "kind": "character_offset",
+        "start": 1015
+      },
+      "exact_evidence": "5. expected-information experiment selection;",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:003:4a78c77ec369:claim:11": {
+      "claim_id": "source:003:4a78c77ec369:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1093,
+        "kind": "character_offset",
+        "start": 1061
+      },
+      "exact_evidence": "6. project dependency readiness.",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:003:4a78c77ec369",
+      "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:00": {
+      "claim_id": "source:004:d42356a02acc:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 31,
+        "kind": "character_offset",
+        "start": 0
+      },
+      "exact_evidence": "\\section{HexCore Phases 48--52}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:01": {
+      "claim_id": "source:004:d42356a02acc:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 64,
+        "kind": "character_offset",
+        "start": 32
+      },
+      "exact_evidence": "\\label{sec:hexcore-phases-48-52}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:02": {
+      "claim_id": "source:004:d42356a02acc:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 201,
+        "kind": "character_offset",
+        "start": 124
+      },
+      "exact_evidence": "Phases 48--52 extend AION from internally authored procedural benchmarks into",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:03": {
+      "claim_id": "source:004:d42356a02acc:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 888,
+        "kind": "character_offset",
+        "start": 826
+      },
+      "exact_evidence": "The local Gemma 5.1B substrate remains frozen, replaceable and",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:04": {
+      "claim_id": "source:004:d42356a02acc:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1156,
+        "kind": "character_offset",
+        "start": 1100
+      },
+      "exact_evidence": "\\subsection{Phase 48: public external-source evaluation}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:05": {
+      "claim_id": "source:004:d42356a02acc:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1195,
+        "kind": "character_offset",
+        "start": 1157
+      },
+      "exact_evidence": "\\label{subsec:phase48-public-external}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:06": {
+      "claim_id": "source:004:d42356a02acc:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1306,
+        "kind": "character_offset",
+        "start": 1234
+      },
+      "exact_evidence": "Phase 48 froze the model, prompts, interfaces and evaluation code before",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:07": {
+      "claim_id": "source:004:d42356a02acc:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1443,
+        "kind": "character_offset",
+        "start": 1383
+      },
+      "exact_evidence": "\\item 40 naturally occurring BoolQ yes/no reading questions;",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:08": {
+      "claim_id": "source:004:d42356a02acc:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1503,
+        "kind": "character_offset",
+        "start": 1448
+      },
+      "exact_evidence": "\\item 40 AI2 ARC multiple-choice science questions; and",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:09": {
+      "claim_id": "source:004:d42356a02acc:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1555,
+        "kind": "character_offset",
+        "start": 1508
+      },
+      "exact_evidence": "\\item 40 SQuAD 2.0 evidence-presence decisions.",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:10": {
+      "claim_id": "source:004:d42356a02acc:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1716,
+        "kind": "character_offset",
+        "start": 1644
+      },
+      "exact_evidence": "identified by path, revision, split and SHA-256 checksum.  No validation",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:004:d42356a02acc:claim:11": {
+      "claim_id": "source:004:d42356a02acc:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1965,
+        "kind": "character_offset",
+        "start": 1933
+      },
+      "exact_evidence": "\\subsubsection{Phase 48 results}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:004:d42356a02acc",
+      "source_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:00": {
+      "claim_id": "source:005:4a073f902cf1:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 108,
+        "kind": "character_offset",
+        "start": 0
+      },
+      "exact_evidence": "\\section{HexCore Phases 45--47: Grounded Evidence, Continual Learning, and a Replaceable Language Substrate}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:01": {
+      "claim_id": "source:005:4a073f902cf1:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 171,
+        "kind": "character_offset",
+        "start": 109
+      },
+      "exact_evidence": "\\label{sec:hexcore-phases-45-47-grounding-continual-substrate}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:02": {
+      "claim_id": "source:005:4a073f902cf1:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 279,
+        "kind": "character_offset",
+        "start": 207
+      },
+      "exact_evidence": "Phases 45--47 connect three previously separate requirements of the AION",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:03": {
+      "claim_id": "source:005:4a073f902cf1:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1291,
+        "kind": "character_offset",
+        "start": 1219
+      },
+      "exact_evidence": "\\subsection{Phase 45: multimodal world grounding with GlyphChain proofs}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:04": {
+      "claim_id": "source:005:4a073f902cf1:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1336,
+        "kind": "character_offset",
+        "start": 1292
+      },
+      "exact_evidence": "\\label{subsec:phase45-multimodal-glyphchain}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:05": {
+      "claim_id": "source:005:4a073f902cf1:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1445,
+        "kind": "character_offset",
+        "start": 1373
+      },
+      "exact_evidence": "Phase 45 tested whether AION could ground a decision in several distinct",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:06": {
+      "claim_id": "source:005:4a073f902cf1:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1587,
+        "kind": "character_offset",
+        "start": 1520
+      },
+      "exact_evidence": "bind the resulting evidence set into a tamper-detecting commitment.",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:07": {
+      "claim_id": "source:005:4a073f902cf1:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 2235,
+        "kind": "character_offset",
+        "start": 2170
+      },
+      "exact_evidence": "\\texttt{aion.multimodal.evidence\\_capsule.v1} capsule containing:",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:08": {
+      "claim_id": "source:005:4a073f902cf1:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 3178,
+        "kind": "character_offset",
+        "start": 3107
+      },
+      "exact_evidence": "were inserted into an \\texttt{AION\\_EVIDENCE\\_PROOF\\_V1} envelope.  The",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:09": {
+      "claim_id": "source:005:4a073f902cf1:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 3430,
+        "kind": "character_offset",
+        "start": 3410
+      },
+      "exact_evidence": "H(E_1),\\ldots,H(E_n)",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:10": {
+      "claim_id": "source:005:4a073f902cf1:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 3945,
+        "kind": "character_offset",
+        "start": 3906
+      },
+      "exact_evidence": "\\subsubsection{Phase 45 sealed results}",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:005:4a073f902cf1:claim:11": {
+      "claim_id": "source:005:4a073f902cf1:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 4017,
+        "kind": "character_offset",
+        "start": 3947
+      },
+      "exact_evidence": "The official evaluation contained 140 worlds: 100 sealed worlds and 40",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:005:4a073f902cf1",
+      "source_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:00": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 270,
+        "kind": "character_offset",
+        "start": 4
+      },
+      "exact_evidence": "\"boundary\": \"Labels were withheld and validation sources were isolated from AION development, but public-benchmark exposure during Gemma pretraining cannot be excluded. This is external-source V1, not a contamination-proof or independently administered evaluation.\",",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:01": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 328,
+        "kind": "character_offset",
+        "start": 299
+      },
+      "exact_evidence": "\"ai2_arc_validation.jsonl\": {",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:02": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 467,
+        "kind": "character_offset",
+        "start": 335
+      },
+      "exact_evidence": "\"path\": \"/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_foundation_v2_reasoning_sources/shards/ai2_arc_validation.jsonl\",",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:03": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 550,
+        "kind": "character_offset",
+        "start": 474
+      },
+      "exact_evidence": "\"sha256\": \"3e4a6435ce087329c4d5f4d0cb3513b68d89ffc9fc28bb1134e3bd9f74c035cc\"",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:04": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 726,
+        "kind": "character_offset",
+        "start": 596
+      },
+      "exact_evidence": "\"path\": \"/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_foundation_v2_reasoning_sources/shards/boolq_validation.jsonl\",",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:05": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 809,
+        "kind": "character_offset",
+        "start": 733
+      },
+      "exact_evidence": "\"sha256\": \"57bfd0657920f22f8695664b942b5c50deb8fdcb205c39213bafec45952e766c\"",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:06": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 851,
+        "kind": "character_offset",
+        "start": 821
+      },
+      "exact_evidence": "\"squad_v2_validation.jsonl\": {",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:07": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 988,
+        "kind": "character_offset",
+        "start": 858
+      },
+      "exact_evidence": "\"path\": \"/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_licensed_natural_language_v1/shards/squad_v2_validation.jsonl\",",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:08": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1071,
+        "kind": "character_offset",
+        "start": 995
+      },
+      "exact_evidence": "\"sha256\": \"783958e4554cf36c65090f3f260d9ac5993a92c96802d00e14567625aa585670\"",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:09": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1123,
+        "kind": "character_offset",
+        "start": 1105
+      },
+      "exact_evidence": "\"accuracy\": 0.725,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:10": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1166,
+        "kind": "character_offset",
+        "start": 1146
+      },
+      "exact_evidence": "\"family_accuracy\": {",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:006:e4e55ad6cb69:claim:11": {
+      "claim_id": "source:006:e4e55ad6cb69:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1194,
+        "kind": "character_offset",
+        "start": 1173
+      },
+      "exact_evidence": "\"arc_science\": 0.825,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:006:e4e55ad6cb69",
+      "source_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:00": {
+      "claim_id": "source:007:46b3cb426e52:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 210,
+        "kind": "character_offset",
+        "start": 4
+      },
+      "exact_evidence": "\"boundary\": \"Phase 52 demonstrates governed continual consolidation across nine structured capability fingerprints. It does not establish open-ended neural representation learning or autonomous authority.\",",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:01": {
+      "claim_id": "source:007:46b3cb426e52:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 320,
+        "kind": "character_offset",
+        "start": 295
+      },
+      "exact_evidence": "\"capability_families\": 9,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:02": {
+      "claim_id": "source:007:46b3cb426e52:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 374,
+        "kind": "character_offset",
+        "start": 343
+      },
+      "exact_evidence": "\"final_external_accuracy\": 1.0,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:03": {
+      "claim_id": "source:007:46b3cb426e52:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 406,
+        "kind": "character_offset",
+        "start": 379
+      },
+      "exact_evidence": "\"final_mean_accuracy\": 1.0,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:04": {
+      "claim_id": "source:007:46b3cb426e52:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 448,
+        "kind": "character_offset",
+        "start": 411
+      },
+      "exact_evidence": "\"final_weakest_family_accuracy\": 1.0,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:05": {
+      "claim_id": "source:007:46b3cb426e52:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 510,
+        "kind": "character_offset",
+        "start": 475
+      },
+      "exact_evidence": "\"independent_reversible_tracks\": 5,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:06": {
+      "claim_id": "source:007:46b3cb426e52:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 541,
+        "kind": "character_offset",
+        "start": 515
+      },
+      "exact_evidence": "\"maximum_forgetting\": 0.0,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:07": {
+      "claim_id": "source:007:46b3cb426e52:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 583,
+        "kind": "character_offset",
+        "start": 546
+      },
+      "exact_evidence": "\"ood_confidence\": 0.1111111119389534,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:08": {
+      "claim_id": "source:007:46b3cb426e52:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 668,
+        "kind": "character_offset",
+        "start": 621
+      },
+      "exact_evidence": "\"symbolic_component_replacement_accuracy\": 1.0,",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:09": {
+      "claim_id": "source:007:46b3cb426e52:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 703,
+        "kind": "character_offset",
+        "start": 673
+      },
+      "exact_evidence": "\"unsafe_self_modifications\": 0",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:10": {
+      "claim_id": "source:007:46b3cb426e52:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 904,
+        "kind": "character_offset",
+        "start": 884
+      },
+      "exact_evidence": "\"family_accuracy\": {",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:007:46b3cb426e52:claim:11": {
+      "claim_id": "source:007:46b3cb426e52:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1032,
+        "kind": "character_offset",
+        "start": 1002
+      },
+      "exact_evidence": "\"weakest_family_accuracy\": 1.0",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:007:46b3cb426e52",
+      "source_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:00": {
+      "claim_id": "source:008:7c47842fae02:claim:00",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 360,
+        "kind": "character_offset",
+        "start": 168
+      },
+      "exact_evidence": "add_chain | 6 | 8 | 8 | 8 | 0.25 | 0.0 | 0.0 | 0.40222647245579435 | 0.12891956608969046 | 0.2041142828040603 | 1.8655125022633001 | 0.5979244997433852 | 0.9466750016144942 | 4.637965499568963",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:01": {
+      "claim_id": "source:008:7c47842fae02:claim:01",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 552,
+        "kind": "character_offset",
+        "start": 361
+      },
+      "exact_evidence": "mul_chain | 6 | 8 | 8 | 8 | 0.25 | 0.0 | 0.0 | 0.4540226001249753 | 0.21303980395777844 | 0.22183652819392086 | 1.110189001337858 | 0.520931000210112 | 0.5424410010164138 | 2.4452284997096285",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:02": {
+      "claim_id": "source:008:7c47842fae02:claim:02",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 741,
+        "kind": "character_offset",
+        "start": 553
+      },
+      "exact_evidence": "grad_add | 7 | 5 | 5 | 5 | -0.4 | 0.0 | 0.0 | 0.8429432909933706 | 0.21665623149487218 | 0.324494367780116 | 3.0136525001580594 | 0.7745795010123402 | 1.160117499239277 | 3.575154500140343",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:03": {
+      "claim_id": "source:008:7c47842fae02:claim:03",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 947,
+        "kind": "character_offset",
+        "start": 742
+      },
+      "exact_evidence": "grad_mul | 14 | 6 | 6 | 6 | -1.3333333333333333 | 0.0 | 0.0 | 1.4919558744178278 | 0.17275796437873772 | 0.1770688353877256 | 6.161640501886723 | 0.7134744992072228 | 0.7312779998756014 | 4.129908000322757",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:04": {
+      "claim_id": "source:008:7c47842fae02:claim:04",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1153,
+        "kind": "character_offset",
+        "start": 948
+      },
+      "exact_evidence": "nested | 30 | 9 | 9 | 9 | -2.3333333333333335 | 0.0 | 0.0 | 1.6639478701445312 | 0.14054621843232853 | 0.13249375056453805 | 12.921296500280732 | 1.0914039994531777 | 1.0288729990861611 | 7.765445499899215",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:05": {
+      "claim_id": "source:008:7c47842fae02:claim:05",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1351,
+        "kind": "character_offset",
+        "start": 1154
+      },
+      "exact_evidence": "add_chain_10 | 11 | 11 | 11 | 11 | 0.0 | 0.0 | 0.0 | 0.3752590695991691 | 0.09411540707712399 | 0.09631421469083631 | 3.1357950010715285 | 0.7864609997341176 | 0.8048349991440773 | 8.35634700160881",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:06": {
+      "claim_id": "source:008:7c47842fae02:claim:06",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1550,
+        "kind": "character_offset",
+        "start": 1352
+      },
+      "exact_evidence": "add_chain_50 | 51 | 51 | 51 | 51 | 0.0 | 0.0 | 0.0 | 0.37447431137651077 | 0.06741525321161505 | 0.0676144461780384 | 13.965267498861067 | 2.514116498787189 | 2.5215450004907325 | 37.292992001312086",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:07": {
+      "claim_id": "source:008:7c47842fae02:claim:07",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1749,
+        "kind": "character_offset",
+        "start": 1551
+      },
+      "exact_evidence": "add_chain_100 | 101 | 101 | 101 | 101 | 0.0 | 0.0 | 0.0 | 0.3907640058614161 | 0.064948488448448 | 0.0663563127122155 | 29.397559499557246 | 4.886138500296511 | 4.992050500732148 | 75.23098099773051",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:08": {
+      "claim_id": "source:008:7c47842fae02:claim:08",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 1946,
+        "kind": "character_offset",
+        "start": 1750
+      },
+      "exact_evidence": "mul_chain_10 | 11 | 11 | 11 | 11 | 0.0 | 0.0 | 0.0 | 0.5659285287422012 | 0.215653464886221 | 0.22230605332684875 | 1.3947899988124846 | 0.5315005000738893 | 0.5478964994836133 | 2.464604500346468",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:09": {
+      "claim_id": "source:008:7c47842fae02:claim:09",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 2142,
+        "kind": "character_offset",
+        "start": 1947
+      },
+      "exact_evidence": "mul_chain_50 | 51 | 51 | 51 | 51 | 0.0 | 0.0 | 0.0 | 0.5401488731761466 | 0.15231300276568366 | 0.15823445300290495 | 4.656274499211577 | 1.3129920025676256 | 1.36403699980292 | 8.620353999504005",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:10": {
+      "claim_id": "source:008:7c47842fae02:claim:10",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 2339,
+        "kind": "character_offset",
+        "start": 2143
+      },
+      "exact_evidence": "grad_add_10 | 21 | 12 | 12 | 12 | -0.75 | 0.0 | 0.0 | 0.6938118631500024 | 0.13125216094707748 | 0.1315050286481104 | 5.853852000655024 | 1.107404998037964 | 1.1095385016233195 | 8.437232500000391",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    },
+    "source:008:7c47842fae02:claim:11": {
+      "claim_id": "source:008:7c47842fae02:claim:11",
+      "evidence_exactly_recoverable": true,
+      "evidence_location": {
+        "end": 2551,
+        "kind": "character_offset",
+        "start": 2340
+      },
+      "exact_evidence": "grad_add_50 | 101 | 52 | 52 | 52 | -0.9423076923076923 | 0.0 | 0.0 | 0.7217938864936281 | 0.10175999798468542 | 0.10291190984435325 | 27.16991199849872 | 3.830470501270611 | 3.8738310013286537 | 37.6422029985406",
+      "reported_not_independently_verified": true,
+      "schema_version": "aion.open_world.claim.v1",
+      "source_id": "source:008:7c47842fae02",
+      "source_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "status": "reported"
+    }
+  },
+  "open_world_projects": {},
+  "open_world_sources": {
+    "source:000:bcd0b2707bc0": {
+      "bytes": 667157,
+      "characters_extracted": 426786,
+      "content_sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+      "format": "pdf",
+      "observed_at": "2026-07-30T13:26:09.837921+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/_inputs/boardpacks/page-interim-results-2025.pdf",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:000:bcd0b2707bc0"
+    },
+    "source:001:fae135c84dad": {
+      "bytes": 2330,
+      "characters_extracted": 1786,
+      "content_sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+      "format": "pdf",
+      "observed_at": "2026-07-30T13:26:09.839705+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/docs/SYSTEM ARCHITECTURE/GlyphOS_Architecture_Overview.pdf",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:001:fae135c84dad"
+    },
+    "source:002:c232ad1f37c9": {
+      "bytes": 6866,
+      "characters_extracted": 6856,
+      "content_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "format": "md",
+      "observed_at": "2026-07-30T13:26:09.839852+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/docs/aion/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:002:c232ad1f37c9"
+    },
+    "source:003:4a78c77ec369": {
+      "bytes": 5569,
+      "characters_extracted": 5559,
+      "content_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "format": "md",
+      "observed_at": "2026-07-30T13:26:09.840012+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/docs/aion/HEXCORE_PHASES_51_52_GENERAL_INVENTION_SELF_IMPROVEMENT_REPORT.md",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:003:4a78c77ec369"
+    },
+    "source:004:d42356a02acc": {
+      "bytes": 14515,
+      "characters_extracted": 14515,
+      "content_sha256": "d42356a02acc1194702f4bc0ed7ece8745dbb8b36ca39f9ce594f1902ec5897a",
+      "format": "tex",
+      "observed_at": "2026-07-30T13:26:09.840152+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/docs/aion/HEXCORE_PHASES_48_52_EXTERNAL_INTELLIGENCE_AND_SELF_IMPROVEMENT_SECTION.tex",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:004:d42356a02acc"
+    },
+    "source:005:4a073f902cf1": {
+      "bytes": 15984,
+      "characters_extracted": 15984,
+      "content_sha256": "4a073f902cf19352de1c6213c55fcb63c80f645a4a80bb56bb26a587567a9fc1",
+      "format": "tex",
+      "observed_at": "2026-07-30T13:26:09.840327+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/docs/aion/HEXCORE_PHASES_45_47_GROUNDING_CONTINUAL_SUBSTRATE_SECTION.tex",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:005:4a073f902cf1"
+    },
+    "source:006:e4e55ad6cb69": {
+      "bytes": 48132,
+      "characters_extracted": 48132,
+      "content_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "format": "json",
+      "observed_at": "2026-07-30T13:26:09.840968+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_phase48_external_evaluation.json",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:006:e4e55ad6cb69"
+    },
+    "source:007:46b3cb426e52": {
+      "bytes": 11701,
+      "characters_extracted": 11701,
+      "content_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "format": "json",
+      "observed_at": "2026-07-30T13:26:09.841248+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_phase52_continual_self_improvement.json",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:007:46b3cb426e52"
+    },
+    "source:008:7c47842fae02": {
+      "bytes": 3971,
+      "characters_extracted": 4591,
+      "content_sha256": "7c47842fae026cad907886d8b133f23cfa90ee8bb502f19672e8057504e65bc2",
+      "format": "csv",
+      "observed_at": "2026-07-30T13:26:09.841430+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/docs/rfc/photon_benchmarks.csv",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:008:7c47842fae02"
+    },
+    "source:009:93152033bbfd": {
+      "bytes": 67,
+      "characters_extracted": 76,
+      "content_sha256": "93152033bbfd07555803c02f203638f13aaace40bb94b05839ca2a825084a5e8",
+      "format": "csv",
+      "observed_at": "2026-07-30T13:26:09.841601+00:00",
+      "path": "/Users/kevinrobinson/dev/COMDEX/docs/theory/tables/PAEV_Test3_Summary.csv",
+      "schema_version": "aion.open_world.source.v1",
+      "source_id": "source:009:93152033bbfd"
+    }
+  },
+  "outcomes": [],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_open_world_ingestion_d83f863ebb24": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "claims": 108,
+          "errors": [],
+          "evidence_recoverability": 1.0,
+          "format_names": [
+            "csv",
+            "json",
+            "md",
+            "pdf",
+            "tex"
+          ],
+          "formats": 5,
+          "provenance_completeness": 1.0,
+          "reported_claims_mislabeled_as_verified": 0,
+          "source_hash_completeness": 1.0,
+          "sources": 10
+        }
+      },
+      "goal": "open_world_knowledge_ingestion",
+      "procedure_id": "procedure_open_world_ingestion_d83f863ebb24",
+      "promoted_at": "2026-07-30T13:26:09.842312+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 6.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "detect_source_format",
+        "extract_without_mutating_source",
+        "hash_source_content",
+        "locate_exact_claim_evidence",
+        "separate_reported_from_verified",
+        "persist_provenance_graph"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "15845a76f128747a5ce0834d1cc253846ffb45b47149ad6ee26fd8dcac16d3dd",
+      "goal": "open_world_knowledge_ingestion",
+      "new_champion_id": "procedure_open_world_ingestion_d83f863ebb24",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 6.0,
+      "timestamp": "2026-07-30T13:26:09.842325+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "real_file_projects": {},
+  "relation_models": {},
+  "revision": 2,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T13:26:09.845825+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_rules": {}
+}

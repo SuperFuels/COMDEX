@@ -1,0 +1,149 @@
+\section{Downloadable Empty Brain: First-Run and Continuity Foundation}
+\label{sec:aion-empty-brain-bootstrap}
+
+\subsection{Purpose}
+
+The downloadable AION product begins as an empty governed brain rather than a
+pre-populated chatbot.  It contains the structures required to own identity,
+memory, policy, capabilities and receipts, but it contains no demo person,
+business, provider credential or customer record.  The customer creates the
+first owner locally and chooses where Pilot and any additional intelligence will
+run.
+
+The first implementation is distributed as the AION Sovereign Brain Bootstrap.
+It is deliberately provider free: no OpenAI, Gemini, Anthropic or other model key
+is required to create, inspect, export, restore or restart the brain.
+
+\subsection{Graphical first-run experience}
+
+A platform launcher starts a setup service bound only to the local loopback
+interface and opens a browser-based wizard.  The customer enters the name shown
+on their private Pilot and chooses a deployment profile:
+
+\begin{itemize}
+  \item this personal computer;
+  \item a home server;
+  \item a customer-controlled private server; or
+  \item a business-controlled deployment.
+\end{itemize}
+
+The customer separately chooses the maximum intelligence location: local,
+customer server, customer cloud or an optional external API.  Local operation is
+the default.  Selecting an external route does not connect it or disclose data;
+that requires a later explicit credential binding and policy decision.
+
+Setup requests are size bounded, require a same-application request marker and
+return generic internal errors.  The wizard contains no external scripts,
+analytics or remote assets.
+
+\subsection{Hardware profile and model plan}
+
+The bootstrap records only coarse operational capacity: operating-system family,
+architecture, CPU count, physical memory, available storage and a broad
+accelerator class.  It does not collect a hostname, serial number or other stable
+hardware identifier.
+
+A deterministic planner recommends one of four local model classes: lite,
+standard, capable or workstation.  The recommendation is based on memory and
+free storage and records an appropriate parameter and context class.  It does
+not silently download a model.  Larger work is labelled as optional
+customer-controlled compute, preserving the distinction between the brain and
+replaceable cognitive machinery.
+
+\subsection{Owner, mother identity and canonical stores}
+
+First run creates one Ed25519 mother identity, one owner record and a stable brain
+identifier derived from the mother public-key fingerprint.  Re-running setup is
+idempotent and preserves the same logical brain.  A different person cannot
+silently replace the established owner through the setup wizard.
+
+Six provider-independent stores are initialized with no records:
+
+\begin{center}
+identity, memory, business map, policy, capability and receipt.
+\end{center}
+
+The resulting status explicitly reports that provider keys are not required and
+that demo data was not installed.
+
+\subsection{Encrypted local vault}
+
+The bootstrap creates a dedicated AES-256 GCM vault with authenticated
+encryption, fresh nonces, atomic replacement and owner-only filesystem
+permissions.  Public status exposes binding names and counts only; it never
+returns raw values.  Tampering causes authentication failure rather than partial
+recovery.
+
+Workflow and model nodes will reference opaque names such as a Gemini provider's
+\texttt{primary} binding.  Raw keys must never be stored in the canvas,
+browser state, autosave, logs or route receipts.  The current developer preview
+uses an owner-only device key file.  Production releases still require operating
+system secure-store or hardware-backed wrapping and recovery qualification.
+
+\subsection{Health and recovery behavior}
+
+The setup authority checks the setup version, mother fingerprint, canonical
+stores, encrypted vault, hardware record and model plan.  Regenerable metadata
+may be repaired.  Missing mother identity or vault-key material fails closed and
+requires encrypted backup restoration; repair must not invent a replacement
+identity and thereby present it as the same brain.
+
+The existing Pilot ownership authority is reused for signed update staging,
+health verification, rollback, single-writable-primary leases and redacted
+diagnostics.  Connecting automatic installed-service recovery to the new
+bootstrap package remains an explicit Phase~1 closure task.
+
+\subsection{Complete export and restore}
+
+Before export, AION generates a signed Brain Export manifest containing the
+schema version and content hash of each canonical store.  Provider credentials
+and model weights are excluded from the portable manifest.  The complete mother,
+including identity and encrypted-vault material, is then placed inside an
+encrypted migration capsule protected by a passphrase-derived key and signed by
+the source mother.
+
+Restore verifies the source signature, encrypted archive hash, safe paths and
+reconstructed file manifest.  It refuses a non-empty destination, preserves the
+logical brain identity and requires explicit primary cut-over rather than
+silently creating two writable mothers.
+
+\subsection{Cross-platform bootstrap package}
+
+The developer-preview archive contains launchers for macOS, Windows and Linux,
+the minimum Python implementation, declared dependency versions and a file-level
+integrity manifest.  The manifest states that no customer data or provider
+credential is included.  It also states honestly that the archive does not yet
+carry a platform distribution signature.
+
+The extracted archive has been exercised with premium-provider environment keys
+removed and successfully creates a healthy empty brain.  This proves portable,
+provider-free initialization; it does not yet prove the complete consumer
+product.
+
+The companion Pilot Fabric archive now calculates the recursive closure of local
+modules imported by its runtime and packages only that closure.  An extracted
+archive, executed outside the COMDEX checkout, imports its command-line entry
+point and completes the provider-free local Fabric demonstration with a valid
+audit chain and verified compact transport.  This corrects the earlier condition
+in which the archive contained the Fabric package but omitted internal modules
+that it imported.  It still does not constitute a signed clean-machine consumer
+installation or prove every interactive offline capability.
+
+\subsection{Remaining Phase 1 closure gates}
+
+The following work must be completed before Phase~1 is described as closed:
+
+\begin{enumerate}
+  \item sign and notarize/package the macOS, Windows and Linux/server installers;
+  \item connect installed-service startup, monitoring, automatic recovery and
+  rollback to the new bootstrap;
+  \item bundle the complete Pilot application and selected local model pack;
+  \item wrap the vault key with the appropriate operating-system or
+  hardware-backed secure store;
+  \item run clean-machine install, upgrade, rollback, backup, restore and
+  uninstall tests on supported operating systems; and
+  \item prove genuinely useful air-gapped Pilot operation without a paid API.
+\end{enumerate}
+
+The present artefact is therefore a verified empty-brain bootstrap, not a claim
+that consumer distribution is finished.

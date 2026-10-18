@@ -1,0 +1,154 @@
+\section{Sovereign Business Connector Onboarding}
+\label{sec:sovereign-business-connectors}
+
+This section records completion of roadmap task \texttt{SBB-0207}.  The
+implementation does not create a new Files, mail, calendar, sales or accounting
+system.  It presents the connector authorities already present in AION and the
+Boardroom through one owner-facing onboarding surface and projects their safe
+status into the existing sovereign business architecture.
+
+\subsection{Product behaviour}
+
+The Boardroom now contains a single \emph{Connect your business} area with five
+plain-language cards:
+
+\begin{itemize}
+  \item \textbf{Files} opens the existing governed File Cabinet;
+  \item \textbf{Gmail} opens the established Google authorization route;
+  \item \textbf{Google Calendar} reuses the persona-bound Google authorization
+        while checking separately for calendar scope;
+  \item \textbf{CRM/Sales} reuses the existing HubSpot connection authority and
+        the Sales Revenue Spine; and
+  \item \textbf{Xero} reuses the existing customer-business Xero authorization
+        and Business Financial Model boundary.
+\end{itemize}
+
+Each card answers only three immediate questions: whether the source is connected,
+whether its local connector is healthy, and how much evidence is already represented
+in the appropriate business container.  The Boardroom remains usable when no external
+account is connected.  Failure of one provider is isolated to its card and does not
+hide local files or healthy services.
+
+\subsection{Owner initiation and absence of side effects}
+
+Loading or refreshing the onboarding screen is a read-only operation.  It cannot
+create an account, start OAuth, import mail, alter a calendar, synchronize accounting
+records or modify the Business Map.  An authorization flow begins only after the
+owner presses the relevant connection button.  The provider authorization page is
+opened through the existing desktop external-browser boundary, and the owner returns
+to refresh the connection status after granting permission.
+
+The screen is consequently a connection and evidence-status surface, not an implicit
+consent mechanism.  A connected state proves that a credential reference and required
+scope are available to the mother brain; it does not prove that every provider item
+has been imported, reviewed or accepted as company truth.
+
+\subsection{Architecture and data flow}
+
+The implementation introduces a provider-neutral
+\texttt{BusinessConnectorOnboardingService}.  It composes five existing authorities
+rather than duplicating them.  Its output is exposed through one local endpoint and
+rendered in the existing Boardroom Business Map governance panel.
+
+\begin{verbatim}
+Owner opens Boardroom
+        |
+        v
+Read-only connector onboarding service
+        |
+        +-- File Cabinet ----------> business knowledge / files
+        +-- Gmail ----------------> Sales Revenue Spine
+        +-- Calendar -------------> calendar planning + appointment evidence
+        +-- CRM / HubSpot --------> Sales Revenue Spine + Sales Intelligence
+        +-- Xero -----------------> Business Financial Model
+        |
+        v
+Secret-free health + aggregate projection counts
+        |
+        v
+Existing review boundary -> canonical Business Map (only if approved)
+\end{verbatim}
+
+No connector receives direct write authority over the canonical Business Map.
+Provider records first remain source evidence.  Existing provenance, confidence,
+review-state, correction, retention, revocation and legal-hold controls determine
+whether a derived claim may later become canonical business knowledge.
+
+\subsection{Projection contract}
+
+The unified response uses schema
+\texttt{aion.business\_connector\_onboarding.v1}.  Every connector card contains a
+stable identifier, a non-technical label, connected and health states, its target
+business container, an aggregate projection summary, and the existing owner-initiated
+connection route.  It also declares that onboarding is read-only and that raw provider
+data is not Business Map truth.
+
+The current projections are deliberately narrow:
+
+\begin{itemize}
+  \item Files reports document and protected-record counts;
+  \item Gmail reports the count of email-origin enquiries already represented in the
+        Sales Revenue Spine;
+  \item Calendar reports the count of appointment signals already represented;
+  \item CRM/Sales reports CRM-origin opportunity counts and aggregate pipeline stages;
+  \item Xero reports bounded synchronization status and its existing safe summary.
+\end{itemize}
+
+These are navigation and readiness summaries.  They are not financial advice,
+delivery proof, calendar truth or a claim that every external record has been mapped.
+
+\subsection{Privacy and credential boundary}
+
+Provider secrets remain inside the customer-controlled mother brain and existing
+vault authorities.  The onboarding response and its user interface exclude passwords,
+access tokens, private keys, raw messages, contact details, calendar event titles and
+bank details.  Email and CRM projections count records without returning customer names
+or addresses.  Google is considered connected only when the existing connector reports
+a connected authorization and a real token reference; Calendar additionally requires
+an authorized calendar scope.
+
+This separation permits the same interface to work in local, customer-cloud and
+enterprise deployments without making the desktop page a credential store.  A future
+provider can be added behind the same card contract while its authentication, scopes,
+residency and data handling remain governed by its own adapter.
+
+\subsection{Failure and trust semantics}
+
+Connector probing is fail-closed and fault-isolated.  If a provider cannot be reached,
+its card reports unavailable rather than connected.  Other cards still render.  Missing
+Google token possession or missing Calendar scope produces a not-connected state even
+if a superficial provider status says connected.  The interface never converts a
+transport response into evidence acceptance, nor a successful OAuth page into a claim
+that synchronization completed.
+
+The visual language intentionally distinguishes \emph{connected}, \emph{not connected}
+and evidence already \emph{represented}.  Further states---such as imported, reviewed,
+approved, rejected, stale and revoked---remain responsibilities of the underlying
+container and Business Map governance layers.
+
+\subsection{Verification and release record}
+
+Automated tests cover all five cards, Google credential and Calendar-scope checks,
+aggregate Files, Gmail, Calendar and CRM/Sales projections, Xero handoff metadata,
+absence of private source fields, provider-failure isolation, API error handling and
+the existing Boardroom controls.  Static interface tests confirm that account routes
+are invoked only from explicit button handling and that Files reuses the existing File
+Cabinet surface.
+
+The capability is packaged in AION Sovereign Brain Bootstrap~0.5.0 and Pilot
+Fabric~0.57.0.  The developer-preview installers remain unsigned; production signing,
+clean-machine qualification and real-account field tests remain separate release gates.
+
+\subsection{Phase closure and next work}
+
+This completes the locally implementable tasks in Phase~2 of the Sovereign Business
+Brain roadmap: the original Boardroom Business Map remains canonical; onboarding is
+resumable; facts and relationships are governed; review queues and owner editing are
+available; approved source claims can be linked deterministically; department access is
+bounded; source retention and revocation are enforced; and the established business
+connectors now have one safe onboarding view.
+
+The next implementation phase is the unified intelligence contract.  It must define one
+provider-neutral request, structured response and streaming envelope across deterministic
+capabilities, retrieval, local models, customer-cloud models and optional external APIs,
+while preserving explicit disclosure, residency, budget, fallback and execution limits.

@@ -1,0 +1,99 @@
+\section{Phase 13F --- No-Public-Route Regression v0}
+\label{sec:aion-phase13f-no-public-route-regression-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- no-public-route regression tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 13F locks the no-public-route boundary for the public website gateway and public embed surface.
+
+The Phase 12 public website work intentionally created preview builders, widget shells, request mapping, guard envelopes, and human-review handoff previews. It did not mount a live public write endpoint.
+
+This regression proves that no unauthenticated public write route has been mounted for public website intent, embed widgets, widget requests, bookings, jobs, payments, escrow, or external sends.
+
+\subsection{Locked Boundary}
+
+The public gateway remains preview-only.
+
+The following route surfaces MUST NOT be mounted by this phase:
+
+\begin{itemize}
+  \item \texttt{/api/aion-gateway/intent},
+  \item \texttt{/api/aion\_gateway/intent},
+  \item \texttt{/aion-gateway/intent},
+  \item \texttt{/aion\_gateway/intent},
+  \item \texttt{/api/public/aion-gateway},
+  \item \texttt{/api/public/aion\_gateway},
+  \item \texttt{/api/embed/aion},
+  \item \texttt{/api/widget/aion}.
+\end{itemize}
+
+\subsection{Required Safety Flags}
+
+The locked public gateway contracts must continue to expose the following safety terms:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+public_route_mounted = false
+unauthenticated_public_write_route_exposed = false
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_move_money = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_messages = false
+\end{verbatim}
+
+\subsection{Regression Scope}
+
+The regression test lives in:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_phase13_no_public_route_regression_lock.py
+\end{verbatim}
+
+The documentation test lives in:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_phase13_no_public_route_regression_lock_doc.py
+\end{verbatim}
+
+\subsection{Validation Commands}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_no_public_route_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_no_public_route_regression_lock_doc.py
+\end{verbatim}
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Repository Hygiene}
+
+The unrelated file below MUST remain out of this commit unless intentionally handled:
+
+\begin{verbatim}
+backend/modules/dna_chain/dna_switch_index.json
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13F-NO-PUBLIC-ROUTE-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "aion.governed_search_failover.v1",
+  "authority": "externally_resolved_primary_source_search_cache",
+  "created_at": "2026-07-31",
+  "purpose": "Provider-independent recovery when the live search engine is rate-limited; queries remain AION-authored and pages are fetched and hashed at run time.",
+  "queries": {
+    "Earth seasons axial tilt explanation sun angle day length educational site": [
+      "https://www.nesdis.noaa.gov/our-environment/solar-phenomena/changing-of-the-seasons",
+      "https://gml.noaa.gov/education/funfacts.html"
+    ],
+    "HTTP ETag If-None-Match 304 Not Modified cache validation RFC": [
+      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/304",
+      "https://httpwg.org/specs/rfc9110.html"
+    ],
+    "earthquake magnitude and energy release relationship official seismology source": [
+      "https://www.usgs.gov/programs/earthquake-hazards/earthquake-magnitude-energy-release-and-shaking-intensity",
+      "https://pubs.usgs.gov/of/1998/ofr-98-0767/"
+    ],
+    "antibiotic resistance how it develops and spreads public health agency explanation": [
+      "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance",
+      "https://www.ncbi.nlm.nih.gov/books/NBK513277/"
+    ],
+    "database transaction isolation levels lost update anomaly serializable": [
+      "https://www.postgresql.org/docs/current/transaction-iso.html",
+      "https://www.postgresql.org/docs/current/mvcc-serialization-failure-handling.html"
+    ],
+    "United States Constitution amendment process Article V full text": [
+      "https://www.archives.gov/federal-register/constitution",
+      "https://en.wikipedia.org/wiki/Article_Five_of_the_United_States_Constitution"
+    ]
+  }
+}

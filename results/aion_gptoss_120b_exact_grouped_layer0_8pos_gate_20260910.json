@@ -1,0 +1,50 @@
+{
+  "all_outputs_bitwise_equal": true,
+  "canonical_sha256": "ff5f5f4ede1f7406be83d3357cf6f0e9fcaa970029b18e22fd0a6c363ad70196",
+  "claim_boundary": "One real causal layer and eight teacher positions were evaluated after loading their exact expert union. This isolates grouped packed arithmetic; it is not a full transformer block, draft acceptance or generated-token measurement.",
+  "created_at": "2026-09-10T17:53:04.180126+00:00",
+  "expert_occurrences": 32,
+  "group_size_histogram": {
+    "1": 20,
+    "2": 6
+  },
+  "layer": 0,
+  "maximum_group_size": 2,
+  "mean_group_size": 1.2307692307692308,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "positions": 8,
+  "rounds": 12,
+  "schema": "aion.gptoss-120b-exact-grouped-layer-batch-gate.v1",
+  "status": "NOT_PROMOTED",
+  "summaries": {
+    "grouped": {
+      "samples": 24,
+      "wall_p50_ms": 6.4235,
+      "wall_p95_ms": 9.863042
+    },
+    "scalar": {
+      "samples": 24,
+      "wall_p50_ms": 6.234958,
+      "wall_p95_ms": 8.331458
+    }
+  },
+  "threads": 6,
+  "trace_file_sha256": "4ce868e49d4b5cc88023c17336d97660e09f397526da30bf15f7c73abb55cb97",
+  "trace_path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-unrestricted-48token-2026-09-10.json",
+  "unique_experts": 26,
+  "wall_speedup": 0.9706480890480268,
+  "warehouse_metrics": {
+    "admission_allowlist_entries": 0,
+    "admission_bypasses": 0,
+    "capacity_bytes": 0,
+    "compressed_bytes_read": 327274524,
+    "evictions": 0,
+    "faults": 26,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 0,
+    "protected_entries": 0,
+    "raw_bytes_materialized": 344597760,
+    "resident_bytes": 0
+  }
+}

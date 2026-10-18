@@ -1,0 +1,151 @@
+{
+  "schema_version": "aion.third_party_tool.v1",
+  "tool": {
+    "tool_id": "example_provider",
+    "label": "Example Provider",
+    "category": "business_system",
+    "owner": "Tessaris Connectors",
+    "description": "Replace this example with the provider and business purpose."
+  },
+  "connection": {
+    "type": "oauth2",
+    "vault_reference": "vault.example_provider.credentials",
+    "least_privilege_scopes": [
+      "records.read",
+      "records.write"
+    ],
+    "health_check": "example_provider.health_check",
+    "revocation_method": "Revoke the OAuth grant and remove the local Vault entry.",
+    "secrets_visible_to_model": false
+  },
+  "skills": [
+    {
+      "skill_id": "example_provider.manage_records",
+      "description": "Understand when and how to read, draft and update provider records.",
+      "required_knowledge": [
+        "business_context",
+        "provider_record_model",
+        "owner_policy"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "example_provider.read_records",
+      "label": "Read records",
+      "description": "Retrieve records without changing external state.",
+      "kind": "read",
+      "skill_ids": [
+        "example_provider.manage_records"
+      ],
+      "input_contract": {
+        "required": ["query"],
+        "properties": {
+          "query": {"type": "string"},
+          "limit": {"type": "integer", "maximum": 100}
+        }
+      },
+      "output_contract": {
+        "required": ["records", "provider_request_id"]
+      },
+      "risk": {
+        "tier": "low",
+        "external_write": false,
+        "financial": false,
+        "reversible": true,
+        "data_classes": ["business_records"]
+      },
+      "authority": {
+        "policy_key": "example_provider.read_records",
+        "default_mode": "ask_each_time",
+        "allowed_modes": ["ask_each_time", "auto_within_limits", "full_access", "blocked"],
+        "constraints": {
+          "workspace_scoped": true,
+          "record_limit": 100
+        }
+      },
+      "execution": {
+        "adapter_method": "read_records",
+        "dry_run_supported": true,
+        "idempotency": "not_applicable",
+        "timeout_seconds": 30
+      },
+      "receipt": {
+        "required": true,
+        "success_fields": ["provider_request_id", "record_count", "completed_at"],
+        "reconciliation": "Record the provider request ID and response hash."
+      },
+      "failure": {
+        "fail_closed": true,
+        "retryable_errors": ["rate_limited", "temporary_unavailable"],
+        "user_message": "The provider could not be read. No external state was changed."
+      }
+    },
+    {
+      "action_id": "example_provider.update_record",
+      "label": "Update record",
+      "description": "Update one allowlisted record after policy evaluation.",
+      "kind": "write",
+      "skill_ids": [
+        "example_provider.manage_records"
+      ],
+      "input_contract": {
+        "required": ["record_id", "changes", "expected_version"],
+        "properties": {
+          "record_id": {"type": "string"},
+          "changes": {"type": "object"},
+          "expected_version": {"type": "string"}
+        }
+      },
+      "output_contract": {
+        "required": ["record_id", "new_version", "provider_request_id"]
+      },
+      "risk": {
+        "tier": "medium",
+        "external_write": true,
+        "financial": false,
+        "reversible": true,
+        "data_classes": ["business_records"]
+      },
+      "authority": {
+        "policy_key": "example_provider.update_record",
+        "default_mode": "ask_each_time",
+        "allowed_modes": ["ask_each_time", "auto_within_limits", "full_access", "blocked"],
+        "constraints": {
+          "workspace_scoped": true,
+          "allowlisted_fields": ["status", "owner", "note"]
+        }
+      },
+      "execution": {
+        "adapter_method": "update_record",
+        "dry_run_supported": true,
+        "idempotency": "required",
+        "timeout_seconds": 30
+      },
+      "receipt": {
+        "required": true,
+        "success_fields": ["provider_request_id", "record_id", "new_version", "payload_sha256", "completed_at"],
+        "reconciliation": "Read the changed record back and compare its version and payload hash."
+      },
+      "failure": {
+        "fail_closed": true,
+        "retryable_errors": ["rate_limited", "temporary_unavailable"],
+        "user_message": "The update was not verified, so AION has treated it as not completed."
+      }
+    }
+  ],
+  "governance": {
+    "data_retention": "Store only scoped local receipts and the minimum provider identifiers required for reconciliation.",
+    "audit_log": "Append every policy decision, attempt, provider response and reconciliation result to the workspace evidence ledger.",
+    "kill_switch": "Disable the provider and revoke its Vault credential without changing other integrations.",
+    "promotion_evidence": [
+      "contract_tests_pass",
+      "dry_run_verified",
+      "sandbox_write_verified",
+      "receipt_reconciliation_verified",
+      "failure_injection_verified"
+    ],
+    "claim_boundary": "A valid manifest describes the integration. It is not evidence that credentials exist or that live execution is enabled."
+  }
+}
+

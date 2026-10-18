@@ -1,0 +1,110 @@
+\section{AION Goal Engine Child-Run Executor Bridge Lock}
+\label{sec:aion-goal-engine-child-run-executor-bridge-lock}
+
+\subsection{Status}
+
+The AION Goal Engine now exposes a guarded child-run executor bridge packet for the existing Workflow Capsule runtime.
+
+\begin{quote}
+\textbf{Status: LOCKED --- focused Goal Engine lock suite passing with 460 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+460 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock closes the handoff path between a human-approved child-run creation action and the existing Workflow Capsule runtime.
+
+The bridge does not execute the child run itself. It emits a canonical packet that can be consumed by the runtime executor after all Goal Engine guard checks have passed.
+
+\subsection{Schema}
+
+The locked schema version is:
+
+\begin{verbatim}
+aion.goal_engine.child_run_executor_bridge.v1
+\end{verbatim}
+
+The locked trace type is:
+
+\begin{verbatim}
+child_run_executor_bridge_packet
+\end{verbatim}
+
+The constructor is:
+
+\begin{verbatim}
+build_child_run_executor_bridge_packet(...)
+\end{verbatim}
+
+\subsection{Runtime Seed Contract}
+
+The bridge MUST only derive executable workflow identifiers from the reviewed runtime seed.
+
+The following runtime seed fields are authoritative:
+
+\begin{verbatim}
+runtime_seed.workflow_id
+runtime_seed.run_id
+\end{verbatim}
+
+Outer action fields MAY be preserved as provenance, but MUST NOT be used as fallback execution inputs.
+
+This prevents a malformed or partially reviewed action from creating a workflow run using unreviewed outer fields.
+
+\subsection{Approval Gates}
+
+The executor bridge MUST fail closed unless all of the following are true:
+
+\begin{itemize}
+  \item The input trace type is \texttt{human_approved_child_run_creation_action}.
+  \item \texttt{child_run_creation_allowed = true}.
+  \item \texttt{approval_decision = approved}.
+  \item \texttt{requires_runtime_executor = true}.
+  \item \texttt{runtime_seed.workflow_id} is present.
+  \item \texttt{runtime_seed.run_id} is present.
+\end{itemize}
+
+If any condition fails, the packet status MUST be \texttt{blocked} and \texttt{workflow_run_creation_allowed} MUST be false.
+
+\subsection{Safety Invariants}
+
+The bridge preserves the following safety invariants:
+
+\begin{itemize}
+  \item It does not create child runs directly.
+  \item It requires the existing Workflow Capsule runtime.
+  \item It creates no external side effects.
+  \item It does not allow autonomous execution.
+  \item \texttt{external_writes_allowed = false}.
+  \item \texttt{business_mutation_allowed = false}.
+  \item Missing runtime seed data MUST fail closed.
+\end{itemize}
+
+\subsection{Locked Files}
+
+\begin{verbatim}
+backend/modules/aion/goal_engine/orchestrator.py
+backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge.py
+docs/rfc/aion_goal_engine_child_run_executor_bridge_lock.tex
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-CHILD-RUN-EXECUTOR-BRIDGE-v1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,274 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_operating_distributed_networks",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:cybersecurity:threat_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cybersecurity",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cybersecurity:secure_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cybersecurity",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cybersecurity:cryptography",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cybersecurity",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cybersecurity:network_security",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cybersecurity",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cybersecurity:identity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cybersecurity",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cybersecurity:privacy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cybersecurity",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cybersecurity:incident_response",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cybersecurity",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cybersecurity:supply_chain",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cybersecurity",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:cybersecurity",
+      "label": "Cybersecurity and privacy",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cybersecurity:threat_models",
+      "label": "threat models",
+      "subject_id": "cybersecurity",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cybersecurity:secure_design",
+      "label": "secure design",
+      "subject_id": "cybersecurity",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cybersecurity:cryptography",
+      "label": "cryptography",
+      "subject_id": "cybersecurity",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cybersecurity:network_security",
+      "label": "network security",
+      "subject_id": "cybersecurity",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cybersecurity:identity",
+      "label": "identity",
+      "subject_id": "cybersecurity",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cybersecurity:privacy",
+      "label": "privacy",
+      "subject_id": "cybersecurity",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cybersecurity:incident_response",
+      "label": "incident response",
+      "subject_id": "cybersecurity",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cybersecurity:supply_chain",
+      "label": "supply chain",
+      "subject_id": "cybersecurity",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_cybersecurity",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:cybersecurity:threat_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cybersecurity",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cybersecurity:secure_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cybersecurity",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cybersecurity:cryptography",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cybersecurity",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cybersecurity:network_security",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cybersecurity",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cybersecurity:identity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cybersecurity",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cybersecurity:privacy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cybersecurity",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cybersecurity:incident_response",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cybersecurity",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cybersecurity:supply_chain",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cybersecurity",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:cybersecurity",
+        "label": "Cybersecurity and privacy",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cybersecurity:threat_models",
+        "label": "threat models",
+        "subject_id": "cybersecurity",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cybersecurity:secure_design",
+        "label": "secure design",
+        "subject_id": "cybersecurity",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cybersecurity:cryptography",
+        "label": "cryptography",
+        "subject_id": "cybersecurity",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cybersecurity:network_security",
+        "label": "network security",
+        "subject_id": "cybersecurity",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cybersecurity:identity",
+        "label": "identity",
+        "subject_id": "cybersecurity",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cybersecurity:privacy",
+        "label": "privacy",
+        "subject_id": "cybersecurity",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cybersecurity:incident_response",
+        "label": "incident response",
+        "subject_id": "cybersecurity",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cybersecurity:supply_chain",
+        "label": "supply chain",
+        "subject_id": "cybersecurity",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "cybersecurity",
+    "title": "AION Academy \u00b7 Cybersecurity and privacy"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

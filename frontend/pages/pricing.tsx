@@ -43,7 +43,7 @@ const businessCredits: CreditOption[] = [
 
 const freeFeatures = [
   "Private Tessaris workspace",
-  "Core AION experience",
+  "Core Si experience",
   "Connected model preview",
   "Community support",
 ];
@@ -162,7 +162,7 @@ export default function PricingPage() {
                 <div><span className={styles.planNumber}>01</span><h2>Free</h2><p>Explore Tessaris and build your first governed workspace.</p></div>
                 <div className={styles.price}><strong>€0</strong><span>/ month</span></div>
                 <div className={styles.fixedSpace} />
-                <Link className={styles.secondaryCta} href="/register?plan=free">Get started</Link>
+                <Link className={styles.secondaryCta} href="/waitlist?plan=free">Join the waitlist</Link>
               </div>
               <div className={styles.planMeta}><span><CreditCard size={15} />No credit card needed</span><span><Gift size={15} />Free access</span></div>
               <FeatureList items={freeFeatures} />
@@ -171,10 +171,10 @@ export default function PricingPage() {
             <article className={`${styles.planCard} ${styles.featuredCard}`}>
               <div className={styles.recommended}>Most popular</div>
               <div className={styles.planTop}>
-                <div><span className={styles.planNumber}>02</span><h2>Pro</h2><p>For founders and fast-moving teams building with AION.</p></div>
+                <div><span className={styles.planNumber}>02</span><h2>Pro</h2><p>For founders and fast-moving teams building with Si.</p></div>
                 <div className={styles.price}><strong>€{formatNumber(pro.price)}</strong><span>/ month incl. VAT</span></div>
                 <CreditPicker name="Pro" options={proCredits} selected={pro} onSelect={setPro} />
-                <Link className={styles.primaryCta} href={`/register?plan=pro&credits=${pro.credits}`}>Get started</Link>
+                <Link className={styles.primaryCta} href={`/waitlist?plan=pro&credits=${pro.credits}`}>Join the waitlist</Link>
               </div>
               <div className={styles.planMeta}><span><Users size={15} />Unlimited collaborators</span><span><Gift size={15} />Flexible credits</span></div>
               <FeatureList items={proFeatures} />
@@ -185,7 +185,7 @@ export default function PricingPage() {
                 <div><span className={styles.planNumber}>03</span><h2>Business</h2><p>Advanced controls and operating intelligence for growing teams.</p></div>
                 <div className={styles.price}><strong>€{formatNumber(business.price)}</strong><span>/ month incl. VAT</span></div>
                 <CreditPicker name="Business" options={businessCredits} selected={business} onSelect={setBusiness} />
-                <Link className={styles.secondaryCta} href={`/register?plan=business&credits=${business.credits}`}>Get started</Link>
+                <Link className={styles.secondaryCta} href={`/waitlist?plan=business&credits=${business.credits}`}>Join the waitlist</Link>
               </div>
               <div className={styles.planMeta}><span><Users size={15} />Unlimited users</span><span><ShieldCheck size={15} />Governed workspace</span></div>
               <FeatureList items={businessFeatures} />
@@ -196,7 +196,7 @@ export default function PricingPage() {
                 <div><span className={styles.planNumber}>04</span><h2>Enterprise</h2><p>Flexibility, scale and governance for complex organisations.</p></div>
                 <div className={`${styles.price} ${styles.enterprisePrice}`}><strong>Platform fee</strong><span>Volume-based pricing</span></div>
                 <div className={styles.fixedSpace} />
-                <Link className={styles.secondaryCta} href="/register?plan=enterprise">Book a demo</Link>
+                <Link className={styles.secondaryCta} href="/waitlist?plan=enterprise">Join the waitlist</Link>
               </div>
               <div className={styles.planMeta}><span><CreditCard size={15} />Volume pricing</span><span><Users size={15} />Unlimited users</span></div>
               <FeatureList items={enterpriseFeatures} />
@@ -205,7 +205,7 @@ export default function PricingPage() {
 
           <footer className={styles.pricingFooter}>
             <div><span className={styles.footerDot} /><strong>Governed by design</strong><p>Plans, allowances and package wording can be refined without changing the pricing structure.</p></div>
-            <Link href="/register">Talk to Tessaris <span aria-hidden="true">→</span></Link>
+            <Link href="/waitlist">Join the waitlist <span aria-hidden="true">→</span></Link>
           </footer>
         </section>
       </Shell>

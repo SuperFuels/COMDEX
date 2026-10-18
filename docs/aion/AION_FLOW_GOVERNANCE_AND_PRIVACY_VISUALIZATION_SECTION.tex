@@ -1,0 +1,23 @@
+\section{AION Flow Governance and Privacy Visualization}
+\label{sec:aion-flow-governance}
+
+AION Flow now produces an inspectable policy and disclosure plan before execution.  The visual
+catalogue shows that AION encloses the intelligence graph and distinguishes local, household,
+organisation, customer-cloud and external destinations.  The executable preflight records every
+boundary-crossing edge, its exact fields, data classification, destination, region, encryption,
+redaction and consent requirements.
+
+The planner binds a run to the active person, organisation, workspace, role and purpose.  It rejects
+expired membership and revoked authority.  Policies constrain permitted roles and purposes,
+external data classification, destinations and residency.  A fallback cannot silently disclose a
+more sensitive class, add a new destination or exceed the previously approved cost.
+
+Consequential nodes refer to an exact scope hash and a private approval.  The approval must exist,
+match the unchanged scope, remain unexpired and unrevoked, and come from a different authorized
+person wherever separation of duty applies.  Changing an action after approval forces a new review.
+Blocked routes receive a plain-language explanation without including restricted content.
+
+The resulting \texttt{aion.flow.policy\_disclosure\_plan.v1} record contains the AION ingress and
+return boundary, bounded actor projection, edge disclosure plan, approval state, allow/block result,
+non-sensitive explanations and a canonical plan hash.  This makes privacy and authority reviewable
+before a model call or external action occurs.

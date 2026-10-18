@@ -1,0 +1,15 @@
+{
+  "schema": "aion.riemann_execution_incident.v1",
+  "started_at": "2026-08-14T23:56:29.964147Z",
+  "packet_sha256": "ed3275b00d4c02514c6a88003e7ed27698013a6be47e718f45cb978bf2e62bf9",
+  "stage": "partial_proposer_alone_arm",
+  "completed_comparator_arms": 0,
+  "completed_aion_arms": 0,
+  "lean_checked_candidates_observed": 5,
+  "provider_requests_observed": 6,
+  "failure": "A strict structured response was truncated at the precommitted 400-token output cap and the v2.1 harness did not yet convert provider output failures into scored infrastructure failures.",
+  "comparative_result_exists": false,
+  "superiority_claim_supported": false,
+  "remediation": "Preserve v2.1 as incomplete; make provider-output failures exception-safe; checkpoint active arms; use fresh v3 tasks with a precommitted 1000-token cap.",
+  "claim_boundary": "Partial proposer sampling is neither a matched comparison nor evidence for or against AION."
+}

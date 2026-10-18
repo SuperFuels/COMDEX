@@ -1,0 +1,88 @@
+\section{Phase 13J --- GlyphChain Proof Receipt Regression Lock}
+\label{sec:phase13j-glyphchain-proof-receipt-regression-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- GlyphChain proof receipt regression tests passing with focused suite membership.}
+
+Phase 13J locks the GlyphChain proof receipt regression boundary for the AION public gateway and A2A trust/proof surface.
+
+This lock ensures that proof receipt generation and lookup remain deterministic, hash-derived, preview-safe, and free from live chain, wallet, payment, booking, escrow, dispatch, or external-message side effects.
+
+\subsection{Locked Scope}
+
+This regression covers:
+
+\begin{itemize}
+  \item GlyphChain proof commit contracts.
+  \item GlyphChain proof commit store contracts.
+  \item GlyphChain proof receipt lookup contracts.
+  \item Deterministic proof and receipt identity.
+  \item Preview-only chain/write safety flags.
+  \item Read-only receipt lookup behaviour.
+  \item No live wallet requirement.
+  \item No live chain transaction broadcast.
+  \item No payment, booking, escrow, dispatch, or external-message side effects.
+\end{itemize}
+
+\subsection{Regression Boundary}
+
+GlyphChain proof receipt flows MAY create deterministic proof metadata and read-model receipt lookup payloads.
+
+They MAY expose safety fields such as:
+
+\begin{itemize}
+  \item \texttt{would\_write\_chain}
+  \item \texttt{would\_require\_wallet}
+  \item \texttt{proof\_hash}
+  \item \texttt{receipt}
+  \item \texttt{summary\_hash}
+\end{itemize}
+
+They MUST NOT:
+
+\begin{itemize}
+  \item Generate proof identity from runtime-random IDs.
+  \item Require a live wallet.
+  \item Broadcast a live blockchain transaction.
+  \item Capture payment.
+  \item Create or confirm a booking.
+  \item Create or release escrow.
+  \item Dispatch a live job.
+  \item Send an external message.
+\end{itemize}
+
+\subsection{Validation}
+
+Focused validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_glyphchain_proof_receipt_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_glyphchain_proof_receipt_regression_lock_doc.py
+\end{verbatim}
+
+Focused suite command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Gateway compile command:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Repository Hygiene}
+
+This lock MUST NOT include unrelated DNA switch index changes unless explicitly intentional.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13J-GLYPHCHAIN-PROOF-RECEIPT-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,254 @@
+\section{GlyphChain release-evidence artefact contract}
+\label{sec:glyphchain-release-evidence-artifact-contract}
+
+Production readiness is not proven by attaching an arbitrary file to a signed
+approval.  Each of the thirty-four release gates now declares the exact classes of
+artefact required to support its claim.  The evaluator verifies the task-specific
+contract before accepting authority signatures, so a validly signed but irrelevant
+report cannot close a gate.
+
+\subsection{Artefact commitment format}
+
+Every retained artefact is represented inside the signed evidence body by
+
+\begin{equation}
+  A_i = (\mathrm{id}_i,\mathrm{kind}_i,
+         \operatorname{SHA256}(\mathrm{bytes}_i)).
+\end{equation}
+
+The identifier is a stable opaque reference used by the controlled evidence store;
+it is not a local path and must not contain private document content.  Identifiers
+are unique within an evidence entry.  Kinds use the fixed lowercase protocol
+vocabulary below.  The digest is exactly sixty-four lowercase hexadecimal
+characters and binds the retained bytes rather than a filename or description.
+
+An entry accepts between one and thirty-two artefact commitments.  For task $t$,
+let $K_t$ be the required kind set and $K_E$ the kinds present in the signed body.
+The artefact gate is
+
+\begin{equation}
+  G_{A,t} = (K_t \subseteq K_E)
+  \land \operatorname{unique}(\mathrm{id}_{1\ldots n})
+  \land \bigwedge_{i=1}^{n}\operatorname{valid}(A_i).
+\end{equation}
+
+Additional supporting artefacts are permitted within the bounded list, but they do
+not replace a missing required kind.  Empty identifiers, duplicate identifiers,
+unknown syntax, missing digests and task-inappropriate evidence fail closed.
+
+\subsection{Live delivery artefacts}
+
+\begin{center}
+\begin{tabular}{p{0.13\linewidth}p{0.75\linewidth}}
+\hline
+\textbf{Gate} & \textbf{Required artefact kinds} \\
+\hline
+\texttt{LD-01} & \texttt{resend\_callback\_configuration};
+\texttt{resend\_authenticated\_delivery\_event} \\
+\texttt{LD-02} & \texttt{microsoft\_scope\_grant};
+\texttt{exchange\_trace\_access\_grant} \\
+\texttt{LD-03} & \texttt{microsoft\_draft\_send\_trace} \\
+\texttt{LD-04} & \texttt{delivery\_failure\_retry\_matrix} \\
+\texttt{LD-05} & \texttt{production\_delivery\_qualification\_report} \\
+\hline
+\end{tabular}
+\end{center}
+
+The callback event must be authenticated by the provider adapter.  Microsoft
+evidence must preserve the exact Internet Message-ID, recipient and trace outcome.
+The retry matrix must cover the required delay, failure, rejection and newly
+authorised retry cases rather than merely show successful submission.
+
+\subsection{Independent trust-publication artefacts}
+
+\begin{center}
+\begin{tabular}{p{0.13\linewidth}p{0.75\linewidth}}
+\hline
+\textbf{Gate} & \textbf{Required artefact kinds} \\
+\hline
+\texttt{TR-01} & \texttt{trust\_release\_manifest};
+\texttt{trust\_release\_publication\_record} \\
+\texttt{TR-02} & \texttt{independent\_checkpoint\_pin\_record} \\
+\texttt{TR-03} & \texttt{clean\_device\_verification\_report} \\
+\hline
+\end{tabular}
+\end{center}
+
+The release manifest binds the checkpoint and offline verifier.  The publication
+record proves that exact package was made available through the approved versioned
+channel.  The independent pin record must originate outside that mutable release
+source.  The clean-device report binds the independently obtained pin and verified
+private evidence-package digest without copying the private document.
+
+\subsection{Distributed-network artefacts}
+
+\begin{center}
+\begin{tabular}{p{0.13\linewidth}p{0.75\linewidth}}
+\hline
+\textbf{Gate} & \textbf{Required artefact kinds} \\
+\hline
+\texttt{NET-01} & \texttt{validator\_response\_approval};
+\texttt{validator\_removal\_exercise\_report} \\
+\texttt{NET-02} & \texttt{independent\_node\_qualification\_report} \\
+\texttt{NET-03} & \texttt{real\_network\_failure\_report} \\
+\texttt{NET-04} & \texttt{multi\_device\_upgrade\_activation\_report} \\
+\texttt{NET-05} & \texttt{public\_relay\_validation\_report};
+\texttt{relay\_privacy\_observation} \\
+\hline
+\end{tabular}
+\end{center}
+
+The independent-node report must identify the exercised operational profiles.  The
+real-network report must cover NAT, reconnect, delayed messages, relay outage and
+partition recovery.  Upgrade evidence binds the exact signed release manifest,
+checkpoint, governance approval and activation height.  Public-relay evidence
+separately records availability/recovery and the observation that no Legal document
+content crossed the relay.
+
+\subsection{Security and recovery artefacts}
+
+\begin{center}
+\begin{tabular}{p{0.13\linewidth}p{0.75\linewidth}}
+\hline
+\textbf{Gate} & \textbf{Required artefact kinds} \\
+\hline
+\texttt{SEC-01} & \texttt{registry\_deployment\_record};
+\texttt{live\_recovery\_revocation\_report} \\
+\texttt{SEC-02} & \texttt{application\_security\_review};
+\texttt{application\_security\_findings\_closure} \\
+\texttt{SEC-03} & \texttt{consensus\_cryptography\_review};
+\texttt{consensus\_findings\_closure} \\
+\texttt{SEC-04} & \texttt{independent\_multi\_network\_soak\_report} \\
+\hline
+\end{tabular}
+\end{center}
+
+A review document alone is insufficient where findings exist; the corresponding
+closure artefact is also mandatory.  Recovery evidence must show the independently
+operated current-descriptor registry, epoch advancement, new-device authority,
+lost-device revocation and stale-session rejection.  Soak evidence must represent
+independent hosts and real production-like conditions rather than logical processes
+on the development Mac.
+
+\subsection{Qualified Legal-content artefacts}
+
+\begin{center}
+\begin{tabular}{p{0.13\linewidth}p{0.75\linewidth}}
+\hline
+\textbf{Gate} & \textbf{Required artefact kinds} \\
+\hline
+\texttt{LEGAL-01} & \texttt{qualified\_reviewer\_appointment} \\
+\texttt{LEGAL-02} & \texttt{customer\_agreement\_qualified\_approval} \\
+\texttt{LEGAL-03} & \texttt{supplier\_agreement\_qualified\_approval} \\
+\texttt{LEGAL-04} & \texttt{contractor\_agreement\_qualified\_approval} \\
+\texttt{LEGAL-05} & \texttt{employment\_document\_qualified\_approval} \\
+\texttt{LEGAL-06} & \texttt{terms\_privacy\_dpa\_qualified\_approval} \\
+\texttt{LEGAL-07} & \texttt{approved\_template\_library\_manifest} \\
+\hline
+\end{tabular}
+\end{center}
+
+Qualified approvals bind exact reviewed bytes, template family, supported
+jurisdiction, reviewer identity and approval date.  The encrypted-library manifest
+then proves that only those exact hashes were populated and records their current,
+withdrawn or superseded state.  Generic AI-generated wording or an unqualified
+internal review cannot produce these artefact classes.
+
+\subsection{Controlled-release artefacts}
+
+\begin{center}
+\begin{tabular}{p{0.13\linewidth}p{0.75\linewidth}}
+\hline
+\textbf{Gate} & \textbf{Required artefact kinds} \\
+\hline
+\texttt{REL-01} & \texttt{assurance\_boundary\_publication\_record} \\
+\texttt{REL-02} & \texttt{operator\_documentation\_publication\_record} \\
+\texttt{REL-03} & \texttt{electronic\_signature\_claim\_publication} \\
+\texttt{REL-04} & \texttt{internal\_multi\_device\_deployment\_report} \\
+\texttt{REL-05} & \texttt{closed\_customer\_pilot\_report} \\
+\texttt{REL-06} & \texttt{pilot\_metrics\_report} \\
+\texttt{REL-07} & \texttt{pilot\_findings\_closure\_report} \\
+\texttt{REL-08} & \texttt{frozen\_release\_manifest};
+\texttt{independent\_release\_pin\_record} \\
+\texttt{REL-09} & \texttt{final\_security\_approval};
+\texttt{final\_legal\_product\_approval};
+\texttt{final\_release\_approval} \\
+\texttt{REL-10} & \texttt{preauthorization\_readiness\_report};
+\texttt{production\_release\_authorization} \\
+\hline
+\end{tabular}
+\end{center}
+
+The publication records prove that the approved claim boundary and operating
+documents reached the production channel.  Pilot completion and metrics are
+separate because participation alone does not prove acceptable outcomes.  Final
+approval requires three distinct artefacts and the configured distinct authority
+roles.  Production authorization remains the last explicit decision after all
+preceding evidence is available.  Its signed body must commit to the exact file
+digest of a validated readiness report in which the other thirty-three gates pass
+and only \texttt{REL-10} remains unmet; authorization is never inferred from a
+completion percentage.
+
+\subsection{Offline creation and countersigning}
+
+The script
+\texttt{backend/scripts/create\_glyphchain\_release\_evidence.py} supports two
+signing operations and one assembly operation:
+
+\begin{enumerate}
+  \item \texttt{create} reads the exact release manifest and required retained
+        artefact files, computes their SHA-256 digests, builds the canonical
+        production evidence body and adds the first Ed25519 attestation;
+  \item \texttt{attest} reads an existing entry, validates its unchanged body and
+        appends a signature from a different authority key to a new output file.
+  \item \texttt{inventory} validates one or more signed entries, rejects duplicate
+        task identifiers and mixed release-manifest digests, sorts the entries by
+        canonical task identifier and writes one versioned exact-release inventory.
+\end{enumerate}
+
+This allows delivery, security, Legal and release authorities to countersign on
+separate machines without sharing private keys.  Each output uses exclusive
+owner-only creation and refuses overwrite.  Signing keys, release manifests,
+artefacts and existing entries must be regular files; symbolic links are refused.
+Inputs have explicit size bounds, and the private key must be an owner-only
+Ed25519 PEM file.  Encrypted PEM keys are supported by naming the environment
+variable containing the password; the password is not placed in command-line
+arguments, command history or evidence output.  The tool never writes the private
+key, password or source artefact path into the evidence body.
+
+The evaluator independently verifies all resulting signatures and authority roles.
+Use of the creator does not appoint its signer as trusted and does not establish
+independence: those properties remain in the separately administered trust-root
+inventory.  The evaluator also compares the inventory's declared release digest
+with the supplied manifest bytes before processing any non-empty inventory.
+The trust-root inventory is itself governance-signed and exact-digest pinned; an
+unsigned, altered or previously valid but no-longer-current authority set cannot
+authorise evidence.
+
+\subsection{Resource and schema boundaries}
+
+The release evaluator reads a bounded release manifest, evidence inventory and
+trust-root inventory.  It refuses symbolic links, non-regular files, invalid UTF-8,
+malformed JSON, unsupported schemas and incorrectly typed top-level collections.
+Evidence statements are limited to 4096 characters, signer identifiers and
+artefact fields use bounded protocol syntax, and future or timezone-free
+observation times fail closed.
+
+The readiness report records the required kind list, evidence-body digest,
+artefact-manifest digest, artefact count and attesting signer identifiers for every
+task.  Auditors can therefore reproduce both the semantic contract and the exact
+bytes used in the decision without exposing private Legal content.
+
+\subsection{Verification and claim boundary}
+
+Regressions prove that a wrong artefact kind cannot close a task, missing or
+duplicate identifiers are rejected, symlink inputs cannot redirect either CLI,
+and two separately held authority keys can create and countersign an entry that
+passes the intended multi-role independent gate.  A complete synthetic inventory
+continues to prove the algorithmic success path, while the real empty production
+inventory remains blocked.
+
+These mechanisms prove correct evidence handling.  They do not create or validate
+the truth of an external event by themselves.  The responsible authority remains
+accountable for the retained artefact, and independent or qualified status remains
+subject to the configured governance and professional review boundary.

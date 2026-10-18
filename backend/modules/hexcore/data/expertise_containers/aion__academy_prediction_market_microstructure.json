@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_probabilistic_forecasting_calibration",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_market_microstructure_execution",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:market_microstructure_execution",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_financial_risk_management",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_risk_management",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_microstructure:binary_contracts",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_microstructure:order_books",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_microstructure:implied_probability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_microstructure:fees_slippage",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_microstructure:liquidity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_microstructure:position_sizing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_microstructure:cross_market_coherence",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_microstructure:execution_controls",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "label": "Prediction-market microstructure and execution",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_microstructure:binary_contracts",
+      "label": "binary contracts",
+      "subject_id": "prediction_market_microstructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_microstructure:order_books",
+      "label": "order books",
+      "subject_id": "prediction_market_microstructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_microstructure:implied_probability",
+      "label": "implied probability",
+      "subject_id": "prediction_market_microstructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_microstructure:fees_slippage",
+      "label": "fees slippage",
+      "subject_id": "prediction_market_microstructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_microstructure:liquidity",
+      "label": "liquidity",
+      "subject_id": "prediction_market_microstructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_microstructure:position_sizing",
+      "label": "position sizing",
+      "subject_id": "prediction_market_microstructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_microstructure:cross_market_coherence",
+      "label": "cross market coherence",
+      "subject_id": "prediction_market_microstructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_microstructure:execution_controls",
+      "label": "execution controls",
+      "subject_id": "prediction_market_microstructure",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_prediction_market_microstructure",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_microstructure:binary_contracts",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_microstructure:order_books",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_microstructure:implied_probability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_microstructure:fees_slippage",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_microstructure:liquidity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_microstructure:position_sizing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_microstructure:cross_market_coherence",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_microstructure:execution_controls",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "label": "Prediction-market microstructure and execution",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_microstructure:binary_contracts",
+        "label": "binary contracts",
+        "subject_id": "prediction_market_microstructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_microstructure:order_books",
+        "label": "order books",
+        "subject_id": "prediction_market_microstructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_microstructure:implied_probability",
+        "label": "implied probability",
+        "subject_id": "prediction_market_microstructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_microstructure:fees_slippage",
+        "label": "fees slippage",
+        "subject_id": "prediction_market_microstructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_microstructure:liquidity",
+        "label": "liquidity",
+        "subject_id": "prediction_market_microstructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_microstructure:position_sizing",
+        "label": "position sizing",
+        "subject_id": "prediction_market_microstructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_microstructure:cross_market_coherence",
+        "label": "cross market coherence",
+        "subject_id": "prediction_market_microstructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_microstructure:execution_controls",
+        "label": "execution controls",
+        "subject_id": "prediction_market_microstructure",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "prediction_market_microstructure",
+    "title": "AION Academy \u00b7 Prediction-market microstructure and execution"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

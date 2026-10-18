@@ -1,0 +1,105 @@
+{
+  "canonical_sha256": "98ab3e9b23679fa5e635e8fa10462cc6fa31da2c26f3d02fa2a94903ba8a9d2a",
+  "claim_boundary": "Real router tensors selected four real experts and their exact packed networks executed and combined for a synthetic hidden state. This excludes attention and residual/norm operations, so it is not yet a complete transformer layer or token.",
+  "created_at": "2026-09-09T15:45:22.197178+00:00",
+  "expert_load_seconds": 0.6725652090390213,
+  "expert_store_metrics": {
+    "capacity_bytes": 268435456,
+    "compressed_bytes_read": 50506171,
+    "evictions": 0,
+    "faults": 4,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 53015040,
+    "raw_bytes_materialized": 53015040,
+    "resident_bytes": 53015040
+  },
+  "finite_and_checksum_repeatable": true,
+  "layer": 0,
+  "normalized_gates": [
+    0.26327851875760344,
+    0.2543679537211703,
+    0.24231303303576163,
+    0.2400404944854646
+  ],
+  "route": [
+    25,
+    112,
+    32,
+    127
+  ],
+  "router_logits": [
+    1.5315940380096436,
+    1.4971634149551392,
+    1.4486119747161865,
+    1.4391891956329346
+  ],
+  "run_a": {
+    "checksum": 88.9221,
+    "finite": true,
+    "gates": [
+      0.263279,
+      0.254368,
+      0.242313,
+      0.24004
+    ],
+    "p50_ms": 1.28996,
+    "p95_ms": 1.44046,
+    "repetitions": 8,
+    "route": [
+      25,
+      112,
+      32,
+      127
+    ],
+    "schema": "aion.gptoss.packed-route-cpu.v1",
+    "threads": 8,
+    "weight_bytes": 52876800
+  },
+  "run_b": {
+    "checksum": 88.9221,
+    "finite": true,
+    "gates": [
+      0.263279,
+      0.254368,
+      0.242313,
+      0.24004
+    ],
+    "p50_ms": 0.959583,
+    "p95_ms": 1.7265,
+    "repetitions": 8,
+    "route": [
+      25,
+      112,
+      32,
+      127
+    ],
+    "schema": "aion.gptoss.packed-route-cpu.v1",
+    "threads": 8,
+    "weight_bytes": 52876800
+  },
+  "schema": "aion.gptoss-router-driven-route-gate.v1",
+  "shared_reader_metrics": {
+    "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf": {
+      "cache_capacity_bytes": 16777216,
+      "cache_hit_rate": 0.9999976882140529,
+      "cache_hits": 1297695,
+      "cache_resident_bytes": 14482336,
+      "compressed_bytes_read": 4550394,
+      "frame_faults": 3,
+      "peak_resident_bytes": 14482336,
+      "raw_bytes_materialized": 14482336
+    },
+    "openai_gpt-oss-120b-Q4_K_M-00002-of-00002.gguf": {
+      "cache_capacity_bytes": 16777216,
+      "cache_hit_rate": 0.999409681227863,
+      "cache_hits": 1693,
+      "cache_resident_bytes": 15392,
+      "compressed_bytes_read": 1812,
+      "frame_faults": 1,
+      "peak_resident_bytes": 15392,
+      "raw_bytes_materialized": 15392
+    }
+  },
+  "status": "PASSED"
+}

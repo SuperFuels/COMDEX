@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# AION O23E staging launcher.
+# Development/staging only: delegates to the proven local Python 3.12 voice runtime.
+# Release packaging must replace this with an embedded or relocatable Python 3.12 runtime.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../../../../../.." && pwd)"
+exec "$ROOT/.venv_voice/bin/python" "$@"

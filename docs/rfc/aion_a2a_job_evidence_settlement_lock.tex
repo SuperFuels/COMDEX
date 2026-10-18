@@ -1,0 +1,270 @@
+\section{Phase 11E --- A2A Job Evidence and Settlement Readiness Preview v0}
+\label{sec:aion-a2a-job-evidence-settlement-preview-v0}
+
+\subsection{Status}
+
+Phase 11E locks the guarded A2A job evidence preview and settlement readiness preview contracts.
+
+\begin{quote}
+\textbf{Status: LOCKED --- A2A job evidence and settlement readiness preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 11E adds the next machine-facing preview layer inside the guarded A2A Gateway.
+
+It covers:
+
+\begin{itemize}
+  \item \texttt{job\_evidence}
+  \item \texttt{settlement\_readiness}
+\end{itemize}
+
+The job evidence preview allows an external agent to inspect required evidence, submitted evidence, missing evidence, and evidence-backed completion state.
+
+The settlement readiness preview allows an external agent to inspect whether a job is ready for future guarded fiat settlement.
+
+This remains preview-only. It does not move money, create a payment, create escrow, release funds, execute a workflow, or bypass human review.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_job_evidence_settlement.py
+\end{verbatim}
+
+The module defines:
+
+\begin{itemize}
+  \item \texttt{A2A\_JOB\_EVIDENCE\_SETTLEMENT\_VERSION}
+  \item \texttt{build\_a2a\_job\_evidence\_preview}
+  \item \texttt{build\_a2a\_settlement\_readiness\_preview}
+  \item \texttt{build\_a2a\_job\_evidence\_settlement\_bundle}
+\end{itemize}
+
+The exported contract version is:
+
+\begin{verbatim}
+aion.a2a_job_evidence_settlement.v0.1
+\end{verbatim}
+
+\subsection{Universal Boundary}
+
+The contract is universal Gateway infrastructure.
+
+Home Fixed remains the default validation fixture:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+industry_key = trades
+\end{verbatim}
+
+This is not a trade-only contract.
+
+The same evidence and settlement readiness contract must later support legal, ecommerce, healthcare, hospitality, property, accounting, consultancy, and other verticals through vertical adapters.
+
+\subsection{Job Evidence Preview}
+
+The reserved job evidence endpoint is:
+
+\begin{verbatim}
+GET /api/aion/a2a/{business_id}/job_evidence
+\end{verbatim}
+
+The job evidence preview includes:
+
+\begin{itemize}
+  \item business identity,
+  \item vertical identity,
+  \item job identifier,
+  \item required evidence,
+  \item submitted evidence,
+  \item missing evidence,
+  \item evidence status,
+  \item evidence-backed completion state,
+  \item evidence review status,
+  \item proof commit readiness,
+  \item evidence hash,
+  \item safety flags.
+\end{itemize}
+
+\subsection{Evidence Boundary}
+
+The evidence preview is explicitly non-live.
+
+The locked fields include:
+
+\begin{verbatim}
+human_review_required = true
+evidence_review_status = requires_human_review
+final_completion_confirmed = false
+\end{verbatim}
+
+The evidence preview may indicate whether all required evidence is present, but it MUST NOT confirm final completion without human review.
+
+\subsection{Settlement Readiness Preview}
+
+The reserved settlement readiness endpoint is:
+
+\begin{verbatim}
+GET /api/aion/a2a/{business_id}/settlement_readiness
+\end{verbatim}
+
+The settlement readiness preview includes:
+
+\begin{itemize}
+  \item business identity,
+  \item vertical identity,
+  \item job identifier,
+  \item currency,
+  \item quote amount,
+  \item evidence status,
+  \item evidence hash,
+  \item settlement readiness status,
+  \item proof requirement,
+  \item fiat-first state,
+  \item payment and escrow guardrails,
+  \item settlement readiness hash,
+  \item safety flags.
+\end{itemize}
+
+\subsection{Settlement Boundary}
+
+The settlement readiness preview is explicitly non-executing.
+
+The locked fields include:
+
+\begin{verbatim}
+settlement_status = not_ready_human_review_required
+settlement_ready = false
+payment_ready = false
+escrow_ready = false
+fiat_first = true
+glyphchain_is_payment_rail = false
+proof_required_before_settlement = true
+human_review_required = true
+would_move_money = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+next_step = future_guarded_approval_path
+\end{verbatim}
+
+GlyphChain remains a proof and receipt rail only. It is not a payment rail.
+
+\subsection{Determinism}
+
+The job evidence preview includes:
+
+\begin{verbatim}
+evidence_hash
+\end{verbatim}
+
+The settlement readiness preview includes:
+
+\begin{verbatim}
+settlement_readiness_hash
+\end{verbatim}
+
+The combined bundle includes:
+
+\begin{verbatim}
+bundle_hash
+\end{verbatim}
+
+Hashes MUST remain deterministic for identical input and MUST change when evidence state changes.
+
+\subsection{Safety Boundary}
+
+The job evidence and settlement readiness preview contracts MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item confirm final completion,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item enable live status polling.
+\end{itemize}
+
+\subsection{Locked Safety Flags}
+
+The locked safety flags are:
+
+\begin{verbatim}
+guarded = true
+preview_only = true
+public_route_exposed = false
+requires_auth = true
+auth_mode = api_key_or_signed_agent_preview
+schema_versioned = true
+deterministic_response = true
+human_review_required = true
+would_execute_workflow = false
+would_create_booking = false
+would_create_live_job = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_message = false
+live_status_polling_enabled = false
+\end{verbatim}
+
+\subsection{Blocked Reasons}
+
+The locked blocked reasons include:
+
+\begin{verbatim}
+preview_only
+guarded_evidence
+guarded_settlement_readiness
+auth_required
+public_route_not_exposed
+human_review_required
+no_live_completion_confirmation
+no_payment_movement
+no_payment_creation
+no_escrow_creation
+no_fund_release
+no_external_message_side_effect
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_a2a_job_evidence_settlement_lock.py \
+  backend/tests/workflow_capsules/test_aion_a2a_job_evidence_settlement_lock_doc.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-A2A-JOB-EVIDENCE-SETTLEMENT-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

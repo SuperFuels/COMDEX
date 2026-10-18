@@ -1,0 +1,293 @@
+{
+  "contracts": {
+    "744a10c0a13c7024": {
+      "adapter_id": "json_lines",
+      "task_id": "ndjson_transfer.renamed",
+      "updated_at": "2026-07-31T21:50:10.560578+00:00",
+      "verified": true
+    },
+    "9fb6183af7e2fe04": {
+      "adapter_id": "toml_document",
+      "task_id": "toml_transfer.renamed",
+      "updated_at": "2026-07-31T21:50:10.594063+00:00",
+      "verified": true
+    },
+    "c92bf03552ca2ee7": {
+      "adapter_id": "svg_structure",
+      "task_id": "svg_transfer.renamed",
+      "updated_at": "2026-07-31T21:50:10.664579+00:00",
+      "verified": true
+    },
+    "cd8924f20e5de3f0": {
+      "adapter_id": "json_document",
+      "task_id": "json_drift.renamed",
+      "updated_at": "2026-07-31T21:50:10.699408+00:00",
+      "verified": true
+    },
+    "faa3aed8cfd3a16b": {
+      "adapter_id": "ical_events",
+      "task_id": "ical_transfer.renamed",
+      "updated_at": "2026-07-31T21:50:10.628671+00:00",
+      "verified": true
+    }
+  },
+  "retired": [],
+  "trials": [
+    {
+      "attempts": 3,
+      "fingerprint": "744a10c0a13c7024",
+      "selected": "json_lines",
+      "task_id": "ndjson_dev.opaque",
+      "trials": [
+        {
+          "candidate": "plain_text",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": false,
+            "property_count": 3
+          }
+        },
+        {
+          "candidate": "toml_document",
+          "property_result": {
+            "passed": false,
+            "reason": "TOMLDecodeError"
+          }
+        },
+        {
+          "candidate": "json_lines",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "attempts": 2,
+      "fingerprint": "9fb6183af7e2fe04",
+      "selected": "toml_document",
+      "task_id": "toml_dev.opaque",
+      "trials": [
+        {
+          "candidate": "plain_text",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": false,
+            "property_count": 3
+          }
+        },
+        {
+          "candidate": "toml_document",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "attempts": 5,
+      "fingerprint": "faa3aed8cfd3a16b",
+      "selected": "ical_events",
+      "task_id": "ical_dev.opaque",
+      "trials": [
+        {
+          "candidate": "plain_text",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": false,
+            "property_count": 3
+          }
+        },
+        {
+          "candidate": "toml_document",
+          "property_result": {
+            "passed": false,
+            "reason": "TOMLDecodeError"
+          }
+        },
+        {
+          "candidate": "json_lines",
+          "property_result": {
+            "passed": false,
+            "reason": "JSONDecodeError"
+          }
+        },
+        {
+          "candidate": "json_document",
+          "property_result": {
+            "passed": false,
+            "reason": "JSONDecodeError"
+          }
+        },
+        {
+          "candidate": "ical_events",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "attempts": 6,
+      "fingerprint": "c92bf03552ca2ee7",
+      "selected": "svg_structure",
+      "task_id": "svg_dev.opaque",
+      "trials": [
+        {
+          "candidate": "plain_text",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": false,
+            "property_count": 3
+          }
+        },
+        {
+          "candidate": "toml_document",
+          "property_result": {
+            "passed": false,
+            "reason": "TOMLDecodeError"
+          }
+        },
+        {
+          "candidate": "json_lines",
+          "property_result": {
+            "passed": false,
+            "reason": "JSONDecodeError"
+          }
+        },
+        {
+          "candidate": "json_document",
+          "property_result": {
+            "passed": false,
+            "reason": "JSONDecodeError"
+          }
+        },
+        {
+          "candidate": "ical_events",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": false,
+            "property_count": 3
+          }
+        },
+        {
+          "candidate": "svg_structure",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "fingerprint": "744a10c0a13c7024",
+      "selected": "json_lines",
+      "task_id": "ndjson_transfer.renamed",
+      "trials": [
+        {
+          "candidate": "json_lines",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "fingerprint": "9fb6183af7e2fe04",
+      "selected": "toml_document",
+      "task_id": "toml_transfer.renamed",
+      "trials": [
+        {
+          "candidate": "toml_document",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "fingerprint": "faa3aed8cfd3a16b",
+      "selected": "ical_events",
+      "task_id": "ical_transfer.renamed",
+      "trials": [
+        {
+          "candidate": "ical_events",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "fingerprint": "c92bf03552ca2ee7",
+      "selected": "svg_structure",
+      "task_id": "svg_transfer.renamed",
+      "trials": [
+        {
+          "candidate": "svg_structure",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "attempts": 4,
+      "fingerprint": "cd8924f20e5de3f0",
+      "selected": "json_document",
+      "task_id": "json_drift.renamed",
+      "trials": [
+        {
+          "candidate": "plain_text",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": false,
+            "property_count": 3
+          }
+        },
+        {
+          "candidate": "toml_document",
+          "property_result": {
+            "passed": false,
+            "reason": "TOMLDecodeError"
+          }
+        },
+        {
+          "candidate": "json_lines",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": false,
+            "property_count": 3
+          }
+        },
+        {
+          "candidate": "json_document",
+          "property_result": {
+            "counterexample_capable": true,
+            "passed": true,
+            "property_count": 3
+          }
+        }
+      ]
+    }
+  ]
+}

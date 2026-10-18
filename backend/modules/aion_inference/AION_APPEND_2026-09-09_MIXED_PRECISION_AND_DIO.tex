@@ -1,0 +1,229 @@
+% Append-only section for the AION technical record.
+% Required packages: amsmath, booktabs, array, url.
+
+\section{Qwen3-30B Quality Recovery and Direct-I/O Cold-Start Programme}
+\label{sec:qwen30b-quality-dio-2026-09-09}
+
+\subsection{Scope and preserved baseline}
+
+This section records the experiments completed after promotion of the
+selective-Q2-expert Qwen3-30B-A3B execution path.  The preserved baseline is
+the 10,516,205,056-byte (9.79~GiB) candidate with SHA-256
+\texttt{7b1165eef9a868954a3fc9bdc31e3f454a04ebd86b14040945074c99edce5bac}.
+It retains Q4\_K\_M policy for non-expert tensors, stores the MoE gate, up and
+down expert banks as Q2\_K, loads all 48 layers on Metal, sustains more than
+50 generated tokens/s through replicated 64-, 128- and 256-token tests, and
+runs at approximately 61--63 tokens/s when fully warm.  These resident rates
+must not be represented as continuous SD streaming rates: the SD card is the
+durable cold warehouse and the compact model executes from unified memory
+after loading.
+
+Two independent tracks followed:
+\begin{enumerate}
+  \item a changed-weight, quality-gated mixed-precision track intended to
+        recover broader model quality without losing residency; and
+  \item a runtime-only direct-I/O track intended to reduce SD cold-start time
+        without changing model arithmetic.
+\end{enumerate}
+
+\subsection{Heuristic edge-layer mixed precision}
+
+The first exploratory candidate restored Q3\_K expert precision at layers
+0--7 and 40--47, retained Q2\_K experts at layers 8--39, and retained the
+Q4\_K\_M base policy for non-expert tensors.  This allocation was explicitly
+declared as an architectural heuristic rather than a measured sensitivity
+claim.  The predeclared plan SHA-256 was
+\texttt{4b6912d12ef983e71dbe0db307095758541c7452522560fe3640e0a47eb12542}.
+
+The temporary internal-disk candidate was 11,497,672,192 bytes
+(10,959.34~MiB), with SHA-256
+\texttt{1cec6825acb0a912a449ac0f5aacfc376ca4dce548d1317b741a3253438287f4}.
+It was not copied to SD because the evidence volume had only approximately
+9~GiB free.  It loaded with all layers on Metal and reached 58.13 tokens/s in
+a narrow 16-token smoke test.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Evaluation & Q2 baseline & Edge candidate & Gate \\
+\midrule
+Structured strict & 6/8 & 7/8 & pass \\
+Structured semantic & 7/8 & 8/8 & pass \\
+Structured parseable & 8/8 & 8/8 & pass \\
+Multiple choice & 11/12 & 10/12 & fail \\
+\bottomrule
+\end{tabular}
+\caption{Frozen quality result for the heuristic edge-layer candidate.}
+\end{table}
+
+The structured cohort was repeated twice with identical raw and parsed
+outputs.  The only strict miss used \texttt{gram} instead of the schema-exact
+\texttt{g}, while returning the correct value.  However, the separate frozen
+multiple-choice cohort regressed from 11/12 to 10/12.  The candidate was
+therefore marked \textbf{NOT\_PROMOTED}; the predeclared replicated 256-token
+stage was not run after the quality failure.  The canonical result SHA-256 is
+\texttt{d47d6e0c65522c31f6c290c31b4cdba342c52d4c7a97a7860a7cf9d483eb0475}.
+
+\subsection{Complete eight-layer sensitivity screen}
+
+The heuristic result motivated a predeclared sensitivity screen.  The 48
+transformer layers were divided into six independent eight-layer bands.  In
+each candidate, exactly one band's expert gate, up and down tensors used
+Q3\_K; all other expert tensors used Q2\_K.  A band was sensitivity-positive
+only if it simultaneously achieved at least 7/8 strict and 7/8 semantic on
+the structured cohort, 8/8 parseable and repeatable output, at least 11/12 on
+the multiple-choice cohort, complete Metal residency, and at least 50
+tokens/s on the smoke test.  The plan SHA-256 is
+\texttt{90ddbde0c57add79285989d2d7b34562d5e8d4b23f719d9b00a9b9b08f3b5e7c}.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+Band & Layers & Structured strict & MCQ & Result \\
+\midrule
+B0 & 0--7   & 6/8 & 10/12 & fail \\
+B1 & 8--15  & 6/8 & 11/12 & fail \\
+B2 & 16--23 & 7/8 & 10/12 & fail \\
+B3 & 24--31 & not run & not run & Metal OOM \\
+B4 & 32--39 & not run & not run & Metal OOM \\
+B5 & 40--47 & 7/8 & 9/12  & fail \\
+\bottomrule
+\end{tabular}
+\caption{Independent eight-layer Q3\_K expert-restoration screen.}
+\end{table}
+
+B0, B1, B2 and B5 produced repeatable, parseable structured outputs.  B0's
+narrow smoke test measured 59.10 tokens/s.  B2 and B5 improved structured
+results but regressed multiple-choice performance.  B1 preserved the Q2
+multiple-choice score but did not improve the structured strict score.  B3 and
+B4 encountered Metal command-buffer out-of-memory errors during initialisation.
+B4 failed repeatedly even with one service slot, context 512, batch 128 and
+microbatch 64.  Because those candidates were tested late in a
+memory-intensive ordered run, temporal memory pressure remains a confound and
+the failures cannot be attributed solely to layer position.
+
+No band passed every frozen gate.  No band and no combination was promoted.
+The screen demonstrates that precision response is non-monotonic and
+task-dependent: restoring precision can repair one evaluation family while
+damaging another.  Combining individually failing bands would be speculation,
+not sensitivity-guided allocation.  The canonical result SHA-256 is
+\texttt{d05d7dbf00c573c9164f3460477274b2a6b8c3204d97c4d5129db1bdfabf621a}.
+The result was recorded in isolated commit \texttt{cb1b6fe9}.
+
+\subsection{Direct-I/O narrow cold-start experiment}
+
+The next track changed only the model-loading mechanism.  The question was
+whether llama.cpp direct I/O could reduce cache-displaced SD startup without
+changing output or resident performance.  The plan fixed a minimum 15\%
+readiness reduction, identical deterministic token text and top-10
+log-probability payload, at least 50 resident tokens/s, successful health, and
+no Metal out-of-memory error.  Its SHA-256 is
+\texttt{fc17589cbd0e47b1636a4cbeadee0b1db3fffd352261d49adabf56b30f8e0569}.
+
+Immediately before the DIO start, the preserved 18,556,685,824-byte Q4 control
+was read sequentially from the SD card to \texttt{/dev/null}.  The read took
+194.096~s at 95.61~MB/s decimal.  This strongly displaced Q2 pages but is not
+claimed as a kernel-certified complete cache flush.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\toprule
+Condition & Ready time (s) & Relative result \\
+\midrule
+Automatic mmap control & 213.088 & control \\
+Direct I/O candidate & 116.219 & 45.459\% lower \\
+\bottomrule
+\end{tabular}
+\caption{Initial cache-displaced service-readiness result.}
+\end{table}
+
+Direct I/O saved 96.869~s and made this measured start 1.8335 times as fast.
+The fixed 32-token probe returned identical text, token sequence and top-10
+log-probability payload.  Resident probe performance was 60.010 tokens/s for
+DIO and 59.491 tokens/s for the preceding control.  All Metal layers loaded,
+health became ready, and no out-of-memory error occurred.  The result passed
+every narrow gate, while the document explicitly required balanced
+replication before a general cold-start claim.  Its result SHA-256 is
+\texttt{d226029a29310ca438f6796e9789f1a1599de81732841fa5f22a5289ce1bb543},
+recorded in commit \texttt{510f23d8}.
+
+\subsection{Balanced DIO replication}
+
+A separate plan fixed the balanced order auto/DIO/DIO/auto.  Each arm first
+read the full 17.28~GiB Q4 control from SD, then started the same Q2 model with
+identical Metal, context, slot, thread, polling and attention settings.  The
+plan SHA-256 is
+\texttt{b81bb139e49a26dc0d500a41a582142a10e2ff1e4c0fc445ce503350068bd5ef}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Arm & Mode & Ready time (s) & First probe (tokens/s) \\
+\midrule
+1 & auto & 221.030 & 24.038 \\
+2 & DIO  & 117.353 & 58.473 \\
+3 & DIO  & 116.392 & 58.356 \\
+4 & auto & 232.056 & 24.051 \\
+\bottomrule
+\end{tabular}
+\caption{Balanced cache-displaced startup and immediate first-request rate.}
+\end{table}
+
+Median readiness was 226.543~s for automatic mmap and 116.873~s for DIO.
+Direct I/O reduced median readiness by 48.410\%, a 1.9384-fold speedup.  Both
+DIO arms were faster than both automatic arms.  All arms became healthy, none
+reported Metal out-of-memory, and every completion produced identical text and
+an identical top-10 log-probability payload.  The canonical log-probability
+SHA-256 for every arm is
+\texttt{1fe300c9fb23f5314920617a1a61980a8d27934aa4bc860752f3300ff445919b}.
+
+The audit preserved one important predeclared-gate defect.  The plan required
+\emph{every arm}, including controls, to exceed 50 tokens/s on the first
+post-ready probe.  Both automatic arms delivered approximately 24 tokens/s,
+while both DIO arms exceeded 58 tokens/s.  The literal all-arm gate therefore
+failed and was not relaxed.  Formal promotion under this exact ABBA plan was
+withheld, even though the DIO mechanism and direction replicated strongly.
+
+The measurements support the hypothesis that mmap can announce readiness
+while expensive first-use page work remains, whereas DIO supplies both earlier
+readiness and immediately fast inference.  This is a measured systems
+inference, not yet a causal decomposition.  A subsequent experiment must
+separately measure process-start-to-first-completed-response and second-response
+warm performance, with candidate acceptance separated from control
+characterisation.
+
+The balanced result SHA-256 is
+\texttt{f9f064f18d6dd8ab327bfdf8aabf007c58996ea2e05dc2b9793572a374693498},
+recorded in isolated commit \texttt{ac5939bf}.
+
+\subsection{Current verified position}
+
+The mixed-precision programme did not produce a quality-safe replacement and
+was stopped without weakening its gates.  The original selective-Q2 model
+therefore remains the resident quality-gated candidate.  The direct-I/O
+programme, by contrast, produced a replicated and order-balanced systems
+advance: approximately half of cache-displaced service-readiness time was
+removed, and immediate first inference exceeded 58 tokens/s instead of the
+automatic arms' approximately 24 tokens/s, with an identical deterministic
+probability trace.
+
+The precise claim is consequently:
+\begin{quote}
+A 30.532-billion-parameter sparse model stored on an ordinary SD card can be
+loaded fully onto the existing 18~GB M3 Pro using AION's compact resident
+warehouse.  Direct-I/O loading reduced measured cache-displaced readiness from
+a 226.54-second balanced-control median to 116.87 seconds, while preserving the
+tested token and top-log-probability trace.  After loading, generation occurs
+from unified memory, not by streaming 60 tokens/s directly from SD.
+\end{quote}
+
+Generalisation remains open.  The next gates are larger independent startup
+replication, process-start-to-first-response measurement, broader blinded model
+quality evaluation, and testing on additional commodity Macs and storage
+devices without altering the frozen evidence or claim boundary.
+

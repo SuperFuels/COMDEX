@@ -1,0 +1,78 @@
+{
+  "argmax_equal": true,
+  "canonical_sha256": "1f87a5d9762848c5144fee5153a53d1cadf106e076ea51d2b487deccdd109eab",
+  "claim_boundary": "One real four-expert layer route from a frozen GPT-OSS 120B trace was calculated as one Metal graph. This is a changed-arithmetic microgate, not a full token, semantic-quality result, or generated tokens-per-second claim.",
+  "cpu": {
+    "checksum": 65.2147,
+    "finite": true,
+    "gates": [
+      0.593919,
+      0.142247,
+      0.137433,
+      0.126401
+    ],
+    "p50_ms": 0.692833,
+    "p95_ms": 0.906333,
+    "repetitions": 10,
+    "route": [
+      45,
+      72,
+      15,
+      83
+    ],
+    "schema": "aion.gptoss.packed-route-cpu.v1",
+    "threads": 6,
+    "weight_bytes": 52876800
+  },
+  "created_at": "2026-09-10T06:00:24.313472+00:00",
+  "fused_metal": {
+    "checksum": 65.4719,
+    "device": "MTL0",
+    "first_compute_ms": 108.523,
+    "status": "PASSED",
+    "upload_ms": 6.06446,
+    "warm_p50_ms": 1.93715,
+    "warm_p95_ms": 2.07725
+  },
+  "layer": 0,
+  "max_abs_error": 0.08817481994628906,
+  "metal_speedup": 0.3576558346023798,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "normalized_gates": [
+    0.5939192284780179,
+    0.14224654085518618,
+    0.13743293049344682,
+    0.12640130017334916
+  ],
+  "outputs_bitwise_equal": false,
+  "position": 26,
+  "promotion_gates": {
+    "relative_l2_at_most": 0.01,
+    "speedup_at_least": 1.15
+  },
+  "relative_l2_error": 0.007492741200291697,
+  "route": [
+    45,
+    72,
+    15,
+    83
+  ],
+  "schema": "aion.gptoss-120b-fused-four-expert-metal-gate.v1",
+  "status": "NOT_PROMOTED",
+  "trace_file_sha256": "4ce868e49d4b5cc88023c17336d97660e09f397526da30bf15f7c73abb55cb97",
+  "trace_path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-unrestricted-48token-2026-09-10.json",
+  "warehouse_metrics": {
+    "admission_allowlist_entries": 0,
+    "admission_bypasses": 0,
+    "capacity_bytes": 67108864,
+    "compressed_bytes_read": 50393020,
+    "evictions": 0,
+    "faults": 4,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 53015040,
+    "protected_entries": 0,
+    "raw_bytes_materialized": 53015040,
+    "resident_bytes": 53015040
+  }
+}

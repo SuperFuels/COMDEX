@@ -1,0 +1,121 @@
+% Compile-ready section. Requires: booktabs, tabularx, array, enumitem.
+
+\section{GlyphChain Assurance and Privacy Boundary}
+\label{sec:glyphchain-assurance-privacy-boundary}
+
+This section defines the assurance language that Tessaris may display for a
+Legal document proof, the information permitted on GlyphChain and the claims
+that remain prohibited.  These terms are normative product and release
+boundaries.  User-interface wording, sales material and exported evidence must
+not collapse a weaker state into a stronger one.
+
+\subsection{Supported Assurance Levels}
+
+\begin{tabularx}{\textwidth}{@{}
+  >{\raggedright\arraybackslash\bfseries}p{0.22\textwidth}
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+Displayed state & What Tessaris has verified & What it does not claim \\
+\midrule
+Local evidence created &
+The document, signer commitments and audit history have been hashed and signed
+by the originating Tessaris device. &
+Network publication, delivery, legal enforceability or quorum finality. \\
+\addlinespace
+
+Ledger committed --- quorum pending &
+The exact proof transaction is stored in a GlyphChain ledger block and its
+Merkle inclusion path verifies. &
+Agreement by a validator quorum. \\
+\addlinespace
+
+Signatures valid --- trust anchor not supplied &
+The certificate's validator membership, Ed25519 votes and quorum power are
+internally valid. &
+That the validator set is the legitimate GlyphChain set. \\
+\addlinespace
+
+Trust-anchored quorum final &
+The version~2 certificate is valid against a separately supplied checkpoint and
+signs the exact ledger commitment and transaction root containing the proof. &
+Legal validity, qualified electronic-signature status, identity assurance
+beyond the configured signing policy, or uninterrupted public-network
+availability. \\
+\bottomrule
+\end{tabularx}
+
+The application must not shorten these distinct states to a generic
+``blockchain certified'' label.  A ledger commitment is not quorum finality,
+and a certificate carried inside a receipt cannot appoint its own trust anchor.
+
+\subsection{Data Placed on GlyphChain}
+
+GlyphChain stores commitments and protocol metadata.  The document body,
+signer name, signer email address, message body, delivery attachment and private
+Legal matter record are not written into the proof transaction.  The
+transaction binds opaque identifiers and hashes for the document, signed-copy
+manifest, ordered signer commitments and terminal audit event.
+
+Anyone who obtains the private document and portable receipt can test whether
+the bytes match the public commitment.  A commitment is not encryption and
+must not be presented as making a weak or predictable document secret.
+
+\subsection{Local Data and Key Separation}
+
+\begin{itemize}[leftmargin=*]
+  \item Legal matter and envelope records use AES--256--GCM encryption and
+        production Keychain custody.
+  \item The Legal proof device identity is a dedicated Ed25519 key and is not
+        the validator-finality identity.
+  \item Peer-to-peer transport authentication uses a separate Ed25519 key.
+  \item Validator quorum-finality votes use a separate Ed25519 key anchored in
+        the validator checkpoint.  Startup rejects reuse of the peer-to-peer
+        transport key as the finality key.
+  \item A normal desktop is a light node.  Relay and validator duties require
+        explicit local approval; installing Tessaris does not silently
+        contribute public bandwidth or consensus votes.
+\end{itemize}
+
+\subsection{Retention and Deletion}
+
+Local Legal records follow the configured retention schedule and applicable
+Legal holds.  Deletion requires a portable export and an exact confirmation,
+then leaves an encrypted, content-free destruction receipt.  Deleting local
+content does not erase a public commitment or transaction hash from a
+distributed ledger.  Tessaris must disclose that distinction before proof
+submission.
+
+\subsection{Claims That Remain Prohibited}
+
+Until separately assessed and approved, Tessaris must not claim:
+
+\begin{itemize}[leftmargin=*]
+  \item qualified electronic-signature or qualified trust-service status;
+  \item guaranteed Legal enforceability in every jurisdiction;
+  \item anonymous or untraceable network use;
+  \item permanent availability solely because a proof was submitted;
+  \item production-grade decentralisation before the multi-device network
+        gates pass;
+  \item that a local development checkpoint is an independently distributed
+        trust anchor; or
+  \item that Photon credits or currency are required for Legal document proof.
+\end{itemize}
+
+\subsection{Production Publication Gate}
+
+The following artefacts must be versioned with every production release:
+
+\begin{enumerate}[leftmargin=*]
+  \item this assurance and privacy-boundary section;
+  \item the network-participation guide;
+  \item the supported retention and recovery commitments;
+  \item the current public validator-checkpoint file; and
+  \item the checkpoint identifier or digest published through a genuinely
+        independent channel.
+\end{enumerate}
+
+The validator checkpoint and its trust pin must not be obtained solely from the
+same mutable source.  Production publication remains gated until a clean-device
+verification succeeds using the versioned checkpoint, independently published
+pin, private evidence package and standalone verifier.

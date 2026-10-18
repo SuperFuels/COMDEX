@@ -1,0 +1,1037 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "continuous_cross_domain_mastery": "procedure_continuous_cross_domain_mastery_v1",
+    "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:development:1": "procedure_mastery_algebraic_rule_induction_49fbbce05d01",
+    "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:development:2": "procedure_mastery_algebraic_rule_induction_40d7b7b5b4c6",
+    "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:transfer:3": "procedure_mastery_algebraic_rule_induction_e20e63716aff",
+    "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:development:1": "procedure_mastery_causal_structure_discovery_ffb504f46e7d",
+    "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:development:2": "procedure_mastery_causal_structure_discovery_3d38482e15ab",
+    "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:transfer:3": "procedure_mastery_causal_structure_discovery_ad439bb7c1c5",
+    "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:development:1": "procedure_mastery_evidence_strategy_selection_21d43fb3aab6",
+    "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:development:2": "procedure_mastery_evidence_strategy_selection_b5fdfbf1977f",
+    "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:transfer:3": "procedure_mastery_evidence_strategy_selection_cc17f02fed9b",
+    "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:development:1": "procedure_mastery_novel_language_induction_74cc4d75d5d5",
+    "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:development:2": "procedure_mastery_novel_language_induction_1e4051a6ddae",
+    "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:transfer:3": "procedure_mastery_novel_language_induction_748308ce2d88",
+    "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:development:1": "procedure_mastery_tool_selection_d3e7329b818a",
+    "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:development:2": "procedure_mastery_tool_selection_e477ba0c1db3",
+    "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:transfer:3": "procedure_mastery_tool_selection_1c4001eabdb3"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "cross_domain_mastery_cau"
+    },
+    "reason": "continuous_cross_domain_mastery_campaign",
+    "state_hash": "e2199f8a9aea2298929f3259c0425e16509d2a627d463d0ad11ba92a6f55cbbd"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "capabilities_mastered": 5,
+          "independent_outcome_receipts": 15,
+          "mean_accumulated_attempts": 1.7333333333333334,
+          "mean_cold_attempts": 3.2,
+          "mean_transfer_attempts": 1.0,
+          "mission_capability_complete": true,
+          "new_cycles_this_run": 0,
+          "objective_mutations": 0,
+          "overall_attempt_reduction": 0.45833333333333337,
+          "source_disjoint_transfer_outcomes": 5,
+          "transfer_attempt_reduction": 0.6875,
+          "unrelated_capability_families": 5,
+          "unsafe_actions": 0,
+          "verified_outcomes": 15
+        },
+        "receipt_hash": "22d2e8ebf770942e3498cbec77c92461d6fb628aef0afb499c9a658cadc1259d"
+      },
+      "outcome_id": "outcome_096cd12c73ea4624",
+      "procedure_id": "procedure_continuous_cross_domain_mastery_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.6875,
+      "success": true,
+      "timestamp": "2026-07-31T21:35:29.903147+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_continuous_cross_domain_mastery_v1": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "capabilities_mastered": 5,
+          "independent_outcome_receipts": 15,
+          "mean_accumulated_attempts": 1.7333333333333334,
+          "mean_cold_attempts": 3.2,
+          "mean_transfer_attempts": 1.0,
+          "mission_capability_complete": true,
+          "new_cycles_this_run": 0,
+          "objective_mutations": 0,
+          "overall_attempt_reduction": 0.45833333333333337,
+          "source_disjoint_transfer_outcomes": 5,
+          "transfer_attempt_reduction": 0.6875,
+          "unrelated_capability_families": 5,
+          "unsafe_actions": 0,
+          "verified_outcomes": 15
+        },
+        "receipt_hash": "22d2e8ebf770942e3498cbec77c92461d6fb628aef0afb499c9a658cadc1259d"
+      },
+      "goal": "continuous_cross_domain_mastery",
+      "procedure_id": "procedure_continuous_cross_domain_mastery_v1",
+      "promoted_at": "2026-07-31T21:35:29.900533+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.6875,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "derive_subgoal_from_authorized_mission",
+        "select_lowest_confidence_capability_gap",
+        "commit_hypothesis_before_independent_outcome",
+        "update_capability_map_from_allowed_authority",
+        "promote_private_strategy_or_fallback",
+        "test_source_disjoint_transfer",
+        "retain_and_continue_after_restart"
+      ],
+      "success": true
+    },
+    "procedure_mastery_algebraic_rule_induction_40d7b7b5b4c6": {
+      "evidence": {
+        "task_id": "algebraic_rule_induction:development:2",
+        "trials": [
+          {
+            "authority": "sealed_algebra_authority",
+            "evidence": [
+              {
+                "outcome_hash": "63b6cc72c417c36bb1961a4443b3212e34758fee7c391afde9d9930eab1ec391",
+                "source": "independent_outcome:source_algebraic_rule_induction_2"
+              }
+            ],
+            "proposal": "affine_rule",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:development:2",
+      "procedure_id": "procedure_mastery_algebraic_rule_induction_40d7b7b5b4c6",
+      "promoted_at": "2026-07-31T21:35:06.120828+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_algebraic_rule_induction_49fbbce05d01": {
+      "evidence": {
+        "task_id": "algebraic_rule_induction:development:1",
+        "trials": [
+          {
+            "authority": "sealed_algebra_authority",
+            "evidence": [
+              {
+                "outcome_hash": "5aab7d5d25418a0ed1c011b070033598bc2167eb6207346174f8cabdc6acb927",
+                "source": "independent_outcome:source_algebraic_rule_induction_1"
+              }
+            ],
+            "proposal": "lookup_table",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_algebra_authority",
+            "evidence": [
+              {
+                "outcome_hash": "21d7ecbaa7e085076966b1dbb07911a506338231eda76bd27c2e8e7e2dcda154",
+                "source": "independent_outcome:source_algebraic_rule_induction_1"
+              }
+            ],
+            "proposal": "affine_rule",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:development:1",
+      "procedure_id": "procedure_mastery_algebraic_rule_induction_49fbbce05d01",
+      "promoted_at": "2026-07-31T21:35:05.931842+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_algebraic_rule_induction_e20e63716aff": {
+      "evidence": {
+        "task_id": "algebraic_rule_induction:transfer:3",
+        "trials": [
+          {
+            "authority": "sealed_algebra_authority",
+            "evidence": [
+              {
+                "outcome_hash": "ecdbd505bc01ad7b3b759b1fc0f4274a0c1332c113fa88eaff726ffde102ca04",
+                "source": "independent_outcome:source_algebraic_rule_induction_3"
+              }
+            ],
+            "proposal": "affine_rule",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:transfer:3",
+      "procedure_id": "procedure_mastery_algebraic_rule_induction_e20e63716aff",
+      "promoted_at": "2026-07-31T21:35:06.327250+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_causal_structure_discovery_3d38482e15ab": {
+      "evidence": {
+        "task_id": "causal_structure_discovery:development:2",
+        "trials": [
+          {
+            "authority": "sealed_causal_authority",
+            "evidence": [
+              {
+                "outcome_hash": "00e4767ef0f1933e2cd87fbcb494f01313200a25123cabc930acd5b30bb96d5c",
+                "source": "independent_outcome:source_causal_structure_discovery_2"
+              }
+            ],
+            "proposal": "coupled_cause",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:development:2",
+      "procedure_id": "procedure_mastery_causal_structure_discovery_3d38482e15ab",
+      "promoted_at": "2026-07-31T21:35:06.161365+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_causal_structure_discovery_ad439bb7c1c5": {
+      "evidence": {
+        "task_id": "causal_structure_discovery:transfer:3",
+        "trials": [
+          {
+            "authority": "sealed_causal_authority",
+            "evidence": [
+              {
+                "outcome_hash": "947dce80ed7a6fc3c2d9550645ea119ff56ab37e9b248be8967a3361e6377305",
+                "source": "independent_outcome:source_causal_structure_discovery_3"
+              }
+            ],
+            "proposal": "coupled_cause",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:transfer:3",
+      "procedure_id": "procedure_mastery_causal_structure_discovery_ad439bb7c1c5",
+      "promoted_at": "2026-07-31T21:35:06.372783+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_causal_structure_discovery_ffb504f46e7d": {
+      "evidence": {
+        "task_id": "causal_structure_discovery:development:1",
+        "trials": [
+          {
+            "authority": "sealed_causal_authority",
+            "evidence": [
+              {
+                "outcome_hash": "faabd3fc0a470cf0c3a9d89d5d628fc76defff03487dd8101cc4af2e3abee5d0",
+                "source": "independent_outcome:source_causal_structure_discovery_1"
+              }
+            ],
+            "proposal": "correlation_proxy",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_causal_authority",
+            "evidence": [
+              {
+                "outcome_hash": "7cdc02956bc5ca3731995bd921c8df2639a7fa163821bc2987c4b26f43647078",
+                "source": "independent_outcome:source_causal_structure_discovery_1"
+              }
+            ],
+            "proposal": "independent_causes",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_causal_authority",
+            "evidence": [
+              {
+                "outcome_hash": "6a14d6dba79b10a28ce6e08ed4aa8f630da1b613bbd6ee599da7f8fca56b6f28",
+                "source": "independent_outcome:source_causal_structure_discovery_1"
+              }
+            ],
+            "proposal": "delayed_cause",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_causal_authority",
+            "evidence": [
+              {
+                "outcome_hash": "d2cc83525960f69d0ba26344c94f9d0a053195e05ec35696f3b5b2fb151310a2",
+                "source": "independent_outcome:source_causal_structure_discovery_1"
+              }
+            ],
+            "proposal": "coupled_cause",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:development:1",
+      "procedure_id": "procedure_mastery_causal_structure_discovery_ffb504f46e7d",
+      "promoted_at": "2026-07-31T21:35:05.961681+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_evidence_strategy_selection_21d43fb3aab6": {
+      "evidence": {
+        "task_id": "evidence_strategy_selection:development:1",
+        "trials": [
+          {
+            "authority": "sealed_evidence_authority",
+            "evidence": [
+              {
+                "outcome_hash": "7c01b0337b79a9d56a9d6db208bef6aaaa72f11891c06a78f1d456ea992cedfa",
+                "source": "independent_outcome:source_evidence_strategy_selection_1"
+              }
+            ],
+            "proposal": "single_summary",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_evidence_authority",
+            "evidence": [
+              {
+                "outcome_hash": "2ac588c30adc1e29ed4279d7ee70e478531ddec9d65af387d25275ecf1ea871b",
+                "source": "independent_outcome:source_evidence_strategy_selection_1"
+              }
+            ],
+            "proposal": "source_vote",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_evidence_authority",
+            "evidence": [
+              {
+                "outcome_hash": "64ae818cde6c1e2a228462c3116200a488532ce33c4ffa27a7958461741ebbea",
+                "source": "independent_outcome:source_evidence_strategy_selection_1"
+              }
+            ],
+            "proposal": "exact_primary_evidence",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:development:1",
+      "procedure_id": "procedure_mastery_evidence_strategy_selection_21d43fb3aab6",
+      "promoted_at": "2026-07-31T21:35:05.999205+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_evidence_strategy_selection_b5fdfbf1977f": {
+      "evidence": {
+        "task_id": "evidence_strategy_selection:development:2",
+        "trials": [
+          {
+            "authority": "sealed_evidence_authority",
+            "evidence": [
+              {
+                "outcome_hash": "81f01918f46f27c69e0cd11bf232bcca1c3265c0707eb2397aa82b7c969d05dd",
+                "source": "independent_outcome:source_evidence_strategy_selection_2"
+              }
+            ],
+            "proposal": "exact_primary_evidence",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:development:2",
+      "procedure_id": "procedure_mastery_evidence_strategy_selection_b5fdfbf1977f",
+      "promoted_at": "2026-07-31T21:35:06.201517+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_evidence_strategy_selection_cc17f02fed9b": {
+      "evidence": {
+        "task_id": "evidence_strategy_selection:transfer:3",
+        "trials": [
+          {
+            "authority": "sealed_evidence_authority",
+            "evidence": [
+              {
+                "outcome_hash": "208476253874e3bc58a8834cca7ce5341c2e775cccb3fde49080aa3cfae02b86",
+                "source": "independent_outcome:source_evidence_strategy_selection_3"
+              }
+            ],
+            "proposal": "exact_primary_evidence",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:transfer:3",
+      "procedure_id": "procedure_mastery_evidence_strategy_selection_cc17f02fed9b",
+      "promoted_at": "2026-07-31T21:35:06.419867+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_novel_language_induction_1e4051a6ddae": {
+      "evidence": {
+        "task_id": "novel_language_induction:development:2",
+        "trials": [
+          {
+            "authority": "sealed_language_authority",
+            "evidence": [
+              {
+                "outcome_hash": "7c207b9d1e4c666493c8d7153391a0a1da2e07b5e8ac4f152b01eabc9c5b669f",
+                "source": "independent_outcome:source_novel_language_induction_2"
+              }
+            ],
+            "proposal": "sov_grammar",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:development:2",
+      "procedure_id": "procedure_mastery_novel_language_induction_1e4051a6ddae",
+      "promoted_at": "2026-07-31T21:35:06.242351+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_novel_language_induction_748308ce2d88": {
+      "evidence": {
+        "task_id": "novel_language_induction:transfer:3",
+        "trials": [
+          {
+            "authority": "sealed_language_authority",
+            "evidence": [
+              {
+                "outcome_hash": "8a620c4706714d06dff05478e4fb66f14dc1f0e55fa5af154e3f8bc5c2e92fbb",
+                "source": "independent_outcome:source_novel_language_induction_3"
+              }
+            ],
+            "proposal": "sov_grammar",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:transfer:3",
+      "procedure_id": "procedure_mastery_novel_language_induction_748308ce2d88",
+      "promoted_at": "2026-07-31T21:35:06.470766+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_novel_language_induction_74cc4d75d5d5": {
+      "evidence": {
+        "task_id": "novel_language_induction:development:1",
+        "trials": [
+          {
+            "authority": "sealed_language_authority",
+            "evidence": [
+              {
+                "outcome_hash": "622e458fc582f2e1ff71be0471d874f921794a355b7427210abb64ca5534b65d",
+                "source": "independent_outcome:source_novel_language_induction_1"
+              }
+            ],
+            "proposal": "surface_overlap",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_language_authority",
+            "evidence": [
+              {
+                "outcome_hash": "9bc7021e2fc122efea5b2a7ae6069616aeb107907021149d5f7d09c1b19e5e53",
+                "source": "independent_outcome:source_novel_language_induction_1"
+              }
+            ],
+            "proposal": "svo_grammar",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_language_authority",
+            "evidence": [
+              {
+                "outcome_hash": "98c23fa1aec8c47d29c7e6443978886bee983b237073d696cba3aaf7f00b90ac",
+                "source": "independent_outcome:source_novel_language_induction_1"
+              }
+            ],
+            "proposal": "vso_grammar",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_language_authority",
+            "evidence": [
+              {
+                "outcome_hash": "d886cfac8d4b02ebc1ae12c628a35f6442dcbbf02f35dd489ed1d95d4e84de25",
+                "source": "independent_outcome:source_novel_language_induction_1"
+              }
+            ],
+            "proposal": "sov_grammar",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:development:1",
+      "procedure_id": "procedure_mastery_novel_language_induction_74cc4d75d5d5",
+      "promoted_at": "2026-07-31T21:35:06.035643+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_tool_selection_1c4001eabdb3": {
+      "evidence": {
+        "task_id": "tool_selection:transfer:3",
+        "trials": [
+          {
+            "authority": "sealed_tool_authority",
+            "evidence": [
+              {
+                "outcome_hash": "8edd66d55c3df6cf549d51ce44356dab579a50031243f99508c43eecec2f5111",
+                "source": "independent_outcome:source_tool_selection_3"
+              }
+            ],
+            "proposal": "typed_json_query",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:transfer:3",
+      "procedure_id": "procedure_mastery_tool_selection_1c4001eabdb3",
+      "promoted_at": "2026-07-31T21:35:06.521336+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_tool_selection_d3e7329b818a": {
+      "evidence": {
+        "task_id": "tool_selection:development:1",
+        "trials": [
+          {
+            "authority": "sealed_tool_authority",
+            "evidence": [
+              {
+                "outcome_hash": "dbcc02c13d6e65e07378a2d4d7c4003e6e7cef69f4a3b4267d4bc9f385e2a577",
+                "source": "independent_outcome:source_tool_selection_1"
+              }
+            ],
+            "proposal": "free_text_guess",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_tool_authority",
+            "evidence": [
+              {
+                "outcome_hash": "32f8014f48a6b56c8badc788048cb1b02c1f829932692a18a336903e0608d6ff",
+                "source": "independent_outcome:source_tool_selection_1"
+              }
+            ],
+            "proposal": "regex_only",
+            "score": 0.0,
+            "verified": false
+          },
+          {
+            "authority": "sealed_tool_authority",
+            "evidence": [
+              {
+                "outcome_hash": "0a97d3862e0b2088a026497943c44195a853c371befc0c5c0f03c431abc3b6d3",
+                "source": "independent_outcome:source_tool_selection_1"
+              }
+            ],
+            "proposal": "typed_json_query",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:development:1",
+      "procedure_id": "procedure_mastery_tool_selection_d3e7329b818a",
+      "promoted_at": "2026-07-31T21:35:06.079161+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    },
+    "procedure_mastery_tool_selection_e477ba0c1db3": {
+      "evidence": {
+        "task_id": "tool_selection:development:2",
+        "trials": [
+          {
+            "authority": "sealed_tool_authority",
+            "evidence": [
+              {
+                "outcome_hash": "33173a41c0d428cd3d3083a82621bc2c1d3abfae5c7e17bf82e7e848064d56ec",
+                "source": "independent_outcome:source_tool_selection_2"
+              }
+            ],
+            "proposal": "typed_json_query",
+            "score": 1.0,
+            "verified": true
+          }
+        ]
+      },
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:development:2",
+      "procedure_id": "procedure_mastery_tool_selection_e477ba0c1db3",
+      "promoted_at": "2026-07-31T21:35:06.283988+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "rank_from_verified_outcomes",
+        "query_independent_authority",
+        "retain_or_fallback"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "6d90d14bfbd5bf6267ca510f918b93cce201db9b9bcb82bf686598b00fae7d13",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:development:1",
+      "new_champion_id": "procedure_mastery_algebraic_rule_induction_49fbbce05d01",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:05.931858+00:00"
+    },
+    {
+      "evidence_hash": "21e1fd0147ee94f3ebb1c2a8a03c68e80df61c5e61626e50d347e7a8aa2c0a1f",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:development:1",
+      "new_champion_id": "procedure_mastery_causal_structure_discovery_ffb504f46e7d",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:05.961703+00:00"
+    },
+    {
+      "evidence_hash": "a25118cfed989239dc2b34a5ee3b0e9366bc4d899efde27819cacd1d6ab7d60c",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:development:1",
+      "new_champion_id": "procedure_mastery_evidence_strategy_selection_21d43fb3aab6",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:05.999224+00:00"
+    },
+    {
+      "evidence_hash": "50e9d1a471f50ef488af8d3d337b66a6f00178fca3181ccc6eaab0122705b431",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:development:1",
+      "new_champion_id": "procedure_mastery_novel_language_induction_74cc4d75d5d5",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.035670+00:00"
+    },
+    {
+      "evidence_hash": "99fde00eed99e462c50fe0c7c823060ae53aabe89a444d5c9805b2a78d5d8e86",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:development:1",
+      "new_champion_id": "procedure_mastery_tool_selection_d3e7329b818a",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.079180+00:00"
+    },
+    {
+      "evidence_hash": "7b44508877cce0c04ff43c6c22ea2c67f5b0ddf3c6ab443beaee0d71b7f5cf87",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:development:2",
+      "new_champion_id": "procedure_mastery_algebraic_rule_induction_40d7b7b5b4c6",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.120841+00:00"
+    },
+    {
+      "evidence_hash": "b6a4c7d13f7039730870ace845ba6313072c5bbad4f09f35cc29f37dcf43ac4f",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:development:2",
+      "new_champion_id": "procedure_mastery_causal_structure_discovery_3d38482e15ab",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.161378+00:00"
+    },
+    {
+      "evidence_hash": "180f0e1d890850b8e0b27800005f2b3d5c69ec966cdf2da388c4c613e2a54a11",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:development:2",
+      "new_champion_id": "procedure_mastery_evidence_strategy_selection_b5fdfbf1977f",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.201527+00:00"
+    },
+    {
+      "evidence_hash": "9da2768b7b2111b6ad6e0efca447dfeb085e4a727c4d64263d80ade70c2bec75",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:development:2",
+      "new_champion_id": "procedure_mastery_novel_language_induction_1e4051a6ddae",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.242361+00:00"
+    },
+    {
+      "evidence_hash": "19109b780bb21e3c5276ae702a5a3bdd05d6e1c5783f8c488494374300f192d5",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:development:2",
+      "new_champion_id": "procedure_mastery_tool_selection_e477ba0c1db3",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.283998+00:00"
+    },
+    {
+      "evidence_hash": "18d0f0f6d8d40e0f3a2facdfe93a011fa4fd4797d1dd24793d1c04d94b212deb",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:algebraic_rule_induction:algebraic_rule_induction:transfer:3",
+      "new_champion_id": "procedure_mastery_algebraic_rule_induction_e20e63716aff",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.327260+00:00"
+    },
+    {
+      "evidence_hash": "dd02f42e573d235f3fda9f6240bc6404e40be238901554f137597bbba4f09226",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:causal_structure_discovery:causal_structure_discovery:transfer:3",
+      "new_champion_id": "procedure_mastery_causal_structure_discovery_ad439bb7c1c5",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.372794+00:00"
+    },
+    {
+      "evidence_hash": "870d55980c41434165c50712b5c3650ac010f4d55d93eae58b019ef44c830ce5",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:evidence_strategy_selection:evidence_strategy_selection:transfer:3",
+      "new_champion_id": "procedure_mastery_evidence_strategy_selection_cc17f02fed9b",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.419878+00:00"
+    },
+    {
+      "evidence_hash": "2255f187b9325ce921237bcec9173e65c95a3347c7a5268329e11975c60acb84",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:novel_language_induction:novel_language_induction:transfer:3",
+      "new_champion_id": "procedure_mastery_novel_language_induction_748308ce2d88",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.470777+00:00"
+    },
+    {
+      "evidence_hash": "af97aa9dbd8ef0f7536ee0b3eff077acc88199f7a53023c9c93f6c1e1e2793ea",
+      "goal": "learn:mission_continuous_cross_domain_mastery_v1:tool_selection:tool_selection:transfer:3",
+      "new_champion_id": "procedure_mastery_tool_selection_1c4001eabdb3",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:35:06.521345+00:00"
+    },
+    {
+      "evidence_hash": "7a87d4975a7a1073d4eabbc3bac808cbedbe0e4e6bde6e481c6ae9f81b1ff01e",
+      "goal": "continuous_cross_domain_mastery",
+      "new_champion_id": "procedure_continuous_cross_domain_mastery_v1",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.6875,
+      "timestamp": "2026-07-31T21:35:29.900551+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 18,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T21:35:29.905073+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

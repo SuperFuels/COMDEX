@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_linear_algebra",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:linear_algebra",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_economics_core",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:economics_core",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:financial_econometrics:stationarity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_econometrics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_econometrics:arima",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_econometrics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_econometrics:volatility_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_econometrics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_econometrics:cointegration",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_econometrics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_econometrics:factor_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_econometrics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_econometrics:state_space",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_econometrics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_econometrics:regime_change",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_econometrics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_econometrics:forecast_validation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_econometrics",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:financial_econometrics",
+      "label": "Financial econometrics and time series",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_econometrics:stationarity",
+      "label": "stationarity",
+      "subject_id": "financial_econometrics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_econometrics:arima",
+      "label": "arima",
+      "subject_id": "financial_econometrics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_econometrics:volatility_models",
+      "label": "volatility models",
+      "subject_id": "financial_econometrics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_econometrics:cointegration",
+      "label": "cointegration",
+      "subject_id": "financial_econometrics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_econometrics:factor_models",
+      "label": "factor models",
+      "subject_id": "financial_econometrics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_econometrics:state_space",
+      "label": "state space",
+      "subject_id": "financial_econometrics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_econometrics:regime_change",
+      "label": "regime change",
+      "subject_id": "financial_econometrics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_econometrics:forecast_validation",
+      "label": "forecast validation",
+      "subject_id": "financial_econometrics",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_financial_econometrics",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:financial_econometrics:stationarity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_econometrics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_econometrics:arima",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_econometrics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_econometrics:volatility_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_econometrics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_econometrics:cointegration",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_econometrics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_econometrics:factor_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_econometrics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_econometrics:state_space",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_econometrics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_econometrics:regime_change",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_econometrics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_econometrics:forecast_validation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_econometrics",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:financial_econometrics",
+        "label": "Financial econometrics and time series",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_econometrics:stationarity",
+        "label": "stationarity",
+        "subject_id": "financial_econometrics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_econometrics:arima",
+        "label": "arima",
+        "subject_id": "financial_econometrics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_econometrics:volatility_models",
+        "label": "volatility models",
+        "subject_id": "financial_econometrics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_econometrics:cointegration",
+        "label": "cointegration",
+        "subject_id": "financial_econometrics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_econometrics:factor_models",
+        "label": "factor models",
+        "subject_id": "financial_econometrics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_econometrics:state_space",
+        "label": "state space",
+        "subject_id": "financial_econometrics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_econometrics:regime_change",
+        "label": "regime change",
+        "subject_id": "financial_econometrics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_econometrics:forecast_validation",
+        "label": "forecast validation",
+        "subject_id": "financial_econometrics",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "financial_econometrics",
+    "title": "AION Academy \u00b7 Financial econometrics and time series"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

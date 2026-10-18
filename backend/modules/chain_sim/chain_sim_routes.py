@@ -44,6 +44,7 @@ from backend.modules.chain_sim.chain_sim_ledger import (
     get_block,
     list_txs,
     get_tx,
+    find_document_proof_tx,
 )
 
 router = APIRouter(prefix="/chain_sim", tags=["chain-sim-dev"])
@@ -1431,6 +1432,7 @@ class DevSubmitTx(BaseModel):
         "BANK_BURN",
         "STAKING_DELEGATE",
         "STAKING_UNDELEGATE",
+        "DOCUMENT_PROOF_V1",
     ]
     payload: Dict[str, Any]
 
@@ -1769,6 +1771,72 @@ async def chain_sim_dev_state() -> Dict[str, Any]:
             }
         )
     )
+
+
+def _tx_inclusion_proof(tx: Dict[str, Any]) -> Dict[str, Any]:
+    block_height = int(tx.get("block_height") or 0)
+    block = get_block(block_height)
+    if not block:
+        raise HTTPException(status_code=404, detail="transaction block not found")
+
+    block_txs = list(block.get("txs") or [])
+    index = next(
+        (i for i, item in enumerate(block_txs) if str(item.get("tx_id") or "") == str(tx.get("tx_id") or "")),
+        -1,
+    )
+    if index < 0:
+        raise HTTPException(status_code=409, detail="transaction is not present in its recorded block")
+
+    leaves = []
+    for item in block_txs:
+        tx_hash = str(item.get("tx_hash") or "")
+        try:
+            raw = bytes.fromhex(tx_hash)
+        except ValueError:
+            raw = tx_hash.encode("utf-8")
+        leaves.append(hash_leaf(raw))
+
+    root = merkle_root(leaves)
+    recorded_root = str(block.get("txs_root") or (block.get("header") or {}).get("txs_root") or "")
+    if recorded_root and recorded_root != root.hex():
+        raise HTTPException(status_code=409, detail="recorded transaction root does not match block contents")
+
+    return {
+        "ok": True,
+        "algo": "sha256-merkle-v1",
+        "tx_id": tx.get("tx_id"),
+        "tx_hash": tx.get("tx_hash"),
+        "block_height": block_height,
+        "tx_index": index,
+        "txs_root": root.hex(),
+        "proof": merkle_proof(leaves, index),
+        "total_leaves": len(leaves),
+        "tx": tx,
+    }
+
+
+@router.get("/dev/proof/tx")
+async def chain_sim_dev_proof_tx(tx_id: str = Query(..., min_length=1)) -> Dict[str, Any]:
+    tx = get_tx(tx_id)
+    if not tx:
+        raise HTTPException(status_code=404, detail="tx not found")
+    return _tx_inclusion_proof(tx)
+
+
+@router.get("/dev/proof/document")
+async def chain_sim_dev_proof_document(
+    proof_id: Optional[str] = Query(None),
+    document_hash: Optional[str] = Query(None),
+) -> Dict[str, Any]:
+    """Look up a privacy-safe document commitment and its inclusion proof."""
+    if not str(proof_id or "").strip() and not str(document_hash or "").strip():
+        raise HTTPException(status_code=422, detail="proof_id or document_hash is required")
+    tx = find_document_proof_tx(proof_id=proof_id, document_hash=document_hash)
+    if not tx:
+        raise HTTPException(status_code=404, detail="document proof not found")
+    result = _tx_inclusion_proof(tx)
+    result["document_proof"] = dict(tx.get("payload") or {})
+    return result
 
 @router.post("/dev/proof/verify_tx")
 async def chain_sim_dev_verify_tx_proof(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:

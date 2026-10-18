@@ -1,0 +1,1092 @@
+[
+  {
+    "brent_only": {
+      "checks": 6,
+      "cofactor": 13,
+      "elapsed_ms": 0.0097,
+      "factor": 7
+    },
+    "case": "small_91",
+    "fermat_only": {
+      "checks": 1,
+      "cofactor": 13,
+      "elapsed_ms": 0.0016,
+      "factor": 7
+    },
+    "full_factorization": [
+      7,
+      13
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 91,
+    "naive": {
+      "checks": 4,
+      "cofactor": 13,
+      "elapsed_ms": 0.0007,
+      "factor": 7
+    },
+    "pollard_only": {
+      "checks": 2,
+      "cofactor": 13,
+      "elapsed_ms": 0.0111,
+      "factor": 7
+    },
+    "sqi": {
+      "branches_generated": 1,
+      "branches_pruned": 0,
+      "checks": 1,
+      "cofactor": 13,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_91_dashboard.json",
+      "elapsed_ms": 0.098,
+      "factor": 7,
+      "method": "small_prime",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_91_1778194947967.jsonl",
+      "trace_tail": [
+        {
+          "event": "start",
+          "n": 91
+        },
+        {
+          "cofactor": 13,
+          "event": "collapse_small_prime",
+          "factor": 7
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 1,
+      "cofactor": 13,
+      "elapsed_ms": 0.0007,
+      "factor": 7
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 6,
+      "cofactor": 83,
+      "elapsed_ms": 0.0107,
+      "factor": 97
+    },
+    "case": "small_8051",
+    "fermat_only": {
+      "checks": 1,
+      "cofactor": 97,
+      "elapsed_ms": 0.0017,
+      "factor": 83
+    },
+    "full_factorization": [
+      83,
+      97
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 8051,
+    "naive": {
+      "checks": 42,
+      "cofactor": 97,
+      "elapsed_ms": 0.0025,
+      "factor": 83
+    },
+    "pollard_only": {
+      "checks": 3,
+      "cofactor": 83,
+      "elapsed_ms": 0.013,
+      "factor": 97
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 6,
+      "cofactor": 83,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_8051_dashboard.json",
+      "elapsed_ms": 0.9096,
+      "factor": 97,
+      "method": "brent_rho",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_8051_1778194947967.jsonl",
+      "trace_tail": [
+        {
+          "ceil_sqrt": 90,
+          "event": "branch_routing",
+          "near_square_gap": 49,
+          "near_square_score": 0.455556,
+          "order": [
+            "brent_rho",
+            "pollard_rho",
+            "fermat",
+            "sqi_wheel"
+          ],
+          "rho_score": 0.544444
+        },
+        {
+          "c": 18,
+          "checked": 2,
+          "event": "brent_probe",
+          "gcd": 1,
+          "method": "brent_rho",
+          "r": 1,
+          "round": 0,
+          "seed": 5062
+        },
+        {
+          "c": 18,
+          "checked": 6,
+          "cofactor": 83,
+          "event": "brent_collapse",
+          "factor": 97,
+          "method": "brent_rho",
+          "round": 0,
+          "seed": 5062
+        },
+        {
+          "branch": 0,
+          "event": "brent_branch_index",
+          "method": "brent_rho",
+          "round": 0
+        },
+        {
+          "cofactor": 83,
+          "event": "collapse",
+          "factor": 97,
+          "method": "brent_rho",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 22,
+      "cofactor": 97,
+      "elapsed_ms": 0.0039,
+      "factor": 83
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 126,
+      "cofactor": 10007,
+      "elapsed_ms": 0.0222,
+      "factor": 10009
+    },
+    "case": "close_5_digit",
+    "fermat_only": {
+      "checks": 1,
+      "cofactor": 10009,
+      "elapsed_ms": 0.0015,
+      "factor": 10007
+    },
+    "full_factorization": [
+      10007,
+      10009
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 100160063,
+    "naive": {
+      "checks": 5004,
+      "cofactor": 10009,
+      "elapsed_ms": 0.2364,
+      "factor": 10007
+    },
+    "pollard_only": {
+      "checks": 43,
+      "cofactor": 10007,
+      "elapsed_ms": 0.0257,
+      "factor": 10009
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 1,
+      "cofactor": 10009,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_100160063_dashboard.json",
+      "elapsed_ms": 0.2892,
+      "factor": 10007,
+      "method": "fermat",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_100160063_1778194947969.jsonl",
+      "trace_tail": [
+        {
+          "event": "start",
+          "n": 100160063
+        },
+        {
+          "ceil_sqrt": 10008,
+          "event": "branch_routing",
+          "near_square_gap": 1,
+          "near_square_score": 0.9999,
+          "order": [
+            "fermat",
+            "brent_rho",
+            "pollard_rho",
+            "sqi_wheel"
+          ],
+          "rho_score": 0.0001
+        },
+        {
+          "a": 10008,
+          "b": 1,
+          "cofactor": 10009,
+          "event": "fermat_collapse",
+          "factor": 10007,
+          "method": "fermat",
+          "round": 0,
+          "steps": 1
+        },
+        {
+          "cofactor": 10009,
+          "event": "collapse",
+          "factor": 10007,
+          "method": "fermat",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 2668,
+      "cofactor": 10009,
+      "elapsed_ms": 0.3681,
+      "factor": 10007
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 1918,
+      "cofactor": 10000019,
+      "elapsed_ms": 0.3474,
+      "factor": 10000169
+    },
+    "case": "close_8_digit",
+    "fermat_only": {
+      "checks": 1,
+      "cofactor": 10000169,
+      "elapsed_ms": 0.0044,
+      "factor": 10000019
+    },
+    "full_factorization": [
+      10000019,
+      10000169
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 100001880003211,
+    "naive": {
+      "checks": 5000010,
+      "cofactor": 10000169,
+      "elapsed_ms": 223.454,
+      "factor": 10000019
+    },
+    "pollard_only": {
+      "checks": 835,
+      "cofactor": 10000019,
+      "elapsed_ms": 0.4965,
+      "factor": 10000169
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 1,
+      "cofactor": 10000169,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_100001880003211_dashboard.json",
+      "elapsed_ms": 0.516,
+      "factor": 10000019,
+      "method": "fermat",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_100001880003211_1778194947970.jsonl",
+      "trace_tail": [
+        {
+          "event": "start",
+          "n": 100001880003211
+        },
+        {
+          "ceil_sqrt": 10000094,
+          "event": "branch_routing",
+          "near_square_gap": 5625,
+          "near_square_score": 0.999438,
+          "order": [
+            "fermat",
+            "brent_rho",
+            "pollard_rho",
+            "sqi_wheel"
+          ],
+          "rho_score": 0.000562
+        },
+        {
+          "a": 10000094,
+          "b": 75,
+          "cofactor": 10000169,
+          "event": "fermat_collapse",
+          "factor": 10000019,
+          "method": "fermat",
+          "round": 0,
+          "steps": 1
+        },
+        {
+          "cofactor": 10000169,
+          "event": "collapse",
+          "factor": 10000019,
+          "method": "fermat",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 2666671,
+      "cofactor": 10000169,
+      "elapsed_ms": 384.4538,
+      "factor": 10000019
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 62,
+      "cofactor": 1000003,
+      "elapsed_ms": 0.0162,
+      "factor": 1009
+    },
+    "case": "spread_small_factor",
+    "fermat_only": {
+      "checks": 100000,
+      "cofactor": null,
+      "elapsed_ms": 11.3919,
+      "factor": null
+    },
+    "full_factorization": [
+      1009,
+      1000003
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 1009003027,
+    "naive": {
+      "checks": 505,
+      "cofactor": 1000003,
+      "elapsed_ms": 0.0233,
+      "factor": 1009
+    },
+    "pollard_only": {
+      "checks": 18,
+      "cofactor": 1000003,
+      "elapsed_ms": 0.0186,
+      "factor": 1009
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 62,
+      "cofactor": 1000003,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_1009003027_dashboard.json",
+      "elapsed_ms": 0.876,
+      "factor": 1009,
+      "method": "brent_rho",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_1009003027_1778194948581.jsonl",
+      "trace_tail": [
+        {
+          "ceil_sqrt": 31765,
+          "event": "branch_routing",
+          "near_square_gap": 12198,
+          "near_square_score": 0.615992,
+          "order": [
+            "brent_rho",
+            "pollard_rho",
+            "fermat",
+            "sqi_wheel"
+          ],
+          "rho_score": 0.384008
+        },
+        {
+          "c": 23,
+          "checked": 2,
+          "event": "brent_probe",
+          "gcd": 1,
+          "method": "brent_rho",
+          "r": 1,
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "c": 23,
+          "checked": 62,
+          "cofactor": 1000003,
+          "event": "brent_collapse",
+          "factor": 1009,
+          "method": "brent_rho",
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "branch": 0,
+          "event": "brent_branch_index",
+          "method": "brent_rho",
+          "round": 0
+        },
+        {
+          "cofactor": 1000003,
+          "event": "collapse",
+          "factor": 1009,
+          "method": "brent_rho",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 269,
+      "cofactor": 1000003,
+      "elapsed_ms": 0.0371,
+      "factor": 1009
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 14,
+      "cofactor": 104729,
+      "elapsed_ms": 0.0127,
+      "factor": 101
+    },
+    "case": "spread_mid_factor",
+    "fermat_only": {
+      "checks": 49163,
+      "cofactor": 104729,
+      "elapsed_ms": 5.0843,
+      "factor": 101
+    },
+    "full_factorization": [
+      101,
+      104729
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 10577629,
+    "naive": {
+      "checks": 51,
+      "cofactor": 104729,
+      "elapsed_ms": 0.0037,
+      "factor": 101
+    },
+    "pollard_only": {
+      "checks": 6,
+      "cofactor": 104729,
+      "elapsed_ms": 0.0162,
+      "factor": 101
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 14,
+      "cofactor": 104729,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_10577629_dashboard.json",
+      "elapsed_ms": 0.47,
+      "factor": 101,
+      "method": "brent_rho",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_10577629_1778194948594.jsonl",
+      "trace_tail": [
+        {
+          "ceil_sqrt": 3253,
+          "event": "branch_routing",
+          "near_square_gap": 4380,
+          "near_square_score": 0.0,
+          "order": [
+            "brent_rho",
+            "pollard_rho",
+            "fermat",
+            "sqi_wheel"
+          ],
+          "rho_score": 1.0
+        },
+        {
+          "c": 23,
+          "checked": 2,
+          "event": "brent_probe",
+          "gcd": 1,
+          "method": "brent_rho",
+          "r": 1,
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "c": 23,
+          "checked": 14,
+          "cofactor": 104729,
+          "event": "brent_collapse",
+          "factor": 101,
+          "method": "brent_rho",
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "branch": 0,
+          "event": "brent_branch_index",
+          "method": "brent_rho",
+          "round": 0
+        },
+        {
+          "cofactor": 104729,
+          "event": "collapse",
+          "factor": 101,
+          "method": "brent_rho",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 26,
+      "cofactor": 104729,
+      "elapsed_ms": 0.0045,
+      "factor": 101
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 62,
+      "cofactor": 999983,
+      "elapsed_ms": 0.0168,
+      "factor": 1009
+    },
+    "case": "spread_6_digit_primes",
+    "fermat_only": {
+      "checks": 100000,
+      "cofactor": null,
+      "elapsed_ms": 11.477,
+      "factor": null
+    },
+    "full_factorization": [
+      1009,
+      999983
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 1008982847,
+    "naive": {
+      "checks": 505,
+      "cofactor": 999983,
+      "elapsed_ms": 0.0243,
+      "factor": 1009
+    },
+    "pollard_only": {
+      "checks": 18,
+      "cofactor": 999983,
+      "elapsed_ms": 0.0183,
+      "factor": 1009
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 62,
+      "cofactor": 999983,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_1008982847_dashboard.json",
+      "elapsed_ms": 0.3322,
+      "factor": 1009,
+      "method": "brent_rho",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_1008982847_1778194948600.jsonl",
+      "trace_tail": [
+        {
+          "ceil_sqrt": 31765,
+          "event": "branch_routing",
+          "near_square_gap": 32378,
+          "near_square_score": 0.0,
+          "order": [
+            "brent_rho",
+            "pollard_rho",
+            "fermat",
+            "sqi_wheel"
+          ],
+          "rho_score": 1.0
+        },
+        {
+          "c": 23,
+          "checked": 2,
+          "event": "brent_probe",
+          "gcd": 1,
+          "method": "brent_rho",
+          "r": 1,
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "c": 23,
+          "checked": 62,
+          "cofactor": 999983,
+          "event": "brent_collapse",
+          "factor": 1009,
+          "method": "brent_rho",
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "branch": 0,
+          "event": "brent_branch_index",
+          "method": "brent_rho",
+          "round": 0
+        },
+        {
+          "cofactor": 999983,
+          "event": "collapse",
+          "factor": 1009,
+          "method": "brent_rho",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 269,
+      "cofactor": 999983,
+      "elapsed_ms": 0.039,
+      "factor": 1009
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 62,
+      "cofactor": 15485863,
+      "elapsed_ms": 0.0213,
+      "factor": 1009
+    },
+    "case": "spread_7_digit_prime",
+    "fermat_only": {
+      "checks": 100000,
+      "cofactor": null,
+      "elapsed_ms": 11.6479,
+      "factor": null
+    },
+    "full_factorization": [
+      1009,
+      15485863
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 15625235767,
+    "naive": {
+      "checks": 505,
+      "cofactor": 15485863,
+      "elapsed_ms": 0.026,
+      "factor": 1009
+    },
+    "pollard_only": {
+      "checks": 18,
+      "cofactor": 15485863,
+      "elapsed_ms": 0.0209,
+      "factor": 1009
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 62,
+      "cofactor": 15485863,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_15625235767_dashboard.json",
+      "elapsed_ms": 0.5986,
+      "factor": 1009,
+      "method": "brent_rho",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_15625235767_1778194948613.jsonl",
+      "trace_tail": [
+        {
+          "ceil_sqrt": 125001,
+          "event": "branch_routing",
+          "near_square_gap": 14234,
+          "near_square_score": 0.886129,
+          "order": [
+            "brent_rho",
+            "pollard_rho",
+            "fermat",
+            "sqi_wheel"
+          ],
+          "rho_score": 0.113871
+        },
+        {
+          "c": 23,
+          "checked": 2,
+          "event": "brent_probe",
+          "gcd": 1,
+          "method": "brent_rho",
+          "r": 1,
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "c": 23,
+          "checked": 62,
+          "cofactor": 15485863,
+          "event": "brent_collapse",
+          "factor": 1009,
+          "method": "brent_rho",
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "branch": 0,
+          "event": "brent_branch_index",
+          "method": "brent_rho",
+          "round": 0
+        },
+        {
+          "cofactor": 15485863,
+          "event": "collapse",
+          "factor": 1009,
+          "method": "brent_rho",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 269,
+      "cofactor": 15485863,
+      "elapsed_ms": 0.0394,
+      "factor": 1009
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 254,
+      "cofactor": 20011,
+      "elapsed_ms": 0.0346,
+      "factor": 10007
+    },
+    "case": "less_close_1",
+    "fermat_only": {
+      "checks": 859,
+      "cofactor": 20011,
+      "elapsed_ms": 0.0851,
+      "factor": 10007
+    },
+    "full_factorization": [
+      10007,
+      20011
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 200250077,
+    "naive": {
+      "checks": 5004,
+      "cofactor": 20011,
+      "elapsed_ms": 0.2236,
+      "factor": 10007
+    },
+    "pollard_only": {
+      "checks": 122,
+      "cofactor": 20011,
+      "elapsed_ms": 0.0541,
+      "factor": 10007
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 254,
+      "cofactor": 20011,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_200250077_dashboard.json",
+      "elapsed_ms": 0.3404,
+      "factor": 10007,
+      "method": "brent_rho",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_200250077_1778194948626.jsonl",
+      "trace_tail": [
+        {
+          "ceil_sqrt": 14151,
+          "event": "branch_routing",
+          "near_square_gap": 724,
+          "near_square_score": 0.948838,
+          "order": [
+            "brent_rho",
+            "pollard_rho",
+            "fermat",
+            "sqi_wheel"
+          ],
+          "rho_score": 0.051162
+        },
+        {
+          "c": 23,
+          "checked": 2,
+          "event": "brent_probe",
+          "gcd": 1,
+          "method": "brent_rho",
+          "r": 1,
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "c": 23,
+          "checked": 254,
+          "cofactor": 20011,
+          "event": "brent_collapse",
+          "factor": 10007,
+          "method": "brent_rho",
+          "round": 0,
+          "seed": 8739
+        },
+        {
+          "branch": 0,
+          "event": "brent_branch_index",
+          "method": "brent_rho",
+          "round": 0
+        },
+        {
+          "cofactor": 20011,
+          "event": "collapse",
+          "factor": 10007,
+          "method": "brent_rho",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 2668,
+      "cofactor": 20011,
+      "elapsed_ms": 0.3769,
+      "factor": 10007
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 1662,
+      "cofactor": 1000003,
+      "elapsed_ms": 0.2752,
+      "factor": 1000033
+    },
+    "case": "less_close_2",
+    "fermat_only": {
+      "checks": 1,
+      "cofactor": 1000033,
+      "elapsed_ms": 0.0016,
+      "factor": 1000003
+    },
+    "full_factorization": [
+      1000003,
+      1000033
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 1000036000099,
+    "naive": {
+      "checks": 500002,
+      "cofactor": 1000033,
+      "elapsed_ms": 22.7132,
+      "factor": 1000003
+    },
+    "pollard_only": {
+      "checks": 517,
+      "cofactor": 1000003,
+      "elapsed_ms": 0.2723,
+      "factor": 1000033
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 1,
+      "cofactor": 1000033,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_1000036000099_dashboard.json",
+      "elapsed_ms": 0.2717,
+      "factor": 1000003,
+      "method": "fermat",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_1000036000099_1778194948628.jsonl",
+      "trace_tail": [
+        {
+          "event": "start",
+          "n": 1000036000099
+        },
+        {
+          "ceil_sqrt": 1000018,
+          "event": "branch_routing",
+          "near_square_gap": 225,
+          "near_square_score": 0.999775,
+          "order": [
+            "fermat",
+            "brent_rho",
+            "pollard_rho",
+            "sqi_wheel"
+          ],
+          "rho_score": 0.000225
+        },
+        {
+          "a": 1000018,
+          "b": 15,
+          "cofactor": 1000033,
+          "event": "fermat_collapse",
+          "factor": 1000003,
+          "method": "fermat",
+          "round": 0,
+          "steps": 1
+        },
+        {
+          "cofactor": 1000033,
+          "event": "collapse",
+          "factor": 1000003,
+          "method": "fermat",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 266667,
+      "cofactor": 1000033,
+      "elapsed_ms": 37.4458,
+      "factor": 1000003
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 1662,
+      "cofactor": 1000003,
+      "elapsed_ms": 0.2695,
+      "factor": 1000037
+    },
+    "case": "medium_semiprime_1",
+    "fermat_only": {
+      "checks": 1,
+      "cofactor": 1000037,
+      "elapsed_ms": 0.0016,
+      "factor": 1000003
+    },
+    "full_factorization": [
+      1000003,
+      1000037
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 1000040000111,
+    "naive": {
+      "checks": 500002,
+      "cofactor": 1000037,
+      "elapsed_ms": 21.8224,
+      "factor": 1000003
+    },
+    "pollard_only": {
+      "checks": 784,
+      "cofactor": 1000003,
+      "elapsed_ms": 0.4158,
+      "factor": 1000037
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 1,
+      "cofactor": 1000037,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_1000040000111_dashboard.json",
+      "elapsed_ms": 0.2793,
+      "factor": 1000003,
+      "method": "fermat",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_1000040000111_1778194948690.jsonl",
+      "trace_tail": [
+        {
+          "event": "start",
+          "n": 1000040000111
+        },
+        {
+          "ceil_sqrt": 1000020,
+          "event": "branch_routing",
+          "near_square_gap": 289,
+          "near_square_score": 0.999711,
+          "order": [
+            "fermat",
+            "brent_rho",
+            "pollard_rho",
+            "sqi_wheel"
+          ],
+          "rho_score": 0.000289
+        },
+        {
+          "a": 1000020,
+          "b": 17,
+          "cofactor": 1000037,
+          "event": "fermat_collapse",
+          "factor": 1000003,
+          "method": "fermat",
+          "round": 0,
+          "steps": 1
+        },
+        {
+          "cofactor": 1000037,
+          "event": "collapse",
+          "factor": 1000003,
+          "method": "fermat",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 266667,
+      "cofactor": 1000037,
+      "elapsed_ms": 38.5355,
+      "factor": 1000003
+    }
+  },
+  {
+    "brent_only": {
+      "checks": 1667,
+      "cofactor": 1000037,
+      "elapsed_ms": 0.2752,
+      "factor": 1000033
+    },
+    "case": "medium_semiprime_2",
+    "fermat_only": {
+      "checks": 1,
+      "cofactor": 1000037,
+      "elapsed_ms": 0.0022,
+      "factor": 1000033
+    },
+    "full_factorization": [
+      1000033,
+      1000037
+    ],
+    "miller_rabin_probable_prime": false,
+    "n": 1000070001221,
+    "naive": {
+      "checks": 500017,
+      "cofactor": 1000037,
+      "elapsed_ms": 21.9843,
+      "factor": 1000033
+    },
+    "pollard_only": {
+      "checks": 517,
+      "cofactor": 1000037,
+      "elapsed_ms": 0.2846,
+      "factor": 1000033
+    },
+    "sqi": {
+      "branches_generated": 17,
+      "branches_pruned": 0,
+      "checks": 1,
+      "cofactor": 1000037,
+      "dashboard_path": ".runtime/sqi_factor_traces/sqi_factor_1000070001221_dashboard.json",
+      "elapsed_ms": 0.43,
+      "factor": 1000033,
+      "method": "fermat",
+      "trace_path": ".runtime/sqi_factor_traces/sqi_factor_1000070001221_1778194948751.jsonl",
+      "trace_tail": [
+        {
+          "event": "start",
+          "n": 1000070001221
+        },
+        {
+          "ceil_sqrt": 1000035,
+          "event": "branch_routing",
+          "near_square_gap": 4,
+          "near_square_score": 0.999996,
+          "order": [
+            "fermat",
+            "brent_rho",
+            "pollard_rho",
+            "sqi_wheel"
+          ],
+          "rho_score": 4e-06
+        },
+        {
+          "a": 1000035,
+          "b": 2,
+          "cofactor": 1000037,
+          "event": "fermat_collapse",
+          "factor": 1000033,
+          "method": "fermat",
+          "round": 0,
+          "steps": 1
+        },
+        {
+          "cofactor": 1000037,
+          "event": "collapse",
+          "factor": 1000033,
+          "method": "fermat",
+          "round": 0,
+          "verified": true
+        }
+      ]
+    },
+    "wheel": {
+      "checks": 266675,
+      "cofactor": 1000037,
+      "elapsed_ms": 39.2081,
+      "factor": 1000033
+    }
+  }
+]

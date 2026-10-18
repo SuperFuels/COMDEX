@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_application_web_api_security",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:application_web_api_security",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_network_wireless_security",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:network_wireless_security",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:scope_authorization",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:reconnaissance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:attack_surface_mapping",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:vulnerability_validation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:controlled_exploitation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:privilege_boundary_testing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:evidence_preservation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:remediation_verification",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "label": "Authorised adversary emulation and penetration testing",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:scope_authorization",
+      "label": "scope authorization",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:reconnaissance",
+      "label": "reconnaissance",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:attack_surface_mapping",
+      "label": "attack surface mapping",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:vulnerability_validation",
+      "label": "vulnerability validation",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:controlled_exploitation",
+      "label": "controlled exploitation",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:privilege_boundary_testing",
+      "label": "privilege boundary testing",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:evidence_preservation",
+      "label": "evidence preservation",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:remediation_verification",
+      "label": "remediation verification",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_adversary_emulation_penetration_testing",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:scope_authorization",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:reconnaissance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:attack_surface_mapping",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:vulnerability_validation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:controlled_exploitation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:privilege_boundary_testing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:evidence_preservation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:remediation_verification",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "label": "Authorised adversary emulation and penetration testing",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:scope_authorization",
+        "label": "scope authorization",
+        "subject_id": "adversary_emulation_penetration_testing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:reconnaissance",
+        "label": "reconnaissance",
+        "subject_id": "adversary_emulation_penetration_testing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:attack_surface_mapping",
+        "label": "attack surface mapping",
+        "subject_id": "adversary_emulation_penetration_testing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:vulnerability_validation",
+        "label": "vulnerability validation",
+        "subject_id": "adversary_emulation_penetration_testing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:controlled_exploitation",
+        "label": "controlled exploitation",
+        "subject_id": "adversary_emulation_penetration_testing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:privilege_boundary_testing",
+        "label": "privilege boundary testing",
+        "subject_id": "adversary_emulation_penetration_testing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:evidence_preservation",
+        "label": "evidence preservation",
+        "subject_id": "adversary_emulation_penetration_testing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:adversary_emulation_penetration_testing:remediation_verification",
+        "label": "remediation verification",
+        "subject_id": "adversary_emulation_penetration_testing",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "adversary_emulation_penetration_testing",
+    "title": "AION Academy \u00b7 Authorised adversary emulation and penetration testing"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -2,8 +2,6 @@
 # 🌌 AION Resonance Translator - dynamic Φ-field orchestration
 
 import asyncio
-import json
-import os
 import random
 from datetime import datetime
 
@@ -12,6 +10,7 @@ from backend.modules.holograms.morphic_ledger import MorphicLedger
 from backend.modules.aion_resonance.context_reply import generate_resonance_reply
 from backend.modules.consciousness.personality_engine import PROFILE
 from backend.modules.aion_resonance.resonance_reasoner import reason_from_phi
+from backend.modules.aion_resonance.resonance_lexicon_store import RESONANCE_LEXICON
 
 # ──────────────────────────────────────────────
 #  Singleton references
@@ -37,22 +36,18 @@ def get_ledger() -> MorphicLedger:
 # ──────────────────────────────────────────────
 #  Boot configuration (resonance lexicon)
 # ──────────────────────────────────────────────
-BOOT_PATH = "backend/modules/aion_resonance/boot_config.json"
-
-
 def load_boot_map():
-    if os.path.exists(BOOT_PATH):
-        with open(BOOT_PATH, "r") as f:
-            return json.load(f)
-    print(f"[Resonance] ⚠️ No boot_config.json found at {BOOT_PATH}, starting fresh.")
-    return {}
+    return RESONANCE_LEXICON.load()
 
 
 def save_boot_map(data: dict):
-    os.makedirs(os.path.dirname(BOOT_PATH), exist_ok=True)
-    with open(BOOT_PATH, "w") as f:
-        json.dump(data, f, indent=2)
-    print(f"[Resonance] 💾 boot_config.json updated ({len(data)} entries).")
+    base = RESONANCE_LEXICON.base()
+    overrides = {
+        key: value for key, value in data.items()
+        if key not in base or base.get(key) != value
+    }
+    RESONANCE_LEXICON.replace_overrides(overrides)
+    print(f"[Resonance] 💾 customer lexicon updated ({len(overrides)} overrides).")
 
 
 BOOT_MAP = load_boot_map()
@@ -72,8 +67,8 @@ def generate_phi_signature(keyword: str) -> dict:
         "Φ_coherence": round(random.uniform(0.4, 1.0), 3),
     }
     print(f"[Resonance] 🌱 Learned new signature for '{keyword}': {phi_signature}")
+    RESONANCE_LEXICON.put(keyword, phi_signature)
     BOOT_MAP[keyword] = phi_signature
-    save_boot_map(BOOT_MAP)
     return phi_signature
 
 
@@ -88,8 +83,8 @@ def drift_signature(keyword: str, current: dict, metrics: dict, rate: float = 0.
         updated["Φ_flux"] = round(current["Φ_flux"] * (1 - rate) + metrics.get("delta_phi", 0.0) * rate, 4)
         updated["Φ_entropy"] = round(current["Φ_entropy"] * (1 - rate) + metrics.get("self_awareness", 0.0) * rate, 4)
         updated["Φ_coherence"] = round(current["Φ_coherence"] * (1 - rate) + 1.0 * rate, 4)
+        RESONANCE_LEXICON.put(keyword, updated)
         BOOT_MAP[keyword] = updated
-        save_boot_map(BOOT_MAP)
         print(f"[Resonance] ♻️ Drift update for '{keyword}': {updated}")
     except Exception as e:
         print(f"[Resonance] ⚠️ Drift update failed for '{keyword}': {e}")
@@ -117,7 +112,7 @@ from datetime import datetime
 async def route_packet(packet: dict):
     """
     Route an @AION packet through HexCore -> produce Φ signature -> log in Morphic Ledger.
-    Automatically expands and refines boot_config.json as resonance evolves.
+    Expands and refines the business-owned Vault lexicon as resonance evolves.
     """
     msg = packet.get("message", "")
     hexcore = get_hexcore()

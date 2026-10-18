@@ -1,0 +1,33 @@
+{
+  "spec": {
+    "ambient_authority": [],
+    "capability_class": "pure_ordered_replica_measurement",
+    "chronology": "ordered_old_to_new",
+    "maximum_replicas": 5,
+    "maximum_values": 5000,
+    "measurement_id": "ORDERED_REPLICATE_CHANGE_DISCRIMINATOR",
+    "minimum_replicas": 3,
+    "mixed_policy": "ABSTAIN",
+    "relative_tolerance": 0.001
+  },
+  "spec_sha256": "dd720aaf3b8c0ee0b40fe3e3b32557f5cee6256ecb079cdb12a521a45c4684be",
+  "status": "PRIVATE_PENDING_LATER_AUTHORITY",
+  "synthesis": [
+    {
+      "candidate": "LATEST_SNAPSHOT_WINS",
+      "rejected": "confuses_transient_corruption_with_change"
+    },
+    {
+      "candidate": "UNORDERED_REPLICA_MEDIAN",
+      "rejected": "erases_temporal_direction_of_change"
+    },
+    {
+      "candidate": "EXACT_REPLICA_EQUALITY",
+      "rejected": "rejects_bounded_measurement_noise"
+    },
+    {
+      "accepted_private": true,
+      "candidate": "ORDERED_REPLICATE_CHANGE_DISCRIMINATOR"
+    }
+  ]
+}

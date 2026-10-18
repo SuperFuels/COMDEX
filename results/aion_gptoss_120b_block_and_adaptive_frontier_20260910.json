@@ -1,0 +1,352 @@
+{
+  "adaptive_experts": {
+    "candidates": [
+      {
+        "contains_expected_391": false,
+        "continuation_active_experts": 2,
+        "gate_mass_threshold": null,
+        "generated_text": "<|channel|>analysis<|message|>We need to solve the conversation. The user asks: \"What is ...\". So need to answer: 17 multiplied? So 17*23",
+        "internally_bitwise_repeatable": true,
+        "passes": [
+          {
+            "active_expert_layer_counts": {
+              "2": 1188
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.009809397743083537,
+            "p50_token_seconds": 0.07667491701431572,
+            "p95_token_seconds": 0.13542983296792954,
+            "positions": 33,
+            "tokens_per_second": 10.878581881316018
+          },
+          {
+            "active_expert_layer_counts": {
+              "2": 1188
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.01659303338965401,
+            "p50_token_seconds": 0.13479791599093005,
+            "p95_token_seconds": 0.34784270805539563,
+            "positions": 33,
+            "tokens_per_second": 5.908185371457678
+          }
+        ],
+        "post_warmup_p50_token_seconds_p50": 0.13479791599093005,
+        "post_warmup_p95_token_seconds_p50": 0.34784270805539563,
+        "post_warmup_tokens_per_second_p50": 5.908185371457678,
+        "preserve_dropped_gate_mass": false,
+        "receipt_passed": true
+      },
+      {
+        "contains_expected_391": true,
+        "continuation_active_experts": 3,
+        "gate_mass_threshold": null,
+        "generated_text": "<|channel|>analysis<|message|>We need to answer: 17*23 = 391. Wait: 17*23= 17*23= 17*23= ",
+        "internally_bitwise_repeatable": true,
+        "passes": [
+          {
+            "active_expert_layer_counts": {
+              "3": 1188
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.019609121838584542,
+            "p50_token_seconds": 0.35181129100965336,
+            "p95_token_seconds": 0.7409317499841563,
+            "positions": 33,
+            "tokens_per_second": 2.7229634124687796
+          },
+          {
+            "active_expert_layer_counts": {
+              "3": 1188
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.01485079515259713,
+            "p50_token_seconds": 0.13245554198510945,
+            "p95_token_seconds": 0.2719019160140306,
+            "positions": 33,
+            "tokens_per_second": 6.386300494043518
+          }
+        ],
+        "post_warmup_p50_token_seconds_p50": 0.13245554198510945,
+        "post_warmup_p95_token_seconds_p50": 0.2719019160140306,
+        "post_warmup_tokens_per_second_p50": 6.386300494043518,
+        "preserve_dropped_gate_mass": false,
+        "receipt_passed": true
+      },
+      {
+        "contains_expected_391": true,
+        "continuation_active_experts": 4,
+        "gate_mass_threshold": 0.8,
+        "generated_text": "<|channel|>analysis<|message|>We need to answer: 17 multiplied 23 = 17*23 = 391. Provide simple calculation.<|end|><|start|>assistant<|channel|>final<|message|>**Answer",
+        "internally_bitwise_repeatable": true,
+        "passes": [
+          {
+            "active_expert_layer_counts": {
+              "2": 65,
+              "3": 767,
+              "4": 356
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.018983276095241308,
+            "p50_token_seconds": 0.20368649996817112,
+            "p95_token_seconds": 0.5619729999452829,
+            "positions": 33,
+            "tokens_per_second": 3.865577509982658
+          },
+          {
+            "active_expert_layer_counts": {
+              "2": 65,
+              "3": 767,
+              "4": 356
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.016066242882516235,
+            "p50_token_seconds": 0.11869570799171925,
+            "p95_token_seconds": 0.1860371669754386,
+            "positions": 33,
+            "tokens_per_second": 8.122072870994703
+          }
+        ],
+        "post_warmup_p50_token_seconds_p50": 0.11869570799171925,
+        "post_warmup_p95_token_seconds_p50": 0.1860371669754386,
+        "post_warmup_tokens_per_second_p50": 8.122072870994703,
+        "preserve_dropped_gate_mass": false,
+        "receipt_passed": true
+      },
+      {
+        "contains_expected_391": true,
+        "continuation_active_experts": 4,
+        "gate_mass_threshold": 0.75,
+        "generated_text": "<|channel|>analysis<|message|>We need to answer: 17 multiplied by 23. That's 17*23 = 391. So we need to compute. The answer is ",
+        "internally_bitwise_repeatable": true,
+        "passes": [
+          {
+            "active_expert_layer_counts": {
+              "2": 101,
+              "3": 1087
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.015956978139001876,
+            "p50_token_seconds": 0.1579972499748692,
+            "p95_token_seconds": 0.42993037501582876,
+            "positions": 33,
+            "tokens_per_second": 5.264929698852348
+          },
+          {
+            "active_expert_layer_counts": {
+              "2": 101,
+              "3": 1087
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.01833717036060989,
+            "p50_token_seconds": 0.14919358299812302,
+            "p95_token_seconds": 0.27506641595391557,
+            "positions": 33,
+            "tokens_per_second": 5.762231556881523
+          },
+          {
+            "active_expert_layer_counts": {
+              "2": 101,
+              "3": 1087
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.02785735361976549,
+            "p50_token_seconds": 0.2459621669840999,
+            "p95_token_seconds": 0.5498770420090295,
+            "positions": 33,
+            "tokens_per_second": 3.2771820467919763
+          },
+          {
+            "active_expert_layer_counts": {
+              "2": 101,
+              "3": 1087
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.016715309000574052,
+            "p50_token_seconds": 0.09251420898362994,
+            "p95_token_seconds": 0.23812454100698233,
+            "positions": 33,
+            "tokens_per_second": 8.383064998816504
+          }
+        ],
+        "post_warmup_p50_token_seconds_p50": 0.14919358299812302,
+        "post_warmup_p95_token_seconds_p50": 0.27506641595391557,
+        "post_warmup_tokens_per_second_p50": 5.762231556881523,
+        "preserve_dropped_gate_mass": true,
+        "receipt_passed": true
+      },
+      {
+        "contains_expected_391": true,
+        "continuation_active_experts": 4,
+        "gate_mass_threshold": null,
+        "generated_text": "<|channel|>analysis<|message|>We need to answer: 17*23 = 391. So we need to compute. The user asks \"What is 17 multiplied ...\". So",
+        "internally_bitwise_repeatable": true,
+        "passes": [
+          {
+            "active_expert_layer_counts": {
+              "4": 1188
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.01570657972479239,
+            "p50_token_seconds": 0.18474720802623779,
+            "p95_token_seconds": 0.32374225003877655,
+            "positions": 33,
+            "tokens_per_second": 4.877558323711417
+          },
+          {
+            "active_expert_layer_counts": {
+              "4": 1188
+            },
+            "all_routes_in_pool": true,
+            "expert_load_seconds": 0.024141310364939272,
+            "p50_token_seconds": 0.2274285419844091,
+            "p95_token_seconds": 0.5966726659680717,
+            "positions": 33,
+            "tokens_per_second": 3.5380972897745413
+          }
+        ],
+        "post_warmup_p50_token_seconds_p50": 0.2274285419844091,
+        "post_warmup_p95_token_seconds_p50": 0.5966726659680717,
+        "post_warmup_tokens_per_second_p50": 3.5380972897745413,
+        "preserve_dropped_gate_mass": false,
+        "receipt_passed": true
+      }
+    ],
+    "decision": "RETAIN_075_PRESERVED_MASS_FOR_BROADER_QUALITY_NOT_SPEED_PROMOTION"
+  },
+  "canonical_sha256": "74f4d7ec92b946939a941334ca99a7997a4c17a7dbbd21d10c60569fadb2d806",
+  "claim_boundary": "The exact block tests execute all 36 layers and full logits against frozen teacher traces, but do not include draft cost or free-running acceptance. Adaptive expert runs are changed-model quality tracks using original GPT-OSS 120B weights; they are not bit-exact unrestricted GPT-OSS 120B. Arithmetic success does not establish broad quality.",
+  "created_at": "2026-09-10T15:27:33.256073+00:00",
+  "exact_block": {
+    "decision": "STOP_AS_PRIMARY_SPEED_STRATEGY",
+    "maximum_traffic_reduction": 1.8616983869778305,
+    "maximum_wall_speedup": 1.0382718878437092,
+    "reason": "macOS page caching already removes much repeated physical SD traffic; logical byte reduction did not transfer to wall time",
+    "runs": [
+      {
+        "all_positions_bitwise_exact": true,
+        "compressed_traffic_reduction_p50": 1.1753928072272752,
+        "exploratory_pair_only": false,
+        "peak_live_expert_bytes": 106030080,
+        "positions": 2,
+        "status": "STOP_FULL_BLOCK",
+        "wall_speedup_p50": 1.0264929830285892
+      },
+      {
+        "all_positions_bitwise_exact": true,
+        "compressed_traffic_reduction_p50": 1.368326674450135,
+        "exploratory_pair_only": false,
+        "peak_live_expert_bytes": 198806400,
+        "positions": 4,
+        "status": "STOP_FULL_BLOCK",
+        "wall_speedup_p50": 1.0222244197704582
+      },
+      {
+        "all_positions_bitwise_exact": true,
+        "compressed_traffic_reduction_p50": 1.8616983869778305,
+        "exploratory_pair_only": true,
+        "peak_live_expert_bytes": 357851520,
+        "positions": 8,
+        "status": "STOP_EXPLORATORY_BLOCK",
+        "wall_speedup_p50": 1.0382718878437092
+      }
+    ]
+  },
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "promoted_narrow_control": {
+    "architecture": "exact unrestricted prefill plus protected 8 GiB four-expert continuation",
+    "status": "PROMOTE_NARROW_8G_FRONTIER",
+    "tokens_per_second": [
+      5.77918373910106,
+      7.542464722877698
+    ],
+    "tokens_per_second_p50": 6.660824230989379
+  },
+  "schema": "aion.gptoss-120b-block-and-adaptive-frontier.v1",
+  "sources": {
+    "adaptive_candidates": [
+      {
+        "receipt": {
+          "canonical_sha256": "f4dbfa4c056209a008fdf0ca41aab8524a34c6133af035d4a29f7697d34cea47",
+          "file_sha256": "fcd43b4fdbdc3274257d790310b6188313065c4e38cb52b2d187433231d4fccb",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_top2_continuation_48token_receipt_20260910.json"
+        },
+        "runtime": {
+          "canonical_sha256": "419253dcdd358e6f6981e843f9d45130339d00a661eb8fd842bd7c0e5ff2d591",
+          "file_sha256": "2d8c4912dc9313e1cf23d0818f85f9bb49640021e7408b7a6048914f3fa0bab5",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_top2_continuation_48token_gate_20260910.json"
+        }
+      },
+      {
+        "receipt": {
+          "canonical_sha256": "45f28aa49ecce3ad9723f884c1f9f7dbf0d6d4c2da24cb864ae49bfb98b5bc6d",
+          "file_sha256": "f777fc76853988a96b1a3db373ca12291f642ee913ea3f56ab1c263e27013b25",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_top3_continuation_48token_receipt_20260910.json"
+        },
+        "runtime": {
+          "canonical_sha256": "fd2bf7b756793424dda18752741aee2eaff9caaa8a0de9126906995ef37b750b",
+          "file_sha256": "2d3cfd25e0fdaca13ef07a51045fcef6532bd61ee18e70539c532413765d8de7",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_top3_continuation_48token_gate_20260910.json"
+        }
+      },
+      {
+        "receipt": {
+          "canonical_sha256": "bae8fde4fb0d6b4d58fc68515ae0825a7eaf8bd1512946b148dab712cee3ce86",
+          "file_sha256": "f73c1a439cb5d7c712a3d89066970c0d6999b76946c500b9ccb79100e9d63080",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_adaptive_experts_080_48token_receipt_20260910.json"
+        },
+        "runtime": {
+          "canonical_sha256": "3384cce387a668b82f171bd5bcc6189c8746e4adb8779e11969b3f1c761c9f28",
+          "file_sha256": "d32a69b8f545b94b163b7a9e84569f6fe1d826907289cd86895b258a622b44ad",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_adaptive_experts_080_48token_gate_20260910.json"
+        }
+      },
+      {
+        "receipt": {
+          "canonical_sha256": "7e9db01495fb1fc0a88efce4addce6c0bf4e3a799a4916bc4f5cfb69c3d29804",
+          "file_sha256": "262fc1294f636935ce79d7f779b68abcf2ecee8cde187ecd0f99a6d2340366df",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_adaptive_experts_075_preserved_mass_48token_4pass_receipt_20260910.json"
+        },
+        "runtime": {
+          "canonical_sha256": "c2a0ad197b51bde39d3d4220b032fa61fe37153245ed0125bf8d069df71c56d5",
+          "file_sha256": "7811aff3138bdee6b0ca52f35b7e26acf968240947033d9adb086c8c598bbf4d",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_adaptive_experts_075_preserved_mass_48token_4pass_gate_20260910.json"
+        }
+      },
+      {
+        "receipt": {
+          "canonical_sha256": "5f5b3cfd58d89cafe25c5f5b52d99d1de5ff72a0f114ded775b543a2070be0d8",
+          "file_sha256": "527454affd83ee40cd0cab086045a178553cdcb9d1f193db243147d101404d5e",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_pool_7_9gib_48token_receipt_20260910.json"
+        },
+        "runtime": {
+          "canonical_sha256": "4f3b57fdc85758e88c1071672b4b836fa2f14893fd68d5cfdba18c2646f783d5",
+          "file_sha256": "b07cdfc8be34a424727a7d4ccdd03cce060b57935502ce725777fce4f21179d0",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_pool_7_9gib_48token_gate_20260910.json"
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "canonical_sha256": "7eff60170ca240ad0bf3e7e60daec8f118193f236654e9f8a4ed53769bb25609",
+        "file_sha256": "4ca21882118772683e29848c1504e454cada0e8bba7b7deb741f1adf929b1bf2",
+        "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_full_causal_block_2pos_parallel_union_gate_20260910.json"
+      },
+      {
+        "canonical_sha256": "be1d7437b39eda0709a4d1c09aaa93fa91dc74a71c448296bcee564bcb313198",
+        "file_sha256": "51d601b4f80b996c9281de29ef2b383af9bcea39b210367fe2d2f4452a70f6f2",
+        "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_full_causal_block_4pos_four_reader_gate_20260910.json"
+      },
+      {
+        "canonical_sha256": "0713875cfa16143be5ee5feb8b6b74a0214ee5f25cf19881e1d6ed6ff0a6edf8",
+        "file_sha256": "9b10cae78cfc220b2944d4bc73bee279e13cef6f3e3f9ee1dd74986a59d4db33",
+        "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_full_causal_block_8pos_exploratory_gate_20260910.json"
+      }
+    ],
+    "control": {
+      "canonical_sha256": "51bfd50c3a419aff439831b51964404d6a71d1e5efd3ec5d8107aeef82bcc4d8",
+      "file_sha256": "e79acafb405462858bb842caa5b2adb5ef807b84cafbd418bf4234a3e904f059",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_capacity_frontier_20260910.json"
+    }
+  }
+}

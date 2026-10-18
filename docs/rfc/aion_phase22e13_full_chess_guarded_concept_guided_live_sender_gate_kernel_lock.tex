@@ -1,0 +1,75 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.13 --- Guarded Concept-Guided Live Sender Gate}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.13 introduces the guarded concept-guided live sender gate.
+
+This phase consumes the Phase 22E.12 live-Lichess-shaped dry-run adapter and creates an explicit safety boundary before any future live move sender may be enabled.
+
+\section{Gate Contract}
+
+The gate emits:
+
+\begin{itemize}[leftmargin=*]
+  \item game identifier;
+  \item input FEN;
+  \item selected move preview;
+  \item selected move legal flag;
+  \item dry-run adapter trace hash;
+  \item dry-run only flag;
+  \item live sender gate enabled flag;
+  \item live sender gate passed flag;
+  \item live Lichess send enabled flag;
+  \item Lichess move POST attempted flag;
+  \item guard reason;
+  \item guard conditions;
+  \item gate trace hash.
+\end{itemize}
+
+\section{Technical Position}
+
+This phase is a final pre-send guard.
+
+The live sender gate is present, but disabled by contract.
+
+Live sending remains blocked. There is no move POST and no live Lichess move send.
+
+This is a no live Lichess phase.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, human move scoring, or live Lichess move sending.
+
+It is deterministic local guarded sender-gate validation only.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e13_full_chess_guarded_concept_guided_live_sender_gate_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e13_full_chess_guarded_concept_guided_live_sender_gate_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E13-FULL-CHESS-GUARDED-CONCEPT-GUIDED-LIVE-SENDER-GATE\\
+Status: LOCKED --- guarded concept-guided live sender gate implemented with send blocked\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

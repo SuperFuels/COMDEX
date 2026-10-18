@@ -1,0 +1,121 @@
+{
+  "candidate_directory": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_zero_control_20260910T1058",
+  "canonical_sha256": "1521922cf33b7988583eab72df605f03a202ef54b67edc0e1f22707387920b7b",
+  "claim_boundary": "This evaluator measures a frozen changed-arithmetic candidate on family-disjoint holdouts and simulates rejection to the existing exact SD path. It neither trains nor injects weights, and a mechanism pass does not constitute full-model promotion.",
+  "confidence_threshold": 0.9,
+  "created_at": "2026-09-10T11:02:18.971266+00:00",
+  "dataset_manifest_canonical_sha256": "6564bc3fef79e40528046a7c05af104791eb24a0663b14e0349d9785d49b9b27",
+  "dataset_manifest_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_four_family_manifest_20260910T1058.json",
+  "observations": [
+    {
+      "accepted": true,
+      "confidence": 1.0,
+      "confidence_receipt_sha256": "db798d2f36a4432cf541ecd90b8231248646659f51ce636e913d0b0cfe54484c",
+      "family_id": "synthetic_token_5001",
+      "layer": 0,
+      "position": 0,
+      "prediction_sha256": "2ddbd07ddfda5d4f9b1c44c8ff16f7e38027d275af6bf57f317b136060d695a9",
+      "relative_l2": 1.0,
+      "violation": true,
+      "violation_captured_by_fallback": false
+    },
+    {
+      "accepted": true,
+      "confidence": 1.0,
+      "confidence_receipt_sha256": "db798d2f36a4432cf541ecd90b8231248646659f51ce636e913d0b0cfe54484c",
+      "family_id": "synthetic_token_5001",
+      "layer": 12,
+      "position": 0,
+      "prediction_sha256": "2ddbd07ddfda5d4f9b1c44c8ff16f7e38027d275af6bf57f317b136060d695a9",
+      "relative_l2": 1.0,
+      "violation": true,
+      "violation_captured_by_fallback": false
+    },
+    {
+      "accepted": true,
+      "confidence": 1.0,
+      "confidence_receipt_sha256": "db798d2f36a4432cf541ecd90b8231248646659f51ce636e913d0b0cfe54484c",
+      "family_id": "synthetic_token_5001",
+      "layer": 24,
+      "position": 0,
+      "prediction_sha256": "2ddbd07ddfda5d4f9b1c44c8ff16f7e38027d275af6bf57f317b136060d695a9",
+      "relative_l2": 1.0,
+      "violation": true,
+      "violation_captured_by_fallback": false
+    },
+    {
+      "accepted": true,
+      "confidence": 1.0,
+      "confidence_receipt_sha256": "db798d2f36a4432cf541ecd90b8231248646659f51ce636e913d0b0cfe54484c",
+      "family_id": "synthetic_token_5001",
+      "layer": 35,
+      "position": 0,
+      "prediction_sha256": "2ddbd07ddfda5d4f9b1c44c8ff16f7e38027d275af6bf57f317b136060d695a9",
+      "relative_l2": 1.0,
+      "violation": true,
+      "violation_captured_by_fallback": false
+    },
+    {
+      "accepted": true,
+      "confidence": 1.0,
+      "confidence_receipt_sha256": "db798d2f36a4432cf541ecd90b8231248646659f51ce636e913d0b0cfe54484c",
+      "family_id": "synthetic_token_15001",
+      "layer": 0,
+      "position": 0,
+      "prediction_sha256": "2ddbd07ddfda5d4f9b1c44c8ff16f7e38027d275af6bf57f317b136060d695a9",
+      "relative_l2": 1.0,
+      "violation": true,
+      "violation_captured_by_fallback": false
+    },
+    {
+      "accepted": true,
+      "confidence": 1.0,
+      "confidence_receipt_sha256": "db798d2f36a4432cf541ecd90b8231248646659f51ce636e913d0b0cfe54484c",
+      "family_id": "synthetic_token_15001",
+      "layer": 12,
+      "position": 0,
+      "prediction_sha256": "2ddbd07ddfda5d4f9b1c44c8ff16f7e38027d275af6bf57f317b136060d695a9",
+      "relative_l2": 1.0,
+      "violation": true,
+      "violation_captured_by_fallback": false
+    },
+    {
+      "accepted": true,
+      "confidence": 1.0,
+      "confidence_receipt_sha256": "db798d2f36a4432cf541ecd90b8231248646659f51ce636e913d0b0cfe54484c",
+      "family_id": "synthetic_token_15001",
+      "layer": 24,
+      "position": 0,
+      "prediction_sha256": "2ddbd07ddfda5d4f9b1c44c8ff16f7e38027d275af6bf57f317b136060d695a9",
+      "relative_l2": 1.0,
+      "violation": true,
+      "violation_captured_by_fallback": false
+    },
+    {
+      "accepted": true,
+      "confidence": 1.0,
+      "confidence_receipt_sha256": "db798d2f36a4432cf541ecd90b8231248646659f51ce636e913d0b0cfe54484c",
+      "family_id": "synthetic_token_15001",
+      "layer": 35,
+      "position": 0,
+      "prediction_sha256": "2ddbd07ddfda5d4f9b1c44c8ff16f7e38027d275af6bf57f317b136060d695a9",
+      "relative_l2": 1.0,
+      "violation": true,
+      "violation_captured_by_fallback": false
+    }
+  ],
+  "quality_track": true,
+  "schema": "aion.shadow-expert-exact-fallback-evaluation.v1",
+  "status": "MECHANISM_GATE_FAILED",
+  "summary": {
+    "accepted_fraction": 1.0,
+    "projected_expert_traffic_reduction": 8.0,
+    "relative_l2_max": 1.0,
+    "relative_l2_p50": 1.0,
+    "relative_l2_p95": 1.0,
+    "samples": 8,
+    "violation_capture_rate": 0.0,
+    "violations": 8
+  },
+  "training_authorized": false
+}

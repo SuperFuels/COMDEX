@@ -9,26 +9,18 @@ Input : data/analysis/resonance_audit_report.json
 Output: data/analysis/dna_switch_rewrite_plan.json
 """
 
-import json
+from __future__ import annotations
+
+from collections.abc import Callable, Mapping, Sequence
 import time
-from pathlib import Path
-from backend.modules.dna_chain.switchboard import DNA_SWITCH
-from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
-from backend.modules.dna_chain import dna_writer
+from typing import Any
 
-AUDIT_PATH = Path("data/analysis/resonance_audit_report.json")
-OUT = Path("data/analysis/dna_switch_rewrite_plan.json")
-
-# Global Θ controller
-Theta = ResonanceHeartbeat(namespace="global_theta")
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 
-def load_audit():
-    try:
-        return json.loads(AUDIT_PATH.read_text())
-    except Exception as e:
-        print(f"⚠️ Failed to load audit: {e}")
-        return {}
+AUDIT_ENTITY_ID = "resonance_audit_report"
+REWRITE_ENTITY_ID = "dna_switch_rewrite_plan"
+REWRITE_SCHEMA = "tessaris.dna-switch-rewrite-plan.v1"
 
 
 def plan_rewrites(audit):
@@ -56,71 +48,74 @@ def plan_rewrites(audit):
     return plan
 
 
-def execute_rewrites(plan):
+def execute_rewrites(
+    plan: Sequence[Mapping[str, Any]],
+    *,
+    action_handler: Callable[[Mapping[str, Any]], None] | None = None,
+    proposal_handler: Callable[[Mapping[str, Any]], None] | None = None,
+    now: Callable[[], float] = time.time,
+):
     executed = []
     for item in plan:
         name = item["engine"]
         actions = item["actions"]
 
         for act in actions:
-            try:
-                DNA_SWITCH.register(f"auto_rewrite::{name}::{act}")
-
-                if act == "recalibrate_resonance":
-                    Theta.sync_all(emit_pulse=True)
-                    # Generate a DNA mutation proposal for the module
-                    dna_writer.propose_dna_mutation(
-                        reason=f"Auto-resonance recalibration for {name}",
-                        source="Phase58_AuditRepair",
-                        code_context="# 🔧 resonance placeholder",
-                        new_logic="# Adjusted resonance stability constants"
-                    )
-
-                elif act == "synchronize_phase":
-                    Theta.tick()
-                    dna_writer.propose_dna_mutation(
-                        reason=f"Phase alignment for {name}",
-                        source="Phase58_AuditRepair",
-                        code_context="# 🔄 phase placeholder",
-                        new_logic="# Updated Θ-phase correction"
-                    )
-
-                # Log to dashboard
-                log_payload = {
-                    "namespace": "global_theta",
-                    "event": "dna_rewrite_initiated",
-                    "timestamp": time.time(),
-                    "engine": name,
-                    "action": act,
-                }
-                log_path = Path("data/analysis/aion_live_dashboard.jsonl")
-                with open(log_path, "a") as f:
-                    f.write(json.dumps(log_payload) + "\n")
-
-                executed.append(log_payload)
-                print(f"🧬 Executed {act} for {name}")
-
-            except Exception as e:
-                print(f"❌ Rewrite failed for {name}:{act} -> {e}")
+            action = {
+                "event": "dna_rewrite_requested",
+                "timestamp": float(now()),
+                "engine": name,
+                "action": act,
+            }
+            if action_handler is not None:
+                action_handler(dict(action))
+            if proposal_handler is not None:
+                proposal_handler(
+                    {
+                        "engine": name,
+                        "action": act,
+                        "reason": list(item.get("reason") or []),
+                        "source": "Phase58_AuditRepair",
+                    }
+                )
+            executed.append(action)
 
     return executed
 
 
-def main():
-    audit = load_audit()
-    if not audit:
-        print("No audit data available.")
-        return
+def run_rewrite_planning(
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    workspace_id: str | None = None,
+    audit: Mapping[str, Any] | None = None,
+    action_handler: Callable[[Mapping[str, Any]], None] | None = None,
+    proposal_handler: Callable[[Mapping[str, Any]], None] | None = None,
+    now: Callable[[], float] = time.time,
+) -> dict[str, Any] | None:
+    store = vault_store or AionLearningVaultStore(workspace_id=workspace_id)
+    if not store.enabled:
+        raise RuntimeError("dna_rewrite_guardian_store_not_configured")
+    audit_value = audit if isinstance(audit, Mapping) else store.get_state(AUDIT_ENTITY_ID, {})
+    if not isinstance(audit_value, Mapping) or not audit_value:
+        return None
 
-    plan = plan_rewrites(audit)
-    executed = execute_rewrites(plan)
+    plan = plan_rewrites(audit_value)
+    executed = execute_rewrites(
+        plan,
+        action_handler=action_handler,
+        proposal_handler=proposal_handler,
+        now=now,
+    )
 
-    report = {"plan": plan, "executed": executed}
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(report, indent=2))
+    report = {"schema": REWRITE_SCHEMA, "plan": plan, "executed": executed}
+    store.put_state(REWRITE_ENTITY_ID, report)
+    return report
 
-    print(f"📄 DNA Switch rewrite plan -> {OUT}")
-    print(json.dumps(report, indent=2))
+
+def main() -> None:
+    report = run_rewrite_planning()
+    if report:
+        print(f"DNA rewrite requests stored in Guardian ({len(report['executed'])})")
 
 
 if __name__ == "__main__":

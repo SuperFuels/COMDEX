@@ -1,0 +1,69 @@
+\section{Phase 14I --- AgentMap Frontend Functional Wiring Lock}
+\label{sec:phase14-agentmap-frontend-functional-wiring-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- AgentMap frontend functional wiring batch 1 is implemented for the visible Generate AgentMap dashboard surface.}
+
+This lock connects the visible AgentMap dashboard panel to a deterministic frontend preview payload so the frontend no longer contains only passive labels. The Generate AgentMap control now refreshes frontend AgentMap state, exposes the generated \texttt{agentmap.json} preview, shows the deterministic \texttt{agentmap\_hash}, displays Phase 14D verification status, and renders hosted plus self-hosted discovery paths.
+
+\subsection{Scope}
+
+This batch covers the first frontend integration group:
+
+\begin{itemize}
+  \item Generate AgentMap button wiring.
+  \item Machine Discovery settings panel binding.
+  \item Generated \texttt{agentmap.json} preview rendering.
+  \item Live verification badge binding.
+  \item Deterministic \texttt{agentmap\_hash} display.
+  \item Hosted \texttt{/agentmap.json} path display.
+  \item Self-hosted \texttt{/.well-known/agentmap.json} export path display.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+This remains a preview-only UI lock.
+
+The frontend MUST NOT create bookings, capture payments, release escrow, dispatch jobs, send external messages, or enable live execution.
+
+Human review remains required for all live activity.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_functional_wiring_lock.py
+\end{verbatim}
+
+\subsection{Focused Suite Membership}
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_functional_wiring_lock.py
+\end{verbatim}
+
+\subsection{Raw Lock Terms}
+
+\begin{verbatim}
+Generate AgentMap
+Machine Discovery Settings
+agentmap.json Preview
+agentmap_hash
+AgentMap Verified Live
+/agentmap.json
+/.well-known/agentmap.json
+preview_only
+human_review_required
+live_execution_enabled: false
+lock id:
+status:
+maintainer: tessaris ai
+author: kevin robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\textbf{Lock ID:} AION-PHASE14-AGENTMAP-FRONTEND-FUNCTIONAL-WIRING-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson

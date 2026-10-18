@@ -1,0 +1,252 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_programming_languages",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:programming_languages",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:data_databases:data_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_databases",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_databases:sql",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_databases",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_databases:transactions",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_databases",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_databases:pipelines",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_databases",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_databases:data_quality",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_databases",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_databases:warehousing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_databases",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_databases:governance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_databases",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:data_databases",
+      "label": "Data engineering and databases",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_databases:data_models",
+      "label": "data models",
+      "subject_id": "data_databases",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_databases:sql",
+      "label": "sql",
+      "subject_id": "data_databases",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_databases:transactions",
+      "label": "transactions",
+      "subject_id": "data_databases",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_databases:pipelines",
+      "label": "pipelines",
+      "subject_id": "data_databases",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_databases:data_quality",
+      "label": "data quality",
+      "subject_id": "data_databases",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_databases:warehousing",
+      "label": "warehousing",
+      "subject_id": "data_databases",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_databases:governance",
+      "label": "governance",
+      "subject_id": "data_databases",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_data_databases",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:data_databases:data_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_databases",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_databases:sql",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_databases",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_databases:transactions",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_databases",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_databases:pipelines",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_databases",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_databases:data_quality",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_databases",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_databases:warehousing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_databases",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_databases:governance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_databases",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:data_databases",
+        "label": "Data engineering and databases",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_databases:data_models",
+        "label": "data models",
+        "subject_id": "data_databases",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_databases:sql",
+        "label": "sql",
+        "subject_id": "data_databases",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_databases:transactions",
+        "label": "transactions",
+        "subject_id": "data_databases",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_databases:pipelines",
+        "label": "pipelines",
+        "subject_id": "data_databases",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_databases:data_quality",
+        "label": "data quality",
+        "subject_id": "data_databases",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_databases:warehousing",
+        "label": "warehousing",
+        "subject_id": "data_databases",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_databases:governance",
+        "label": "governance",
+        "subject_id": "data_databases",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "data_databases",
+    "title": "AION Academy \u00b7 Data engineering and databases"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

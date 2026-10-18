@@ -2,12 +2,22 @@ from __future__ import annotations
 
 import threading
 import time
-from typing import Dict, Tuple
+from collections import OrderedDict
+import os
+from typing import Tuple
 
 _LOCK = threading.Lock()
 
 # peer_key -> (msg_tokens, byte_tokens, last_ts)
-_BUCKETS: Dict[str, Tuple[float, float, float]] = {}
+_BUCKETS: "OrderedDict[str, Tuple[float, float, float]]" = OrderedDict()
+
+
+def _maximum_buckets() -> int:
+    try:
+        value = int(os.getenv("GLYPHCHAIN_RATE_LIMIT_MAX_PEERS", "10000") or 10000)
+    except (TypeError, ValueError):
+        value = 10_000
+    return min(100_000, max(256, value))
 
 
 def allow(
@@ -33,6 +43,11 @@ def allow(
 
     with _LOCK:
         msg_tokens, byte_tokens, last = _BUCKETS.get(k, (msg_burst, bytes_burst, now))
+        if k in _BUCKETS:
+            _BUCKETS.move_to_end(k, last=True)
+        else:
+            while len(_BUCKETS) >= _maximum_buckets():
+                _BUCKETS.popitem(last=False)
         dt = max(0.0, now - last)
 
         # refill
@@ -42,10 +57,12 @@ def allow(
         # check capacity
         if msg_tokens < cost_msgs or byte_tokens < cost_bytes:
             _BUCKETS[k] = (msg_tokens, byte_tokens, now)
+            _BUCKETS.move_to_end(k, last=True)
             return False
 
         # spend
         msg_tokens -= cost_msgs
         byte_tokens -= cost_bytes
         _BUCKETS[k] = (msg_tokens, byte_tokens, now)
+        _BUCKETS.move_to_end(k, last=True)
         return True

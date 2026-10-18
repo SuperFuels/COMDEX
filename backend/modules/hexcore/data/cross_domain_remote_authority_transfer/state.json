@@ -1,0 +1,314 @@
+{
+  "created_at": "2026-08-01T22:39:02.356424+00:00",
+  "episodes": [
+    {
+      "commitment": {
+        "commitment_sha256": "4ad5f34cf17a0864ae3614e6a3cd3c741b2dbaad50cae4939a98c4e1fb585723",
+        "contract_sha256": "e5cb58b9149fe0bf510a7ab9ee80f7956004f3dad5b6af6a52072f11472060fe",
+        "created_at": "2026-08-01T22:38:59.240307+00:00",
+        "forecast": {
+          "container": "object",
+          "nonnegative_records": true,
+          "reachable": true
+        },
+        "mission": "Produce an evidence-grounded current assessment of United States public debt and fiscal data from an authoritative changing source."
+      },
+      "contract": {
+        "authority_domain": "api.fiscaldata.treasury.gov",
+        "contract_sha256": "e5cb58b9149fe0bf510a7ab9ee80f7956004f3dad5b6af6a52072f11472060fe",
+        "credentials": false,
+        "endpoint": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date&filter=country_currency_desc:in:(Canada-Dollar,Mexico-Peso),record_date:gte:2024-01-01",
+        "method": "GET",
+        "observable": {
+          "container": "object",
+          "primary_record_path": "data",
+          "record_fields": [
+            "country_currency_desc",
+            "exchange_rate",
+            "record_date"
+          ],
+          "records": 21,
+          "top_level_fields": [
+            "data",
+            "links",
+            "meta"
+          ]
+        },
+        "parent_method": "procedure_shortlist_free_remote_authority_acquisition_v1",
+        "search_response_sha256": "4863c21e967631509ab5a3e7b5a324c1a368e25affc2caf6fad13f973c37ecb8",
+        "side_effect_class": "read_only"
+      },
+      "endpoint_candidates": 5,
+      "later_challenge": {
+        "closed_at": "2026-08-01T22:44:06.163657+00:00",
+        "not_before_epoch": 1785624239.240382,
+        "observable": {
+          "container": "object",
+          "primary_record_path": "data",
+          "record_fields": [
+            "country_currency_desc",
+            "exchange_rate",
+            "record_date"
+          ],
+          "records": 21,
+          "top_level_fields": [
+            "data",
+            "links",
+            "meta"
+          ]
+        },
+        "outcome_sha256": "0ee2f441f205f84583f1fffa197d3fb403da2f023189a11ae76c57c7bda94133",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "Produce an evidence-grounded current assessment of United States public debt and fiscal data from an authoritative changing source.",
+      "observable": {
+        "container": "object",
+        "primary_record_path": "data",
+        "record_fields": [
+          "country_currency_desc",
+          "exchange_rate",
+          "record_date"
+        ],
+        "records": 21,
+        "top_level_fields": [
+          "data",
+          "links",
+          "meta"
+        ]
+      },
+      "official_documents": [
+        {
+          "sha256": "3de2c598bd3312499999f51cc1e5deac03eea855ccef7160b344c841a67d6e7e",
+          "title": "API Documentation - U.S. Treasury Fiscal Data",
+          "url": "https://fiscaldata.treasury.gov/api-documentation/"
+        },
+        {
+          "sha256": "5a69af94de8dad32c0ab298e0a2a3360a45dbc66b1d4402a74f66d08cde09614",
+          "title": "U.S. Treasury Fiscal Data",
+          "url": "https://fiscaldata.treasury.gov/"
+        },
+        {
+          "sha256": "f27ecde601ba6113a38bbf746da0b07c153bf06a6c5c3899f79f5fc95689ee5b",
+          "title": "Department of the Treasury - Debt to the Penny - Data Catalog",
+          "url": "https://catalog.data.gov/dataset/debt-to-the-penny"
+        },
+        {
+          "sha256": "3e14966acd35233e982f26ffad22e739c6b2c1b6e2b1a768577d303b4dc44984",
+          "title": "U.S. Treasury Monthly Statement of the Public Debt - MSPD",
+          "url": "https://api-community.fiscal.treasury.gov/s/communityapi/a015f00000PQCvNAAX/enterprise-apisustreasurymonthlystatementofthepublicdebtmspd"
+        },
+        {
+          "sha256": "588906f19dd77711badc954e616a3d938e6fa01f94a9829d46c1c96cfd773d8e",
+          "title": "Data Transparency | TFX: Treasury Financial Experience",
+          "url": "https://tfx.treasury.gov/data-transparency"
+        }
+      ],
+      "probe_attempts": 4,
+      "probe_traces": [
+        {
+          "accepted": false,
+          "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "semantically_relevant": false,
+          "shape": null,
+          "status": 0,
+          "structurally_valid_json": false,
+          "url_sha256": "c749835e3a0c6b5c3838efd6864a1d6a9eeff85e513779857e4777946412b8e3"
+        },
+        {
+          "accepted": false,
+          "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "semantically_relevant": false,
+          "shape": null,
+          "status": 0,
+          "structurally_valid_json": false,
+          "url_sha256": "11bf2b1e8e485c2a1ad9910168181b9a789ccfe32d28206f09ec6702c262b136"
+        },
+        {
+          "accepted": false,
+          "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "semantically_relevant": false,
+          "shape": null,
+          "status": 0,
+          "structurally_valid_json": false,
+          "url_sha256": "aa0d6feccd688857e6c32f87f38f87060b82300723a890a17dd54e319759d559"
+        },
+        {
+          "accepted": true,
+          "response_sha256": "0ee2f441f205f84583f1fffa197d3fb403da2f023189a11ae76c57c7bda94133",
+          "semantically_relevant": true,
+          "shape": [
+            "data",
+            "links",
+            "meta"
+          ],
+          "status": 200,
+          "structurally_valid_json": true,
+          "url_sha256": "3c6782f7a9b57dae00aed25709e3975fa58bb24703a3df82ad9b7aaf46d9d724"
+        }
+      ],
+      "public_results": 10,
+      "query": "evidence grounded current assessment united states public debt fiscal data authoritative official JSON API documentation"
+    },
+    {
+      "commitment": {
+        "commitment_sha256": "dacf4c0c147a4cf1ae6a743ade314ca19f9432ff2172d0435842b8889e97f07b",
+        "contract_sha256": "04e8d60cadf81f271b5d702356a77231ab72ae963233d25bd1c65cf3e40428f9",
+        "created_at": "2026-08-01T22:39:02.356374+00:00",
+        "forecast": {
+          "container": "object",
+          "nonnegative_records": true,
+          "reachable": true
+        },
+        "mission": "Track software vulnerabilities known to be exploited in the wild using an authoritative continuously maintained public source."
+      },
+      "contract": {
+        "authority_domain": "www.cisa.gov",
+        "contract_sha256": "04e8d60cadf81f271b5d702356a77231ab72ae963233d25bd1c65cf3e40428f9",
+        "credentials": false,
+        "endpoint": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+        "method": "GET",
+        "observable": {
+          "container": "object",
+          "primary_record_path": "vulnerabilities",
+          "record_fields": [
+            "cveID",
+            "cwes",
+            "dateAdded",
+            "dueDate",
+            "knownRansomwareCampaignUse",
+            "notes",
+            "product",
+            "requiredAction",
+            "shortDescription",
+            "vendorProject",
+            "vulnerabilityName"
+          ],
+          "records": 1656,
+          "top_level_fields": [
+            "catalogVersion",
+            "count",
+            "dateReleased",
+            "title",
+            "vulnerabilities"
+          ]
+        },
+        "parent_method": "procedure_shortlist_free_remote_authority_acquisition_v1",
+        "search_response_sha256": "c03dfd3a77b76261f9a93a386e485d40005190987c173e78242950ee8ec5f6f2",
+        "side_effect_class": "read_only"
+      },
+      "endpoint_candidates": 8,
+      "later_challenge": {
+        "closed_at": "2026-08-01T22:44:06.491818+00:00",
+        "not_before_epoch": 1785624242.356415,
+        "observable": {
+          "container": "object",
+          "primary_record_path": "vulnerabilities",
+          "record_fields": [
+            "cveID",
+            "cwes",
+            "dateAdded",
+            "dueDate",
+            "knownRansomwareCampaignUse",
+            "notes",
+            "product",
+            "requiredAction",
+            "shortDescription",
+            "vendorProject",
+            "vulnerabilityName"
+          ],
+          "records": 1656,
+          "top_level_fields": [
+            "catalogVersion",
+            "count",
+            "dateReleased",
+            "title",
+            "vulnerabilities"
+          ]
+        },
+        "outcome_sha256": "15b44d7c9c57f3d27128999e09f0fc991659a0b64713b5e1af599565447a2409",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "Track software vulnerabilities known to be exploited in the wild using an authoritative continuously maintained public source.",
+      "observable": {
+        "container": "object",
+        "primary_record_path": "vulnerabilities",
+        "record_fields": [
+          "cveID",
+          "cwes",
+          "dateAdded",
+          "dueDate",
+          "knownRansomwareCampaignUse",
+          "notes",
+          "product",
+          "requiredAction",
+          "shortDescription",
+          "vendorProject",
+          "vulnerabilityName"
+        ],
+        "records": 1656,
+        "top_level_fields": [
+          "catalogVersion",
+          "count",
+          "dateReleased",
+          "title",
+          "vulnerabilities"
+        ]
+      },
+      "official_documents": [
+        {
+          "sha256": "907237b746080b9439179b970c1a6e45ffceda3822d8520c0225fc86b1411888",
+          "title": "Known Exploited Vulnerabilities Catalog - CISA",
+          "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+        },
+        {
+          "sha256": "07699d0da0d8c88120932a154c5adac3fa50475cd55ec49c778b6f4fcf72be3e",
+          "title": "Vulnerability APIs - NVD",
+          "url": "https://nvd.nist.gov/developers/vulnerabilities"
+        },
+        {
+          "sha256": "7233ebe7d453ea19c64e9e8363549ec8d04f265e806b3eed136a7dee6220094f",
+          "title": "The KEV Catalog | CISA",
+          "url": "https://www.cisa.gov/resources-tools/resources/kev-catalog"
+        },
+        {
+          "sha256": "45e019dde3b26cbcaf385383d1ea48a1b18d1e29ebc26487c1bdca450e28cf3e",
+          "title": "National Vulnerability Database | NIST",
+          "url": "https://www.nist.gov/itl/nvd"
+        },
+        {
+          "sha256": "6aaa3ae78949b693a099eed67a2622ffe60d1eb81f48b5352230b7acaa66de03",
+          "title": "NVD - Vulnerabilities",
+          "url": "https://nvd.nist.gov/vuln"
+        }
+      ],
+      "probe_attempts": 1,
+      "probe_traces": [
+        {
+          "accepted": true,
+          "response_sha256": "15b44d7c9c57f3d27128999e09f0fc991659a0b64713b5e1af599565447a2409",
+          "semantically_relevant": true,
+          "shape": [
+            "catalogVersion",
+            "count",
+            "dateReleased",
+            "title",
+            "vulnerabilities"
+          ],
+          "status": 200,
+          "structurally_valid_json": true,
+          "url_sha256": "16519bf46eaff9099413c687492584abdd19fe5f1fcb13bed91716e0cb061516"
+        }
+      ],
+      "public_results": 10,
+      "query": "software vulnerabilities known exploited wild authoritative continuously maintained public source official JSON API documentation"
+    }
+  ],
+  "parent": "procedure_shortlist_free_remote_authority_acquisition_v1",
+  "schema_version": "aion.hexcore.cross_domain_remote_authority_transfer_state.v1"
+}

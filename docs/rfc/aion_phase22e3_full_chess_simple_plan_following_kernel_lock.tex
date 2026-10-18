@@ -1,0 +1,76 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.3 --- Simple Plan Formation and Plan Following}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.3 introduces simple chess plan formation and plan-following checks.
+
+This phase sits above Phase 22E.1 positional features and Phase 22E.2 goal-biased strategic search.
+
+\section{Plan Formation}
+
+The kernel forms a simple plan from positional feature telemetry.
+
+Possible plan goals include:
+
+\begin{itemize}[leftmargin=*]
+  \item stop promotion;
+  \item reduce invasion;
+  \item defend king;
+  \item avoid repetition;
+  \item develop pieces;
+  \item improve centre;
+  \item improve piece activity;
+  \item improve overall position.
+\end{itemize}
+
+\section{Plan Following}
+
+After a plan is formed, the kernel consumes the Phase 22E.2 selected move and checks whether the move follows the active plan.
+
+It emits:
+
+\begin{verbatim}
+active_plan
+plan_reason
+plan_followed
+plan_alignment_score
+plan_alignment_reasons
+\end{verbatim}
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It is deterministic local planning over AION positional and strategic telemetry.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e3_full_chess_simple_plan_following_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e3_full_chess_simple_plan_following_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E3-FULL-CHESS-SIMPLE-PLAN-FOLLOWING\\
+Status: LOCKED --- simple plan formation and plan-following check implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

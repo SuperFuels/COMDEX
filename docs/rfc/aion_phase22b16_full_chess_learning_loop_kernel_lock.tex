@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.16: Full Chess Learning Loop Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.16 defines the AION Full Chess Learning Loop Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can learn from deterministic full-board chess game-loop outcomes.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.16 adds policy learning over prior full-board chess reasoning results.
+
+\section{Learning Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{learning\_signal\_count};
+  \item \texttt{positive\_learning\_count};
+  \item \texttt{negative\_learning\_count};
+  \item \texttt{reinforced\_safe\_capture\_count};
+  \item \texttt{reinforced\_surviving\_strategy\_count};
+  \item \texttt{reinforced\_multi\_ply\_line\_count};
+  \item \texttt{weakened\_greedy\_capture\_count};
+  \item \texttt{weakened\_king\_exposure\_count};
+  \item \texttt{weakened\_material\_loss\_count};
+  \item \texttt{learned\_policy};
+  \item \texttt{preferred\_strategy\_after\_learning};
+  \item \texttt{learning\_loop\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic full-board chess policy learning from prior game-loop outcomes. It does not yet implement self-play mastery, exhaustive chess search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B16-FULL-CHESS-LEARNING-LOOP-KERNEL-LOCK\\
+Status: LOCKED --- full chess learning loop kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,1887 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=24mm,headheight=15pt]{geometry}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,longtable,tabularx,array,multirow}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{lastpage}
+\usepackage{pifont}
+\usepackage{seqsplit}
+
+\definecolor{AionNavy}{HTML}{13233A}
+\definecolor{AionBlue}{HTML}{245A8D}
+\definecolor{AionTeal}{HTML}{168C8C}
+\definecolor{AionGreen}{HTML}{237A57}
+\definecolor{AionAmber}{HTML}{B97618}
+\definecolor{AionRed}{HTML}{A63D40}
+\definecolor{AionInk}{HTML}{1F2933}
+\definecolor{AionGray}{HTML}{667788}
+\definecolor{AionPale}{HTML}{F3F7FA}
+\definecolor{AionRule}{HTML}{D8E2EA}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=AionBlue,
+  urlcolor=AionTeal,
+  citecolor=AionBlue,
+  pdftitle={AION Riemann Hypothesis Programme: Research Record and Roadmap},
+  pdfauthor={AION / COMDEX},
+  pdfsubject={Formal mathematics research programme status, evidence, and roadmap},
+  pdfkeywords={AION, Riemann Hypothesis, Lean 4, Mathlib, formal verification, AI mathematics}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{AionGray}{AION Riemann Hypothesis Programme}}
+\rhead{\textcolor{AionGray}{Research Record - 15 August 2026}}
+\cfoot{\textcolor{AionGray}{\thepage\ / \pageref{LastPage}}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{AionRule}\leaders\hrule height \headrulewidth\hfill}}
+
+\titleformat{\section}{\Large\bfseries\color{AionNavy}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{AionBlue}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{AionInk}}{\thesubsubsection}{0.7em}{}
+\titlespacing*{\section}{0pt}{2.3ex plus .4ex}{1.0ex}
+\titlespacing*{\subsection}{0pt}{1.8ex plus .3ex}{0.7ex}
+
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.25em,topsep=0.4em}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=0.35em,topsep=0.4em}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{2pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+
+\newcommand{\pass}{\textcolor{AionGreen}{\ding{51}}}
+\newcommand{\fail}{\textcolor{AionRed}{\ding{55}}}
+\newcommand{\pending}{\textcolor{AionAmber}{\raisebox{0.15ex}{\rule{0.8ex}{0.8ex}}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\hash}[1]{\texttt{\footnotesize\seqsplit{#1}}}
+\newcommand{\RH}{\mathrm{RH}}
+\newcommand{\RePart}{\operatorname{Re}}
+\newcommand{\status}[2]{\textbf{#1:} #2}
+
+\newtcolorbox{truthbox}{
+  colback=AionRed!4,colframe=AionRed!70!black,
+  title=Truth boundary,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{resultbox}{
+  colback=AionGreen!5,colframe=AionGreen!75!black,
+  title=Verified result,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{decisionbox}{
+  colback=AionBlue!4,colframe=AionBlue!75!black,
+  title=Programme decision,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{warningbox}{
+  colback=AionAmber!6,colframe=AionAmber!80!black,
+  title=Open gate,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+
+\lstdefinelanguage{Lean}{
+  morekeywords={theorem,lemma,def,by,exact,import,namespace,end,have,simpa,using,fun,if,then,else},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]"
+}
+\lstset{
+  language=Lean,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{AionBlue}\bfseries,
+  commentstyle=\color{AionGray}\itshape,
+  stringstyle=\color{AionTeal},
+  backgroundcolor=\color{AionPale},
+  frame=single,
+  rulecolor=\color{AionRule},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  xleftmargin=0.5em,xrightmargin=0.5em,
+  aboveskip=0.8em,belowskip=0.8em
+}
+
+\begin{document}
+
+\begin{titlepage}
+  \pagecolor{AionNavy}
+  \color{white}
+  \vspace*{18mm}
+  {\fontsize{23}{28}\selectfont\bfseries AION Riemann Hypothesis Programme\par}
+  \vspace{4mm}
+  {\fontsize{15.5}{19}\selectfont Formal Mathematics Research Record, Evidence Review, and Roadmap\par}
+  \vspace{15mm}
+  {\color{AionTeal!45!white}\rule{\textwidth}{1.4pt}}
+  \vspace{10mm}
+
+  \begin{tabularx}{\textwidth}{>{\bfseries}p{38mm}X}
+    Document date & 15 August 2026 \\
+    Programme & AION formal Riemann Hypothesis research \\
+    Repository & \path{/Users/kevinrobinson/dev/COMDEX} \\
+    Formal authority & Lean 4.24.0 kernel and Mathlib v4.32.1 \\
+    Current stage & Compact zeta divisor complete; explicit-formula bridge open \\
+    Research status & No new RH mathematics; RH remains unsolved \\
+  \end{tabularx}
+
+  \vfill
+  \begin{tcolorbox}[colback=AionBlue!55!AionNavy,colframe=AionTeal!70!white,title=Purpose of this record,
+    fonttitle=\bfseries,coltitle=white,coltext=white,boxrule=0.6pt]
+  This document records what AION has actually built, measured, learned, and not
+  established. It is designed to survive handovers, prevent claim inflation,
+  support reproducibility, and define the shortest credible route from formal
+  proof competence to useful research on a genuine RH prerequisite.
+  \end{tcolorbox}
+  \vspace{5mm}
+  {\small Internal research record - evidence-first, kernel-governed}
+\end{titlepage}
+\nopagecolor
+\color{AionInk}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+
+\section*{Document control}
+\addcontentsline{toc}{section}{Document control}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{37mm}X}
+Version & 1.3 \\
+Status & Full Chebyshev Perron formula kernel-checked; contour orientation and the residues at nontrivial zeros, $s=1$, and $s=0$ checked \\
+Scope & Formal RH programme only; excludes unrelated prime-search, factoring, visual probes, and Photon Algebra work \\
+Primary evidence & Lean sources, pinned environment, immutable JSON results, SHA-256 hashes, focused tests \\
+Interpretive authority & The Lean kernel decides proof acceptance; this report interprets experiments but cannot create mathematical truth \\
+Change rule & Future revisions must preserve prior immutable evidence and clearly separate new measurements from retrospective interpretation \\
+\end{tabularx}
+
+\begin{truthbox}
+AION has not solved the Riemann Hypothesis. No new theorem that advances a
+resolution of RH has been established. Reconstructing Mathlib theorems is
+evidence about proof-system competence and experimental plumbing, not original
+mathematics. Numerical evidence, model confidence, persuasive prose, and
+self-awarded scores are not proofs.
+\end{truthbox}
+
+\clearpage
+\pagenumbering{arabic}
+
+\section{Executive summary}
+
+The AION RH programme now has a credible formal laboratory, a pinned Lean and
+Mathlib authority path, strict rejection of incomplete proofs, immutable
+matched experiments, governed retrieval from AION's persistent knowledge
+store, and an extended kernel-checked mathematics chain reaching from zeta-zero
+infrastructure to finite Chebyshev--Perron inversion.
+
+The strongest verified engineering result is not a theorem about RH. It is a
+research-control result: the system can now distinguish a proposed Lean proof
+from an accepted proof, retain only compiler-verified method metadata, expose
+exact provenance identifiers to experimental arms, and fail closed before a
+paid run if task or environment hashes do not match.
+
+The one paid experiment completed on 14 August 2026 did not establish an AION
+advantage. The proposer-only arm solved 0 of 3 tasks. Each AION-labelled arm
+solved 1 of 3. Those AION labels were not yet causally clean: memory was a
+generic prompt hint, repair was ordinary compiler feedback, and one task failed
+because the generated source omitted the Mathlib module containing the needed
+theorem. The result therefore validates the live provider-to-Lean path but does
+not measure the intended architecture.
+
+The continuation work corrected that defect and completed both the v3 matched
+comparison and its delayed source-closed retention test. Neither passed its
+precommitted superiority gate. These negative results are preserved, and the
+programme has moved to the mathematical dependency chain without converting an
+engineering signal into a capability claim.
+
+The strongest new formal result is now the complete Chebyshev Perron formula.
+Lean verifies the squared-Cauchy Fourier value, the sharp away-from-jump scalar
+limit, finite Dirichlet-polynomial inversion, fixed-height interchange of the
+full von Mangoldt series and vertical integral, a height-independent summable
+majorant, and the limit to $\psi(x)$ for nonintegral $x>1$. Initial contour
+infrastructure is also checked: exact rectangle orientation, identification of
+the right edge with the proved Perron integral, multiplicity-aware zero
+residues, the main-term residue $x$ at $s=1$, and the $-\log(2\pi)$ residue at
+$s=0$.
+
+\begin{resultbox}
+Final formal verification status: \textbf{PASS}. The complete RH library builds
+in the pinned environment in 3,590 jobs. The Fourier, full Perron, compact
+divisor, and initial contour-residue results contain no \code{sorry}, \code{admit},
+project axiom, unsafe declaration, paid call, or hidden oracle step.
+\end{resultbox}
+
+\subsection{Status at a glance}
+
+\begin{tabularx}{\textwidth}{X c p{55mm}}
+\toprule
+Capability or claim & Status & Interpretation \\
+\midrule
+Pinned formal laboratory & \pass & Lean and Mathlib are operational authorities \\
+Strict no-placeholder policy & \pass & \code{sorry}, \code{admit}, and local axioms are prohibited \\
+Known zeta baseline compiles & \pass & Established mathematics is reconstructed \\
+Live provider-to-Lean experiment & \pass & One paid run completed and evidence is immutable \\
+Genuine verified-memory retrieval & \pass & AION persistent knowledge retrieval is now wired \\
+Bounded diagnostic repair records & \pass & Failure classes produce auditable routes \\
+Six-family v2 packet locally verified & \pass & All hidden oracle proofs compile locally \\
+V2/v3 governed execution & \pass & Sealed comparison completed with immutable evidence \\
+Delayed source-closed retention & \pass & Completed once; memory arm scored 2/6 versus cold 3/6 \\
+Compact multiplicity-aware zeta divisor & \pass & Finite compact zero sums are kernel-checked \\
+Scalar Perron theorem & \pass & Sharp limit proved away from $y=1$ \\
+Finite Chebyshev--Perron inversion & \pass & Finite von Mangoldt specialization converges to $\psi(x)$ \\
+Full Chebyshev Perron formula & \pass & Growing-height interchange and uniform domination proved \\
+Multiplicity-aware local zero residues & \pass & Residue is $-m(\rho)x^\rho/\rho$ \\
+Pole residues at $s=1$ and $s=0$ & \pass & Contributions $x$ and $-\log(2\pi)$ checked \\
+Global contour shift and explicit formula & \pending & Pole excision, trivial-zero sum, and edge limits remain \\
+AION superiority established & \fail & Neither precommitted experiment met the gate \\
+New original RH mathematics & \fail & Classical dependencies formalized; no novel theorem \\
+RH solved & \fail & No \\
+\bottomrule
+\end{tabularx}
+
+\section{Mathematical target and scope}
+
+\subsection{The Riemann zeta function}
+
+For complex $s$ with $\RePart(s)>1$, the Riemann zeta function is represented by
+the absolutely convergent Dirichlet series
+\[
+  \zeta(s)=\sum_{n=1}^{\infty}\frac{1}{n^s}.
+\]
+It admits a meromorphic continuation to the complex plane, with a simple pole
+at $s=1$. Its nontrivial zeros lie in the critical strip
+\[
+  0 < \RePart(s) < 1.
+\]
+The Riemann Hypothesis asserts
+\[
+  \RH:\qquad \zeta(s)=0,\ 0<\RePart(s)<1
+  \quad\Longrightarrow\quad
+  \RePart(s)=\frac12.
+\]
+
+This project does not treat the displayed implication as a prompt to be solved
+directly. The target is too deep, existing formal-library coverage is partial,
+and an unconstrained language model can easily produce plausible but invalid
+mathematics. The programme therefore decomposes the challenge into governed,
+machine-checkable competence stages.
+
+\subsection{What counts as progress}
+
+Four evidence classes must not be conflated:
+
+\begin{enumerate}
+  \item \textbf{Infrastructure progress}: the toolchain, verifier, hashing,
+  memory, repair, and experiment controls work correctly.
+  \item \textbf{Competence progress}: AION reconstructs or transfers established
+  proofs more reliably, cheaply, or durably than matched controls.
+  \item \textbf{Formalization progress}: AION formalizes known mathematics that
+  was missing from the local dependency chain. This can be useful and novel as
+  engineering without being new mathematics.
+  \item \textbf{Mathematical progress}: a genuinely new lemma, method, bound, or
+  theorem relevant to RH survives Lean verification and independent expert
+  mathematical review.
+\end{enumerate}
+
+Current achievement is primarily in classes 1 and 2's experimental
+prerequisites. There is not yet evidence in class 4.
+
+\section{Programme thesis}
+
+The programme's central hypothesis is architectural:
+
+\begin{quote}
+Can AION turn formally verified mathematical experience into retained,
+repairable competence under source closure, beyond what the same underlying
+proposer achieves alone?
+\end{quote}
+
+The governed loop is
+\[
+\small
+\begin{aligned}
+\boxed{\text{task}}&\rightarrow\boxed{\text{proposal}}
+\rightarrow\boxed{\text{Lean gate}}
+\rightarrow\boxed{\text{diagnosis}}
+\rightarrow\boxed{\text{bounded repair}}
+\rightarrow\boxed{\text{verified memory}}\\[-1mm]
+&\hspace{55mm}\Downarrow\\[-1mm]
+&\hspace{42mm}\boxed{\text{source-closed transfer}}
+\end{aligned}
+\]
+
+The same proposer, model version, temperature, task, tool access, token budget,
+attempt budget, and time budget must be held fixed. Only AION memory and repair
+mechanisms may vary. This is what makes an observed difference attributable to
+the architecture rather than to a stronger model or an easier prompt.
+
+\subsection{Progression of research difficulty}
+
+\begin{enumerate}
+  \item Known zeta and complex-analysis micro-lemmas.
+  \item Held-out reformulations and theorem specialization.
+  \item Delayed reconstruction with training sources closed.
+  \item Formal RH-equivalent statements and dependency mapping.
+  \item Complete reconstruction of a selected prerequisite chain.
+  \item Identification of one precise missing formalization or mathematical
+  bottleneck.
+  \item Formalization and independent review of useful supporting lemmas.
+  \item Only then, carefully governed work on a genuinely open bottleneck.
+\end{enumerate}
+
+\section{Trusted formal laboratory}
+
+\subsection{Authority model}
+
+The declared trusted base is the pinned Lean kernel and pinned Mathlib
+dependency. A candidate counts only when the Lean process returns success for
+the complete generated source. The harness also retains a SHA-256 source hash
+and compiler diagnostic.
+
+Project-authored proof sources are scanned for prohibited incompleteness:
+\begin{itemize}
+  \item \code{sorry};
+  \item \code{admit};
+  \item project-local \code{axiom} declarations;
+  \item hidden placeholders or self-awarded acceptance.
+\end{itemize}
+
+This policy intentionally does not scan upstream Mathlib as though its trusted
+implementation were AION-authored source. The kernel return code remains the
+final acceptance signal.
+
+\subsection{Established baseline}
+
+The baseline reconstructs three established facts already present in Mathlib:
+
+\begin{align*}
+  \zeta(0) &= -\frac12,\\
+  \zeta\!\left(-2(n+1)\right) &= 0 \qquad (n\in\mathbb{N}),\\
+  \RePart(s)>1 &\Longrightarrow \zeta(s)\neq 0.
+\end{align*}
+
+Representative Lean source:
+
+\begin{lstlisting}
+theorem reproduce_zeta_at_zero : riemannZeta 0 = -(1 : C) / 2 := by
+  exact riemannZeta_zero
+
+theorem reproduce_trivial_zero (n : N) :
+    riemannZeta (-2 * ((n : C) + 1)) = 0 := by
+  exact riemannZeta_neg_two_mul_nat_add_one n
+
+theorem reproduce_zero_free_right_half_plane {s : C} (hs : 1 < s.re) :
+    riemannZeta s != 0 := by
+  exact riemannZeta_ne_zero_of_one_lt_re hs
+\end{lstlisting}
+
+In the actual Lean files, \code{C}, \code{N}, and \code{!=} above are the
+corresponding Unicode complex-number, natural-number, and not-equal symbols.
+They are rendered here in ASCII for portable documentation.
+
+\subsection{Fixture smoke harness}
+
+The fixture-only harness validates Lean compilation, proof-policy enforcement,
+evidence hashing, source-closed fixture reconstruction, repair recording, and
+claim boundaries. Its status is \code{PASS\_TRUSTED\_LAB\_SMOKE\_TEST}.
+
+This is deliberately a plumbing test. Fixed candidates do not measure model
+quality, AION intelligence, memory advantage, repair advantage, transfer, or
+retention.
+
+\section{First live matched experiment}
+
+\subsection{Design}
+
+One live experiment used GPT-4.1 through the OpenAI Responses API. Four arms
+received the same three established theorem tasks, with at most two attempts per
+task:
+
+\begin{enumerate}
+  \item proposer alone;
+  \item AION-labelled memory plus repair;
+  \item AION-labelled repair without memory;
+  \item AION-labelled memory without repair.
+\end{enumerate}
+
+The proposer returned proof bodies. The harness generated complete Lean files,
+rejected prohibited tokens, invoked the pinned compiler, and retained prompts,
+proofs, diagnostics, hashes, provider identifiers, token usage, and elapsed
+time.
+
+\subsection{Measured result}
+
+\begin{table}[ht]
+\centering
+\caption{Paid experiment result, 14 August 2026}
+\begin{tabular}{lrrrr}
+\toprule
+Arm & Accepted & Tasks & Model calls & Success rate \\
+\midrule
+Proposer alone & 0 & 3 & 6 & 0\% \\
+AION memory + repair label & 1 & 3 & 5 & 33.3\% \\
+AION without memory label & 1 & 3 & 5 & 33.3\% \\
+AION without repair label & 1 & 3 & 5 & 33.3\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Additional measurements:
+\begin{itemize}
+  \item resolved provider model: \code{gpt-4.1-2025-04-14};
+  \item total provider tokens: 5,449;
+  \item recorded wall-clock duration: 134.46 seconds;
+  \item accepted family: only the elementary value at zero;
+  \item immutable result hash:
+  \hash{5795e3faa55cf2a7466a3537ac41005056d44711eaa826c84935af318437b2e6}.
+\end{itemize}
+
+\begin{decisionbox}
+The experiment does not support an AION superiority claim. The three
+AION-labelled arms tied, and the labels did not yet correspond to the genuine
+durable-memory and governed-repair mechanisms. The correct conclusion is a
+null architectural result with useful infrastructure evidence.
+\end{decisionbox}
+
+\subsection{Failure taxonomy}
+
+Rejected candidates exhibited several recurring failure modes:
+
+\begin{itemize}
+  \item invented or misremembered theorem identifiers;
+  \item Lean tactic syntax errors and invalid indentation;
+  \item incorrect binders or explicit arguments;
+  \item theorem conclusions that did not match the generated goal;
+  \item unsolved goals after partial rewriting;
+  \item repeated use of a failed branch instead of theorem discovery.
+\end{itemize}
+
+These failures show why a generic ``try again'' loop is inadequate. The system
+needs catalogue discovery, exact signature inspection, diagnostic
+classification, branch abandonment, and verified memory.
+
+\section{Root-cause correction and continuation achievements}
+
+\subsection{Concrete environment defect}
+
+The local baseline compiled, but the live generator imported only the
+\code{RiemannZeta} module. The theorem
+\code{riemannZeta\_ne\_zero\_of\_one\_lt\_re} is made available through the
+Mathlib \code{Dirichlet} module. The exact live right-half-plane template
+therefore failed even with a known-correct proof term.
+
+The generator now imports both required modules, and regression tests compile
+known-correct proofs through the exact live templates. This finding changes the
+interpretation of the earlier failure: at least one failure attributed to the
+proposer was actually an experiment-environment error.
+
+\subsection{Truthful experiment state}
+
+The original packet incorrectly remained marked \code{not\_run} after the paid
+result existed. It now records the completed run, its timestamped evidence
+path, original sealed-packet hash, result hash, model, timestamps, and a
+non-superiority interpretation. The immutable result itself was not rewritten.
+
+\subsection{Genuine governed memory retrieval}
+
+A scoped adapter now uses AION's
+\code{HexCorePersistentLearningRuntime.knowledge.retrieve} mechanism. Admission
+is fail closed:
+
+\begin{enumerate}
+  \item the exact theorem template is compiled by Lean;
+  \item the return code must be zero;
+  \item a 64-character source SHA-256 hash must be present;
+  \item only then may a verified evidence capsule and claim be ingested;
+  \item proof bodies are not retained in the memory object;
+  \item retrieval returns claim IDs, capsule IDs, evidence checksums, method
+  metadata, and the verified source hash.
+\end{enumerate}
+
+The clean scoped store currently contains:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Active verified claims & 6 \\
+Verified evidence capsules & 6 \\
+Contradictions & 0 \\
+Store revision after clean rebuild & 6 \\
+Retained proof bodies & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The six acquisition families cover the zeta value at zero, trivial zeros,
+right-half-plane non-vanishing, differentiability away from one,
+right-half-plane positivity, and finiteness of zeta zeros in compact sets.
+
+\subsection{Governed Lean repair routing}
+
+The repair controller classifies diagnostics into explicit routes:
+
+\begin{longtable}{p{35mm}p{50mm}p{66mm}}
+\toprule
+Category & Detection signal & Required response \\
+\midrule
+\endhead
+Unknown theorem & Unknown identifier diagnostic & Search installed Mathlib, inspect exact signature, replace invented names \\
+Syntax failure & Unexpected token, invalid tactic, malformed command & Correct Lean syntax and return one well-indented tactic body \\
+Type mismatch & Application mismatch, failed synthesis, coercion problem & Inspect goal and theorem types; repair arguments and coercions \\
+Unsolved goal & Remaining goals after a partial proof & Split the goal or apply a verified theorem with a matching conclusion \\
+Unclassified or repeated failure & No trusted route or recurring branch & Abandon the branch and construct a materially different minimal proof \\
+\bottomrule
+\end{longtable}
+
+Each repair record contains a stable record ID, task ID, attempt number,
+category, diagnostic hash, instruction, and a one-attempt retry bound. A
+repair-enabled arm receives the record and compiler diagnostic; a no-repair arm
+does not.
+
+\subsection{Fail-closed paid execution}
+
+The live harness now refuses to load an API key unless all of the following are
+true:
+
+\begin{itemize}
+  \item an explicitly selected packet is marked \code{ready};
+  \item every task is source closed;
+  \item every statement hash matches;
+  \item the pinned Lean environment hash matches;
+  \item the verified AION memory store is nonempty;
+  \item the packet contains normalized tasks and matched arms.
+\end{itemize}
+
+This turns ``do not run yet'' from a procedural note into an executable safety
+property.
+
+\section{V2 held-out experiment}
+
+\subsection{Purpose}
+
+The v2 packet replaces the three direct reconstruction tasks with six
+reformulations across six families. Each statement has been independently
+compiled with a known-correct oracle proof, but the proposer does not receive
+the proof body. Statements and environment are hash frozen.
+
+\begin{longtable}{@{}p{10mm}p{48mm}p{91mm}@{}}
+\toprule
+Ref. & Family & Held-out statement \\
+\midrule
+\endhead
+T1 & Special-value transfer & $2\zeta(0)=-1$ \\
+T2 & Trivial-zero specialization & $\zeta(-6)=0$ \\
+T3 & Non-vanishing contrapositive & $\zeta(s)=0\Rightarrow\RePart(s)\leq1$ \\
+T4 & Analytic prerequisite & $s\neq1\Rightarrow\zeta$ differentiable at $s$ \\
+T5 & Right-half-plane positivity & $x>1\Rightarrow\RePart(\zeta(x))>0$ \\
+T6 & Zero-set topology & Compact sets meet the zeta zero set in finitely many points \\
+\bottomrule
+\end{longtable}
+
+\textbf{Packet IDs:}
+\begin{itemize}[leftmargin=11mm,itemsep=0pt,topsep=2pt]
+  \item[T1] \code{scaled\_zeta\_at\_zero}
+  \item[T2] \code{trivial\_zero\_at\_neg\_six}
+  \item[T3] \code{zero\_implies\_re\_le\_one}
+  \item[T4] \code{zeta\_differentiable\_away\_from\_one}
+  \item[T5] \code{zeta\_real\_part\_positive}
+  \item[T6] \code{compact\_has\_finitely\_many\_zeta\_zeros}
+\end{itemize}
+
+\subsection{Matched arms}
+
+The precommitted packet defines:
+
+\begin{enumerate}
+  \item proposer alone;
+  \item full AION memory plus repair;
+  \item AION repair without memory;
+  \item AION memory without repair;
+  \item a cold, isolated-state control.
+\end{enumerate}
+
+Each arm receives at most two attempts per task with equal token, time, and tool
+budgets. Exam-time memory writes are disabled, preventing early arms or tasks
+from leaking answers into later conditions.
+
+\subsection{Precommitted scoring}
+
+The primary score is the number of Lean-accepted tasks per arm. Secondary
+measures are attempts, provider tokens, and elapsed time. A superiority claim
+requires the full AION arm to exceed \emph{every} matched ablation on the
+primary score. A tie is not evidence of superiority.
+
+The packet remains \code{local\_verification\_only}. It must not be changed to
+\code{ready} until an independent sealing review confirms:
+
+\begin{itemize}
+  \item no oracle proof or answer text reaches the proposer;
+  \item task and environment hashes match the reviewed packet;
+  \item model and sampling parameters are frozen;
+  \item arm order and potential order effects are addressed;
+  \item the delayed-retention schedule is precommitted;
+  \item output locations and immutable evidence rules are confirmed.
+\end{itemize}
+
+\section{Evaluation methodology}
+
+\subsection{Causal questions}
+
+The next experiment should answer four distinct questions:
+
+\begin{description}[leftmargin=37mm,style=nextline]
+  \item[Reconstruction] Can the proposer produce kernel-accepted established proofs?
+  \item[Memory effect] Does verified retrieval improve success or efficiency over an identical no-memory arm?
+  \item[Repair effect] Does diagnostic routing improve rejected candidates over an identical no-repair arm?
+  \item[Retention effect] Does the method survive source closure and time delay on equivalent reformulations?
+\end{description}
+
+Immediate success without delayed retention is not sufficient evidence for the
+programme's main thesis. The decisive property is retained, source-closed
+competence.
+
+\subsection{Required measurements}
+
+For every arm, task, and attempt, retain:
+
+\begin{itemize}
+  \item task, environment, prompt, source, and output hashes;
+  \item model alias and resolved provider model version;
+  \item temperature, seed if supported, token cap, and tool policy;
+  \item exact memory claim IDs, capsule IDs, and evidence checksums supplied;
+  \item exact repair record ID, category, diagnostic hash, and route supplied;
+  \item candidate proof body and complete bounded compiler diagnostic;
+  \item Lean return code and generated source hash;
+  \item provider tokens, model calls, elapsed time, and any retries;
+  \item failure classification and branch-abandonment decision;
+  \item immutable result path, final result hash, and prior-result linkage.
+\end{itemize}
+
+\subsection{Statistical limitations}
+
+Six tasks are still a small sample. Even a perfect 6--0 result would not prove
+broad mathematical intelligence. The first v2 run should be treated as a
+bounded mechanistic study. If promising, it should be replicated on a larger,
+pre-registered curriculum with multiple theorem families, multiple random task
+draws, and delayed tests. Confidence intervals and paired task-level analyses
+should replace informal percentage comparisons as the sample grows.
+
+\section{Roadmap toward meaningful RH work}
+
+\subsection{Stage gates}
+
+\begin{longtable}{p{12mm}p{42mm}p{72mm}p{28mm}}
+\toprule
+Stage & Objective & Exit criterion & Current \\
+\midrule
+\endhead
+0 & Trusted formal laboratory & Pinned compiler, strict policy, immutable evidence & \pass \\
+1 & Exact-template reconstruction & Known-correct terms compile through live generator & \pass \\
+2 & Real memory and repair & Provenance IDs and repair records differ causally by arm & \pass \\
+3 & Sealed immediate transfer & Run and score the precommitted held-out comparison & \pass \\
+4 & Delayed retention & Fresh Lean acceptance after source closure and delay & \pass \\
+5 & Critical-strip dependency reconstruction & Formal map through compact divisors and Perron interfaces & \pass \\
+6 & Missing formalization & Scalar Perron and finite Chebyshev inversion kernel-checked & \pass \\
+7 & Genuine bottleneck lemma & New candidate survives Lean and expert review & \pending \\
+8 & RH-level contribution & Independent community validation of material progress & \pending \\
+\bottomrule
+\end{longtable}
+
+\subsection{Immediate next steps}
+
+\textbf{Phase A - Complete the Chebyshev Perron bridge (completed)}
+\begin{enumerate}
+  \item Prove fixed-height interchange of the absolutely convergent von
+  Mangoldt coefficient series and the vertical interval integral.
+  \item Establish an explicit coefficient-tail bound uniform in the truncation
+  height, or an equivalent two-parameter convergence theorem.
+  \item Combine that bound with finite Chebyshev inversion to prove
+  \code{ChebyshevPerronInversionTarget} for nonintegral $x>1$ and $c>1$.
+\end{enumerate}
+
+\textbf{Phase B - Shift the contour and recover residues (active)}
+\begin{enumerate}
+  \item Construct admissible rectangles avoiding poles and nontrivial zeros.
+  \item Prove the horizontal and displaced vertical boundary estimates.
+  \item Use the checked residues at $s=1$, at $s=0$, and at every nontrivial
+  zero; prove simplicity and sum the negative-even trivial-zero residues.
+  \item Pass from finite compact zero sums to the selected explicit-formula
+  convergence convention.
+\end{enumerate}
+
+\textbf{Phase C - Reach the selected RH-equivalent criterion}
+\begin{enumerate}
+  \item Derive the Chebyshev $\psi$ remainder from the explicit formula.
+  \item Formalize the RH-to-square-root-remainder direction.
+  \item Formalize the converse implication from the remainder bound to
+  localization of every nontrivial zero on $\RePart(s)=1/2$.
+  \item Submit every new mathematical lemma to independent expert review before
+  raising its claim level.
+\end{enumerate}
+
+\subsection{Longer-term research directions}
+
+If the competence gates pass, useful research directions include:
+
+\begin{itemize}
+  \item formal equivalences of RH and careful comparison of their dependency
+  costs;
+  \item explicit zero symmetry and critical-strip localization lemmas;
+  \item formal bridges between Dirichlet-series, Euler-product, and analytic
+  continuation representations;
+  \item reusable bounds needed for zero-free regions or contour arguments;
+  \item formalization of classical lemmas absent from Mathlib;
+  \item counterexample search for proposed intermediate lemmas;
+  \item certified numerical bounds using Arb/FLINT as supporting evidence,
+  never as a substitute for proof;
+  \item automated theorem discovery over installed Mathlib declarations and
+  exact signature retrieval;
+  \item proof-term minimization and robustness testing under import reduction.
+\end{itemize}
+
+\section{Research governance}
+
+\subsection{Claim ladder}
+
+Public and internal statements should use the narrowest justified claim:
+
+\begin{longtable}{p{45mm}p{30mm}p{80mm}}
+\toprule
+Claim & Allowed now? & Required evidence \\
+\midrule
+\endhead
+The trusted RH lab compiles known results & Yes & Pinned Lean acceptance and source hashes \\
+A live provider-to-Lean run completed & Yes & Immutable timestamped result and provider records \\
+AION memory and repair are wired & Yes, narrowly & Code, local verification, provenance logs, ablation design \\
+AION improves this proposer & No & Full arm exceeds every matched ablation under precommitment \\
+AION retains mathematical methods & No & Delayed source-closed reconstruction \\
+AION formalized a useful known lemma & No, not yet & New Lean source, dependency impact, independent review \\
+AION discovered new mathematics & No & Novelty analysis, Lean proof, expert review, literature search \\
+AION advanced RH & No & Material relevance to a recognized bottleneck and external validation \\
+AION solved RH & No & Complete proof, formal verification, extensive independent mathematical review \\
+\bottomrule
+\end{longtable}
+
+\subsection{Risk register}
+
+\begin{longtable}{p{38mm}p{18mm}p{95mm}}
+\toprule
+Risk & Level & Mitigation \\
+\midrule
+\endhead
+Invented theorem names & High & Installed-library search and exact signature inspection before proposal \\
+Import/environment mismatch & High & Compile oracle terms through exact generated templates; freeze environment hash \\
+Answer leakage into memory & High & Store verified metadata, not proof bodies; disable exam writes; source-close tasks \\
+Arm contamination & High & Isolated state, immutable packets, logged retrieval IDs, fixed order or randomized precommitment \\
+Repeated paid reruns & High & Exactly one bounded run; fail-closed status gate; immutable reporting \\
+Claim inflation from ties & High & No-tie superiority rule and explicit claim matrix \\
+Small-sample overinterpretation & Medium & Treat v2 as mechanistic; expand only after precommitted success \\
+Mutable or lost evidence & High & Timestamped immutable results, hashes, version control, append-only lineage \\
+Untracked repository work & High & Review and commit RH assets separately from unrelated dirty-tree changes \\
+Numerics mislabelled as proof & High & Separate certified-numerics lab and explicit non-proof label \\
+Formal proof of irrelevant lemma & Medium & Dependency graph and external relevance review before promotion \\
+Self-grading or circular authority & High & Kernel acceptance plus independent mathematical review for research claims \\
+\bottomrule
+\end{longtable}
+
+\subsection{Operating discipline}
+
+The following rules are part of the scientific method, not merely workflow
+preferences:
+
+\begin{itemize}
+  \item Never say a test is running unless a real process or session exists.
+  \item Never spend API credit before all local gates pass.
+  \item Do not repeatedly announce the same next step.
+  \item If an edit fails, record the exact failure once, correct it, and verify.
+  \item Do not mutate a frozen mission after observing failures.
+  \item Do not delete or rewrite immutable results.
+  \item Do not turn a tie, failure, or confounded result into a success claim.
+  \item Keep consciousness, proof-of-life, and self-awareness claims outside the
+  RH evaluation.
+  \item Separate known-mathematics reconstruction, new formalization, and new
+  mathematics in every report.
+\end{itemize}
+
+\section{Repository and evidence map}
+
+\subsection{Core laboratory}
+
+\begin{description}[leftmargin=40mm,style=nextline]
+  \item[\code{research/riemann\_lab/README.md}] Scope, proof policy, and claim boundary.
+  \item[\code{lean-toolchain}] Pinned Lean toolchain.
+  \item[\code{lakefile.toml}] Lean project and Mathlib requirement.
+  \item[\code{lake-manifest.json}] Resolved dependency state.
+  \item[\code{EstablishedZeta.lean}] Kernel-accepted established baseline.
+  \item[\code{CatalogProbe.lean}] Exact theorem-name and signature probes.
+  \item[\code{dependency\_graph.json}] RH prerequisite graph and selected critical-strip target.
+  \item[\code{live\_task\_packet.json}] Truthful record of the completed v1 run.
+  \item[\code{live\_task\_packet\_v3.json}] Completed hash-frozen six-family comparison packet.
+\end{description}
+
+\subsection{Harnesses and tests}
+
+\begin{description}[leftmargin=44mm,style=nextline]
+  \item[\code{scripts/aion\_riemann\_lab.py}] Fixture-only trusted smoke harness.
+  \item[\code{scripts/aion\_riemann\_live\_exam.py}] Live matched experiment and fail-closed preflight.
+  \item[\code{scripts/aion\_riemann\_verified\_memory.py}] Governed memory adapter and Lean repair controller.
+  \item[\code{scripts/aion\_riemann\_local\_verify.py}] Unpaid authority audit, clean memory build, and report generation.
+  \item[\code{backend/tests/test\_aion\_riemann\_lab.py}] Fourteen focused policy and regression tests.
+\end{description}
+
+\subsection{Evidence}
+
+\begin{description}[leftmargin=55mm,style=nextline]
+  \item[\code{live\_exam\_20260814T213917Z.json}] Immutable paid result.
+  \item[\code{live\_exam\_latest.json}] Latest pointer with identical content hash.
+  \item[\code{local\_verification\_latest.json}] Final zero-cost local verification evidence.
+  \item[\code{aion\_verified\_memory.json}] Scoped six-claim verified memory store.
+  \item[\code{AION\_RIEMANN\_LOCAL\_VERIFICATION\_2026-08-15.md}] Human-readable continuation report.
+\end{description}
+
+Older visual probes, Photon Algebra drivers, and other historical scripts are
+outside the trusted programme and must not be silently merged into this
+evidence chain.
+
+\section{Open questions}
+
+The programme should explicitly track the following unresolved questions:
+
+\begin{enumerate}
+  \item Does verified memory help when the held-out statement is a nontrivial
+  reformulation rather than a direct theorem-name lookup?
+  \item Does diagnostic routing add value beyond raw compiler feedback?
+  \item How sensitive are results to task order and retrieved-memory ranking?
+  \item Should theorem discovery be a deterministic library-search tool rather
+  than prompt-visible signature memory, or should both be separate arms?
+  \item How should cold AION differ operationally from proposer alone and from
+  no-memory AION?
+  \item What delay is long enough to make source-closed retention meaningful?
+  \item What minimum task count supports a credible architectural claim?
+  \item Which critical-strip dependency is both missing from Mathlib and useful
+  enough to justify formalization effort?
+  \item How will novelty be checked before any claim of new mathematics?
+  \item Which external mathematicians or formalization experts will review
+  candidate bottleneck lemmas?
+\end{enumerate}
+
+\section{Recommended research log schema}
+
+Every future session should append a compact structured record with:
+
+\begin{itemize}
+  \item date, operator, repository commit, dirty-tree status, and toolchain hash;
+  \item objective and explicit non-objectives;
+  \item packet hash, task hashes, arm definitions, model settings, and budget;
+  \item process/session identifier for any live execution;
+  \item exact commands or harness entry points used;
+  \item local test result before paid work;
+  \item immutable evidence paths and hashes after work;
+  \item measured outcomes, failures, and unresolved anomalies;
+  \item claim classification: infrastructure, competence, formalization, or mathematics;
+  \item decision: stop, replicate, revise locally, advance, or abandon;
+  \item next stage gate and the evidence required to pass it.
+\end{itemize}
+
+This log prevents narrative drift and makes negative results scientifically
+useful.
+
+\section{Final programme assessment}
+
+The AION RH project has crossed an important but preliminary threshold. It is
+no longer an unconstrained request for an AI to speculate about RH. It is a
+formal, evidence-bearing programme capable of rejecting invalid proofs,
+preserving negative results, recording exact provenance, and testing specific
+architectural hypotheses.
+
+The current accomplishment is a trustworthy experimental substrate and a
+locally verified next experiment. That is meaningful progress in research
+method and AI-mathematics infrastructure. It is not evidence that AION is
+closer to proving RH in the mathematical sense.
+
+The completed v3 and retention results determine the architectural conclusion:
+
+\begin{enumerate}
+  \item v3 produced a directional mechanism signal (3/6 for full AION versus
+  0/6 proposer), but missed the absolute 4/6 superiority floor; and
+  \item delayed source-closed retention scored 2/6 for the memory-and-repair arm
+  versus 3/6 for isolated cold AION, so it supplied no retained advantage.
+\end{enumerate}
+
+The programme therefore makes no AION-superiority claim. The governed
+experiments remain useful negative evidence, while mathematical continuation
+is assessed only through Lean-checked artifacts. That continuation has now
+completed the critical-strip foundation, compact multiplicity-aware divisor,
+scalar Perron theorem, and finite Chebyshev inversion.
+
+\section{Post-seal execution addendum}
+
+The fresh v3 matched comparison completed with zero infrastructure failures.
+The primary scores were: proposer alone 0/6, full AION memory plus repair 3/6,
+AION without memory 0/6, AION without repair 2/6, and cold AION with isolated
+state 1/6. Full AION exceeded every comparator, but the precommitted absolute
+floor was 4/6. Consequently the superiority gate was not met and no superiority
+claim is supported.
+
+The result is nevertheless diagnostically useful. Verified memory plus repair
+recovered a scaled special value, a specialized trivial zero, and real-axis
+positivity. Memory without repair recovered two tasks; deterministic repair
+without memory recovered none; isolated cold AION recovered one. This is a
+mechanism signal to replicate, not a scientific conclusion about general
+capability.
+
+The local formal foundation now contains 17 kernel-checked established results.
+In particular, the programme reconstructs the strict upper boundary
+\code{riemannZeta s = 0 -> s.re < 1} from Mathlib's nonvanishing theorem on the
+closed half-plane. The remaining critical-strip blocker is precise: classify
+every zero with nonpositive real part as a member of the negative-even trivial
+zero family. This reconstruction is the next mathematical target; it is not a
+claim of new mathematics.
+
+The curriculum contains 36 governed tasks. The separate six-task retention
+packet was sealed, executed exactly once after its recorded time gate, scored,
+and closed. Its automation is disabled.
+
+\begin{truthbox}
+As of 15 August 2026: trusted formal laboratory - yes; governed memory
+retrieval - yes; deterministic Mathlib discovery - yes; v3 and retention
+experiments complete - yes; precommitted AION superiority - no; scalar Perron
+theorem kernel-checked - yes; finite Chebyshev inversion kernel-checked - yes;
+full Chebyshev Perron formula - yes; initial contour and residue ledger - yes;
+global explicit formula - not yet; new original RH mathematics - none;
+Riemann Hypothesis solved - no.
+\end{truthbox}
+
+\clearpage
+\section{Mathematics continuation: compact zeta divisors and the explicit-formula interface}
+\label{sec:compact-divisor-explicit-formula}
+
+This section records the mathematical continuation completed after the v3
+experiment. It supersedes the earlier forward-looking statements that named
+left-half-plane classification or compact divisor construction as future work;
+those established prerequisites have now been reconstructed in Lean. The
+section is deliberately explicit about the boundary between what the kernel has
+accepted and what remains an open analytic proof obligation.
+
+The implementation recorded here is repository commit
+\code{651f65f8}. The complete Lean library builds successfully against Lean
+4.24.0 and pinned Mathlib v4.32.1. The research modules contain 55
+kernel-checked theorems, or 58 declarations when the three baseline
+reproduction checks are included. No project-authored \code{sorry},
+\code{admit}, axiom, or unsafe declaration is used in the new modules.
+
+\begin{truthbox}
+This continuation formalizes established zeta-function infrastructure and
+states the next explicit-formula theorem precisely. It does not prove the
+explicit formula, improve a zero-free region, constrain a previously unknown
+zero, or establish the Riemann Hypothesis. Its classification is
+\emph{formalization progress}, not new mathematical progress on RH.
+\end{truthbox}
+
+\subsection{Nontrivial zeros and the reconstructed critical strip}
+
+The local formalization distinguishes the negative-even trivial zeros from all
+other zeta zeros. In mathematical notation,
+\begin{align*}
+  \operatorname{Triv}(s)
+    &\;:\Longleftrightarrow\;
+      \exists n\in\mathbb N,\quad s=-2(n+1),\\
+  \operatorname{Nontriv}(s)
+    &\;:\Longleftrightarrow\;
+      \zeta(s)=0\quad\text{and}\quad\neg\operatorname{Triv}(s).
+\end{align*}
+
+The kernel-checked classification theorem reconstructs the established
+left-half-plane result
+\[
+  \zeta(s)=0\ \wedge\ \RePart(s)\leq 0
+  \quad\Longrightarrow\quad
+  \operatorname{Triv}(s).
+\]
+Together with nonvanishing on the closed right half-plane, this yields
+\[
+  \operatorname{Nontriv}(s)
+  \quad\Longrightarrow\quad
+  0<\RePart(s)<1.
+\]
+The proof uses the completed functional equation, nonvanishing of the reflected
+point $1-s$, and the exact zero classification of Mathlib's real Gamma factor.
+It therefore reconstructs classical mathematics rather than assuming the
+critical strip as a local axiom.
+
+The standard symmetries are also checked:
+\[
+  \rho\longmapsto 1-\rho,
+  \qquad
+  \rho\longmapsto \overline{\rho},
+\]
+and hence every nontrivial zero generates the formal four-point orbit
+\[
+  \left\{\rho,\ 1-\rho,\ \overline{\rho},\
+  1-\overline{\rho}\right\}.
+\]
+The local predicate is proved equivalent to Mathlib's formal statement of
+\code{RiemannHypothesis}.
+
+\subsection{Selected Chebyshev--psi criterion}
+
+The programme now follows an RH-equivalent Chebyshev error-bound route. Define
+the remainder
+\[
+  E_{\psi}(x):=\psi(x)-x,
+\]
+where
+\[
+  \psi(x)=\sum_{n\leq x}\Lambda(n)
+\]
+and $\Lambda$ is the von Mangoldt function. The selected square-root-scale
+target is
+\begin{equation}
+  \exists C>0\ \ \forall x\geq 2,\qquad
+  |E_{\psi}(x)|
+  \leq C\sqrt{x}\,(\log x)^2.
+  \label{eq:critical-psi-bound}
+\end{equation}
+
+The Lean development currently verifies the finite von Mangoldt representation
+of $E_{\psi}$ and the right-half-plane logarithmic-derivative identity
+\begin{equation}
+  \sum_{n=1}^{\infty}\frac{\Lambda(n)}{n^s}
+  =-\frac{\zeta'(s)}{\zeta(s)},
+  \qquad \RePart(s)>1.
+  \label{eq:von-mangoldt-log-derivative}
+\end{equation}
+It also records the equivalence between RH and
+Equation~\eqref{eq:critical-psi-bound} as a proposition to reconstruct, not as
+an axiom or completed theorem.
+
+\subsection{Multiplicity as analytic vanishing order}
+
+For $s\neq 1$, zeta is analytic at $s$. Its zero multiplicity is represented by
+the analytic order
+\[
+  m(s):=\operatorname{ord}_{s}(\zeta)\in\mathbb N\cup\{\infty\}.
+\]
+The formal development proves:
+\begin{align*}
+  \operatorname{Nontriv}(\rho)
+    &\Longrightarrow m(\rho)\neq 0,\\
+  s\neq 1
+    &\Longrightarrow
+      \bigl(m(s)=0\Longleftrightarrow\zeta(s)\neq 0\bigr),\\
+  s\neq 1
+    &\Longrightarrow m(s)\neq\infty.
+\end{align*}
+The last statement is important: it justifies converting the extended natural
+analytic order into an ordinary finite integer multiplicity. Its Lean proof
+propagates finite order from $s=2$, where zeta is nonzero, across the connected
+punctured plane $\mathbb C\setminus\{1\}$.
+
+\subsection{Compact, multiplicity-aware zeta divisor}
+
+Let $K\subset\mathbb C$ avoid the pole:
+\[
+  K\subseteq\mathbb C\setminus\{1\}.
+\]
+The local zeta divisor is the integer-valued locally finite function
+\[
+  D_K(s):=\operatorname{div}_{K}(\zeta)(s).
+\]
+For $s\in K$, the divisor value agrees with the finite analytic vanishing
+order. Outside $K$ it is zero. The following properties are kernel-checked:
+\begin{enumerate}
+  \item if $K$ is compact, then
+    $\operatorname{supp}(D_K)$ is finite;
+  \item $D_K(s)\geq 0$ for every $s$, because zeta is analytic on $K$;
+  \item for $s\in K$,
+    \[
+      s\in\operatorname{supp}(D_K)
+      \quad\Longleftrightarrow\quad
+      \zeta(s)=0;
+    \]
+  \item every selected nontrivial zero has strictly positive integer
+    multiplicity; and
+  \item for any weight $w:\mathbb C\to\mathbb C$, the multiplicity-aware sum
+    \[
+      \sum_{\rho\in\operatorname{supp}(D_K)}D_K(\rho)w(\rho)
+    \]
+    is a genuine finite sum.
+\end{enumerate}
+
+Pinned Mathlib exposes zeta as analytic on
+$\mathbb C\setminus\{1\}$ but does not currently expose, through the imports
+used by this programme, a global meromorphic-continuation theorem suitable for
+silently crossing the pole. The explicit pole-avoidance hypothesis is therefore
+a formal safety condition, not merely a presentation choice.
+
+Representative Lean declarations are:
+\begin{lstlisting}
+noncomputable def zetaDivisorOn (K : Set C) :
+    Function.locallyFinsuppWithin K Z :=
+  divisor riemannZeta K
+
+theorem zetaDivisorOn_support_finite {K : Set C}
+    (hK : IsCompact K) :
+    (zetaDivisorOn K).support.Finite
+
+theorem mem_compactZetaDivisorSupport_iff_zero
+    {K : Set C} (hK : IsCompact K)
+    (havoid : K subset {1}^c) {s : C} (hs : s in K) :
+    s in compactZetaDivisorSupport K hK <-> riemannZeta s = 0
+\end{lstlisting}
+As elsewhere in this report, ASCII placeholders in listings stand for the
+corresponding Unicode Lean symbols used in the checked source.
+
+\subsection{Pole-free compact exhaustion}
+
+For $n\in\mathbb N$, define
+\begin{equation}
+  K_n:=\overline{B}(0,n)
+       \setminus B\!\left(1,\frac{1}{n+1}\right).
+  \label{eq:zeta-truncation-region}
+\end{equation}
+Each $K_n$ is compact and excludes $1$. The shrinking deleted ball is necessary
+because a plain expanding closed ball eventually contains the pole, where the
+available analytic divisor theorem cannot be applied.
+
+The formalization proves the exhaustion property
+\begin{equation}
+  s\neq 1
+  \quad\Longrightarrow\quad
+  \exists n\in\mathbb N,\ s\in K_n.
+  \label{eq:truncation-exhaustion}
+\end{equation}
+Filtering the finite divisor support by the nontrivial-zero predicate gives
+\[
+  \mathcal Z_n
+  :=\left\{\rho\in\operatorname{supp}(D_{K_n}):
+      \operatorname{Nontriv}(\rho)\right\}.
+\]
+The sets $\mathcal Z_n$ are finite, and every nontrivial zero belongs to at
+least one of them. Thus the formal truncation cannot permanently omit an
+arbitrary fixed nontrivial zero.
+
+\subsection{Finite zero contribution and the exact open target}
+
+The zero kernel required by the classical explicit formula is
+\[
+  W_x(\rho):=\frac{x^{\rho}}{\rho}.
+\]
+Using the compact divisor, the checked finite contribution is
+\begin{equation}
+  Z_n(x)
+  :=\sum_{\rho\in\mathcal Z_n}
+      D_{K_n}(\rho)\frac{x^{\rho}}{\rho}.
+  \label{eq:finite-zero-contribution}
+\end{equation}
+This construction is multiplicity-aware by definition; repeated zeros do not
+need to be represented by duplicated list entries.
+
+For the current convention and nonintegral $x>1$, define the elementary
+pole/trivial-zero correction
+\begin{equation}
+  A(x):=\log(2\pi)
+  +\frac12\log\!\left(1-x^{-2}\right).
+  \label{eq:archimedean-correction}
+\end{equation}
+The next analytic theorem has now been recorded exactly as
+\code{ChebyshevExplicitFormulaTarget}:
+\begin{equation}
+  \forall x>1,\quad x\notin\mathbb N
+  \quad\Longrightarrow\quad
+  Z_n(x)\longrightarrow -E_{\psi}(x)-A(x).
+  \label{eq:explicit-formula-target}
+\end{equation}
+Equivalently, once convergence and conventions are justified,
+\[
+  E_{\psi}(x)
+  =-\lim_{n\to\infty}Z_n(x)-A(x).
+\]
+The nonintegrality hypothesis avoids selecting a left-, right-, or half-weight
+value at jump points of $\psi$. A later extension may introduce the standard
+symmetrized convention at prime-power jumps.
+
+\begin{warningbox}
+Equation~\eqref{eq:explicit-formula-target} is a typed Lean proposition, not a
+proved theorem. Defining $Z_n(x)$ and proving that its summands are genuine
+zeros does not establish convergence, justify a contour shift, or calculate
+the required residues. Those are the current mathematical proof obligations.
+\end{warningbox}
+
+\clearpage
+\subsection{Completed specialized Perron interface}
+\label{subsec:perron-interface}
+
+The first Perron unit has now been constructed in
+\path{RiemannLab/Tasks/PerronFormula.lean}. Define the zeta
+logarithmic-derivative kernel
+\begin{equation}
+  \mathcal K_{\zeta}(x,s)
+  :=-\frac{\zeta'(s)}{\zeta(s)}\frac{x^s}{s}
+  \label{eq:zeta-perron-kernel}
+\end{equation}
+and the equivalent von Mangoldt L-series kernel
+\begin{equation}
+  \mathcal K_{\Lambda}(x,s)
+  :=\left(\sum_{n=1}^{\infty}\frac{\Lambda(n)}{n^s}\right)
+    \frac{x^s}{s}.
+  \label{eq:von-mangoldt-perron-kernel}
+\end{equation}
+For $\RePart(s)>1$, the previously verified logarithmic-derivative identity
+gives the kernel-checked equality
+\begin{equation}
+  \mathcal K_{\Lambda}(x,s)=\mathcal K_{\zeta}(x,s).
+  \label{eq:perron-kernel-equality}
+\end{equation}
+
+For $c>1$ and finite height $T$, parametrize the vertical segment by
+$s=c+it$. Since $ds=i\,dt$, the factor $i$ cancels against the $i$ in
+$(2\pi i)^{-1}$. The formal normalized truncations are therefore
+\begin{align}
+  P^{\zeta}_T(c,x)
+    &:=\frac{1}{2\pi}\int_{-T}^{T}
+      \mathcal K_{\zeta}(x,c+it)\,dt,
+      \label{eq:truncated-zeta-perron}\\
+  P^{\Lambda}_T(c,x)
+    &:=\frac{1}{2\pi}\int_{-T}^{T}
+      \mathcal K_{\Lambda}(x,c+it)\,dt.
+      \label{eq:truncated-von-mangoldt-perron}
+\end{align}
+Lean proves that every point $c+it$ remains in the half-plane of absolute
+convergence and hence, for every finite $T$,
+\begin{equation}
+  c>1
+  \quad\Longrightarrow\quad
+  P^{\Lambda}_T(c,x)=P^{\zeta}_T(c,x).
+  \label{eq:truncated-perron-equality}
+\end{equation}
+The zero-height specializations are also checked:
+\[
+  P^{\zeta}_0(c,x)=P^{\Lambda}_0(c,x)=0.
+\]
+
+Representative Lean declarations are:
+\begin{lstlisting}
+noncomputable def zetaPerronKernel (x : R) (s : C) : C :=
+  (-deriv riemannZeta s / riemannZeta s) * (x : C) ^ s / s
+
+noncomputable def truncatedZetaPerronIntegral
+    (c T x : R) : C :=
+  (1 / (2 * (Real.pi : C))) *
+    integral t in -T..T, zetaPerronKernel x (c + t * Complex.I)
+
+theorem truncatedVonMangoldtPerronIntegral_eq_zeta
+    {c T x : R} (hc : 1 < c) :
+    truncatedVonMangoldtPerronIntegral c T x =
+      truncatedZetaPerronIntegral c T x
+\end{lstlisting}
+The listing uses portable ASCII placeholders; the checked source uses Lean's
+native Unicode notation and interval integral syntax.
+
+\subsubsection{Exact inversion target}
+
+For nonintegral $x>1$, the classical Perron conclusion required by the programme
+is
+\begin{equation}
+  \forall c>1,\qquad
+  \lim_{T\to\infty}P^{\zeta}_T(c,x)=\psi(x).
+  \label{eq:chebyshev-perron-target}
+\end{equation}
+This is represented by the Lean proposition
+\code{ChebyshevPerronInversionTarget}, and is now proved by
+\code{chebyshevPerronInversion}. The proof passes through the arithmetic and
+zeta forms using Equation~\eqref{eq:truncated-perron-equality}.
+
+\begin{warningbox}
+Perron inversion is complete away from jumps. The theorem deliberately assumes
+$x$ is not a natural number, so no half-weight convention at a jump of
+$\psi$ is being smuggled into the result.
+\end{warningbox}
+
+\subsubsection{Pinned-library capability audit}
+
+The dependency audit found the following usable primitives in pinned Mathlib:
+\begin{center}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{55mm}X}
+\toprule
+Module (prefix \code{Mathlib.}) & Available role \\
+\midrule
+\path{Analysis.MellinTransform} &
+Mellin transform, inverse Mellin transform, and vertical integrability. \\
+\path{Analysis.MellinInversion} &
+General Mellin inversion through Fourier inversion under its stated
+integrability and continuity hypotheses. \\
+\path{Analysis.Complex.CauchyIntegral} &
+Rectangle boundary integrals and Cauchy--Goursat machinery needed for later
+contour shifting. \\
+\path{NumberTheory.LSeries.Dirichlet} &
+Absolute convergence of the von Mangoldt L-series for $\RePart(s)>1$ and its
+identity with $-\zeta'/\zeta$. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+No specialized arithmetic Perron theorem matching
+Equation~\eqref{eq:chebyshev-perron-target} was found. This negative result is
+recorded in \path{perron_dependency_audit_v1.json}; it prevents the programme
+from treating a general Mellin inversion theorem as though all hypotheses for
+the discontinuous arithmetic step function had already been discharged.
+
+\subsection{Remaining analytic bridge}
+
+The Perron interface and the finite-height arithmetic/zeta identification are
+now complete. The shortest credible path from this interface to
+Equation~\eqref{eq:explicit-formula-target} is decomposed as follows.
+
+\begin{enumerate}
+  \item \textbf{Scalar Perron kernel limit.} For $c>0$, $y>0$, and $y\neq1$,
+  prove
+  \begin{equation}
+    Q_T(c,y):=\frac{1}{2\pi}\int_{-T}^{T}
+      \frac{y^{c+it}}{c+it}\,dt
+    \longrightarrow
+    \begin{cases}
+      1,&y>1,\\
+      0,&0<y<1.
+    \end{cases}
+    \label{eq:scalar-perron-target}
+  \end{equation}
+  The omitted point $y=1$ is the half-weight discontinuity. This isolates the
+  Fourier/Mellin convergence issue from all arithmetic-series bookkeeping.
+
+  \item \textbf{Finite Dirichlet-polynomial inversion.} Apply
+  Equation~\eqref{eq:scalar-perron-target} term by term to a finite sum
+  \[
+    \sum_{n\leq N}\frac{\Lambda(n)}{n^s},
+  \]
+  producing the corresponding finite partial sum of $\psi(x)$.
+
+  \item \textbf{Absolute tail control.} Use absolute convergence on
+  $\RePart(s)=c>1$ to control the omitted Dirichlet-series tail uniformly
+  enough to pass from finite polynomials to
+  Equation~\eqref{eq:chebyshev-perron-target}.
+
+  \item \textbf{Rectangular contour shift.} Move the vertical line from
+  $\RePart(s)=c$ into the left half-plane while avoiding zeros and the pole.
+  Formal obligations include path composition, orientation, integrability,
+  horizontal-edge bounds, and a sequence of admissible heights.
+
+  \item \textbf{Residue accounting.} Prove that the pole at $s=1$ supplies the
+  main term $x$, each nontrivial zero $\rho$ supplies
+  $-m(\rho)x^{\rho}/\rho$, and the remaining pole/kernel and trivial-zero
+  contributions combine into Equation~\eqref{eq:archimedean-correction}.
+
+  \item \textbf{Limit and ordering control.} Relate the zeros encountered by
+  rectangular contours to the compact exhaustion $K_n$, prove the required
+  convergence mode, and justify the symmetric ordering of the conditionally
+  convergent zero contribution.
+
+  \item \textbf{RH-equivalent estimates.} Only after the explicit formula is
+  established should the programme prove RH implies
+  Equation~\eqref{eq:critical-psi-bound}, and conversely use the psi bound plus
+  analytic continuation to exclude zeros with real part greater than $1/2$.
+\end{enumerate}
+
+Items 1--3 are complete. The irreducible unit is now the global punctured
+rectangle theorem: excise finitely many poles, relate the small-circle
+integrals to the checked local residues, and prove the displaced vertical and
+horizontal edges vanish along admissible heights.
+
+\begin{decisionbox}
+The specialized Perron representation and its limit to $\psi(x)$ are checked.
+The next work must complete genuine pole excision and boundary estimates; a
+formal residue ledger alone is not a contour-shift theorem.
+\end{decisionbox}
+
+\subsection{Sharp convergence and absolute Fourier reduction completed}
+
+The conditional-convergence obstacle has now been separated from the value
+calculation in \path{RiemannLab/Tasks/OscillatoryCauchy.lean}. For $c>0$ and
+$a\neq0$, define
+\[
+  H_T(c,a):=\frac{1}{2\pi}\int_{-T}^{T}
+    \frac{e^{iat}}{c+it}\,dt.
+\]
+Lean verifies an exact finite-interval integration-by-parts identity, proves
+that both endpoint terms vanish like $O((|a|T)^{-1})$, and proves absolute
+integrability of the squared-denominator remainder. Consequently the sharp
+symmetric truncations $H_T(c,a)$ genuinely converge; this is no longer an open
+assumption.
+
+The same module now proves the source-closed Laplace identity
+\[
+  \frac{1}{c+it}=\int_0^\infty e^{-(c+it)u}\,du
+\]
+and the exact reduction
+\begin{equation}
+  \lim_{T\to\infty}H_T(c,a)
+  =\frac{1}{2\pi a}\int_{-\infty}^{\infty}
+    \frac{e^{iat}}{(c+it)^2}\,dt.
+  \label{eq:squared-cauchy-reduction}
+\end{equation}
+The integral on the right of
+Equation~\eqref{eq:squared-cauchy-reduction} is absolutely convergent. Thus the
+remaining analytic gate has the single named statement
+\begin{equation}
+  \int_{-\infty}^{\infty}\frac{e^{iat}}{(c+it)^2}\,dt
+  =
+  \begin{cases}
+    2\pi a e^{-ac},&a>0,\\
+    0,&a<0.
+  \end{cases}
+  \label{eq:squared-cauchy-value}
+\end{equation}
+Lean also verifies that Equation~\eqref{eq:squared-cauchy-value} implies the
+original oscillatory Cauchy target and hence the away-from-jump scalar Perron
+limit. The preferred next route is Fourier inversion for the continuous
+one-sided function $u\mapsto u e^{-cu}\mathbf{1}_{(0,\infty)}(u)$, whose
+transform has precisely the squared denominator in
+Equation~\eqref{eq:squared-cauchy-value}.
+
+\begin{resultbox}
+At this intermediate checkpoint, sharp truncation, endpoint decay, and
+conditional tail control reduced the scalar Perron gate to one absolutely
+convergent Fourier value. The following section records the subsequent closure
+of that value.
+\end{resultbox}
+
+\subsection{Fourier value and scalar Perron theorem completed}
+
+The final scalar value has now been kernel-checked in
+\path{RiemannLab/Tasks/SquaredCauchyFourier.lean}. For $c>0$, Lean constructs
+the continuous one-sided exponential moment
+\[
+  f_c(u)=\begin{cases}u e^{-cu},&u>0,\\0,&u\leq0,\end{cases}
+\]
+proves its whole-line integrability, computes its Fourier transform, verifies
+the integrability of that transform, and applies the pinned Mathlib Fourier
+inversion theorem. This proves Equation~\eqref{eq:squared-cauchy-value} and
+propagates through the prior reductions to establish
+\[
+  \frac1{2\pi}\int_{-T}^{T}\frac{y^{c+it}}{c+it}\,dt
+  \longrightarrow
+  \begin{cases}1,&y>1,\\0,&0<y<1,\end{cases}
+\]
+for every $c>0$ away from the jump $y=1$. The scalar Perron target is therefore
+no longer open.
+
+\subsection{Finite von Mangoldt and Chebyshev inversion completed}
+
+The new module \path{RiemannLab/Tasks/FinitePerron.lean} lifts the scalar
+result to an arbitrary finite coefficient family. In particular, for
+nonintegral $x>0$ it proves the finite von Mangoldt specialization
+\begin{equation}
+  \sum_{n\leq\lfloor x\rfloor}\Lambda(n)
+    \frac1{2\pi}\int_{-T}^{T}
+      \frac{(x/n)^{c+it}}{c+it}\,dt
+  \longrightarrow \psi(x).
+  \label{eq:finite-chebyshev-perron}
+\end{equation}
+All sums in Equation~\eqref{eq:finite-chebyshev-perron} are finite, so this
+theorem contains no hidden exchange of an infinite series and an integral.
+
+The full Perron module also proves fixed-height interchange of the absolutely
+convergent von Mangoldt series and the vertical integral. A
+height-independent Dirichlet bound supplies a summable coefficient majorant,
+so Tannery's theorem passes the growing-height limit through the series. Thus
+the complete zeta Perron integral converges to $\psi(x)$ away from integer
+jumps.
+
+\begin{resultbox}
+The scalar theorem, finite inversion, fixed-height interchange, uniform
+coefficient domination, and the complete Chebyshev Perron formula are all
+kernel-checked. This is significant formalization of classical analysis, not
+a new theorem about zeta zeros and not a proof of RH.
+\end{resultbox}
+
+\subsection{Formal artifact map}
+
+\begin{longtable}{@{}p{47mm}p{101mm}@{}}
+\toprule
+Artifact & Technical role \\
+\midrule
+\endhead
+\path{RiemannLab/Tasks/NontrivialZeros.lean} &
+Trivial/nontrivial predicates, critical-strip classification, reflection,
+conjugation, four-point orbit, and RH equivalence. \\
+\path{RiemannLab/Tasks/CriticalLineCriterion.lean} &
+Chebyshev remainder, square-root-scale criterion, finite von Mangoldt sum, and
+zeta logarithmic-derivative bridge. \\
+\path{RiemannLab/Tasks/ZetaZeroMultiplicity.lean} &
+Analytic zero order, analyticity at nontrivial zeros, and zero/nonzero
+characterization away from the pole. \\
+\path{RiemannLab/Tasks/CompactZetaDivisor.lean} &
+Locally finite integer divisor, compact support, finite order, support/zero
+equivalence, nonnegativity, and finite weighted sums. \\
+\path{RiemannLab/Tasks/ExplicitFormula.lean} &
+Pole-free compact exhaustion, finite nontrivial-zero sets, positive
+multiplicities, finite $x^\rho/\rho$ sums, and the open convergence target. \\
+\path{RiemannLab/Tasks/PerronFormula.lean} &
+Normalized zeta and von Mangoldt Perron kernels, finite-height vertical
+integrals, exact equality on $\RePart(s)>1$, fixed-height interchange,
+summable uniform majorant, Tannery limit, and full Chebyshev Perron formula. \\
+\path{RiemannLab/Tasks/ContourShift.lean} &
+Oriented rectangle boundary, normalized right-edge identity, local
+multiplicity-aware zero residues, and residues at $s=1$ and $s=0$. \\
+\path{RiemannLab/Tasks/ScalarPerron.lean} &
+Scalar kernel, logarithmic reduction, half-weight value at the jump, and exact
+equivalence with the oscillatory Cauchy limit. \\
+\path{RiemannLab/Tasks/OscillatoryCauchy.lean} &
+Sharp convergence, integration-by-parts tail control, Laplace representation,
+and the absolute squared-kernel reduction subsequently discharged by Fourier
+inversion. \\
+\path{RiemannLab/Tasks/SquaredCauchyFourier.lean} &
+One-sided exponential moment, Fourier transform and inversion, exact
+squared-Cauchy value, and completed scalar Perron theorem. \\
+\path{RiemannLab/Tasks/FinitePerron.lean} &
+Generic finite coefficient inversion and finite von Mangoldt specialization
+to the Chebyshev function away from integer jumps. \\
+\path{explicit_formula_dependency_graph_v1.json} &
+Machine-readable dependency state and the precommitted next proof unit. \\
+\path{perron_dependency_audit_v1.json} &
+Pinned Mathlib capability audit, missing specialized theorem, and scalar
+Perron-kernel decomposition. \\
+\bottomrule
+\end{longtable}
+
+\begin{resultbox}
+The compact divisor and complete Chebyshev Perron formula are no longer
+blockers. Local zero residues with full multiplicity, the residues at $s=1$
+and $s=0$, rectangle orientation, and the right-edge normalization are also
+verified. The remaining classical blocker is global pole excision together
+with trivial-zero summation and vanishing-edge estimates. After the explicit
+formula, the programme reaches the exact classical RH frontier.
+\end{resultbox}
+
+\section{Full Perron inversion and initial contour residues completed}
+
+The module \path{RiemannLab/Tasks/PerronFormula.lean} now proves
+\begin{equation}
+  \lim_{T\to\infty}\frac{1}{2\pi}
+  \int_{-T}^{T}-\frac{\zeta'(c+it)}{\zeta(c+it)}
+    \frac{x^{c+it}}{c+it}\,dt=\psi(x)
+\end{equation}
+for $c>1$, $x>1$, and nonintegral $x$. The decisive new estimate bounds each
+normalized coefficient integral by a summable majorant independent of $T$;
+Tannery's theorem then passes the limit through the infinite von Mangoldt
+series.
+
+The new module \path{RiemannLab/Tasks/ContourShift.lean} fixes the four-side
+orientation of the rectangle and proves that its normalized right edge is
+exactly the established finite-height Perron integral. Analytic factorization
+at a zero gives the multiplicity-aware limit
+\begin{equation}
+  (s-\rho)\frac{\zeta'(s)}{\zeta(s)}\longrightarrow m(\rho),
+\end{equation}
+and therefore the contour kernel has local residue
+$-m(\rho)x^\rho/\rho$. The compact divisor converts these local values into a
+finite residue ledger with the same multiplicities used by the truncated zero
+sum. Mathlib's Laurent asymptotic at $s=1$ yields the main term $x$, while the
+known values $\zeta(0)=-1/2$ and
+$\zeta'(0)=-\log(2\pi)/2$ yield the residue $-\log(2\pi)$ at the Perron pole.
+
+These are classical results formalized with kernel checking. They do not yet
+constitute the explicit formula: admissible-height estimates for the remaining
+three contour edges remain open.
+
+\section{Global residue theorem, trivial-zero sum, and final assembly}
+
+The classical contour infrastructure has advanced through three further
+machine-checked gates.  The module
+\path{RiemannLab/Tasks/TrivialZeroResidues.lean} proves that every negative-even
+zero $-2(n+1)$ is simple.  It identifies its contour residue as
+\[
+  -\frac{x^{-2(n+1)}}{-2(n+1)}
+  = \frac{x^{-2(n+1)}}{2(n+1)}
+\]
+and evaluates the full series as
+\[
+  \sum_{n\geq0}\frac{x^{-2(n+1)}}{2(n+1)}
+  =-\frac12\log(1-x^{-2}), \qquad x>1.
+\]
+Thus the trivial-zero simplicity and summation gate is complete.
+
+The module \path{RiemannLab/Tasks/RectangularResidues.lean} proves the missing
+rectangular Cauchy kernel identity directly in the exact four-edge orientation
+used by the project:
+\[
+  \int_{\partial R}\frac{ds}{s-p}=2\pi i
+  \qquad (p\in\operatorname{int}R).
+\]
+The proof controls the branch cut by using $\log(s-p)$ on three sides and
+$\log(-(s-p))$ on the left side.  It then lifts this identity to a finite
+global residue theorem.  For a holomorphic remainder $g$, a finite pole set
+$P$, pole locations $p_j$, and residues $r_j$, Lean proves
+\[
+ \int_{\partial R}
+ \left(g(s)+\sum_{j\in P}\frac{r_j}{s-p_j}\right)ds
+ =2\pi i\sum_{j\in P}r_j,
+\]
+provided every $p_j$ lies strictly inside $R$.  Continuity supplies the edge
+integrability automatically.  This closes the global finite residue-collection
+gate without assuming a residue theorem absent from the pinned Mathlib version.
+
+Finally, \path{RiemannLab/Tasks/ExplicitFormulaAssembly.lean} defines the exact
+remaining admissible-contour limit proposition and proves that it implies
+\code{ChebyshevExplicitFormulaTarget}.  In particular, once a sequence of
+admissible heights tends to infinity, the normalized top, bottom, and displaced
+left edges tend to zero, and the finite residue ledger is instantiated, no
+further complex analysis or limit algebra remains: the already proved Perron
+limit forces the complete Chebyshev explicit formula.
+
+The full pinned build at that checkpoint passed in 3,593 jobs.  Two tightly coupled obligations
+remain: instantiate the finite principal-parts theorem for the actual zeta
+kernel on each chosen rectangle, and prove the zeta logarithmic-derivative
+estimate needed to construct admissible heights and make the three displaced
+edge integrals vanish.  The first is now bounded analytic packaging around the
+proved residue theorem; the second is the substantive remaining classical
+estimate. Pinned Mathlib supplies neither that growth estimate nor a ready
+theorem from which it can be obtained. This is still established classical
+analytic number theory being formalized; it is not new evidence for RH and
+imposes no new constraint on the real parts of nontrivial zeros.
+
+\section{Finite principal parts for the actual zeta kernel}
+
+The analytic-packaging obligation from the preceding section is now complete.
+The new module \path{RiemannLab/Tasks/MeromorphicPrincipalPart.lean} proves a
+generic removal theorem.  If $F$ is meromorphic at $p$ and
+\[
+  (s-p)F(s)\longrightarrow r
+  \qquad(s\to p,\ s\ne p),
+\]
+then there is a function analytic at $p$ which agrees punctured-locally with
+$F(s)-r/(s-p)$.  The proof is carried out through Mathlib's meromorphic order:
+multiplication by $(s-p)$ raises the order by one, and convergence to zero
+forces the remaining order to be nonnegative.
+
+The module \path{RiemannLab/Tasks/FinitePrincipalParts.lean} lifts this local
+statement to an arbitrary finite pole set $P$.  Given residues $r_p$, it
+constructs a single function $g$ analytic at every $s\in\mathbb C$ such that
+\[
+  F(s)=g(s)+\sum_{p\in P}\frac{r_p}{s-p},\qquad s\notin P.
+\]
+The construction patches the removable values at the finitely many poles and
+proves analyticity both at each patched point and on the complement.  Thus the
+finite residue theorem can now be applied without assuming that independently
+chosen local extensions form a global holomorphic remainder.
+
+The module \path{RiemannLab/Tasks/ZetaContourPrincipalParts.lean} instantiates
+this theorem for the actual contour kernel
+\[
+  K_x(s)=-\frac{\zeta'(s)}{\zeta(s)}\frac{x^s}{s}.
+\]
+It proves global meromorphy of $\zeta$ from its completed-zeta representation
+at $s=1$ and analyticity elsewhere, hence global meromorphy of $K_x$.  The
+principal parts are then removed at all four pole classes:
+\[
+\begin{array}{c|c}
+  \text{point} & \operatorname*{Res} K_x \\
+  \hline
+  1 & x \\
+  0 & -\log(2\pi) \\
+  -2(n+1) & -x^{-2(n+1)}/[-2(n+1)] \\
+  \rho\ \text{nontrivial} & -m(\rho)x^\rho/\rho.
+\end{array}
+\]
+For any finite ledger whose entries carry one of these classifications, and
+which contains every singularity under discussion, Lean now produces the
+globally analytic remainder required by the rectangular residue theorem.
+
+\section{Quantitative reduction of the contour edges}
+
+The new module \path{RiemannLab/Tasks/ContourEdgeEstimates.lean} isolates the
+remaining large-height input by proving the exact identity
+\[
+  \lVert K_x(s)\rVert
+  =\left\lVert\frac{\zeta'(s)}{\zeta(s)}\right\rVert
+    \frac{x^{\Re s}}{\lVert s\rVert},\qquad x>0.
+\]
+It then converts any supplied bound
+$\lVert\zeta'(s)/\zeta(s)\rVert\leq L$ and lower bound
+$R\leq\lVert s\rVert$ into
+\[
+  \lVert K_x(s)\rVert\leq \frac{Lx^{\Re s}}{R}.
+\]
+Uniform pointwise bounds are lifted to the exact horizontal and vertical
+interval integrals used by the project.  In particular, if $C_n$ uniformly
+bounds a horizontal edge from $a$ to $b$ and
+$C_n|b-a|\to0$, Lean proves that the corresponding complex edge integral
+tends to zero.
+
+The full pinned build now passes in 3,599 jobs.  The finite principal-parts
+instantiation is therefore closed.  What remains is the substantive classical
+large-height theorem: construct heights avoiding zero ordinates with a uniform
+bound for $\zeta'/\zeta$, discharge the top and bottom edges through the new
+norm estimates, and combine the functional equation and gamma-factor bounds
+with a displaced-left sequence to make the left edge vanish.  The finite
+ledger must finally be identified with the compact multiplicity-aware zero
+truncation already used by the target statement.
+
+Pinned Mathlib does not contain this global admissible-height estimate.  No
+complete Chebyshev explicit formula is claimed at this checkpoint.  All new
+results remain formalizations of classical analytic infrastructure and provide
+no new restriction on nontrivial zero locations.
+
+\section{Geometric admissible heights and exact three-edge assembly}
+
+The geometric portion of the admissible-height construction is now
+machine-checked.  The module
+\path{RiemannLab/Tasks/AdmissibleHeights.lean} selects, for every
+$n\in\mathbb N$, a height
+\[
+  n+2<T_n<n+3
+\]
+such that
+\[
+  \zeta(\sigma+iT_n)\ne0\qquad(\sigma\in\mathbb R).
+\]
+Compact discreteness supplies only finitely many zeros in the relevant closed
+ball.  An ordinate outside that finite set is then selected inside the unit
+interval.  The classification of zeros with nonpositive real part and the
+critical-strip location theorem ensure that every possible zero on the line
+would have appeared in that compact set.  Complex conjugation gives the
+reflected zero-free line at $-T_n$, and Lean proves $T_n\to\infty$.
+
+On every fixed compact interval $[a,b]$, continuity of $\zeta'/\zeta$ on the
+two selected lines now yields a finite common uniform bound.  This deliberately
+does not assert a rate.  The exact quantitative proposition isolated in
+\path{RiemannLab/Tasks/AdmissibleHeightBounds.lean} requires bounds $B_n$ with
+\[
+  \sup_{-1\leq\sigma\leq c}
+  \left|\frac{\zeta'}{\zeta}(\sigma\mathbin{\pm}iT_n)\right|
+  \leq B_n,
+  \qquad \frac{B_n}{T_n}\longrightarrow0.
+\]
+From this input Lean proves that the corresponding upper and lower
+fixed-strip kernel integrals vanish.
+
+The module \path{RiemannLab/Tasks/DisplacedLeftEdge.lean} defines the
+displaced real parts
+\[
+  L_n=-(2n+1).
+\]
+These lines tend to $-\infty$ and avoid every zeta zero: nontrivial zeros lie
+in $0<\Re s<1$, whereas trivial zeros are negative even integers.  The file
+states the exact remaining functional-equation and Gamma-factor decay target
+and proves that it forces the oriented left-edge integral to vanish.
+
+Finally, \path{RiemannLab/Tasks/AdmissibleContourEdges.lean} assembles the
+bottom, top, and displaced-left sides with the precise signs inherited from
+the verified rectangle orientation.  For
+\[
+  K_x(s)=-\frac{\zeta'(s)}{\zeta(s)}\frac{x^s}{s},
+\]
+the normalized error is
+\[
+ E_n(x,c)=\frac{1}{2\pi i}\left(
+   \int_{L_n}^{c}K_x(\sigma-iT_n)\,d\sigma
+  -\int_{L_n}^{c}K_x(\sigma+iT_n)\,d\sigma
+  -i\int_{-T_n}^{T_n}K_x(L_n+it)\,dt\right).
+\]
+Lean proves $E_n(x,c)\to0$ once the two expanding horizontal integrals and the
+left integral vanish.  Thus no sign or normalization step remains hidden in
+the final contour assembly.
+
+The full pinned build passes in \textbf{3,603 jobs}.  The unresolved theorem is
+now stated more accurately than at the previous checkpoint.  Merely avoiding
+zero ordinates is insufficient: one needs quantitative separation from nearby
+zeros together with a zero-counting/logarithmic-derivative estimate strong
+enough on the expanding interval $[L_n,c]$.  One also needs the displaced-left
+decay from the functional equation and quantitative Gamma estimates.  The
+finite rectangle ledger must then be matched to the compact nontrivial-zero
+truncation and to the vanishing tail of the already summed trivial-zero series.
+These are established classical results, but they are not present globally in
+the pinned Mathlib library and have not yet been proved in this project.
+Consequently neither the complete explicit formula nor the classical RH
+frontier is claimed at this checkpoint, and no new progress on RH itself is
+claimed.
+
+\appendix
+
+\section{Key evidence hashes}
+
+\begin{longtable}{@{}p{52mm}p{96mm}@{}}
+\toprule
+Artifact & SHA-256 \\
+\midrule
+\endhead
+Immutable paid live result & \hash{5795e3faa55cf2a7466a3537ac41005056d44711eaa826c84935af318437b2e6} \\
+Established zeta baseline & \hash{d121313f104e8e9d3a62fd2270e46aa6c4a7c6888ebc7d996f004fae5a25943c} \\
+Catalogue probe & \hash{6691c0dff28a5b761b7c4d1da63f7820cb0b57976b21979594be093e149fd5b5} \\
+V2 packet & \hash{2190c93a840eebabf0ad7cbfc3dbfe53a01ca32ead4f56765143d190e50d3660} \\
+Sealed v3 packet & \hash{1771f8b9977ce0cf1ffac73b1284361e61ae92d4f86672afe97a241a786abb6e} \\
+Completed v3 result & \hash{52899a504530456f1c6f90acf28a34edddc54ccbb4ce765d145c2f9166bc951d} \\
+Pinned v2 environment & \hash{6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591} \\
+\bottomrule
+\end{longtable}
+
+The local-verification report is regenerated and therefore receives a new hash
+when timestamps or verified memory state are rebuilt. The timestamped paid
+result is the immutable historical object.
+
+\section{V2 statement hashes}
+
+\begin{longtable}{@{}p{11mm}p{137mm}@{}}
+\toprule
+Ref. & Statement SHA-256 \\
+\midrule
+\endhead
+T1 & \hash{f84686a87dff3c814d79a296232fad81531194b318c4c81fe7d5aab8c9050798} \\
+T2 & \hash{d1ca22f154945c4c26cf5f5cecfc5bf86d52d1538375d94420ea5abf7fce2760} \\
+T3 & \hash{3c6a7aa1eede91cbd24530d477c38f750176269d1d8c08773dd2bc510fe77d31} \\
+T4 & \hash{37c2b2c0f357b924d945d3c815244f0eff7affc33372d60ba839caea750cace5} \\
+T5 & \hash{fed50dcca60493a2beedc23cb7ea0d485c1659dbe0fabdd0b8d3e698db523d3a} \\
+T6 & \hash{6e920be25538210c2ec4850febc0c8a50e426af5c4ba743253c84b8af3611b4b} \\
+\bottomrule
+\end{longtable}
+
+\section{Reproducibility commands}
+
+Run from the COMDEX repository root:
+
+\begin{lstlisting}[language={}]
+.venv/bin/python scripts/aion_riemann_local_verify.py
+.venv/bin/python -m pytest backend/tests/test_aion_riemann_lab.py -q
+\end{lstlisting}
+
+The v3 live comparison and the delayed retention comparison are complete and
+protected by their one-shot execution receipts. Neither result established an
+AION advantage, and no further paid run is scheduled by this document.
+
+\section{Selected references}
+
+\begin{thebibliography}{9}
+\bibitem{Riemann1859}
+B. Riemann, ``On the Number of Prime Numbers Less Than a Given Quantity,'' 1859.
+
+\bibitem{Titchmarsh}
+E. C. Titchmarsh, revised by D. R. Heath-Brown, \emph{The Theory of the Riemann Zeta-Function}, Oxford University Press.
+
+\bibitem{Edwards}
+H. M. Edwards, \emph{Riemann's Zeta Function}, Dover Publications.
+
+\bibitem{Lean}
+Lean Prover community, \emph{Lean 4 theorem prover and reference documentation}.
+
+\bibitem{Mathlib}
+Mathlib community, \emph{Mathlib: a mathematical library for Lean}, pinned in this programme at v4.32.1.
+
+\bibitem{AionEvidence}
+AION/COMDEX, \emph{Riemann Hypothesis Programme continuation handover, local verification report, task packets, Lean sources, and immutable JSON evidence}, 14--15 August 2026.
+\end{thebibliography}
+
+\end{document}

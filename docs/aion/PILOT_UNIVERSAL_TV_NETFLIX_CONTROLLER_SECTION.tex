@@ -1,0 +1,363 @@
+\section{Universal Reliable Television Operation and the Reusable Netflix Controller}
+\label{sec:pilot-universal-tv-controller}
+
+\subsection{Purpose and Current Status}
+
+Pilot's television controller is designed as a reusable capability system rather
+than a collection of household-specific macros. The Netflix intelligence,
+governance, verification state machine and private-phone controls are reusable.
+The transport currently field-proven is the LG webOS gateway used by the Pilot
+Fabric 0.39 test household. Samsung Tizen, Sony/Google TV and other platforms are
+adapter targets; they are not described as field-proven merely because they can
+implement the same interface.
+
+The current LG implementation can:
+
+\begin{itemize}
+  \item discover and pair with an authorized LG webOS television;
+  \item launch Netflix and verify that Netflix became the foreground application;
+  \item open the visible Netflix profile chooser;
+  \item select one of five absolute profile positions;
+  \item store five household-specific profile labels on the mother brain;
+  \item resolve a spoken profile name to its stored position;
+  \item resolve an evidenced Netflix title identifier and open the title inside
+        Netflix rather than sending the request to a general web search;
+  \item deliver bounded play, pause, Back, Home and exit actions;
+  \item suppress repeated command delivery with an idempotency key;
+  \item verify a result from device state, a new structured screen observation,
+        or both; and
+  \item remember successful and failed navigation routes per television and
+        surface.
+\end{itemize}
+
+This is a reusable controller, but it is not yet a zero-setup universal
+controller. A new household configures its own television, provider session,
+profile labels and calibration evidence. Passwords, provider cookies, television
+pairing keys and viewing history are never copied from another household.
+
+\subsection{Three-Layer Controller Architecture}
+
+The controller separates product intelligence from device transport:
+
+\begin{enumerate}
+  \item \textbf{Universal capability layer.} Converts voice, phone and agent
+        requests into normalized actions such as \texttt{app.launch},
+        \texttt{navigation.back}, \texttt{media.pause},
+        \texttt{netflix.profile.open}, \texttt{netflix.profile.select} and
+        \texttt{netflix.title.open}.
+  \item \textbf{Vendor adapter layer.} Translates a normalized action into an
+        authorized LG webOS, Samsung Tizen, Android/Google TV, Cast or HDMI-CEC
+        operation. An adapter publishes only the capabilities that the paired
+        device and installed software genuinely expose.
+  \item \textbf{Household calibration layer.} Stores the television-specific
+        application identifiers, focus geometry, profile order, successful
+        routes, failed routes, timeouts and firmware/application fingerprints.
+        Calibration is local to the mother brain and can be invalidated when a
+        television or application changes.
+\end{enumerate}
+
+The universal layer must never branch on a household name. A request such as
+``Pilot, switch to the children's Netflix profile'' first resolves the active
+persona and that household's stored profile label, then issues the neutral action
+\texttt{netflix.profile.select(position)}. Only the television adapter knows how
+to deliver that action.
+
+\subsection{Normalized Adapter Contract}
+
+Every television adapter should implement the following minimum contract:
+
+\begin{itemize}
+  \item \texttt{discover()} returns stable device evidence, model, platform,
+        addresses, advertised services and confidence;
+  \item \texttt{pair(owner\_approval)} establishes a vendor-supported local or
+        account relationship and stores its secret only in mother-private state;
+  \item \texttt{capabilities()} returns observed actions and risk classes rather
+        than a hard-coded vendor promise;
+  \item \texttt{observe()} returns foreground application, volume, mute,
+        playback and other supported device facts with provenance;
+  \item \texttt{execute(action, arguments, idempotency\_key)} delivers one
+        allowlisted action and returns a signed transport receipt;
+  \item \texttt{health()} verifies the vendor protocol, not merely an open TCP
+        port; and
+  \item \texttt{reconcile(receipt, observation)} distinguishes delivery from a
+        verified screen or playback outcome.
+\end{itemize}
+
+An adapter must fail closed when an action is unavailable. It must not simulate
+success by reporting that a key was sent. A transport receipt proves delivery;
+only an observed postcondition proves the requested outcome.
+
+\subsection{One-Time Consumer Setup}
+
+The intended reusable installation flow is:
+
+\begin{enumerate}
+  \item Install or start the Pilot mother brain on an approved computer, home
+        server, capable television or other supported mother device.
+  \item Place the mother and television on the same trusted local network.
+  \item Discover the television through bounded advertised-service discovery.
+        Pilot must not perform credential guessing or an indiscriminate port
+        scan.
+  \item Display the discovered device, model, address and proposed permissions to
+        the owner.
+  \item Obtain the television's own pairing approval or vendor-account consent.
+  \item Issue a short-lived, signed capability capsule containing only the
+        approved observation and control actions.
+  \item Ask the owner to sign into Netflix on the television using Netflix's
+        normal interface. Pilot does not collect or migrate the password.
+  \item Open the profile chooser, learn the visible profile order, save the five
+        local labels and verify at least one non-default profile switch.
+  \item Verify title search, playback control, Back and exit without changing a
+        subscription, account or purchase setting.
+  \item Persist the verified route under a key containing the television,
+        platform, application, application version or fingerprint, region and
+        goal.
+\end{enumerate}
+
+After this one-time procedure, normal use is conversational. A household should
+configure its controller, not rebuild it.
+
+\subsection{LG webOS Hookup: Implemented and Field-Proven}
+
+The present LG gateway uses the television's owner-approved webOS SSAP session.
+The pairing proof reads the current volume before mutating capabilities are
+issued. The client key is stored under the mother runtime and is not exposed to
+the television Canvas, phone controller, downloadable household configuration or
+audit ledger.
+
+The implemented hookup is:
+
+\begin{enumerate}
+  \item discover the LG advertisement and acquire its bounded local descriptors;
+  \item enroll the device as a gateway and approve read-only capabilities;
+  \item initiate webOS pairing and accept the connection prompt on the physical
+        television;
+  \item prove the session with a real SSAP request, then issue separate signed
+        capsules for volume, navigation, media and application launch;
+  \item use the application manager to list applications and identify Netflix by
+        its observed application identifier;
+  \item use the network-input pointer socket for D-pad and pointer events; and
+  \item read foreground-application or volume state after operations whenever
+        webOS exposes the required fact.
+\end{enumerate}
+
+The LG route is resilient to an address change because the mother refreshes the
+television endpoint from stable discovery evidence and reuses the stored pairing
+relationship only when the verified device identity still matches.
+
+\subsubsection{LG Netflix Profile Selection}
+
+Netflix exposes no supported profile-selection API on the tested television.
+Pilot therefore uses a bounded visible-navigation route. When the chooser is not
+already visible, Pilot sends Back, forces focus to the left rail, moves to the
+profile control and presses Enter. Once the chooser is visible, absolute profile
+selection is normalized with five Up events, followed by
+\texttt{position-1} Down events and Enter. This prevents the currently active
+profile from being mistaken for position one.
+
+The route is limited to positions one through five. A profile-name editor stores
+exactly five non-empty labels in visible order. Audit records contain the label
+set's hash and count, not the raw names. Selecting a profile starts a verified
+navigation transaction whose expected result is a changed Netflix screen. A
+fresh screen observation is required before Pilot may claim visual completion.
+
+\subsubsection{LG Netflix Title Search}
+
+The title resolver must first obtain an exact, evidenced numeric Netflix title
+identifier. The gateway checks that the installed Netflix application advertises
+the required relaunch and in-application intent behavior. It then launches
+Netflix with the bounded title content identifier and verifies that Netflix is
+the foreground application. A title appearing in OCR or provider telemetry is
+stronger evidence than transport delivery alone. A general Google result must
+never be reported as a successful in-Netflix search.
+
+\subsection{Samsung Tizen Hookup: Adapter Required}
+
+Samsung support should reuse the same universal action and verification layers,
+but requires a Samsung adapter and field qualification. The preferred production
+route is a signed Tizen television application or an officially authorized
+Samsung service relationship, because a native application can declare its
+privileges and receive D-pad input through documented Tizen APIs.
+
+Required work is:
+
+\begin{enumerate}
+  \item identify supported model years and discover each television without
+        treating an undocumented network socket as a permanent API;
+  \item build and sign the Pilot Tizen application with the Samsung certificate
+        toolchain;
+  \item declare only required privileges, such as input-device access, and test
+        whether audio or application-management operations are actually supported
+        on each model group;
+  \item implement the normalized adapter contract and an explicit on-TV pairing
+        or account-consent flow;
+  \item map D-pad, Back, Home, media and application actions to documented native
+        behavior;
+  \item calibrate the installed Netflix layout, profile chooser and title routes;
+        and
+  \item run the full observe--act--observe--verify matrix on real hardware before
+        labelling Samsung supported.
+\end{enumerate}
+
+Samsung's official documentation notes that Tizen TV applications are signed,
+use a \texttt{config.xml} manifest and expose model-dependent television APIs.
+The adapter must therefore discover capability support instead of assuming that
+every Tizen television has identical audio, input or application permissions.
+
+\subsection{Sony, Google TV and Android TV Hookup: Adapter Required}
+
+For Sony televisions running Google TV or Android TV, the preferred route is a
+signed Pilot Android TV receiver/node. The application should be fully operable
+with the platform's minimum D-pad set: Up, Down, Left, Right, Select, Back and
+Home. Supported playback must be represented by an Android media session so that
+Play, Pause, Stop and Seek have verifiable state.
+
+Where a provider supports Google Cast, Pilot can act as an authorized sender and
+use the receiver's media status for playback verification. Cast support does not
+grant universal control over unrelated third-party applications or Netflix
+profiles. Netflix-specific search and profile switching still require a
+permitted provider deep link, a native adapter, or calibrated visible navigation.
+
+Required work is:
+
+\begin{enumerate}
+  \item install the signed Pilot receiver through the approved store or owner
+        developer process;
+  \item enroll its node identity and approve a least-privilege mother handshake;
+  \item publish supported D-pad, application and media-session capabilities;
+  \item connect Cast only for services and actions that officially support it;
+  \item calibrate Netflix on the exact Sony/Google TV application version; and
+  \item test process restart, television sleep, Wi-Fi address change, controller
+        reconnection and application update recovery.
+\end{enumerate}
+
+\subsection{Generic, Restricted and HDMI-CEC Televisions}
+
+A restricted television that cannot host a Pilot node is represented through a
+gateway. Standard advertised read-only services may expose media metadata or
+volume, while a separately approved gateway performs permitted control.
+HDMI-CEC can provide a minimal fallback for power, active source, volume and
+navigation only when the mother or an enrolled gateway has real CEC-capable HDMI
+hardware. Wi-Fi or Bluetooth alone cannot emit CEC. The capability capsule must
+reflect the exact attached hardware, and one-way delivery must not be confused
+with verified television state.
+
+Infrared is another one-way fallback, not a universal television API. It requires
+an enrolled infrared transmitter and learned codes. Pilot must label IR actions
+as delivered but unverified unless an independent observation confirms the
+result.
+
+\subsection{How Each User Controller Hooks into Pilot}
+
+\paragraph{Voice controller.}
+The local microphone node transcribes speech on the mother brain. The wake parser
+maps the request to a normalized intent, the capability policy verifies that the
+active television has the required signed permission, and the vendor adapter
+executes the action. Voice never connects directly to Netflix or stores provider
+credentials.
+
+\paragraph{Private phone controller.}
+The phone scans the mother beacon or enters a rotating code. The persistent
+unguessable controller URL and CSRF token route commands back to the mother. Each
+button creates an idempotency identifier, so a reconnect or double tap cannot
+silently repeat the same television action. The phone owns no LG client key or
+Netflix credential. Camera verification and private push-to-talk require the
+trusted HTTPS controller or a future signed native companion.
+
+\paragraph{Physical television remote.}
+The manufacturer remote remains the final owner control and pairing surface. It
+is required to accept first connection prompts, sign into Netflix, complete
+CAPTCHA or multi-factor challenges and recover when platform policy blocks
+automation. Pilot can observe an owner-completed step and continue from the new
+state, but it must not impersonate consent.
+
+\paragraph{Gamepad and accessibility controllers.}
+These connect to the television using the manufacturer's supported Bluetooth,
+USB or mobile-gamepad path. Pilot should detect the resulting input capability,
+show which controls are active and preserve Back/Home escape behavior. The
+gamepad does not inherit the phone's private identity, payment authority or
+service credentials.
+
+\paragraph{Second mother brain.}
+An installed universal node may trust more than one mother through separate
+public-key handshakes and short-lived leases. Each mother receives independent
+capabilities, route memory and persona data. The second mother does not require a
+second device node, but it must still be locally approved and cannot read another
+mother's Netflix labels, preferences or private viewing history without explicit
+sharing.
+
+\subsection{Verified Navigation State Machine}
+
+Every consequential third-party navigation operation follows:
+
+\begin{enumerate}
+  \item capture a before-state from device facts and, when required, a structured
+        phone-camera observation;
+  \item declare the goal and exact success predicate before sending input;
+  \item choose a bounded route from the television/application-specific route
+        library;
+  \item suppress duplicate delivery using the request's idempotency key;
+  \item deliver one action or bounded phase and retain its transport receipt;
+  \item collect an after-state;
+  \item mark the transaction verified only when the declared predicate is met;
+  \item otherwise select a predeclared alternative route, stop at the retry limit
+        and report the unverified outcome honestly; and
+  \item update success/failure memory using the television, surface, goal and
+        route identifiers.
+\end{enumerate}
+
+This prevents a common false-completion error: a remote key being accepted by a
+socket does not prove that Netflix changed profile, opened a title or exited
+playback.
+
+\subsection{Security and Privacy Boundaries}
+
+\begin{itemize}
+  \item Netflix credentials and provider cookies remain inside the provider's
+        normal television or phone sign-in flow.
+  \item Television pairing keys remain in owner-private mother storage.
+  \item Profile names and viewing preferences are persona/household data and are
+        never packaged as controller defaults.
+  \item Shared-TV speech may choose a visible profile only under the household's
+        configured policy; it cannot select a payment method, account or calendar.
+  \item Power, purchases, account changes and security settings require distinct
+        capabilities and approval policies.
+  \item Discovery evidence, capability capsules, idempotency suppression and
+        navigation receipts are auditable without retaining raw passwords or
+        camera images.
+\end{itemize}
+
+\subsection{Universal Release Gate}
+
+The controller may be advertised as supported on a platform only after that
+platform passes discovery, pairing, reconnect, capability-change, Netflix launch,
+profile positions one through five, title search, play/pause, Back, Home, exit,
+duplicate suppression and failed-route recovery tests. At least 95\% of the
+supported task matrix must either succeed or stop through bounded automatic
+recovery without a false completion claim. Model year, region, firmware,
+application version and transport must be published in the support matrix.
+
+The product objective is therefore:
+
+\begin{quote}
+One shared Netflix capability module; one authorized adapter per television
+platform; one short calibration per household; no copied credentials and no
+unverified success claims.
+\end{quote}
+
+\subsection{Official Platform References}
+
+The adapter design follows the documented platform boundaries in the LG webOS TV
+developer portal, Samsung's Tizen TV Web Device API and signed-application guides,
+Android's television controller/navigation guidance, and Google's Cast receiver
+and media-session documentation:
+
+\begin{itemize}
+  \item \url{https://webostv.developer.lge.com/}
+  \item \url{https://developer.samsung.com/smarttv/develop/api-references/tizen-web-device-api-references.html}
+  \item \url{https://developer.samsung.com/smarttv/develop/getting-started/quick-start-guide.html}
+  \item \url{https://developer.android.com/training/tv/get-started/controllers}
+  \item \url{https://developer.android.com/training/tv/get-started/navigation}
+  \item \url{https://developers.google.com/cast/docs/android_tv_receiver/core_features}
+\end{itemize}
+

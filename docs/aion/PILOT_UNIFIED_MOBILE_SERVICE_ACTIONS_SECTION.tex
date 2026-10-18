@@ -1,0 +1,99 @@
+\section{Unified Mobile Shopping, Booking and Service Actions}
+\label{sec:pilot-unified-mobile-service-actions}
+
+The unified Pilot mobile application now exposes shopping, booking, route and music actions through
+one governed private service surface.  This is a proposal and approval system, not an autonomous
+checkout agent.  Research or shared-television conversation may begin an action, but a named
+person's trusted phone must complete any missing private details, inspect the exact scope and
+approve it before an authorized provider adapter can run.
+
+\subsection{User Experience and Supported Actions}
+
+The Personal space includes a Shopping shortcut that opens the combined service-action centre.
+The person can prepare a product search or basket request, a reservation, a destination route or a
+music request.  The interface shows the service, intended action, exact parameters, missing fields
+and current state.  A prepared request has no external effect.
+
+The lifecycle is explicit:
+\begin{enumerate}
+  \item \texttt{needs\_details}: required information is missing and must be supplied privately;
+  \item \texttt{awaiting\_private\_approval}: the complete immutable scope is ready for review;
+  \item \texttt{approved\_pending\_adapter}: the person approved it, but it has not executed;
+  \item \texttt{executing}: one authorized provider attempt may be in flight;
+  \item \texttt{execution\_failed\_unknown\_effect}: an uncertain provider result requires reconciliation;
+  \item \texttt{executed}: an adapter returned a verified result and Pilot recorded a receipt; or
+  \item \texttt{rejected} or \texttt{cancelled}: no provider action is permitted.
+\end{enumerate}
+
+Approval and execution are separate controls.  If the selected person has no authorized account
+binding or no adapter is active, Pilot preserves the approved proposal and reports the missing
+connection.  It does not open an uncontrolled checkout page or claim success.
+
+\subsection{Private-Identity and Legacy-Service Bridge}
+
+The earlier Service Execution Hub used a household service persona, while the production mobile
+application uses possession-bound private identities.  A one-to-one bridge now resolves these
+without combining household members.  When a mother has exactly one active adult identity, that
+adult may adopt the legacy local-owner service record, preserving earlier prepared actions and
+opaque service bindings.  A multi-adult household never assigns that legacy account by arrival
+order: each adult and child receives an isolated service persona, routing key and provider bindings
+until the owner explicitly connects an account.  The internal service-persona identifier is
+replaced by the production private identity in every phone projection.
+
+This bridge preserves the principle that a shared television cannot decide whose card, booking
+account, map history or media account should be used.  The trusted phone determines the person;
+the mother brain selects only that person's authorized binding.  Child profiles may prepare a
+request for discussion, but cannot approve or execute an external service effect without a future
+guardian workflow.
+
+\subsection{Signed Capability Boundary}
+
+The phone uses four narrow capability scopes:
+\begin{itemize}
+  \item \texttt{services.read} for the person's proposals, connection state and receipts;
+  \item \texttt{services.propose} for preparation and missing-detail completion;
+  \item \texttt{services.approve} for accepting or rejecting one unchanged parameter hash; and
+  \item \texttt{services.execute} for one previously approved provider operation.
+\end{itemize}
+
+Every request is signed by the phone's non-exportable Ed25519 key and validated against its mother-
+signed certificate, active persona and short-lived capability lease.  A persona substitution or
+changed parameter hash fails closed.  Preparation uses an idempotency key bound to the canonical
+service, action and parameter hash; an identical retry returns the original proposal, while reuse
+for altered details is rejected.
+
+\subsection{Credential and Payment Safety}
+
+Provider credentials remain behind opaque \texttt{vault://} or \texttt{provider://} references on
+the mother brain.  They are never returned to the phone, television or device mesh.  Recursive
+parameter validation rejects raw passwords, secrets, tokens, card numbers, CVVs, CVCs, PINs and
+private keys.  The interface may record a budget or product requirement, but never payment-card
+data.  Payment selection and regulated transaction handling require a separately authorized
+provider flow and are not implied by this implementation.
+
+\subsection{Execution and Verified Receipts}
+
+Execution is permitted only when the stored proposal belongs to the same mapped service persona,
+the same private identity approved it and the supplied hash still matches the stored parameters.
+The Service Execution Hub then resolves that person's opaque provider binding and calls the
+registered adapter.  The adapter must return a verified result.  Pilot stores a minimal normalized
+receipt containing the proposal, service, action, external reference, result hash and timestamp;
+the raw provider response is not retained.
+
+If an adapter fails after an attempt starts, Pilot records an unknown-effect state and forbids an
+automatic retry until reconciliation.  A completed proposal returns its existing receipt on repeat
+execution, preventing duplicate purchasing or booking caused by a network retry.
+
+\subsection{Verification and Remaining Qualification}
+
+Automated tests cover production-to-household identity bridging, preserved service bindings,
+persona isolation, idempotent preparation, immutable-hash approval, raw payment-secret rejection,
+verified adapter receipts and private projection.  Surface tests cover the Shopping shortcut,
+dynamic action forms, exact proposal review, missing-detail completion, separate approval and
+execution controls, and verified receipt presentation.  At coded closure of \texttt{MOB-0507}, all
+463 AION Fabric tests passed and the optimized Next.js build statically generated the mobile route.
+
+No real purchase, booking, map-account change or music-account action was made during verification.
+Production qualification still requires explicit user authorization and a verified receipt from
+each real provider.  Those external qualifications remain open and cannot be closed by a mock
+adapter or interface demonstration.

@@ -1,0 +1,29 @@
+{
+  "schema_version":"aion.supplier_extraction_stress_answers.v1",
+  "answers":{
+    "snh-s-01":{"supplier_name":"Alpine Motors SL","invoice_reference":"AM-615","payment_amount":"EUR 721.08"},
+    "snh-s-02":{"supplier_name":"Birch Consulting Ltd","invoice_reference":"BC-93","payment_amount":"GBP 418.70"},
+    "snh-s-03":{"supplier_name":"Coral Systems BV","invoice_reference":"CS-702","payment_amount":"USD 68.25"},
+    "snh-s-04":{"supplier_name":"Delta Timber SA","invoice_reference":"DT-84","payment_amount":"EUR 2305.10"},
+    "snh-s-05":{"supplier_name":"Ember Grid AB","invoice_reference":"EG-311","payment_amount":"SEK 991.40"},
+    "snh-s-06":{"supplier_name":"Falcon Cargo LLC","invoice_reference":"FC-907","payment_amount":"USD 150.75"},
+    "snh-s-07":{"supplier_name":"Golden Leaf PLC","invoice_reference":"GL-52","payment_amount":"GBP 840.00"},
+    "snh-s-08":{"supplier_name":"High Coast GmbH","invoice_reference":"HC-418","payment_amount":"EUR 39.95"},
+    "snh-p-01":{"supplier_name":"Indigo Parts SL","invoice_reference":"IP-720","payment_amount":"EUR 405.60"},
+    "snh-p-02":{"supplier_name":"Juniper Labs Ltd","invoice_reference":"JL-301","payment_amount":"GBP 92.18"},
+    "snh-p-03":{"supplier_name":"Kestrel Office BV","invoice_reference":"KO-64","payment_amount":"USD 710.05"},
+    "snh-p-04":{"supplier_name":"Luna Paper SA","invoice_reference":"LP-902","payment_amount":"EUR 1880.00"},
+    "snh-p-05":{"supplier_name":"Mosaic Data AB","invoice_reference":"MD-73","payment_amount":"SEK 560.20"},
+    "snh-p-06":{"supplier_name":"North Forge LLC","invoice_reference":"NF-440","payment_amount":"USD 227.15"},
+    "snh-p-07":{"supplier_name":"Olive Print PLC","invoice_reference":"OP-81","payment_amount":"GBP 315.90"},
+    "snh-p-08":{"supplier_name":"Pine Harbor GmbH","invoice_reference":"PH-118","payment_amount":"EUR 602.30"},
+    "snh-n-01":{"supplier_name":"Quartz Tools SL","invoice_reference":"QT-509","payment_amount":"EUR 803.42"},
+    "snh-n-02":{"supplier_name":"River Stone Ltd","invoice_reference":"RS-61","payment_amount":"GBP 74.90"},
+    "snh-n-03":{"supplier_name":"Solar Works BV","invoice_reference":"SW-275","payment_amount":"USD 940.10"},
+    "snh-n-04":{"supplier_name":"Terra Glass SA","invoice_reference":"TG-83","payment_amount":"EUR 511.35"},
+    "snh-n-05":{"supplier_name":"Umber Cloud AB","invoice_reference":"UC-604","payment_amount":"SEK 72.00"},
+    "snh-n-06":{"supplier_name":"Valley Print LLC","invoice_reference":"VP-719","payment_amount":"USD 381.44"},
+    "snh-n-07":{"supplier_name":"White Lake PLC","invoice_reference":"WL-95","payment_amount":"GBP 160.80"},
+    "snh-n-08":{"supplier_name":"Xenon Glass GmbH","invoice_reference":"XG-320","payment_amount":"EUR 125.55"}
+  }
+}

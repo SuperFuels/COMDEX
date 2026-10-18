@@ -1,0 +1,439 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "cross_language_historical_repair": "procedure_cross_language_historical_repair_a6f91cc573b8"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_language_patch_library": {
+    "historical_javascript_closure": {
+      "family": "javascript_closure",
+      "language": "javascript",
+      "source_hash": "34324639286f817e6891b7a1ea18fceb50f1c790028c80839d239780402dbc4e",
+      "strategy": "append_iife_close"
+    },
+    "historical_python_constructor_contract": {
+      "family": "constructor_contract",
+      "language": "python",
+      "source_hash": "a39bb21add731e538861c5c0dfd89c8b6012ef8cc0df249808d05d465b7b2da6",
+      "strategy": "relocate_diagnostics_into_payload"
+    }
+  },
+  "cross_language_repair_sessions": [
+    {
+      "gate": {
+        "accepted": true,
+        "authentic_historical_failures": 2,
+        "dependency_promoted": true,
+        "errors": [],
+        "hidden_verification": 1.0,
+        "human_repair_blind_during_search": true,
+        "languages": 2,
+        "live_repository_unchanged": true,
+        "new_failure_families": 2,
+        "renamed_transfer_success": true,
+        "repair_success": 1.0,
+        "transfer_attempt_reduction": 0.6666666666666667,
+        "unsafe_acceptances": 0,
+        "unsafe_live_writes": 0,
+        "wrong_candidates_rejected": 4
+      },
+      "outcomes": [
+        {
+          "accepted": true,
+          "case_id": "historical_python_constructor_contract",
+          "commit": "5200951213346460b4eecc9a0b6315a1fe536924",
+          "failure_signal": "VoiceWorkerResult construction fails because runtime diagnostic values do not match the frozen result contract. Preserve the public dataclass surface and retain diagnostics in the payload.",
+          "family": "constructor_contract",
+          "faulty_hash": "afdfa8e7a6a20fef40d6c8b8770cc82b56d3bee385d2aa894118dd21e8492cab",
+          "hidden": {
+            "candidate": {
+              "constructor_matches_dataclass": true,
+              "diagnostics_preserved_in_payload": true,
+              "diagnostics_stringify_paths": true,
+              "public_surface_preserved": true,
+              "returncode_remains_integer": true,
+              "source_parses": true
+            },
+            "candidate_passed": true,
+            "human_hash": "a39bb21add731e538861c5c0dfd89c8b6012ef8cc0df249808d05d465b7b2da6",
+            "human_revision": {
+              "constructor_matches_dataclass": true,
+              "diagnostics_preserved_in_payload": true,
+              "diagnostics_stringify_paths": true,
+              "public_surface_preserved": true,
+              "returncode_remains_integer": true,
+              "source_parses": true
+            },
+            "human_revision_passed": true,
+            "opened_after_selection": true
+          },
+          "language": "python",
+          "parent": "dbffbe825f27842bb02cf3fa4dbea70a9c107822",
+          "path": "backend/modules/aion_voice/voice_worker_bridge.py",
+          "selection": {
+            "attempts": [
+              {
+                "checks": {
+                  "constructor_matches_dataclass": true,
+                  "diagnostics_preserved_in_payload": false,
+                  "public_surface_preserved": true,
+                  "source_parses": true
+                },
+                "passed": false,
+                "source_hash": "5b8041a7825406adfabcc5cb3b31c81a5087611e0d679f0b2c3303f245ff4efc",
+                "strategy": "drop_runtime_diagnostics"
+              },
+              {
+                "checks": {
+                  "constructor_matches_dataclass": true,
+                  "diagnostics_preserved_in_payload": false,
+                  "public_surface_preserved": false,
+                  "source_parses": true
+                },
+                "passed": false,
+                "source_hash": "0c776368d2a8f7b6ec75a748ba0a9a4b6b843b782da0df74e0268465b9350d8b",
+                "strategy": "expand_public_result_surface"
+              },
+              {
+                "checks": {
+                  "constructor_matches_dataclass": true,
+                  "diagnostics_preserved_in_payload": true,
+                  "public_surface_preserved": true,
+                  "source_parses": true
+                },
+                "passed": true,
+                "source_hash": "a39bb21add731e538861c5c0dfd89c8b6012ef8cc0df249808d05d465b7b2da6",
+                "strategy": "relocate_diagnostics_into_payload"
+              }
+            ],
+            "selected_hash": "a39bb21add731e538861c5c0dfd89c8b6012ef8cc0df249808d05d465b7b2da6",
+            "selected_strategy": "relocate_diagnostics_into_payload",
+            "wrong_candidates_rejected": 2
+          }
+        },
+        {
+          "accepted": true,
+          "case_id": "historical_javascript_closure",
+          "commit": "fca9a85ebb184a5e5c3d1e1e81958e61ceaeb072",
+          "failure_signal": "The desktop source fails syntax validation with unexpected end of input. Restore the smallest unmatched lexical closure without rewriting existing behavior.",
+          "family": "javascript_closure",
+          "faulty_hash": "c773aa25632afa6aef230c4b20c484be000897d3c6ab9644fe5626aeab627862",
+          "hidden": {
+            "candidate": {
+              "desktop_iife_closed": true,
+              "no_eval_invented": true,
+              "node_syntax_valid": true,
+              "single_minimal_suffix": true
+            },
+            "candidate_passed": true,
+            "human_hash": "34324639286f817e6891b7a1ea18fceb50f1c790028c80839d239780402dbc4e",
+            "human_revision": {
+              "desktop_iife_closed": true,
+              "no_eval_invented": true,
+              "node_syntax_valid": true,
+              "single_minimal_suffix": true
+            },
+            "human_revision_passed": true,
+            "opened_after_selection": true
+          },
+          "language": "javascript",
+          "parent": "1f067a9fc5b205ec852bea598f4cd116bcdb226a",
+          "path": "desktop/mac/src/app.js",
+          "selection": {
+            "attempts": [
+              {
+                "checks": {
+                  "node_syntax_valid": false,
+                  "single_minimal_suffix": true
+                },
+                "passed": false,
+                "source_hash": "f360685c24508a6f6d488bcea583e07da5fae556860f5f74d574c6c9e8b02049",
+                "strategy": "append_block_close"
+              },
+              {
+                "checks": {
+                  "node_syntax_valid": false,
+                  "single_minimal_suffix": true
+                },
+                "passed": false,
+                "source_hash": "7c1d2fb6944f5a5a3166873b4ceaed860d2fb5150002e3c797bcc235946f478f",
+                "strategy": "append_call_close"
+              },
+              {
+                "checks": {
+                  "node_syntax_valid": true,
+                  "single_minimal_suffix": true
+                },
+                "passed": true,
+                "source_hash": "34324639286f817e6891b7a1ea18fceb50f1c790028c80839d239780402dbc4e",
+                "strategy": "append_iife_close"
+              }
+            ],
+            "selected_hash": "34324639286f817e6891b7a1ea18fceb50f1c790028c80839d239780402dbc4e",
+            "selected_strategy": "append_iife_close",
+            "wrong_candidates_rejected": 2
+          }
+        }
+      ],
+      "procedure_id": "procedure_cross_language_historical_repair_a6f91cc573b8",
+      "session_id": "cross_language_236abaab8341be63",
+      "transfer": {
+        "attempt_reduction": 0.6666666666666667,
+        "cold_attempts": 3,
+        "guided_attempts": 1,
+        "guided_hidden_passed": true,
+        "renamed_symbol_family": true
+      }
+    }
+  ],
+  "curriculum_generations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "cross_language_historical_repair_authority"
+    },
+    "reason": "cross_language_historical_repair_promotion",
+    "state_hash": "557409f19c8d0a1ea3f2fcfe7f1189b77c6eae8c83cb6cdfc90d357199bc65ed"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_project_checkpoints": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "dependency": {
+          "passed": true,
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_natural_repair_substrate_comparison.json",
+          "procedure_id": "procedure_verified_repair_substrate_50a3fcd2115b",
+          "result_hash": "71a6aaef8e8fb9d8ce902209c3c6dc2ad1a9978f064b36dbed9833cff09e2bd8"
+        },
+        "gate": {
+          "accepted": true,
+          "authentic_historical_failures": 2,
+          "dependency_promoted": true,
+          "errors": [],
+          "hidden_verification": 1.0,
+          "human_repair_blind_during_search": true,
+          "languages": 2,
+          "live_repository_unchanged": true,
+          "new_failure_families": 2,
+          "renamed_transfer_success": true,
+          "repair_success": 1.0,
+          "transfer_attempt_reduction": 0.6666666666666667,
+          "unsafe_acceptances": 0,
+          "unsafe_live_writes": 0,
+          "wrong_candidates_rejected": 4
+        }
+      },
+      "outcome_id": "outcome_22ea7fc5109040ab",
+      "procedure_id": "procedure_cross_language_historical_repair_a6f91cc573b8",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.666666666666667,
+      "success": true,
+      "timestamp": "2026-07-31T06:18:09.842001+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_cross_language_historical_repair_a6f91cc573b8": {
+      "evidence": {
+        "dependency": {
+          "passed": true,
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_natural_repair_substrate_comparison.json",
+          "procedure_id": "procedure_verified_repair_substrate_50a3fcd2115b",
+          "result_hash": "71a6aaef8e8fb9d8ce902209c3c6dc2ad1a9978f064b36dbed9833cff09e2bd8"
+        },
+        "gate": {
+          "accepted": true,
+          "authentic_historical_failures": 2,
+          "dependency_promoted": true,
+          "errors": [],
+          "hidden_verification": 1.0,
+          "human_repair_blind_during_search": true,
+          "languages": 2,
+          "live_repository_unchanged": true,
+          "new_failure_families": 2,
+          "renamed_transfer_success": true,
+          "repair_success": 1.0,
+          "transfer_attempt_reduction": 0.6666666666666667,
+          "unsafe_acceptances": 0,
+          "unsafe_live_writes": 0,
+          "wrong_candidates_rejected": 4
+        }
+      },
+      "goal": "cross_language_historical_repair",
+      "procedure_id": "procedure_cross_language_historical_repair_a6f91cc573b8",
+      "promoted_at": "2026-07-31T06:18:09.840543+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.666666666666667,
+      "source_rules": [
+        "procedure_verified_repair_substrate_50a3fcd2115b"
+      ],
+      "status": "champion",
+      "steps": [
+        "ingest_unseen_python_and_javascript_failures",
+        "infer_constructor_and_lexical_closure_contracts",
+        "generate_repairs_without_human_patch_access",
+        "falsify_surface_expansion_diagnostic_loss_and_wrong_closures",
+        "verify_once_against_sealed_historical_revisions",
+        "transfer_lexical_repair_across_symbol_renaming"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "90ce0bb04430c61d6a02a1315ff259c51ef1ac6e9c60c1793084cea1c64881aa",
+      "goal": "cross_language_historical_repair",
+      "new_champion_id": "procedure_cross_language_historical_repair_a6f91cc573b8",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 2.666666666666667,
+      "timestamp": "2026-07-31T06:18:09.840705+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "revision": 3,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T06:18:09.842836+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

@@ -1,0 +1,822 @@
+{
+  "claim_boundary": "Governed improvement of a bounded capability-routing policy; not arbitrary self-rewrite or general intelligence.",
+  "development": {
+    "contextual_transfer": {
+      "exact_accuracy": 0.6666666666666666,
+      "irrelevant_routes": 3,
+      "mean_f1": 0.8296296296296296,
+      "rows": [
+        {
+          "actual": [
+            "mathematics"
+          ],
+          "exact": true,
+          "expected": [
+            "mathematics"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Prove a calculus identity involving probability and discrete mathematics"
+        },
+        {
+          "actual": [
+            "english"
+          ],
+          "exact": true,
+          "expected": [
+            "english"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Resolve ambiguity and pragmatics across a long dialogue"
+        },
+        {
+          "actual": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "exact": true,
+          "expected": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Evaluate model monitoring deployment safety and optimisation"
+        },
+        {
+          "actual": [
+            "research_communication"
+          ],
+          "exact": true,
+          "expected": [
+            "research_communication"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Synthesize citations and adapt a technical argument for its audience"
+        },
+        {
+          "actual": [
+            "scientific_method"
+          ],
+          "exact": true,
+          "expected": [
+            "scientific_method"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Design a causal experiment with uncertainty replication and measurement"
+        },
+        {
+          "actual": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "exact": true,
+          "expected": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Diagnose dependency graph algorithm using regression counterexamples"
+        },
+        {
+          "actual": [],
+          "exact": false,
+          "expected": [
+            "mathematics",
+            "data_statistics",
+            "scientific_method"
+          ],
+          "f1": 0.0,
+          "irrelevant_routes": 0,
+          "objective": "Compare statistical inference with mathematical probability"
+        },
+        {
+          "actual": [
+            "scientific_method",
+            "capability_scientific_reasoning",
+            "data_statistics"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method",
+            "data_statistics"
+          ],
+          "f1": 0.8,
+          "irrelevant_routes": 1,
+          "objective": "Combine mathematical probability with scientific uncertainty and causal inference"
+        },
+        {
+          "actual": [
+            "data_science_ml",
+            "machine_learning_ai",
+            "scientific_method",
+            "capability_source_criticism"
+          ],
+          "exact": false,
+          "expected": [
+            "machine_learning_ai",
+            "scientific_method"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 2,
+          "objective": "Use machine learning evaluation and scientific model criticism"
+        }
+      ]
+    },
+    "discriminative_transfer": {
+      "exact_accuracy": 0.5555555555555556,
+      "irrelevant_routes": 4,
+      "mean_f1": 0.7925925925925925,
+      "rows": [
+        {
+          "actual": [
+            "mathematics"
+          ],
+          "exact": true,
+          "expected": [
+            "mathematics"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Prove a calculus identity involving probability and discrete mathematics"
+        },
+        {
+          "actual": [
+            "english"
+          ],
+          "exact": true,
+          "expected": [
+            "english"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Resolve ambiguity and pragmatics across a long dialogue"
+        },
+        {
+          "actual": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "exact": true,
+          "expected": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Evaluate model monitoring deployment safety and optimisation"
+        },
+        {
+          "actual": [
+            "research_communication"
+          ],
+          "exact": true,
+          "expected": [
+            "research_communication"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Synthesize citations and adapt a technical argument for its audience"
+        },
+        {
+          "actual": [
+            "distributed_systems",
+            "scientific_method"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 1,
+          "objective": "Design a causal experiment with uncertainty replication and measurement"
+        },
+        {
+          "actual": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "exact": true,
+          "expected": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Diagnose dependency graph algorithm using regression counterexamples"
+        },
+        {
+          "actual": [],
+          "exact": false,
+          "expected": [
+            "mathematics",
+            "data_statistics",
+            "scientific_method"
+          ],
+          "f1": 0.0,
+          "irrelevant_routes": 0,
+          "objective": "Compare statistical inference with mathematical probability"
+        },
+        {
+          "actual": [
+            "scientific_method",
+            "capability_scientific_reasoning",
+            "data_statistics"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method",
+            "data_statistics"
+          ],
+          "f1": 0.8,
+          "irrelevant_routes": 1,
+          "objective": "Combine mathematical probability with scientific uncertainty and causal inference"
+        },
+        {
+          "actual": [
+            "data_science_ml",
+            "machine_learning_ai",
+            "scientific_method",
+            "capability_source_criticism"
+          ],
+          "exact": false,
+          "expected": [
+            "machine_learning_ai",
+            "scientific_method"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 2,
+          "objective": "Use machine learning evaluation and scientific model criticism"
+        }
+      ]
+    },
+    "permissive": {
+      "exact_accuracy": 0.5555555555555556,
+      "irrelevant_routes": 4,
+      "mean_f1": 0.7925925925925925,
+      "rows": [
+        {
+          "actual": [
+            "mathematics"
+          ],
+          "exact": true,
+          "expected": [
+            "mathematics"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Prove a calculus identity involving probability and discrete mathematics"
+        },
+        {
+          "actual": [
+            "english"
+          ],
+          "exact": true,
+          "expected": [
+            "english"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Resolve ambiguity and pragmatics across a long dialogue"
+        },
+        {
+          "actual": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "exact": true,
+          "expected": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Evaluate model monitoring deployment safety and optimisation"
+        },
+        {
+          "actual": [
+            "research_communication"
+          ],
+          "exact": true,
+          "expected": [
+            "research_communication"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Synthesize citations and adapt a technical argument for its audience"
+        },
+        {
+          "actual": [
+            "distributed_systems",
+            "scientific_method"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 1,
+          "objective": "Design a causal experiment with uncertainty replication and measurement"
+        },
+        {
+          "actual": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "exact": true,
+          "expected": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Diagnose dependency graph algorithm using regression counterexamples"
+        },
+        {
+          "actual": [],
+          "exact": false,
+          "expected": [
+            "mathematics",
+            "data_statistics",
+            "scientific_method"
+          ],
+          "f1": 0.0,
+          "irrelevant_routes": 0,
+          "objective": "Compare statistical inference with mathematical probability"
+        },
+        {
+          "actual": [
+            "scientific_method",
+            "capability_scientific_reasoning",
+            "data_statistics"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method",
+            "data_statistics"
+          ],
+          "f1": 0.8,
+          "irrelevant_routes": 1,
+          "objective": "Combine mathematical probability with scientific uncertainty and causal inference"
+        },
+        {
+          "actual": [
+            "data_science_ml",
+            "machine_learning_ai",
+            "scientific_method",
+            "capability_source_criticism"
+          ],
+          "exact": false,
+          "expected": [
+            "machine_learning_ai",
+            "scientific_method"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 2,
+          "objective": "Use machine learning evaluation and scientific model criticism"
+        }
+      ]
+    },
+    "retained_control": {
+      "exact_accuracy": 0.5555555555555556,
+      "irrelevant_routes": 4,
+      "mean_f1": 0.7925925925925925,
+      "rows": [
+        {
+          "actual": [
+            "mathematics"
+          ],
+          "exact": true,
+          "expected": [
+            "mathematics"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Prove a calculus identity involving probability and discrete mathematics"
+        },
+        {
+          "actual": [
+            "english"
+          ],
+          "exact": true,
+          "expected": [
+            "english"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Resolve ambiguity and pragmatics across a long dialogue"
+        },
+        {
+          "actual": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "exact": true,
+          "expected": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Evaluate model monitoring deployment safety and optimisation"
+        },
+        {
+          "actual": [
+            "research_communication"
+          ],
+          "exact": true,
+          "expected": [
+            "research_communication"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Synthesize citations and adapt a technical argument for its audience"
+        },
+        {
+          "actual": [
+            "distributed_systems",
+            "scientific_method"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 1,
+          "objective": "Design a causal experiment with uncertainty replication and measurement"
+        },
+        {
+          "actual": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "exact": true,
+          "expected": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Diagnose dependency graph algorithm using regression counterexamples"
+        },
+        {
+          "actual": [],
+          "exact": false,
+          "expected": [
+            "mathematics",
+            "data_statistics",
+            "scientific_method"
+          ],
+          "f1": 0.0,
+          "irrelevant_routes": 0,
+          "objective": "Compare statistical inference with mathematical probability"
+        },
+        {
+          "actual": [
+            "scientific_method",
+            "capability_scientific_reasoning",
+            "data_statistics"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method",
+            "data_statistics"
+          ],
+          "f1": 0.8,
+          "irrelevant_routes": 1,
+          "objective": "Combine mathematical probability with scientific uncertainty and causal inference"
+        },
+        {
+          "actual": [
+            "data_science_ml",
+            "machine_learning_ai",
+            "scientific_method",
+            "capability_source_criticism"
+          ],
+          "exact": false,
+          "expected": [
+            "machine_learning_ai",
+            "scientific_method"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 2,
+          "objective": "Use machine learning evaluation and scientific model criticism"
+        }
+      ]
+    },
+    "strict": {
+      "exact_accuracy": 0.5555555555555556,
+      "irrelevant_routes": 2,
+      "mean_f1": 0.7925925925925925,
+      "rows": [
+        {
+          "actual": [
+            "mathematics"
+          ],
+          "exact": true,
+          "expected": [
+            "mathematics"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Prove a calculus identity involving probability and discrete mathematics"
+        },
+        {
+          "actual": [
+            "english"
+          ],
+          "exact": true,
+          "expected": [
+            "english"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Resolve ambiguity and pragmatics across a long dialogue"
+        },
+        {
+          "actual": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "exact": true,
+          "expected": [
+            "cloud_devops_sre",
+            "architecture_operations",
+            "machine_learning_ai"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Evaluate model monitoring deployment safety and optimisation"
+        },
+        {
+          "actual": [
+            "research_communication"
+          ],
+          "exact": true,
+          "expected": [
+            "research_communication"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Synthesize citations and adapt a technical argument for its audience"
+        },
+        {
+          "actual": [
+            "distributed_systems",
+            "scientific_method"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 1,
+          "objective": "Design a causal experiment with uncertainty replication and measurement"
+        },
+        {
+          "actual": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "exact": true,
+          "expected": [
+            "algorithms_data_structures",
+            "testing_debugging"
+          ],
+          "f1": 1.0,
+          "irrelevant_routes": 0,
+          "objective": "Diagnose dependency graph algorithm using regression counterexamples"
+        },
+        {
+          "actual": [],
+          "exact": false,
+          "expected": [
+            "mathematics",
+            "data_statistics",
+            "scientific_method"
+          ],
+          "f1": 0.0,
+          "irrelevant_routes": 0,
+          "objective": "Compare statistical inference with mathematical probability"
+        },
+        {
+          "actual": [
+            "scientific_method"
+          ],
+          "exact": false,
+          "expected": [
+            "scientific_method",
+            "data_statistics"
+          ],
+          "f1": 0.6666666666666666,
+          "irrelevant_routes": 0,
+          "objective": "Combine mathematical probability with scientific uncertainty and causal inference"
+        },
+        {
+          "actual": [
+            "data_science_ml",
+            "machine_learning_ai",
+            "scientific_method"
+          ],
+          "exact": false,
+          "expected": [
+            "machine_learning_ai",
+            "scientific_method"
+          ],
+          "f1": 0.8,
+          "irrelevant_routes": 1,
+          "objective": "Use machine learning evaluation and scientific model criticism"
+        }
+      ]
+    }
+  },
+  "malicious_policies_rejected": 5,
+  "mean_f1_improvement": 0.03703703703703709,
+  "objective_mutations": 0,
+  "passed": false,
+  "policy_sha256": "c4e039822a01608cb7a641ae6451f596900dfb8b69c2d76cfeec1e7667585df9",
+  "procedure_id": "procedure_autonomous_cognitive_self_improvement_lab_v1",
+  "protected": {
+    "exact_accuracy": 1.0,
+    "irrelevant_routes": 0,
+    "mean_f1": 1.0,
+    "rows": [
+      {
+        "actual": [
+          "mathematics"
+        ],
+        "exact": true,
+        "expected": [
+          "mathematics"
+        ],
+        "f1": 1.0,
+        "irrelevant_routes": 0,
+        "objective": "Prove a calculus identity involving probability and discrete mathematics"
+      },
+      {
+        "actual": [
+          "english"
+        ],
+        "exact": true,
+        "expected": [
+          "english"
+        ],
+        "f1": 1.0,
+        "irrelevant_routes": 0,
+        "objective": "Resolve ambiguity and pragmatics across a long dialogue"
+      },
+      {
+        "actual": [
+          "cloud_devops_sre",
+          "architecture_operations",
+          "machine_learning_ai"
+        ],
+        "exact": true,
+        "expected": [
+          "cloud_devops_sre",
+          "architecture_operations",
+          "machine_learning_ai"
+        ],
+        "f1": 1.0,
+        "irrelevant_routes": 0,
+        "objective": "Evaluate model monitoring deployment safety and optimisation"
+      },
+      {
+        "actual": [
+          "research_communication"
+        ],
+        "exact": true,
+        "expected": [
+          "research_communication"
+        ],
+        "f1": 1.0,
+        "irrelevant_routes": 0,
+        "objective": "Synthesize citations and adapt a technical argument for its audience"
+      },
+      {
+        "actual": [
+          "scientific_method"
+        ],
+        "exact": true,
+        "expected": [
+          "scientific_method"
+        ],
+        "f1": 1.0,
+        "irrelevant_routes": 0,
+        "objective": "Design a causal experiment with uncertainty replication and measurement"
+      },
+      {
+        "actual": [
+          "algorithms_data_structures",
+          "testing_debugging"
+        ],
+        "exact": true,
+        "expected": [
+          "algorithms_data_structures",
+          "testing_debugging"
+        ],
+        "f1": 1.0,
+        "irrelevant_routes": 0,
+        "objective": "Diagnose dependency graph algorithm using regression counterexamples"
+      }
+    ]
+  },
+  "restart_policy_retained": false,
+  "sealed": {
+    "exact_accuracy": 0.4,
+    "irrelevant_routes": 3,
+    "mean_f1": 0.8380952380952381,
+    "rows": [
+      {
+        "actual": [
+          "cloud_devops_sre",
+          "architecture_operations",
+          "machine_learning_ai",
+          "data_science_ml"
+        ],
+        "exact": false,
+        "expected": [
+          "cloud_devops_sre",
+          "architecture_operations",
+          "machine_learning_ai"
+        ],
+        "f1": 0.8571428571428571,
+        "irrelevant_routes": 1,
+        "objective": "Plan monitoring and deployment checks for a machine learning model"
+      },
+      {
+        "actual": [
+          "english"
+        ],
+        "exact": true,
+        "expected": [
+          "english"
+        ],
+        "f1": 1.0,
+        "irrelevant_routes": 0,
+        "objective": "Interpret an ambiguous correction in a multi-turn English conversation"
+      },
+      {
+        "actual": [
+          "mathematics",
+          "discrete_optimization"
+        ],
+        "exact": false,
+        "expected": [
+          "mathematics"
+        ],
+        "f1": 0.6666666666666666,
+        "irrelevant_routes": 1,
+        "objective": "Derive and verify a discrete mathematics proof"
+      },
+      {
+        "actual": [
+          "data_statistics",
+          "python",
+          "scientific_method"
+        ],
+        "exact": true,
+        "expected": [
+          "data_statistics",
+          "python",
+          "scientific_method"
+        ],
+        "f1": 1.0,
+        "irrelevant_routes": 0,
+        "objective": "Analyse a time series and quantify uncertainty"
+      },
+      {
+        "actual": [
+          "algorithms_data_structures",
+          "testing_debugging",
+          "capability_debugging_repair"
+        ],
+        "exact": false,
+        "expected": [
+          "algorithms_data_structures",
+          "testing_debugging",
+          "integrated_engineering_capstone"
+        ],
+        "f1": 0.6666666666666666,
+        "irrelevant_routes": 1,
+        "objective": "Find and repair a graph traversal regression with a counterexample"
+      }
+    ]
+  },
+  "selected": "contextual_transfer",
+  "status": "rejected",
+  "unsafe_live_writes": 0
+}

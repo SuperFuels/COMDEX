@@ -1,0 +1,367 @@
+{
+  "schema": "aion.riemann_local_verification.v1",
+  "started_at": "2026-08-15T08:30:55.615814+00:00",
+  "completed_at": "2026-08-15T08:31:12.373520+00:00",
+  "paid_api_calls": 0,
+  "baseline": {
+    "path": "research/riemann_lab/RiemannLab/Tasks/EstablishedZeta.lean",
+    "sha256": "d121313f104e8e9d3a62fd2270e46aa6c4a7c6888ebc7d996f004fae5a25943c",
+    "passed": true,
+    "returncode": 0,
+    "diagnostic": ""
+  },
+  "catalogue": {
+    "path": "research/riemann_lab/CatalogProbe.lean",
+    "sha256": "6691c0dff28a5b761b7c4d1da63f7820cb0b57976b21979594be093e149fd5b5",
+    "passed": true,
+    "returncode": 0,
+    "diagnostic": ""
+  },
+  "critical_strip_foundation": {
+    "path": "research/riemann_lab/RiemannLab/Tasks/CriticalStripFoundation.lean",
+    "sha256": "1d636511f014b58940e3d4c2294225f6cc9336c95e629320f6dd7cae2fa0b3ea",
+    "passed": true,
+    "returncode": 0,
+    "diagnostic": ""
+  },
+  "live_templates": [
+    {
+      "task_id": "zeta_at_zero",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "memory_promotion": {
+        "capsule_id": "rh_lean_213bc1c575945fe9b010",
+        "claim_ids": [
+          "claim_61d8afe0d7656c60"
+        ],
+        "commit": {
+          "reason": "knowledge_ingest:rh_lean_213bc1c575945fe9b010",
+          "authority": {
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "pinned_lean_kernel_and_mathlib"
+          },
+          "state_hash": "6ccda6a390cf1a6a30285fc344bc0a0fa073db927e6227e42eb7a493bbcbf9a9"
+        }
+      },
+      "retrieved_claim_ids": [
+        "claim_61d8afe0d7656c60"
+      ],
+      "proof_body_retained_in_memory": false
+    },
+    {
+      "task_id": "trivial_zero_family",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "memory_promotion": {
+        "capsule_id": "rh_lean_c9f648ab39a4d482b725",
+        "claim_ids": [
+          "claim_2739dc139545a189"
+        ],
+        "commit": {
+          "reason": "knowledge_ingest:rh_lean_c9f648ab39a4d482b725",
+          "authority": {
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "pinned_lean_kernel_and_mathlib"
+          },
+          "state_hash": "d9918bff515e9a27fb71602b37887b30829948bf3357cba12466ac64cec109aa"
+        }
+      },
+      "retrieved_claim_ids": [
+        "claim_2739dc139545a189",
+        "claim_61d8afe0d7656c60"
+      ],
+      "proof_body_retained_in_memory": false
+    },
+    {
+      "task_id": "zero_free_right_half_plane",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "memory_promotion": {
+        "capsule_id": "rh_lean_056b6dc1b8be244e2c35",
+        "claim_ids": [
+          "claim_0c379f2461e378d8"
+        ],
+        "commit": {
+          "reason": "knowledge_ingest:rh_lean_056b6dc1b8be244e2c35",
+          "authority": {
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "pinned_lean_kernel_and_mathlib"
+          },
+          "state_hash": "b33a71831ae31a0f28fd8d869f32668cff1237933936399c24d456a802ddc78c"
+        }
+      },
+      "retrieved_claim_ids": [
+        "claim_0c379f2461e378d8",
+        "claim_61d8afe0d7656c60",
+        "claim_2739dc139545a189"
+      ],
+      "proof_body_retained_in_memory": false
+    },
+    {
+      "task_id": "catalog_differentiable_away_from_one",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "memory_promotion": {
+        "capsule_id": "rh_lean_836c1d3c8a4db2028198",
+        "claim_ids": [
+          "claim_ecc0f098e161d467"
+        ],
+        "commit": {
+          "reason": "knowledge_ingest:rh_lean_836c1d3c8a4db2028198",
+          "authority": {
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "pinned_lean_kernel_and_mathlib"
+          },
+          "state_hash": "d4b05525c0340e2f295a19d6223c12a10f9696a8e6ad4d01540cf21d82c80d9a"
+        }
+      },
+      "retrieved_claim_ids": [
+        "claim_ecc0f098e161d467",
+        "claim_0c379f2461e378d8",
+        "claim_61d8afe0d7656c60"
+      ],
+      "proof_body_retained_in_memory": false
+    },
+    {
+      "task_id": "catalog_real_part_positive",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "memory_promotion": {
+        "capsule_id": "rh_lean_9c703b767dfab116a532",
+        "claim_ids": [
+          "claim_6191a337447ce941"
+        ],
+        "commit": {
+          "reason": "knowledge_ingest:rh_lean_9c703b767dfab116a532",
+          "authority": {
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "pinned_lean_kernel_and_mathlib"
+          },
+          "state_hash": "57be7d3d28dbb99020f08fdf6c7519e62d7a147b53fd11e5dc8d87f6b605014d"
+        }
+      },
+      "retrieved_claim_ids": [
+        "claim_6191a337447ce941",
+        "claim_0c379f2461e378d8",
+        "claim_ecc0f098e161d467"
+      ],
+      "proof_body_retained_in_memory": false
+    },
+    {
+      "task_id": "catalog_compact_zero_set_finite",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "memory_promotion": {
+        "capsule_id": "rh_lean_053ff73c7bdb160c6f5e",
+        "claim_ids": [
+          "claim_08e71b46acfda05d"
+        ],
+        "commit": {
+          "reason": "knowledge_ingest:rh_lean_053ff73c7bdb160c6f5e",
+          "authority": {
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "pinned_lean_kernel_and_mathlib"
+          },
+          "state_hash": "2a7bbb482598ddf9dc990ef41a416e97c8b7c52f844fa4df32da59c243f6b966"
+        }
+      },
+      "retrieved_claim_ids": [
+        "claim_08e71b46acfda05d",
+        "claim_0c379f2461e378d8",
+        "claim_ecc0f098e161d467"
+      ],
+      "proof_body_retained_in_memory": false
+    }
+  ],
+  "v2_held_out_templates": [
+    {
+      "task_id": "scaled_zeta_at_zero",
+      "family": "special_value_transfer",
+      "statement_sha256": "f84686a87dff3c814d79a296232fad81531194b318c4c81fe7d5aab8c9050798",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+    },
+    {
+      "task_id": "trivial_zero_at_neg_six",
+      "family": "trivial_zero_specialization",
+      "statement_sha256": "d1ca22f154945c4c26cf5f5cecfc5bf86d52d1538375d94420ea5abf7fce2760",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+    },
+    {
+      "task_id": "zero_implies_re_le_one",
+      "family": "nonvanishing_contrapositive",
+      "statement_sha256": "3c6a7aa1eede91cbd24530d477c38f750176269d1d8c08773dd2bc510fe77d31",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+    },
+    {
+      "task_id": "zeta_differentiable_away_from_one",
+      "family": "analytic_prerequisite",
+      "statement_sha256": "37c2b2c0f357b924d945d3c815244f0eff7affc33372d60ba839caea750cace5",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+    },
+    {
+      "task_id": "zeta_real_part_positive",
+      "family": "right_half_plane_positivity",
+      "statement_sha256": "fed50dcca60493a2beedc23cb7ea0d485c1659dbe0fabdd0b8d3e698db523d3a",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+    },
+    {
+      "task_id": "compact_has_finitely_many_zeta_zeros",
+      "family": "zero_set_topology",
+      "statement_sha256": "6e920be25538210c2ec4850febc0c8a50e426af5c4ba743253c84b8af3611b4b",
+      "passed": true,
+      "returncode": 0,
+      "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+    }
+  ],
+  "retention_templates": [
+    {
+      "task_id": "retained_shifted_zero_value",
+      "family": "special_value_transfer",
+      "passed": true,
+      "returncode": 0,
+      "statement_sha256": "6b0f2fd6eedb6cc9217078de5ab6f38e28e9fba0beeeeaa4dd414233bf6f48ed",
+      "proof_body_disclosed": false
+    },
+    {
+      "task_id": "retained_trivial_zero_neg_eight",
+      "family": "trivial_zero_specialization",
+      "passed": true,
+      "returncode": 0,
+      "statement_sha256": "6379cde8b3e637c2127a740ac1ccb9aaf15de4e5f5965b86f995fdc5e5153136",
+      "proof_body_disclosed": false
+    },
+    {
+      "task_id": "retained_zero_strict_upper_boundary",
+      "family": "nonvanishing_contrapositive",
+      "passed": true,
+      "returncode": 0,
+      "statement_sha256": "c120c44cb90679ee3f9f4c4fd4d27eb02de879b1548dd56436f253a0224afaec",
+      "proof_body_disclosed": false
+    },
+    {
+      "task_id": "retained_zeta_analytic",
+      "family": "analytic_prerequisite",
+      "passed": true,
+      "returncode": 0,
+      "statement_sha256": "53e5e50fe0109414d0b1bd517e492b7a1ddcabdcf230bece8423921867543f72",
+      "proof_body_disclosed": false
+    },
+    {
+      "task_id": "retained_zeta_real_axis",
+      "family": "right_half_plane_reality",
+      "passed": true,
+      "returncode": 0,
+      "statement_sha256": "243c4cd7c95deac3099c6cace556fb319ec4a79a7acb18419ee1a2d0376335a5",
+      "proof_body_disclosed": false
+    },
+    {
+      "task_id": "retained_zeta_zero_set_closed",
+      "family": "zero_set_topology",
+      "passed": true,
+      "returncode": 0,
+      "statement_sha256": "a41e58fb0a28df5bd0290194598b1c4265cbe44ebd27f9b619feb87303910521",
+      "proof_body_disclosed": false
+    }
+  ],
+  "v2_packet": {
+    "path": "research/riemann_lab/live_task_packet_v2.json",
+    "sha256": "ed3275b00d4c02514c6a88003e7ed27698013a6be47e718f45cb978bf2e62bf9",
+    "execution_status": "ready",
+    "task_families": [
+      "analytic_prerequisite",
+      "nonvanishing_contrapositive",
+      "right_half_plane_positivity",
+      "special_value_transfer",
+      "trivial_zero_specialization",
+      "zero_set_topology"
+    ]
+  },
+  "repair_routing": {
+    "invalid_candidate_rejected": true,
+    "record": {
+      "task_id": "zeta_at_zero",
+      "attempt": 1,
+      "category": "unknown_theorem",
+      "diagnostic_sha256": "7b62149cc37bb48a07fa477362d1a97e606053c04a0695990140c41c31f83e59",
+      "instruction": "Search the installed Mathlib catalogue, inspect the exact signature, and replace invented names.",
+      "max_next_attempts": 1,
+      "repair_record_id": "lean_repair_ea59f364344ff9e1f4da"
+    }
+  },
+  "state_reconciliation": {
+    "packet_execution_status": "completed",
+    "packet_sha256": "0d6c3ee3615976a67218ac8f07a8e14e5f34d3eaac6aae9d8913b5c72c8865e9",
+    "immutable_paid_result_sha256": "5795e3faa55cf2a7466a3537ac41005056d44711eaa826c84935af318437b2e6",
+    "recorded_paid_result_sha256": "5795e3faa55cf2a7466a3537ac41005056d44711eaa826c84935af318437b2e6",
+    "immutable_paid_result_unchanged": true
+  },
+  "aion_memory": {
+    "schema_version": "aion.hexcore.persistent_learning_status.v1",
+    "state_path": "/Users/kevinrobinson/dev/COMDEX/results/riemann_lab/.aion_verified_memory.build.json",
+    "revision": 6,
+    "evidence_capsules": 6,
+    "active_claims": 6,
+    "contradictions": 0,
+    "observations": 0,
+    "active_world_rules": 0,
+    "causal_beliefs": 0,
+    "causal_graphs": 0,
+    "latent_variables": 0,
+    "model_criticisms": 0,
+    "hypothesis_expansions": 0,
+    "discovery_sessions": 0,
+    "change_events": 0,
+    "procedures": 0,
+    "champions": 0,
+    "outcomes": 0,
+    "failure_queues": 0,
+    "procedure_mutation_cycles": 0,
+    "state_hash": "10cc5bf437d7ebf7b64aec35430cf216937dfe2848895b56587fd23492ee7a0e"
+  },
+  "claim_boundary": {
+    "rh_solved": false,
+    "new_mathematics": false,
+    "aion_advantage_established": false
+  },
+  "passed": true
+}

@@ -1,0 +1,345 @@
+% ============================================================================
+% AION Canonical Cognitive Runtime, Open Mission Induction, and Tool Acquisition
+% Compile-ready section. Requires: amsmath, booktabs, array, tabularx.
+% ============================================================================
+
+\section{Canonical Cognitive Runtime and Open Mission Learning}
+\label{sec:aion-canonical-runtime-open-mission}
+
+This development cycle converted AION's previously separate goal, cognition,
+governance, learning, and benchmark entry points into one restart-persistent
+cognitive runtime.  It then extended that runtime in three successive stages:
+(i) mission-bound, weakness-driven curriculum generation; (ii) induction of a
+variable-size capability graph from an unfamiliar objective and raw files; and
+(iii) governed acquisition and repair of missing execution adapters.  The
+resulting operational loop is
+\begin{equation}
+\begin{aligned}
+\text{mission}&\rightarrow \text{capability map}
+\rightarrow \text{subgoal}
+\rightarrow \text{investigate}
+\rightarrow \text{learn}
+\rightarrow \text{plan}\\
+&\rightarrow \text{commit}
+\rightarrow \text{act}
+\rightarrow \text{observe}
+\rightarrow \text{criticise}
+\rightarrow \text{improve}
+\rightarrow \text{retain}.
+\end{aligned}
+\label{eq:canonical-cognitive-loop}
+\end{equation}
+The loop is supervised by the AION heartbeat, while HexCore and the Cognitive
+Authority Unit (CAU) remain the authority for action and promotion.  Tessaris,
+Theta, neural modules, and acquired tools remain replaceable proposal or
+execution components; none can authorize its own output.
+
+\subsection{Runtime Unification}
+
+The canonical runtime is implemented as a durable stage machine.  Its ordered
+stages are
+\begin{equation}
+\mathcal{S}=\{g,i,l,p,c,a,w,o,k,m,r,z\},
+\end{equation}
+where the symbols denote goal opening, investigation, context learning,
+planning, action commitment, action, optional delayed-outcome waiting,
+observation, criticism, improvement, retention, and completion.  Exactly one
+stage transition is committed at a time.  Each transition atomically updates a
+JSON state checkpoint and appends a hash-linked outcome-ledger event.
+
+The runtime connects the following existing AION components:
+\begin{itemize}
+    \item the Goal Engine supplies the highest-priority eligible owner goal;
+    \item Theta and Tessaris propose investigations and bounded plans;
+    \item HexCore evaluates action governance before execution;
+    \item immediate or delayed consequences enter an append-only outcome ledger;
+    \item failure attribution selects the knowledge, world, or skill learner;
+    \item private procedure challengers compete against retained champions;
+    \item CAU promotes, rejects, or rolls back a challenger; and
+    \item the heartbeat resumes unresolved work after interruption.
+\end{itemize}
+
+An action is hash-committed before execution.  The commitment includes an
+idempotency key and an \texttt{execution\_started} marker.  If AION restarts
+after execution begins but before a durable consequence is recorded, the action
+is classified as ambiguous and is not repeated automatically.  This produces a
+fail-closed recovery rule:
+\begin{equation}
+\text{started}(a) \land \neg\text{durableOutcome}(a)
+\Longrightarrow \text{blockReexecution}(a).
+\end{equation}
+Delayed consequences are bound to a cycle by an unguessable outcome token.  A
+token that does not match the active waiting cycle is rejected.
+
+Failure types are routed according to
+\begin{equation}
+L(f)=
+\begin{cases}
+\text{knowledge learner}, & f\in\{\text{perception, knowledge, evidence, verification}\},\\
+\text{world learner}, & f\in\{\text{reasoning, model, world, outcome}\},\\
+\text{skill learner}, & f\in\{\text{planning, tool, execution, interruption, runtime}\},\\
+\emptyset, & \text{otherwise}.
+\end{cases}
+\label{eq:failure-routing}
+\end{equation}
+Routing itself is a governed persistent mutation and therefore cannot bypass
+CAU.
+
+\subsection{Immutable Missions and Self-Generated Learning Goals}
+
+An authorized mission envelope contains the terminal objective, objective hash,
+priority, action budget, allowed outcome authorities, approval policy, and a set
+of capability requirements.  Once authorized, the terminal objective hash is
+immutable.  AION may generate instrumental learning goals, but it cannot use
+this mechanism to create or alter terminal authority.
+
+For mission $M$ and capability $c$, the runtime retains
+\begin{equation}
+R_{M,c}=\left(n,s,t,\bar{x},A,O,\ell\right),
+\end{equation}
+where $n$ is the number of attempts, $s$ the number of verified successes, $t$
+the number of source-disjoint transfer successes, $\bar{x}$ the mean verified
+score, $A$ the set of accepted outcome authorities, $O$ the outcome identifiers,
+and $\ell$ a conservative lower-confidence estimate.  The estimate is the
+Wilson lower bound
+\begin{equation}
+\ell=\frac{
+\hat{p}+\frac{z^2}{2n}
+-z\sqrt{\frac{\hat{p}(1-\hat{p})}{n}+\frac{z^2}{4n^2}}
+}{1+\frac{z^2}{n}},
+\qquad \hat{p}=\frac{s}{n},\quad z=1.96.
+\label{eq:wilson-mastery}
+\end{equation}
+This prevents one lucky success from being interpreted as a stable capability.
+
+At every curriculum refresh, AION considers only dependency-ready, unmet
+requirements.  It selects the requirement with the lowest confidence and
+constructs one subordinate goal:
+\begin{equation}
+c^{\star}=\arg\min_{c\in\mathcal{U}(M)} \ell_{M,c},
+\end{equation}
+where $\mathcal{U}(M)$ is the set of unmet capabilities whose prerequisites are
+satisfied.  The generated goal records its parent mission, parent-objective
+hash, blocking capability, dependency evidence, selected task, and reason for
+selection.  Its priority is bounded by the parent mission and every generated
+action consumes the mission action budget.
+
+An outcome creates positive capability evidence only when
+\begin{equation}
+\text{accepted}(o)=
+\text{verified}(o)
+\land \text{authority}(o)\in A_M.
+\label{eq:outcome-authority}
+\end{equation}
+Self-certified or unapproved outcomes are retained for diagnosis but contribute
+zero mastery score.  Each accepted receipt includes the mission, capability,
+task, cohort, authority, evidence hash, score, and observation time.
+
+\subsection{Runtime-Native Cross-Domain Compounding}
+
+The first mission-bound curriculum campaign tested five unrelated reasoning
+families: algebraic rule induction, unfamiliar grammar induction, causal-
+structure discovery, evidence-strategy selection, and typed-tool selection.
+Each family contained two development tasks and one renamed, source-disjoint
+transfer task.  The evaluator held the correct hypothesis and returned only the
+consequence of a committed proposal.  Answers were never inserted into the
+generated goals.
+
+Verified strategy outcomes changed the order in which later hypotheses were
+tested.  The resulting procedure was promoted as
+\texttt{procedure\_continuous\_cross\_domain\_mastery\_v1}.
+
+\begin{table}[htbp]
+\centering
+\caption{Canonical-runtime cross-domain mastery results.}
+\label{tab:canonical-cross-domain-mastery}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Capability families & 5 \\
+Completed canonical cycles & 15 \\
+Evaluator-separated verified outcomes & 15/15 \\
+Source-disjoint transfer outcomes & 5/5 \\
+Capabilities meeting the declared contract & 5/5 \\
+Cold mean evaluator queries & 3.20 \\
+Accumulated-policy mean queries & 1.73 \\
+Overall query reduction & 45.83\% \\
+Transfer-task mean queries & 1.00 \\
+Transfer query reduction & 68.75\% \\
+Terminal-objective mutations & 0 \\
+Unsafe actions & 0 \\
+Restart relearning & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+After process reconstruction, the mission, capability records, fifteen outcome
+receipts, learned proposal ordering, and promoted champion were restored without
+outcome replay.  Re-running the completed campaign generated zero additional
+cognitive cycles.
+
+\subsection{Open Portfolio-to-Mission Induction}
+
+The next stage removed the finite capability catalogue.  AION received only a
+broad objective and raw files.  It inspected source interfaces, invented a
+variable-size capability directed acyclic graph (DAG), constructed a success
+contract, compiled the graph into an immutable mission envelope, and submitted
+the resulting requirements to the same canonical runtime.
+
+For source set $X$ and objective $q$, mission compilation is
+\begin{equation}
+\mathcal{C}(q,X)
+=\left(V,E,K,B,A\right),
+\end{equation}
+where $V$ is the invented capability set, $E$ the prerequisite edges, $K$ the
+verification contract, $B$ the action budget, and $A$ the allowed outcome
+authorities.  The graph is rejected before authorization unless a topological
+ordering exists.
+
+Four real-file portfolios were evaluated:
+\begin{itemize}
+    \item software governance across Markdown, YAML, and executable Python;
+    \item financial change analysis from a board-report PDF;
+    \item Fourier consistency across a numerical CSV and an image; and
+    \item climate explanation from unfamiliar HTML evidence.
+\end{itemize}
+The invented nodes included document comprehension, configuration reasoning,
+code inspection, table analysis, visual grounding, layout-aware PDF reasoning,
+cross-modal synthesis, quantitative verification, provenance binding,
+epistemic conflict resolution, and independent verification.
+
+\begin{table}[htbp]
+\centering
+\caption{Open portfolio-to-mission induction results.}
+\label{tab:open-mission-induction}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Raw portfolios & 4 \\
+Real source files & 7 \\
+Invented capability nodes & 24 \\
+Distinct capability-graph sizes & 4, 5, 7, 8 \\
+Completed canonical missions & 4/4 \\
+Verified canonical cycles & 24/24 \\
+Weakest-portfolio success & 100\% \\
+Open induced requirement coverage & 100\% \\
+Fixed generic curriculum coverage & 63.21\% \\
+Transfer information-action reduction & 41.67\% \\
+Terminal-objective mutations & 0 \\
+Unsafe actions & 0 \\
+Restart relearning & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This stage was promoted as
+\texttt{procedure\_open\_mission\_portfolio\_induction\_v1}.  The four mission
+envelopes, 24 capability records, acquired format contracts, outcome receipts,
+and champion survived reconstruction without source or outcome replay.
+
+\subsection{Open Execution-Adapter Acquisition}
+
+The final stage addressed the remaining execution scaffold.  When an unfamiliar
+interface appeared, AION constructed private parser-adapter candidates from the
+content signature rather than trusting a filename extension.  Each candidate
+was subjected to three semantic properties, counterexample generation, a
+privileged-operation scan, private execution, and evaluator-owned semantic
+verification.
+
+The adapter-selection policy is
+\begin{equation}
+a^{\star}=\arg\min_{a\in\mathcal{A}_{\mathrm{safe}}}
+\left\{j(a):\ K(a,x)=1\right\},
+\end{equation}
+where $j(a)$ is the ordered trial cost and $K(a,x)$ is the independent semantic
+property contract for interface $x$.  The safe candidate set excludes dynamic
+evaluation, arbitrary execution, subprocesses, shell access, network access,
+writes, and dynamic imports:
+\begin{equation}
+\mathcal{A}_{\mathrm{safe}}
+=\{a\in\mathcal{A}:\operatorname{ops}(a)\cap\mathcal{F}=\emptyset\}.
+\end{equation}
+Security failure is absolute and cannot be overridden by functional success.
+
+AION acquired newline-delimited JSON, TOML, iCalendar, and SVG adapters from
+opaque development interfaces.  It transferred them to sources with unrelated
+extensions.  A later JSON-array interface invalidated the retained JSON-lines
+contract; AION detected the change, selected a new JSON-document adapter, and
+preserved the obsolete contract in retirement history.
+
+\begin{table}[htbp]
+\centering
+\caption{Open tool and environment acquisition results.}
+\label{tab:open-tool-acquisition}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Unfamiliar interfaces & 9 \\
+Development adapter acquisitions & 4 \\
+Source-disjoint renamed transfers & 4 \\
+Retained adapter types & 5 \\
+Verified semantic outcomes & 9/9 \\
+Transfer trial reduction & 75\% \\
+Semantic properties per candidate & 3 \\
+Interface drift detection and repair & Passed \\
+Malicious/privileged classes rejected & 7/7 \\
+Unsafe executions & 0 \\
+Mission-objective mutations & 0 \\
+Restart relearning & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The promoted procedure is
+\texttt{procedure\_open\_tool\_environment\_acquisition\_v1}.  Its mission,
+capability record, adapter registry, retirement lineage, and champion remained
+intact after component reconstruction.
+
+\subsection{Integrated Verification and Operational Status}
+
+The focused runtime and control-plane stack passes 25/25 tests.  Coverage
+includes stage progression, pre-action commitment, interrupted-action blocking,
+delayed outcomes, outcome-authority rejection, immutable mission objectives,
+dependency-aware curriculum generation, restart idempotency, variable graph
+induction, empty-portfolio rejection, suffix-independent adapter selection,
+privileged-operation rejection, semantic transfer, interface-drift repair, and
+the existing HexCore conversational governance boundary.
+
+The continuously supervised canonical cognitive service remains active and
+restart-persistent.  The separate long-duration Arena-v15 campaign also remains
+active while enforcing its wall-clock gate; its evidence is not promoted until
+both the minimum duration and outcome-cycle requirements pass.
+
+\subsection{Capability Boundary and Revised Critical Path}
+
+These results establish a coherent internal control plane:
+\begin{equation}
+\begin{split}
+&\text{raw objective and evidence}
+\rightarrow \text{capability-graph invention}
+\rightarrow \text{mission compilation}\\
+&\rightarrow \text{weakness-driven goals}
+\rightarrow \text{missing-tool acquisition}
+\rightarrow \text{verified consequences}\\
+&\rightarrow \text{transfer, repair, and persistent capability update}.
+\end{split}
+\end{equation}
+The result does not establish unrestricted self-education or AGI.  File-type
+priors, safe adapter operations, semantic authorities, and the evaluated source
+families remain engineered.  Arbitrary package installation, credentials,
+purchasing, deployment, and unrestricted generated-code execution remain
+separate authority classes and were not enabled.
+
+The mission, curriculum, and bounded execution-acquisition track is therefore no
+longer the principal architectural blocker.  The resumed critical path is:
+\begin{enumerate}
+    \item full-stack failure localization and private self-repair;
+    \item multi-day heterogeneous continual learning over changing missions;
+    \item stronger open natural-language comprehension and dialogue;
+    \item broader delayed software, public-data, and physical consequences; and
+    \item native consolidation of verified cross-domain trajectories while
+    preserving HexCore as the final authority.
+\end{enumerate}

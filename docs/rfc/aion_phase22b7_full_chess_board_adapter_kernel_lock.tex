@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.7: Full Chess Board Adapter Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.7 defines the AION Full Chess Board Adapter Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can represent an 8x8 chess board, standard starting position, legal opening moves, and blocked opening rejections.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.7 moves from mini-chess to full-board chess grounding.
+
+\section{Adapter Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{board\_size = 8};
+  \item \texttt{initial\_piece\_count = 32};
+  \item \texttt{white\_piece\_count = 16};
+  \item \texttt{black\_piece\_count = 16};
+  \item \texttt{standard\_start\_position};
+  \item \texttt{legal\_opening\_move\_count};
+  \item \texttt{pawn\_opening\_move\_count};
+  \item \texttt{knight\_opening\_move\_count};
+  \item \texttt{blocked\_piece\_rejection\_count};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates full 8x8 chess board grounding and opening move legality. It does not yet implement full chess mastery, castling, en passant, promotion, full checkmate search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B7-FULL-CHESS-BOARD-ADAPTER-KERNEL-LOCK\\
+Status: LOCKED --- full chess board adapter implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

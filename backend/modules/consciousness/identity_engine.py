@@ -25,10 +25,16 @@ class IdentityEngine:
         }
         self.load_identity()
 
+    IMMUTABLE_FIELDS = {"name", "type", "creator", "origin_story"}
+    PHASES = ("child", "learner", "apprentice", "general_apprentice", "capable_assistant")
+
     def load_identity(self):
         if os.path.exists(self.file_path):
             with open(self.file_path, "r") as f:
-                self.identity.update(json.load(f))
+                persisted = json.load(f)
+                for key, value in persisted.items():
+                    if key not in self.IMMUTABLE_FIELDS:
+                        self.identity[key] = value
 
     def save_identity(self):
         with open(self.file_path, "w") as f:
@@ -45,6 +51,11 @@ class IdentityEngine:
         """
         Change AION's development phase (e.g., child -> learner -> explorer).
         """
+        if new_phase not in self.PHASES:
+            raise ValueError(f"Unsupported governed identity phase: {new_phase}")
+        current = self.identity.get("phase", "child")
+        if self.PHASES.index(new_phase) > self.PHASES.index(current) + 1:
+            raise ValueError("Identity phases must advance through verified intermediate stages")
         self.identity["phase"] = new_phase
         self.identity["last_updated"] = datetime.utcnow().isoformat()
         self.save_identity()
@@ -64,16 +75,20 @@ class IdentityEngine:
         )
         return description
 
-    def update_self_model(self, description: str = None, traits: dict = None):
+    def update_self_model(self, description: str = None, traits: dict = None,
+                          *, evidence_ref: str | None = None):
         """
         Update identity description and traits dynamically (via reflection, goals, etc.).
         """
+        if (description or traits) and not evidence_ref:
+            raise ValueError("Self-model changes require a provenance-bearing evidence reference")
         if description:
             self.identity["self_description"] = description
         if traits:
             for k, v in traits.items():
                 self.identity["core_traits"][k] = v
         self.identity["last_updated"] = datetime.utcnow().isoformat()
+        self.identity["last_update_evidence_ref"] = evidence_ref
         self.save_identity()
 
     def bump_trait(self, trait: str, delta: float):

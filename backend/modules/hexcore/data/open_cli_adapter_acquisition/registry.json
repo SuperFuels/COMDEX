@@ -1,0 +1,66 @@
+{
+  "contracts": {
+    "mime_type": {
+      "arguments": [
+        "--brief",
+        "--mime-type",
+        "{input}"
+      ],
+      "contract_sha256": "c65b62ea3efac97f14f52f9e23b9a8300f017d108bd502a64a334324750f8d32",
+      "credentials": false,
+      "executable": "/usr/bin/file",
+      "interface_evidence_sha256": "9974d9ec0b60e49985c392e8b75671729a275701cf850e3c25c480b4eaca4c08",
+      "mode": "read_only_subprocess",
+      "network": false,
+      "requirement": "mime_type",
+      "status": "PRECOMMITTED",
+      "tool": "file",
+      "writes": false
+    },
+    "sha256": {
+      "arguments": [
+        "dgst",
+        "-sha256",
+        "{input}"
+      ],
+      "contract_sha256": "f25ff53836e95144f8104462d6bee4f27adb4f788de31f98f6352628a63d32e5",
+      "credentials": false,
+      "executable": "/opt/homebrew/bin/openssl",
+      "interface_evidence_sha256": "f9e54a60479b2a0e8498a6b89c624601e0e73fe45730cc9beb04a8a8049239d1",
+      "mode": "read_only_subprocess",
+      "network": false,
+      "requirement": "sha256",
+      "status": "PRECOMMITTED",
+      "tool": "openssl",
+      "writes": false
+    },
+    "xml_root": {
+      "arguments": [
+        "--nonet",
+        "--xpath",
+        "local-name(/*)",
+        "{input}"
+      ],
+      "contract_sha256": "c0c595615ebc8713a56e8c997f0ebfd39ff00b079d3451a8d00f76bcab08126a",
+      "credentials": false,
+      "executable": "/usr/bin/xmllint",
+      "interface_evidence_sha256": "fa8e20a3912485094abdcd9d90263f1803f3d213e0c4d41c763977367d4b1962",
+      "mode": "read_only_subprocess",
+      "network": false,
+      "requirement": "xml_root",
+      "status": "PRECOMMITTED",
+      "tool": "xmllint",
+      "writes": false
+    }
+  },
+  "history": [
+    {
+      "contract_hashes": [
+        "c0c595615ebc8713a56e8c997f0ebfd39ff00b079d3451a8d00f76bcab08126a",
+        "c65b62ea3efac97f14f52f9e23b9a8300f017d108bd502a64a334324750f8d32",
+        "f25ff53836e95144f8104462d6bee4f27adb4f788de31f98f6352628a63d32e5"
+      ],
+      "created_at": "2026-08-01T22:02:44.722580+00:00"
+    }
+  ]
+}

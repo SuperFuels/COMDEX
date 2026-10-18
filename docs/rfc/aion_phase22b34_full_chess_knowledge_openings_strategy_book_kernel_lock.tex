@@ -1,0 +1,90 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.34: Full Chess Knowledge / Openings / Strategy Book Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.34 defines the AION Full Chess Knowledge / Openings / Strategy Book Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can preload structured chess knowledge as deterministic strategy priors.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.34 gives AION structured chess knowledge before live autonomous play.
+
+This knowledge is a prior.
+
+It is not a claim of chess mastery.
+
+The knowledge book MUST remain testable and updateable through game outcomes.
+
+\section{Knowledge Book Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{knowledge\_book\_loaded};
+  \item \texttt{opening\_principle\_count};
+  \item \texttt{named\_opening\_count};
+  \item \texttt{tactical\_motif\_count};
+  \item \texttt{strategic\_pattern\_count};
+  \item \texttt{endgame\_principle\_count};
+  \item \texttt{avoidance\_rule\_count};
+  \item \texttt{total\_knowledge\_entry\_count};
+  \item \texttt{knowledge\_source\_type};
+  \item \texttt{policy\_prior\_weight};
+  \item \texttt{selected\_query};
+  \item \texttt{recommended\_move};
+  \item \texttt{selected\_policy\_prior};
+  \item \texttt{opening\_book};
+  \item \texttt{opening\_principles};
+  \item \texttt{tactical\_motifs};
+  \item \texttt{strategic\_patterns};
+  \item \texttt{endgame\_principles};
+  \item \texttt{avoidance\_rules};
+  \item \texttt{chess\_knowledge\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Knowledge Categories}
+
+The locked book includes:
+
+\begin{itemize}
+  \item opening principles;
+  \item named openings;
+  \item tactical motifs;
+  \item strategic patterns;
+  \item endgame principles;
+  \item avoidance rules.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic chess knowledge priors for AION.
+
+It does not prove grandmaster-strength play, Stockfish-level calculation, official rating, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B34-FULL-CHESS-KNOWLEDGE-OPENINGS-STRATEGY-BOOK-KERNEL-LOCK\\
+Status: LOCKED --- full chess knowledge openings strategy book kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "aion.public_domain_books.v1",
+  "source": "Project Gutenberg",
+  "retrieved_at": "2026-07-31",
+  "books": [
+    {
+      "book_id": "alice",
+      "title": "Alice's Adventures in Wonderland",
+      "url": "https://www.gutenberg.org/cache/epub/11/pg11.txt",
+      "file": "alice_in_wonderland.txt",
+      "sha256": "01b38ea4c710a84bc18d0bd41271a5a1a92b94e97b2812f4dece97d4a694725e"
+    },
+    {
+      "book_id": "time_machine",
+      "title": "The Time Machine",
+      "url": "https://www.gutenberg.org/cache/epub/35/pg35.txt",
+      "file": "the_time_machine.txt",
+      "sha256": "2892e919000e17c83e1dac51b30f4675db50536b644d7579fe8a89bb399a9bdc"
+    },
+    {
+      "book_id": "frankenstein",
+      "title": "Frankenstein",
+      "url": "https://www.gutenberg.org/cache/epub/84/pg84.txt",
+      "file": "frankenstein.txt",
+      "sha256": "7810cd483cffcf2cc8a1d8f0d5807931e69d4f48cd14149b8c76f88af82fead3"
+    }
+  ],
+  "usage_boundary": "Public-domain development sources; not independent evaluation."
+}

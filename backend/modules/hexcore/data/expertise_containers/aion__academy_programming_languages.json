@@ -1,0 +1,218 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_computer_science",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:computer_science",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:programming_languages:python",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:programming_languages",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:programming_languages:javascript_typescript",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:programming_languages",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:programming_languages:rust",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:programming_languages",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:programming_languages:c_cpp",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:programming_languages",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:programming_languages:functional_programming",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:programming_languages",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:programming_languages:language_interoperation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:programming_languages",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:programming_languages",
+      "label": "Programming languages",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:programming_languages:python",
+      "label": "python",
+      "subject_id": "programming_languages",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:programming_languages:javascript_typescript",
+      "label": "javascript typescript",
+      "subject_id": "programming_languages",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:programming_languages:rust",
+      "label": "rust",
+      "subject_id": "programming_languages",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:programming_languages:c_cpp",
+      "label": "c cpp",
+      "subject_id": "programming_languages",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:programming_languages:functional_programming",
+      "label": "functional programming",
+      "subject_id": "programming_languages",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:programming_languages:language_interoperation",
+      "label": "language interoperation",
+      "subject_id": "programming_languages",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_programming_languages",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:programming_languages:python",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:programming_languages",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:programming_languages:javascript_typescript",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:programming_languages",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:programming_languages:rust",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:programming_languages",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:programming_languages:c_cpp",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:programming_languages",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:programming_languages:functional_programming",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:programming_languages",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:programming_languages:language_interoperation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:programming_languages",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:programming_languages",
+        "label": "Programming languages",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:programming_languages:python",
+        "label": "python",
+        "subject_id": "programming_languages",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:programming_languages:javascript_typescript",
+        "label": "javascript typescript",
+        "subject_id": "programming_languages",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:programming_languages:rust",
+        "label": "rust",
+        "subject_id": "programming_languages",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:programming_languages:c_cpp",
+        "label": "c cpp",
+        "subject_id": "programming_languages",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:programming_languages:functional_programming",
+        "label": "functional programming",
+        "subject_id": "programming_languages",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:programming_languages:language_interoperation",
+        "label": "language interoperation",
+        "subject_id": "programming_languages",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "programming_languages",
+    "title": "AION Academy \u00b7 Programming languages"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -1,0 +1,1889 @@
+{
+  "created_at": "2026-08-01T23:18:10.934211+00:00",
+  "episodes": [
+    {
+      "authority": "Federal Register",
+      "family": "pagination",
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:23:34.742632+00:00",
+        "not_before_epoch": 1785626590.933998,
+        "outcome_sha256": "221ac7f73659b112dd43a5ca50077945d02b9024a7d9fd8d4f22573b55d9f698",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "result": {
+        "pages": 3,
+        "passed": true,
+        "records": [
+          {
+            "abstract": "All 10 Environmental Protection Agency (EPA) Regions are proposing for public comment the draft 2027 National Pollutant Discharge Elimination System (NPDES) general permit for stormwater discharges from construction activities, also referred to as the \"proposed 2027 Construction General Permit (CGP)\" or the \"proposed permit.\" The proposed permit, if finalized, will replace the existing 2022 CGP that will expire on February 17, 2027. The EPA proposes to issue this permit for five (5) years, and to provide permit coverage to eligible operators in all areas of the country where the EPA is the NPDES permitting authority, including Massachusetts, New Hampshire, New Mexico, most Indian country lands, the District of Columbia, U.S. territories and protectorates except for the U.S. Virgin Islands, Lands of Exclusive Federal Jurisdiction, and certain other Federal areas. The EPA seeks comment on the proposed permit and on the accompanying fact sheet, which contains supporting documentation. The fact sheet and proposed permit can be found at https://www.epa.gov/npdes/proposed- 2027-construction-general-permit-cgp-and-related-documents.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15656",
+            "excerpts": "All 10 Environmental Protection Agency (EPA) Regions are proposing for public comment the draft 2027 National Pollutant Discharge Elimination System (NPDES) general permit for stormwater discharges from construction activities, also referred to as the...",
+            "html_url": "https://www.federalregister.gov/documents/2026/08/03/2026-15656/national-pollutant-discharge-elimination-system-npdes-2027-issuance-of-general-permit-for-stormwater",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-08-03/pdf/2026-15656.pdf",
+            "public_inspection_pdf_url": null,
+            "publication_date": "2026-08-03",
+            "title": "National Pollutant Discharge Elimination System (NPDES) 2027 Issuance of General Permit for Stormwater Discharges From Construction Activities",
+            "type": "Notice"
+          },
+          {
+            "abstract": "This regulation establishes a tolerance for residues of permethrin (CASRN 52645-53-1) in or on the food and feed commodity of black pepper at 0.1 parts per million (ppm). Under the Federal Food, Drug, and Cosmetic Act (FFDCA), the American Spice Trade Association, Inc., submitted a petition to EPA requesting that EPA establish a maximum permissible level for residues of this pesticide in or on the identified commodity.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15634",
+            "excerpts": "This regulation establishes a tolerance for residues of permethrin (CASRN 52645-53-1) in or on the food and feed commodity of black pepper at 0.1 parts per million (ppm). Under the Federal Food, Drug, and Cosmetic Act (FFDCA), the American Spice Trade...",
+            "html_url": "https://www.federalregister.gov/documents/2026/08/03/2026-15634/permethrin-pesticide-tolerances",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-08-03/pdf/2026-15634.pdf",
+            "public_inspection_pdf_url": null,
+            "publication_date": "2026-08-03",
+            "title": "Permethrin; Pesticide Tolerances",
+            "type": "Rule"
+          },
+          {
+            "abstract": null,
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15536",
+            "excerpts": null,
+            "html_url": "https://www.federalregister.gov/documents/2026/07/31/2026-15536/environmental-impact-statements-notice-of-availability",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-31/pdf/2026-15536.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15536.pdf?1785415519",
+            "publication_date": "2026-07-31",
+            "title": "Environmental Impact Statements; Notice of Availability",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is updating the materials that are incorporated by reference (IBR) into the Rhode Island State Implementation Plan (SIP). The regulations affected by this update have been previously submitted by the State of Rhode Island and approved by the EPA. In this final rule, the EPA is also notifying the public of corrections and clarifying changes in the Code of Federal Regulations tables that identify the materials incorporated by reference into the Rhode Island SIP. This update affects the materials that are available for public inspection at the National Archives and Records Administration and the EPA Regional Office.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15493",
+            "excerpts": "The Environmental Protection Agency (EPA) is updating the materials that are incorporated by reference (IBR) into the Rhode Island State Implementation Plan (SIP). The regulations affected by this update have been previously submitted by the State of...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/31/2026-15493/air-plan-approval-rhode-island-update-to-materials-incorporated-by-reference",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-31/pdf/2026-15493.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15493.pdf?1785415514",
+            "publication_date": "2026-07-31",
+            "title": "Air Plan Approval; Rhode Island; Update to Materials Incorporated by Reference",
+            "type": "Rule"
+          },
+          {
+            "abstract": "Notice is hereby given by the U.S. Environmental Protection Agency (EPA), Region 10, of a prospective purchaser settlement agreement embodied in an \"Administrative Settlement Agreement with Prospective Purchaser and Covenants Not to Sue,\" with EPA, and the prospective purchaser, Portland Botanical Gardens (\"Purchaser\"). This agreement provides for the payment of certain response costs incurred by the United States at or in connection with the property located at 6900 N. Edgewater Street in Portland, Oregon, which is part of the McCormick & Baxter Creosoting Company Superfund Site.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15395",
+            "excerpts": "Notice is hereby given by the U.S. Environmental Protection Agency (EPA), Region 10, of a prospective purchaser settlement agreement embodied in an \"Administrative Settlement Agreement with Prospective Purchaser and Covenants Not to Sue,\" with EPA, and...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15395/cercla-administrative-settlement-agreement-with-prospective-purchaser-and-covenants-not-to-sue",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15395.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15395.pdf?1785329119",
+            "publication_date": "2026-07-30",
+            "title": "CERCLA Administrative Settlement Agreement With Prospective Purchaser and Covenants Not To Sue, McCormick & Baxter Creosoting Company Superfund Site, Portland, Oregon",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) has submitted an information collection request (ICR), National Pollutant Discharge Elimination System Program (Renewal) (EPA ICR No. 0229.27, OMB Control No. 2040-0004) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. This is a proposed renewal of the ICR, which is currently approved through July 31, 2026. Public comments were previously requested via the Federal Register on April 21, 2026 during a 60-day comment period. This notice allows for an additional 30 days for public comments.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15394",
+            "excerpts": "The Environmental Protection Agency (EPA) has submitted an information collection request (ICR), National Pollutant Discharge Elimination System Program (Renewal) (EPA ICR No. 0229.27, OMB Control No. 2040-0004) to the Office of Management and Budget...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15394/agency-information-collection-activities-submission-to-the-office-of-management-and-budget-for",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15394.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15394.pdf?1785329119",
+            "publication_date": "2026-07-30",
+            "title": "Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Comment Request; National Pollutant Discharge Elimination System Program (Renewal)",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Generator Standards Applicable to Laboratories Owned by Eligible Academic Entities\" (EPA ICR No. 2317.05, OMB Control No. 2050-0204) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act (PRA). Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described in the SUPPLEMENTARY INFORMATION section. This is a proposed extension of the ICR, which is currently approved through March 31, 2027. This document allows for 60 days for public comments.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15393",
+            "excerpts": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Generator Standards Applicable to Laboratories Owned by Eligible Academic Entities\" (EPA ICR No. 2317.05, OMB Control No. 2050-0204) to the Office...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15393/agency-information-collection-activities-proposed-information-collection-request-comment-request",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15393.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15393.pdf?1785329119",
+            "publication_date": "2026-07-30",
+            "title": "Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; Generator Standards Applicable to Laboratories Owned by Eligible Academic Entities, EPA ICR No. 2317.05, OMB Control No. 2050-0204",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Facility Ground-Water Monitoring Requirements (Renewal)\" (EPA ICR No. 0959.18, OMB Control No. 2050-0033) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act (PRA). Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described in the SUPPLEMENTARY INFORMATION section. This is a proposed extension of the ICR, which is currently approved through March 31, 2027. This document allows for 60 days for public comments.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15392",
+            "excerpts": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Facility Ground-Water Monitoring Requirements (Renewal)\" (EPA ICR No. 0959.18, OMB Control No. 2050-0033) to the Office of Management and Budget...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15392/agency-information-collection-activities-proposed-information-collection-request-comment-request",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15392.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15392.pdf?1785329119",
+            "publication_date": "2026-07-30",
+            "title": "Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; Facility Ground-Water Monitoring Requirements, EPA ICR No. 0959.18, OMB Control No. 2050-0033",
+            "type": "Notice"
+          },
+          {
+            "abstract": "Notice is hereby given of a proposed settlement regarding the Bliss Corner Neighborhood Site, located in Dartmouth, Bristol County, Massachusetts, with the Settling Parties: the City of New Bedford, Massachusetts, and the Town of Dartmouth, Massachusetts. The proposed settlement requires the Town to pay EPA $50,000 and provide in-kind services with an estimated value of $2.75 million and the City to pay EPA $1,000.00 to resolve the matter at the Bliss Corner Neighborhood Site, where EPA has incurred past response costs of $21,329,439.21 as of April 30, 2026. In exchange, EPA will provide the Settling Parties with a covenant not to sue or take administrative action relating to the site. The settlement has been approved by the Environmental and Natural Resources Division of the United States Department of Justice. For 30 days following the date of publication of this notice, the Agency will receive written comments relating to the settlement. The Agency will consider all comments received and may modify or withdraw its consent to this settlement if comments received disclose facts or considerations which indicate that the settlement is inappropriate, improper, or inadequate. The EPA's response to any comments received will be available for public inspection at the Environmental Protection Agency--Region 1, 5 Post Office Square, Suite 100, Boston, MA 02109- 3912.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15391",
+            "excerpts": "Notice is hereby given of a proposed settlement regarding the Bliss Corner Neighborhood Site, located in Dartmouth, Bristol County, Massachusetts, with the Settling Parties: the City of New Bedford, Massachusetts, and the Town of Dartmouth,...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15391/proposed-cercla-administrative-cost-recovery-settlement-bliss-corner-neighborhood-site-dartmouth",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15391.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15391.pdf?1785329119",
+            "publication_date": "2026-07-30",
+            "title": "Proposed CERCLA Administrative Cost Recovery Settlement: Bliss Corner Neighborhood Site, Dartmouth, Massachusetts",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The U.S. Department of Energy (DOE), U.S. Department of War (DOW), U.S. Environmental Protection Agency (EPA), and the U.S. Nuclear Regulatory Commission (NRC) are announcing the availability for use of Revision 2 of the Multi-Agency Radiation Survey and Site Investigation Manual (MARSSIM). MARSSIM provides information on planning, conducting, evaluating, and documenting environmental radiological surveys of surface soils and building surfaces for demonstrating compliance with regulations. The manual has not been updated since 2001; updates prior to 2001 primarily consisted of minor non-technical edits. Revision 2 updates the science, clarifies methods, and implements lessons learned from over 25 years of use. MARSSIM Revision 2 is available from https:/ /www.epa.gov/radiation/multi-agency-radiation-survey-and-site- investigation-manual-marssim.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15390",
+            "excerpts": "The U.S. Department of Energy (DOE), U.S. Department of War (DOW), U.S. Environmental Protection Agency (EPA), and the U.S. Nuclear Regulatory Commission (NRC) are announcing the availability for use of Revision 2 of the Multi-Agency Radiation Survey...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15390/multi-agency-radiation-survey-and-site-investigation-manual-revision-2",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15390.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15390.pdf?1785329119",
+            "publication_date": "2026-07-30",
+            "title": "Multi-Agency Radiation Survey and Site Investigation Manual, Revision 2",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Recordkeeping and Reporting-Solid Waste Disposal Facilities and Practices\" (EPA ICR No. 1381.14, OMB Control No. 2050-0122) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act (PRA). Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described in the SUPPLEMENTARY INFORMATION section. This is a proposed extension of the ICR, which is currently approved through March 31, 2027. This document allows for 60 days for public comments.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15388",
+            "excerpts": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Recordkeeping and Reporting-Solid Waste Disposal Facilities and Practices\" (EPA ICR No. 1381.14, OMB Control No. 2050-0122) to the Office of...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15388/agency-information-collection-activities-proposed-information-collection-request-comment-request",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15388.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15388.pdf?1785329119",
+            "publication_date": "2026-07-30",
+            "title": "Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; Recordkeeping and Reporting-Solid Waste Disposal Facilities and Practices; EPA ICR No. 1381.14, OMB Control No. 2050-0122",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Management Standards for Hazardous Waste Pharmaceuticals (Renewal)\" (EPA ICR No. 2486.04, OMB Control No. 2050-0212) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act (PRA). Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described in the SUPPLEMENTARY INFORMATION section. This is a proposed extension of the ICR, which is currently approved through March 31, 2027. This document allows for 60 days for public comments.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15387",
+            "excerpts": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Management Standards for Hazardous Waste Pharmaceuticals (Renewal)\" (EPA ICR No. 2486.04, OMB Control No. 2050-0212) to the Office of Management...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15387/agency-information-collection-activities-proposed-information-collection-request-comment-request",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15387.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15387.pdf?1785329119",
+            "publication_date": "2026-07-30",
+            "title": "Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; Management Standards for Hazardous Waste Pharmaceuticals ICR (Renewal), EPA ICR No. 2486.04, OMB Control No. 2050-0212",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Land Disposal Restrictions (Renewal)\" (EPA ICR No. 1442.25, OMB Control No. 2050- 0085) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act (PRA). Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described in the SUPPLEMENTARY INFORMATION section. This is a proposed extension of the ICR, which is currently approved through March 31, 2027. This document allows for 60 days for public comments.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15379",
+            "excerpts": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Land Disposal Restrictions (Renewal)\" (EPA ICR No. 1442.25, OMB Control No. 2050- 0085) to the Office of Management and Budget (OMB) for review...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15379/agency-information-collection-activities-proposed-information-collection-request-comment-request",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15379.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15379.pdf?1785329118",
+            "publication_date": "2026-07-30",
+            "title": "Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; Land Disposal Restrictions (Renewal), EPA ICR No. 1442.25, OMB Control No. 2050-0085",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is taking final action to approve a revision to the San Joaquin Valley Air Pollution Control District (SJVAPCD or \"District\") portion of the California State Implementation Plan (SIP) concerning two rules submitted to address section 185 of the Clean Air Act (CAA or the \"Act\") with respect to the 2008 and 2015 8-hour ozone National Ambient Air Quality Standards (NAAQS or \"standards\").",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15377",
+            "excerpts": "The Environmental Protection Agency (EPA) is taking final action to approve a revision to the San Joaquin Valley Air Pollution Control District (SJVAPCD or \"District\") portion of the California State Implementation Plan (SIP) concerning two rules...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15377/air-plan-approval-california-san-joaquin-valley-air-pollution-control-district",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15377.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15377.pdf?1785329117",
+            "publication_date": "2026-07-30",
+            "title": "Air Plan Approval; California; San Joaquin Valley Air Pollution Control District",
+            "type": "Rule"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Final Authorization for Hazardous Waste Management Programs\" (EPA ICR No. 0969.13, OMB Control No. 2050-0041) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act (PRA). Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described in the SUPPLEMENTARY INFORMATION section. This is a proposed extension of the ICR, which is currently approved through March 31, 2027. This document allows for 60 days for public comments.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15376",
+            "excerpts": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Final Authorization for Hazardous Waste Management Programs\" (EPA ICR No. 0969.13, OMB Control No. 2050-0041) to the Office of Management and...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15376/agency-information-collection-activities-proposed-information-collection-request-comment-request",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15376.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15376.pdf?1785329117",
+            "publication_date": "2026-07-30",
+            "title": "Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; Final Authorization for Hazardous Waste Management Programs, EPA ICR No. 0969.13, OMB Control No. 2050-0041",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is proposing to approve a state implementation plan (SIP) revision and redesignation request submitted on September 19, 2025 by the Pennsylvania Department of Environmental Protection (PADEP). The SIP revision asks the EPA to redesignate the Warren County, Pennsylvania area from nonattainment to attainment for the 2010 1-hour primary sulfur dioxide (SO<INF>2</INF>) national ambient air quality standard (NAAQS). The revision also asks the EPA to approve into the SIP the Commonwealth's maintenance plan for the 2010 1-hour primary SO<INF>2</INF> NAAQS for the Warren County area. Furthermore, Pennsylvania requests that the EPA correct source- specific requirements for United Refining Company within the Pennsylvania SIP that were previously included in error. This proposed action is being taken under the Clean Air Act (CAA).",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15372",
+            "excerpts": "The Environmental Protection Agency (EPA) is proposing to approve a state implementation plan (SIP) revision and redesignation request submitted on September 19, 2025 by the Pennsylvania Department of Environmental Protection (PADEP). The SIP revision...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15372/air-plan-approval-pennsylvania-redesignation-of-the-warren-county-nonattainment-area-to-attainment",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15372.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15372.pdf?1785329117",
+            "publication_date": "2026-07-30",
+            "title": "Air Plan Approval; Pennsylvania; Redesignation of the Warren County Nonattainment Area to Attainment and Approval of the Area's Maintenance Plan for the 2010 1-Hour Primary Sulfur Dioxide National Ambient Air Quality Standard",
+            "type": "Proposed Rule"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is proposing to approve revisions to the Missouri State Implementation Plan (SIP) received on February 10, 2026. The submission revises Missouri's regulation on construction permit exemptions in their Minor New Source Review (NSR) program. These revisions refine exemptions for emergency generators, update references to other rules, and update recordkeeping requirements. The EPA is proposing to approve this rule revision pursuant to the Clean Air Act (CAA).",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15371",
+            "excerpts": "The Environmental Protection Agency (EPA) is proposing to approve revisions to the Missouri State Implementation Plan (SIP) received on February 10, 2026. The submission revises Missouri's regulation on construction permit exemptions in their Minor New...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15371/air-plan-approval-missouri-construction-permit-exemptions",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15371.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15371.pdf?1785329117",
+            "publication_date": "2026-07-30",
+            "title": "Air Plan Approval; Missouri; Construction Permit Exemptions",
+            "type": "Proposed Rule"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Application for Registration and Pesticide Report for Pesticide-Producing and Device-Producing Establishments\" (EPA ICR No. 0160.14, OMB Control No. 2070-0078) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described below. This is a proposed extension of the ICR, which is currently approved through November 30, 2026. This notice allows for 60 days for public comments.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15364",
+            "excerpts": "The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Application for Registration and Pesticide Report for Pesticide-Producing and Device-Producing Establishments\" (EPA ICR No. 0160.14, OMB Control...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15364/agency-information-collection-activities-proposed-information-collection-request-comment-request",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15364.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15364.pdf?1785329116",
+            "publication_date": "2026-07-30",
+            "title": "Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; Application for Registration and Pesticide Report for Pesticide-Producing and Device-Producing Establishments",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) approves revisions to the State of New Hampshire's Clean Air Act (CAA) title V operating permit program. These revisions amend the definitions of \"hazardous air pollutant\" and \"regulated air pollutant\" in New Hampshire regulations to remain consistent with Federal permitting and air toxics requirements in accordance with the CAA.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15363",
+            "excerpts": "The Environmental Protection Agency (EPA) approves revisions to the State of New Hampshire's Clean Air Act (CAA) title V operating permit program. These revisions amend the definitions of \"hazardous air pollutant\" and \"regulated air pollutant\" in New...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15363/operating-permit-program-approval-new-hampshire-revised-definitions",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15363.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15363.pdf?1785329116",
+            "publication_date": "2026-07-30",
+            "title": "Operating Permit Program Approval; New Hampshire; Revised Definitions",
+            "type": "Rule"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is proposing to approve revisions to four State of California air districts' Clean Air Act title V program rules to remove emergency affirmative defense provisions. The four districts are the Amador County Air Pollution Control District (ACAPCD), the Calaveras County Air Pollution Control District (CCAPCD), the Great Basin Unified Air Pollution Control District (GBUAPCD), and the Northern Sierra Air Quality Management District (NSAQMD) (\"Districts\"). This proposed action is being taken in accordance with Federal regulations and the Clean Air Act (CAA or \"Act\"). We are taking comments on these proposed revisions and plan to follow with a final action.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15362",
+            "excerpts": "The Environmental Protection Agency (EPA) is proposing to approve revisions to four State of California air districts' Clean Air Act title V program rules to remove emergency affirmative defense provisions. The four districts are the Amador County Air...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15362/clean-air-act-operating-permit-program-revisions-california-amador-county-air-pollution-control",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15362.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15362.pdf?1785329115",
+            "publication_date": "2026-07-30",
+            "title": "Clean Air Act Operating Permit Program Revisions; California; Amador County Air Pollution Control District, Calaveras County Air Pollution Control District, Great Basin Unified Air Pollution Control District, Northern Sierra Air Quality Management District",
+            "type": "Proposed Rule"
+          },
+          {
+            "abstract": "EPA is proposing significant new use rules (SNURs) under the Toxic Substances Control Act (TSCA) for certain chemical substances that were the subject of premanufacture notices (PMNs) and are also subject to an Order issued by EPA pursuant to TSCA. Once finalized, the SNURs would require persons who intend to manufacture (defined by statute to include import) or process any of these chemical substances for an activity that is proposed as a significant new use by this rulemaking to notify EPA at least 90 days before commencing that activity. The required notification initiates EPA's evaluation of the conditions of that use for that chemical substance. In addition, the manufacture or processing for the significant new use may not commence until EPA has conducted a review of the required notification, made an appropriate determination regarding that notification, and taken such actions as required by that determination.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15352",
+            "excerpts": "EPA is proposing significant new use rules (SNURs) under the Toxic Substances Control Act (TSCA) for certain chemical substances that were the subject of premanufacture notices (PMNs) and are also subject to an Order issued by EPA pursuant to TSCA....",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/30/2026-15352/significant-new-use-rules-on-certain-chemical-substances-26-4",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/2026-15352.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15352.pdf?1785329114",
+            "publication_date": "2026-07-30",
+            "title": "Significant New Use Rules on Certain Chemical Substances (26-4)",
+            "type": "Proposed Rule"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA or Agency) is announcing the availability of and seeking public comment on the draft risk evaluation under the Toxic Substances Control Act (TSCA) for 1,1,2-trichloroethane. The purpose of risk evaluations under TSCA is to determine whether a chemical substance presents an unreasonable risk of injury to health or the environment under the conditions of use (COUs), including unreasonable risk to potentially exposed or susceptible subpopulations identified as relevant to the risk evaluation by EPA, and without consideration of costs or non-risk factors. EPA is seeking comment on the draft risk evaluation for 1,1,2-trichloroethane.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15267",
+            "excerpts": "The Environmental Protection Agency (EPA or Agency) is announcing the availability of and seeking public comment on the draft risk evaluation under the Toxic Substances Control Act (TSCA) for 1,1,2-trichloroethane. The purpose of risk evaluations under...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/29/2026-15267/112-trichloroethane-draft-risk-evaluation-under-the-toxic-substances-control-act-tsca-notice-of",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-29/pdf/2026-15267.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15267.pdf?1785242711",
+            "publication_date": "2026-07-29",
+            "title": "1,1,2-Trichloroethane Draft Risk Evaluation Under the Toxic Substances Control Act (TSCA); Notice of Availability and Request for Comment",
+            "type": "Notice"
+          },
+          {
+            "abstract": "This notice of data availability (NODA) is to alert stakeholders of information from the U.S. Environmental Protection Agency (EPA) regarding the Hydrofluorocarbon (HFC) Allocation Program and to solicit stakeholder input. The EPA is providing this information in preparation for an upcoming regulatory action which the Agency intends to propose under the American Innovation and Manufacturing Act of 2020 (AIM Act). The notice identifies possible data gaps and requests comment on areas in which additional data could improve the Agency's information on the United States' HFC production and consumption.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15219",
+            "excerpts": "This notice of data availability (NODA) is to alert stakeholders of information from the U.S. Environmental Protection Agency (EPA) regarding the Hydrofluorocarbon (HFC) Allocation Program and to solicit stakeholder input. The EPA is providing this...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/28/2026-15219/notice-of-data-availability-analysis-of-hfc-allocation-program-data-for-2022-2025",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-28/pdf/2026-15219.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15219.pdf?1785156319",
+            "publication_date": "2026-07-28",
+            "title": "Notice of Data Availability: Analysis of HFC Allocation Program Data for 2022-2025",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The Toxic Substances Control Act (TSCA) requires EPA to publish in the Federal Register a statement of its findings after its review of certain TSCA submissions when EPA makes a finding that a new chemical substance or significant new use is not likely to present an unreasonable risk of injury to health or the environment. Such statements apply to premanufacture notices (PMNs), microbial commercial activity notices (MCANs), and significant new use notices (SNUNs) submitted to EPA under TSCA. This document presents statements of findings made by EPA on such submissions during the period from April 1, 2026, to April 30, 2026.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15194",
+            "excerpts": "The Toxic Substances Control Act (TSCA) requires EPA to publish in the Federal Register a statement of its findings after its review of certain TSCA submissions when EPA makes a finding that a new chemical substance or significant new use is not likely...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/28/2026-15194/certain-new-chemicals-or-significant-new-uses-statements-of-findings-april-2026",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-28/pdf/2026-15194.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15194.pdf?1785156316",
+            "publication_date": "2026-07-28",
+            "title": "Certain New Chemicals or Significant New Uses; Statements of Findings-April 2026",
+            "type": "Notice"
+          },
+          {
+            "abstract": "This document announces the Agency's receipt of new chemical submissions under the Toxic Substances Control Act (TSCA), including information about the receipt of a Premanufacture Notice (PMN), Significant New Use Notice (SNUN), Microbial Commercial Activity Notice (MCAN), and an amendment to a previously submitted notice; test information; a biotechnology exemption application; an application for a test marketing exemption (TME); and a notice of commencement of manufacture (defined by statute to include import) (NOC) for a new chemical substance. This document covers new chemical submissions that have passed an initial screening and, for PMNs, SNUNs and MCANs, were determined to be complete, during the period from May 1, 2026, to May 31, 2026, regardless of the initial submission date.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15193",
+            "excerpts": "This document announces the Agency's receipt of new chemical submissions under the Toxic Substances Control Act (TSCA), including information about the receipt of a Premanufacture Notice (PMN), Significant New Use Notice (SNUN), Microbial Commercial...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/28/2026-15193/certain-new-chemicals-receipt-and-status-information-for-april-and-may-2026",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-28/pdf/2026-15193.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15193.pdf?1785156316",
+            "publication_date": "2026-07-28",
+            "title": "Certain New Chemicals; Receipt and Status Information for April and May 2026",
+            "type": "Notice"
+          },
+          {
+            "abstract": "The U.S. Environmental Protection Agency (EPA or Agency) is finalizing an extension of certain compliance dates applicable to certain entities subject to the risk-management rules for perchloroethylene (PCE) and carbon tetrachloride (CTC) under the Toxic Substances Control Act (TSCA). EPA is extending certain Workplace Chemical Protection Program (WCPP) compliance dates for non-federal owners and operators to match the existing compliance dates for federal agencies and their contractors. For both PCE and CTC, this action extends the compliance date for initial monitoring for inhalation exposure to June 21, 2027, and extends the compliance date to meet the existing chemical exposure limit (ECEL), establish a regulated area, institute a workplace information and training program, provide any required respiratory personal protective equipment (PPE), and establish a respiratory PPE program to September 20, 2027. For PCE, EPA is also extending the compliance date for federal entities to institute a workplace information and training program to September 20, 2027, and for non-federal entities to establish and implement an exposure control plan to December 20, 2027.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15192",
+            "excerpts": "The U.S. Environmental Protection Agency (EPA or Agency) is finalizing an extension of certain compliance dates applicable to certain entities subject to the risk-management rules for perchloroethylene (PCE) and carbon tetrachloride (CTC) under the...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/28/2026-15192/perchloroethylene-pce-and-carbon-tetrachloride-ctc-regulation-under-the-toxic-substances-control-act",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-28/pdf/2026-15192.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15192.pdf?1785156316",
+            "publication_date": "2026-07-28",
+            "title": "Perchloroethylene (PCE) and Carbon Tetrachloride (CTC); Regulation under the Toxic Substances Control Act (TSCA); Compliance Date Extensions",
+            "type": "Rule"
+          },
+          {
+            "abstract": "EPA issued a final rule in the Federal Register of June 30, 2026, establishing tolerances for residues of epyrifenacil (CASRN 353292-31-6) in or on multiple commodities requested by Valent U.S.A. LLC under the Federal Food, Drug, and Cosmetic Act (FFDCA). That document inadvertently issued incorrect tolerances for corn, field (forage, stover); wheat (forage, hay, straw); and soybean (forage, hay). This document corrects that final regulation.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15191",
+            "excerpts": "EPA issued a final rule in the Federal Register of June 30, 2026, establishing tolerances for residues of epyrifenacil (CASRN 353292-31-6) in or on multiple commodities requested by Valent U.S.A. LLC under the Federal Food, Drug, and Cosmetic Act...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/28/2026-15191/epyrifenacil-pesticide-tolerances-correction",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-28/pdf/2026-15191.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15191.pdf?1785156316",
+            "publication_date": "2026-07-28",
+            "title": "Epyrifenacil; Pesticide Tolerances; Correction",
+            "type": "Rule"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is proposing to approve a request from the Michigan Department of Environment, Great Lakes, and Energy (EGLE) to redesignate the Detroit, Michigan area to attainment for the 2015 ozone National Ambient Air Quality Standards (NAAQS) because the request meets the statutory requirements for redesignation under the Clean Air Act (CAA). EGLE submitted this request on January 3, 2022, and submitted a supplement to this request on May 18, 2026. The EPA is also proposing to approve, as a revision to the Michigan State Implementation Plan (SIP), the State's updated maintenance plan for the 2015 ozone NAAQS through 2040 in the Detroit area, including motor vehicle emissions budgets for 2035 and 2040, for both volatile organic compound (VOC) and oxides of nitrogen (NO<INF>X</INF>). The EPA is also initiating the adequacy process for these maintenance plan budgets. Additionally, the EPA is proposing to adjust the SIP submission and control measure implementation deadlines for certain Moderate requirements. Finally, the EPA is proposing to take final agency action on an exceptional events request submitted by EGLE on April 15, 2026, and concurred on by the EPA on June 4, 2026.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15168",
+            "excerpts": "The Environmental Protection Agency (EPA) is proposing to approve a request from the Michigan Department of Environment, Great Lakes, and Energy (EGLE) to redesignate the Detroit, Michigan area to attainment for the 2015 ozone National Ambient Air...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/28/2026-15168/air-plan-approval-michigan-redesignation-of-the-detroit-mi-area-to-attainment-of-the-2015-ozone",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-28/pdf/2026-15168.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15168.pdf?1785156313",
+            "publication_date": "2026-07-28",
+            "title": "Air Plan Approval; Michigan; Redesignation of the Detroit, MI Area to Attainment of the 2015 Ozone Standards",
+            "type": "Proposed Rule"
+          },
+          {
+            "abstract": "The Environmental Protection Agency (EPA) is proposing to approve the Michigan Department of Environment, Great Lakes, and Energy's (EGLE's) December 26, 2025, requests to redesignate the Berrien and Muskegon areas to attainment for the 2015 ozone NAAQS because the requests meet the statutory requirements for redesignation under the Clean Air Act (CAA). The Berrien area includes Berrien County, and the Muskegon area includes the western portion of Muskegon County. The EPA is proposing to approve, as revisions to the Michigan State Implementation Plan (SIP), the State's plans for maintaining the 2015 ozone NAAQS through 2036 in the Berrien and Muskegon areas. The EPA is initiating the adequacy process and proposing to approve Michigan's 2032 and 2036 volatile organic compound (VOC) and oxides of nitrogen (NO<INF>X</INF>) motor vehicle emissions budgets (budgets) for the Berrien and Muskegon areas. Pursuant to section 110 and part D of the CAA, the EPA is proposing to approve the enhanced monitoring plan (EMP) of ozone and ozone precursors SIP revision submitted by Michigan on January 12, 2026, because it satisfies Serious SIP requirements of the CAA for the Berrien and Muskegon areas. The EPA is also proposing to approve the Serious VOC reasonably available control technology (RACT) SIP revision and CAA section 182(f) waiver from Serious NO<INF>X</INF> RACT requirements for the Berrien and Muskegon areas under the 2015 ozone NAAQS submitted by EGLE to the EPA on May 5, 2026.",
+            "agencies": [
+              {
+                "id": 145,
+                "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+                "name": "Environmental Protection Agency",
+                "parent_id": null,
+                "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+                "slug": "environmental-protection-agency",
+                "url": "https://www.federalregister.gov/agencies/environmental-protection-agency"
+              }
+            ],
+            "document_number": "2026-15167",
+            "excerpts": "The Environmental Protection Agency (EPA) is proposing to approve the Michigan Department of Environment, Great Lakes, and Energy's (EGLE's) December 26, 2025, requests to redesignate the Berrien and Muskegon areas to attainment for the 2015 ozone...",
+            "html_url": "https://www.federalregister.gov/documents/2026/07/28/2026-15167/air-plan-approval-michigan-redesignation-of-the-berrien-mi-and-muskegon-mi-areas-to-attainment-of",
+            "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-28/pdf/2026-15167.pdf",
+            "public_inspection_pdf_url": "https://public-inspection.federalregister.gov/2026-15167.pdf?1785156312",
+            "publication_date": "2026-07-28",
+            "title": "Air Plan Approval; Michigan; Redesignation of the Berrien, MI and Muskegon, MI Areas to Attainment of the 2015 Ozone Standards",
+            "type": "Proposed Rule"
+          }
+        ],
+        "traces": [
+          {
+            "records": 10,
+            "response_sha256": "c136cd56878126af5f2d554c44cd5ecace1009dc05098d3f94630cc11d1a6529",
+            "status": 200,
+            "url_sha256": "29a2616134cf75f75496c4e8029a80cd1c3337851632f5b1afa3bfc7db5107d0"
+          },
+          {
+            "records": 10,
+            "response_sha256": "3b3c28cba2ad6954c83b90fcbbb273d9aa2f69ccbebfe1e4bfe0c836934b6275",
+            "status": 200,
+            "url_sha256": "8ab56422acd41c9cf11a457cfa16bdd4beebf1546dde8265959cfa16d265a073"
+          },
+          {
+            "records": 9,
+            "response_sha256": "1e0a4fc8813929a135729e5184ae20a3da694a7a3db622c85edb3e74f25fd17e",
+            "status": 200,
+            "url_sha256": "5f141dd2ecbe58f4ba71555dbef7d2a29ce6745e3827f2029a6a7e7b87eac33f"
+          }
+        ],
+        "truncated": false,
+        "unique_records": 29
+      },
+      "source_disjoint_role": "development",
+      "target": "federal_register_pages"
+    },
+    {
+      "authority": "World Bank",
+      "family": "pagination",
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:23:35.370789+00:00",
+        "not_before_epoch": 1785626590.933998,
+        "outcome_sha256": "6c7525a90ae8d17a282637f3b8d38df2829c3133a5e42d5229730bc9c8992b58",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "result": {
+        "pages": 4,
+        "passed": true,
+        "records": [
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2025",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 4002587541846.01
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2024",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 3695539513534.15
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2023",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 3420796653789.08
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2022",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 3181244350465.41
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2021",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 3194559188925.93
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2020",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2724001478304.59
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2019",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2875710080015.3
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2018",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2897028009916.05
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2017",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2699118387873.1
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2016",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2706807606538.73
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2015",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2945579890258.46
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2014",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 3085362169410.29
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2013",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2796908333283.39
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2012",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2719715961539.83
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2011",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2675590034128.66
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2010",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2496740681057.14
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2009",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2429358155475.93
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2008",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2945251838235.29
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2007",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 3104699879951.98
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2006",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2719558417663.29
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2005",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2551361818181.82
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2004",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2429774807762.72
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2003",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 2061227755102.04
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2002",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1790536570743.41
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2001",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1656171009068.66
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "2000",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1671597821152.97
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1999",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1693458987218.9
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1998",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1660821464060.95
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1997",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1569317288801.57
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1996",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1425287051482.06
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1995",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1349094208616.06
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1994",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1140489745944.29
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1993",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1061388722255.55
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1992",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1179659529659.53
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1991",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1142797178130.51
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1990",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 1093169389204.55
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1989",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 926884816753.927
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1988",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 910122732123.799
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1987",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 745162608269.325
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1986",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 601452653180.885
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1985",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 489285164271.047
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1984",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 461487097632.349
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1983",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 489618008185.539
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1982",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 515048916841.37
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1981",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 540765675241.158
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1980",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 564947710899.373
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1979",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 438994070309.191
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1978",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 335883029721.956
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1977",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 263066457352.172
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1976",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 232614555256.065
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1975",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 241756637168.142
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1974",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 206131369798.971
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1973",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 192537971582.558
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1972",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 169965034965.035
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1971",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 148113896325.14
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1970",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 130671946244.3
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1969",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 116464702803.218
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1968",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 107759910067.889
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1967",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 113116888210.787
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1966",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 108572752102.045
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1965",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 101824755078.991
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1964",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 94407558351.1616
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1963",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 86561961812.3249
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1962",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 81247564156.8246
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1961",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 77741965703.3544
+          },
+          {
+            "country": {
+              "id": "GB",
+              "value": "United Kingdom"
+            },
+            "countryiso3code": "GBR",
+            "date": "1960",
+            "decimal": 0,
+            "indicator": {
+              "id": "NY.GDP.MKTP.CD",
+              "value": "GDP (current US$)"
+            },
+            "obs_status": "",
+            "unit": "",
+            "value": 73233967692.1028
+          }
+        ],
+        "traces": [
+          {
+            "records": 20,
+            "response_sha256": "5a631593310db888cf061ed61cd3f85343f4cf18b856f359eb91becff16f41ca",
+            "status": 200,
+            "url_sha256": "943a754105045594bf2d25dd8a7beedc965b6397f3e9ccc5dfc8ff46bbeb5975"
+          },
+          {
+            "records": 20,
+            "response_sha256": "a43a1c46c2b1a253356a3c708da65ddbbbe30d44525ead4db7bde1da94ef7aa5",
+            "status": 200,
+            "url_sha256": "a7a5a44137238f0c4abdf03f8626cba61231ca89dc38e0826f3a5e19fccbfebb"
+          },
+          {
+            "records": 20,
+            "response_sha256": "d6ee1d2429087f43d266801df1d4d4ec73c4e86724f1dece16ed19bcd217962b",
+            "status": 200,
+            "url_sha256": "8e2abadf63121aa8ef234de8cd5fa5eae9d9e41c2b19821fcf1f0677d4cf24db"
+          },
+          {
+            "records": 6,
+            "response_sha256": "599d96cd1b1fe8752dc27292cce5bc3a1ccba8cda7732bdf825ed33679a8f236",
+            "status": 200,
+            "url_sha256": "3d9da340968cab67e9aa0e3de9eb34e7e6de281071f861f1b7d0bf2c7ee63ab1"
+          }
+        ],
+        "truncated": false,
+        "unique_records": 66
+      },
+      "source_disjoint_role": "transfer",
+      "target": "world_bank_indicator_pages"
+    },
+    {
+      "authority": "Federal Register",
+      "family": "xml_evidence",
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:23:35.797643+00:00",
+        "not_before_epoch": 1785626590.933998,
+        "outcome_sha256": "c1a6780c37999ad16f2542c4381a7d9c48c96099e14f704eb528b1e5c09aec7c",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "result": {
+        "element_types": 30,
+        "evidence": {
+          "AGENCY": [
+            "ENVIRONMENTAL PROTECTION AGENCY"
+          ],
+          "SUBJECT": [
+            "National Pollutant Discharge Elimination System (NPDES) 2027 Issuance of General Permit for Stormwater Discharges From Construction Activities"
+          ]
+        },
+        "passed": true,
+        "response_sha256": "c8a590958abf5561d03671eae5efbf24917dc4ef45d853485593556802cef1a8",
+        "root_local_name": "NOTICE"
+      },
+      "source_disjoint_role": "development",
+      "target": "https://www.federalregister.gov/documents/full_text/xml/2026/08/03/2026-15656.xml"
+    },
+    {
+      "authority": "RFC Editor",
+      "family": "xml_evidence",
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:23:36.234707+00:00",
+        "not_before_epoch": 1785626590.933998,
+        "outcome_sha256": "e2138541342134e7ac3cbee0d96daf3db656edd0211183e6e3771a67c7a4ac9c",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "result": {
+        "element_types": 44,
+        "evidence": {
+          "abstract": [
+            "The Hypertext Transfer Protocol (HTTP) is a stateless application-level protocol for distributed, collaborative, hypertext information systems. This document describes the overall architecture of HTTP, establishes common terminology, and defines aspects of the protocol that are shared by all versions. In this definition are core protocol elements, extensibility mechanisms, and the \"http\" and \"https\" Uniform Resource Identifier (URI) schemes. This document updates RFC 3864 and obsoletes RFCs 2818, 7231, 7232, 7233, 7235, 7538, 7615, 7694, and portions of 7230.",
+            "This specification defines a lossless compressed data format. This memo provides information for the Internet community. This memo does not specify an Internet standard of any kind.",
+            "This specification defines a lossless compressed data format that compresses data using a combination of the LZ77 algorithm and Huffman coding, with efficiency comparable to the best currently available general-purpose compression methods. This memo provides information for the Internet community. This memo does not specify an Internet standard of any kind."
+          ],
+          "title": [
+            "HTTP Semantics",
+            "HTTP Caching",
+            "ZLIB Compressed Data Format Specification version 3.3"
+          ]
+        },
+        "passed": true,
+        "response_sha256": "09ec9ad4d1664623adcb298577e3fb9cd5c285f1bbe6b24d8c715b29f218e721",
+        "root_local_name": "rfc"
+      },
+      "source_disjoint_role": "transfer",
+      "target": "https://www.rfc-editor.org/rfc/rfc9110.xml"
+    }
+  ],
+  "program_commitment": {
+    "commitment_sha256": "9efb9dc8de058fc1b3ea3e235e6e51ea3940b00a6a182d8598e8cbaeee2215ac",
+    "created_at": "2026-08-01T23:18:07.870575+00:00",
+    "parent": "procedure_multistep_institutional_intelligence_v1",
+    "programs": {
+      "pagination": {
+        "cycle_guard": true,
+        "deduplicate": true,
+        "maximum_pages": 8,
+        "operator": "BOUNDED_PAGINATED_GET"
+      },
+      "xml_evidence": {
+        "maximum_bytes": 3000000,
+        "namespace_tolerant": true,
+        "operator": "SAFE_LOCALNAME_XML_EVIDENCE",
+        "reject_dtd": true,
+        "reject_entities": true
+      }
+    }
+  },
+  "programs": {
+    "pagination": {
+      "cycle_guard": true,
+      "deduplicate": true,
+      "maximum_pages": 8,
+      "operator": "BOUNDED_PAGINATED_GET"
+    },
+    "xml_evidence": {
+      "maximum_bytes": 3000000,
+      "namespace_tolerant": true,
+      "operator": "SAFE_LOCALNAME_XML_EVIDENCE",
+      "reject_dtd": true,
+      "reject_entities": true
+    }
+  },
+  "schema_version": "aion.hexcore.open_information_action_state.v1"
+}

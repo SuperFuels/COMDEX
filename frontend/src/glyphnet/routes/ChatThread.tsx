@@ -71,20 +71,27 @@ function getOwnerWa(): string {
     const u = (window as any).__currentUser;
     if (u?.wa) return u.wa;
   } catch {}
-  const fromLS = localStorage.getItem("gnet:ownerWa");
-  return fromLS || "dev@local";
+  return "dev@local";
 }
+
+// Chat drafts, messages, identifiers, device choices and privacy preferences
+// are not browser-storage data. Until their Guardian workspace endpoints are
+// connected, retain them only for the lifetime of this renderer process.
+const processState = new Map<string, string>();
+const readProcessState = (key: string) => processState.get(key) ?? null;
+const writeProcessState = (key: string, value: string) => { processState.set(key, value); };
+const removeProcessState = (key: string) => { processState.delete(key); };
 
 const IP_BASE_DEFAULT = resolveApiBase();
 const OWNER_WA = getOwnerWa();
 
 const CLIENT_ID = (() => {
   const k = "gnet:clientId";
-  let v = sessionStorage.getItem(k);
+  let v = readProcessState(k);
   if (!v) {
     v = "chat-thread#" + Math.random().toString(36).slice(2, 8);
     try {
-      sessionStorage.setItem(k, v);
+      writeProcessState(k, v);
     } catch {}
   }
   return v;
@@ -497,7 +504,7 @@ export default function ChatThread({
   // ICE servers state (inside component)
   const [iceServers, setIceServers] = useState<RTCIceServer[]>(() => {
     try {
-      const raw = localStorage.getItem("gnet:iceServers");
+      const raw = readProcessState("gnet:iceServers");
       const parsed = raw ? (JSON.parse(raw) as RTCIceServer[]) : null;
       return Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_ICE;
     } catch {
@@ -512,10 +519,10 @@ export default function ChatThread({
 
   // Per-tab agent id (used in lock ownership + X-Agent-Id)
   const AGENT_ID = useMemo(() => {
-    let id = sessionStorage.getItem("gnet:agentId");
+    let id = readProcessState("gnet:agentId");
     if (!id) {
       id = "chat-thread:" + Math.random().toString(36).slice(2, 10);
-      try { sessionStorage.setItem("gnet:agentId", id); } catch {}
+      try { writeProcessState("gnet:agentId", id); } catch {}
     }
     return id;
   }, []);
@@ -552,7 +559,7 @@ export default function ChatThread({
       return (
         (window as any).__gnet_conn_id ??
         (window as any).__gnet_ws_id ??
-        sessionStorage.getItem("gnet:lastConnId") ??
+        readProcessState("gnet:lastConnId") ??
         "n/a"
       );
     } catch {
@@ -770,7 +777,7 @@ export default function ChatThread({
           ].sort((a, b) => (a.ts || 0) - (b.ts || 0));
 
           try {
-            sessionStorage.setItem(storageKey, JSON.stringify(next));
+            writeProcessState(storageKey, JSON.stringify(next));
           } catch {}
           return next;
         });
@@ -811,7 +818,7 @@ export default function ChatThread({
             ...prev,
             { id: localId, ts: at, kind: "text", from: cm.from, text } as NormalizedMsg,
           ].sort((a, b) => (a.ts || 0) - (b.ts || 0));
-          try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+          try { writeProcessState(storageKey, JSON.stringify(next)); } catch {}
           return next;
         });
         return;
@@ -830,7 +837,7 @@ export default function ChatThread({
         if (prev.some((p) => p.id === nm.id)) return prev;
         if (seenSigRef.current.has(sigKey2)) return prev;
         const next = [...prev, nm].sort((a, b) => (a.ts || 0) - (b.ts || 0));
-        try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+        try { writeProcessState(storageKey, JSON.stringify(next)); } catch {}
         seenRef.current.add(nm.id);
         seenSigRef.current.add(sigKey2);
         return next;
@@ -1168,7 +1175,7 @@ export default function ChatThread({
 
   // mic picker …
   const [mics, setMics] = useState<MediaDeviceInfo[]>([]);
-  const [selectedMicId, setSelectedMicId] = useState<string>(() => localStorage.getItem("gnet:micDeviceId") || "");
+  const [selectedMicId, setSelectedMicId] = useState<string>(() => readProcessState("gnet:micDeviceId") || "");
 
   // Ringtones
   // Ringtones
@@ -1259,7 +1266,7 @@ export default function ChatThread({
       setMics(onlyMics);
       if (selectedMicId && !onlyMics.some((d) => d.deviceId === selectedMicId)) {
         setSelectedMicId("");
-        localStorage.removeItem("gnet:micDeviceId");
+        removeProcessState("gnet:micDeviceId");
       }
     } catch {
       // ignore (no permission or unsupported)
@@ -1275,11 +1282,11 @@ export default function ChatThread({
 
   function chooseMic(id: string) {
     setSelectedMicId(id);
-    try { localStorage.setItem("gnet:micDeviceId", id); } catch {}
+    try { writeProcessState("gnet:micDeviceId", id); } catch {}
   }
 
   function clearThreadCache() {
-    try { sessionStorage.removeItem(storageKey); } catch {}
+    try { removeProcessState(storageKey); } catch {}
     // also wipe in-memory state so the UI reflects the clear immediately
     setThread([]);
     seenRef.current = new Set();
@@ -1305,7 +1312,7 @@ export default function ChatThread({
   const sentRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem(sentKey);
+      const raw = readProcessState(sentKey);
       sentRef.current = new Set<string>(raw ? JSON.parse(raw) : []);
     } catch {
       sentRef.current = new Set();
@@ -1319,7 +1326,7 @@ export default function ChatThread({
       const trimmed = Array.from(sentRef.current).slice(-500);
       sentRef.current = new Set(trimmed);
     }
-    try { sessionStorage.setItem(sentKey, JSON.stringify(Array.from(sentRef.current))); } catch {}
+    try { writeProcessState(sentKey, JSON.stringify(Array.from(sentRef.current))); } catch {}
   }
 
   // reset view when switching conversation (topic/graph)
@@ -1329,11 +1336,11 @@ export default function ChatThread({
     seenSigRef.current = new Set();
   }, [storageKey]);
 
-  // Load per-thread history from sessionStorage whenever the storageKey changes
+  // Load per-thread history from process memory whenever the storageKey changes
   useEffect(() => {
     let parsed: NormalizedMsg[] = [];
     try {
-      const raw = sessionStorage.getItem(storageKey);
+      const raw = readProcessState(storageKey);
       if (raw) parsed = JSON.parse(raw);
     } catch {}
     setThread(parsed);
@@ -1595,7 +1602,7 @@ useEffect(() => {
     if (!changed) return prev;
 
     next = uniqById(next).sort((a: any, b: any) => (a.ts || 0) - (b.ts || 0));
-    try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+    try { writeProcessState(storageKey, JSON.stringify(next)); } catch {}
     return next as any;
   }); // ← END setThread
 }, [messages, storageKey, topicWa, graph, AGENT_ID, callState, lastCandType]); // ← END useEffect
@@ -1685,7 +1692,7 @@ useEffect(() => {
             : `vf|${m.mime}|${fpB64(m.data_b64)}|${Math.round((m.ts || 0) / 5000)}`
         )
       );
-      try { sessionStorage.setItem(storageKey, JSON.stringify(merged)); } catch {}
+      try { writeProcessState(storageKey, JSON.stringify(merged)); } catch {}
     } catch {
       // swallow fetch/CORS errors; UI will still show local/WS data
     }
@@ -1728,7 +1735,7 @@ async function sendText() {
         ...prev,
         { id: localId, ts: now, kind: "text", text: msg, from: AGENT_ID } as NormalizedMsg,
       ];
-      try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+      try { writeProcessState(storageKey, JSON.stringify(next)); } catch {}
       return next;
     });
 
@@ -1828,7 +1835,7 @@ async function sendVoiceNoteFile(f: File) {
     };
     setThread((t) => {
       const next = [...t, optimistic];
-      try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+      try { writeProcessState(storageKey, JSON.stringify(next)); } catch {}
       return next;
     });
 
@@ -2690,7 +2697,7 @@ async function sendVoiceNoteFile(f: File) {
 
     setThread((prev) => {
       const next = [...prev, bubble];
-      try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch (e) {
+      try { writeProcessState(storageKey, JSON.stringify(next)); } catch (e) {
         console.error("[logCallSummary] persist failed:", e);
       }
       return next;
@@ -2966,20 +2973,20 @@ async function sendVoiceNoteFile(f: File) {
     granted: boolean;     // whether floor was acquired for this session
   };
 
-  // Load PTT logs from localStorage
+  // Load PTT logs from process memory
   function loadPttLog(g: GraphKey, t: string): PttEntry[] {
     try {
-      return JSON.parse(localStorage.getItem(pttKey(g, t)) || "[]");
+      return JSON.parse(readProcessState(pttKey(g, t)) || "[]");
     } catch {
       console.error("[loadPttLog] Error loading PTT logs.");
       return [];
     }
   }
 
-  // Save PTT logs to localStorage
+  // Save PTT logs to process memory
   function savePttLog(g: GraphKey, t: string, arr: PttEntry[]) {
     try {
-      localStorage.setItem(pttKey(g, t), JSON.stringify(arr.slice(-10)));
+      writeProcessState(pttKey(g, t), JSON.stringify(arr.slice(-10)));
     } catch {
       console.error("[savePttLog] Error saving PTT logs.");
     }
@@ -3568,7 +3575,7 @@ async function sendVoiceNoteFile(f: File) {
 
     setThread((t) => {
       const next = [...t, optimistic];
-      try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+      try { writeProcessState(storageKey, JSON.stringify(next)); } catch {}
       return next;
     });
 
@@ -3625,14 +3632,14 @@ async function sendVoiceNoteFile(f: File) {
       console.warn("[sendVoiceNoteCapsule] network/error", e);
     }
   }
-  // Transcription toggle — single source of truth (persists in localStorage)
+  // Transcription toggle — process-local until settings authority is wired.
   // ⚠️ Move this ABOVE its first usage if referenced earlier in the component.
   const [transcribeOnAttach, setTranscribeOnAttach] = useState<boolean>(() => {
-    try { return localStorage.getItem("gnet:transcribeOnAttach") === "1"; }
+    try { return readProcessState("gnet:transcribeOnAttach") === "1"; }
     catch { return false; }
   });
   useEffect(() => {
-    try { localStorage.setItem("gnet:transcribeOnAttach", transcribeOnAttach ? "1" : "0"); } catch {}
+    try { writeProcessState("gnet:transcribeOnAttach", transcribeOnAttach ? "1" : "0"); } catch {}
   }, [transcribeOnAttach]);
 
   function attachVoiceFile() {
@@ -3710,7 +3717,7 @@ async function sendVoiceNoteFile(f: File) {
     setThread((prev) => {
       const next = [...prev, optimistic];
       try {
-        sessionStorage.setItem(storageKey, JSON.stringify(next));
+        writeProcessState(storageKey, JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -4002,11 +4009,11 @@ async function sendVoiceNoteFile(f: File) {
 
   // --- Allow AI memory of habits (per graph) ---
   const [allowHabits, setAllowHabits] = useState<boolean>(() => {
-    try { return localStorage.getItem(`gnet:allowHabits:${graph}`) === "1"; }
+    try { return readProcessState(`gnet:allowHabits:${graph}`) === "1"; }
     catch { return false; }
   });
   useEffect(() => {
-    try { localStorage.setItem(`gnet:allowHabits:${graph}`, allowHabits ? "1" : "0"); } catch {}
+    try { writeProcessState(`gnet:allowHabits:${graph}`, allowHabits ? "1" : "0"); } catch {}
   }, [graph, allowHabits]);
 
   const habitsAllowed = () => allowHabits === true;
@@ -4034,13 +4041,13 @@ async function sendVoiceNoteFile(f: File) {
         { urls: uri.trim(), username: username.trim(), credential: credential.trim() },
       ];
       setIceServers(next);
-      try { localStorage.setItem("gnet:iceServers", JSON.stringify(next)); } catch {}
+      try { writeProcessState("gnet:iceServers", JSON.stringify(next)); } catch {}
       setUri(""); setUsername(""); setCredential("");
     }
 
     function clearLocalOverride() {
       setIceServers(DEFAULT_ICE);
-      try { localStorage.removeItem("gnet:iceServers"); } catch {}
+      try { removeProcessState("gnet:iceServers"); } catch {}
     }
 
     return (
@@ -4632,7 +4639,7 @@ return (
                     onChange={(e) => {
                       const v = e.target.checked;
                       setTranscribeOnAttach(v);
-                      try { localStorage.setItem("gnet:transcribeOnAttach", v ? "1" : "0"); } catch {}
+                      try { writeProcessState("gnet:transcribeOnAttach", v ? "1" : "0"); } catch {}
                     }}
                   />
                   Transcribe on attach (send text)

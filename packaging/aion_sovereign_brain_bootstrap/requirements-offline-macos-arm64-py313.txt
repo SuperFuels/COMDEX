@@ -1,0 +1,8 @@
+cryptography==50.0.0
+pydantic==2.11.7
+pydantic-core==2.33.2
+annotated-types==0.7.0
+typing-extensions==4.16.0
+typing-inspection==0.4.1
+cffi==2.0.0
+pycparser==2.22

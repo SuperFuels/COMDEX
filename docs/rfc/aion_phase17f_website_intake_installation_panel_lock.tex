@@ -1,0 +1,56 @@
+\section{Phase 17F --- Website Intake Installation Panel}
+\label{sec:aion-phase17f-website-intake-installation-panel}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 17F adds a business-facing website intake installation panel to the Boardroom.
+
+\subsection{Purpose}
+
+The purpose of this lock is to make website integration understandable for a small business owner or a web designer.
+
+The panel exposes three supported integration paths:
+
+\begin{enumerate}
+  \item \textbf{Email Forwarding Setup} --- for non-technical businesses that already receive website enquiries by email.
+  \item \textbf{Existing Form Webhook} --- for a web designer who can connect an existing contact form to AION.
+  \item \textbf{AION Generated Form / Embed} --- for a business that needs a ready-made AION enquiry form or floating request button.
+\end{enumerate}
+
+\subsection{Contract}
+
+The Boardroom MUST show a clear installation section with copyable endpoint or mailbox values.
+
+The system MUST keep human website enquiries separate from the A2A machine portal.
+
+The installation panel MUST make email forwarding the simplest default onboarding path.
+
+The webhook and generated form modes MUST route into the same guarded website intake trigger path defined in Phase 17A--17D.
+
+\subsection{Safety}
+
+Phase 17F does not create bookings, payments, escrow records, external messages, or live chain writes.
+
+The installation options only describe how enquiries enter the guarded workflow ticket system.
+
+\subsection{Validation}
+
+Validation commands:
+
+\begin{verbatim}
+node --check desktop/mac/src/app.js
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase17f_website_intake_installation_panel_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE17F-WEBSITE-INTAKE-INSTALLATION-PANEL
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

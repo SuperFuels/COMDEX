@@ -14,23 +14,14 @@ type PerfPoint = {
   lat_ms?: { p95?: number };
 };
 
-const LS_KEY = "glyphchainPerfHistory";
+let processHistory: PerfPoint[] = [];
 
 function loadHistory(): PerfPoint[] {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return [];
-    const xs = JSON.parse(raw);
-    return Array.isArray(xs) ? xs : [];
-  } catch {
-    return [];
-  }
+  return [...processHistory];
 }
 
 function saveHistory(xs: PerfPoint[]) {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(xs.slice(-200)));
-  } catch {}
+  processHistory = xs.slice(-200);
 }
 
 export function GlyphChainPerfCard() {

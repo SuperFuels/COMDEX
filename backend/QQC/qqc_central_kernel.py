@@ -192,6 +192,11 @@ class QuantumQuadCore:
         """
         Core execution loop for a single QQC resonance cycle.
         Returns ψ-κ-T-Φ metrics used by AION awareness and Morphic Ledger.
+
+        Additive update:
+          - accepts optional beam_data["control"] from HexCore / AION
+          - softly shapes gain / phase shift without breaking legacy callers
+          - exposes applied control in returned summary as control_applied
         """
         self.cycle_counter += 1
 
@@ -208,6 +213,14 @@ class QuantumQuadCore:
 
         # copy so callers don’t get mutated unexpectedly
         beam_data = dict(beam_data)
+
+        # -------------------------------------------------
+        # Optional AION/HexCore control packet
+        # Non-breaking: ignored if absent
+        # -------------------------------------------------
+        control = beam_data.get("control", {})
+        if not isinstance(control, dict):
+            control = {}
 
         ctx = beam_data.get("context")
         if not isinstance(ctx, dict):
@@ -260,6 +273,73 @@ class QuantumQuadCore:
             beam_state = self.beam_kernel.propagate(beam_data, sqi_score)
             if not isinstance(beam_state, dict):
                 beam_state = {"beam_state_raw": beam_state}
+
+            # -------------------------------------------------
+            # Optional control shaping from AION / HexCore
+            # Non-breaking soft influence only
+            # -------------------------------------------------
+            try:
+                resonance_gain = float(control.get("resonance_gain", 1.0))
+            except Exception:
+                resonance_gain = 1.0
+
+            try:
+                symbolic_temperature = float(control.get("symbolic_temperature", 0.0))
+            except Exception:
+                symbolic_temperature = 0.0
+
+            try:
+                stabilization_bias = float(control.get("stabilization_bias", 0.5))
+            except Exception:
+                stabilization_bias = 0.5
+
+            try:
+                awareness_coupling = float(control.get("awareness_coupling", 0.5))
+            except Exception:
+                awareness_coupling = 0.5
+
+            try:
+                reasoning_depth = float(control.get("reasoning_depth", 1.0))
+            except Exception:
+                reasoning_depth = 1.0
+
+            resonance_gain = max(0.0, min(1.0, resonance_gain))
+            symbolic_temperature = max(0.0, min(1.0, symbolic_temperature))
+            stabilization_bias = max(0.0, min(1.0, stabilization_bias))
+            awareness_coupling = max(0.0, min(1.0, awareness_coupling))
+            reasoning_depth = max(0.5, min(2.5, reasoning_depth))
+
+            # Soft-shape QQC beam state, do not hard break existing behavior
+            base_gain = beam_state.get("gain", 1.0)
+            base_phase_shift = beam_state.get("phase_shift", 0.0)
+
+            try:
+                base_gain = float(base_gain)
+            except Exception:
+                base_gain = 1.0
+
+            try:
+                base_phase_shift = float(base_phase_shift)
+            except Exception:
+                base_phase_shift = 0.0
+
+            # Higher resonance_gain amplifies coherence drive
+            beam_state["gain"] = max(0.0, base_gain * (0.75 + (0.5 * resonance_gain)))
+
+            # Higher symbolic_temperature increases phase agitation
+            beam_state["phase_shift"] = base_phase_shift + ((symbolic_temperature - 0.5) * 0.02)
+
+            # Expose control in beam_state for downstream metrics/debugging
+            beam_state["control"] = {
+                "resonance_gain": resonance_gain,
+                "symbolic_temperature": symbolic_temperature,
+                "stabilization_bias": stabilization_bias,
+                "awareness_coupling": awareness_coupling,
+                "reasoning_depth": reasoning_depth,
+                "mode": str(control.get("mode", "neutral")),
+                "goal_bias": control.get("goal_bias"),
+                "control_priority": str(control.get("control_priority", "maintain")),
+            }
 
             # CRITICAL: keep context + logic_tree attached after propagate
             beam_state.setdefault("context", ctx)
@@ -325,6 +405,7 @@ class QuantumQuadCore:
                     "κ": beam_state.get("phase_shift", 0.0),
                     "T": beam_state.get("gain", 1.0),
                 },
+                "control_applied": beam_state.get("control", {}),
             }
 
             # 🧠 Awareness Metrics - Φ, ΔΦ, S_self
@@ -361,6 +442,7 @@ class QuantumQuadCore:
                         "T": summary["field_signature"]["T"],
                         "Φ": summary.get("phi"),
                         "glyph_type": "quantum_cycle",
+                        "control_applied": summary.get("control_applied", {}),
                     },
                     domain="symatics/quantum_field",
                     tags=["collapse", "resonance", "ψκTΦ"],

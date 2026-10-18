@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.17: Full Chess Self-Play Improvement Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.17 defines the AION Full Chess Self-Play Improvement Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can run deterministic selected self-play episodes and improve chess policy weights.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.17 extends the learning loop into repeated deterministic self-play improvement.
+
+\section{Self-Play Improvement Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{self\_play\_episode\_count};
+  \item \texttt{completed\_episode\_count};
+  \item \texttt{stable\_or\_winning\_episode\_count};
+  \item \texttt{improved\_episode\_count};
+  \item \texttt{preferred\_strategy\_retention\_count};
+  \item \texttt{avoided\_bad\_line\_count};
+  \item \texttt{initial\_safe\_capture\_weight};
+  \item \texttt{final\_safe\_capture\_weight};
+  \item \texttt{initial\_multi\_ply\_survival\_weight};
+  \item \texttt{final\_multi\_ply\_survival\_weight};
+  \item \texttt{initial\_greedy\_capture\_penalty};
+  \item \texttt{final\_greedy\_capture\_penalty};
+  \item \texttt{preferred\_strategy\_after\_self\_play};
+  \item \texttt{self\_play\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic selected full-board chess self-play improvement. It does not yet implement open-ended self-play mastery, exhaustive chess search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B17-FULL-CHESS-SELF-PLAY-IMPROVEMENT-KERNEL-LOCK\\
+Status: LOCKED --- full chess self-play improvement kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

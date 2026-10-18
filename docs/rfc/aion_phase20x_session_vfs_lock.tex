@@ -1,0 +1,258 @@
+\section{AION Phase 20X --- Session VFS and Workspace Isolation}
+\label{sec:aion-phase20x-session-vfs}
+
+\subsection{Status}
+
+Phase 20X locks mission-scoped temporary workspace isolation for AION Pilot.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Session VFS records, temporary drafts, repair payloads, and vector workspaces are isolated per mission run.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot requires temporary working space for planning, repair, previews, logs, vectors, and intermediate drafts.
+
+This temporary workspace MUST NOT leak across missions by default.
+
+\begin{quote}
+\textbf{Session VFS is mission-scoped scratch space. It is not business memory and it is not final artifact storage.}
+\end{quote}
+
+\subsection{Allowed Session Subspaces}
+
+The Session VFS may contain only approved subspaces:
+
+\begin{itemize}
+  \item \texttt{drafts}
+  \item \texttt{tmp}
+  \item \texttt{vectors}
+  \item \texttt{repair}
+  \item \texttt{previews}
+  \item \texttt{logs}
+  \item \texttt{receipts}
+\end{itemize}
+
+\subsection{Mission-Scoped Namespace}
+
+Every Session VFS namespace MUST be derived from:
+
+\begin{itemize}
+  \item \texttt{mission\_id}
+  \item \texttt{mission\_run\_id}
+  \item \texttt{business\_id}
+  \item \texttt{mission\_hash}
+\end{itemize}
+
+This ensures separate mission runs receive separate scratch namespaces.
+
+\subsection{Vector Workspace Isolation}
+
+Vector workspace IDs MUST be salted by the mission hash.
+
+A vector workspace created for one mission run MUST NOT be reused by another mission run unless a governed transfer approval exists.
+
+\subsection{Session VFS Path Shape}
+
+Temporary records resolve under:
+
+\begin{verbatim}
+session_vfs/<business_id>/<mission_id>/<mission_run_id>/<namespace>/<subspace>/<name>.json
+\end{verbatim}
+
+A valid record MUST include:
+
+\begin{itemize}
+  \item \texttt{storage\_state = session\_vfs\_draft}
+  \item \texttt{session\_vfs\_only = true}
+  \item \texttt{business\_id}
+  \item \texttt{mission\_id}
+  \item \texttt{mission\_run\_id}
+  \item \texttt{mission\_hash}
+  \item \texttt{vector\_workspace\_id}
+  \item \texttt{path}
+  \item \texttt{record\_hash}
+\end{itemize}
+
+\subsection{No Live Secrets}
+
+Session VFS payloads MUST NOT contain live secrets or production credentials, including:
+
+\begin{itemize}
+  \item API keys;
+  \item passwords;
+  \item private keys;
+  \item production database URLs;
+  \item production credentials;
+  \item payment provider secrets;
+  \item model provider API keys.
+\end{itemize}
+
+\subsection{Cross-Mission Read Boundary}
+
+A mission can read its own Session VFS records.
+
+A different mission MUST NOT read those records by default.
+
+Cross-mission transfer requires governed approval.
+
+\subsection{Governed Cross-Mission Transfer}
+
+A transfer approval MUST include:
+
+\begin{itemize}
+  \item source mission ID;
+  \item target mission ID;
+  \item approving human;
+  \item reason;
+  \item approval state;
+  \item approval hash.
+\end{itemize}
+
+Without approval, cross-mission Session VFS transfer is rejected.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20X-SESSION-VFS-WORKSPACE-ISOLATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20X.1 --- VFS Symlink Real-Path Containment and Transfer Token Verification}
+\label{subsec:aion-phase20x1-vfs-symlink-transfer-token}
+
+\subsubsection{Status}
+
+Phase 20X.1 hardens Session VFS against symlink namespace escape, hardlink namespace escape, and unsigned cross-mission transfer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- all Session VFS real-path operations MUST remain inside the mission-scoped boundary, and cross-mission transfers MUST carry a valid authorization token.}
+\end{quote}
+
+\subsubsection{Symlink Escape Threat Model}
+
+A compromised preview utility, parser, or temporary script could attempt to place a symbolic link or hardlink inside the Session VFS tree that points outside the active mission namespace.
+
+If a downstream preview engine, indexer, or Boardroom reader follows that link, it could bypass normal payload scanning and read host files, environment configuration, memory dumps, or cross-tenant data.
+
+\subsubsection{Virtual Filesystem Real-Path Invariant}
+
+Before any Session VFS read, write, list, or preview operation executes against a path $P_{\mathrm{vfs}}$, the VFS driver MUST resolve the target path and verify:
+
+\begin{equation}
+\mathrm{RealPath}(P_{\mathrm{vfs}})
+\subset
+\mathrm{RealPath}
+(
+\mathtt{session\_vfs}/
+\mathtt{business\_id}/
+\mathtt{mission\_id}/
+\mathtt{mission\_run\_id}/
+)
+\end{equation}
+
+If the resolved path falls outside the mission-scoped boundary, the operation MUST fail immediately.
+
+\subsubsection{Symlink and Hardlink Rejection}
+
+The Session VFS driver MUST fail closed if it detects:
+
+\begin{itemize}
+  \item symbolic links pointing outside the mission boundary;
+  \item hardlinks pointing outside the mission boundary;
+  \item shortcut-style indirections;
+  \item canonical real-path mismatch;
+  \item directory traversal attempts.
+\end{itemize}
+
+The runtime MUST emit a filesystem policy violation such as:
+
+\begin{verbatim}
+session_vfs_symlink_escape_detected
+session_vfs_hardlink_escape_detected
+session_vfs_real_path_escape_detected
+\end{verbatim}
+
+\subsubsection{Transfer Authorization Token}
+
+Governed cross-mission data transfer requires a cryptographic transfer token:
+
+\begin{equation}
+\mathcal{T}_{\mathrm{transfer}}
+=
+\mathrm{SHA256}
+(
+\mathtt{source\_mission\_id}
+\parallel
+\mathtt{target\_mission\_id}
+\parallel
+\mathtt{approving\_human}
+\parallel
+\mathtt{approval\_hash}
+)
+\end{equation}
+
+The VFS ingest engine MUST recalculate and verify this token before moving data across mission namespaces.
+
+\subsubsection{Unsigned or Tampered Transfer Rejection}
+
+A governed transfer approval without a valid token MUST NOT move data.
+
+A tampered token MUST NOT move data.
+
+A valid transfer requires:
+
+\begin{itemize}
+  \item source mission match;
+  \item target mission match;
+  \item approved human;
+  \item approval hash;
+  \item valid transfer authorization token.
+\end{itemize}
+
+\subsubsection{Validation Coverage}
+
+Phase 20X.1 tests prove:
+
+\begin{itemize}
+  \item real paths inside the mission boundary are accepted;
+  \item directory escape paths are rejected;
+  \item symlink escape attempts are rejected before read;
+  \item hardlink escape attempts are rejected before read;
+  \item transfer authorization tokens are deterministic;
+  \item cross-mission transfer requires a valid token;
+  \item tampered transfer tokens are rejected.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{Session VFS records are only readable inside their real mission-scoped boundary. No symbolic link, hardlink, shortcut, directory traversal path, or unsigned transfer token may move data across the boundary.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20X1-VFS-SYMLINK-REALPATH-TRANSFER-TOKEN
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

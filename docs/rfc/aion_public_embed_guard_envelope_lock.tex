@@ -1,0 +1,231 @@
+\section{Phase 12E --- Public Embed Widget Guard Envelope v0}
+\label{sec:aion-public-embed-guard-envelope-v0}
+
+\subsection{Status}
+
+Phase 12E locks the preview-only guard envelope for public website embed and widget requests.
+
+\begin{quote}
+\textbf{Status: LOCKED --- public embed widget guard envelope tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 12A created the public website intent gateway preview.
+Phase 12B created the public website embed widget shell.
+Phase 12C created backend request mapping for form, button, and embedded chat widget payloads.
+Phase 12D created a frontend-visible mapping bridge.
+
+Phase 12E adds the guard envelope that must sit in front of any future public embed route or public widget write route.
+
+The guard envelope records the required security and operational gates before a public website request can ever be allowed to create a live job.
+
+This phase is preview-only. It does not mount a public route and does not create live side effects.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/public_embed_guard_envelope.py
+\end{verbatim}
+
+The module exports:
+
+\begin{itemize}
+  \item \texttt{PUBLIC\_EMBED\_GUARD\_ENVELOPE\_VERSION},
+  \item \texttt{SUPPORTED\_WIDGET\_SOURCES},
+  \item \texttt{build\_public\_embed\_guard\_envelope\_preview},
+  \item \texttt{build\_public\_embed\_guard\_envelope\_summary}.
+\end{itemize}
+
+The locked contract version is:
+
+\begin{verbatim}
+aion.public_embed_guard_envelope.v0.1
+\end{verbatim}
+
+\subsection{Supported Widget Sources}
+
+The preview supports the current public widget source vocabulary:
+
+\begin{itemize}
+  \item \texttt{website\_form\_widget},
+  \item \texttt{website\_button\_widget},
+  \item \texttt{embedded\_chat\_widget}.
+\end{itemize}
+
+Unsupported widget sources are blocked with:
+
+\begin{verbatim}
+unsupported_widget_source
+\end{verbatim}
+
+\subsection{Required Guards}
+
+The guard envelope records the required gates for any future public embed route:
+
+\begin{itemize}
+  \item tenant/business key validation,
+  \item signed request validation,
+  \item rate limiting,
+  \item abuse protection,
+  \item human review.
+\end{itemize}
+
+The locked guard states are:
+
+\begin{verbatim}
+tenant_business_key_validation_required = true
+tenant_business_key_validated = false
+signed_request_validation_required = true
+signed_request_validated = false
+rate_limiting_required = true
+rate_limiting_enforced = false
+abuse_protection_required = true
+abuse_protection_enforced = false
+human_review_required = true
+human_review_completed = false
+agent_identity_validation_enabled = false
+scoped_permissions_enabled = false
+\end{verbatim}
+
+This means the system can describe the required guards, but does not yet execute live authentication, live signature verification, live rate limiting, live abuse protection, or live scoped permission checks.
+
+\subsection{Blocked Reasons}
+
+The default blocked reasons include:
+
+\begin{verbatim}
+preview_only
+tenant_business_key_validation_not_live
+signed_request_validation_not_live
+rate_limiting_not_live
+abuse_protection_not_live
+human_review_required
+public_write_route_not_mounted
+no_live_job_creation
+\end{verbatim}
+
+\subsection{Hashing}
+
+The guard envelope includes deterministic hashes:
+
+\begin{itemize}
+  \item \texttt{request\_hash},
+  \item \texttt{guard\_hash},
+  \item \texttt{safety\_hash},
+  \item \texttt{response\_hash},
+  \item \texttt{summary\_hash}.
+\end{itemize}
+
+The request hash changes when the request content changes.
+The guard hash is stable for identical guard state.
+The safety hash is stable for identical safety state.
+The response hash binds the whole preview envelope.
+The summary hash binds the compact summary view.
+
+\subsection{Frontend Note}
+
+Phase 12E does not create a new frontend visual surface.
+
+No new manual frontend smoke test is required for this phase.
+
+Phase 12B and Phase 12D were frontend-visible phases.
+Phase 12E is a backend contract and guard-preview phase only.
+
+\subsection{Safety Boundary}
+
+The guard envelope is preview-only.
+
+The locked safety fields are:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_messages = false
+unauthenticated_public_write_route_exposed = false
+public_route_mounted = false
+\end{verbatim}
+
+The guard envelope MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item expose an unauthenticated public write route,
+  \item mount a public write route.
+\end{itemize}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_public_embed_guard_envelope_lock.py \
+  backend/tests/workflow_capsules/test_aion_public_embed_guard_envelope_lock_doc.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Locked Files}
+
+The Phase 12E lock includes:
+
+\begin{verbatim}
+backend/modules/aion_gateway/__init__.py
+backend/modules/aion_gateway/public_embed_guard_envelope.py
+backend/tests/workflow_capsules/test_aion_public_embed_guard_envelope_lock.py
+backend/tests/workflow_capsules/test_aion_public_embed_guard_envelope_lock_doc.py
+docs/rfc/aion_public_embed_guard_envelope_lock.tex
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Next Step}
+
+The next implementation step should be Phase 12F:
+
+\begin{quote}
+\textbf{Phase 12F --- Public Embed Human Approval Handoff Preview v0}
+\end{quote}
+
+Phase 12F should define the preview-only handoff from public widget request mapping into a human approval queue before any live job creation path exists.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PUBLIC-EMBED-GUARD-ENVELOPE-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

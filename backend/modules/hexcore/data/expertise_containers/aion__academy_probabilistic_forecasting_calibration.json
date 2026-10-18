@@ -1,0 +1,280 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_scientific_method",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:scientific_method",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:base_rates",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:reference_classes",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:bayesian_updates",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:forecast_decomposition",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:proper_scoring_rules",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:calibration",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:aggregation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:decision_thresholds",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "label": "Probabilistic forecasting and calibration",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:base_rates",
+      "label": "base rates",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:reference_classes",
+      "label": "reference classes",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:bayesian_updates",
+      "label": "bayesian updates",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:forecast_decomposition",
+      "label": "forecast decomposition",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:proper_scoring_rules",
+      "label": "proper scoring rules",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:calibration",
+      "label": "calibration",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:aggregation",
+      "label": "aggregation",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:decision_thresholds",
+      "label": "decision thresholds",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_probabilistic_forecasting_calibration",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:base_rates",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:reference_classes",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:bayesian_updates",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:forecast_decomposition",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:proper_scoring_rules",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:calibration",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:aggregation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:decision_thresholds",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "label": "Probabilistic forecasting and calibration",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:base_rates",
+        "label": "base rates",
+        "subject_id": "probabilistic_forecasting_calibration",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:reference_classes",
+        "label": "reference classes",
+        "subject_id": "probabilistic_forecasting_calibration",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:bayesian_updates",
+        "label": "bayesian updates",
+        "subject_id": "probabilistic_forecasting_calibration",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:forecast_decomposition",
+        "label": "forecast decomposition",
+        "subject_id": "probabilistic_forecasting_calibration",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:proper_scoring_rules",
+        "label": "proper scoring rules",
+        "subject_id": "probabilistic_forecasting_calibration",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:calibration",
+        "label": "calibration",
+        "subject_id": "probabilistic_forecasting_calibration",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:aggregation",
+        "label": "aggregation",
+        "subject_id": "probabilistic_forecasting_calibration",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probabilistic_forecasting_calibration:decision_thresholds",
+        "label": "decision thresholds",
+        "subject_id": "probabilistic_forecasting_calibration",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "probabilistic_forecasting_calibration",
+    "title": "AION Academy \u00b7 Probabilistic forecasting and calibration"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

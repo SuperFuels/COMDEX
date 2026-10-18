@@ -1,0 +1,155 @@
+% Compile-ready section. Requires: enumitem.
+
+\section{GlyphChain and Legal Application-Account Recovery}
+\label{sec:glyphchain-legal-application-account-recovery}
+
+\noindent\textbf{Status:} The local protocol foundation, standalone monotonic
+registry service and signed AION desktop-session enforcement are implemented.
+An independently operated registry deployment, connection of the remaining
+session issuers and live clean-device recovery and revocation exercises remain
+production release gates.
+
+\subsection{Purpose and Separation of Authority}
+
+Application-account recovery is intentionally separate from whole-device,
+Legal-key and GlyphChain network-identity backups.  Restoring files from a lost
+machine does not prove that the person performing the restoration owns the
+Tessaris account and does not grant validator authority.
+
+The implemented protocol creates two distinct artefacts:
+
+\begin{enumerate}[leftmargin=*]
+  \item an encrypted account-root recovery kit, which must be retained outside
+        the Tessaris runtime; and
+  \item a root-signed public account descriptor, which may be published or
+        retained independently without disclosing account secrets.
+\end{enumerate}
+
+The stable account identifier is derived from the Ed25519 account-root public
+key.  The kit contains the corresponding private root encrypted with scrypt
+using \(N=32768\), \(r=8\) and \(p=1\), followed by AES--256--GCM authenticated
+encryption.  The recovery password is never written into the kit or runtime
+state.  Production root-key custody uses the platform Keychain; development
+tests use an owner-only local file.
+
+The account-root key is not a Legal proof-device key, peer-to-peer transport
+key or validator-finality key.  Deployment-managed validator-finality
+credentials remain in approved secret custody and outside the recovery kit.
+Account recovery neither restores nor copies those credentials and does not
+grant validator participation rights.
+
+\subsection{Clean-Device Recovery}
+
+Recovery requires all of the following:
+
+\begin{itemize}[leftmargin=*]
+  \item the off-device encrypted recovery kit;
+  \item the kit password;
+  \item the expected account identifier;
+  \item the current independently retained public descriptor;
+  \item a new device identifier; and
+  \item the exact destructive-recovery confirmation phrase.
+\end{itemize}
+
+Tessaris authenticates the kit, derives and verifies the root public key,
+checks the expected account and workspace, verifies the current descriptor's
+root signature, advances the monotonic recovery epoch and signs a replacement
+descriptor.  The replacement lists only the newly recovered device and treats
+every unlisted device as revoked.  Its continuity field commits to the exact
+digest of the preceding descriptor.
+
+Any consumer of this authority can reject a stale recovery epoch and a device
+omitted from the active descriptor.  Wrong passwords, modified kits, modified
+descriptors, unexpected account identifiers, recovery-kit destinations inside
+the runtime and recovery into an already initialised target all fail closed.
+
+\subsection{Authenticated Session Binding}
+
+When an account descriptor is present, the installed Tessaris desktop signer
+and backend verifier use the domain-separated
+\texttt{aion.flow.desktop-session.v2} format.  Each signed request binds:
+
+\begin{itemize}[leftmargin=*]
+  \item the account identifier and recovery epoch;
+  \item the authorised device, person and workspace;
+  \item the exact HTTP method and target;
+  \item the request-body digest; and
+  \item a timestamp and single-use nonce.
+\end{itemize}
+
+The verifier rejects a pre-recovery epoch, a revoked or unknown device, a
+mismatched account or workspace and replay of the nonce.  Account headers sent
+to a backend without the corresponding descriptor fail closed instead of
+falling back to the legacy session format.  Version~1 remains only as a
+migration path when no account descriptor exists.  The remaining application
+session issuers must adopt the same account, epoch and device binding before
+production account recovery can be claimed.
+
+The interactive operator command
+\texttt{backend/scripts/application\_account\_recovery.py} exposes
+\texttt{initialize}, \texttt{recover} and \texttt{status} operations.  It reads
+passwords interactively and never accepts them as command-line arguments.  It
+can write the public descriptor for independent publication while leaving the
+encrypted recovery kit under owner control.
+
+\subsection{Freshness and Publication Boundary}
+
+The recovery kit cannot appoint its own latest account state.  A holder of an
+old valid descriptor can prove that the descriptor was valid at one time, but
+a local verifier cannot determine by itself whether a later recovery has
+superseded it.  Production therefore requires a separately operated
+current-descriptor registry or another independently controlled monotonic
+publication channel.
+
+The implemented standalone registry authenticates the root signature, accepts
+epoch one as the initial state and thereafter requires an exact one-epoch
+advance tied to the current descriptor digest.  It preserves append-only
+history and rejects rollback, same-epoch equivocation, epoch gaps, broken
+continuity, workspace changes, tampering and configured capacity exhaustion.
+The service stores no recovery secrets, bounds request bodies and refuses
+non-loopback operation without TLS and an out-of-band publication token of at
+least 32 characters.  The approved secret store supplies that token through
+\texttt{TESSARIS\_ACCOUNT\_REGISTRY\_PUBLISH\_TOKEN}; it is never accepted as a
+command-line argument and is not required to read a public descriptor.
+
+The backend can use the separately running service through
+\texttt{TESSARIS\_ACCOUNT\_DESCRIPTOR\_REGISTRY\_URL}.  A production URL must
+use HTTPS.  The client stores a local anti-rollback memory but never treats it
+as fresh authority when the live registry is unavailable.  Therefore a network
+failure fails closed rather than silently authorising a cached device.
+
+A service running beside the desktop is not operationally independent.  A live
+clean-device exercise must prove that the replacement device becomes active
+and that every lost or replaced device is rejected using the separately
+operated registry's current descriptor.  Until that deployment, connection of
+the remaining session issuers and the live exercise pass, Tessaris must
+describe this capability as an implemented local recovery and registry
+foundation rather than production application-account recovery.
+
+\subsection{Verified Local Behaviour}
+
+The focused regression verifies:
+
+\begin{itemize}[leftmargin=*]
+  \item encrypted off-device kit creation without plaintext private-key
+        disclosure;
+  \item root-signed public descriptors and stable account-identifier
+        verification;
+  \item rejection of wrong passwords and tampered kits or descriptors;
+  \item expected-account and workspace binding;
+  \item monotonic recovery-epoch advancement;
+  \item rejection of an old device and stale session epoch;
+  \item clean-target enforcement;
+  \item exact descriptor-chain continuity after recovery;
+  \item version~2 signed desktop-session binding and fail-closed backend
+        validation;
+  \item append-only monotonic descriptor publication with idempotent replay;
+  \item rollback, equivocation, gap, tampering and unsafe-path rejection;
+  \item bounded standalone registry API behavior and HTTPS-only production
+        client configuration; and
+  \item persistent rollback detection without stale-cache authorization.
+\end{itemize}
+
+These tests are local protocol evidence.  They are not evidence of independent
+publication, live multi-device revocation, production availability or recovery
+of validator-finality authority.

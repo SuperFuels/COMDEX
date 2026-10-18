@@ -1,0 +1,33 @@
+\section{Workspace Gateway Security Verification}
+\label{sec:pilot-mobile-workspace-security-verification}
+\raggedright
+
+The coded Workspace and Boardroom bridge is complete through its adversarial verification stage.
+The verification programme treats an organisation administrator, a replaceable provider, a stale
+phone, and an expired membership as potentially hostile boundaries rather than trusted interface
+states.
+
+Malicious-administrator tests prove that management authority cannot cross workspace identifiers,
+cannot grant capabilities the administrator does not hold, and cannot manufacture Personal Pilot
+authority.  An attempted role grant containing professional sign-off or Personal-memory scope is
+rejected when those capabilities are outside the administrator's own exact grant.
+
+Provider-boundary tests deliberately return a workspace response containing a Personal-memory
+namespace.  The gateway rejects the complete response.  A provider also cannot claim an external
+write from a read-only conversation.  Files remain source-owned, unknown file identifiers fail,
+and cross-space references require independently active source and target memberships.
+
+Expiry tests give one membership every Stage 6 capability and then expire it.  Briefings,
+conversations, review cards, sign-off packages, file references, and desktop handoffs all fail on
+their next authority check.  Stale review-card and sign-off hashes, changed idempotency content,
+wrong professional roles, and previously decided packages also fail closed.
+
+The complete AION Fabric regression passes all 499 automated tests.  The optimized unified-phone
+application compiles, and each append-only Stage 6 LaTeX section compiles independently.  No live
+organisation record, external account, provider service, phone, or television was mutated by this
+verification.
+
+This closes coded task \texttt{MOB-0613} and the Stage 6 implementation.  A representative field
+exercise involving two real organisations, a freelancer, an owner, and an expiring membership
+remains an explicit qualification gate before production release; it is not represented as passed
+by automated evidence.

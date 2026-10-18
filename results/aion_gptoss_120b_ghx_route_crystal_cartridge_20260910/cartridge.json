@@ -1,0 +1,21 @@
+{
+  "authorization_sha256": "e1bd12cbde252a410b6cd293c71f70c46edb8a99f1b2bc84a57f549dfcfbaa90",
+  "canonical_sha256": "faa36db8c52b689d5eee8758dcf2c2f5ba1f2d3d3fcc25825f8db9e9991d0b0d",
+  "configuration": {
+    "kernel": "linear",
+    "ridge": 1e-06,
+    "route_weight": 16.0,
+    "router_normalized": true
+  },
+  "exact_fallback_required": true,
+  "files": {
+    "alpha-f32.bin": "09374bc1c57d19c87bc49f923499cc1c57f2b05431410bd058b6b98a48df955c",
+    "route-crystal.ghx.json": "22e0488bbb1b7f56a8f8ead8dfcab6a9e3ec8e09c36b2602955db7a34c02b102",
+    "route-glyphs-f32.bin": "bcb1b1ba2dc40a8d98899f9a2c635d9f3ce0b4675b21742d8b5f757eb1a5a581",
+    "router-prototypes-f32.bin": "c1de0170668edf2720bfa21af9aa552de6132e20bc8e9b4bbd36ac5a3ecd2e13"
+  },
+  "layer": 6,
+  "quality_track": true,
+  "schema": "aion.ghx-route-crystal-cartridge.v1",
+  "source_manifest_canonical_sha256": "a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a"
+}

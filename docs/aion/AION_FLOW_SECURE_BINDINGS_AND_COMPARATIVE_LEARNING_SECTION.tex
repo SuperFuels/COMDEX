@@ -1,0 +1,80 @@
+\section{Secure Bindings and Comparative Intelligence Learning}
+\label{sec:aion-flow-secure-bindings-comparison}
+
+This section records completion of AION Flow task \texttt{AFLOW-0211} and
+Stage~9.  Together they let a customer connect replaceable intelligence without
+placing secrets in a workflow, then compare alternative models, harnesses or
+compute routes without surrendering the accumulated AION brain.
+
+\subsection{Visual Vault Credential Binding}
+
+Every Intelligence Stack field requiring a credential is rendered as a Visual
+Vault selector.  The selector displays only non-secret metadata: a human label,
+provider, stable reference, status and revision.  A new credential may be
+entered from the Node Editor, but it is sent directly to the local mother-brain
+vault.  The vault encrypts it and returns a stable opaque reference of the form
+\texttt{vault://model/binding-name}.  Only this reference is stored in the
+canvas graph.
+
+Raw keys, passwords and tokens are therefore excluded from canvas state,
+autosave, workflow history, logs, previews, exports and execution receipts.  A
+create operation requires an explicit vault-intent marker.  Public list
+operations cannot return secret material.  Bindings can subsequently be
+rotated or revoked without editing every workflow that refers to them; a
+revoked or unavailable binding fails closed.
+
+\subsection{Controlled Stack Comparison}
+
+The existing Workflow Canvas now exposes a \emph{Compare stacks} centre.  A
+user chooses one model, harness or compute node and supplies its challenger
+value.  AION duplicates the complete graph and changes only the selected
+declared field.  The original graph remains the champion.  Both graph versions
+are hashed and bound to the same versioned evidence pack, preventing an
+apparently superior route from being tested on easier evidence.
+
+The comparison records six normalized dimensions:
+\begin{itemize}
+  \item quality and correctness;
+  \item evidence coverage;
+  \item latency;
+  \item monetary cost; and
+  \item energy consumption.
+\end{itemize}
+Public benchmark measurements and customer-private outcome measurements use
+separate scopes.  Private measures remain in the customer-owned evaluation
+ledger and are not promoted into a public benchmark.
+
+\subsection{Simulation, Evidence and Learning Boundary}
+
+The two immutable variants can be run through a paired dry comparison.  Both
+receive the identical evidence-pack object and hash.  This operation performs
+no external writes and cannot alter route preferences.  It exists to expose
+configuration, policy, evidence and cost differences before live evaluation.
+
+A measurement may influence AION only when it carries either a verified
+outcome receipt or an explicit human correction.  Unverified model scores and
+ordinary simulations are retained as observations but excluded from the
+learning sample.  This prevents a model from declaring itself successful and
+then teaching the router to select itself.
+
+\subsection{Champion, Challenger and Reversible Promotion}
+
+Challenger traffic is bounded to at most one half of eligible work and defaults
+to ten per cent.  Promotion requires the configured minimum sample count,
+improved quality, no regression in correctness or evidence coverage, and no
+active drift warning.  Drift checks currently identify material correctness or
+evidence regression and changes in provider-behaviour fingerprints.
+
+Every promotion stores the actor, reason, comparison hash and decision hash.
+The interface explains the accepted learning evidence, ignored unverified
+observations, current recommendation, active route, detected drift and routing
+history.  The owner may return immediately to the original champion; rollback
+does not delete the challenger or the evidence that justified either decision.
+
+\subsection{Sovereign Result}
+
+Models, harnesses, endpoints and compute providers remain replaceable tools.
+Identity, memory, permissions, Business Map knowledge, evidence policy,
+verified outcomes and learned route preferences remain with the customer's
+AION brain.  A provider can therefore be upgraded, compared, demoted or removed
+without resetting what the organisation has learned.

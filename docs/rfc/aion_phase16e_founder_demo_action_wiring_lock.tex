@@ -1,0 +1,62 @@
+\section{Phase 16E --- Founder Demo Action Wiring}
+\label{sec:aion-phase16e-founder-demo-action-wiring-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 16E wires the simplified Boardroom front page into a deterministic founder-demo action loop.
+
+\subsection{Purpose}
+
+The Boardroom front page MUST be able to demonstrate the complete Home Fixed proof path without live side effects:
+
+\begin{quote}
+Home Fixed website/widget request $\rightarrow$ Public Intent Gateway $\rightarrow$ Guard Envelope $\rightarrow$ AgentMap/capability route $\rightarrow$ Machine Cart/quote preview $\rightarrow$ Human Review handoff $\rightarrow$ Founder decision preview $\rightarrow$ FulfilmentJob preview $\rightarrow$ Evidence preview $\rightarrow$ Proof receipt preview $\rightarrow$ ETS preview $\rightarrow$ Boardroom replay.
+\end{quote}
+
+\subsection{Locked Frontend Actions}
+
+The founder demo surface exposes guarded preview actions:
+
+\begin{itemize}
+  \item run Home Fixed preview;
+  \item open human review;
+  \item view proof receipt;
+  \item replay boardroom trace.
+\end{itemize}
+
+These actions update local preview state only.
+
+\subsection{Safety Boundary}
+
+The following side effects MUST remain blocked:
+
+\begin{itemize}
+  \item no booking created;
+  \item no payment created;
+  \item no escrow created;
+  \item no external message sent;
+  \item no live chain write;
+  \item no live execution allowed.
+\end{itemize}
+
+Human review MUST remain required. Replay/hash proof MUST remain visible.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase16e_founder_demo_action_wiring_lock.py
+\end{verbatim}
+
+Focused suite membership is required.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE16E-FOUNDER-DEMO-ACTION-WIRING-LOCK
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

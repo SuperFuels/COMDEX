@@ -66,6 +66,24 @@ def _append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
+def _alerts_state_path(base_dir: Path, company_ref: str, fiscal_period: str) -> Path:
+    return base_dir / "alerts" / "state" / _safe_segment(company_ref) / f"{_safe_segment(fiscal_period)}.json"
+
+def _load_alert_state(base_dir: Path, company_ref: str, fiscal_period: str) -> Dict[str, str]:
+    p = _alerts_state_path(base_dir, company_ref, fiscal_period)
+    if not p.exists():
+        return {}
+    try:
+        obj = json.loads(p.read_text(encoding="utf-8"))
+        return obj if isinstance(obj, dict) else {}
+    except Exception:
+        return {}
+
+def _save_alert_state(base_dir: Path, company_ref: str, fiscal_period: str, state: Dict[str, str]) -> None:
+    p = _alerts_state_path(base_dir, company_ref, fiscal_period)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
 
 def _safe_float(x: Any) -> Optional[float]:
     try:
@@ -649,11 +667,89 @@ def _commodity_tick_for_feed(feed_id: str) -> Optional[Dict[str, Any]]:
     except Exception:
         return None
 
+def _repo_root_from_base_dir(base_dir: Path) -> Path:
+    # base_dir is .../.runtime/equities, so repo root is ../..
+    return base_dir.resolve().parent.parent
+
+
+def _load_fx_weights_for_company(base_dir: Path, company_ref: str) -> Tuple[Optional[Dict[str, Any]], Optional[Path]]:
+    repo = _repo_root_from_base_dir(base_dir)
+    company_safe = _safe_segment(company_ref)  # company_ULVR.L -> company_ULVR.L
+    p = repo / "backend" / "modules" / "aion_equities" / "master_intelligence" / company_safe / "fx_weights.json"
+    try:
+        obj = json.loads(p.read_text(encoding="utf-8"))
+        if isinstance(obj, dict) and isinstance(obj.get("components"), list):
+            return obj, p
+    except Exception:
+        return None, None
+    return None, None
+
+
+def _read_fx_quarter_avg_value(base_dir: Path, feed_id: str, fiscal_period: str, fx_mode: str) -> Optional[float]:
+    p = base_dir / "fx_quarter_avg" / _safe_segment(feed_id) / f"{_safe_segment(fiscal_period)}.json"
+    if not p.exists():
+        return None
+    try:
+        st = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+    m = str(fx_mode or "spot").strip().lower()
+    if m == "ewma":
+        return _safe_float(st.get("ewma_avg")) or _safe_float(st.get("running_avg"))
+    if m == "avg":
+        return _safe_float(st.get("running_avg"))
+    # spot mode: we still only have quarter store here; use running_avg as best approximation
+    return _safe_float(st.get("running_avg")) or _safe_float(st.get("ewma_avg"))
+
+
+def _compute_composite_fx_impact(
+    *,
+    weights_obj: Dict[str, Any],
+    current_avgs: Dict[str, float],
+) -> Dict[str, Any]:
+    total = 0.0
+    comps_out: Dict[str, Any] = {}
+
+    for c in weights_obj.get("components", []):
+        if not isinstance(c, dict):
+            continue
+        fid = str(c.get("feed_id") or "").strip()
+        w = _safe_float(c.get("weight"))
+        prior = _safe_float(c.get("prior_year_avg"))
+        direction = str(c.get("direction") or "inverse").strip().lower()
+
+        cur = _safe_float(current_avgs.get(fid))
+        if not fid or w is None or prior is None or prior == 0 or cur is None:
+            continue
+
+        pct = (cur - prior) / prior * 100.0
+        if direction == "inverse":
+            pct = -pct
+
+        weighted = pct * float(w)
+        total += weighted
+
+        comps_out[fid] = {
+            "current": float(cur),
+            "prior": float(prior),
+            "pct_change": round(float(pct), 3),
+            "weight": float(w),
+            "weighted_impact": round(float(weighted), 3),
+            "direction": direction,
+        }
+
+    return {
+        "total_impact_pct": round(float(total), 3),
+        "components": comps_out,
+    }
+
 
 def build_feed_ticks_from_variables(
     *,
     variables: List[Dict[str, Any]],
     base_dir: Path,
+    company_ref: str,
     fiscal_period: str,
     fx_mode: str,
     ewma_half_life_days: float,
@@ -663,18 +759,29 @@ def build_feed_ticks_from_variables(
     Builds feed ticks for:
       - FX variables (ECB spot -> quarter avg store -> chosen mode spot/avg/ewma)
       - Commodity variables (Yahoo/yfinance via commodity_update_for_feed)
+      - Computed composite FX impact (ulvr_composite_fx_impact) using fx_weights.json + current FX quarter avgs
 
     Notes:
       - Commodities do NOT use the FX quarter-avg store.
       - For commodities, we optionally convert raw currency -> target_currency (USD)
         using ECB cross rates via EUR (if available) so USD thresholds stay valid.
+      - Composite FX impact uses the *chosen* FX mode (spot/avg/ewma) from the quarter store.
       - We keep metadata rich so debugging is easy.
     """
     ecb_as_of, ecb_rates = fetch_ecb_rates()
 
     ticks: List[FeedTick] = []
 
+    # Track which FX feeds we touched + their chosen values (so composite can use them as a fast-path)
+    fx_chosen_by_feed: Dict[str, float] = {}
+
+    # -------------------------
+    # 1) Primary ticks from variables
+    # -------------------------
     for v in variables:
+        if not isinstance(v, dict):
+            continue
+
         fid = str(v.get("feed_id") or "").strip()
         if not fid:
             continue
@@ -684,7 +791,7 @@ def build_feed_ticks_from_variables(
         # -------------------------
         # FX
         # -------------------------
-        if cat == "fx":
+        if cat == "fx" and fid != "ulvr_composite_fx_impact":
             spot = resolve_fx_spot(fid, ecb_rates=ecb_rates)
             if spot is None:
                 continue
@@ -707,6 +814,8 @@ def build_feed_ticks_from_variables(
                 running_avg=running_avg,
                 ewma_avg=ewma_avg,
             )
+
+            fx_chosen_by_feed[fid] = float(chosen)
 
             ticks.append(
                 FeedTick(
@@ -786,12 +895,124 @@ def build_feed_ticks_from_variables(
             )
             continue
 
+        # other categories not handled here yet
         continue
 
+    # -------------------------
+    # 2) COMPUTED: composite FX impact (ulvr_composite_fx_impact)
+    # -------------------------
+    wants_composite = any(
+        isinstance(v, dict) and str(v.get("feed_id") or "").strip() == "ulvr_composite_fx_impact"
+        for v in variables
+    )
+
+    if wants_composite:
+        # IMPORTANT: always define both in except so weights_path never becomes "unbound"
+        try:
+            weights_obj, weights_path = _load_fx_weights_for_company(base_dir, company_ref)
+        except Exception:
+            weights_obj, weights_path = None, None
+
+        if isinstance(weights_obj, dict) and isinstance(weights_obj.get("components"), list):
+            # Build current avgs for required component feeds.
+            # Prefer values we already computed this tick (fx_chosen_by_feed),
+            # else read from fx store on disk (so composite still works if a feed wasn’t in variable_watch for some reason).
+            current_avgs: Dict[str, float] = {}
+            missing: List[str] = []
+
+            for c in weights_obj.get("components", []):
+                if not isinstance(c, dict):
+                    continue
+                comp_fid = str(c.get("feed_id") or "").strip()
+                if not comp_fid:
+                    continue
+
+                if comp_fid in fx_chosen_by_feed:
+                    current_avgs[comp_fid] = float(fx_chosen_by_feed[comp_fid])
+                    continue
+
+                # fallback: read from fx store file and select by fx_mode
+                st = _load_fx_store(base_dir, comp_fid, fiscal_period)
+
+                m = str(fx_mode or "spot").strip().lower()
+                val: Optional[float] = None
+
+                if m == "ewma":
+                    val = _safe_float(st.get("ewma_avg")) or _safe_float(st.get("running_avg"))
+                elif m == "avg":
+                    val = _safe_float(st.get("running_avg"))
+                else:
+                    # spot: last sample spot if available, else running_avg, else ewma
+                    samples = st.get("samples") if isinstance(st.get("samples"), list) else []
+                    if samples and isinstance(samples[-1], dict):
+                        val = _safe_float(samples[-1].get("spot"))
+                    if val is None:
+                        val = _safe_float(st.get("running_avg")) or _safe_float(st.get("ewma_avg"))
+
+                if val is None:
+                    missing.append(comp_fid)
+                else:
+                    current_avgs[comp_fid] = float(val)
+
+            computed = _compute_composite_fx_impact(weights_obj=weights_obj, current_avgs=current_avgs)
+            total_impact_pct = _safe_float(computed.get("total_impact_pct"))
+
+            if total_impact_pct is not None:
+                ticks.append(
+                    FeedTick(
+                        feed_id="ulvr_composite_fx_impact",
+                        value=float(total_impact_pct),
+                        as_of=f"{ecb_as_of}T00:00:00Z",
+                        meta={
+                            "source": "computed",
+                            "kind": "composite_fx_impact",
+                            "fx_mode": str(fx_mode),
+                            "quarter": str(fiscal_period),
+                            "missing_components": missing,
+                            "components": computed.get("components", {}),
+                            # ✅ point to the actual weights file path, so you can verify provenance
+                            "weights_ref": (str(weights_path) if weights_path else ""),
+                        },
+                    )
+                )
+
+    # de-dupe by feed_id (last one wins)
     uniq: Dict[str, FeedTick] = {}
     for t in ticks:
         uniq[t.feed_id] = t
     return list(uniq.values())
+
+def _alerts_state_path(base_dir: Path, company_ref: str, fiscal_period: str) -> Path:
+    """
+    Per company+quarter alert de-dupe state.
+    Stores last-emitted trigger state so we only write alerts.jsonl on state change.
+    """
+    return (
+        base_dir
+        / "alerts"
+        / "state"
+        / _safe_segment(company_ref)
+        / f"{_safe_segment(fiscal_period)}.json"
+    )
+
+
+def _load_alert_state(base_dir: Path, company_ref: str, fiscal_period: str) -> Dict[str, str]:
+    p = _alerts_state_path(base_dir, company_ref, fiscal_period)
+    if not p.exists():
+        return {}
+    try:
+        obj = json.loads(p.read_text(encoding="utf-8"))
+        if isinstance(obj, dict):
+            return {str(k): str(v) for k, v in obj.items()}
+    except Exception:
+        pass
+    return {}
+
+
+def _save_alert_state(base_dir: Path, company_ref: str, fiscal_period: str, state: Dict[str, str]) -> None:
+    p = _alerts_state_path(base_dir, company_ref, fiscal_period)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def run_tick(
@@ -806,26 +1027,66 @@ def run_tick(
 ) -> Dict[str, Any]:
     now_iso = _utc_now_iso()
 
+    # ---- validate inputs early (clean failures) ----
+    base_dir = Path(base_dir).resolve()
+    company_ref = str(company_ref or "").strip()
+    fiscal_period = str(fiscal_period or "").strip()
+    fx_mode = str(fx_mode or "spot").strip().lower()
+    dry_run = bool(dry_run)
+
+    if not company_ref:
+        raise SystemExit("run_tick: company_ref is required")
+    if not fiscal_period:
+        raise SystemExit("run_tick: fiscal_period is required")
+    if fx_mode not in {"spot", "avg", "ewma"}:
+        raise SystemExit(f"run_tick: invalid fx_mode={fx_mode!r} (expected spot|avg|ewma)")
+
     if strict_quarter:
         _strict_quarter_guard(fiscal_period)
 
-    vw = _load_variable_watch(company_ref, fiscal_period, base_dir)
-    variables = vw.get("variables") or []
+    # --- refresh company events (earnings calendar) ---
+    # Best-effort: never break the tick if this fails.
+    try:
+        from backend.modules.aion_equities.earnings_calendar import refresh_company_events
 
-    # Load ONLY this quarter's trigger map (we will ONLY mutate/save this file)
-    tmap = _load_trigger_map(company_ref, fiscal_period, base_dir)
+        refresh_company_events(base_dir=base_dir, company_ref=company_ref)
+    except Exception:
+        pass
 
-    # backfill feed_id + threshold_rule into trigger map file
+    # --- load inputs (fail loud + helpful) ---
+    vw_path = base_dir / "variable_watch" / _safe_segment(company_ref) / f"{_safe_segment(fiscal_period)}.json"
+    tm_path = base_dir / "company_trigger_maps" / _safe_segment(company_ref) / f"{_safe_segment(fiscal_period)}.json"
+
+    try:
+        vw = _load_variable_watch(company_ref, fiscal_period, base_dir)
+    except FileNotFoundError as e:
+        raise SystemExit(f"Missing variable_watch: {vw_path}") from e
+
+    variables = vw.get("variables") if isinstance(vw.get("variables"), list) else []
+
+    try:
+        tmap = _load_trigger_map(company_ref, fiscal_period, base_dir)
+    except FileNotFoundError as e:
+        raise SystemExit(f"Missing trigger_map: {tm_path}") from e
+
+    # --- backfill feed_id + threshold_rule (optionally persist) ---
     tmap, patched = _backfill_trigger_feed_ids(trigger_map=tmap, variables=variables)
     if patched and not dry_run:
         _save_trigger_map(tmap, base_dir)
 
+    # ---- ALERT DEDUPE STATE (per company+quarter) ----
+    alert_state: Dict[str, str] = _load_alert_state(base_dir, company_ref, fiscal_period)
+    alert_state_changed = False
+    alerts_emitted = 0
+
+    # --- build ticks (FX store writes disabled in dry_run) ---
     ticks = build_feed_ticks_from_variables(
         variables=variables,
         base_dir=base_dir,
+        company_ref=company_ref,
         fiscal_period=fiscal_period,
         fx_mode=fx_mode,
-        ewma_half_life_days=ewma_half_life_days,
+        ewma_half_life_days=float(ewma_half_life_days),
         write_fx_store=(not dry_run),
     )
 
@@ -835,7 +1096,13 @@ def run_tick(
     for t in ticks:
         if dry_run:
             updates.append(
-                {"feed_id": t.feed_id, "value": t.value, "as_of": t.as_of, "metadata": t.meta, "dry_run": True}
+                {
+                    "feed_id": t.feed_id,
+                    "value": t.value,
+                    "as_of": t.as_of,
+                    "metadata": t.meta,
+                    "dry_run": True,
+                }
             )
             continue
 
@@ -846,33 +1113,50 @@ def run_tick(
             as_of=t.as_of,
             metadata=t.meta,
         )
+
         trigger_map_changed = trigger_map_changed or bool(res.get("changed"))
         ev = res.get("event") or {}
         updates.append(ev)
 
-        # alerts for confirmed/broken (ONLY for this quarter's trigger map)
-        for u in ev.get("updates") or []:
-            st = str(u.get("state") or "").strip().lower()
-            if st in {"confirmed", "broken"}:
-                _append_jsonl(
-                    base_dir / "alerts" / "alerts.jsonl",
-                    {
-                        "as_of": ev.get("as_of"),
-                        "company_ref": u.get("company_ref"),
-                        "trigger_map_id": u.get("trigger_map_id"),
-                        "trigger_id": u.get("trigger_id"),
-                        "feed_id": u.get("feed_id"),
-                        "value": u.get("value"),
-                        "state": u.get("state"),
-                        "kind": "trigger_state",
-                        "generated_by": "backend.scripts.run_live_monitor_tick",
-                    },
-                )
+        # alerts: emit ONLY on state-change, and only for confirmed/broken
+        for u in (ev.get("updates") or []):
+            trigger_id = str(u.get("trigger_id") or "").strip()
+            if not trigger_id:
+                continue
 
+            st = str(u.get("state") or "").strip().lower()
+            prev = str(alert_state.get(trigger_id) or "").strip().lower()
+
+            if st != prev:
+                alert_state[trigger_id] = st
+                alert_state_changed = True
+
+                if st in {"confirmed", "broken"}:
+                    _append_jsonl(
+                        base_dir / "alerts" / "alerts.jsonl",
+                        {
+                            "as_of": ev.get("as_of"),
+                            "company_ref": u.get("company_ref"),
+                            "trigger_map_id": u.get("trigger_map_id"),
+                            "trigger_id": trigger_id,
+                            "feed_id": u.get("feed_id"),
+                            "value": u.get("value"),
+                            "state": u.get("state"),
+                            "kind": "trigger_state",
+                            "generated_by": "backend.scripts.run_live_monitor_tick",
+                        },
+                    )
+                    alerts_emitted += 1
+
+    # --- persist local quarter files (only if not dry_run) ---
     if trigger_map_changed and not dry_run:
         _save_trigger_map(tmap, base_dir)
 
-    return {
+    if alert_state_changed and not dry_run:
+        _save_alert_state(base_dir, company_ref, fiscal_period, alert_state)
+
+    # ✅ OUT PAYLOAD (the exact shape you asked for)
+    out: Dict[str, Any] = {
         "ok": True,
         "company_ref": company_ref,
         "fiscal_period_ref": fiscal_period,
@@ -883,12 +1167,36 @@ def run_tick(
         "fx_mode": fx_mode,
         "ewma_half_life_days": float(ewma_half_life_days),
         "updates": updates,
+        "alerts_emitted": int(alerts_emitted),
+        "alert_state_path": str(_alerts_state_path(base_dir, company_ref, fiscal_period)),
     }
 
+    # --- E1: update intelligence artifacts (snapshot + histories) ---
+    # Non-fatal: monitor tick must not fail due to dashboard artifacts.
+    # Skip on dry_run so you don't create/advance dashboards accidentally.
+    if not dry_run:
+        try:
+            from backend.modules.aion_equities.intelligence_health import update_intelligence_artifacts
+
+            update_intelligence_artifacts(
+                base_dir=base_dir,
+                company_ref=company_ref,
+                fiscal_period=fiscal_period,
+                tick_out=out,
+            )
+            out["intelligence_artifacts_updated"] = True
+        except Exception as _e:
+            out["intelligence_artifacts_updated"] = False
+            out["intelligence_artifacts_error"] = str(_e)
+    else:
+        out["intelligence_artifacts_updated"] = False
+        out["intelligence_artifacts_error"] = "dry_run"
+
+    return out
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--base-dir", default="/workspaces/COMDEX/.runtime/equities")
+    ap.add_argument("--base-dir", default=str(Path(".runtime/equities").resolve()))
     ap.add_argument("--company-ref", required=True)
     ap.add_argument("--fiscal-period", default=None)
     ap.add_argument("--dry-run", action="store_true")
@@ -919,7 +1227,9 @@ def main() -> None:
         ewma_half_life_days=float(args.ewma_half_life_days),
         strict_quarter=bool(args.strict_quarter),
     )
-    print(json.dumps(out, ensure_ascii=False, indent=2))
+
+    # IMPORTANT: always print JSON so tee/grep works
+    print(json.dumps(out, ensure_ascii=False, indent=2), flush=True)
 
 
 if __name__ == "__main__":

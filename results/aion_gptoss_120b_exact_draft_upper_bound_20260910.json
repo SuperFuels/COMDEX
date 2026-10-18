@@ -1,0 +1,33 @@
+{
+  "assumptions": [
+    "Every draft token is accepted.",
+    "Draft generation and verification scheduling cost zero time.",
+    "All repeated layer/expert routes are grouped perfectly.",
+    "Wall time scales linearly with expert bytes and all non-I/O cost disappears."
+  ],
+  "canonical_sha256": "778585165210d14bbc92f20118f3f054e028c8b6872054b0ad1006bc3c5d7c34",
+  "claim_boundary": "This intentionally optimistic bound combines measured route reuse with the best exact core/halo rate. It is not an executed speculative decoder. Real acceptance, draft cost and scheduling can only reduce the bound.",
+  "created_at": "2026-09-10T08:57:24.752421+00:00",
+  "current_best_exact_tokens_per_second": 0.10344747627057407,
+  "inputs": {
+    "core_halo": {
+      "canonical_sha256": "f8dd3ed93e6132fe8159d5422007aeda170d30771ee445154832cd2cf0026d7e",
+      "file_sha256": "193af2360b9d36c51e20610267a0cae2106adaf88f5567d484dab0189fae42e3",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_exact_core_halo_gate_20260910.json"
+    },
+    "grouping": {
+      "canonical_sha256": "7b365998ba18e978346692254cd09351e858db0147ced625fad9cfe5d555c766",
+      "file_sha256": "258f3a9f39cf7593d5272040262e149eb802f1870a96290965fcfd2bc5282ea2",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_route_grouping_and_dictionary_gate_20260910T1600.json"
+    }
+  },
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "observed_maximum_expert_batch": 8,
+  "observed_mean_activations_per_loaded_expert": 1.7428139183055975,
+  "observed_perfect_grouping_byte_reduction": 0.42637056033360277,
+  "optimistic_zero_cost_full_acceptance_tokens_per_second": 0.18033850621532865,
+  "required_byte_reduction_for_one_token_per_second": 0.896552523729426,
+  "required_byte_reduction_for_thirty_tokens_per_second": 0.9965517507909809,
+  "schema": "aion.gptoss-120b-exact-draft-upper-bound.v1",
+  "status": "STOP_EXACT_DRAFT_AS_BREAKTHROUGH_PATH"
+}

@@ -16,6 +16,8 @@ class Proposal(BaseModel):
     block_id: str
     # engine creates block={}, so don't default to None
     block: Dict[str, Any] = Field(default_factory=dict)
+    ledger_commitment: Optional[str] = None
+    txs_root: Optional[str] = None
     ts_ms: float = Field(default=0.0)
 
     # p2p payloads in tests use sig_hex; keep it optional
@@ -35,6 +37,14 @@ class Vote(BaseModel):
     # keep your existing placeholder, but also accept sig_hex from p2p tests
     signature: Optional[str] = None  # slashing later
     sig_hex: Optional[str] = None
+    # Independent certificate-domain signature.  Unlike sig_hex (transport
+    # authentication), this survives aggregation into a portable finality
+    # certificate and can be checked without trusting the receiving node.
+    finality_signature_base64: Optional[str] = None
+    finality_validator_set_root: Optional[str] = None
+    finality_checkpoint_id: Optional[str] = None
+    ledger_commitment: Optional[str] = None
+    txs_root: Optional[str] = None
 
 
 class QC(BaseModel):
@@ -47,3 +57,8 @@ class QC(BaseModel):
     block_id: str
     voters: List[str]
     ts_ms: float = Field(default=0.0)
+    quorum_finality_certificate: Optional[Dict[str, Any]] = None
+    trusted_validator_set_root: Optional[str] = None
+    validator_set_checkpoint_id: Optional[str] = None
+    ledger_commitment: Optional[str] = None
+    txs_root: Optional[str] = None

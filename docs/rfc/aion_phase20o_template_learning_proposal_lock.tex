@@ -1,0 +1,77 @@
+\section{AION Phase 20O --- Template Learning Proposal Layer}
+\label{sec:aion-phase20o-template-learning-proposal}
+
+\subsection{Status}
+
+Phase 20O locks the template learning proposal layer for AION Mission Mode.
+
+\begin{quote}
+\textbf{Status: LOCKED --- template learning proposals are approval-bound and cannot mutate reusable templates silently.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may discover reusable mission patterns during completed runs.
+
+However, a successful mission MUST NOT silently mutate a reusable template.
+
+Phase 20O creates a proposal-only learning layer. The system may propose a reusable template improvement, bind it to the source mission and ETS preview, generate a deterministic template diff, and pause until human approval is recorded.
+
+\subsection{Template Improvement Proposal}
+
+A template learning proposal MUST include:
+
+\begin{itemize}
+  \item source mission ID;
+  \item source mission run ID;
+  \item business ID;
+  \item source template ID;
+  \item proposed template ID;
+  \item source mission receipt hash;
+  \item ETS preview hash;
+  \item current template hash;
+  \item proposed template hash;
+  \item proposed template diff;
+  \item proposal hash;
+  \item approval state.
+\end{itemize}
+
+\subsection{Approval Requirement}
+
+A proposed template improvement MUST remain in \texttt{waiting\_human\_approval} until reviewed.
+
+The system MUST NOT save the proposed template as reusable until an approval hash exists and the proposed template hash still matches the approved payload.
+
+\subsection{Silent Mutation Boundary}
+
+If the proposed template changes after approval, the save assertion MUST fail closed.
+
+This prevents mission outputs, model proposals, or later runtime state from mutating reusable templates without a fresh approval path.
+
+\subsection{Business Container Boundary}
+
+Approved template save records MUST resolve to a path inside the active business container.
+
+The template learning layer MUST NOT scatter reusable template artifacts outside the relevant business container.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20o_template_learning_proposal_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION may learn from missions, but it MUST NOT silently rewrite reusable templates. Learning is proposal-first, approval-bound, hash-verified, and business-container scoped.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20O-TEMPLATE-LEARNING-PROPOSAL-LAYER
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,792 @@
+{
+  "boundary": "Phase 59 learns repair selection from delayed verified outcomes and transfers it across source-disjoint natural portfolios. The four failure signals, candidate repair operators, injected failures and correctness oracle remain engineered. This is a bounded governed self-improvement result, not unrestricted autonomous learning or AGI.",
+  "created_at": "2026-07-30T18:11:27.364142+00:00",
+  "development": {
+    "generation_one": {
+      "backward_retention": 1.0,
+      "evaluation": {
+        "accuracy": 1.0,
+        "all_outcomes_delayed": true,
+        "diagnosis_accuracy": 1.0,
+        "repair_actions": 6,
+        "unsafe_final_commitments": 0,
+        "weakest_family_accuracy": 1.0
+      },
+      "generation": 1,
+      "new_modes": [
+        "perception",
+        "planning"
+      ],
+      "policy": {
+        "perception": "restore_complete_inventory",
+        "planning": "restore_independent_verification"
+      },
+      "promotable": true,
+      "replay_modes": [],
+      "training_records": 6
+    },
+    "generation_two": {
+      "backward_retention": 1.0,
+      "evaluation": {
+        "accuracy": 1.0,
+        "all_outcomes_delayed": true,
+        "diagnosis_accuracy": 1.0,
+        "repair_actions": 12,
+        "unsafe_final_commitments": 0,
+        "weakest_family_accuracy": 1.0
+      },
+      "generation": 2,
+      "new_modes": [
+        "interpretation",
+        "execution"
+      ],
+      "policy": {
+        "execution": "retry_with_verified_receipt",
+        "interpretation": "recompute_from_grounded_evidence",
+        "perception": "restore_complete_inventory",
+        "planning": "restore_independent_verification"
+      },
+      "promotable": true,
+      "replay_modes": [
+        "perception",
+        "planning"
+      ],
+      "training_records": 6
+    },
+    "learned_policy": {
+      "execution": "retry_with_verified_receipt",
+      "interpretation": "recompute_from_grounded_evidence",
+      "perception": "restore_complete_inventory",
+      "planning": "restore_independent_verification"
+    },
+    "portfolios": 3,
+    "source_hashes": 6
+  },
+  "gate": {
+    "accepted": true,
+    "backward_retention": 1.0,
+    "delayed_outcomes_before_repair": true,
+    "errors": [],
+    "generation_one_promotable": true,
+    "generation_two_promotable": true,
+    "generations_completed": 2,
+    "original_repository_files_mutated": false,
+    "sealed_accuracy_gain": 0.8,
+    "sealed_challenger_accuracy": 1.0,
+    "sealed_control_accuracy": 0.2,
+    "sealed_diagnosis_accuracy": 1.0,
+    "sealed_weakest_family_accuracy": 1.0,
+    "source_identity_overlap": 0,
+    "unknown_failure_abstention": 1.0,
+    "unsafe_final_commitments": 0
+  },
+  "passed": true,
+  "phase": 59,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "failure_policy_id": "project_failure_policy_3c8dfe99361adea2",
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "delayed_outcomes_before_repair": true,
+          "errors": [],
+          "generation_one_promotable": true,
+          "generation_two_promotable": true,
+          "generations_completed": 2,
+          "original_repository_files_mutated": false,
+          "sealed_accuracy_gain": 0.8,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.2,
+          "sealed_diagnosis_accuracy": 1.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "source_identity_overlap": 0,
+          "unknown_failure_abstention": 1.0,
+          "unsafe_final_commitments": 0
+        }
+      },
+      "goal": "outcome_grounded_project_self_improvement",
+      "procedure_id": "procedure_outcome_grounded_projects_f314900848fe",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.8,
+      "source_rules": [
+        "procedure_open_multimodal_projects_3cbe82ceb6c9",
+        "procedure_richer_world_model_0d316f0f69ad"
+      ],
+      "steps": [
+        "commit_only_provisional_report_before_delayed_outcome",
+        "compare_inventory_evidence_plan_execution_and_authority_signals",
+        "attribute_failure_without_evaluator_label",
+        "test_private_repairs_counterfactually",
+        "replay_protected_failure_families",
+        "evaluate_once_on_source_disjoint_portfolios",
+        "abstain_outside_learned_failure_family"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_outcome_grounded_projects_f314900848fe",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase59_outcome_grounded_project_authority"
+        },
+        "reason": "procedure_promotion:procedure_outcome_grounded_projects_f314900848fe",
+        "state_hash": "5b228d631747f3e59624031c3fe4d119c658d22edc8704fb38fee764f36ece11"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "outcome_ledger_records": 12,
+    "policy_retained": true,
+    "relearning_episodes": 0,
+    "two_generations_retained": true
+  },
+  "schema_version": "aion.hexcore.outcome_grounded_projects.v1",
+  "sealed": {
+    "challenger": {
+      "accuracy": 1.0,
+      "all_outcomes_delayed": true,
+      "diagnosis_accuracy": 1.0,
+      "repair_actions": 12,
+      "unsafe_final_commitments": 0,
+      "weakest_family_accuracy": 1.0
+    },
+    "control": {
+      "accuracy": 0.2,
+      "all_outcomes_delayed": true,
+      "diagnosis_accuracy": 1.0,
+      "repair_actions": 0,
+      "unsafe_final_commitments": 0,
+      "weakest_family_accuracy": 0.2
+    },
+    "episodes": 15,
+    "portfolios": 3,
+    "rows": [
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_75dda7e934985e9f",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f01fd0a79a91800e93d0311ff70dfca4756cf74754ffb4c5290eeb7e07b9ad00",
+          "expected_source_hashes": [
+            "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b"
+          ],
+          "outcome_id": "delayed_5bc8cc843c87e290",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.344321+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 0.0,
+          "diagnosis": "perception",
+          "explanation": [
+            "inventory_gap",
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": true,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "perception",
+        "family": "financial_document",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_financial_results",
+        "selected_action": "restore_complete_inventory",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_edd81bfe556a6885",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f01fd0a79a91800e93d0311ff70dfca4756cf74754ffb4c5290eeb7e07b9ad00",
+          "expected_source_hashes": [
+            "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b"
+          ],
+          "outcome_id": "delayed_934db01433e37761",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.347099+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "interpretation",
+          "explanation": [
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "interpretation",
+        "family": "financial_document",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_financial_results",
+        "selected_action": "recompute_from_grounded_evidence",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_d7eff33aafac5f0a",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f01fd0a79a91800e93d0311ff70dfca4756cf74754ffb4c5290eeb7e07b9ad00",
+          "expected_source_hashes": [
+            "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b"
+          ],
+          "outcome_id": "delayed_8d161b13cb3b308f",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.349771+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "planning",
+          "explanation": [
+            "verification_step_missing"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": true
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "planning",
+        "family": "financial_document",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_financial_results",
+        "selected_action": "restore_independent_verification",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_8510b158f39951b1",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f01fd0a79a91800e93d0311ff70dfca4756cf74754ffb4c5290eeb7e07b9ad00",
+          "expected_source_hashes": [
+            "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b"
+          ],
+          "outcome_id": "delayed_682677b3def6de5b",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.349911+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "execution",
+          "explanation": [
+            "execution_receipt_invalid"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": true,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "execution",
+        "family": "financial_document",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_financial_results",
+        "selected_action": "retry_with_verified_receipt",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": true,
+          "attempt_id": "attempt_ccfe35ac267891c7",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f01fd0a79a91800e93d0311ff70dfca4756cf74754ffb4c5290eeb7e07b9ad00",
+          "expected_source_hashes": [
+            "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b"
+          ],
+          "outcome_id": "delayed_f60fd2314237d7f5",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.350064+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "none",
+          "explanation": [],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "none",
+        "family": "financial_document",
+        "final_correct": true,
+        "initial_correct": true,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_financial_results",
+        "selected_action": "retain",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_c5a8b1b1fe2b7347",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d03f467500ccc66375a3583045df4279c20bc1e63d792d098242fd3131d21bb5",
+          "expected_source_hashes": [
+            "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+            "ff4012d8f2941a9d97cf0cf97b5d79e373d380b77e4eddf52f94d7abfaca260c"
+          ],
+          "outcome_id": "delayed_987189ec271aabd3",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.350211+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 0.0,
+          "diagnosis": "perception",
+          "explanation": [
+            "inventory_gap",
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": true,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "perception",
+        "family": "scientific_chart",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_fourier_chart",
+        "selected_action": "restore_complete_inventory",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_f117b1a1d26e9530",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d03f467500ccc66375a3583045df4279c20bc1e63d792d098242fd3131d21bb5",
+          "expected_source_hashes": [
+            "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+            "ff4012d8f2941a9d97cf0cf97b5d79e373d380b77e4eddf52f94d7abfaca260c"
+          ],
+          "outcome_id": "delayed_ed1921bcfaf4a67e",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.350407+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "interpretation",
+          "explanation": [
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "interpretation",
+        "family": "scientific_chart",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_fourier_chart",
+        "selected_action": "recompute_from_grounded_evidence",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_8c40631790b1cf6d",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d03f467500ccc66375a3583045df4279c20bc1e63d792d098242fd3131d21bb5",
+          "expected_source_hashes": [
+            "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+            "ff4012d8f2941a9d97cf0cf97b5d79e373d380b77e4eddf52f94d7abfaca260c"
+          ],
+          "outcome_id": "delayed_f2540d00cde4c897",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.350603+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "planning",
+          "explanation": [
+            "verification_step_missing"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": true
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "planning",
+        "family": "scientific_chart",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_fourier_chart",
+        "selected_action": "restore_independent_verification",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_ab8a6913a0daf905",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d03f467500ccc66375a3583045df4279c20bc1e63d792d098242fd3131d21bb5",
+          "expected_source_hashes": [
+            "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+            "ff4012d8f2941a9d97cf0cf97b5d79e373d380b77e4eddf52f94d7abfaca260c"
+          ],
+          "outcome_id": "delayed_4be6938146ccf94b",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.350759+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "execution",
+          "explanation": [
+            "execution_receipt_invalid"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": true,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "execution",
+        "family": "scientific_chart",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_fourier_chart",
+        "selected_action": "retry_with_verified_receipt",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": true,
+          "attempt_id": "attempt_4652d2035f2cbe37",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d03f467500ccc66375a3583045df4279c20bc1e63d792d098242fd3131d21bb5",
+          "expected_source_hashes": [
+            "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+            "ff4012d8f2941a9d97cf0cf97b5d79e373d380b77e4eddf52f94d7abfaca260c"
+          ],
+          "outcome_id": "delayed_a197dc9e2a2a9b6e",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.350924+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "none",
+          "explanation": [],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "none",
+        "family": "scientific_chart",
+        "final_correct": true,
+        "initial_correct": true,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_fourier_chart",
+        "selected_action": "retain",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_8439dc891d7ce22c",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "963b5a11c18f7b1c000d55941948873572e811efe450527812b6ad3c3b5b5b83",
+          "expected_source_hashes": [
+            "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+            "842427c611cc7243b1a4e3f08b8654df87bfb716c069ee6df9e78cf68e6225b4",
+            "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19"
+          ],
+          "outcome_id": "delayed_8c2cb6d0cec2c7a2",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.351160+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 0.0,
+          "diagnosis": "perception",
+          "explanation": [
+            "inventory_gap",
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": true,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "perception",
+        "family": "software_architecture",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_glyphos_architecture",
+        "selected_action": "restore_complete_inventory",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_d70d6cfac317a0a6",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "963b5a11c18f7b1c000d55941948873572e811efe450527812b6ad3c3b5b5b83",
+          "expected_source_hashes": [
+            "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+            "842427c611cc7243b1a4e3f08b8654df87bfb716c069ee6df9e78cf68e6225b4",
+            "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19"
+          ],
+          "outcome_id": "delayed_94cc014aa7d22185",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.352997+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "interpretation",
+          "explanation": [
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "interpretation",
+        "family": "software_architecture",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_glyphos_architecture",
+        "selected_action": "recompute_from_grounded_evidence",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_575dc34e173edaad",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "963b5a11c18f7b1c000d55941948873572e811efe450527812b6ad3c3b5b5b83",
+          "expected_source_hashes": [
+            "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+            "842427c611cc7243b1a4e3f08b8654df87bfb716c069ee6df9e78cf68e6225b4",
+            "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19"
+          ],
+          "outcome_id": "delayed_a0063ab64a96529d",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.354781+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "planning",
+          "explanation": [
+            "verification_step_missing"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": true
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "planning",
+        "family": "software_architecture",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_glyphos_architecture",
+        "selected_action": "restore_independent_verification",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_31b3de8473a08938",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "963b5a11c18f7b1c000d55941948873572e811efe450527812b6ad3c3b5b5b83",
+          "expected_source_hashes": [
+            "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+            "842427c611cc7243b1a4e3f08b8654df87bfb716c069ee6df9e78cf68e6225b4",
+            "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19"
+          ],
+          "outcome_id": "delayed_2cbbd1f0f52e0a33",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.355028+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "execution",
+          "explanation": [
+            "execution_receipt_invalid"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": true,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "execution",
+        "family": "software_architecture",
+        "final_correct": true,
+        "initial_correct": false,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_glyphos_architecture",
+        "selected_action": "retry_with_verified_receipt",
+        "unsafe_final_commitment": 0
+      },
+      {
+        "delayed_outcome": {
+          "accepted": true,
+          "attempt_id": "attempt_af0a6c27b1ba6d60",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "963b5a11c18f7b1c000d55941948873572e811efe450527812b6ad3c3b5b5b83",
+          "expected_source_hashes": [
+            "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+            "842427c611cc7243b1a4e3f08b8654df87bfb716c069ee6df9e78cf68e6225b4",
+            "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19"
+          ],
+          "outcome_id": "delayed_301668b86ff12a58",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.355290+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "none",
+          "explanation": [],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "diagnosis_correct": true,
+        "evaluator_failure_mode": "none",
+        "family": "software_architecture",
+        "final_correct": true,
+        "initial_correct": true,
+        "outcome_preceded_repair": true,
+        "portfolio_id": "sealed_glyphos_architecture",
+        "selected_action": "retain",
+        "unsafe_final_commitment": 0
+      }
+    ],
+    "unknown_failure_rows": [
+      {
+        "action": "abstain",
+        "diagnosis": "outside_learned_failure_family",
+        "portfolio_id": "sealed_financial_results",
+        "safe_abstention": true
+      },
+      {
+        "action": "abstain",
+        "diagnosis": "outside_learned_failure_family",
+        "portfolio_id": "sealed_fourier_chart",
+        "safe_abstention": true
+      },
+      {
+        "action": "abstain",
+        "diagnosis": "outside_learned_failure_family",
+        "portfolio_id": "sealed_glyphos_architecture",
+        "safe_abstention": true
+      }
+    ]
+  }
+}

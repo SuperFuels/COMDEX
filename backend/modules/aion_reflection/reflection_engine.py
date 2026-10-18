@@ -89,10 +89,8 @@ class ReflectionEngine:
             if "growth" in content or "vision" in content:
                 deltas["ambition"] += 0.04
 
-        # --- Personality adjustments ---
-        for k,v in deltas.items():
-            if v:
-                self.personality.adjust_trait(k, v, reason="reflection_cycle")
+        # Text sentiment is advisory only.  It cannot mutate personality or
+        # become a retained lesson without a verified action outcome.
 
         # --- Resonance sampling ---
         rho = round(random.uniform(0.45, 0.9), 3)
@@ -138,12 +136,8 @@ class ReflectionEngine:
         except Exception as e:
             print(f"[⚛] Resonant feedback error: {e}")
 
-        # --- Trait modulation ---
-        try:
-            sqi_delta = sqi - 0.65
-            self.personality.resonant_trait_modulator(sqi_delta=sqi_delta, mood_phase=mood_phase)
-        except Exception as e:
-            print(f"[⚛] Personality modulation error: {e}")
+        # Resonance remains useful telemetry, but has no identity, learning or
+        # execution authority.
 
         # --- Logging ---
         entry = {
@@ -197,13 +191,17 @@ class ReflectionEngine:
         }
 
     # ------------------------------------------------------------
-    def save_insight(self, insight_text:str):
+    def save_insight(self, insight_text:str, *, synthesize_glyphs: bool = False):
         ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         label = f"reflection_insight_{ts}"
         self.memory.store({"label":label,"content":insight_text})
         print(f"[REFLECTION] Insight saved as '{label}'")
 
-        # Optional glyph synthesis
+        # Glyph synthesis is opt-in and remains proposal-only.  Automatic HTTP
+        # promotion previously allowed an unverified reflection to masquerade
+        # as knowledge.
+        if not synthesize_glyphs:
+            return {"label": label, "stored_as": "unverified_reflection", "glyphs_promoted": 0}
         try:
             res = requests.post(f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
                                 json={"text": insight_text, "source": "reflection"})
@@ -214,6 +212,33 @@ class ReflectionEngine:
                 print(f"⚠️ Glyph synthesis failed: {res.status_code}")
         except Exception as e:
             print(f"🚨 Glyph synthesis error: {e}")
+
+    def reflect_on_outcome(
+        self,
+        *,
+        goal: dict,
+        plan: dict,
+        action: dict,
+        review: dict,
+        action_result: dict,
+        observation: dict,
+        criticism: dict,
+    ) -> dict:
+        """Delegate real learning to AION's outcome-grounded metacognition."""
+        from backend.modules.hexcore.metacognitive_control import MetacognitiveController
+
+        result = MetacognitiveController().reflect_outcome(
+            goal=goal,
+            plan=plan,
+            action=action,
+            review=review,
+            action_result=action_result,
+            observation=observation,
+            criticism=criticism,
+        )
+        result["legacy_resonance_authority"] = False
+        result["knowledge_promotion_requires_verified_outcome"] = True
+        return result
 
     # ------------------------------------------------------------
     def run(self, limit:int=10):

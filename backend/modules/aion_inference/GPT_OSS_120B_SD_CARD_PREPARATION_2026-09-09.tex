@@ -1,0 +1,37 @@
+% Append-only technical-record section. Requires booktabs.
+\section{Preparation of the 64~GB AION 120B Warehouse Card}
+\label{sec:gpt-oss-120b-card-preparation}
+
+A fresh SDXC card was identified as \texttt{/dev/disk4s1}, initially mounted
+as \texttt{/Volumes/Untitled}.  It was already formatted as ExFAT and contained
+no user data.  The card was not reformatted or erased.  It was renamed
+\texttt{AION\_120B} to provide an unambiguous warehouse identity.
+
+The physical medium reports 62,226,694,144 bytes.  Its ExFAT volume provides
+62,193,270,784 bytes total and 62,180,294,656 bytes free before installation of
+the small warehouse structure.  A temporary 1~GiB test file measured
+49.31~MB/s sequential write and 95.13~MB/s sequential read.  The temporary file
+was then removed; it was reconstructable benchmark data and contained no user
+content.
+
+The official gpt-oss-120b checkpoint is approximately 60.8~GiB, while the
+official original folder is approximately 65.2~GB decimal.  It therefore does
+not fit on this 62.19~GB volume.  The card manifest reserves at least 5~GB for
+indexes, evidence and filesystem headroom, setting a maximum transformed model
+warehouse budget of 57,000,000,000 bytes.  Meeting that limit requires an
+approximately 12.6\% reduction from the official folder size and creates a
+changed-weight, quality-gated track rather than an exact-output claim.
+
+The installed \texttt{AION-Warehouse/v1} structure contains separate locations
+for bounded source staging, addressable expert banks, retained non-expert
+tensors, Glyph/tensor indexes, host and load profiles, provenance manifests,
+licenses, proof receipts, predeclared plans, append-only results and hashes.
+The executable runtime, Metal toolchain, COMDEX source tree, unbounded caches,
+large transient logs and personal or business data remain off the card.
+
+The infrastructure hash ledger was verified successfully for every installed
+file.  The ledger itself has SHA-256
+\texttt{2d76daa6e54fc6b052e9c033ddbf1a205d80ea1161874b097b41c9c7161753a5}.
+No 120B model bytes had been downloaded at the completion of this preparation
+stage.
+

@@ -1,0 +1,177 @@
+\section{Goal Engine Multi-Agent Execution Replay History Lock}
+\label{sec:goal-engine-multi-agent-execution-replay-history-lock}
+
+\subsection{Status}
+
+This lock closes the multi-agent execution replay history path for the Goal Engine Boardroom.
+
+\begin{quote}
+\textbf{Status: LOCKED --- focused Goal Engine suite passing with 420 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+420 passed in 29.98s
+\end{verbatim}
+
+\subsection{Purpose}
+
+The purpose of this lock is to ensure that multi-agent and multi-glyph orchestration history is not only rendered as a transient Boardroom preview.
+
+AION now has a replay history path with two layers:
+
+\begin{itemize}
+  \item a Boardroom-local replay history stored through guarded \texttt{localStorage};
+  \item a backend replay history record contract suitable for later durable business-container persistence.
+\end{itemize}
+
+This means the Boardroom can show recent orchestration replay snapshots without granting execution permission, while the backend can build canonical replay-history records without mutating goals, executing child agents, resolving conflicts, or writing externally.
+
+\subsection{Locked Frontend Contracts}
+
+The Boardroom replay panel is locked behind:
+
+\begin{verbatim}
+data-aion-goal-engine-multi-agent-execution-replay="v1"
+\end{verbatim}
+
+The frontend replay history key is:
+
+\begin{verbatim}
+AION_GOAL_ENGINE_MULTI_AGENT_REPLAY_HISTORY_V1
+\end{verbatim}
+
+The frontend helpers are:
+
+\begin{verbatim}
+renderAionGoalEngineMultiAgentExecutionReplayPanelV1
+recordAionGoalEngineMultiAgentReplaySnapshotV1
+readAionGoalEngineMultiAgentReplayHistoryV1
+mountAionGoalEngineMultiAgentExecutionReplayPanelV1
+\end{verbatim}
+
+The Boardroom panel now renders:
+
+\begin{itemize}
+  \item current multi-agent execution replay;
+  \item bounded replay history;
+  \item canonical run identifiers;
+  \item parent-goal identifiers;
+  \item workflow identifiers;
+  \item child-agent and child-glyph status;
+  \item blocked reasons;
+  \item visibility-only safety copy.
+\end{itemize}
+
+Replay history is bounded to 25 records.
+
+\subsection{Locked Backend Contracts}
+
+The backend replay-history schema is:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.multi_agent_execution_replay_history.v1
+trace_type     = multi_agent_execution_replay_history_record
+\end{verbatim}
+
+The backend helper functions are:
+
+\begin{verbatim}
+build_multi_agent_execution_replay_history_record
+append_multi_agent_execution_replay_history_record
+\end{verbatim}
+
+The backend record preserves canonical payloads when present:
+
+\begin{verbatim}
+orchestrator_parent_child_aggregation_runtime_summary
+parent_child_aggregation_runtime_summary
+parent_child_aggregation_previews
+orchestrator_parent_child_aggregation_previews
+child_agents
+child_glyphs
+parent_goal_update_proposal
+child_agent_conflict_preview
+guarded_child_agent_execution_handoff_preview
+human_approved_conflict_resolution_preview
+\end{verbatim}
+
+\subsection{Safety Invariants}
+
+Replay history is visibility-only.
+
+AION MUST NOT use replay-history recording to:
+
+\begin{itemize}
+  \item execute child agents;
+  \item execute child glyphs;
+  \item mutate parent goals;
+  \item mark parent goals complete;
+  \item resolve conflicts automatically;
+  \item select a winning child agent;
+  \item write externally;
+  \item grant connector permissions;
+  \item bypass approval gates.
+\end{itemize}
+
+The backend replay-history record therefore locks the following flags:
+
+\begin{verbatim}
+dry_run                 = true
+visibility_only         = true
+execution_allowed       = false
+writes_allowed          = false
+parent_mutation_allowed = false
+child_execution_allowed = false
+\end{verbatim}
+
+The canonical blocked reasons include:
+
+\begin{verbatim}
+visibility_only
+human_review_required
+backend_replay_history_does_not_execute
+\end{verbatim}
+
+\subsection{Validation Coverage}
+
+The replay history lock is covered by:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_goal_engine_multi_agent_execution_replay_ui_lock.py
+backend/tests/workflow_capsules/test_goal_engine_multi_agent_execution_replay_history_ui_lock.py
+backend/tests/workflow_capsules/test_goal_engine_multi_agent_execution_replay_history_backend.py
+backend/tests/workflow_capsules/test_goal_engine_recent_guarded_orchestration_panels_auto_mount_ui_lock.py
+\end{verbatim}
+
+\subsection{Closed Task}
+
+This closes:
+
+\begin{verbatim}
+N4["Persist multi-agent replay history, not just render current preview"]
+\end{verbatim}
+
+The task is closed at the current safe level:
+
+\begin{itemize}
+  \item frontend replay history is persisted locally;
+  \item backend replay history has a canonical persistence-safe record contract;
+  \item durable server-side repository storage remains a later product persistence upgrade, not a blocker for this lock.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-MULTI-AGENT-REPLAY-HISTORY-v1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

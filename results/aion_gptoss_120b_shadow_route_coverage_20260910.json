@@ -1,0 +1,184 @@
+{
+  "canonical_sha256": "6f0d2b505b88b3bcb6dff2012d9f253cabc115f1251775edc44233ccca38028c",
+  "claim_boundary": "Descriptive coverage audit only; holdout targets are not used for fitting.",
+  "created_at": "2026-09-10T13:14:29.130514+00:00",
+  "manifest_canonical_sha256": "a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a",
+  "observations": [
+    {
+      "best_single_route_overlap": 1,
+      "experts_ever_seen_in_training": 4,
+      "family_id": "synthetic_token_5001",
+      "layer": 0,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 4,
+      "experts_ever_seen_in_training": 4,
+      "family_id": "synthetic_token_5001",
+      "layer": 12,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 3,
+      "experts_ever_seen_in_training": 3,
+      "family_id": "synthetic_token_5001",
+      "layer": 15,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 3,
+      "experts_ever_seen_in_training": 4,
+      "family_id": "synthetic_token_5001",
+      "layer": 18,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 2,
+      "experts_ever_seen_in_training": 2,
+      "family_id": "synthetic_token_5001",
+      "layer": 21,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 2,
+      "experts_ever_seen_in_training": 4,
+      "family_id": "synthetic_token_5001",
+      "layer": 24,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 1,
+      "experts_ever_seen_in_training": 3,
+      "family_id": "synthetic_token_5001",
+      "layer": 27,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 3,
+      "experts_ever_seen_in_training": 3,
+      "family_id": "synthetic_token_5001",
+      "layer": 3,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 1,
+      "experts_ever_seen_in_training": 2,
+      "family_id": "synthetic_token_5001",
+      "layer": 30,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 1,
+      "experts_ever_seen_in_training": 2,
+      "family_id": "synthetic_token_5001",
+      "layer": 35,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 3,
+      "experts_ever_seen_in_training": 4,
+      "family_id": "synthetic_token_5001",
+      "layer": 6,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 4,
+      "experts_ever_seen_in_training": 4,
+      "family_id": "synthetic_token_5001",
+      "layer": 9,
+      "split": "semantic_holdout"
+    },
+    {
+      "best_single_route_overlap": 1,
+      "experts_ever_seen_in_training": 1,
+      "family_id": "synthetic_token_15001",
+      "layer": 0,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 4,
+      "experts_ever_seen_in_training": 4,
+      "family_id": "synthetic_token_15001",
+      "layer": 12,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 3,
+      "experts_ever_seen_in_training": 3,
+      "family_id": "synthetic_token_15001",
+      "layer": 15,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 2,
+      "experts_ever_seen_in_training": 2,
+      "family_id": "synthetic_token_15001",
+      "layer": 18,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 2,
+      "experts_ever_seen_in_training": 3,
+      "family_id": "synthetic_token_15001",
+      "layer": 21,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 1,
+      "experts_ever_seen_in_training": 3,
+      "family_id": "synthetic_token_15001",
+      "layer": 24,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 2,
+      "experts_ever_seen_in_training": 2,
+      "family_id": "synthetic_token_15001",
+      "layer": 27,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 2,
+      "experts_ever_seen_in_training": 3,
+      "family_id": "synthetic_token_15001",
+      "layer": 3,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 1,
+      "experts_ever_seen_in_training": 1,
+      "family_id": "synthetic_token_15001",
+      "layer": 30,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 0,
+      "experts_ever_seen_in_training": 0,
+      "family_id": "synthetic_token_15001",
+      "layer": 35,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 2,
+      "experts_ever_seen_in_training": 3,
+      "family_id": "synthetic_token_15001",
+      "layer": 6,
+      "split": "numerical_holdout"
+    },
+    {
+      "best_single_route_overlap": 4,
+      "experts_ever_seen_in_training": 4,
+      "family_id": "synthetic_token_15001",
+      "layer": 9,
+      "split": "numerical_holdout"
+    }
+  ],
+  "schema": "aion.shadow-expert-route-coverage.v1",
+  "summary": {
+    "best_single_route_overlap_min": 0,
+    "best_single_route_overlap_p50": 2.0,
+    "holdout_rows": 24,
+    "rows_with_all_four_experts_ever_seen": 8,
+    "rows_with_zero_route_overlap": 1
+  }
+}

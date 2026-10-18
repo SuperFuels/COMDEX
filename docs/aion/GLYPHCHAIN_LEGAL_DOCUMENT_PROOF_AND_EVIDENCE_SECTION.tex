@@ -1,0 +1,1302 @@
+\section{GlyphChain Legal Document Proof, Recovery and Evidence Packaging}
+\label{sec:glyphchain-legal-document-proof}
+
+\subsection{Purpose and Product Boundary}
+
+Tessaris now provides a privacy-preserving evidence layer for documents completed
+through the Legal workspace.  The feature binds an immutable document version,
+the signing manifest and the envelope audit history to a portable proof receipt.
+Where GlyphChain submission is enabled, the receipt also records the transaction
+and its Merkle inclusion evidence.  A completed envelope can be exported as a
+self-contained private evidence package for retention by the parties.
+
+The design deliberately separates proof from publication.  Document text,
+signer names, signer email addresses and the detailed audit history remain in the
+originating Tessaris workspace and in the private package selected by the user.
+GlyphChain receives only non-reversible commitments and protocol metadata.  The
+feature does not depend on Photon, does not transfer currency and does not expose
+private document contents on-chain.
+
+\begin{quote}
+\textbf{Current assurance statement:} Tessaris provides tamper-evident electronic
+signing, a device-signed document commitment, recoverable proof submission and
+portable verification evidence.  This is not a claim that Tessaris is a qualified
+trust service provider, or that a signature is a qualified electronic signature
+or qualified electronic seal.  Verification of integrity does not determine
+whether a document is lawful, fair or enforceable.
+\end{quote}
+
+\subsection{Implemented Features and Functionality}
+
+The completed local foundation combines a controlled Legal workspace, private
+electronic-signing workflow, portable evidence packaging and a GlyphChain
+integrity and finality rail. The principal user-visible capabilities are:
+
+\begin{description}
+  \item[Legal matters and evidence relationships.] Encrypted matter records can
+        link protected documents, communications, signature envelopes and proof
+        receipts without duplicating the underlying private content. Renewal,
+        expiry, notice and review obligations support owners, due dates,
+        pre-due reminders, completion and waiver states.
+  \item[Secure document intake.] Tessaris accepts bounded PDF, DOCX, text and
+        supported image files, hashes the exact original bytes, stores the
+        original and derived text under workspace-bound AES--256--GCM
+        encryption, and performs bounded local OCR where required. Unsafe,
+        executable, mismatched or resource-excessive inputs are rejected.
+  \item[Contract review and comparison.] Exact document versions can be
+        reviewed for explainable clause and risk signals, compared using a
+        bounded unified diff, and used to prepare non-destructive redline or
+        negotiation drafts. Automated findings remain triage guidance requiring
+        human review and are not represented as legal advice.
+  \item[Legal Pilot.] The local Legal harness accepts protected document
+        identifiers rather than raw desktop paths, preserves workspace
+        isolation, produces evidence references and capability receipts, and
+        cannot autonomously send, sign, approve or modify an external document.
+  \item[Controlled template library.] Customer, supplier, contractor,
+        employment, terms, privacy and data-processing workflow classes are
+        supported through encrypted, immutable and versioned templates.
+        Approval is tied to the exact content digest, named reviewer assertion,
+        qualification, jurisdiction and review scope. Instantiation produces a
+        final-review-required encrypted document; no generic wording is bundled
+        or described as legally approved.
+  \item[Electronic-signing workflow.] Draft, review, exact-version approval,
+        ordered signing, optional separate-channel possession codes, completion,
+        reminders and signed-copy evidence are implemented. Plaintext signer
+        links and one-time codes are disclosed once; only their hashes are
+        retained.
+  \item[Proof cabinet and portable verification.] Completed envelopes expose
+        the document digest, sealed manifest digest, transaction reference,
+        Merkle inclusion evidence, quorum-certificate fields and append-only
+        event timeline. Users can download private evidence archives and
+        \texttt{.tessaris-proof} receipts and verify them locally without
+        uploading the document.
+  \item[Controlled signed-copy delivery.] An encrypted, restart-safe and
+        idempotent outbox prepares exact evidence-package attachments, applies
+        bounded retry, records provider outcomes, and requires reauthorisation
+        following a terminal bounce or rejection. Live provider validation
+        remains a deployment gate.
+  \item[Records governance.] Retention deadlines and legal holds block
+        destruction. Deletion requires an export, exact confirmation and an
+        encrypted content-free destruction receipt.
+  \item[Encrypted device recovery.] An operator can create one bounded,
+        password-encrypted recovery package containing all four Legal stores,
+        signing and delivery state, the proof outbox, GlyphChain runtime state,
+        a consistent SQLite ledger snapshot, public trust material and
+        encrypted Legal and network-identity key-recovery bundles. A clean-root
+        restore authenticates every encrypted record and audit chain before it
+        is reported as successful.
+  \item[Explicit network participation.] Desktop installations can be assigned
+        light, relay or validator roles. Relay and validator activation requires
+        signed-desktop administration, exact confirmations and role-specific
+        acknowledgements; validator activation also requires governance and a
+        matching trusted checkpoint. Role changes require restart before taking
+        effect.
+  \item[Network operations.] Signed peer discovery, bounded peer memory,
+        transport-key rotation and recovery, restart and catch-up recovery,
+        outbound-only NAT relay transport, malformed-input rejection, ingress
+        backpressure and privacy-safe local network monitoring are implemented.
+        Monitoring raises local alerts for
+        finality stalls, conflicting finalized history, extended rounds,
+        elevated-node isolation, peer pressure, queue drops and certificate or
+        trust-configuration faults.
+  \item[Proof-preserving storage maintenance.] A light-node operator can export
+        and independently verify a complete finality-anchored ledger archive,
+        compact only a separate database copy, retain a canonical restart-state
+        base and finalized tip, detect concurrent writes, and atomically install
+        the compacted ledger. The operation is explicit, reasoned, restart-gated
+        and never triggered automatically by storage pressure. Portable Legal
+        receipts remain verifiable after historical rows leave the hot ledger.
+\end{description}
+
+Professional escalation is intentionally a controlled draft. Tessaris may
+assemble the matter context, evidence references, urgency and requested
+specialism, but it does not appoint or contact a lawyer without a separate
+authorised delivery action.
+
+\subsection{Technical Architecture and Trust Separation}
+
+The implementation separates confidential business records, proof commitments,
+network transport identity and validator-finality authority. These domains are
+not interchangeable:
+
+\begin{enumerate}
+  \item The \emph{Legal record plane} stores matters, documents, templates,
+        envelopes, obligations and delivery state under workspace-isolated
+        authenticated encryption.
+  \item The \emph{evidence plane} produces an exact signed-copy manifest,
+        hash-chained audit events, a portable receipt and a private evidence
+        archive containing the material needed by the parties.
+  \item The \emph{GlyphChain ledger plane} receives only non-reversible
+        commitments and protocol metadata. It does not receive document text,
+        signer names, email addresses or the private evidence archive.
+  \item The \emph{consensus-finality plane} binds the exact canonical ledger
+        block, transaction-envelope Merkle root and validator-set checkpoint to
+        a portable quorum certificate.
+  \item The \emph{network plane} uses a separate versioned Ed25519 transport
+        identity for peer HELLO possession proofs and signed message exchange.
+        Validator-finality keys cannot be silently substituted with the
+        transport key.
+\end{enumerate}
+
+The main persistent components are an encrypted Legal record store, durable
+proof-submission outbox, append-only submission journal, encrypted delivery
+outbox, retained finality receipts, signed discovery-record store, versioned
+network-identity store, bounded peer registry and bounded aggregate network
+health history. Atomic file replacement is used for durable metadata and
+owner-restrictive permissions are applied to sensitive local files. Production
+key custody uses the operating-system Keychain and fails closed if that custody
+service is unavailable; deterministic development mode uses explicitly scoped
+owner-only files.
+
+\subsubsection{Cryptographic binding}
+
+For document bytes $D$, ordered signer commitments $S$, the terminal audit
+event $A$ and the sealed signed-copy manifest $M$, Tessaris computes
+
+\[
+ h_D=\operatorname{SHA256}(D),\qquad
+ h_S=\operatorname{SHA256}(\operatorname{Canonical}(S)),
+\]
+
+\[
+ h_A=\operatorname{SHA256}(A),\qquad
+ h_M=\operatorname{SHA256}(\operatorname{Canonical}(M)).
+\]
+
+The \texttt{DOCUMENT\_PROOF\_V1} payload binds these values to a deterministic
+proof identifier, origin-device key identifier, completion time and verification
+policy. The receipt's transaction envelope is independently canonicalised and
+hashed. Its inclusion path must reconstruct the declared transaction Merkle root.
+The version-two quorum certificate then binds that same root and the canonical
+ledger commitment to validator signatures checked against an independently
+pinned validator-set checkpoint. A proof is not promoted from
+\texttt{LEDGER\_COMMITTED\_AWAITING\_QUORUM\_FINALITY} to
+\texttt{FINALIZED} unless these exact bindings verify.
+
+\subsubsection{Idempotency, recovery and auditability}
+
+Proof identifiers are deterministic per completed envelope. Before allocating
+new chain state, Tessaris searches for an existing matching proof transaction.
+Submission state is persisted before network activity and recovered after a
+restart. Bounded exponential retry retains the attempt count, next-attempt time,
+last error and update time; manual retry remains workspace scoped.
+
+Legal storage and proof-signing keys are versioned and included in encrypted
+recovery bundles. Network transport identities use an independent recovery
+format bound to the exact chain and node. Rotation produces a continuity
+certificate signed by both the retiring and replacement Ed25519 keys and retains
+old public verification material. Recovery imports reject wrong passwords,
+key/public-key mismatches, chain or node mismatches and invalid rotation chains.
+The combined full-state recovery format described below now covers the local
+Legal and GlyphChain device state. Application-account recovery,
+deployment-managed validator-finality credentials and representative-device
+production exercises remain separate gates.
+
+\subsubsection{Encrypted full-state backup and clean-root restoration}
+
+The \texttt{tessaris.legal-glyphchain-full-state.v1} package captures the four
+Legal roots, including envelopes, matters, documents, templates, delivery
+outboxes, proof receipts, proof retry state, destruction records and audit
+history. It also captures GlyphChain consensus and participation state, a
+SQLite online-backup snapshot of the ledger, the configured public validator
+checkpoint and independently stored pin metadata. A canonical manifest records
+the size and SHA--256 digest of every member, the source workspace, chain and
+node, creation actor and time. The encrypted outer header intentionally omits
+workspace, node and chain identifiers. The pin inside a recovery package is a
+recovery copy only: it does not replace publication of the pin through an
+independent channel and is never sufficient by itself to establish quorum
+trust.
+
+Raw Keychain items and development \texttt{\_secure\_keys} directories are not
+copied into the archive. Legal stores use their existing password-wrapped,
+versioned recovery bundles. The managed P2P identity uses its separate
+chain-and-node-bound recovery bundle, including the verified rotation history.
+A legacy proof-signing PEM is explicitly excluded and must first be migrated by
+the Legal key store. Validator-finality private keys remain deployment-managed
+secrets and are not scraped from process environment into a device backup.
+
+The outer file uses scrypt with a unique 16-byte salt
+(\(N=32768,r=8,p=1\)) and chunked AES--256--GCM. Each four-megabyte chunk has a
+unique nonce derived from a random nonce prefix and monotonic counter; its
+associated data binds the authenticated outer header, chunk index and exact
+plaintext length. The header binds the total archive length, chunk count and
+archive SHA--256 digest, detecting truncation, reordering, extension and partial
+replacement. Export and restore require separate exact confirmation phrases and
+a password of at least sixteen characters.
+
+Before restoration, Tessaris authenticates every encrypted chunk, verifies the
+archive digest, rejects absolute paths, parent traversal, links, special files,
+duplicates, undeclared members, oversized files and excessive file counts, and
+recomputes the canonical member manifest. All key-recovery bundles are decrypted
+and validated in an isolated preflight root before destination state changes.
+Restoration refuses a non-empty target unless the operator explicitly authorises
+replacement; authorised replacement moves the previous state to a named,
+recoverable safety path. Export start, export completion and restore completion
+are appended to a hash-chained, fsync'd device-recovery journal. Installed
+directories use owner-only permissions.
+
+The clean-root regression restores and proves decryptability for every encrypted
+record, verifies signing, matter and delivery event chains, recovers the proof
+retry journal, checks SQLite integrity, preserves trust files and verifies the
+network-identity rotation chain and public-key continuity. The operator command
+\texttt{backend/scripts/legal\_full\_state\_recovery.py} exposes interactive
+\texttt{export}, \texttt{inspect} and \texttt{restore} operations without
+placing the recovery password on the command line. A restart remains mandatory
+before network participation resumes.
+
+The repeatable synthetic disaster-recovery exercise creates an encrypted
+whole-device package, rejects a wrong password and a modified package, refuses
+to overwrite an occupied target, restores all protected state into a clean
+root, revalidates audit chains, the ledger, checkpoint and node identity, and
+then runs the compromised/lost-validator governance exercise.  Its content-free
+report records the exercise identifier, participants, topology, exact
+implementation-file manifest, inputs, evidence digests, observed timings,
+checks, findings and reproduction commands.  This is local technical evidence;
+it is not application-account recovery, representative-device testing or
+production approval.
+
+\subsubsection{Application-account recovery authority}
+
+Application-account ownership is now separated from restoration of local
+device files.  Initialisation creates a stable account identifier derived from
+an Ed25519 account-root public key, an encrypted recovery kit that must be kept
+outside the Tessaris runtime, and a root-signed public account descriptor.  The
+kit protects the root private key with scrypt
+\((N=32768,r=8,p=1)\) and AES--256--GCM; its password is never retained.  Root
+keys use platform Keychain custody in production.
+
+Clean-device recovery requires the kit, password, expected account identifier,
+current public descriptor, new device identifier and exact confirmation.  It
+verifies root-key continuity, advances a monotonic recovery epoch, signs a new
+descriptor, commits to the previous descriptor digest and revokes every device
+not listed in the replacement descriptor.  Device authorisation fails for a
+stale epoch or an omitted device.  Wrong passwords, modified kits or
+descriptors, an unexpected account, an on-runtime kit destination and a
+non-clean target all fail closed.
+
+Where an account descriptor is present, the installed desktop request signer
+and backend verifier now use the domain-separated
+\texttt{aion.flow.desktop-session.v2} format.  The signed message binds the
+account identifier and recovery epoch alongside the method, target, body
+digest, device, person, workspace, timestamp and nonce.  A pre-recovery epoch,
+a device absent from the active descriptor, a mismatched workspace or account,
+and account headers received by a backend without the corresponding descriptor
+all fail closed.  The legacy version~1 session format remains only as a
+migration path when no account descriptor exists.
+
+The interactive operator command
+\texttt{backend/scripts/application\_account\_recovery.py} provides
+\texttt{initialize}, \texttt{recover} and \texttt{status} operations.  It reads
+recovery passwords from the terminal rather than command-line arguments,
+writes only the root-signed public descriptor to a publication destination and
+leaves the encrypted recovery kit under owner control.
+
+The kit cannot self-assert that its supplied descriptor is the newest account
+state.  The separately runnable registry implementation now authenticates the
+root signature, preserves append-only history and enforces an exact monotonic
+epoch and digest chain.  Its bounded public service stores no recovery secrets,
+requires TLS for non-loopback use and is consumed by a fail-closed HTTPS client
+with persistent rollback detection.  A co-located development instance is not
+independent authority.  Production therefore still requires deployment under
+separate operational control, connection of the remaining non-AION application
+session issuers, and live clean-device recovery and lost-device revocation
+validation against that registry.  Validator-finality credentials remain in
+deployment-managed custody and are never included in the account recovery kit.
+
+\subsubsection{Peer discovery, resource bounds and monitoring}
+
+Peer bootstrap records are signed by independently pinned Ed25519 discovery
+authorities and bind the chain, authority, monotonic sequence, issue and expiry
+times, peer roles, endpoints and expected transport public keys. Nodes reject
+unknown authorities, bad signatures, wrong-chain or expired records, excessive
+lifetimes, replay, same-sequence equivocation, unsafe production endpoints and
+oversized records. Signed-discovery enforcement disables legacy unsigned
+connect and refresh routes. Installation of an expected key does not complete
+trust: the live peer must still prove key possession through signed HELLO.
+
+The peer registry defaults to a maximum of 2,048 entries, validates field
+lengths and preferentially evicts the oldest non-validator record. Consensus
+ingress uses bounded per-lane queues, duplicate suppression, response caching
+for request-like lanes, per-peer message and byte rate limits, and explicit drop
+reporting.
+
+Persistent ledger growth is governed separately from peer memory. The effective
+ledger limit is the lower of an explicit deployment limit and the storage limit
+approved in the local network-participation record, with a 512 MiB default.
+SQLite receives a hard main-database page ceiling, bounded WAL checkpoint policy
+and journal-size target. Before a new block, transaction, checkpoint or metadata
+write, Tessaris measures the database, WAL and shared-memory companions and
+reserves configurable headroom. A write that would cross the writable limit
+raises a dedicated capacity error before a new transaction is accepted into the
+in-memory ledger. Idempotent retrieval of an existing transaction remains
+available while new writes are blocked.
+The storage administration route reports only byte counts, utilization and
+policy state; it does not expose filesystem paths. Near-capacity and at-capacity
+conditions feed the local health alert evaluator. Capacity exhaustion never
+causes automatic record deletion: the policy is explicitly
+\texttt{fail\_closed\_no\_automatic\_pruning}. Finality-anchored snapshot
+synchronization and explicit proof-preserving pruning are implemented. Capacity
+pressure alone never initiates deletion.
+
+\subsubsection{Secure outbound-only NAT relay transport}
+
+A desktop behind a home, office or virtual-machine firewall can receive
+GlyphChain peer traffic without exposing an inbound port. It completes an
+outbound HTTPS HELLO with an explicitly approved relay or validator, polls a
+bounded recipient queue and passes every retrieved original P2P envelope
+through its ordinary local router. The receiving node therefore rechecks the
+sender's trusted public-key binding and message-lane signature. The relay is a
+transport intermediary only: it cannot vote, appoint a validator, replace a
+sender signature or create quorum finality.
+
+Relay PUT, PULL and ACK operations use a separate canonical
+\texttt{glyphchain.nat-relay.v1} request signed by the caller's Ed25519
+transport identity. Each request binds the chain, operation, node identifier,
+issuance time, unique nonce and complete operation payload. The relay requires
+a previously verified HELLO, applies per-peer message and byte rate limits and
+rejects stale, replayed, wrong-chain or invalidly signed requests. A target must
+already have a public key in the trusted peer registry.
+
+The restart-safe relay queue applies a global message bound, a per-recipient
+bound, an exact encoded-message limit, a short maximum lifetime and bounded
+pull batches. Identical envelopes are idempotent. Queue metadata is written
+atomically under owner-only permissions. Recipients acknowledge an item only
+after its local route accepted it or rejected it as permanently invalid;
+transient server and rate-limit failures remain eligible for retry.
+
+Signed discovery can bind a per-peer \texttt{relay\_url}. Consensus proposal
+and vote broadcast selects that route without confusing the relay with the
+destination node. A one-way HELLO response carries the responder's signed
+identity, allowing mutual possession verification without an inbound callback.
+When signed discovery is enforced, an unknown self-signed HELLO and any attempt
+to replace a pinned peer key are rejected. HTTPS is mandatory outside an
+explicit development-only insecure-network mode. Relay queues contain protocol
+envelopes only and never contain Legal document text, signer identities or
+private evidence packages.
+
+\subsubsection{Finality-anchored snapshot synchronization}
+
+A portable \texttt{glyphchain.ledger-snapshot.v1} archive contains exactly four
+members: a consistent SQLite backup, a canonical manifest, the version-two
+quorum-finality certificate and the public validator checkpoint. The manifest
+binds the chain and network, snapshot height, state root, transaction root,
+canonical ledger commitment, consensus block identifier, database byte length
+and SHA--256 digest, certificate digest, checkpoint digest, checkpoint
+identifier and validator-set root. Legal documents, signer identities and
+private evidence packages are not included.
+
+Verification is completed before installation. Tessaris rejects unexpected ZIP
+members, traversal paths, encryption, excessive expanded size, database
+corruption, foreign-key faults, unexpected tables, views or triggers, invalid
+transaction envelopes, non-contiguous transaction ordering, checkpoint/root
+mismatches, rollback below the local checkpoint, wrong-chain state and any
+certificate that does not bind the reconstructed transaction root and ledger
+commitment. A checkpoint carried in the archive cannot appoint itself: its exact
+identifier and validator-set root must match the receiver's independently pinned
+checkpoint.
+
+Installation is restricted to an authenticated signed-desktop administrator,
+an exact confirmation and effective light-node participation. The verified
+database is copied to an owner-only staging file, hashed again, atomically moved
+into place and strictly replayed. The prior ledger is retained as one local
+recovery copy; a failed replay restores it. A restart is required before network
+participation resumes.
+
+For distributed synchronization, only an explicitly enabled relay or validator
+with an active Ed25519 transport identity serves
+\texttt{SNAPSHOT\_REQ}. Requests require an already HELLO-verified peer and a
+signature over the chain-bound request payload. The receiving light node selects
+an already verified peer by node identifier, streams the archive under its local
+storage bound without redirects, verifies it using its own trust anchor and only
+then invokes the same atomic installer. Stale snapshots and transport/archive
+identity disagreements are rejected.
+
+\subsubsection{Proof-preserving ledger pruning}
+
+Historical compaction is exposed only as an authenticated signed-desktop
+maintenance operation and is never automatic. The device must first be in its
+non-relaying, non-voting light role and the operator must enter the exact
+confirmation phrase and record a reason. Tessaris then exports the exact live
+database into a complete finality-anchored snapshot, retains that archive with
+owner-only permissions and independently verifies it against the operator's
+pinned validator checkpoint.
+
+The compactor works on a separate database copy. It binds a canonical chain-
+state snapshot to the finalized height and state root, retains the finalized tip
+block and its complete transaction envelopes, and removes only older block and
+transaction rows. The state base allows deterministic restart without replaying
+deleted history. New blocks use the maximum retained height plus one, rather
+than assuming that retained rows begin at height one.
+
+Before atomic installation, Tessaris produces a second consistent backup of the
+live database and compares its digest with the retained archive. Any concurrent
+ledger write aborts the operation. The generic atomic installer rehashes the
+compacted database, retains the previous database for recovery, rebuilds runtime
+state and verifies the finalized checkpoint before reporting success. Network
+use requires restart.
+
+Portable \texttt{.tessaris-proof} receipts do not depend on continued hot-
+database retention: they carry the exact transaction envelope, transaction
+hash, Merkle inclusion path, transaction root and quorum-finality certificate.
+They therefore remain independently verifiable after compaction. The retained
+full snapshot preserves historical inspection and recovery. This is not a claim
+that deleting a local hot-ledger row deletes or revokes a distributed proof.
+The archive directory may be placed on separately managed storage with
+\texttt{GLYPHCHAIN\_PRUNING\_ARCHIVE\_DIR}; archive retention and backup-media
+governance remain operator responsibilities.
+
+Aggregate health snapshots contain no peer address, node identifier,
+transaction, document or signature. Their bounded local hash chain is useful for
+operator diagnostics but is not digitally signed and is not presented as an
+independently authenticated forensic record.
+
+\subsection{Implemented Interfaces}
+
+The protected Legal and GlyphChain administration surfaces include:
+
+\begin{itemize}
+  \item document upload, classification confirmation, exact-version review,
+        comparison, redline and negotiation workflows;
+  \item template creation, revision, exact-digest approval, supersession and
+        controlled instantiation;
+  \item matter relationships, obligations, reminders and professional-
+        escalation drafts;
+  \item signature-envelope approval, signer actions, completion, proof,
+        verification, evidence export and controlled delivery;
+  \item proof-outbox status and workspace-scoped manual retry;
+  \item light, relay and validator participation status, configuration and
+        disablement;
+  \item network-identity status, explicit rotation and encrypted recovery export
+        and import;
+  \item signed-desktop network-health capture and bounded history retrieval; and
+  \item \texttt{POST /api/aion/business/glyphchain-admin/storage/status}
+        for a path-free view of the effective ledger limit, database/WAL/shared-
+        memory usage, remaining capacity, utilization and fail-closed policy;
+  \item signed-desktop snapshot export, verify, explicit import and verified-peer
+        synchronization routes;
+  \item signed-desktop, light-node-only, explicitly confirmed archive-and-prune
+        maintenance with concurrent-write detection and restart enforcement;
+  \item authenticated \texttt{/api/p2p/nat/put},
+        \texttt{/api/p2p/nat/pull} and \texttt{/api/p2p/nat/ack} routes for
+        bounded outbound-only peer transport, plus aggregate path-free relay
+        status; and
+  \item the signed peer \texttt{POST /api/p2p/snapshot\_req} transport for a
+        newer finalized snapshot from a relay or validator.
+\end{itemize}
+
+All administrative mutations are authenticated using a signed desktop session
+bound to the HTTP method, request target and exact body. Workspace and operator
+identity are derived from that verified session rather than accepted from an
+untrusted request field.
+
+\subsection{Completed Signing and Proof Flow}
+
+The implemented flow is approval-gated and version-specific:
+
+\begin{enumerate}
+  \item Legal creates a draft envelope containing the exact document text and an
+        ordered signer list.
+  \item An authorised user submits the envelope for approval.  Tessaris creates a
+        review hash over the envelope identifier, document hash, signer order and
+        expiry time.
+  \item Approval applies only when the supplied review hash still matches the
+        version under review.
+  \item Secure signer links are generated.  Plaintext tokens are returned once;
+        only token hashes are retained locally.
+  \item Each signer confirms the expected name and email address and accepts the
+        exact document hash.  Ordered signing is enforced.  Per signer, the
+        owner may additionally require a one-time code delivered through a
+        separate channel.  Tessaris stores only the code hash and rotates both
+        code and link when a reminder is prepared.  This is a possession check,
+        not a claim of certified identity verification.
+  \item When every signer has signed, Tessaris seals the signed-copy manifest and
+        appends the completion events to the hash-chained envelope audit history.
+  \item Tessaris creates a portable \texttt{.tessaris-proof} receipt and places
+        its commitment in the durable GlyphChain proof outbox.
+  \item If chain submission is enabled, the \texttt{DOCUMENT\_PROOF\_V1}
+        transaction is submitted.  A temporary failure leaves the proof available
+        for scheduled or manually requested retry.
+  \item The user may download a private evidence archive containing the document,
+        proof, certificate, audit events and verification instructions.
+\end{enumerate}
+
+\begin{verbatim}
+Exact document + ordered signers
+              |
+              v
+   Approval-bound envelope
+              |
+              v
+ Signed-copy manifest + audit chain
+              |
+      +-------+--------------------+
+      |                            |
+      v                            v
+Private evidence ZIP       Hash commitments only
+                                   |
+                                   v
+                         Durable proof outbox
+                                   |
+                                   v
+                     GlyphChain ledger commitment
+                                   |
+                                   v
+                       Portable .tessaris-proof
+                                   |
+                        exact-block consensus binding
+                                   |
+                                   v
+                    independently anchored quorum finality
+\end{verbatim}
+
+\subsection{Commitment and Receipt Model}
+
+Let $D$ be the normalized UTF-8 document content and let
+
+\[
+  h_D = \operatorname{SHA256}(D).
+\]
+
+For every signer $i$, Tessaris computes a canonical commitment over the signer
+identifier, signing time, signature method and accepted document hash.  The
+canonical digest of the ordered commitment collection forms the signatures
+commitment $h_S$.  The final event hash of the envelope's append-only audit chain
+forms the audit commitment $h_A$.  The sealed signed-copy manifest has commitment
+$h_M$.  The GlyphChain payload therefore binds:
+
+\begin{itemize}
+  \item a deterministic proof identifier;
+  \item an opaque document-identity commitment;
+  \item $h_D$, the document content hash;
+  \item $h_M$, the signed-copy manifest hash;
+  \item $h_S$, the ordered signature commitment;
+  \item $h_A$, the terminal audit-event hash;
+  \item the origin-device key identifier;
+  \item the completion time, signing policy version and verification version.
+\end{itemize}
+
+The portable receipt schema is
+\texttt{tessaris.glyphchain-document-receipt.v2}.  Its attestation comprises the
+receipt version, creation time, normalized GlyphChain payload and origin-device
+public-key description.  This attestation is signed with Ed25519.  The receipt
+also contains an explicit privacy declaration and, after successful submission,
+the transaction identifier, transaction hash, block height, transaction index,
+transaction Merkle root and inclusion path.  A ledger commit is reported as
+\texttt{LEDGER\_COMMITTED\_AWAITING\_QUORUM\_FINALITY}; it is not reported as
+quorum-final unless the matching certificate verifies against a separately
+pinned validator checkpoint.
+
+The verifier recomputes the committed transaction envelope hash, checks that its
+\texttt{DOCUMENT\_PROOF\_V1} payload exactly matches the receipt payload, checks
+the transaction identifier, and then proves that the transaction hash belongs
+to the declared Merkle root.  When finality becomes available, the receipt also
+carries the version-two quorum certificate whose signed domain includes the
+same transaction root and canonical ledger-block commitment.  Receipt contents
+are never permitted to appoint their own trust anchor: the validator-set root
+must come from a separately supplied checkpoint or operator-pinned local state.
+
+\subsection{Durable Submission and Restart Recovery}
+
+Proof submission is no longer dependent on an in-memory request or on the
+desktop remaining open.  Each proof is written to a persistent outbox item before
+submission.  Outbox state transitions are also written to an append-only,
+filesystem-synchronized event journal.  The principal states are
+\texttt{PENDING}, \texttt{SUBMITTING}, \texttt{RETRY\_PENDING},
+\texttt{LEDGER\_COMMITTED\_AWAITING\_QUORUM\_FINALITY} and
+\texttt{FINALIZED}.  The last state is reserved for a trust-anchored certificate
+over the exact committed block.
+
+Failed submissions use bounded exponential backoff.  Retry state includes the
+attempt count, next-attempt time, most recent error and last update time.  A
+manual retry API is available for controlled recovery, and the retry operation
+is restricted to the authenticated workspace.  Proof identifiers are
+deterministic for the completed envelope.  Before consuming a new chain nonce,
+the service searches for an existing finalized \texttt{DOCUMENT\_PROOF\_V1}
+transaction with the same proof identifier.  This provides proof-level
+idempotency across request retries and application restarts.
+
+The protected management routes are:
+
+\begin{itemize}
+  \item \texttt{POST /envelopes/\{id\}/proof} --- retrieve the private receipt;
+  \item \texttt{POST /envelopes/\{id\}/proof/download} --- download the
+        \texttt{.tessaris-proof} file;
+  \item \texttt{POST /envelopes/\{id\}/proof/submit} --- submit or recover the
+        proof on GlyphChain;
+  \item \texttt{POST /envelopes/\{id\}/proof/verify} --- run server-side proof
+        verification;
+  \item \texttt{POST /proof-outbox/status} --- obtain workspace-scoped queue
+        status;
+  \item \texttt{POST /proof-outbox/retry} --- retry bounded workspace-scoped
+        submissions; and
+  \item \texttt{POST /envelopes/\{id\}/evidence-package/download} --- export the
+        completed private evidence archive.
+\end{itemize}
+
+\subsection{Private Evidence Package}
+
+The Legal interface exposes \emph{Download evidence} only for completed
+envelopes.  The resulting \texttt{.tessaris-evidence.zip} archive is generated
+in memory and is not written to GlyphChain.  It contains:
+
+\begin{description}
+  \item[\texttt{document.txt}] the exact frozen document content;
+  \item[\texttt{signed-document.html}] a portable human-readable completed copy;
+  \item[\texttt{evidence-certificate.json}] document identity, version, SHA-256
+        hash, signer records, completion manifest, export time, proof reference
+        and assurance limitations;
+  \item[\texttt{audit-events.json}] the complete hash-chained envelope event
+        history;
+  \item[\texttt{document-history.json}] the verified replacement and
+        supersession chain;
+  \item[\texttt{\{envelope\}.tessaris-proof}] the portable device-signed proof
+        receipt and any available GlyphChain inclusion evidence; and
+  \item[\texttt{README.txt}] plain-language local verification and legal-status
+        guidance.
+\end{description}
+
+The archive contains private document and identity information and must be
+handled as confidential business evidence.  It is suitable for controlled local
+retention or approved delivery to a party, but it must not be published or sent
+automatically.  External signed-copy delivery remains disabled until an approved
+connector and its authority boundary are configured.  Recording a delivery
+reference does not itself claim that Tessaris sent the file.
+
+\subsection{Approved Signed-Copy Delivery}
+
+Completed evidence packages may now be prepared for Resend or
+Microsoft~365/Graph delivery.  Preparation and transmission are separate
+approval-gated actions.  Tessaris creates one encrypted outbox item for each
+required signer, binds it to the completed manifest, and stores the exact ZIP
+attachment before any provider call.  Deterministic delivery identifiers make
+repeated preparation idempotent.
+
+The outbox records four distinct facts rather than collapsing them into a
+single ``sent'' state: approval and queueing, submission to the provider,
+provider-reported delivery outcome, and confirmation for every required party.
+A provider request identifier is mandatory before an item can become
+\texttt{SUBMITTED\_TO\_PROVIDER}; that state is not displayed as delivered.
+\texttt{DELIVERED}, \texttt{BOUNCED} and \texttt{REJECTED} require a separate
+provider reference.  Failed submissions use bounded exponential retry and
+survive process restart.  Bounced or rejected items retain their earlier
+provider history and require an owner-authorised reason before another attempt.
+
+Resend outcome ingestion is implemented as a public, provider-authenticated
+callback.  Verification is performed over the exact raw HTTP body using the
+\texttt{svix-id}, \texttt{svix-timestamp} and \texttt{svix-signature} headers and
+one of the configured signing secrets.  Stale requests, invalid signatures,
+oversized payloads and conflicting reuse of an event identifier fail closed.
+The provider email identifier resolves through an encrypted opaque index to one
+workspace-scoped outbox item; it is not accepted as a workspace identifier from
+the callback.  Callback event identifiers are idempotent, while reuse with a
+different payload digest is rejected.  Delivered, delayed, bounced, failed and
+suppressed events update the outbox distinctly.  A contradictory final outcome
+does not overwrite the earlier result: both facts are retained and the item is
+marked for human review.  A verified delivered event is also appended to the
+owning envelope's signed-copy delivery history.  Provider payload recipient and
+message content are not copied into the callback journal.
+
+The public callback path is
+\texttt{/api/aion/business/legal-signing/webhooks/resend}.  Production requires
+the \texttt{RESEND\_WEBHOOK\_SIGNING\_SECRETS} or singular
+\texttt{RESEND\_WEBHOOK\_SIGNING\_SECRET} Vault-provided value and registration
+of the exact HTTPS URL in Resend.  Multiple secrets are accepted during a
+controlled rotation window.
+
+Readable API responses omit the message body and attachment bytes.  Recipient,
+message and evidence-package content remain inside the AES-256-GCM record, and
+each state transition is protected by an internal hash chain.  Adapter limits
+bound the number and aggregate size of attachments.  Production acceptance
+still requires live Vault credential wiring and a real provider callback
+exercise; tests do not send real email.
+
+Microsoft~365 delivery uses a separate traceable flow.  Tessaris first creates
+the message as a draft with Graph's immutable-identifier preference, records the
+returned Internet Message-ID, and then sends that exact draft.  The Graph
+\texttt{202 Accepted} response advances the item only to
+\texttt{SUBMITTED\_TO\_PROVIDER}; it cannot confirm recipient delivery.  An
+authorised refresh calls the Exchange Online Message Trace API and requires an
+exact Internet Message-ID and recipient match before applying an outcome.  The
+Graph status \texttt{delivered} becomes \texttt{DELIVERED}; \texttt{failed}
+becomes \texttt{REJECTED}; and \texttt{quarantined} or
+\texttt{filteredAsSpam} becomes \texttt{DELIVERY\_DELAYED} with human review.
+Pending, expansion and unknown states remain non-delivered.  Trace observations
+are bounded, idempotent, hash-journalled and contain no copied message body or
+attachment.  A confirmed outcome is synchronized to the envelope's signed-copy
+delivery history.
+
+The traceable mail path requires the approved Microsoft~365 Vault connection to
+grant \texttt{Mail.ReadWrite} for draft creation and \texttt{Mail.Send} for the
+controlled send.  Message Trace additionally requires
+\texttt{ExchangeMessageTrace.Read.All}, tenant administrator consent and the
+Microsoft-documented Exchange tracing service-principal provisioning.  The
+trace token may be supplied separately as
+\texttt{MICROSOFT\_GRAPH\_MESSAGE\_TRACE\_ACCESS\_TOKEN}.  Local tests use
+provider doubles; tenant onboarding, permission consent, trace latency,
+throttling and real delivery outcomes remain live acceptance work.
+
+\subsection{Independent Quorum-Certificate Verification}
+
+The portable verification library accepts legacy version-one certificates for
+compatibility, while the live content-bound path emits
+\texttt{glyphchain.quorum-finality-certificate.v2}.  Independently of the live
+consensus engine, it recomputes the canonical validator-set root, rejects
+duplicate and non-member voters, verifies each Ed25519 precommit signature,
+recomputes the two-thirds voting-power threshold, and checks the certificate's
+chain, height, block, ledger commitment and transaction-root binding.  A
+certificate is only reported as independently
+trusted when its validator-set root matches a root supplied from trusted genesis
+or checkpoint state.  Live validators retain a separate certificate-domain
+Ed25519 precommit signature, assemble the quorum certificate, persist it in the
+QC, reject unanchored QCs whenever finality assurance is configured, and expose
+retained finality receipts.  Validator checkpoint files require an independently
+pinned checkpoint identifier or validator-set root.  Validators independently
+recompute every proposed transaction envelope, its transaction identifier, its
+Merkle root and the canonical ledger commitment before voting.  The content
+commitment is also embedded in the canonical consensus block identifier, so
+votes carrying different ledger content cannot aggregate under one value.
+
+The local browser verifier performs the equivalent checks without network
+access.  It accepts a validator checkpoint as a separate fourth file and labels
+a structurally valid certificate without that file as
+\emph{signatures valid---trust anchor not supplied}.  The root copied into the
+proof receipt is never treated as independent trust.  The Legal outbox fetches
+the retained certificate after consensus and only promotes the receipt when its
+transaction Merkle root matches the root certified by the quorum.
+
+\subsection{Standalone Local Verification}
+
+The static Tessaris GlyphChain Proof Verifier runs entirely inside the user's
+browser.  Its content-security policy disables network, frame and external
+resource access.  The selected document and receipt are not uploaded.  The
+verifier currently checks:
+
+\begin{enumerate}
+  \item the SHA-256 hash of the normalized document against the receipt;
+  \item the Ed25519 signature over the origin-device attestation;
+  \item optional private signer commitments against the evidence certificate;
+  \item the finalized transaction hash and exact proof-payload binding; and
+  \item the transaction's Merkle inclusion path when committed evidence is
+        available;
+  \item validator membership, signed voting power and, when a separately
+        supplied checkpoint matches, independently anchored quorum finality.
+\end{enumerate}
+
+The verifier reports each check independently.  Ledger commitment is not
+treated as quorum finality, and a browser without Ed25519 WebCrypto
+support reports the signature check as unsupported rather than silently passing
+it.  The verifier is deliberately usable without a Tessaris account or network
+connection.
+
+\subsection{Consensus and Peer-Recovery Hardening}
+
+The same delivery stage corrected the consensus failures exposed by the full
+GlyphChain regression suite:
+
+\begin{itemize}
+  \item the peer router now imports and executes both vote and quorum-certificate
+        ingress validation, preventing malformed quorum certificates from
+        producing server errors;
+  \item missing round fields use the protocol model's canonical default of round
+        zero, aligning validation with accepted model construction;
+  \item restart-sensitive synchronization refreshes the signed peer
+        \texttt{HELLO} identity binding before requesting state or blocks;
+  \item peer snapshots expose whether the signed identity handshake has
+        completed;
+  \item best-effort vote gossip reports observable bounded drops rather than
+        generating retry-amplifying rate-limit failures; and
+  \item dropped or full-lane work is explicitly reported as not accepted.
+\end{itemize}
+
+These changes close the previous gap-catch-up regression and stabilize restart
+recovery, live finality, malformed-input handling, validation ordering and
+backpressure behaviour.  The earlier intermediate result of 30 passing and nine
+failing consensus tests is superseded by the final verified result below.
+
+\subsection{Explicit Desktop Node Participation}
+
+The versioned \texttt{glyphchain.network-participation.v1} record defines three
+roles.  A light node verifies proofs and makes bounded outbound synchronization
+requests but neither accepts public peers nor relays, proposes or votes.  A
+relay requires an exact operator confirmation, a named operator, a public
+connectivity acknowledgement and an explicit storage limit.  A validator also
+requires availability and key-custody acknowledgements, a governance admission
+identifier and a matching trusted validator checkpoint.
+
+Role changes are atomic and appended to a hash-chained local audit journal.
+When explicit enforcement is enabled, a missing record resolves to the light
+role, and a validator-shaped environment variable alone cannot enable voting.
+Light and relay roles suppress the local consensus validator identity.
+Validator startup fails if the approved checkpoint does not match the trusted
+checkpoint.  The Vault administration surface uses a signed, body-bound desktop
+session and preserves all role-specific confirmations, acknowledgements and
+checkpoint gates.  It writes the durable participation record but reports that
+an application restart is required before capabilities change.  The production
+installer default remains a deployment task; legacy developer clusters are
+explicitly labelled rather than presented as the consumer security boundary.
+
+\subsection{Matter Relationships, Obligations and Professional Escalation}
+
+Legal matter records use the encrypted workspace store and now retain typed
+references to protected documents, communications, signature envelopes and
+proof receipts.  A relationship contains the protected record identifier, an
+optional content hash and a human label; it does not duplicate the underlying
+private document or message.  Duplicate relationships are rejected and each
+change is appended to the matter's hash-chained audit history.
+
+Renewal, expiry, notice, review and general-action obligations have explicit
+UTC due times, optional pre-due reminder times, owners and source references.
+Reminder times at or after the due time are rejected.  A workspace-scoped due
+query reports triggered and overdue open obligations, while completed and
+waived obligations are excluded.  The desktop Legal workspace provides the
+same controls and exposes completion status without bypassing the encrypted
+record service.
+
+An escalation to a human legal professional creates only a structured draft.
+It includes an urgency, requested specialism and a hash of the relevant matter
+snapshot, but sets external delivery authority to false.  Tessaris does not
+select, appoint or contact a lawyer automatically; a separately authorised
+delivery workflow remains necessary.
+
+The desktop signing workspace provides a proof-cabinet view for each envelope.
+It displays the exact document digest, sealed manifest digest, GlyphChain
+transaction, ledger commitment, transaction root, certificate schema and the
+hash-chained event history.  Completed envelopes can export their private
+evidence package from this view, and finalized proofs can invoke verification.
+The view expressly distinguishes locally retained evidence from quorum finality
+verified against an independently trusted checkpoint.
+
+\subsection{Private Document Intake, OCR and Contract Review}
+
+The Legal library accepts only an allowlist of bounded text, PDF, DOCX, PNG,
+JPEG and TIFF inputs.  Active or executable formats, mismatched extensions,
+empty files, oversized files, excessive PDF page counts, decompression-heavy
+DOCX packages and excessive image dimensions are rejected.  The exact original
+bytes are hashed with SHA--256 and stored with the derived text in a
+workspace-bound AES--256--GCM record; plaintext originals are not retained by
+the service.  List operations omit both original bytes and extracted text.
+
+Text-layer PDFs, DOCX and UTF--8 text are extracted locally.  Supported images
+and image-based PDFs use a bounded local Tesseract process when installed.
+Page, embedded-image, pixel, execution-time and extracted-character limits
+prevent unbounded document processing.  Missing text or unavailable OCR is
+reported explicitly as \texttt{OCR\_REQUIRED} or
+\texttt{OCR\_UNAVAILABLE}; Tessaris does not fabricate document content.
+
+Document-category suggestions are explainable term matches and always carry
+\texttt{REVIEW\_REQUIRED}, \texttt{human\_confirmation\_required=true} and
+\texttt{legal\_determination=false}.  Confirmation records the responsible
+person and time.  The document encryption-key domain is included in combined
+Legal key recovery and rotation; older version-one recovery bundles remain
+importable but explicitly report that they predate document-key custody.
+
+The local contract-review engine binds every run to the exact document and
+extracted-text digests.  It emits bounded clause-heading candidates,
+source-excerpted rule signals and review guidance for matters such as automatic
+renewal, unilateral termination, unlimited liability, indemnity, exclusivity,
+restrictive covenants, personal-data duties, extended payment terms and an
+unlocated governing-law term.  These are triage signals, not legal conclusions
+or legal advice, and remain subject to authorised human or qualified
+professional review.
+
+Exact-version comparison records the two document digests and a bounded unified
+line diff.  A redline proposal must quote text present in the exact source
+document and is stored as a non-destructive draft; it does not alter the
+original and carries no external-delivery authority.  Negotiation positions
+record the issue, business position and counterparty position as locally
+controlled open records.  The desktop review panel exposes classification,
+local review, comparison, redline and negotiation controls under these same
+boundaries.
+
+The Legal Pilot chat route uses a versioned local harness rather than passing
+raw desktop file paths into a generic conversation.  Its attachment contract
+accepts only protected \texttt{document-*} identifiers, resolves them inside
+the authenticated workspace, and rejects cross-workspace identifiers and raw
+paths.  A review request invokes the exact-digest contract-review capability;
+two attached versions can invoke exact comparison.  Each response includes
+bounded evidence references and capability receipts and fixes
+\texttt{external\_writes\_performed=false},
+\texttt{external\_delivery\_authorized=false},
+\texttt{human\_review\_required=true} and
+\texttt{not\_legal\_advice=true}.  The bounded harness evaluation covers secure
+attachments, review, comparison, workspace isolation, evidence-only overview
+and external-authority denial.  It is not an evaluation of jurisdictional legal
+correctness.
+
+\subsection{Controlled Legal Template Library}
+
+The Legal department includes an encrypted, workspace-isolated and versioned
+template registry. It supports customer, supplier and contractor agreements,
+employment documents, terms and conditions, privacy notices and data-processing
+agreements as workflow classes. These classes are not bundled legal wording and
+do not imply that Tessaris has approved a document.
+
+Every template starts in
+\texttt{DRAFT\_REQUIRES\_QUALIFIED\_REVIEW}. Approval requires a named reviewer,
+their asserted qualification, the jurisdiction, the review scope, a positive
+qualified-review acknowledgement and the SHA-256 digest of the exact content.
+The system rejects a stale or mismatched digest. The approval record states that
+Tessaris is recording the user's review assertion rather than certifying the
+reviewer's status or providing legal advice.
+
+An approved version is immutable. Editing creates a new version in the same
+template family; approval of that version supersedes, but does not alter or
+delete, the previous one. The audit history is itself hash chained. Only a
+currently approved exact version may be instantiated. Placeholders use a
+bounded \texttt{\{\{VARIABLE\_NAME\}\}} grammar; unknown and missing variables
+are rejected. Instantiation creates an encrypted Legal document bound to the
+template version, template digest and approval identifier. The resulting
+document remains a
+\texttt{CONTROLLED\_DRAFT\_REQUIRES\_FINAL\_HUMAN\_REVIEW}, carries no external
+delivery authority and may optionally be linked to a Legal matter.
+
+Template encryption keys participate in combined Legal key recovery and
+rotation. The template library intentionally begins empty. Jurisdiction-specific
+wording must be supplied and approved by a suitably qualified reviewer before
+the interface permits controlled use.
+
+\subsection{Signed Peer Discovery and Bounded Peer State}
+
+Production discovery records use
+\texttt{glyphchain.peer-discovery.v1}. Each record is bound to the chain,
+authority identifier, monotonically increasing sequence, issue and expiry time,
+and a bounded list of peer node identifiers, roles, endpoints and Ed25519
+transport public keys. The canonical record is signed by an independently
+pinned discovery authority. Nodes reject unknown authorities, invalid
+signatures, wrong-chain records, expired or excessively long-lived records,
+sequence replay, same-sequence equivocation, duplicate node identifiers,
+oversized records and unsafe endpoint forms. Production policy requires HTTPS
+and rejects loopback, link-local and private IP endpoints; a separate explicit
+development setting permits local test nodes.
+
+Only the newest accepted record per authority is retained using atomic local
+replacement. The signed-discovery mode disables the legacy unsigned connect
+and peer-list refresh routes. Remote refresh is restricted to an already known
+peer, and every returned record is reverified locally before installation.
+Discovery installs the expected transport key but does not mark the peer's live
+HELLO challenge as complete; possession is still proven through the signed
+HELLO exchange.
+
+The runtime peer registry has a configurable hard count bound, rejects
+unbounded identity fields and removes stale value-to-node aliases when a peer is
+evicted. It prefers evicting the oldest non-validator peer before a validator.
+Together with the fail-closed SQLite policy described above, this bounds peer
+memory and persistent ledger growth. Finality-anchored snapshot transfer is
+implemented as described above, together with explicit proof-preserving
+pruning. Neither operation is triggered automatically by capacity pressure.
+
+\subsection{Network Identity Rotation and Recovery}
+
+The managed P2P transport identity uses versioned Ed25519 keys. Production key
+material is held in the operating-system Keychain and fails closed when that
+custody service is unavailable; deterministic development uses owner-only local
+files. The router continues to accept an explicitly supplied legacy deployment
+key, but otherwise reads the active managed identity for signed HELLO exchange.
+
+Rotation requires a signed desktop administrator session, an exact confirmation
+phrase and a recorded reason. A new private key is generated locally. The
+rotation certificate binds the chain, node, sequence, old and new versions,
+both public keys, actor, reason, timestamp and previous certificate hash. It is
+signed by both the retiring and replacement private keys, creating verifiable
+continuity rather than silently replacing a peer identity. Retired keys remain
+available for historical verification and activation of a replacement key
+requires an application restart.
+
+All retained transport-key versions and the public rotation history can be
+exported in an AES-256-GCM recovery envelope. Its key is derived with
+scrypt using a unique salt; the envelope is bound to the exact chain and node.
+Import requires explicit device-key-restore acknowledgement, rejects wrong
+passwords, key/public-key mismatches, identity mismatches and invalid rotation
+chains, and never returns plaintext private keys through the API. This mechanism
+covers the network identity itself. The combined encrypted full-state package
+adds the Legal records, queues, ledger, public trust material and audit history
+around it. Application-account recovery and externally managed validator-
+finality secret recovery remain open production gates.
+
+\subsection{Privacy-Safe Network Health Monitoring}
+
+GlyphChain exposes a signed-desktop administration route that captures a local
+operator health snapshot. The snapshot contains aggregate consensus progress,
+finality age and latency, peer counts by state, bounded-ingress queue totals and
+operator alerts. It deliberately excludes peer URLs and IP addresses, node and
+validator identifiers, transaction content, document hashes, signatures and
+Legal workspace data. The chain name is represented only by a SHA-256 digest.
+No snapshot is transmitted externally by the monitoring component.
+
+Alert evaluation covers conflicting finalized block identifiers at the same
+height, excess finality lag, extended consensus rounds, stale finality,
+elevated relay or validator nodes with no verified peers, a peer registry near
+its configured bound, new full-queue ingress drops, missing portable finality
+certificates and finality trust-configuration errors. Alert thresholds are
+locally configurable. This monitoring identifies conditions requiring operator
+attention; it does not claim that a single local observation proves malicious
+behaviour or establishes a production availability service level.
+
+Snapshots are retained in a configurable bounded JSON-lines history. Every
+record binds the previous record hash and its own canonical SHA-256 digest, so
+accidental alteration and alteration without recomputing the retained chain are
+detectable. The history is not digitally signed and is not represented as an
+independently authenticated forensic record. When retention reaches its bound, the oldest
+records are removed while the retained segment preserves its predecessor
+commitment. Access to capture and history routes requires the enrolled signed
+desktop administrator session.
+
+\subsection{Fail-Closed Network-Partition Recovery}
+
+GlyphChain recovery does not equate a peer's advertised height with trusted
+finality.  Each synchronization cycle first validates every available peer
+finality view against the independently configured validator checkpoint.  Peer
+count is never substituted for certificate quorum power.  A higher valid view
+is applied only after the node possesses and verifies the exact ledger blocks,
+transaction root and ledger commitment covered by the certificate.
+
+For a bounded gap, the node enters \texttt{BLOCK\_CATCHUP}, fetches the missing
+range and verifies it before advancing persistent consensus state.  A gap above
+the configured block-catch-up bound enters
+\texttt{SNAPSHOT\_REQUIRED}.  In that case an administrator must use the
+existing light-node snapshot workflow; the receiver verifies the archive,
+public checkpoint and retained quorum certificate, atomically installs the
+database, verifies the installed tip against that certificate, and only then
+updates finalized consensus state.  This separates data installation from the
+authority to finalize it.
+
+Two cryptographically valid finalized views naming different blocks at the
+same height, or a peer view conflicting with local finalized history, cause a
+durable \texttt{SAFETY\_HALT}.  While halted, the engine may collect recovery
+evidence but does not propose or vote.  The halt survives restart and ordinary
+synchronization.  Its chain-bound and node-bound state is atomically stored
+with owner-only permissions; a bounded hash-chained journal records detection,
+phase transitions and clearance.
+
+Clearance is available only to an enrolled signed desktop administrator and
+requires the current halt identifier, a named operator, a reason and the exact
+phrase \texttt{CLEAR GLYPHCHAIN PARTITION SAFETY HALT}.  Clearance records an
+operator decision after the trusted history has been repaired; it cannot bypass
+certificate, checkpoint, block or commitment validation.  Privacy-safe network
+health exposes the recovery phase and aggregate progress but omits peer
+identifiers, halt identifiers, transactions and document material.
+
+\subsection{Protocol Upgrade Coordination}
+
+Future consensus changes are coordinated through a durable activation plan
+rather than inferred from an application version string.  The canonical plan
+binds the current and target protocol versions, activation height, exact
+release-manifest SHA-256 digest, trusted validator checkpoint and governance
+approval.  The state is chain-bound and node-bound, atomically replaced with
+owner-only permissions, and accompanied by a hash-chained operator journal.
+
+The node advertises its active protocol, supported range and exact plan
+identifier inside the Ed25519-signed HELLO identity domain.  Readiness is
+therefore attributed only to an authenticated validator and measured by
+validator voting power rather than by peer count.  Before activation,
+insufficient quorum readiness is an operator warning.  At the activation
+height, the consensus engine suppresses proposals, incoming votes and outgoing
+votes unless the local release supports the target and matching signed
+advertisements reach quorum power.  Unreadable or corrupt coordination state
+also produces a fail-closed \texttt{UPGRADE\_HALT}.
+
+Signed desktop administration controls scheduling, pre-activation cancellation
+and post-activation completion.  Each operation uses an exact confirmation
+phrase; scheduling additionally requires the release digest, checkpoint and
+governance approval.  An activated plan cannot be cancelled locally.  After
+the activation height finalizes on supported software, completion commits the
+new current version and permits a later plan without discarding the audit
+history.  These controls provide the upgrade rail; an actual future protocol
+implementation and its representative rollout remain independently tested
+release work.
+
+\subsection{Operational Artefacts and End-to-End User Journeys}
+
+The implementation is accompanied by explicit service-commitment, assurance,
+privacy, network-participation and relay/validator operating records.  These
+documents distinguish implemented safeguards from deployment promises.  In
+particular, no numeric uptime, proof-submission, delivery or finality service
+level is claimed before representative deployment and sustained-load evidence
+exist.  The operator runbook covers role selection, independent trust-anchor
+acquisition, key custody, explicit participation, pre-start checks, normal
+operation, incident handling and retirement.  The runbook never treats message
+submission as proof of delivery, ledger inclusion as quorum finality, or a hash
+commitment as a recoverable copy of a private document.
+
+The completed local product supports four principal end-to-end journeys:
+
+\begin{description}
+  \item[Review and negotiation.] A user imports an exact file, receives bounded
+        local text extraction or OCR, confirms its classification, runs
+        explainable contract triage, compares exact versions and records redline
+        or negotiation drafts.  The original remains immutable and no draft is
+        sent externally without a separate authorised action.
+  \item[Agreement, signature and evidence.] An authorised person approves the
+        exact document version and ordered signer list, issues one-time signer
+        links, optionally applies a separate-channel possession code, completes
+        the signing sequence, seals the signed-copy manifest, submits
+        commitment-only evidence to GlyphChain and exports a confidential
+        evidence archive and portable receipt.
+  \item[Reusable controlled documents.] A business creates its own encrypted
+        template, records qualified review against the exact content digest and
+        jurisdiction, instantiates a final-review-required document and later
+        creates a superseding version without overwriting the approved history.
+  \item[Private desktop network operation.] An administrator keeps the ordinary
+        installation in light mode or explicitly enables relay or validator
+        participation.  Signed discovery, HELLO possession proofs, bounded peer
+        state, outbound-only relay transport, independently pinned finality
+        trust, local health alerts, verified snapshots and explicit archival or
+        pruning preserve the privacy and resource boundary of the desktop.
+\end{description}
+
+Private originals, extracted text, signer identities, matter content, templates,
+audit detail and evidence packages remain in the encrypted workspace unless the
+user deliberately exports or delivers them.  The distributed rail receives
+only canonical commitments and protocol metadata.  Public checkpoint
+publication, provider delivery callbacks, independently operated relays,
+representative-device recovery exercises and third-party security review
+therefore remain release activities rather than hidden dependencies of the
+local workflow.
+
+\subsection{Verification Record}
+
+The completed implementation has the following verified state:
+
+\begin{itemize}
+  \item \textbf{158 of 158} tests pass in the complete GlyphChain suite,
+        including four-node finality, restart and gap catch-up, malformed quorum
+        certificates, ledger-content commitments, finality-anchored snapshot
+        export, verification and peer synchronization, proof-preserving ledger
+        pruning and pruned restart continuity, signed outbound-only NAT relay
+        authentication, bounds, delivery and discovery routing, backpressure,
+        signature tampering, fail-closed network-partition recovery, verified
+        large-gap snapshot adoption, sticky conflict halts, signed protocol
+        readiness, activation-boundary halts and adversarial soak;
+  \item the retained Legal-related tests cover secure storage, key recovery,
+        encrypted full-state backup and clean-root restoration and its repeatable
+        disaster exercise, off-device application-account recovery authority and
+        signed desktop-session epoch enforcement, the monotonic standalone
+        descriptor registry and fail-closed HTTPS registry client, matters,
+        documents, delivery callbacks, signing, portable verification, the
+        specialist workspace, controlled template review/withdrawal, and Resend
+        and Microsoft Graph delivery adapters;
+  \item the authoritative combined test count, duration, failures and errors are
+        recorded in the current signed baseline report rather than duplicated as
+        static prose in this section;
+  \item the signed baseline contains the complete ordered path-and-SHA--256 source
+        inventory, its canonical aggregate digest and file count, including the
+        core release evaluator, release tooling, tests and every
+        \texttt{GLYPHCHAIN*.md} and \texttt{GLYPHCHAIN*.tex} technical document;
+        it verifies against the separately stored Ed25519 public trust anchor;
+  \item the local resource-exhaustion review records request, signer-token,
+        workspace-storage, record-enumeration, proof-queue, consensus-recovery
+        and retained-state bounds; its focused regression set passes
+        \textbf{93 of 93} tests;
+  \item the retained compromised-validator exercise proves that an accused
+        validator and a joining replacement cannot contribute approval power,
+        while unaffected current-validator quorum produces a portable verified
+        transition proof that survives governance-store restart;
+  \item the repeatable disaster-recovery exercise passes all 25 checks for
+        authenticated export, tamper and overwrite rejection, clean-root Legal,
+        ledger, checkpoint and node-identity restoration, and lost-validator
+        governance while retaining the application-account and production-test
+        claim boundaries;
+  \item the scheduled template lifecycle fails closed at the review deadline,
+        permits exact-hash qualified renewal, and preserves approval history
+        when a Legal change withdraws a version from controlled use;
+  \item the cross-system incident-response playbook now defines containment,
+        evidence classes, chain of custody, scenario recovery and return-to-
+        service gates without treating a local backup as account ownership;
+  \item Python syntax compilation passes for the signing, administration,
+        snapshot, ledger and pruning components;
+  \item JavaScript syntax validation passes for the Legal workspace and Vault
+        administration controls; and
+  \item the focused test structure was corrected so chain finalization and
+        evidence export are independently exercised and reported.
+\end{itemize}
+
+The earlier 26-test targeted result and the temporary 30-pass, nine-failure
+full-suite result are retained as development history only.  They do not
+describe the current implementation state.  Focused and full-suite totals must
+not be added together as a count of unique tests because the selections overlap.
+
+\subsection{Security Properties and Present Limitations}
+
+The implementation presently provides the following controls:
+
+\begin{itemize}
+  \item immutable document-version hashing and exact-version approval;
+  \item one-time plaintext signer-link disclosure with only token hashes stored;
+  \item restart-safe replay protection for signed desktop Legal and GlyphChain
+        administration: HMAC-SHA-256 binds the method, exact target, body hash,
+        device, person, workspace, timestamp and nonce, while a private bounded
+        SQLite journal retains only device--nonce digests and fails closed if
+        uniqueness cannot be established;
+  \item ordered signers, explicit identity-field matching and optional
+        separate-channel one-time possession codes;
+  \item hash-chained envelope events and a sealed signed-copy manifest;
+  \item Ed25519 device attestation;
+  \item separation of Legal proof, P2P transport and validator-finality keys,
+        with validator startup rejecting reuse of its transport key for
+        certificate-domain votes;
+  \item commitment-only chain payloads with no signer identity or document text;
+  \item AES-256-GCM encryption for Legal matters and signing envelopes, with
+        workspace, record, purpose and key-version context authenticated as
+        associated data;
+  \item production fail-closed custody in the operating-system Keychain and
+        owner-only development key files;
+  \item versioned storage and proof-signing keys, password-encrypted recovery
+        bundles and verification of receipts made with retired signing keys;
+  \item atomic proof, outbox, encrypted-record and key-metadata replacement;
+  \item restrictive local file permissions for proof, record and key material;
+  \item idempotent chain lookup and durable retry;
+  \item restart-safe NAT relay nonce rejection, signed peer-discovery sequence
+        control, durable delivery-callback event identifiers and terminal-state
+        signer credential invalidation;
+  \item workspace-scoped proof status and retry operations;
+  \item materialize-before-finality partition recovery, bounded block catch-up,
+        verified snapshot adoption and a restart-persistent conflict safety
+        halt that suppresses validator proposals and votes;
+  \item release-digest and checkpoint-bound protocol activation plans, signed
+        validator readiness, quorum-power assessment and an activation-boundary
+        halt for unsupported or insufficiently coordinated upgrades;
+  \item bounded SQLite database, WAL and shared-memory growth with reserved
+        write headroom, hard page limits and fail-closed transaction admission;
+  \item legal holds and retention deadlines that block record destruction; and
+  \item mandatory pre-deletion export, exact deletion confirmation and an
+        encrypted content-free destruction receipt.
+\end{itemize}
+
+Production mode requires operating-system Keychain access and fails closed if
+that custody service is unavailable.  The development and test boundary uses
+owner-only files so automated tests remain deterministic.  The recovery bundle
+uses a password-derived key and authenticated encryption; it contains no raw
+plaintext keys.  Hardware-backed or secure-enclave custody remains a possible
+future strengthening rather than a current claim.
+
+\subsection{Remaining Production Gates}
+
+The following items remain outstanding and must not be implied by the current
+interface or marketing language:
+
+\begin{enumerate}
+  \item publish the exported trusted validator checkpoint file and its expected
+        identifier through independent production release channels;
+  \item register and validate the implemented Resend callback using live
+        Vault-held credentials, and configure and validate the implemented
+        Microsoft~365 traceable draft/send and Exchange Message Trace path with
+        the required tenant permissions; Graph acceptance must not be
+        represented as recipient delivery;
+  \item complete application-account recovery, compromise-response runbooks and
+        exercise the implemented restore procedure on representative production
+        devices;
+  \item deploy independently operated public relays and complete validator
+        governance plus representative partition and future-upgrade exercises;
+        signed discovery, outbound-only NAT transport, bounded peer state, role
+        definitions, explicit local opt-in, fail-closed partition recovery and
+        protocol-upgrade coordination are implemented;
+  \item complete independent cryptographic, application-security, privacy and
+        adversarial review; and
+  \item assess any future qualified-signature or trust-service proposition with
+        specialist legal and conformity advice before making regulated claims.
+\end{enumerate}
+
+GlyphChain is therefore a live, privacy-preserving document-proof rail inside
+Tessaris, while Photon remains a separate future credit or compute economy.  No
+Photon balance, token purchase or public document storage is required to create,
+verify, recover or export the present Legal evidence.

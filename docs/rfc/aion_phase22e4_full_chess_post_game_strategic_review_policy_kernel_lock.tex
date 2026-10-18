@@ -1,0 +1,86 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.4 --- Post-Game Strategic Review and Policy Update}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.4 introduces post-game strategic review and local policy update generation.
+
+This phase reviews plan following, positional change, final outcome, and strategic failure modes after a game or simulated game result.
+
+\section{Review Inputs}
+
+The kernel consumes:
+
+\begin{itemize}[leftmargin=*]
+  \item initial FEN;
+  \item final FEN;
+  \item final game status;
+  \item winner;
+  \item AION colour;
+  \item Phase 22E.1 positional features;
+  \item Phase 22E.3 plan-following telemetry.
+\end{itemize}
+
+\section{Failure Modes}
+
+The review detects:
+
+\begin{itemize}[leftmargin=*]
+  \item mate loss;
+  \item plan not followed;
+  \item positional decline;
+  \item king safety failure;
+  \item promotion danger unresolved;
+  \item invasion risk unresolved;
+  \item repetition risk unresolved.
+\end{itemize}
+
+\section{Policy Updates}
+
+The kernel emits local policy updates such as:
+
+\begin{itemize}[leftmargin=*]
+  \item increase king-safety goal bias after mate loss;
+  \item increase promotion defence after an unstopped pawn;
+  \item increase invasion reduction after queen or rook penetration;
+  \item increase plan-following penalty after plan break;
+  \item increase positional-delta weighting after positional decline;
+  \item prefer simplification when losing.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It is deterministic local post-game review over AION chess telemetry.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e4_full_chess_post_game_strategic_review_policy_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e4_full_chess_post_game_strategic_review_policy_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E4-FULL-CHESS-POST-GAME-STRATEGIC-REVIEW-POLICY\\
+Status: LOCKED --- post-game strategic review and local policy updates implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,171 @@
+\section{Phase 9E --- Boardroom Parallel Twin Visible Render Path v0}
+\label{sec:aion-boardroom-parallel-twin-visible-render-path-v0}
+
+\subsection{Status}
+
+Phase 9E locks the visible frontend render path for the Boardroom Parallel Twin surface.
+
+\begin{quote}
+\textbf{Status: LOCKED --- the Boardroom Parallel Twin bridge is now mountable into the visible Boardroom surface.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 9A created the static Boardroom Parallel Twin visibility panel.
+
+Phase 9B created the backend live payload.
+
+Phase 9C created the frontend payload mount renderer.
+
+Phase 9D created the bridge renderer and safe in-browser payload slot.
+
+Phase 9E connects those pieces to a visible render path so that the Boardroom can mount the Parallel Twin payload surface into the desktop frontend.
+
+\subsection{Implemented Surface}
+
+The visible render path is installed in:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The installer is:
+
+\begin{verbatim}
+installBoardroomParallelTwinVisibleRenderPathV0
+\end{verbatim}
+
+The renderer is:
+
+\begin{verbatim}
+renderBoardroomParallelTwinVisibleRenderPathV0
+\end{verbatim}
+
+The mount function is:
+
+\begin{verbatim}
+mountBoardroomParallelTwinVisibleRenderPathV0
+\end{verbatim}
+
+The browser exports are:
+
+\begin{verbatim}
+window.renderBoardroomParallelTwinVisibleRenderPathV0
+window.mountBoardroomParallelTwinVisibleRenderPathV0
+\end{verbatim}
+
+\subsection{Render Behaviour}
+
+The visible render path calls:
+
+\begin{verbatim}
+window.renderBoardroomParallelTwinPayloadBridgeV0
+\end{verbatim}
+
+when the Phase 9D bridge renderer is available.
+
+If the bridge renderer is unavailable, the render path emits a minimal Home Fixed fallback panel.
+
+The fallback remains read-only and identifies:
+
+\begin{verbatim}
+business_name = Home Fixed
+business_id = home_fixed
+vertical_key = home_repair
+\end{verbatim}
+
+\subsection{Mount Behaviour}
+
+The mount function searches for a safe Boardroom host element using common Boardroom selectors.
+
+The target selectors include:
+
+\begin{verbatim}
+[data-aion-boardroom]
+[data-boardroom-root]
+#boardroom
+#boardroom-root
+.boardroom
+.boardroom-root
+.boardroom-content
+.app-main
+main
+\end{verbatim}
+
+If no specific Boardroom target is found, the mount falls back to \texttt{document.body}.
+
+The mounted wrapper uses:
+
+\begin{verbatim}
+data-aion-lock = boardroom-parallel-twin-visible-mount-v0
+\end{verbatim}
+
+The visible render path wrapper uses:
+
+\begin{verbatim}
+data-aion-lock = boardroom-parallel-twin-visible-render-path-v0
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+The visible render path MUST remain read-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item expose a public A2A route.
+\end{itemize}
+
+The visible render path MUST NOT expose a live execute button.
+
+\subsection{Safety Flags}
+
+The render path preserves the following safety fields:
+
+\begin{verbatim}
+visibility_only = true
+human_review_required = true
+autonomous_execution_allowed = false
+would_execute_workflow = false
+would_create_booking = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_send_external_message = false
+public_a2a_route_exposed = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_visible_render_path_ui_lock.py
+\end{verbatim}
+
+Desktop JavaScript syntax validation:
+
+\begin{verbatim}
+node -c desktop/mac/src/app.js
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-BOARDROOM-PARALLEL-TWIN-VISIBLE-RENDER-PATH-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

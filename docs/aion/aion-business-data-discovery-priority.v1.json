@@ -1,0 +1,13 @@
+{
+  "declared_count": 643,
+  "finding_count": 643,
+  "highest_volume_areas": [],
+  "highest_volume_files": [],
+  "incomplete_discovery_session_count": 28,
+  "privacy": "source_locations_only_no_business_values",
+  "scanned_files": 385,
+  "schema_version": "tessaris.business-data-discovery-baseline.v1",
+  "unknown_by_operation": {},
+  "unknown_count": 0,
+  "vault_boundary_ready": false
+}

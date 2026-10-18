@@ -1,0 +1,209 @@
+% Append-only section fragment. Paste below the preceding section in the master document.
+% This fragment intentionally contains no preamble and no document boundaries.
+
+\section{Master Roadmap Status: Sections One to Six}
+\label{sec:master-roadmap-one-to-six}
+
+This status record preserves the authoritative master-roadmap numbering and prevents
+later feature work from being mistaken for completion of an earlier product section.
+The active baseline is Pilot Fabric 0.42. Section 3 is closed at the reusable
+framework level. Sections 1, 2, 4, 5 and 6 remain open.
+
+\begin{description}
+  \item[1 --- Consumer installation and operations:] Open; partial foundation.
+  \item[2 --- Television platforms and multi-room:] Open; partial foundation.
+  \item[3 --- Universal navigation and reliability:] Closed; framework complete.
+  \item[4 --- Voice recognition and interaction quality:] Open; partial foundation.
+  \item[5 --- Production screen perception:] Open; partial foundation.
+  \item[6 --- Live Companion expansion:] Open; active development.
+\end{description}
+
+The execution rule is numerical. Work returns to Section 1. A section with an
+external dependency may have its locally buildable work, tests and documentation
+completed, but the dependency must remain visible and the section must not be
+silently labelled complete.
+
+\subsection{Section 1: Consumer Installation and Operations}
+
+\subsubsection{Implemented Foundation}
+
+\begin{itemize}
+  \item A versioned preview archive and release manifest.
+  \item A double-click developer bootstrap plus local install and recoverable
+        uninstall commands.
+  \item Bonjour advertisement, rotating phone code and QR-assisted discovery.
+  \item Mother-local TLS material, explicit phone-trust bootstrap and an HTTP
+        recovery route.
+  \item Supervisor, address-refresh and bounded recovery foundations.
+  \item Exclusion of existing COMDEX intelligence, credentials, memories and
+        runtime state from the downloadable preview.
+\end{itemize}
+
+\subsubsection{Remaining Work}
+
+\begin{itemize}
+  \item Build a graphical first-run installer and guided setup flow.
+  \item Make Pilot independent of an existing COMDEX checkout while retaining an
+        optional governed bridge to a full AION mother brain.
+  \item Add signed update manifests, staged installation, health verification,
+        automatic rollback and update history.
+  \item Guide local-network, microphone, camera and notification permissions.
+  \item Add non-technical diagnostics, one-click repair and a redacted support bundle.
+  \item Add memory export, selective deletion, mother-identity deletion and explicit
+        secure-uninstall choices.
+  \item Publish a generated compatibility report and supported-system matrix.
+\end{itemize}
+
+Production code signing and notarization require an Apple Developer identity. A
+production phone-trust flow requires a signed native companion or equivalent
+platform-approved mechanism. Closure requires an ordinary user on a clean supported
+computer to install, grant permissions, discover and pair a television and execute
+the first verified command in under five minutes without a terminal. Failed updates
+must roll back and uninstall/data choices must be explicit and verified.
+
+\subsection{Section 2: Television Platforms and Multi-Room}
+
+\subsubsection{Implemented Foundation}
+
+\begin{itemize}
+  \item Real LG webOS discovery, pairing and governed commands.
+  \item Capability acquisition, schema classification and least-privilege capsules.
+  \item Television address recovery after local-network address changes.
+  \item Persistent room identity, exact room resolution and private handoff contracts.
+  \item Device-specific route memory and verified-navigation transactions.
+  \item A gateway representation for restricted televisions unable to host a node.
+\end{itemize}
+
+\subsubsection{Remaining Work}
+
+\begin{itemize}
+  \item Generalize adapter health, latency, firmware-change and capability monitoring.
+  \item Implement Samsung Tizen and Google/Android TV adapters.
+  \item Investigate enforceable Roku, Fire TV and Apple TV boundaries.
+  \item Add safe HDMI-CEC fallback and vendor-supported power control.
+  \item Add multi-room status, destination selection and permitted synchronization.
+  \item Build protocol simulators and conformance suites for unavailable hardware.
+  \item Field-test multiple LG model years, a Samsung device, a Google/Android TV
+        device and at least two real televisions for handoff.
+\end{itemize}
+
+Native television applications require vendor accounts, certificates and permissions.
+Closure requires every supported platform to pass discovery, pairing, restart,
+address change, capability change, verified command and recovery tests. Two real
+televisions must pass exact-room routing and verified handoff. Unsupported actions
+must fail closed.
+
+\subsection{Section 3: Universal Navigation and Reliability}
+
+Section 3 is closed at the reusable framework level. Pilot records the initial
+device and surface belief, success criterion, governed action, transport receipt and
+distinct post-action evidence. It applies bounded alternative routes, records success
+and failure per device and surface and never treats button delivery as screen success.
+Netflix search, profile selection, Home, Back, playback and owner-camera verification
+exercised the framework on the available LG television. Cross-vendor field coverage
+remains under Section 2 and production perception remains under Section 5.
+
+\subsection{Section 4: Voice Recognition and Interaction Quality}
+
+\subsubsection{Implemented Foundation}
+
+\begin{itemize}
+  \item Local Pilot wake routing and deterministic command parsing.
+  \item Sleep and microphone-off states that close physical capture.
+  \item Quiet mode, allowlisted local voices and household quiet hours.
+  \item Bounded television-dialogue rejection and follow-up windows.
+  \item Private-phone hold-to-speak with immediate local audio deletion.
+  \item Emergency cancellation across reversible plans and navigation transactions.
+  \item Visible listening, hearing, thinking, acting, speaking and terminal states.
+\end{itemize}
+
+\subsubsection{Remaining Work}
+
+\begin{itemize}
+  \item Implement true full-duplex barge-in while Pilot is speaking.
+  \item Propagate cooperative cancellation through every long-running adapter.
+  \item Add household voice-output preferences without default voice biometrics.
+  \item Add repeatable false-wake, missed-wake, latency and interruption measurements.
+  \item Integrate and qualify platform-native acoustic echo cancellation.
+  \item Test accents, ages, distance, background conversation, loud television audio,
+        accessibility and privacy on representative hardware and users.
+\end{itemize}
+
+Closure requires recorded real-room thresholds, safe interruption without duplicate
+actions, rejection of ordinary programme dialogue, unambiguous microphone state and
+a reliable private-phone fallback.
+
+\subsection{Section 5: Production Screen Perception}
+
+\subsubsection{Implemented Foundation}
+
+\begin{itemize}
+  \item Owner-initiated local Apple Vision OCR with immediate pixel deletion.
+  \item Visible Observer leases, capture profiles, countdown, pause, resume and Stop.
+  \item Battery and thermal throttling contracts plus bounded structured records.
+  \item Multi-frame stability, context-transition isolation and duplicate rejection.
+  \item Subtitle, scoreboard, product, game and scene evidence fusion.
+  \item Repeated OCR programme identity and strict public-catalogue matching.
+  \item Signed persona-, provider- and scope-bound playback and entitlement telemetry.
+\end{itemize}
+
+\subsubsection{Remaining Work}
+
+\begin{itemize}
+  \item Add measured bandwidth adaptation and native lifecycle handling.
+  \item Expand identity to films, exact episodes, advertisements and live events.
+  \item Implement permitted caption and subtitle adapter interfaces.
+  \item Connect real signed-in provider metadata, playback and entitlement adapters.
+  \item Complete privacy, child-safety and protected-content threat models and review.
+  \item Ship signed native iPhone and Android observers.
+  \item Qualify battery, thermal, bandwidth and background behavior on real phones.
+\end{itemize}
+
+Closure requires a continuous visible consent indicator, safe suspension and network
+recovery, measured resource limits, provenance-labelled programme/episode/event identity
+and authorized signed sources for every playback or entitlement claim.
+
+\subsection{Section 6: Live Companion Expansion}
+
+\subsubsection{Implemented Foundation}
+
+\begin{itemize}
+  \item Playback-preserving explicit live-context capture.
+  \item Evidence-bounded spoiler-safe scene explanation.
+  \item Local subtitle and dialogue translation with deterministic fallback.
+  \item Scoreboard interpretation and deterministic sports-rule explanations.
+  \item Authenticated live-event connector boundaries and source reconciliation.
+  \item Live-news fact checking with claim, source-quality and contradiction records.
+  \item Evidence-backed main-cast and exact character-to-actor lookup.
+  \item Explicit refusal of visible-actor identity and face recognition.
+  \item Private evidence presentation and rights-safe Moment foundations.
+\end{itemize}
+
+\subsubsection{Remaining Work}
+
+\begin{itemize}
+  \item Add broader person credits, episode guest cast, filming locations and sources.
+  \item Explain jokes, references and cultural context.
+  \item Add child-friendly explanations, reading levels and scene-derived lessons.
+  \item Add descriptive scene summaries and accessibility presets.
+  \item Verify advertising/product claims, ingredients, techniques and objects.
+  \item Add historical statistics and broader authenticated live-event adapters.
+  \item Add event thresholds, alternate commentary, predictions and competitions.
+  \item Produce a repeatable public fact-check benchmark and authorized delivery route.
+\end{itemize}
+
+Synchronized subtitles and native overlays require television-platform authority.
+Local dubbing requires content rights and a permitted audio route. Dialogue enhancement
+requires supported audio hardware. Highlights require authorized feeds and clips.
+Elections, awards, concerts and richer player timelines require authenticated sources.
+
+Closure requires every answer to distinguish observation, provider fact and Pilot
+interpretation; preserve playback; display uncertainty; and avoid face guessing,
+spoilers, protected-media copying and unsupported overlays. Provider- and platform-
+dependent capabilities require field evidence before they can be marked complete.
+
+\subsection{Strict Next Action}
+
+The primary focus returns to Section 1. Sections 2, 4, 5 and 6 remain documented
+but are paused as primary workstreams; Section 3 remains closed. An externally
+blocked item remains open until its dependency and closure evidence are satisfied.

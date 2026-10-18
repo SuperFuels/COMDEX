@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cybersecurity",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cybersecurity",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_logic_proof",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:logic_proof",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:cryptography_protocol_security:cryptographic_primitives",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cryptography_protocol_security:key_management",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cryptography_protocol_security:tls",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cryptography_protocol_security:authentication_protocols",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cryptography_protocol_security:protocol_state_machines",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cryptography_protocol_security:nonce_replay_safety",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cryptography_protocol_security:side_channels",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cryptography_protocol_security:formal_protocol_review",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "label": "Applied cryptography and protocol security",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cryptography_protocol_security:cryptographic_primitives",
+      "label": "cryptographic primitives",
+      "subject_id": "cryptography_protocol_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cryptography_protocol_security:key_management",
+      "label": "key management",
+      "subject_id": "cryptography_protocol_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cryptography_protocol_security:tls",
+      "label": "tls",
+      "subject_id": "cryptography_protocol_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cryptography_protocol_security:authentication_protocols",
+      "label": "authentication protocols",
+      "subject_id": "cryptography_protocol_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cryptography_protocol_security:protocol_state_machines",
+      "label": "protocol state machines",
+      "subject_id": "cryptography_protocol_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cryptography_protocol_security:nonce_replay_safety",
+      "label": "nonce replay safety",
+      "subject_id": "cryptography_protocol_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cryptography_protocol_security:side_channels",
+      "label": "side channels",
+      "subject_id": "cryptography_protocol_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cryptography_protocol_security:formal_protocol_review",
+      "label": "formal protocol review",
+      "subject_id": "cryptography_protocol_security",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_cryptography_protocol_security",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:cryptography_protocol_security:cryptographic_primitives",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cryptography_protocol_security:key_management",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cryptography_protocol_security:tls",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cryptography_protocol_security:authentication_protocols",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cryptography_protocol_security:protocol_state_machines",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cryptography_protocol_security:nonce_replay_safety",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cryptography_protocol_security:side_channels",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cryptography_protocol_security:formal_protocol_review",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "label": "Applied cryptography and protocol security",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cryptography_protocol_security:cryptographic_primitives",
+        "label": "cryptographic primitives",
+        "subject_id": "cryptography_protocol_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cryptography_protocol_security:key_management",
+        "label": "key management",
+        "subject_id": "cryptography_protocol_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cryptography_protocol_security:tls",
+        "label": "tls",
+        "subject_id": "cryptography_protocol_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cryptography_protocol_security:authentication_protocols",
+        "label": "authentication protocols",
+        "subject_id": "cryptography_protocol_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cryptography_protocol_security:protocol_state_machines",
+        "label": "protocol state machines",
+        "subject_id": "cryptography_protocol_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cryptography_protocol_security:nonce_replay_safety",
+        "label": "nonce replay safety",
+        "subject_id": "cryptography_protocol_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cryptography_protocol_security:side_channels",
+        "label": "side channels",
+        "subject_id": "cryptography_protocol_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cryptography_protocol_security:formal_protocol_review",
+        "label": "formal protocol review",
+        "subject_id": "cryptography_protocol_security",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "cryptography_protocol_security",
+    "title": "AION Academy \u00b7 Applied cryptography and protocol security"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

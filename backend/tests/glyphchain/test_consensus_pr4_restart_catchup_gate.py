@@ -8,6 +8,7 @@ import os
 import signal
 import socket
 import subprocess
+import sys
 import time
 from typing import Any, Dict, List
 
@@ -89,7 +90,7 @@ async def _p2p_block_req(target: NodeProc, caller: NodeProc, height: int) -> Dic
 
 def _app_import() -> str:
     env = (os.getenv("GLYPHCHAIN_ASGI_APP", "") or "").strip()
-    return env or "backend.main:app"
+    return env or "backend.glyphchain_test_asgi:app"
 
 
 def _restart_node_sync(node: NodeProc, *, validators_env: str, peers_json: List[Dict[str, Any]]) -> None:
@@ -137,7 +138,7 @@ def _restart_node_sync(node: NodeProc, *, validators_env: str, peers_json: List[
     env["GLYPHCHAIN_CONSENSUS_ENABLE"] = "1"
 
     cmd = [
-        "python",
+        sys.executable,
         "-m",
         "uvicorn",
         _app_import(),

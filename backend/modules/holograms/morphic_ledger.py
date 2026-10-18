@@ -13,9 +13,16 @@ import uuid
 import logging
 import statistics
 from typing import Dict, Any, Optional, List
-from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 logger = logging.getLogger(__name__)
+
+
+def _legacy_cfa_commit(**kwargs: Any) -> None:
+    """Load the legacy experimental fabric only when it is actually used."""
+    from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
+
+    CFA.commit(**kwargs)
 
 
 def _truthy_env(name: str, default: str = "") -> bool:
@@ -29,13 +36,24 @@ class MorphicLedger:
     Provides runtime query and trend analysis utilities.
     """
 
-    def __init__(self, base_path: str = "data/ledger", use_sqlite: bool = False):
+    def __init__(
+        self,
+        base_path: str = "data/ledger",
+        use_sqlite: bool = False,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+    ):
         self.base_path = base_path
-        self.use_sqlite = use_sqlite
+        if use_sqlite:
+            raise ValueError("morphic_ledger_raw_sqlite_retired")
+        self.use_sqlite = False
+        self.vault_store = vault_store or AionLearningVaultStore()
+        self._records: list[dict[str, Any]] = []
+        self._phi_history: list[dict[str, Any]] = []
+        self._test_override = False
 
         # session id still useful for exports / tracing, but we no longer shard JSONL by default
         self.session_id = os.getenv("MORPHIC_LEDGER_SESSION_ID") or f"ledger_{uuid.uuid4().hex[:8]}"
-        os.makedirs(self.base_path, exist_ok=True)
 
         # ✅ Stop creating thousands of shards:
         # - default: write to a single stable file (MORPHIC_LEDGER_FILE)
@@ -49,37 +67,17 @@ class MorphicLedger:
         self.ledger_path = os.path.join(self.base_path, filename)
         self.enable_logging = True  # default for debug + test environments
 
-        # Ensure target file exists
-        try:
-            os.makedirs(os.path.dirname(self.ledger_path), exist_ok=True)
-            if not os.path.exists(self.ledger_path):
-                open(self.ledger_path, "a", encoding="utf-8").close()
-        except Exception as e:
-            logger.warning(f"[MorphicLedger] Could not precreate ledger file: {e}")
-
-        # ── SQLite mode (optional Stage 9+ integration)
+        # Raw application-tree persistence is retired. Guardian stores durable
+        # customer telemetry; otherwise this ledger is process memory only.
         self._db_conn = None
-        if self.use_sqlite:
-            try:
-                import sqlite3
-                db_path = os.path.join(self.base_path, "morphic_ledger.db")
-                self._db_conn = sqlite3.connect(db_path)
-                self._init_sqlite()
-
-                # Add 'link' column if not present
-                try:
-                    cur = self._db_conn.cursor()
-                    cur.execute("ALTER TABLE morphic_records ADD COLUMN link TEXT")
-                    self._db_conn.commit()
-                    logger.info("[MorphicLedger] Added 'link' column to morphic_records.")
-                except sqlite3.OperationalError:
-                    # Column may already exist
-                    logger.info("[MorphicLedger] SQLite morphic_records already has 'link' column.")
-
-                logger.info("[MorphicLedger] Initialized SQLite ledger backend.")
-            except Exception as e:
-                logger.warning(f"[MorphicLedger] SQLite unavailable: {e}. Falling back to JSONL.")
-                self._db_conn = None
+        for event in self.vault_store.list_events(kind="morphic_telemetry"):
+            record = event.get("record")
+            if isinstance(record, dict):
+                self._records.append(dict(record))
+        for event in self.vault_store.list_events(kind="morphic_phi_awareness"):
+            entry = event.get("entry")
+            if isinstance(entry, dict):
+                self._phi_history.append(dict(entry))
 
     # ──────────────────────────────────────────────
     #  JSONL Append Path
@@ -108,42 +106,44 @@ class MorphicLedger:
         record["coherence"] = record["tensor"]["coherence"]
 
         try:
-            # Write to JSONL ledger
-            with open(self.ledger_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(record) + "\n")
-
-            # SQLite mirror (if enabled)
-            try:
-                self._sqlite_insert_record(record)
-            except Exception as e:
-                logger.warning(f"[MorphicLedger] SQLite insert failed: {e}")
+            if self.vault_store.enabled:
+                self.vault_store.append_event(
+                    f"morphic-telemetry-{record['id']}",
+                    {"event_type": "morphic_telemetry", "event_id": record["id"], "timestamp": record["timestamp"], "record": record},
+                )
+            elif self._test_override:
+                with open(self.ledger_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(record) + "\n")
+            self._records.append(record)
 
             logger.debug(
                 f"[MorphicLedger] + Appended ψ={record['tensor']['psi']:.3f} "
                 f"κ={record['tensor']['kappa']:.3f} C={record['tensor']['coherence']:.3f}"
             )
 
-            # 🔶 Commit to Cognitive Fabric
-            try:
-                CFA.commit(
-                    source="MORPHIC_LEDGER",
-                    intent="record_field_state",
-                    payload={
-                        "ψ": record["tensor"]["psi"],
-                        "κ": record["tensor"]["kappa"],
-                        "T": record["tensor"]["T"],
-                        "Φ": record["phi"],
-                        "C": record["tensor"]["coherence"],
-                        "gradient": record["tensor"]["gradient"],
-                        "stability": record["tensor"]["stability"],
-                        "meta": record.get("meta", {}),
-                        "link": record.get("link"),
-                    },
-                    domain="symatics/morphic_field",
-                    tags=["ledger", "ψκTΦ", "morphic", "state", "record"],
-                )
-            except Exception as e:
-                logger.warning(f"[MorphicLedger] CFA commit failed: {e}")
+            # Legacy experimental mirror only. Guardian mode keeps the entire
+            # customer-derived record inside the governed Vault boundary.
+            if not self.vault_store.enabled and _truthy_env("MORPHIC_LEDGER_ENABLE_LEGACY_CFA", "0"):
+                try:
+                    _legacy_cfa_commit(
+                        source="MORPHIC_LEDGER",
+                        intent="record_field_state",
+                        payload={
+                            "ψ": record["tensor"]["psi"],
+                            "κ": record["tensor"]["kappa"],
+                            "T": record["tensor"]["T"],
+                            "Φ": record["phi"],
+                            "C": record["tensor"]["coherence"],
+                            "gradient": record["tensor"]["gradient"],
+                            "stability": record["tensor"]["stability"],
+                            "meta": record.get("meta", {}),
+                            "link": record.get("link"),
+                        },
+                        domain="symatics/morphic_field",
+                        tags=["ledger", "ψκTΦ", "morphic", "state", "record"],
+                    )
+                except Exception as e:
+                    logger.warning(f"[MorphicLedger] CFA commit failed: {e}")
 
             # 🪶 Mirror Φ-awareness if Φ present
             if record["phi"] not in (None, 0.0):
@@ -160,6 +160,8 @@ class MorphicLedger:
 
         except Exception as e:
             logger.error(f"[MorphicLedger] Failed to append record: {e}")
+            if self.vault_store.enabled:
+                raise
 
     # ──────────────────────────────────────────────
     #  Φ-Awareness History Extension (Stage 10)
@@ -189,50 +191,38 @@ class MorphicLedger:
         Expected keys: timestamp, Φ, ψ, κ, T, coherence.
         """
         try:
-            # JSONL mirror
-            aw_path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
-            os.makedirs(self.base_path, exist_ok=True)
-            with open(aw_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(entry) + "\n")
-
-            # SQLite persistence (if available)
-            if self._db_conn:
-                self._init_phi_history_table()
-                cur = self._db_conn.cursor()
-                cur.execute("""
-                    INSERT INTO phi_awareness_history
-                    (id, timestamp, phi, psi, kappa, T, coherence)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    f"phi_{uuid.uuid4().hex[:10]}",
-                    entry.get("timestamp", time.time()),
-                    entry.get("Φ", 0.0),
-                    entry.get("ψ", 0.0),
-                    entry.get("κ", 0.0),
-                    entry.get("T", 0.0),
-                    entry.get("coherence", 0.0),
-                ))
-                self._db_conn.commit()
+            normalized = dict(entry)
+            if self.vault_store.enabled:
+                event_id = f"phi_{uuid.uuid4().hex}"
+                self.vault_store.append_event(
+                    f"morphic-awareness-{event_id}",
+                    {"event_type": "morphic_phi_awareness", "event_id": event_id, "timestamp": normalized.get("timestamp", time.time()), "entry": normalized},
+                )
+            self._phi_history.append(normalized)
 
             logger.info(
                 f"[ΦHistory] Logged Φ={entry.get('Φ'):.3f}, ψ={entry.get('ψ'):.3f}, "
                 f"κ={entry.get('κ'):.3f}, T={entry.get('T'):.3f}"
             )
 
-            # Mirror to CFA awareness channel
-            try:
-                CFA.commit(
-                    source="MORPHIC_LEDGER",
-                    intent="record_phi_awareness",
-                    payload=entry,
-                    domain="symatics/phi_awareness_history",
-                    tags=["Φ", "awareness", "history", "morphic"],
-                )
-            except Exception as e:
-                logger.warning(f"[ΦHistory] CFA mirror failed: {e}")
+            # Never duplicate Guardian-held customer telemetry into a legacy
+            # application-tree fabric store.
+            if not self.vault_store.enabled and _truthy_env("MORPHIC_LEDGER_ENABLE_LEGACY_CFA", "0"):
+                try:
+                    _legacy_cfa_commit(
+                        source="MORPHIC_LEDGER",
+                        intent="record_phi_awareness",
+                        payload=entry,
+                        domain="symatics/phi_awareness_history",
+                        tags=["Φ", "awareness", "history", "morphic"],
+                    )
+                except Exception as e:
+                    logger.warning(f"[ΦHistory] CFA mirror failed: {e}")
 
         except Exception as e:
             logger.warning(f"[ΦHistory] Failed to log Φ-awareness: {e}")
+            if self.vault_store.enabled:
+                raise
 
     # ──────────────────────────────────────────────
     #  Optional SQLite Backend (Stage 9)
@@ -315,42 +305,11 @@ class MorphicLedger:
                 for r in rows
             ]
 
-        # JSONL fallback
-        path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
-        if not os.path.exists(path):
-            return []
-
-        records = []
-        with open(path, "r", encoding="utf-8") as f:
-            for line in f:
-                if not line.strip():
-                    continue
-                try:
-                    rec = json.loads(line)
-                    # Normalize escaped Greek keys -> plain symbols
-                    norm = {
-                        "timestamp": rec.get("timestamp"),
-                        "Φ": rec.get("Φ", rec.get("\u03a6")),
-                        "ψ": rec.get("ψ", rec.get("\u03c8")),
-                        "κ": rec.get("κ", rec.get("\u03ba")),
-                        "T": rec.get("T"),
-                        "coherence": rec.get("coherence"),
-                    }
-                    records.append(norm)
-                except Exception as e:
-                    logger.warning(f"[ΦHistory] Bad JSONL entry: {e}")
-        return records[-limit:]
+        return [dict(row) for row in self._phi_history[-limit:]]
 
     def load_all(self) -> List[Dict[str, Any]]:
         """Load all JSONL entries."""
-        if not os.path.exists(self.ledger_path):
-            return []
-        try:
-            with open(self.ledger_path, "r", encoding="utf-8") as f:
-                return [json.loads(line) for line in f if line.strip()]
-        except Exception as e:
-            logger.error(f"[MorphicLedger] Failed to read ledger: {e}")
-            return []
+        return [dict(row) for row in self._records]
 
     def query_latest(self) -> Optional[Dict[str, Any]]:
         """Return the latest ledger entry."""
@@ -443,12 +402,12 @@ class MorphicLedger:
             return
 
         latest["link"] = {"node_id": node_id, "relation": relation}
-        try:
-            with open(self.ledger_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps({"update_link": latest["id"], "node_id": node_id}) + "\n")
-            logger.debug(f"[MorphicLedger] Linked {latest['id']} -> {node_id}")
-        except Exception as e:
-            logger.warning(f"[MorphicLedger] Link write failed: {e}")
+        self._records[-1] = latest
+        if self.vault_store.enabled:
+            self.vault_store.append_event(
+                f"morphic-link-{latest['id']}-{uuid.uuid4().hex}",
+                {"event_type": "morphic_telemetry_link", "event_id": latest["id"], "timestamp": time.time(), "link": latest["link"]},
+            )
 
     # ──────────────────────────────────────────────
     #  TEST / DEBUG UTILITIES
@@ -485,7 +444,10 @@ class MorphicLedger:
         Simple fallback record stub for testing.
         Writes a lightweight JSON line to the current ledger path.
         """
-        target = path or getattr(self, "ledger_path", "/tmp/test_morphic_ledger.jsonl")
+        if path is None and not self._test_override:
+            self.append(data or {"status": "ok", "message": "ledger entry stub"})
+            return "guardian://learning.audit" if self.vault_store.enabled else "memory://morphic-ledger"
+        target = path or self.ledger_path
         os.makedirs(os.path.dirname(target), exist_ok=True)
 
         with open(target, "a", encoding="utf-8") as f:
@@ -501,30 +463,9 @@ class MorphicLedger:
     # ──────────────────────────────────────────────
     def get_phi_trend(self, limit: int = 100) -> Dict[str, float]:
         """Compute Φ trend statistics for CodexTrace Narrator."""
-        path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
-        if not os.path.exists(path):
-            logger.warning("[ΦTrend] No history file found.")
-            return {"count": 0}
-
-        records = []
-        with open(path, "r", encoding="utf-8") as f:
-            for line in f:
-                if not line.strip():
-                    continue
-                try:
-                    rec = json.loads(line)
-                    records.append({
-                        "timestamp": rec.get("timestamp"),
-                        "Φ": rec.get("Φ", rec.get("\u03a6")),
-                        "ψ": rec.get("ψ", rec.get("\u03c8")),
-                        "κ": rec.get("κ", rec.get("\u03ba")),
-                        "T": rec.get("T"),
-                        "coherence": rec.get("coherence"),
-                    })
-                except Exception as e:
-                    logger.warning(f"[ΦTrend] Bad entry: {e}")
-
+        records = self.query_phi_history(limit)
         if not records:
+            logger.warning("[ΦTrend] No history file found.")
             return {"count": 0}
 
         φ_vals = [r["Φ"] for r in records if r["Φ"] is not None]
@@ -554,20 +495,7 @@ class MorphicLedger:
         """Plot Φ awareness evolution over time."""
         import matplotlib.pyplot as plt
 
-        records = []
-        path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
-        if not os.path.exists(path):
-            logger.warning("[ΦPlot] No data file found.")
-            return
-
-        with open(path, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip():
-                    rec = json.loads(line)
-                    records.append({
-                        "timestamp": rec.get("timestamp"),
-                        "Φ": rec.get("Φ", rec.get("\u03a6")),
-                    })
+        records = self.query_phi_history(1000)
 
         if not records:
             logger.warning("[ΦPlot] No records found.")
@@ -650,17 +578,18 @@ class MorphicLedger:
 
         logger.info(f"[ΦΨResonance] r={correlation:.4f}, Δφ={phase_diff:.4f}, R={resonance_index:.4f}")
 
-        # Cognitive Fabric mirror
-        try:
-            CFA.commit(
-                source="MORPHIC_LEDGER",
-                intent="phi_psi_resonance",
-                payload=result,
-                domain="symatics/resonance_coupling",
-                tags=["Φψ", "resonance", "coupling", "analysis"],
-            )
-        except Exception as e:
-            logger.warning(f"[ΦΨResonance] CFA commit failed: {e}")
+        # Legacy experimental mirror only; Guardian custody remains singular.
+        if not self.vault_store.enabled and _truthy_env("MORPHIC_LEDGER_ENABLE_LEGACY_CFA", "0"):
+            try:
+                _legacy_cfa_commit(
+                    source="MORPHIC_LEDGER",
+                    intent="phi_psi_resonance",
+                    payload=result,
+                    domain="symatics/resonance_coupling",
+                    tags=["Φψ", "resonance", "coupling", "analysis"],
+                )
+            except Exception as e:
+                logger.warning(f"[ΦΨResonance] CFA commit failed: {e}")
 
         # 🔊 QFC live bridge
         try:

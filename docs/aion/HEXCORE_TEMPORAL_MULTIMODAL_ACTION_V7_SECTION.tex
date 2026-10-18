@@ -1,0 +1,102 @@
+\section{Arena v7: Temporal Multimodal Action and Hierarchical Sensing}
+\label{sec:arena-v7-temporal-multimodal}
+
+Arena v7 extends the natural-pixel grounding of Arena v6 into ordered visual
+and acoustic time.  The evaluated cohort contains two official NASA videos and
+one official USGS seismic recording.  Every source and derived artifact is
+SHA--256 committed.  Perceptual proposals are committed before official source
+claims are revealed, and unsupported exact identities are quarantined rather
+than entering accepted knowledge.
+
+\subsection{Ordered visual prediction}
+
+Video is represented by six ordered frames.  Four frames are supplied for
+proposal and two remain withheld.  The replaceable vision substrate proposes
+persistent entities, observed change, a temporal process and a qualitative
+next-frame prediction.  HexCore remains the evaluator and authority.  For a
+frame order $\pi$, chronology consistency is measured by
+\begin{equation}
+ C(\pi)=\frac{1}{T-1}\sum_{t=1}^{T-1}
+ \operatorname{MAE}\!\left(I_{\pi(t+1)},I_{\pi(t)}\right).
+\end{equation}
+A deliberately broken chronology must yield a greater cost than the source
+order.  If the ordering is inconsistent, the system abstains from forecasting.
+Arena v7 detected both broken chronologies and preserved 100\% mean and
+weakest-case temporal semantic accuracy while observing four of six frames.
+
+Official metadata was used only after proposal commitment.  The system also
+derived and verified the temporal densities
+\begin{equation}
+ \frac{500\ \mathrm{frames}}{25\ \mathrm{hours}}=20\
+ \ \mathrm{frames\,hour}^{-1},
+ \qquad
+ \frac{200\ \mathrm{steps}}{5\ \mathrm{hours}}=40\
+ \ \mathrm{steps\,hour}^{-1}.
+\end{equation}
+
+\subsection{Audio representation and metacognitive measurement}
+
+The audio path is explicitly not described as native listening.  The USGS
+recording is represented by a spectrogram for semantic proposal and by
+five-second root-mean-square (RMS) waveform windows for quantitative
+measurement.  For samples $x_1,\ldots,x_n$, window energy is
+\begin{equation}
+ \operatorname{RMS}(x)=\sqrt{\frac{1}{n}\sum_{i=1}^{n}x_i^2}.
+\end{equation}
+
+The first governed run allocated all four detailed inspections inside the
+spectrogram-proposed regions.  Although spectral interpretation was correct,
+it recovered only 25\% of the four strongest events; CAU therefore rejected
+the challenger.  The retained revision introduced hierarchical sensing:
+two inspections exploit the semantic hypothesis and two explore the strongest
+unexplained windows after a cheap full-stream energy scan.  With $N=39$,
+coarse-scan cost $c_s=0.05$, detailed cost $c_d=1$, and $k=4$ detailed
+inspections,
+\begin{equation}
+ C_{\mathrm{active}}=Nc_s+kc_d=5.95,
+ \qquad C_{\mathrm{exhaustive}}=Nc_d=39,
+\end{equation}
+giving an 84.74\% measurement-cost reduction.  Strongest-event coverage rose
+from 25\% to the 75\% promotion threshold.  This is a direct correction of
+confirmation bias: the system reserves measurement capacity for observations
+that its current interpretation does not explain.
+
+\subsection{Governed outcome}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}lr@{}}
+\hline
+Measure & Result \\
+\hline
+Public temporal sources / authorities & $3/3$ \\
+Video temporal semantic accuracy & $100\%$ \\
+Weakest video accuracy & $100\%$ \\
+Broken chronologies detected & $2/2$ \\
+Derived temporal quantities correct & $2/2$ \\
+Seismic spectral semantic accuracy & $100\%$ \\
+Strongest-event coverage & $75\%$ \\
+Audio measurement-cost reduction & $84.74\%$ \\
+Video observation reduction & $33.33\%$ \\
+Governed temporal project success & $100\%$ \\
+Unsafe or quarantined identity acceptances & $0$ \\
+Restart relearning & $0$ \\
+\hline
+\end{tabular}
+\caption{Sealed Arena v7 outcome.}
+\end{table}
+
+CAU promoted
+\path{procedure_temporal_multimodal_action_v7_2a4710a57e8d}.
+The temporal cohort, proposal commitments, selected procedure and authority
+decision survive reconstruction with zero source relearning.
+
+\subsection{Claim boundary}
+
+This result establishes bounded temporal grounding, chronology criticism and
+budgeted evidence allocation over three public natural-media sources.  Video is
+sampled into frames and audio is represented through waveform energy and a
+spectrogram.  Expected semantics, perturbations and evaluation remain
+development controlled.  The result is not physical actuation, unrestricted
+video/audio understanding, independent hidden certification or AGI.

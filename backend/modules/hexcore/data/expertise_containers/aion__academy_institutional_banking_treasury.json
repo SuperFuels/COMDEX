@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_accounting_corporate_finance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_financial_risk_management",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_risk_management",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_markets_investing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:markets_investing",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:institutional_banking_treasury:banking_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:institutional_banking_treasury:asset_liability_management",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:institutional_banking_treasury:liquidity_buffers",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:institutional_banking_treasury:funding",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:institutional_banking_treasury:interest_rate_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:institutional_banking_treasury:credit_creation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:institutional_banking_treasury:payments",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:institutional_banking_treasury:treasury_controls",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "label": "Banking, treasury and balance-sheet management",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:institutional_banking_treasury:banking_models",
+      "label": "banking models",
+      "subject_id": "institutional_banking_treasury",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:institutional_banking_treasury:asset_liability_management",
+      "label": "asset liability management",
+      "subject_id": "institutional_banking_treasury",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:institutional_banking_treasury:liquidity_buffers",
+      "label": "liquidity buffers",
+      "subject_id": "institutional_banking_treasury",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:institutional_banking_treasury:funding",
+      "label": "funding",
+      "subject_id": "institutional_banking_treasury",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:institutional_banking_treasury:interest_rate_risk",
+      "label": "interest rate risk",
+      "subject_id": "institutional_banking_treasury",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:institutional_banking_treasury:credit_creation",
+      "label": "credit creation",
+      "subject_id": "institutional_banking_treasury",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:institutional_banking_treasury:payments",
+      "label": "payments",
+      "subject_id": "institutional_banking_treasury",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:institutional_banking_treasury:treasury_controls",
+      "label": "treasury controls",
+      "subject_id": "institutional_banking_treasury",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_institutional_banking_treasury",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:institutional_banking_treasury:banking_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:institutional_banking_treasury:asset_liability_management",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:institutional_banking_treasury:liquidity_buffers",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:institutional_banking_treasury:funding",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:institutional_banking_treasury:interest_rate_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:institutional_banking_treasury:credit_creation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:institutional_banking_treasury:payments",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:institutional_banking_treasury:treasury_controls",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "label": "Banking, treasury and balance-sheet management",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:institutional_banking_treasury:banking_models",
+        "label": "banking models",
+        "subject_id": "institutional_banking_treasury",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:institutional_banking_treasury:asset_liability_management",
+        "label": "asset liability management",
+        "subject_id": "institutional_banking_treasury",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:institutional_banking_treasury:liquidity_buffers",
+        "label": "liquidity buffers",
+        "subject_id": "institutional_banking_treasury",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:institutional_banking_treasury:funding",
+        "label": "funding",
+        "subject_id": "institutional_banking_treasury",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:institutional_banking_treasury:interest_rate_risk",
+        "label": "interest rate risk",
+        "subject_id": "institutional_banking_treasury",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:institutional_banking_treasury:credit_creation",
+        "label": "credit creation",
+        "subject_id": "institutional_banking_treasury",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:institutional_banking_treasury:payments",
+        "label": "payments",
+        "subject_id": "institutional_banking_treasury",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:institutional_banking_treasury:treasury_controls",
+        "label": "treasury controls",
+        "subject_id": "institutional_banking_treasury",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "institutional_banking_treasury",
+    "title": "AION Academy \u00b7 Banking, treasury and balance-sheet management"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -1,0 +1,252 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_business_strategy_operations",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:business_strategy_operations",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_discrete_optimization",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:discrete_optimization",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:supply_chain_procurement:demand",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:supply_chain_procurement:inventory",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:supply_chain_procurement:sourcing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:supply_chain_procurement:logistics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:supply_chain_procurement:supplier_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:supply_chain_procurement:quality",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:supply_chain_procurement:resilience",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "business",
+      "id": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "label": "Supply chain and procurement",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:supply_chain_procurement:demand",
+      "label": "demand",
+      "subject_id": "supply_chain_procurement",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:supply_chain_procurement:inventory",
+      "label": "inventory",
+      "subject_id": "supply_chain_procurement",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:supply_chain_procurement:sourcing",
+      "label": "sourcing",
+      "subject_id": "supply_chain_procurement",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:supply_chain_procurement:logistics",
+      "label": "logistics",
+      "subject_id": "supply_chain_procurement",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:supply_chain_procurement:supplier_risk",
+      "label": "supplier risk",
+      "subject_id": "supply_chain_procurement",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:supply_chain_procurement:quality",
+      "label": "quality",
+      "subject_id": "supply_chain_procurement",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:supply_chain_procurement:resilience",
+      "label": "resilience",
+      "subject_id": "supply_chain_procurement",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_supply_chain_procurement",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:supply_chain_procurement:demand",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:supply_chain_procurement:inventory",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:supply_chain_procurement:sourcing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:supply_chain_procurement:logistics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:supply_chain_procurement:supplier_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:supply_chain_procurement:quality",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:supply_chain_procurement:resilience",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "business",
+        "id": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "label": "Supply chain and procurement",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:supply_chain_procurement:demand",
+        "label": "demand",
+        "subject_id": "supply_chain_procurement",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:supply_chain_procurement:inventory",
+        "label": "inventory",
+        "subject_id": "supply_chain_procurement",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:supply_chain_procurement:sourcing",
+        "label": "sourcing",
+        "subject_id": "supply_chain_procurement",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:supply_chain_procurement:logistics",
+        "label": "logistics",
+        "subject_id": "supply_chain_procurement",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:supply_chain_procurement:supplier_risk",
+        "label": "supplier risk",
+        "subject_id": "supply_chain_procurement",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:supply_chain_procurement:quality",
+        "label": "quality",
+        "subject_id": "supply_chain_procurement",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:supply_chain_procurement:resilience",
+        "label": "resilience",
+        "subject_id": "supply_chain_procurement",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "business",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "supply_chain_procurement",
+    "title": "AION Academy \u00b7 Supply chain and procurement"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

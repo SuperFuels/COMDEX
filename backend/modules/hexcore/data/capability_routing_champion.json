@@ -1,0 +1,13 @@
+{
+  "authority": "development selection + sealed missions + protected retention + CAU-style gates",
+  "policy": {
+    "contextual_archetypes": true,
+    "maximum_subjects": 6,
+    "minimum_overlap": 1,
+    "peak_ratio": 0.55,
+    "semantic_floor": 2.0
+  },
+  "policy_sha256": "c4e039822a01608cb7a641ae6451f596900dfb8b69c2d76cfeec1e7667585df9",
+  "procedure_id": "procedure_autonomous_cognitive_self_improvement_lab_v1",
+  "promoted_at": "2026-08-21T07:11:25.052045+00:00"
+}

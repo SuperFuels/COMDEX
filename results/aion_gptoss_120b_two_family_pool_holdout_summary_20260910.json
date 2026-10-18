@@ -1,0 +1,58 @@
+{
+  "schema": "aion.gptoss-120b-two-family-pool-holdout-summary.v1",
+  "status": "STOP_STATIC_TWO_FAMILY_POOL",
+  "created_at": "2026-09-10T16:49:34+02:00",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "training_routes": [
+    "gptoss-harmony-hi-unrestricted-24token-2026-09-10.json",
+    "gptoss-arithmetic-17x23-unrestricted-32token-2026-09-10.json"
+  ],
+  "disjoint_holdout": "gptoss-extraction-invoice-unrestricted-48token-2026-09-10.json positions 26-47",
+  "capacity_bytes": 8589934592,
+  "candidates": {
+    "equal_18_per_layer": {
+      "total_layer_experts": 648,
+      "complete_routes": 81,
+      "holdout_routes": 792,
+      "complete_route_fraction": 0.10227272727272728,
+      "mean_missing_experts_per_route": 2.242424242424242,
+      "median_retained_gate_mass": 0.4683833050792733,
+      "routes_with_at_least_0_50_missing_mass": 0.5454545454545454
+    },
+    "global_frequency_per_byte": {
+      "resident_raw_bytes": 8588436480,
+      "total_layer_experts": 648,
+      "minimum_experts_per_layer": 10,
+      "maximum_experts_per_layer": 28,
+      "complete_routes": 74,
+      "holdout_routes": 792,
+      "complete_route_fraction": 0.09343434343434344,
+      "mean_missing_experts_per_route": 2.244949494949495,
+      "median_retained_gate_mass": 0.4721904830858019,
+      "routes_with_at_least_0_50_missing_mass": 0.5441919191919192
+    },
+    "global_gate_mass_per_byte": {
+      "resident_raw_bytes": 8588436480,
+      "total_layer_experts": 648,
+      "minimum_experts_per_layer": 11,
+      "maximum_experts_per_layer": 23,
+      "complete_routes": 79,
+      "holdout_routes": 792,
+      "complete_route_fraction": 0.09974747474747475,
+      "mean_missing_experts_per_route": 2.220959595959596,
+      "median_retained_gate_mass": 0.47431918380202764,
+      "routes_with_at_least_0_50_missing_mass": 0.5391414141414141
+    }
+  },
+  "decision": "Do not spend a full generation run on these static two-family pools. Even the best candidate contains all four unrestricted holdout experts on only 10.23 percent of layer-routes, and more than half the routes lose at least half of the unrestricted gate mass.",
+  "next_direction": "Retain task-specific pools as narrow accelerators with honest labels. General 120B improvement requires compact resident expert representation or dynamic exchange that increases effective coverage; merely reallocating the same 648 original experts is insufficient.",
+  "claim_boundary": "Offline disjoint route analysis only. This result rejects candidates before changed-model generation; it does not measure semantic quality or tokens per second.",
+  "evidence_sha256": {
+    "equal_pool": "922181aa3d37142afeea1dbc444933e91e3aca1bb90a2936cd55ff083f1a3123",
+    "equal_holdout": "f66800e18600ff180780109a8661b78a3b8815f8600ccd16629ee179a39b88d0",
+    "frequency_pool": "8001b025c77157e4d0a4f0b6451226008c683d7978d64c21c45ba6285ca217f2",
+    "frequency_holdout": "22750cf59f045e5c0bc178294f251eb18909491c0206b52e5285c549a58c7b1d",
+    "gate_mass_pool": "d33bec9d5fb364fde4d8ae6f66f27e225c7d6b3569ea7dd29e6a2fec2233980c",
+    "gate_mass_holdout": "dc832c53a2aed5c328d8aa9b1196df9ff08e1e40f9efc3facb69b549d376c6f9"
+  }
+}

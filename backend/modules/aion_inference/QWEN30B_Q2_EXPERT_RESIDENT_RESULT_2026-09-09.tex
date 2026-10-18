@@ -1,0 +1,233 @@
+% Append-only section for the AION technical record.
+% Requires: amsmath, booktabs, url.
+\section{Resident Qwen3-30B-A3B Expert-Warehouse Breakthrough}
+\label{sec:qwen30b-q2-resident-2026-09-09}
+
+\subsection{Predeclared objective and claim boundary}
+
+The preceding exact track proved that AION can address and compute the eight
+selected packed experts in every one of Qwen3-30B-A3B's 48 MoE layers with
+bit-for-bit equality to the stock Q4\_K\_M graph.  It did not yet provide a
+fast integrated decoder.  A separate quality-gated experiment was therefore
+declared before creating a candidate.  Its purpose was to test a model-level
+architectural change: compact the physical expert warehouse enough that the
+complete 30.5-billion-parameter sparse model could remain resident inside the
+18~GB M3 Pro's practical Metal working set, thereby removing repeated SD expert
+faults during generation.
+
+This is explicitly a \emph{quality-gated, non-exact track}.  It does not replace
+or weaken the exact Q4 track.  The untouched Q4\_K\_M source remains the control.
+The predeclared minimum was at least 16 generated tokens above 10 tokens/s; the
+stretch targets were above 30 tokens/s and then 50 tokens/s.  Speed alone could
+not promote the candidate: frozen semantic comparison and honest reporting of
+all changed answers were required.
+
+\subsection{Selective expert-bank transformation}
+
+Only the combined MoE tensors matching
+\texttt{ffn\_gate\_exps.weight},
+\texttt{ffn\_up\_exps.weight}, and
+\texttt{ffn\_down\_exps.weight} were requantized to Q2\_K.  Router, attention,
+normalization, embedding, output and all other non-expert tensors retained the
+Q4\_K\_M selection policy.  The source and candidate identities are:
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\toprule
+Artifact & Bytes & SHA-256 prefix \\
+\midrule
+Preserved Q4\_K\_M control & 18{,}556{,}685{,}824 & \texttt{0d003f6662faee78} \\
+Q2\_K expert candidate & 10{,}516{,}205{,}056 & \texttt{7b1165eef9a86895} \\
+\bottomrule
+\end{tabular}
+\caption{Immutable model artifacts on the removable SD evidence volume.}
+\end{table}
+
+The candidate is 43.329293\% smaller than the source and retains 56.6707\% of
+its source byte size.  Conversion required 669.575~s.  The resulting 9.79~GiB
+file fitted below Metal's reported 12{,}884.92~MB recommended working-set
+boundary and loaded with all 48 model layers assigned to the Apple M3 Pro GPU.
+No out-of-memory failure occurred.  This is the decisive systems change: SD is
+the durable warehouse and cold-start source, while the compact live warehouse
+remains resident in unified memory during inference.
+
+\subsection{Replicated end-to-end performance}
+
+The runtime was llama.cpp build 10809, commit \texttt{5266f24da}, with 99
+requested GPU layers, zero CPU MoE layers and eight CPU orchestration threads.
+The first 16-token generation test reached 52.129617 tokens/s, while its
+32-token prompt test reached 150.885746 tokens/s.  A second process then tested
+64, 128 and 256 generated tokens with three repetitions at each length.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Test & Repetitions & Mean tokens/s & Individual tokens/s \\
+\midrule
+Prompt, 64 tokens & 3 & 210.319257 & 212.930, 209.234, 208.794 \\
+Generation, 64 tokens & 3 & 53.118312 & 53.5237, 53.6853, 52.1459 \\
+Generation, 128 tokens & 3 & 51.723921 & 51.8954, 52.0353, 51.2410 \\
+Generation, 256 tokens & 3 & 51.385581 & 51.6950, 52.2021, 50.2597 \\
+\bottomrule
+\end{tabular}
+\caption{Resident Metal throughput for the selectively compacted
+Qwen3-30B-A3B candidate on the 18~GB M3 Pro.}
+\end{table}
+
+All predeclared performance gates passed.  Most importantly, the rate remained
+above 50 tokens/s in every individual 64-, 128- and 256-token measurement.  It
+is therefore not a 16-token burst or an expert-only projection.  It is measured
+end-to-end token generation through the complete llama.cpp graph after the model
+has become resident.
+
+The claim has an essential boundary.  The SD card does not stream a new 10~GB
+model for every token.  Cold start still takes minutes because the file must be
+read from the removable medium and prepared for Metal.  The high token rate is
+the subsequent resident phase.  A practical AION service must boot once, retain
+the model and amortize that cold cost across many requests.
+
+\subsection{Frozen semantic comparison}
+
+The existing twelve-case multiple-choice set
+\texttt{int8\_general\_semantic\_mcq.v1.json} was used without altering its
+answers.  Both models received the same combined instruction, temperature zero,
+seed 424242 and disabled reasoning.  The candidate answered 11/12 correctly;
+the preserved Q4 control answered 10/12 correctly.  The candidate's answer
+array was
+\begin{center}
+\texttt{[B,B,D,C,B,C,A,B,B,B,B,C]},
+\end{center}
+and the Q4 control produced
+\begin{center}
+\texttt{[D,B,C,B,B,C,A,B,B,B,B,C]}.
+\end{center}
+Thus the two representations agreed on 9/12 answers.  The candidate changed
+three answers, corrected two Q4 errors, and introduced one error on this small
+set.  Live candidate timing for this real prompt was 400.5 prompt tokens/s and
+58.2 generated tokens/s; the control reported 2.2 and 1.0 tokens/s respectively.
+
+This is encouraging evidence that the compression did not collapse basic
+capability, but it is not a broad quality-equivalence result.  The absolute score
+improved by one only on a small, simple cohort, while 25\% of answers differed
+from the Q4 control.  Larger blinded reasoning, instruction-following, business,
+long-context and safety cohorts remain mandatory before production promotion.
+
+\subsection{Decision and evidentiary status}
+
+The performance result is promoted as a genuine engineering breakthrough: a
+30.532-billion-parameter sparse Qwen model stored on an ordinary SD card was
+loaded in full on the existing 18~GB M3 Pro and sustained more than 50 generated
+tokens/s through 256-token replicated tests.  The candidate is not promoted as
+quality-equivalent or production-ready.  Its neural arithmetic changed, exact
+token/logit equivalence does not apply, and broader frozen validation remains
+open.  The exact Q4 direct-packed programme continues independently.
+
+The predeclared plan SHA-256 is
+\texttt{50e88578f3d11c3d1df7b22924cb3cf21347eef41ca3bb335a5b56103062f77c}.
+The canonical SD-backed result artifact SHA-256 is
+\texttt{a524d82c0141ca7e711d4d09621e697b06af58bee217471648951197de559463}.
+
+\subsection{Next gates}
+
+The next stage must keep the candidate resident and run a blinded multi-family
+quality suite covering arithmetic, logic, extraction, code, business planning,
+safety, long-form instruction following and 128--256-token generation.  It must
+report ground-truth score, Q4 agreement, parseability, repetition stability,
+time to first token, warm request latency, peak unified memory and cold boot
+separately.  If quality loss is excessive, the next legitimate candidates are
+mixed expert precision by sensitivity or a higher-precision source conversion;
+the 50 tokens/s threshold must not be preserved by silently accepting an
+unusable model.
+
+\subsection{Persistent service and structured-task extension}
+
+The candidate was subsequently loaded as a persistent local service bound only
+to \texttt{127.0.0.1}.  Cold load completed in approximately 3~min 52~s.  The
+service exposed four 4{,}096-token slots and remained healthy with zero deferred
+requests after two complete passes through the existing eight-case structured
+semantic cohort.  This demonstrated the intended operating mode: pay the SD
+cold-start cost once, keep the compact model resident, and serve multiple warm
+requests without reloading the checkpoint.
+
+All 16 responses parsed as JSON.  Both repetitions produced the same answers.
+Six of eight cases passed the exact stored-schema gate.  One failure was a real
+arithmetic error (38.79\% rather than 38.69\%); the other returned the correct
+2{,}500-gram conversion but used \texttt{gram} rather than the required
+\texttt{g}.  Consequently the formal result is 6/8, while a synonym-tolerant
+semantic reading would be 7/8.  The formal score is not relaxed.
+
+Across the second warm pass, individual request latency ranged from 0.235 to
+0.957~s.  After both passes the server reported 357 newly processed prompt
+tokens, 649 prompt tokens served from cache, 350 generated tokens, aggregate
+prompt throughput of 146.573 tokens/s and aggregate generation throughput of
+51.1828 tokens/s.  The largest observed prompt-plus-generation sequence was 123
+tokens.  The SD-backed structured result SHA-256 is
+\texttt{cb46e086494e02aefd27a2372e8de35a0d0c59f23449aba27d1dfaf4be156568}.
+
+This extension establishes a functioning, repeatable local service at the
+headline generation rate.  It does not change the production decision: the
+candidate remains quality-gated pending a substantially broader blinded suite
+and a precision/quality study.
+
+\subsection{Balanced Metal scheduling experiments}
+
+A 15-condition runtime-only sweep varied host orchestration threads
+$\{4,6,8,10,12\}$ and automatic, forced-on and forced-off flash attention.  No
+weights or graph semantics changed.  The ordered sweep initially suggested that
+eight threads with flash attention disabled improved 256-token generation to
+57.659738 tokens/s.  That apparent win was then subjected to an independent
+auto/off/off/auto comparison.  Automatic-attention arm means were 62.210202 and
+62.932588 tokens/s, while forced-off means were 60.278952 and 60.094493
+tokens/s.  Forced-off flash attention was therefore slower and was not
+promoted.  Forced-on flash attention also produced severe tail regressions,
+including a 27.9454-token/s repetition at twelve threads.
+
+A separate predeclared polling sweep tested host polling percentages
+$\{0,25,50,75,100\}$.  The ordered means were respectively 64.091537,
+64.111109, 63.898380, 63.407876 and 61.957193 tokens/s.  Poll 25 appeared to
+cross the 2\% promotion gate, but a balanced 50/25/25/50 validation reduced its
+advantage to 0.242674\%, below the unchanged gate.  It was not promoted.
+
+These experiments establish an honest warm-state range rather than a new fixed
+configuration: automatic attention with the default poll remained at roughly
+61--63 tokens/s in balanced runs.  Individual 64-token/s observations are
+preserved but not represented as a guaranteed setting.  The flash/thread plan
+SHA-256 is
+\texttt{3b7e1d4c881219274b993173f33f48128168047bc57d135ff2e1154459ba46a0};
+the poll plan SHA-256 is
+\texttt{fa539bd663535fa65bedb46f707a2848b8a5dcefb6be5707b4ea94af8a4293fa}.
+
+\subsection{Verified AtomSheet assistance and hybrid result}
+
+The two strict structured failures were next treated as a systems problem rather
+than hidden with prompt changes.  The verified calculation catalog gained two
+general, fail-closed contracts: mass conversion and gross-margin calculation.
+Both use Decimal arithmetic, declared canonical units, inverse or recomposition
+verification, content-bound receipts and model fallback for ambiguous,
+compound, missing or out-of-range inputs.
+
+In 1{,}000 replay measurements per contract, first execution required 2.875~ms
+for gross margin and 2.029~ms for mass conversion.  Replay p50/p95 were
+0.775/0.939~ms and 0.698/0.882~ms respectively.  Both former model failures now
+returned the exact stored answer with zero model calls.  The focused calculation,
+ambiguity, SQI-beam, trace and replay suite passed 27/27.
+
+The complete eight-case structured cohort was then run twice through the real
+hybrid path.  AION performed SQI candidate evaluation and route collapse first;
+verified AtomSheets served two cases, and the resident 30B Qwen service served
+the remaining six.  Both runs passed 8/8 with identical answers and identical
+route decisions.  Relative to direct-Qwen execution, model calls fell from eight
+to six (25\%), and generated model tokens fell from 175 to 124 (29.142857\%).
+The two verified requests completed in 2.4--3.6~ms; second-run Qwen fallback
+latency ranged from 0.209 to 1.107~s.
+
+This is a narrow but genuine architecture promotion: exact repetitive work is
+removed from the neural path, while language and reasoning remain assigned to
+the large model.  Strict task success rose from 6/8 for direct Qwen to 8/8 for
+the hybrid without relaxing an expected value or silently rewriting a model
+answer.  It does not establish broad model quality, because the cohort is small
+and only two families used the new verified routes.
+
+The combined tuning and hybrid evidence SHA-256 is
+\texttt{3157fbb590133b5a037026529d15c02b3549802637b2e46c756abccd31700ba8}.

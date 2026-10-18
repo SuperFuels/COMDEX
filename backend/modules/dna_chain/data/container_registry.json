@@ -490,5 +490,106 @@
       "topic": "ucs://local/aion_equities",
       "address": "ucs://local/equities/assessment/assessment__company__ULVR.L__2026-Q4#container"
     }
+  },
+  "equities__company__PAGE_L__2024-FY": {
+    "address": "ucs://knowledge/equities_period_snapshot/equities__company__PAGE_L__2024-FY",
+    "kind": "container",
+    "meta": {
+      "created_by": "SQI",
+      "last_updated": "2026-03-08T22:38:05.583817+00:00",
+      "ghx": {
+        "hover": true,
+        "collapsed": true
+      },
+      "address": "ucs://knowledge/equities_period_snapshot/equities__company__PAGE_L__2024-FY"
+    }
+  },
+  "equities__company__PAGE_L__2025-Q1": {
+    "address": "ucs://knowledge/equities_period_snapshot/equities__company__PAGE_L__2025-Q1",
+    "kind": "container",
+    "meta": {
+      "created_by": "SQI",
+      "last_updated": "2026-03-08T22:38:05.588947+00:00",
+      "ghx": {
+        "hover": true,
+        "collapsed": true
+      },
+      "address": "ucs://knowledge/equities_period_snapshot/equities__company__PAGE_L__2025-Q1"
+    }
+  },
+  "equities__company__PAGE_L__2025-Q2": {
+    "address": "ucs://knowledge/equities_period_snapshot/equities__company__PAGE_L__2025-Q2",
+    "kind": "container",
+    "meta": {
+      "created_by": "SQI",
+      "last_updated": "2026-03-08T22:38:05.594734+00:00",
+      "ghx": {
+        "hover": true,
+        "collapsed": true
+      },
+      "address": "ucs://knowledge/equities_period_snapshot/equities__company__PAGE_L__2025-Q2"
+    }
+  },
+  "aion_goals": {
+    "address": "ucs://local/aion_goals#container",
+    "kind": "container",
+    "meta": {
+      "domain": "aion/goals",
+      "address": "ucs://local/aion_goals#container"
+    }
+  },
+  "symatics_control": {
+    "address": "ucs://local/symatics_control#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/control",
+      "address": "ucs://local/symatics_control#container"
+    }
+  },
+  "symatics_runtime_primary": {
+    "address": "ucs://local/symatics_runtime_primary#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/runtime_primary",
+      "address": "ucs://local/symatics_runtime_primary#container"
+    }
+  },
+  "aion_learning_decision_influence": {
+    "address": "ucs://local/aion_learning_decision_influence#container",
+    "kind": "container",
+    "meta": {
+      "domain": "aion/learning/decision_influence",
+      "address": "ucs://local/aion_learning_decision_influence#container"
+    }
+  },
+  "symatics_actuation": {
+    "address": "ucs://local/symatics_actuation#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/actuation",
+      "address": "ucs://local/symatics_actuation#container"
+    }
+  },
+  "brightline_offers": {
+    "address": "ucs://local/brightline_offers#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/brightline_offers#container",
+      "workspace_id": "brightline-telecoms",
+      "business_binding_id": "offers-binding",
+      "category": "products",
+      "tags": [
+        "business",
+        "offers",
+        "telecoms"
+      ],
+      "source_ref": null,
+      "runtime_backend": "ucs",
+      "kg_container_id": "brightline_offers",
+      "kg_graph": "work",
+      "kg_topic_wa": "ucs://business/brightline/offers",
+      "writable": true,
+      "semantic_writes_enabled": true
+    }
   }
 }

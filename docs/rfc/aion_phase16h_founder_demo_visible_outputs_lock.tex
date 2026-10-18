@@ -1,0 +1,45 @@
+\section{Phase 16H Founder Demo Visible Action Output Panels Lock}
+
+\subsection{Status}
+
+Locked.
+
+\subsection{Purpose}
+
+The Founder Demo Loop buttons now render visible preview artifacts below the hero instead of only changing the current-state label.
+
+\subsection{Contract}
+
+The Founder Demo Loop MUST render a visible output panel for the selected action.
+
+The following actions MUST produce distinct preview artifacts:
+
+\begin{itemize}
+  \item Run Home Fixed preview.
+  \item Open human review.
+  \item View proof receipt.
+  \item Replay boardroom trace.
+\end{itemize}
+
+Each artifact MUST preserve the side-effect boundary:
+
+\begin{itemize}
+  \item no booking created;
+  \item no payment created;
+  \item no escrow created;
+  \item no external message sent;
+  \item no live chain write;
+  \item preview only.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase16h_founder_demo_visible_outputs_lock.py
+\end{verbatim}
+
+Lock ID: AION-PHASE16H-FOUNDER-DEMO-VISIBLE-OUTPUTS
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson

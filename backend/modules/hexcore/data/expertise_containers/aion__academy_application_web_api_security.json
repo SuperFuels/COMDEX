@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cybersecurity",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cybersecurity",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_software_engineering",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:software_engineering",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_data_databases",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:data_databases",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:application_web_api_security:secure_coding",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:application_web_api_security:authentication",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:application_web_api_security:authorization",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:application_web_api_security:session_security",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:application_web_api_security:injection_defence",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:application_web_api_security:browser_security",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:application_web_api_security:api_security",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:application_web_api_security:security_testing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:application_web_api_security",
+      "label": "Application, web and API security",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:application_web_api_security:secure_coding",
+      "label": "secure coding",
+      "subject_id": "application_web_api_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:application_web_api_security:authentication",
+      "label": "authentication",
+      "subject_id": "application_web_api_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:application_web_api_security:authorization",
+      "label": "authorization",
+      "subject_id": "application_web_api_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:application_web_api_security:session_security",
+      "label": "session security",
+      "subject_id": "application_web_api_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:application_web_api_security:injection_defence",
+      "label": "injection defence",
+      "subject_id": "application_web_api_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:application_web_api_security:browser_security",
+      "label": "browser security",
+      "subject_id": "application_web_api_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:application_web_api_security:api_security",
+      "label": "api security",
+      "subject_id": "application_web_api_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:application_web_api_security:security_testing",
+      "label": "security testing",
+      "subject_id": "application_web_api_security",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_application_web_api_security",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:application_web_api_security:secure_coding",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:application_web_api_security:authentication",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:application_web_api_security:authorization",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:application_web_api_security:session_security",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:application_web_api_security:injection_defence",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:application_web_api_security:browser_security",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:application_web_api_security:api_security",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:application_web_api_security:security_testing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:application_web_api_security",
+        "label": "Application, web and API security",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:application_web_api_security:secure_coding",
+        "label": "secure coding",
+        "subject_id": "application_web_api_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:application_web_api_security:authentication",
+        "label": "authentication",
+        "subject_id": "application_web_api_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:application_web_api_security:authorization",
+        "label": "authorization",
+        "subject_id": "application_web_api_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:application_web_api_security:session_security",
+        "label": "session security",
+        "subject_id": "application_web_api_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:application_web_api_security:injection_defence",
+        "label": "injection defence",
+        "subject_id": "application_web_api_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:application_web_api_security:browser_security",
+        "label": "browser security",
+        "subject_id": "application_web_api_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:application_web_api_security:api_security",
+        "label": "api security",
+        "subject_id": "application_web_api_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:application_web_api_security:security_testing",
+        "label": "security testing",
+        "subject_id": "application_web_api_security",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "application_web_api_security",
+    "title": "AION Academy \u00b7 Application, web and API security"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

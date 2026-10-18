@@ -1,0 +1,80 @@
+\section{Production Live Fact-Checking and Evidence Follow-Through}
+\label{sec:pilot-production-fact-checking}
+
+Pilot Fabric 0.35 extends the live companion from a one-shot model response into
+a durable, inspectable evidence system.  The user may ask ``Pilot, fact check
+that'' immediately after a statement.  Pilot bounds the recent local transcript
+or owner-captured subtitle, decomposes it into checkable claims, retrieves public
+evidence through the provider-independent research router, validates the returned
+structure, and stores a canonical evidence record.  Television playback remains
+visible; the short verdict is spoken and the complete evidence is presented on
+the private phone.
+
+\subsection{Evidence Record}
+
+The persisted object uses schema \texttt{pilot.live-news.v2} and contains:
+\begin{itemize}
+  \item the captured statement and its provenance;
+  \item individual claims with verdict, confidence, explanation, date scope and
+        bounded source references;
+  \item sanitized HTTPS evidence sources;
+  \item contextual notes and an owner-correction timeline;
+  \item provider route, research latency and evidence sufficiency;
+  \item contradiction analysis and a canonical SHA-derived evidence hash; and
+  \item explicit privacy and presentation constraints.
+\end{itemize}
+Only source indexes that survive URL and scheme validation may support a claim.
+Private-network URLs and non-HTTPS evidence are discarded.  A search hand-off is
+never upgraded to a verdict: its state remains \emph{Unverifiable} with zero
+confidence.
+
+\subsection{Source Quality Outside the Model}
+
+Source quality is assigned by deterministic host and provenance rules rather
+than by the language model.  Government or intergovernmental primary sources,
+academic institutions and established editorial publishers receive distinct
+classes, scores and human-readable rationales.  Other organizations remain
+visible but carry a lower default quality signal.  The score is an evidence-
+handling priority and not an assertion that an institution is infallible.  The
+private controller reports source count, mean source quality, contradiction
+count and measured end-to-end latency.
+
+\subsection{Contradictions and Disagreement}
+
+Pilot normalizes claim text and compares retained verdicts.  Conflicting
+verdicts for the same normalized claim are stored as contradictions, while
+claims explicitly labelled \emph{Disputed} retain their supporting source
+indexes.  This analysis is outside the generative summary.  Consequently a
+model cannot create the appearance of disagreement merely by writing that two
+sources differ.
+
+\subsection{Deterministic Follow-Up Dialogue}
+
+The commands ``show me the evidence'', ``who disagrees?'' and ``explain the
+difference'' operate on the frozen evidence object.  They do not run a new
+unbounded model prompt.  Pilot ranks retained sources by the outside-model
+quality signal, identifies established disputed claims or conflicting verdicts,
+and compares date scopes, definitions and contextual notes.  Where the record
+does not establish a difference or an opposing source, Pilot states that limit
+explicitly.  Every follow-up contains the parent fact-check identifier, a new
+content hash and the flags \texttt{derived\_without\_model} and
+\texttt{playback\_preserved}.
+
+\subsection{Privacy, Audit and Failure Behaviour}
+
+Raw microphone audio, original screen pixels and raw provider responses are not
+retained.  The bounded claim, structured evidence and hashes are sufficient for
+correction, audit and later sharing without preserving protected programme
+content.  Corrections never overwrite history; they appear in chronological
+order between statement capture and evidence research.  If evidence acquisition
+is absent, unsafe or insufficient, Pilot returns an honest limitation and does
+not synthesize a confident verdict.
+
+\subsection{Capability Boundary}
+
+This stage provides production-shaped evidence handling but does not claim a
+system overlay above protected third-party television applications.  LG reserves
+that authority for system software.  Pilot therefore speaks a concise result,
+keeps the programme visible, and uses the persona-bound private controller for
+the detailed evidence surface.  A future signed native television application
+may provide compact overlays where the platform explicitly grants that scope.

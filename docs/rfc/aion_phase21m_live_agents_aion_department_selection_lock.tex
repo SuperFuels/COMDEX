@@ -1,0 +1,48 @@
+\section{Phase 21M --- Live Agents Aion Department Selection}
+\label{sec:aion-phase21m-live-agents-aion-department-selection}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21M fixes the Live Agents department selection path so that clicking the Aion department opens the Aion workspace instead of falling back to the selected Marketing agent card.
+
+\subsection{Issue}
+
+The Pilot cockpit was mounted correctly in the Live Agents / Aion render path, but the department switcher did not visibly enter the Aion workspace.
+
+The UI remained on the Marketing workspace because the runtime helper resolved the selected department from the selected agent card before honoring explicit department state.
+
+\subsection{Rule}
+
+Explicit Live Agents department selection MUST win over selected-agent fallback.
+
+The selected agent card MAY provide a fallback department only when no explicit department selection exists.
+
+\subsection{Aion Department Rule}
+
+The Aion department MAY exist without a normal run-backed agent card.
+
+This is valid because AION Pilot is a native runtime operator surface, not a normal department queue card.
+
+\subsection{Safety Boundary}
+
+This change affects visibility and routing only.
+
+It MUST NOT grant execution authority, expose private reasoning, expose credentials, execute tools, or create live external side effects.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21m_live_agents_aion_department_selection_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21M-LIVE-AGENTS-AION-DEPARTMENT-SELECTION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -10,10 +10,7 @@ export const DEFAULT_TOPIC = `ucs://${DEFAULT_REALM}/ucs_hub`;
 export const inboxTopic = (handle: string) =>
   `ucs://${DEFAULT_REALM}/${handle}/inbox`;
 
-// Deterministic dev owner WA (used by KG emitters, visits, etc.)
-export const OWNER_WA: string =
-  (typeof window !== "undefined" &&
-    (window.localStorage?.getItem("gnet:ownerWa") ||
-      window.localStorage?.getItem("gnet:wa") ||   // fallback to old key
-      "").trim()) ||
-  "dev@wave.tp"; // final fallback for dev
+// Deterministic development fallback only. Authenticated owner identity is
+// supplied by the backend session or the in-memory device identity and must
+// never be restored from browser storage.
+export const OWNER_WA = "dev@wave.tp";

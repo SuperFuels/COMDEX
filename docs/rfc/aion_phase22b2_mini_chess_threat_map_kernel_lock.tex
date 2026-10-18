@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.2: Mini Chess Threat Map Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.2 defines the AION Mini Chess Threat Map Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can map attacked squares, detect check, identify escape moves, reject unsafe captures, and recognise checking moves.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.2 adds threat awareness on top of legal move grounding.
+
+\section{Threat Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{attacked\_squares};
+  \item \texttt{defended\_pieces};
+  \item \texttt{undefended\_pieces};
+  \item \texttt{white\_in\_check};
+  \item \texttt{checking\_pieces};
+  \item \texttt{legal\_escape\_moves};
+  \item \texttt{unsafe\_captures};
+  \item \texttt{checking\_moves};
+  \item \texttt{avoided\_unsafe\_capture};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational mini-chess threat-map grounding. It does not prove full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B2-MINI-CHESS-THREAT-MAP-KERNEL-LOCK\\
+Status: LOCKED --- mini chess threat map kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

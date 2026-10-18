@@ -1,0 +1,198 @@
+\section{AION Gateway GlyphChain Proof Commit Store v0.1 Lock}
+\label{sec:aion-gateway-glyphchain-proof-commit-store-lock}
+
+\subsection{Status}
+
+The ChainSim/GlyphChain side now includes a dedicated AION proof commit store for AION job, evidence, and settlement-readiness proof records.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION proof commitments can be persisted and verified without using bank, staking, payment, wallet, token, or escrow paths.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock completes the first real GlyphChain integration step after the dry-run proof adapter.
+
+The previous Gateway adapter created deterministic proof envelopes and \texttt{proof\_commitment\_hash} values using the existing ChainSim canonical codec.
+
+This lock adds a ChainSim-side proof store that can persist those AION proof commitments as dedicated proof records.
+
+\subsection{Implemented Files}
+
+\begin{itemize}
+  \item \texttt{backend/modules/chain\_sim/aion\_proof\_commit\_store.py}
+  \item \texttt{backend/tests/workflow\_capsules/test\_aion\_gateway\_glyphchain\_proof\_commit\_store\_lock.py}
+\end{itemize}
+
+\subsection{Store Version}
+
+The proof commit store version is:
+
+\begin{verbatim}
+glyphchain.aion_proof_commit_store.v0.1
+\end{verbatim}
+
+\subsection{Supported Proof Types}
+
+The store accepts only:
+
+\begin{itemize}
+  \item \texttt{AION\_JOB\_PROOF\_V1}
+  \item \texttt{AION\_EVIDENCE\_PROOF\_V1}
+  \item \texttt{AION\_SETTLEMENT\_READINESS\_PROOF\_V1}
+\end{itemize}
+
+Unsupported proof types are blocked.
+
+\subsection{Committed Record Shape}
+
+A committed AION proof record includes:
+
+\begin{itemize}
+  \item \texttt{proof\_commitment\_id}
+  \item \texttt{store\_version}
+  \item \texttt{proof\_type}
+  \item \texttt{business\_id}
+  \item \texttt{job\_id}
+  \item \texttt{proof\_payload\_hash}
+  \item \texttt{proof\_commitment\_hash}
+  \item \texttt{envelope}
+  \item \texttt{status}
+  \item \texttt{committed\_at\_ms}
+  \item \texttt{block\_height}
+  \item \texttt{tx\_id}
+  \item \texttt{tx\_hash}
+  \item \texttt{dry\_run\_chain\_tx}
+  \item \texttt{would\_move\_money}
+  \item \texttt{would\_require\_pho}
+  \item \texttt{would\_require\_token}
+  \item \texttt{would\_require\_wallet}
+  \item \texttt{would\_create\_payment}
+  \item \texttt{would\_create\_escrow}
+  \item \texttt{metadata}
+\end{itemize}
+
+\subsection{Commitment ID}
+
+The proof commitment identifier is deterministic.
+
+It is built from:
+
+\begin{itemize}
+  \item \texttt{store\_version}
+  \item \texttt{proof\_type}
+  \item lowercase \texttt{business\_id}
+  \item \texttt{job\_id}
+  \item \texttt{proof\_commitment\_hash}
+\end{itemize}
+
+The identifier format is:
+
+\begin{verbatim}
+aion_proof_<24-char-prefix>
+\end{verbatim}
+
+\subsection{Idempotency}
+
+Committing the same proof commitment twice returns the same \texttt{proof\_commitment\_id}.
+
+The second commit returns:
+
+\begin{verbatim}
+already_committed
+\end{verbatim}
+
+This prevents duplicate proof records for the same canonical proof material.
+
+\subsection{Verification}
+
+The store exposes verification by \texttt{proof\_commitment\_id}.
+
+Verification passes when the stored \texttt{proof\_commitment\_hash} matches the expected hash.
+
+Verification fails when the expected hash does not match.
+
+\subsection{Safety Boundary}
+
+The proof commit store MUST NOT:
+
+\begin{itemize}
+  \item use \texttt{BANK\_*} transaction types,
+  \item use staking transaction types,
+  \item move PHO,
+  \item require PHO,
+  \item require a token,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item expose a public route,
+  \item grant permissions.
+\end{itemize}
+
+For this lock:
+
+\begin{quote}
+\texttt{tx\_id = None}
+
+\texttt{tx\_hash = None}
+
+\texttt{block\_height = None}
+
+\texttt{dry\_run\_chain\_tx = true}
+\end{quote}
+
+This means the proof record is committed to the dedicated proof store, but not yet appended as a live ChainSim block transaction.
+
+\subsection{Blocked Behaviour}
+
+The store blocks commits when:
+
+\begin{itemize}
+  \item the proof type is unsupported,
+  \item \texttt{business\_id} is missing,
+  \item \texttt{job\_id} is missing,
+  \item \texttt{proof\_payload\_hash} is missing,
+  \item \texttt{proof\_commitment\_hash} is missing,
+  \item the envelope attempts to move money,
+  \item the envelope requires PHO, token, or wallet,
+  \item the envelope attempts to create payment or escrow.
+\end{itemize}
+
+\subsection{Validation}
+
+Standalone validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_store_lock.py
+\end{verbatim}
+
+Current result:
+
+\begin{verbatim}
+10 passed
+\end{verbatim}
+
+Compile validation:
+
+\begin{verbatim}
+python -m compileall \
+  backend/modules/chain_sim/aion_proof_commit_store.py \
+  backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Next Step}
+
+The next deeper integration step is to expose this store through a guarded internal route or convert it into a dedicated proof transaction type.
+
+That future step must still avoid bank, staking, payment, wallet, token, and escrow coupling.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-GLYPHCHAIN-PROOF-COMMIT-STORE-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

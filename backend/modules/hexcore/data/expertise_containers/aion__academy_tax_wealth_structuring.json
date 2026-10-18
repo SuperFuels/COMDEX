@@ -1,0 +1,280 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_accounting_corporate_finance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:tax_wealth_structuring:tax_principles",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:tax_wealth_structuring:corporate_tax",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:tax_wealth_structuring:investment_tax",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:tax_wealth_structuring:cross_border",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:tax_wealth_structuring:pensions",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:tax_wealth_structuring:estates",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:tax_wealth_structuring:capital_structure",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:tax_wealth_structuring:professional_referral",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "label": "Tax, wealth and capital structuring",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:tax_wealth_structuring:tax_principles",
+      "label": "tax principles",
+      "subject_id": "tax_wealth_structuring",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:tax_wealth_structuring:corporate_tax",
+      "label": "corporate tax",
+      "subject_id": "tax_wealth_structuring",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:tax_wealth_structuring:investment_tax",
+      "label": "investment tax",
+      "subject_id": "tax_wealth_structuring",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:tax_wealth_structuring:cross_border",
+      "label": "cross border",
+      "subject_id": "tax_wealth_structuring",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:tax_wealth_structuring:pensions",
+      "label": "pensions",
+      "subject_id": "tax_wealth_structuring",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:tax_wealth_structuring:estates",
+      "label": "estates",
+      "subject_id": "tax_wealth_structuring",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:tax_wealth_structuring:capital_structure",
+      "label": "capital structure",
+      "subject_id": "tax_wealth_structuring",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:tax_wealth_structuring:professional_referral",
+      "label": "professional referral",
+      "subject_id": "tax_wealth_structuring",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_tax_wealth_structuring",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:tax_wealth_structuring:tax_principles",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:tax_wealth_structuring:corporate_tax",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:tax_wealth_structuring:investment_tax",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:tax_wealth_structuring:cross_border",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:tax_wealth_structuring:pensions",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:tax_wealth_structuring:estates",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:tax_wealth_structuring:capital_structure",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:tax_wealth_structuring:professional_referral",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "label": "Tax, wealth and capital structuring",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:tax_wealth_structuring:tax_principles",
+        "label": "tax principles",
+        "subject_id": "tax_wealth_structuring",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:tax_wealth_structuring:corporate_tax",
+        "label": "corporate tax",
+        "subject_id": "tax_wealth_structuring",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:tax_wealth_structuring:investment_tax",
+        "label": "investment tax",
+        "subject_id": "tax_wealth_structuring",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:tax_wealth_structuring:cross_border",
+        "label": "cross border",
+        "subject_id": "tax_wealth_structuring",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:tax_wealth_structuring:pensions",
+        "label": "pensions",
+        "subject_id": "tax_wealth_structuring",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:tax_wealth_structuring:estates",
+        "label": "estates",
+        "subject_id": "tax_wealth_structuring",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:tax_wealth_structuring:capital_structure",
+        "label": "capital structure",
+        "subject_id": "tax_wealth_structuring",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:tax_wealth_structuring:professional_referral",
+        "label": "professional referral",
+        "subject_id": "tax_wealth_structuring",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "tax_wealth_structuring",
+    "title": "AION Academy \u00b7 Tax, wealth and capital structuring"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

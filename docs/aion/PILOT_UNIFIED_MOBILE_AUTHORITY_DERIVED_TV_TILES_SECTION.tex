@@ -1,0 +1,82 @@
+\section{Authority-Derived Personal, Household, Workspace and Boardroom Tiles}
+\label{sec:pilot-mobile-authority-derived-tv-tiles}
+
+Pilot no longer treats the television home screen as a fixed list of private
+applications.  The mother derives every visible tile from the active shared-screen
+identity and its current signed authorities.  This completes coded task
+\texttt{MOB-0805} and makes the room-scale interface a projection of permission,
+not a substitute permission system.
+
+\subsection{Four explicit authority domains}
+
+Public entertainment and discovery experiences remain available without a private
+identity.  Personal tiles such as Tasks, Calendar, Files and Personal Work appear
+only during an active persona-bound television session.  Household controls appear
+under a separate Household authority domain.  Workspace and Boardroom tiles are
+created only from an active membership issued through the provider-independent
+Workspace gateway.
+
+The locked screen exposes only generic Personal, Household, Workspace and Boardroom
+placeholders.  It does not reveal organisation names, membership roles, customer
+projects or private item counts.  Locked placeholders are disabled and carry no
+launch operation.  Consequently, presentation markup cannot accidentally turn a
+visual lock indicator into an executable authority.
+
+\subsection{Signed Workspace projection}
+
+For the active persona, the Workspace gateway enumerates only non-expired active
+memberships.  It intersects each membership's scopes with the capabilities declared
+by that workspace provider.  An empty intersection produces no television tile.
+For each remaining membership, the mother issues a short-lived Ed25519-signed
+Workspace Surface Manifest containing the space identifier, space kind, membership
+identifier, role revision, exact permitted capabilities, surface identifier and
+expiry.
+
+The shared-surface authority verifies the signature, persona, destination surface
+and expiry before incorporating that membership.  A Boardroom space becomes a
+Boardroom authority tile; other professional or client spaces become Workspace
+tiles.  The display name, role and capability list are taken from the signed
+envelope rather than from browser input.  A membership belonging to a different
+persona cannot be rendered for the active television session.
+
+\subsection{Mother, dashboard and television flow}
+
+The laptop dashboard and television canvas use the same
+\texttt{SharedSurfaceManifestAuthority}.  On each authoritative refresh, the mother
+reads the active private identity and current Workspace gateway memberships, then
+issues one signed home manifest.  The television receives only the bounded tile
+projection.  It does not receive provider credentials, private message bodies,
+approval contents or a general Workspace access token.
+
+The television renderer constructs buttons with text-only DOM operations and uses
+the signed privacy and authority fields to divide public and private areas.  The
+laptop dashboard applies the same rule server-side.  Identical, still-valid
+manifests are reused to avoid generating audit-state writes during the frequent
+television refresh loop.  A changed identity, membership, role, capability set or
+expiry produces a different signed projection.
+
+\subsection{Revocation and locking behaviour}
+
+The television session remains subordinate to the trusted-phone takeover,
+inactivity timeout, presence timeout, explicit logout, device revocation and account
+recovery rules.  Once the active identity disappears, the next manifest contains
+only public experiences and generic locked authority domains.  The existing locked
+surface purge removes cached private presentation records.  Revoked or expired
+Workspace memberships disappear independently even if the person's household
+television session is still active.
+
+\subsection{Verification and remaining field exercise}
+
+Automated verification proves that an owner receives Personal and Household tiles,
+that active signed Workspace and Boardroom memberships produce the correct named
+tiles and exact scopes, that an unrelated persona receives none of those business
+tiles, and that tampering invalidates the enclosing shared-surface manifest.  It
+also verifies the dynamic television renderer, token-protected state delivery and
+the locked dashboard contract.  The complete AION Fabric suite contains 568 tests.
+
+A physical two-person household exercise remains open.  It must activate two
+different identities on the same television, confirm that each receives a distinct
+manifest, and verify that membership changes and automatic logout remove tiles on
+the real display.  Repository-backed full-screen presentation is a separate task,
+\texttt{MOB-0807}; this section does not claim that opening a tile already grants or
+renders every underlying document or dashboard.

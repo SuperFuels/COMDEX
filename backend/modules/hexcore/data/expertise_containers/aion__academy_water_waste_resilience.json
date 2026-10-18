@@ -1,0 +1,252 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_earth_climate",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:earth_climate",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_systems_engineering",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:systems_engineering",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:water_waste_resilience:water_systems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:water_waste_resilience",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:water_waste_resilience:waste",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:water_waste_resilience",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:water_waste_resilience:circularity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:water_waste_resilience",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:water_waste_resilience:infrastructure",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:water_waste_resilience",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:water_waste_resilience:hazards",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:water_waste_resilience",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:water_waste_resilience:resilience",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:water_waste_resilience",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:water_waste_resilience:disaster_response",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:water_waste_resilience",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "environment_resilience",
+      "id": "work:aion@wave.tp:subject:water_waste_resilience",
+      "label": "Water, waste and resilient infrastructure",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:water_waste_resilience:water_systems",
+      "label": "water systems",
+      "subject_id": "water_waste_resilience",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:water_waste_resilience:waste",
+      "label": "waste",
+      "subject_id": "water_waste_resilience",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:water_waste_resilience:circularity",
+      "label": "circularity",
+      "subject_id": "water_waste_resilience",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:water_waste_resilience:infrastructure",
+      "label": "infrastructure",
+      "subject_id": "water_waste_resilience",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:water_waste_resilience:hazards",
+      "label": "hazards",
+      "subject_id": "water_waste_resilience",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:water_waste_resilience:resilience",
+      "label": "resilience",
+      "subject_id": "water_waste_resilience",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:water_waste_resilience:disaster_response",
+      "label": "disaster response",
+      "subject_id": "water_waste_resilience",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_water_waste_resilience",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:water_waste_resilience:water_systems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:water_waste_resilience",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:water_waste_resilience:waste",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:water_waste_resilience",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:water_waste_resilience:circularity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:water_waste_resilience",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:water_waste_resilience:infrastructure",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:water_waste_resilience",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:water_waste_resilience:hazards",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:water_waste_resilience",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:water_waste_resilience:resilience",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:water_waste_resilience",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:water_waste_resilience:disaster_response",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:water_waste_resilience",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "environment_resilience",
+        "id": "work:aion@wave.tp:subject:water_waste_resilience",
+        "label": "Water, waste and resilient infrastructure",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:water_waste_resilience:water_systems",
+        "label": "water systems",
+        "subject_id": "water_waste_resilience",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:water_waste_resilience:waste",
+        "label": "waste",
+        "subject_id": "water_waste_resilience",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:water_waste_resilience:circularity",
+        "label": "circularity",
+        "subject_id": "water_waste_resilience",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:water_waste_resilience:infrastructure",
+        "label": "infrastructure",
+        "subject_id": "water_waste_resilience",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:water_waste_resilience:hazards",
+        "label": "hazards",
+        "subject_id": "water_waste_resilience",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:water_waste_resilience:resilience",
+        "label": "resilience",
+        "subject_id": "water_waste_resilience",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:water_waste_resilience:disaster_response",
+        "label": "disaster response",
+        "subject_id": "water_waste_resilience",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "environment_resilience",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "water_waste_resilience",
+    "title": "AION Academy \u00b7 Water, waste and resilient infrastructure"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

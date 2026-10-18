@@ -127,6 +127,30 @@ def _force_signer_nonce_once(from_addr: str, expected_final: int) -> None:
         return
 
 
+def apply_document_proof_v1(
+    from_addr: str,
+    payload: Dict[str, Any],
+    nonce: int,
+    **_: Any,
+) -> Dict[str, Any]:
+    """Apply a non-financial, commitment-only document proof transaction."""
+    from backend.modules.chain_sim.document_proof import document_proof_result
+
+    signer = str(from_addr or "").strip()
+    if not signer:
+        raise ValueError("from_addr required")
+
+    account = bank.get_or_create_account(signer)
+    expected = int(getattr(account, "nonce", 0) or 0) + 1
+    if int(nonce) != expected:
+        raise ValueError(f"bad nonce: expected {expected}, got {nonce}")
+
+    result = document_proof_result(payload or {})
+    _force_signer_nonce_once(signer, int(nonce))
+    _maybe_assert_invariants()
+    return result
+
+
 def get_tx(tx_id: str) -> Optional[Dict[str, Any]]:
     """Prefer ledger-backed txs; fallback to legacy _TX_LOG."""
     tx = ledger_get_tx(tx_id)
@@ -275,8 +299,13 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
         "BANK_BURN",
         "STAKING_DELEGATE",
         "STAKING_UNDELEGATE",
+        "DOCUMENT_PROOF_V1",
     ):
         raise ValueError("invalid tx_type")
+
+    from backend.modules.chain_sim.ledger_content_policy import normalize_public_transaction_payload
+
+    payload = normalize_public_transaction_payload(tx_type, payload)
 
     signer_acc = bank.get_or_create_account(from_addr)
     expected = int(getattr(signer_acc, "nonce", 0) or 0) + 1  # ✅ next-nonce semantics
@@ -296,7 +325,7 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
 
     fee_n = _fee_int()
     fee_enabled = bool(tx_type and str(tx_type).startswith("BANK_"))
-    if tx_type in ("STAKING_DELEGATE", "STAKING_UNDELEGATE"):
+    if tx_type in ("STAKING_DELEGATE", "STAKING_UNDELEGATE", "DOCUMENT_PROOF_V1"):
         fee_enabled = False  # ✅ no dev fee for staking txs
 
     fee_info: Dict[str, Any] = {
@@ -445,6 +474,12 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
 
         result = staking_undelegate(from_addr=from_addr, validator=validator, amount_tess=str(amount_tess))
         accounts_touched.append(DEV_STAKING_BONDED)
+        applied = True
+
+    elif tx_type == "DOCUMENT_PROOF_V1":
+        from backend.modules.chain_sim.document_proof import document_proof_result
+
+        result = document_proof_result(payload)
         applied = True
 
     # One nonce per tx (BANK txs can increment internally; clamp)

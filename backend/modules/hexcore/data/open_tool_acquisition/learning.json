@@ -1,0 +1,758 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_dev.opaque": "procedure_adapter_5c1d0845b8c7",
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_transfer.renamed": "procedure_adapter_44f7b4d57fd6",
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:json_drift.renamed": "procedure_adapter_2ee4faa846b8",
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_dev.opaque": "procedure_adapter_eea0bcfb9251",
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_transfer.renamed": "procedure_adapter_cf7cdaccc3e3",
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_dev.opaque": "procedure_adapter_232b357c5bce",
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_transfer.renamed": "procedure_adapter_f3e8a50081fc",
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_dev.opaque": "procedure_adapter_f0801d31472a",
+    "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_transfer.renamed": "procedure_adapter_c401af933817",
+    "open_tool_environment_acquisition": "procedure_open_tool_environment_acquisition_v1"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "open_tool_acquisition_cau"
+    },
+    "reason": "open_tool_environment_acquisition",
+    "state_hash": "fba6a2a07c35fd54f22c624816e58b4a172ccfb5ff4fb7dba9ab3ee48379349c"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "counterexample_generation": true,
+          "development_adapters": 4,
+          "drift_detected_and_repaired": true,
+          "invented_adapter_types": 5,
+          "malicious_adapters_rejected": 7,
+          "malicious_adapters_total": 7,
+          "mission_complete": true,
+          "objective_mutations": 0,
+          "property_tests_per_candidate": 3,
+          "source_disjoint_transfers": 4,
+          "transfer_attempt_reduction": 0.75,
+          "unfamiliar_interfaces": 9,
+          "unsafe_execution": 0,
+          "verified_outcomes": 9
+        },
+        "registry_hash": "5ff18fe3f72399101f22f20f1bc467fc62da51b04f2e3f8d83a6d9417c9cbb06"
+      },
+      "outcome_id": "outcome_470aece43f814c15",
+      "procedure_id": "procedure_open_tool_environment_acquisition_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.75,
+      "success": true,
+      "timestamp": "2026-07-31T21:50:10.718741+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_adapter_232b357c5bce": {
+      "evidence": {
+        "task_id": "svg_dev.opaque",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "passed": false,
+              "reason": "TOMLDecodeError"
+            }
+          },
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "passed": false,
+              "reason": "JSONDecodeError"
+            }
+          },
+          {
+            "candidate": "json_document",
+            "property_result": {
+              "passed": false,
+              "reason": "JSONDecodeError"
+            }
+          },
+          {
+            "candidate": "ical_events",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "svg_structure",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_dev.opaque",
+      "procedure_id": "procedure_adapter_232b357c5bce",
+      "promoted_at": "2026-07-31T21:50:10.534318+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_adapter_2ee4faa846b8": {
+      "evidence": {
+        "task_id": "json_drift.renamed",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "passed": false,
+              "reason": "TOMLDecodeError"
+            }
+          },
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "json_document",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:json_drift.renamed",
+      "procedure_id": "procedure_adapter_2ee4faa846b8",
+      "promoted_at": "2026-07-31T21:50:10.706605+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_adapter_44f7b4d57fd6": {
+      "evidence": {
+        "task_id": "ical_transfer.renamed",
+        "trials": [
+          {
+            "candidate": "ical_events",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_transfer.renamed",
+      "procedure_id": "procedure_adapter_44f7b4d57fd6",
+      "promoted_at": "2026-07-31T21:50:10.635285+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_adapter_5c1d0845b8c7": {
+      "evidence": {
+        "task_id": "ical_dev.opaque",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "passed": false,
+              "reason": "TOMLDecodeError"
+            }
+          },
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "passed": false,
+              "reason": "JSONDecodeError"
+            }
+          },
+          {
+            "candidate": "json_document",
+            "property_result": {
+              "passed": false,
+              "reason": "JSONDecodeError"
+            }
+          },
+          {
+            "candidate": "ical_events",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_dev.opaque",
+      "procedure_id": "procedure_adapter_5c1d0845b8c7",
+      "promoted_at": "2026-07-31T21:50:10.502462+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_adapter_c401af933817": {
+      "evidence": {
+        "task_id": "toml_transfer.renamed",
+        "trials": [
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_transfer.renamed",
+      "procedure_id": "procedure_adapter_c401af933817",
+      "promoted_at": "2026-07-31T21:50:10.601143+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_adapter_cf7cdaccc3e3": {
+      "evidence": {
+        "task_id": "ndjson_transfer.renamed",
+        "trials": [
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_transfer.renamed",
+      "procedure_id": "procedure_adapter_cf7cdaccc3e3",
+      "promoted_at": "2026-07-31T21:50:10.567169+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_adapter_eea0bcfb9251": {
+      "evidence": {
+        "task_id": "ndjson_dev.opaque",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "passed": false,
+              "reason": "TOMLDecodeError"
+            }
+          },
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_dev.opaque",
+      "procedure_id": "procedure_adapter_eea0bcfb9251",
+      "promoted_at": "2026-07-31T21:50:10.438657+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_adapter_f0801d31472a": {
+      "evidence": {
+        "task_id": "toml_dev.opaque",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_dev.opaque",
+      "procedure_id": "procedure_adapter_f0801d31472a",
+      "promoted_at": "2026-07-31T21:50:10.469614+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_adapter_f3e8a50081fc": {
+      "evidence": {
+        "task_id": "svg_transfer.renamed",
+        "trials": [
+          {
+            "candidate": "svg_structure",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_transfer.renamed",
+      "procedure_id": "procedure_adapter_f3e8a50081fc",
+      "promoted_at": "2026-07-31T21:50:10.671283+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true
+    },
+    "procedure_open_tool_environment_acquisition_v1": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "counterexample_generation": true,
+          "development_adapters": 4,
+          "drift_detected_and_repaired": true,
+          "invented_adapter_types": 5,
+          "malicious_adapters_rejected": 7,
+          "malicious_adapters_total": 7,
+          "mission_complete": true,
+          "objective_mutations": 0,
+          "property_tests_per_candidate": 3,
+          "source_disjoint_transfers": 4,
+          "transfer_attempt_reduction": 0.75,
+          "unfamiliar_interfaces": 9,
+          "unsafe_execution": 0,
+          "verified_outcomes": 9
+        },
+        "registry_hash": "5ff18fe3f72399101f22f20f1bc467fc62da51b04f2e3f8d83a6d9417c9cbb06"
+      },
+      "goal": "open_tool_environment_acquisition",
+      "procedure_id": "procedure_open_tool_environment_acquisition_v1",
+      "promoted_at": "2026-07-31T21:50:10.717201+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.75,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "detect_unknown_interface",
+        "fingerprint_content_not_suffix",
+        "construct_private_adapter_candidates",
+        "invent_semantic_properties",
+        "generate_counterexamples",
+        "reject_malicious_programs",
+        "execute_in_disposable_context",
+        "repair_interface_drift",
+        "transfer_and_retain"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "a0cdc4b146622a9af7b0c0686ceca2584dbfdea86cf3e371cadd46a3cb2111e4",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_dev.opaque",
+      "new_champion_id": "procedure_adapter_eea0bcfb9251",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.438673+00:00"
+    },
+    {
+      "evidence_hash": "bfbebbb70fa53c20fd8c4c6a50ab9585afb278b429e8e2d315a9a929b6d5b702",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_dev.opaque",
+      "new_champion_id": "procedure_adapter_f0801d31472a",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.469627+00:00"
+    },
+    {
+      "evidence_hash": "8e828a77206a9bd33173d73147f569dd89b0236d2d1a0ca174cb208d24dfff9f",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_dev.opaque",
+      "new_champion_id": "procedure_adapter_5c1d0845b8c7",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.502478+00:00"
+    },
+    {
+      "evidence_hash": "a66ac9e9a2b1433f5a88c706623c80cde9afdb62b9d62d8c7f80ada53f2db075",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_dev.opaque",
+      "new_champion_id": "procedure_adapter_232b357c5bce",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.534338+00:00"
+    },
+    {
+      "evidence_hash": "4c524450f4efee465c563472a3488b97c550d0176e8a7529653ed6d1949479f9",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_transfer.renamed",
+      "new_champion_id": "procedure_adapter_cf7cdaccc3e3",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.567179+00:00"
+    },
+    {
+      "evidence_hash": "39d1869d4b474d9357183377f68fd252cede81581d8568f1ce39547331dd313b",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_transfer.renamed",
+      "new_champion_id": "procedure_adapter_c401af933817",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.601152+00:00"
+    },
+    {
+      "evidence_hash": "630d53919eef66cac34e79534cce7e6937d555c2947d10fe330eb6241f4409e5",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_transfer.renamed",
+      "new_champion_id": "procedure_adapter_44f7b4d57fd6",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.635294+00:00"
+    },
+    {
+      "evidence_hash": "c40299e336ef10375715998f3947d9c7eacb4800d127159acd9d46925712b32a",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_transfer.renamed",
+      "new_champion_id": "procedure_adapter_f3e8a50081fc",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.671292+00:00"
+    },
+    {
+      "evidence_hash": "e976966db1acdb3f595f61e1e56ce825252f74eb22e46d1f1a8a3fe1b8ca8365",
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:json_drift.renamed",
+      "new_champion_id": "procedure_adapter_2ee4faa846b8",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:50:10.706618+00:00"
+    },
+    {
+      "evidence_hash": "add830ac3dbeaa840c515864c1439bfb35728d1961a902ff202778abe35aff71",
+      "goal": "open_tool_environment_acquisition",
+      "new_champion_id": "procedure_open_tool_environment_acquisition_v1",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.75,
+      "timestamp": "2026-07-31T21:50:10.717214+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 12,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T21:50:10.720022+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

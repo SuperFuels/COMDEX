@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.48 --- Promotion Safety / Queen Survival Guard}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.48 adds a promotion safety guard above the dynamic intent switching stack.
+
+The purpose is to prevent AION from promoting to a queen when the promoted queen can be immediately captured or when the promotion permits immediate mate.
+
+\section{Failure Source}
+
+The Level-3 live game exposed the following sequence:
+
+\begin{verbatim}
+g6g7
+g7g8q
+...
+g1g8
+\end{verbatim}
+
+AION successfully created a passed pawn and promoted it to a queen. However, the promoted queen did not survive conversion.
+
+\section{Rule}
+
+If the selected move is a promotion, the guard MUST check whether the promoted piece can be immediately captured by the opponent.
+
+If the promoted queen is immediately capturable, or if the move permits immediate mate, the guard SHOULD select a safe legal alternative when one exists.
+
+\section{Live Stack Position}
+
+The new live stack is:
+
+\begin{verbatim}
+22E.38 -- Live one-move sender
+  -> 22E.48 -- Promotion Safety / Queen Survival Guard
+    -> 22E.46 -- Dynamic Intent Switching & Plan Strength Evaluation
+      -> 22E.44 -- Proactive Intent Primacy & Plan Enforcement
+        -> 22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+          -> 22E.42 -- Passed Pawn Intent Scope Guard
+            -> 22E.41 -- Queen-First Promotion Guard
+              -> 22E.37 -- Intent-Driven Strategic Well
+\end{verbatim}
+
+\section{Evidence Fields}
+
+The guard records:
+
+\begin{verbatim}
+promotion_safety_checked
+promotion_move_detected
+promoted_piece_square
+promoted_piece_immediately_capturable
+promotion_survival_override_applied
+promotion_survival_reason
+safe_alternative_found
+\end{verbatim}
+
+\section{Boundary}
+
+This kernel does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E48-FULL-CHESS-PROMOTION-SAFETY-QUEEN-SURVIVAL-GUARD\\
+Status: LOCKED --- promotion survival guard implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -13,7 +13,7 @@ from pathlib import Path
 from backend.modules.aion_language.thesaurus_linker import LRM
 
 # Updated path to match where LRM exports
-MATRIX_PATH = Path("data/semantic/language_resonance_matrix.json")
+MATRIX_PATH = Path("data/lexicons/language_resonance_matrix.json")
 
 class QueryResonanceAPI:
     def __init__(self):
@@ -29,7 +29,8 @@ class QueryResonanceAPI:
             return
         try:
             with open(MATRIX_PATH) as f:
-                self.matrix = json.load(f)
+                payload = json.load(f)
+                self.matrix = payload.get("matrix", payload) if isinstance(payload, dict) else {}
             print(f"[QRA] Loaded {len(self.matrix)} word nodes from {MATRIX_PATH}")
         except Exception as e:
             print(f"[QRA] ❌ Failed to load resonance matrix: {e}")

@@ -1,0 +1,126 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[3]
+
+
+def test_support_workspace_replaces_placeholder_with_governed_case_centre():
+    index = (ROOT / "desktop/mac/src/index.html").read_text(encoding="utf-8")
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    assert '<script src="./aion_support_case_workspace.js"></script>' in index
+    assert 'data-aion-support-live-agents-workspace-o14d="true"' in app
+    support_renderer = app.split("function renderSupportWorkspaceSurface", 1)[1].split(
+        "function renderHRWorkspaceSurface", 1)[0]
+    assert 'data-aion-support-case-mount="true"' in support_renderer
+    assert "renderSupportPilotCommandCentre()" in support_renderer
+    assert 'data-aion-support-command-centre="true"' in support_renderer
+    assert 'data-aion-support-split-handle="true"' in support_renderer
+    assert 'data-aion-support-pilot-thread="true"' in support_renderer
+    assert 'data-aion-support-pilot-form="true"' in support_renderer
+    assert 'data-aion-support-workspace-pane="true"' in support_renderer
+    assert 'renderAionDepartment121BoardroomPanelO14D("support")' not in support_renderer
+    assert 'renderAionDepartmentScopedPilotSurface("support"' not in support_renderer
+    compact_director = app.split("function renderSupportCompactDirectorCard", 1)[1].split(
+        "function renderSupportWorkspaceSurface", 1)[0]
+    assert 'renderDepartmentCompactDirectorCard("support")' in compact_director
+    unified_director = app.split("function renderDepartmentCompactDirectorCard", 1)[1].split(
+        "function renderFinanceWorkspaceSurface", 1
+    )[0]
+    assert 'data-aion-unified-department-director=' in unified_director
+    assert 'data-aion-unified-department-copy=' in unified_director
+    assert 'data-aion-unified-department-portrait=' in unified_director
+    assert "SPATIAL SUPPORT BOARDROOM" not in compact_director
+    live_router = app.split("function renderLiveAgentsWorkspaceBody", 1)[1].split(
+        "function renderLiveAgentRunRow", 1)[0]
+    assert 'if (departmentKey === "support")' in live_router
+    assert "return renderSupportWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in live_router
+    assert '["marketing", "sales", "operations", "support", "hr"]' not in live_router
+    assert "Support Case Centre" in support
+    assert "SUPPORT AGENT STUDIO" in support
+    assert "NO AUTONOMOUS REFUNDS" in support
+    assert "Prepare—do not send—a support reply" in support
+    assert "Record verified resolution" in support
+    assert "consumer-law" in support
+
+
+def test_support_command_centre_has_persistent_dated_chat_and_full_input_controls():
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    assert "function renderAionSupportConversationTurn" in app
+    assert "function hydrateAionSupportConversation" in app
+    assert 'department_id: "support"' in app
+    assert 'renderAionDatedConversationTurns(turns, renderAionSupportConversationTurn, "#94a3b8")' in app
+    assert 'data-aion-support-pilot-attach="true"' in app
+    assert 'data-aion-support-pilot-voice="true"' in app
+    assert "function startAionSupportPilotDictation" in app
+    assert 'data-aion-support-open-package="true"' in app
+
+
+def test_support_case_centre_prefers_the_right_hand_mount():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    assert "document.querySelector('[data-aion-support-case-mount=\"true\"]')\n    || document.querySelector('[data-aion-support-live-agents-workspace-o14d=\"true\"]')" in support
+
+
+def test_support_ui_exposes_authority_and_evidence_controls():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    assert "Exact-approved refund ceiling" in support
+    assert "Legal self-authority: never" in support
+    assert "Provider thread ID" in support
+    assert "Evidence reference" in support
+    assert "Customer confirmation" in support
+    assert "Legal/privacy authority" in support
+    assert "Import support email" in support
+    assert "Create secured website door" in support
+    assert "Create Gmail draft" in support
+
+
+def test_support_workspace_exposes_read_only_dashboard_bridge_and_case_deep_link():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    assert "ensureDashboardData" in support
+    assert "snapshot:()=>state.data" in support
+    assert "openCase" in support
+    assert "aion:support-workspace-updated" in support
+    assert "load(false)" in support
+
+
+def test_support_visible_load_does_not_redraw_the_app_or_poll_the_mount_each_second():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    assert "if (requireVisibleMount || (state.visibleRequested && mount())) {\n        render();\n      } else {" in support
+    assert "if (!root.querySelector('[data-aion-support-cases]')) render();" in support
+    assert "setInterval(attemptMount, 1000)" not in support
+    assert 'if (state.activeTab === "dashboard") requestRender?.();' not in app
+
+
+def test_support_command_centre_explicitly_mounts_the_case_runtime_after_render():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    renderer = app.split("function renderSupportPilotCommandCentre", 1)[1].split(
+        "function renderHRWorkspaceSurface", 1
+    )[0]
+    assert "AionSupportCaseWorkspace?.mountVisibleWorkspace?.()" in renderer
+    assert "function mountVisibleWorkspace()" in support
+    assert "state.visibleRequested = true" in support
+    assert "requireVisibleMount || (state.visibleRequested && mount())" in support
+
+
+def test_selected_support_case_opens_as_a_right_workspace_overlay():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    assert 'class="scw-detail" role="region" aria-label="Support case details" tabindex="-1"' in support
+    assert 'aria-label="Close case details"' in support
+    assert "[data-aion-support-workspace-pane] .scw-detail{position:absolute!important;inset:0!important" in app
+    assert "[data-aion-support-workspace-pane]{position:relative!important;overflow:hidden!important}" in app
+    assert "state.selectedId=button.dataset.scwCase;" in support
+    assert ".scw-detail')?.focus({ preventScroll: true })" in support
+
+
+def test_support_case_centre_right_pane_remains_vertically_scrollable():
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    renderer = app.split("function renderSupportPilotCommandCentre", 1)[1].split(
+        "function renderHRWorkspaceSurface", 1
+    )[0]
+    assert "html body [data-aion-support-command-centre] [data-aion-support-workspace-pane] .scw-shell" in renderer
+    assert "overflow-y:auto!important" in renderer
+    assert "overflow-x:hidden!important" in renderer
+    assert "overscroll-behavior:contain!important" in renderer
+    assert "scrollbar-gutter:stable!important" in renderer

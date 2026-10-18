@@ -1,0 +1,116 @@
+\section{Production Private Identity and Pilot Inbox}
+\label{sec:pilot-private-identity-agent-inbox}
+
+Pilot Fabric 0.47.0 introduces the identity and coordination boundary required for a
+personal agent to operate from a shared television without collapsing a household into
+one account. The television remains a communal surface, while identity keys, private
+memory, tasks, service consent and consequential approvals remain on the mother brain and
+the trusted private phone.
+
+\subsection{Identity Model}
+
+An adult identity is independently controlled. A child identity can only be created with
+an active adult guardian and stores the guardian relationship explicitly. Onboarding
+produces a random persona identifier and a one-time recovery code; only a cryptographic
+hash of that code is retained. Earlier preview personas are not silently merged into the
+production identity store.
+
+Each phone creates an Ed25519 key pair locally and sends only its public key to the mother
+brain. Enrollment uses a ten-minute challenge containing the persona, device, nonce and
+expiry. The phone signs the canonical challenge and the mother verifies possession before
+marking the device trusted. To select a person on a shared screen, that phone signs a new
+activation envelope. Activation nonces are retained in a bounded replay set and each
+session expires after at most sixty minutes.
+
+The shared television receives only a display name and expiry. It does not receive private
+memory, service tokens, approval keys or device public-key records. Pilot therefore shows
+``Active: Name'' on the television while task titles and message bodies remain private.
+
+\subsection{Memory, Recovery and Consent}
+
+Memories are persona-bound records with a user-visible scope of either
+\texttt{private} or \texttt{household\_shared}. The private controller supports inspection,
+correction, scope changes, export and irreversible selective deletion. An adult guardian
+may inspect a linked child profile; an unrelated persona is denied. Exports exclude
+recovery hashes and device public keys.
+
+A lost-device action revokes its trust and any shared-screen session created by that
+device. Account recovery validates the one-time recovery secret, revokes every previously
+trusted device and clears the active shared identity. Connected-service consent is a
+separate inspectable record containing the persona, service, exact scopes, approving
+device and grant time. Pilot prohibits silent scope expansion.
+
+The browser proof establishes signed key possession. It is deliberately not described as
+biometric approval: production Face ID, Touch ID or Android biometric claims require a
+signed native application and hardware-backed attestation.
+
+\subsection{Pilot Stream: Agent-to-Agent Coordination}
+
+The Pilot stream combines a private agent inbox, lists, tasks, reminders and direct
+Pilot-to-Pilot messages. It is not an unrestricted social feed. A person can create private
+or explicitly household-shared lists. The runtime rejects attempts by one persona to
+write directly into another persona's private list.
+
+Delegation is a proposal rather than an assignment. When one person sends another a task,
+the task enters \texttt{awaiting\_recipient\_acceptance} and a linked inbox message is
+created. Only the named recipient can accept or decline it. An accepted task can be
+completed or snoozed by its owner or assignee. This supports chores, shopping, deliveries
+and family logistics without allowing one agent to manufacture obligations in another
+person's private state.
+
+Direct messages between Pilot identities are delivered to the recipient's local Pilot
+inbox. A message intended for a non-user through email, SMS or WhatsApp is instead created
+as \texttt{prepared\_not\_sent}. It requires an authorized channel adapter, an exact
+private approval and a verified delivery receipt. This creates a safe adoption path: Pilot
+can prepare something useful for a non-user without pretending it sent anything.
+
+\subsection{Reminders and Continuation}
+
+Pilot supports time, arrival, departure, journey and closing-time triggers plus bounded
+repetition rules. Arrival, departure and journey reminders require an explicit location
+permission reference and do not retain raw location history. A television or programme
+context can be preserved as a task source reference, then continued on the phone or an
+authorized car surface.
+
+A route-aware reminder may propose a useful stop, but its initial state is always
+\texttt{suggested\_not\_added}. Only explicit acceptance can advance it to
+\texttt{accepted\_pending\_authorized\_car\_adapter}. Pilot never silently changes a car
+route.
+
+On a shared television, a signed active identity may ask for task counts, add a task to
+their own list, delegate a task to an exact household identity or send an agent message.
+The television response exposes counts and acknowledgement only; the detailed stream stays
+on the private phone.
+
+\subsection{External Task Provider Boundary}
+
+The provider-independent inbox includes a Google Tasks adapter using the official
+\texttt{tasks.insert} endpoint,
+\texttt{POST /tasks/v1/lists/\{tasklist\}/tasks}. The adapter requires a persona-bound
+Google credential reference and the OAuth scope
+\texttt{https://www.googleapis.com/auth/tasks}. A local task is marked synchronized only
+after the provider returns a valid task identifier and external reference. Network delivery
+or model output alone is not success.
+
+Production qualification still requires a real user-authorized OAuth connection and a
+field receipt. Native background notifications, operating-system geofences, biometric
+attestation and authorized car/message adapters are recorded external dependencies rather
+than simulated capabilities.
+
+\subsection{Security Invariants}
+
+\begin{itemize}
+  \item A shared-screen utterance cannot choose a person's private identity.
+  \item A phone must prove possession of its private key before activation or service consent.
+  \item Activation envelopes are signed, expiring and replay-protected.
+  \item Private list content cannot be modified by another persona.
+  \item Delegated tasks require recipient acceptance.
+  \item Location triggers require explicit permission.
+  \item External messages, task providers and route changes fail closed without authorized adapters.
+  \item Audit records contain object identifiers and policy outcomes, not recovery codes or raw memory.
+\end{itemize}
+
+This architecture turns Pilot from a television command layer into a household agent
+network: each person has an independent private Pilot, the shared television can address
+the active person safely, and useful tasks or messages can move between agents without
+sharing their hidden memory, accounts or location.

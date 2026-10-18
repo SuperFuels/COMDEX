@@ -8,6 +8,7 @@ import os
 import shutil
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 from dataclasses import dataclass
@@ -105,10 +106,10 @@ def _ed25519_pubkey_hex_from_priv_hex(priv_hex: str) -> str:
 def _app_import() -> str:
     """
     IMPORTANT: do NOT import backend.main here (it has heavy side effects in this repo).
-    Prefer env var, else default to backend.main:app.
+    Prefer env var, else use the chain-only ASGI app to avoid unrelated startup work.
     """
     env = (os.getenv("GLYPHCHAIN_ASGI_APP", "") or "").strip()
-    return env or "backend.main:app"
+    return env or "backend.glyphchain_test_asgi:app"
 
 
 def _sanitize_lifespan(val: str) -> str:
@@ -366,6 +367,7 @@ def _start_n_nodes_sync(
     base_port: int = 18080,
     chain_id: str = "glyphchain-dev",
     validators: Optional[List[str]] = None,
+    env_overrides: Optional[Dict[str, str]] = None,
 ) -> List[NodeProc]:
     nn = int(n or 0)
     if nn <= 0:
@@ -424,12 +426,18 @@ def _start_n_nodes_sync(
         # Force consensus on in subprocesses
         env["GLYPHCHAIN_CONSENSUS_ENABLE"] = "1"
 
+        # A small number of integration tests drive consensus messages directly.
+        # Per-process overrides let those tests suspend the automatic tick loop
+        # without mutating the parent process environment or production defaults.
+        for key, value in (env_overrides or {}).items():
+            env[str(key)] = str(value)
+
         # PR5.1: deterministic per-node P2P signing key
         p2p_priv = _test_privkey_hex(i)
         env["GLYPHCHAIN_P2P_PRIVKEY_HEX"] = p2p_priv
 
         cmd = [
-            "python",
+            sys.executable,
             "-m",
             "uvicorn",
             _app_import(),
@@ -480,8 +488,15 @@ async def start_n_nodes(
     base_port: int = 18080,
     chain_id: str = "glyphchain-dev",
     validators: Optional[List[str]] = None,
+    env_overrides: Optional[Dict[str, str]] = None,
 ) -> List[NodeProc]:
-    nodes = _start_n_nodes_sync(n, base_port=base_port, chain_id=chain_id, validators=validators)
+    nodes = _start_n_nodes_sync(
+        n,
+        base_port=base_port,
+        chain_id=chain_id,
+        validators=validators,
+        env_overrides=env_overrides,
+    )
     await wait_nodes_ready(nodes, timeout_s=float(os.getenv("GLYPHCHAIN_TEST_NODE_READY_TIMEOUT_S", "240")))
 
     # peer the nodes so consensus gossip works

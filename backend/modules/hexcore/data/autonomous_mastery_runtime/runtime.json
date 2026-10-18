@@ -1,0 +1,1533 @@
+{
+  "capabilities": {
+    "mission_autonomous_mastery_v1:accessible_user_interface_design__deliberate_practice": {
+      "attempts": 2,
+      "capability": "accessible_user_interface_design__deliberate_practice",
+      "completed_task_ids": [
+        "accessible_user_interface_design__deliberate_practice:development",
+        "accessible_user_interface_design__deliberate_practice:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:accessible_user_interface_design__evidence_model": {
+      "attempts": 2,
+      "capability": "accessible_user_interface_design__evidence_model",
+      "completed_task_ids": [
+        "accessible_user_interface_design__evidence_model:development",
+        "accessible_user_interface_design__evidence_model:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:accessible_user_interface_design__retention_audit": {
+      "attempts": 2,
+      "capability": "accessible_user_interface_design__retention_audit",
+      "completed_task_ids": [
+        "accessible_user_interface_design__retention_audit:development",
+        "accessible_user_interface_design__retention_audit:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:accessible_user_interface_design__source_disjoint_transfer": {
+      "attempts": 2,
+      "capability": "accessible_user_interface_design__source_disjoint_transfer",
+      "completed_task_ids": [
+        "accessible_user_interface_design__source_disjoint_transfer:development",
+        "accessible_user_interface_design__source_disjoint_transfer:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:bioacoustic_event_classification__deliberate_practice": {
+      "attempts": 2,
+      "capability": "bioacoustic_event_classification__deliberate_practice",
+      "completed_task_ids": [
+        "bioacoustic_event_classification__deliberate_practice:development",
+        "bioacoustic_event_classification__deliberate_practice:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:bioacoustic_event_classification__evidence_model": {
+      "attempts": 2,
+      "capability": "bioacoustic_event_classification__evidence_model",
+      "completed_task_ids": [
+        "bioacoustic_event_classification__evidence_model:development",
+        "bioacoustic_event_classification__evidence_model:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:bioacoustic_event_classification__retention_audit": {
+      "attempts": 2,
+      "capability": "bioacoustic_event_classification__retention_audit",
+      "completed_task_ids": [
+        "bioacoustic_event_classification__retention_audit:development",
+        "bioacoustic_event_classification__retention_audit:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:bioacoustic_event_classification__source_disjoint_transfer": {
+      "attempts": 2,
+      "capability": "bioacoustic_event_classification__source_disjoint_transfer",
+      "completed_task_ids": [
+        "bioacoustic_event_classification__source_disjoint_transfer:development",
+        "bioacoustic_event_classification__source_disjoint_transfer:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:cross_target_integration__source_disjoint_transfer": {
+      "attempts": 2,
+      "capability": "cross_target_integration__source_disjoint_transfer",
+      "completed_task_ids": [
+        "cross_target_integration__source_disjoint_transfer:development",
+        "cross_target_integration__source_disjoint_transfer:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:evidence_grounded_financial_markets__deliberate_practice": {
+      "attempts": 2,
+      "capability": "evidence_grounded_financial_markets__deliberate_practice",
+      "completed_task_ids": [
+        "evidence_grounded_financial_markets__deliberate_practice:development",
+        "evidence_grounded_financial_markets__deliberate_practice:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:evidence_grounded_financial_markets__evidence_model": {
+      "attempts": 2,
+      "capability": "evidence_grounded_financial_markets__evidence_model",
+      "completed_task_ids": [
+        "evidence_grounded_financial_markets__evidence_model:development",
+        "evidence_grounded_financial_markets__evidence_model:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:evidence_grounded_financial_markets__retention_audit": {
+      "attempts": 2,
+      "capability": "evidence_grounded_financial_markets__retention_audit",
+      "completed_task_ids": [
+        "evidence_grounded_financial_markets__retention_audit:development",
+        "evidence_grounded_financial_markets__retention_audit:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:evidence_grounded_financial_markets__source_disjoint_transfer": {
+      "attempts": 2,
+      "capability": "evidence_grounded_financial_markets__source_disjoint_transfer",
+      "completed_task_ids": [
+        "evidence_grounded_financial_markets__source_disjoint_transfer:development",
+        "evidence_grounded_financial_markets__source_disjoint_transfer:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:rust_systems_engineering__deliberate_practice": {
+      "attempts": 2,
+      "capability": "rust_systems_engineering__deliberate_practice",
+      "completed_task_ids": [
+        "rust_systems_engineering__deliberate_practice:development",
+        "rust_systems_engineering__deliberate_practice:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:rust_systems_engineering__evidence_model": {
+      "attempts": 2,
+      "capability": "rust_systems_engineering__evidence_model",
+      "completed_task_ids": [
+        "rust_systems_engineering__evidence_model:development",
+        "rust_systems_engineering__evidence_model:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:rust_systems_engineering__retention_audit": {
+      "attempts": 2,
+      "capability": "rust_systems_engineering__retention_audit",
+      "completed_task_ids": [
+        "rust_systems_engineering__retention_audit:development",
+        "rust_systems_engineering__retention_audit:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    },
+    "mission_autonomous_mastery_v1:rust_systems_engineering__source_disjoint_transfer": {
+      "attempts": 2,
+      "capability": "rust_systems_engineering__source_disjoint_transfer",
+      "completed_task_ids": [
+        "rust_systems_engineering__source_disjoint_transfer:development",
+        "rust_systems_engineering__source_disjoint_transfer:transfer"
+      ],
+      "lower_confidence_bound": 0.3423719528896193,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_autonomous_mastery_v1",
+      "successes": 2,
+      "transfer_successes": 1
+    }
+  },
+  "diagnostics": [],
+  "method_outcomes": {
+    "cross_target_integration": {
+      "verified_cross_target_integration": {
+        "attempts": 2,
+        "successes": 2
+      }
+    },
+    "deliberate_practice": {
+      "verified_deliberate_practice": {
+        "attempts": 8,
+        "successes": 8
+      }
+    },
+    "evidence_model": {
+      "verified_evidence_model": {
+        "attempts": 8,
+        "successes": 8
+      }
+    },
+    "retention_audit": {
+      "verified_retention_audit": {
+        "attempts": 8,
+        "successes": 8
+      }
+    },
+    "source_disjoint_transfer": {
+      "verified_source_disjoint_transfer": {
+        "attempts": 8,
+        "successes": 8
+      }
+    }
+  },
+  "missions": {
+    "mission_autonomous_mastery_v1": {
+      "action_budget": 200,
+      "actions_used": 44,
+      "allowed_authorities": [
+        "sealed_accessibility_and_user_outcome_authority",
+        "sealed_compiler_and_test_authority",
+        "sealed_market_data_and_backtest_authority",
+        "sealed_sensor_classification_authority"
+      ],
+      "approval_policy": "autonomous_allowed",
+      "authorized_at": "2026-07-31T23:11:51.302774+00:00",
+      "capability_requirements": [
+        {
+          "capability": "rust_systems_engineering__evidence_model",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_compiler_and_test_authority",
+            "capability": "rust_systems_engineering__evidence_model",
+            "contract_id": "specialist_31d790891cb848d7",
+            "dependencies": [],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "recover_authoritative_evidence",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "evidence_model",
+            "target": "Rust systems engineering"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_compiler_and_test_authority",
+              "cohort": "development",
+              "contract_id": "specialist_31d790891cb848d7",
+              "role": "evidence_model",
+              "target": "Rust systems engineering",
+              "task_id": "rust_systems_engineering__evidence_model:development"
+            },
+            {
+              "authority": "sealed_compiler_and_test_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_31d790891cb848d7",
+              "role": "evidence_model",
+              "target": "Rust systems engineering",
+              "task_id": "rust_systems_engineering__evidence_model:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "rust_systems_engineering__deliberate_practice",
+          "dependencies": [
+            "rust_systems_engineering__evidence_model"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_accessibility_and_user_outcome_authority",
+            "capability": "rust_systems_engineering__deliberate_practice",
+            "contract_id": "specialist_7bdcd1b9cf6ef106",
+            "dependencies": [
+              "rust_systems_engineering__evidence_model"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "execute_bounded_practice",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "deliberate_practice",
+            "target": "Rust systems engineering"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_accessibility_and_user_outcome_authority",
+              "cohort": "development",
+              "contract_id": "specialist_7bdcd1b9cf6ef106",
+              "role": "deliberate_practice",
+              "target": "Rust systems engineering",
+              "task_id": "rust_systems_engineering__deliberate_practice:development"
+            },
+            {
+              "authority": "sealed_accessibility_and_user_outcome_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_7bdcd1b9cf6ef106",
+              "role": "deliberate_practice",
+              "target": "Rust systems engineering",
+              "task_id": "rust_systems_engineering__deliberate_practice:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "rust_systems_engineering__source_disjoint_transfer",
+          "dependencies": [
+            "rust_systems_engineering__deliberate_practice"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_market_data_and_backtest_authority",
+            "capability": "rust_systems_engineering__source_disjoint_transfer",
+            "contract_id": "specialist_7ee23c321246b027",
+            "dependencies": [
+              "rust_systems_engineering__deliberate_practice"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "pass_unfamiliar_outcome",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "source_disjoint_transfer",
+            "target": "Rust systems engineering"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_market_data_and_backtest_authority",
+              "cohort": "development",
+              "contract_id": "specialist_7ee23c321246b027",
+              "role": "source_disjoint_transfer",
+              "target": "Rust systems engineering",
+              "task_id": "rust_systems_engineering__source_disjoint_transfer:development"
+            },
+            {
+              "authority": "sealed_market_data_and_backtest_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_7ee23c321246b027",
+              "role": "source_disjoint_transfer",
+              "target": "Rust systems engineering",
+              "task_id": "rust_systems_engineering__source_disjoint_transfer:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "rust_systems_engineering__retention_audit",
+          "dependencies": [
+            "rust_systems_engineering__source_disjoint_transfer"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_sensor_classification_authority",
+            "capability": "rust_systems_engineering__retention_audit",
+            "contract_id": "specialist_45e01c1b6d878831",
+            "dependencies": [
+              "rust_systems_engineering__source_disjoint_transfer"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "pass_delayed_retest",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "retention_audit",
+            "target": "Rust systems engineering"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "development",
+              "contract_id": "specialist_45e01c1b6d878831",
+              "role": "retention_audit",
+              "target": "Rust systems engineering",
+              "task_id": "rust_systems_engineering__retention_audit:development"
+            },
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_45e01c1b6d878831",
+              "role": "retention_audit",
+              "target": "Rust systems engineering",
+              "task_id": "rust_systems_engineering__retention_audit:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "accessible_user_interface_design__evidence_model",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_compiler_and_test_authority",
+            "capability": "accessible_user_interface_design__evidence_model",
+            "contract_id": "specialist_831989e6ddf70e17",
+            "dependencies": [],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "recover_authoritative_evidence",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "evidence_model",
+            "target": "accessible user-interface design"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_compiler_and_test_authority",
+              "cohort": "development",
+              "contract_id": "specialist_831989e6ddf70e17",
+              "role": "evidence_model",
+              "target": "accessible user-interface design",
+              "task_id": "accessible_user_interface_design__evidence_model:development"
+            },
+            {
+              "authority": "sealed_compiler_and_test_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_831989e6ddf70e17",
+              "role": "evidence_model",
+              "target": "accessible user-interface design",
+              "task_id": "accessible_user_interface_design__evidence_model:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "accessible_user_interface_design__deliberate_practice",
+          "dependencies": [
+            "accessible_user_interface_design__evidence_model"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_accessibility_and_user_outcome_authority",
+            "capability": "accessible_user_interface_design__deliberate_practice",
+            "contract_id": "specialist_79db4fd10fd9a838",
+            "dependencies": [
+              "accessible_user_interface_design__evidence_model"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "execute_bounded_practice",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "deliberate_practice",
+            "target": "accessible user-interface design"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_accessibility_and_user_outcome_authority",
+              "cohort": "development",
+              "contract_id": "specialist_79db4fd10fd9a838",
+              "role": "deliberate_practice",
+              "target": "accessible user-interface design",
+              "task_id": "accessible_user_interface_design__deliberate_practice:development"
+            },
+            {
+              "authority": "sealed_accessibility_and_user_outcome_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_79db4fd10fd9a838",
+              "role": "deliberate_practice",
+              "target": "accessible user-interface design",
+              "task_id": "accessible_user_interface_design__deliberate_practice:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "accessible_user_interface_design__source_disjoint_transfer",
+          "dependencies": [
+            "accessible_user_interface_design__deliberate_practice"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_market_data_and_backtest_authority",
+            "capability": "accessible_user_interface_design__source_disjoint_transfer",
+            "contract_id": "specialist_605fcb4924ccab37",
+            "dependencies": [
+              "accessible_user_interface_design__deliberate_practice"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "pass_unfamiliar_outcome",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "source_disjoint_transfer",
+            "target": "accessible user-interface design"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_market_data_and_backtest_authority",
+              "cohort": "development",
+              "contract_id": "specialist_605fcb4924ccab37",
+              "role": "source_disjoint_transfer",
+              "target": "accessible user-interface design",
+              "task_id": "accessible_user_interface_design__source_disjoint_transfer:development"
+            },
+            {
+              "authority": "sealed_market_data_and_backtest_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_605fcb4924ccab37",
+              "role": "source_disjoint_transfer",
+              "target": "accessible user-interface design",
+              "task_id": "accessible_user_interface_design__source_disjoint_transfer:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "accessible_user_interface_design__retention_audit",
+          "dependencies": [
+            "accessible_user_interface_design__source_disjoint_transfer"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_sensor_classification_authority",
+            "capability": "accessible_user_interface_design__retention_audit",
+            "contract_id": "specialist_90eeab9feb2ac0e5",
+            "dependencies": [
+              "accessible_user_interface_design__source_disjoint_transfer"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "pass_delayed_retest",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "retention_audit",
+            "target": "accessible user-interface design"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "development",
+              "contract_id": "specialist_90eeab9feb2ac0e5",
+              "role": "retention_audit",
+              "target": "accessible user-interface design",
+              "task_id": "accessible_user_interface_design__retention_audit:development"
+            },
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_90eeab9feb2ac0e5",
+              "role": "retention_audit",
+              "target": "accessible user-interface design",
+              "task_id": "accessible_user_interface_design__retention_audit:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "evidence_grounded_financial_markets__evidence_model",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_compiler_and_test_authority",
+            "capability": "evidence_grounded_financial_markets__evidence_model",
+            "contract_id": "specialist_1f7e843b7adadeb8",
+            "dependencies": [],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "recover_authoritative_evidence",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "evidence_model",
+            "target": "evidence-grounded financial markets"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_compiler_and_test_authority",
+              "cohort": "development",
+              "contract_id": "specialist_1f7e843b7adadeb8",
+              "role": "evidence_model",
+              "target": "evidence-grounded financial markets",
+              "task_id": "evidence_grounded_financial_markets__evidence_model:development"
+            },
+            {
+              "authority": "sealed_compiler_and_test_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_1f7e843b7adadeb8",
+              "role": "evidence_model",
+              "target": "evidence-grounded financial markets",
+              "task_id": "evidence_grounded_financial_markets__evidence_model:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "evidence_grounded_financial_markets__deliberate_practice",
+          "dependencies": [
+            "evidence_grounded_financial_markets__evidence_model"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_accessibility_and_user_outcome_authority",
+            "capability": "evidence_grounded_financial_markets__deliberate_practice",
+            "contract_id": "specialist_4b46757dd7d3cb4b",
+            "dependencies": [
+              "evidence_grounded_financial_markets__evidence_model"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "execute_bounded_practice",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "deliberate_practice",
+            "target": "evidence-grounded financial markets"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_accessibility_and_user_outcome_authority",
+              "cohort": "development",
+              "contract_id": "specialist_4b46757dd7d3cb4b",
+              "role": "deliberate_practice",
+              "target": "evidence-grounded financial markets",
+              "task_id": "evidence_grounded_financial_markets__deliberate_practice:development"
+            },
+            {
+              "authority": "sealed_accessibility_and_user_outcome_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_4b46757dd7d3cb4b",
+              "role": "deliberate_practice",
+              "target": "evidence-grounded financial markets",
+              "task_id": "evidence_grounded_financial_markets__deliberate_practice:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "evidence_grounded_financial_markets__source_disjoint_transfer",
+          "dependencies": [
+            "evidence_grounded_financial_markets__deliberate_practice"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_market_data_and_backtest_authority",
+            "capability": "evidence_grounded_financial_markets__source_disjoint_transfer",
+            "contract_id": "specialist_7baab060e049a0d2",
+            "dependencies": [
+              "evidence_grounded_financial_markets__deliberate_practice"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "pass_unfamiliar_outcome",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "source_disjoint_transfer",
+            "target": "evidence-grounded financial markets"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_market_data_and_backtest_authority",
+              "cohort": "development",
+              "contract_id": "specialist_7baab060e049a0d2",
+              "role": "source_disjoint_transfer",
+              "target": "evidence-grounded financial markets",
+              "task_id": "evidence_grounded_financial_markets__source_disjoint_transfer:development"
+            },
+            {
+              "authority": "sealed_market_data_and_backtest_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_7baab060e049a0d2",
+              "role": "source_disjoint_transfer",
+              "target": "evidence-grounded financial markets",
+              "task_id": "evidence_grounded_financial_markets__source_disjoint_transfer:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "evidence_grounded_financial_markets__retention_audit",
+          "dependencies": [
+            "evidence_grounded_financial_markets__source_disjoint_transfer"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_sensor_classification_authority",
+            "capability": "evidence_grounded_financial_markets__retention_audit",
+            "contract_id": "specialist_ab3125811c535856",
+            "dependencies": [
+              "evidence_grounded_financial_markets__source_disjoint_transfer"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "pass_delayed_retest",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "retention_audit",
+            "target": "evidence-grounded financial markets"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "development",
+              "contract_id": "specialist_ab3125811c535856",
+              "role": "retention_audit",
+              "target": "evidence-grounded financial markets",
+              "task_id": "evidence_grounded_financial_markets__retention_audit:development"
+            },
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_ab3125811c535856",
+              "role": "retention_audit",
+              "target": "evidence-grounded financial markets",
+              "task_id": "evidence_grounded_financial_markets__retention_audit:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "bioacoustic_event_classification__evidence_model",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_compiler_and_test_authority",
+            "capability": "bioacoustic_event_classification__evidence_model",
+            "contract_id": "specialist_86f03a5e7c8f08d2",
+            "dependencies": [],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "recover_authoritative_evidence",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "evidence_model",
+            "target": "bioacoustic event classification"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_compiler_and_test_authority",
+              "cohort": "development",
+              "contract_id": "specialist_86f03a5e7c8f08d2",
+              "role": "evidence_model",
+              "target": "bioacoustic event classification",
+              "task_id": "bioacoustic_event_classification__evidence_model:development"
+            },
+            {
+              "authority": "sealed_compiler_and_test_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_86f03a5e7c8f08d2",
+              "role": "evidence_model",
+              "target": "bioacoustic event classification",
+              "task_id": "bioacoustic_event_classification__evidence_model:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "bioacoustic_event_classification__deliberate_practice",
+          "dependencies": [
+            "bioacoustic_event_classification__evidence_model"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_accessibility_and_user_outcome_authority",
+            "capability": "bioacoustic_event_classification__deliberate_practice",
+            "contract_id": "specialist_2ad88d5fa16cf202",
+            "dependencies": [
+              "bioacoustic_event_classification__evidence_model"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "execute_bounded_practice",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "deliberate_practice",
+            "target": "bioacoustic event classification"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_accessibility_and_user_outcome_authority",
+              "cohort": "development",
+              "contract_id": "specialist_2ad88d5fa16cf202",
+              "role": "deliberate_practice",
+              "target": "bioacoustic event classification",
+              "task_id": "bioacoustic_event_classification__deliberate_practice:development"
+            },
+            {
+              "authority": "sealed_accessibility_and_user_outcome_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_2ad88d5fa16cf202",
+              "role": "deliberate_practice",
+              "target": "bioacoustic event classification",
+              "task_id": "bioacoustic_event_classification__deliberate_practice:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "bioacoustic_event_classification__source_disjoint_transfer",
+          "dependencies": [
+            "bioacoustic_event_classification__deliberate_practice"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_market_data_and_backtest_authority",
+            "capability": "bioacoustic_event_classification__source_disjoint_transfer",
+            "contract_id": "specialist_5c01fd6eddfd6850",
+            "dependencies": [
+              "bioacoustic_event_classification__deliberate_practice"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "pass_unfamiliar_outcome",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "source_disjoint_transfer",
+            "target": "bioacoustic event classification"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_market_data_and_backtest_authority",
+              "cohort": "development",
+              "contract_id": "specialist_5c01fd6eddfd6850",
+              "role": "source_disjoint_transfer",
+              "target": "bioacoustic event classification",
+              "task_id": "bioacoustic_event_classification__source_disjoint_transfer:development"
+            },
+            {
+              "authority": "sealed_market_data_and_backtest_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_5c01fd6eddfd6850",
+              "role": "source_disjoint_transfer",
+              "target": "bioacoustic event classification",
+              "task_id": "bioacoustic_event_classification__source_disjoint_transfer:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "bioacoustic_event_classification__retention_audit",
+          "dependencies": [
+            "bioacoustic_event_classification__source_disjoint_transfer"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_sensor_classification_authority",
+            "capability": "bioacoustic_event_classification__retention_audit",
+            "contract_id": "specialist_1d5baca373caacbb",
+            "dependencies": [
+              "bioacoustic_event_classification__source_disjoint_transfer"
+            ],
+            "inputs": [
+              "owner_objective",
+              "verified_prior_outcomes",
+              "available_resources"
+            ],
+            "outputs": [
+              "pass_delayed_retest",
+              "evidence_hash",
+              "calibrated_confidence"
+            ],
+            "proposal_only": true,
+            "role": "retention_audit",
+            "target": "bioacoustic event classification"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "development",
+              "contract_id": "specialist_1d5baca373caacbb",
+              "role": "retention_audit",
+              "target": "bioacoustic event classification",
+              "task_id": "bioacoustic_event_classification__retention_audit:development"
+            },
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_1d5baca373caacbb",
+              "role": "retention_audit",
+              "target": "bioacoustic event classification",
+              "task_id": "bioacoustic_event_classification__retention_audit:transfer"
+            }
+          ]
+        },
+        {
+          "capability": "cross_target_integration__source_disjoint_transfer",
+          "dependencies": [
+            "rust_systems_engineering__retention_audit",
+            "accessible_user_interface_design__retention_audit",
+            "evidence_grounded_financial_markets__retention_audit",
+            "bioacoustic_event_classification__retention_audit"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 2,
+          "specialist_contract": {
+            "authority": "sealed_sensor_classification_authority",
+            "capability": "cross_target_integration__source_disjoint_transfer",
+            "contract_id": "specialist_0ee04d0f10c5e7a3",
+            "dependencies": [
+              "rust_systems_engineering__retention_audit",
+              "accessible_user_interface_design__retention_audit",
+              "evidence_grounded_financial_markets__retention_audit",
+              "bioacoustic_event_classification__retention_audit"
+            ],
+            "inputs": [
+              "rust_systems_engineering__retention_audit",
+              "accessible_user_interface_design__retention_audit",
+              "evidence_grounded_financial_markets__retention_audit",
+              "bioacoustic_event_classification__retention_audit"
+            ],
+            "outputs": [
+              "integrated_source_disjoint_outcome",
+              "evidence_hash"
+            ],
+            "proposal_only": true,
+            "role": "cross_target_integration",
+            "target": "Rust systems engineering + accessible user-interface design + evidence-grounded financial markets + bioacoustic event classification"
+          },
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "development",
+              "contract_id": "specialist_0ee04d0f10c5e7a3",
+              "role": "cross_target_integration",
+              "target": "Rust systems engineering + accessible user-interface design + evidence-grounded financial markets + bioacoustic event classification",
+              "task_id": "cross_target_integration__source_disjoint_transfer:development"
+            },
+            {
+              "authority": "sealed_sensor_classification_authority",
+              "cohort": "transfer",
+              "contract_id": "specialist_0ee04d0f10c5e7a3",
+              "role": "cross_target_integration",
+              "target": "Rust systems engineering + accessible user-interface design + evidence-grounded financial markets + bioacoustic event classification",
+              "task_id": "cross_target_integration__source_disjoint_transfer:transfer"
+            }
+          ]
+        }
+      ],
+      "graph_hash": "c3831c16eb79511c0644cee91566ac321b21c4f7524b32db666d00c2bb5af00f",
+      "mission_id": "mission_autonomous_mastery_v1",
+      "objective": "Learn Rust systems engineering, master accessible user-interface design, and analyze evidence-grounded financial markets, then develop bioacoustic event classification",
+      "objective_hash": "da107007acef636607a88efe5caf89a9ada36e42c9142b9e1d15941c2df0b3be",
+      "priority": 10.0,
+      "status": "capability_complete"
+    }
+  },
+  "outcomes": [
+    {
+      "attempt_count": 3,
+      "authority": "sealed_compiler_and_test_authority",
+      "capability": "rust_systems_engineering__evidence_model",
+      "cohort": "development",
+      "evidence_hash": "8d7bb5b1e972d19e9c3b001b72a954ce39dea76107485841b9cf81712f861b20",
+      "method": "verified_evidence_model",
+      "recorded_at": "2026-07-31T23:11:51.304131+00:00",
+      "score": 1.0,
+      "task_id": "rust_systems_engineering__evidence_model:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_compiler_and_test_authority",
+      "capability": "evidence_grounded_financial_markets__evidence_model",
+      "cohort": "development",
+      "evidence_hash": "150fdeed05a6ff54e66585c2569416bc11960364c21b1300d2d2d6467f9460d0",
+      "method": "verified_evidence_model",
+      "recorded_at": "2026-07-31T23:11:51.305327+00:00",
+      "score": 1.0,
+      "task_id": "evidence_grounded_financial_markets__evidence_model:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_compiler_and_test_authority",
+      "capability": "bioacoustic_event_classification__evidence_model",
+      "cohort": "development",
+      "evidence_hash": "bfa9a4b4515fd465834031a3da29faed12c973dfe4288b7fe23efd729c8ac4d4",
+      "method": "verified_evidence_model",
+      "recorded_at": "2026-07-31T23:11:51.306432+00:00",
+      "score": 1.0,
+      "task_id": "bioacoustic_event_classification__evidence_model:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_compiler_and_test_authority",
+      "capability": "accessible_user_interface_design__evidence_model",
+      "cohort": "development",
+      "evidence_hash": "f7dacf2e22cc66aba59f179a47b3a640dc9122764541fefc9e7c2f04c86aa363",
+      "method": "verified_evidence_model",
+      "recorded_at": "2026-07-31T23:11:51.307700+00:00",
+      "score": 1.0,
+      "task_id": "accessible_user_interface_design__evidence_model:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_compiler_and_test_authority",
+      "capability": "rust_systems_engineering__evidence_model",
+      "cohort": "transfer",
+      "evidence_hash": "356fcbfde525a8e4bf069ec05c7de9372c4372182a434e4afb03e9be71f66388",
+      "method": "verified_evidence_model",
+      "recorded_at": "2026-07-31T23:11:51.308793+00:00",
+      "score": 1.0,
+      "task_id": "rust_systems_engineering__evidence_model:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 3,
+      "authority": "sealed_accessibility_and_user_outcome_authority",
+      "capability": "rust_systems_engineering__deliberate_practice",
+      "cohort": "development",
+      "evidence_hash": "2312cc149127123976a8477bf9c9ef8cf51a7f86db8894a2d512f463d9859880",
+      "method": "verified_deliberate_practice",
+      "recorded_at": "2026-07-31T23:11:51.310180+00:00",
+      "score": 1.0,
+      "task_id": "rust_systems_engineering__deliberate_practice:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_accessibility_and_user_outcome_authority",
+      "capability": "rust_systems_engineering__deliberate_practice",
+      "cohort": "transfer",
+      "evidence_hash": "df37e7ca5ce561270668b1f34df2f793b392fd83cff1bcdc2c60790603afa34a",
+      "method": "verified_deliberate_practice",
+      "recorded_at": "2026-07-31T23:11:51.311358+00:00",
+      "score": 1.0,
+      "task_id": "rust_systems_engineering__deliberate_practice:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 3,
+      "authority": "sealed_market_data_and_backtest_authority",
+      "capability": "rust_systems_engineering__source_disjoint_transfer",
+      "cohort": "development",
+      "evidence_hash": "81292190bfe0a89ce4025f8f34f6013424ca85a68ea76a79464d0cd58fbb638f",
+      "method": "verified_source_disjoint_transfer",
+      "recorded_at": "2026-07-31T23:11:51.312747+00:00",
+      "score": 1.0,
+      "task_id": "rust_systems_engineering__source_disjoint_transfer:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_market_data_and_backtest_authority",
+      "capability": "rust_systems_engineering__source_disjoint_transfer",
+      "cohort": "transfer",
+      "evidence_hash": "99ee9b11f38a2be333b638a04a0960533f099dd5cab90b5baaa6784e2f12eaf3",
+      "method": "verified_source_disjoint_transfer",
+      "recorded_at": "2026-07-31T23:11:51.314139+00:00",
+      "score": 1.0,
+      "task_id": "rust_systems_engineering__source_disjoint_transfer:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 3,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "rust_systems_engineering__retention_audit",
+      "cohort": "development",
+      "evidence_hash": "f91fa7d70d5a14fa871b80764f05f2483a45ba03481c173a395285081052d881",
+      "method": "verified_retention_audit",
+      "recorded_at": "2026-07-31T23:11:51.315306+00:00",
+      "score": 1.0,
+      "task_id": "rust_systems_engineering__retention_audit:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "rust_systems_engineering__retention_audit",
+      "cohort": "transfer",
+      "evidence_hash": "e6dea9b440422e2c2edf63ebf5cdbc7cacb591e163cd9ade9e8868b8b491b04c",
+      "method": "verified_retention_audit",
+      "recorded_at": "2026-07-31T23:11:51.316505+00:00",
+      "score": 1.0,
+      "task_id": "rust_systems_engineering__retention_audit:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_compiler_and_test_authority",
+      "capability": "evidence_grounded_financial_markets__evidence_model",
+      "cohort": "transfer",
+      "evidence_hash": "c46729fad51bc916fc2d336c351c7e563b089b28b54ea0ad74e8f2f924bc6d56",
+      "method": "verified_evidence_model",
+      "recorded_at": "2026-07-31T23:11:51.317692+00:00",
+      "score": 1.0,
+      "task_id": "evidence_grounded_financial_markets__evidence_model:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_accessibility_and_user_outcome_authority",
+      "capability": "evidence_grounded_financial_markets__deliberate_practice",
+      "cohort": "development",
+      "evidence_hash": "f5b948e8239ac5bbcc2cecc47e6c8233ca1b351ae85403794c3fbf15f3640d02",
+      "method": "verified_deliberate_practice",
+      "recorded_at": "2026-07-31T23:11:51.319149+00:00",
+      "score": 1.0,
+      "task_id": "evidence_grounded_financial_markets__deliberate_practice:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_accessibility_and_user_outcome_authority",
+      "capability": "evidence_grounded_financial_markets__deliberate_practice",
+      "cohort": "transfer",
+      "evidence_hash": "a536331a9abdd916fa1ed966bc4b13a861719548c411ac8db8926f13e4c8a961",
+      "method": "verified_deliberate_practice",
+      "recorded_at": "2026-07-31T23:11:51.320390+00:00",
+      "score": 1.0,
+      "task_id": "evidence_grounded_financial_markets__deliberate_practice:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_market_data_and_backtest_authority",
+      "capability": "evidence_grounded_financial_markets__source_disjoint_transfer",
+      "cohort": "development",
+      "evidence_hash": "778f741a8a0f0a3bda452cbb934b59fe2cf85ebe4d055d70e09d6731efc10e21",
+      "method": "verified_source_disjoint_transfer",
+      "recorded_at": "2026-07-31T23:11:51.321650+00:00",
+      "score": 1.0,
+      "task_id": "evidence_grounded_financial_markets__source_disjoint_transfer:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_market_data_and_backtest_authority",
+      "capability": "evidence_grounded_financial_markets__source_disjoint_transfer",
+      "cohort": "transfer",
+      "evidence_hash": "aa3a7bc613e8e819a51914ebd9d00577dacaeca74fc4de2a9917ee894089a492",
+      "method": "verified_source_disjoint_transfer",
+      "recorded_at": "2026-07-31T23:11:51.322927+00:00",
+      "score": 1.0,
+      "task_id": "evidence_grounded_financial_markets__source_disjoint_transfer:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "evidence_grounded_financial_markets__retention_audit",
+      "cohort": "development",
+      "evidence_hash": "8c81a73aca002705b2fb4b018a5cc4779df95fd7134c4e1e3951b70d0f8166e8",
+      "method": "verified_retention_audit",
+      "recorded_at": "2026-07-31T23:11:51.324173+00:00",
+      "score": 1.0,
+      "task_id": "evidence_grounded_financial_markets__retention_audit:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "evidence_grounded_financial_markets__retention_audit",
+      "cohort": "transfer",
+      "evidence_hash": "34a99443f4abe48ac66e84ad909b4edb12920c48804eb517e21aea32ff0fbc2b",
+      "method": "verified_retention_audit",
+      "recorded_at": "2026-07-31T23:11:51.325422+00:00",
+      "score": 1.0,
+      "task_id": "evidence_grounded_financial_markets__retention_audit:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_compiler_and_test_authority",
+      "capability": "bioacoustic_event_classification__evidence_model",
+      "cohort": "transfer",
+      "evidence_hash": "09d1d9387324b935ebf5d7da6e46a7e34a666ff87142aff0742c2cb5de7acade",
+      "method": "verified_evidence_model",
+      "recorded_at": "2026-07-31T23:11:51.326820+00:00",
+      "score": 1.0,
+      "task_id": "bioacoustic_event_classification__evidence_model:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_accessibility_and_user_outcome_authority",
+      "capability": "bioacoustic_event_classification__deliberate_practice",
+      "cohort": "development",
+      "evidence_hash": "176343226205d0bc571a05cec7e0c7e4bdfd4d41fb8d82dab1ca113f6b67cbbe",
+      "method": "verified_deliberate_practice",
+      "recorded_at": "2026-07-31T23:11:51.328092+00:00",
+      "score": 1.0,
+      "task_id": "bioacoustic_event_classification__deliberate_practice:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_accessibility_and_user_outcome_authority",
+      "capability": "bioacoustic_event_classification__deliberate_practice",
+      "cohort": "transfer",
+      "evidence_hash": "ea9fef42132d12e11f5c52c5dfcd04774ff6e0586921d485bc9461357f753103",
+      "method": "verified_deliberate_practice",
+      "recorded_at": "2026-07-31T23:11:51.329425+00:00",
+      "score": 1.0,
+      "task_id": "bioacoustic_event_classification__deliberate_practice:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_market_data_and_backtest_authority",
+      "capability": "bioacoustic_event_classification__source_disjoint_transfer",
+      "cohort": "development",
+      "evidence_hash": "372e4fb64597dc1e3799c0d44de946dd835a2f32fc50c348b28b0fa570ecdbb4",
+      "method": "verified_source_disjoint_transfer",
+      "recorded_at": "2026-07-31T23:11:51.330730+00:00",
+      "score": 1.0,
+      "task_id": "bioacoustic_event_classification__source_disjoint_transfer:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_market_data_and_backtest_authority",
+      "capability": "bioacoustic_event_classification__source_disjoint_transfer",
+      "cohort": "transfer",
+      "evidence_hash": "3a7a950ade41b5b16173c7bac55587834721cb358715f837fe307c1bca46e885",
+      "method": "verified_source_disjoint_transfer",
+      "recorded_at": "2026-07-31T23:11:51.332018+00:00",
+      "score": 1.0,
+      "task_id": "bioacoustic_event_classification__source_disjoint_transfer:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "bioacoustic_event_classification__retention_audit",
+      "cohort": "development",
+      "evidence_hash": "714b8c019e80fb919ad8ba1bb37bf15acd3875a1811c2c5fb02c668188abe70b",
+      "method": "verified_retention_audit",
+      "recorded_at": "2026-07-31T23:11:51.333350+00:00",
+      "score": 1.0,
+      "task_id": "bioacoustic_event_classification__retention_audit:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "bioacoustic_event_classification__retention_audit",
+      "cohort": "transfer",
+      "evidence_hash": "c441f28b53baf0e432ca88b1f7132462d30975439b1cac5edc805e82836e7d86",
+      "method": "verified_retention_audit",
+      "recorded_at": "2026-07-31T23:11:51.334892+00:00",
+      "score": 1.0,
+      "task_id": "bioacoustic_event_classification__retention_audit:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_compiler_and_test_authority",
+      "capability": "accessible_user_interface_design__evidence_model",
+      "cohort": "transfer",
+      "evidence_hash": "22e45f6c5e5645b0d6aa451291cbf2ac03b56efb00c0053027c7a7c0caf89c9e",
+      "method": "verified_evidence_model",
+      "recorded_at": "2026-07-31T23:11:51.336749+00:00",
+      "score": 1.0,
+      "task_id": "accessible_user_interface_design__evidence_model:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_accessibility_and_user_outcome_authority",
+      "capability": "accessible_user_interface_design__deliberate_practice",
+      "cohort": "development",
+      "evidence_hash": "0566ab1e22eb3c4590206e70b74527e06ff961f3d7d85afaa4cc858a286cfd04",
+      "method": "verified_deliberate_practice",
+      "recorded_at": "2026-07-31T23:11:51.338418+00:00",
+      "score": 1.0,
+      "task_id": "accessible_user_interface_design__deliberate_practice:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_accessibility_and_user_outcome_authority",
+      "capability": "accessible_user_interface_design__deliberate_practice",
+      "cohort": "transfer",
+      "evidence_hash": "c855a46a209fb0e57d49c0f0ac7b77697f8496cbf21ca7d9837259732e37ebd8",
+      "method": "verified_deliberate_practice",
+      "recorded_at": "2026-07-31T23:11:51.340177+00:00",
+      "score": 1.0,
+      "task_id": "accessible_user_interface_design__deliberate_practice:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_market_data_and_backtest_authority",
+      "capability": "accessible_user_interface_design__source_disjoint_transfer",
+      "cohort": "development",
+      "evidence_hash": "5ff49a5d71fc0eb4bad1059c7ccdbed4871cf7bd59d76d0f52486259b54d2321",
+      "method": "verified_source_disjoint_transfer",
+      "recorded_at": "2026-07-31T23:11:51.341775+00:00",
+      "score": 1.0,
+      "task_id": "accessible_user_interface_design__source_disjoint_transfer:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_market_data_and_backtest_authority",
+      "capability": "accessible_user_interface_design__source_disjoint_transfer",
+      "cohort": "transfer",
+      "evidence_hash": "b20f7f951f5295079e586417532e3ddaf8503956b468fa6eb85d06ad311cc426",
+      "method": "verified_source_disjoint_transfer",
+      "recorded_at": "2026-07-31T23:11:51.343172+00:00",
+      "score": 1.0,
+      "task_id": "accessible_user_interface_design__source_disjoint_transfer:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "accessible_user_interface_design__retention_audit",
+      "cohort": "development",
+      "evidence_hash": "207f5926eb935f4eb63f3d82b8d267c3c6a855a64a01bfc42a157a7e16f96af5",
+      "method": "verified_retention_audit",
+      "recorded_at": "2026-07-31T23:11:51.344633+00:00",
+      "score": 1.0,
+      "task_id": "accessible_user_interface_design__retention_audit:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "accessible_user_interface_design__retention_audit",
+      "cohort": "transfer",
+      "evidence_hash": "c1a481e81efa1ad4375d722bb1c36d39bd425fa36ecc0b6a229136488860d276",
+      "method": "verified_retention_audit",
+      "recorded_at": "2026-07-31T23:11:51.346287+00:00",
+      "score": 1.0,
+      "task_id": "accessible_user_interface_design__retention_audit:transfer",
+      "verified": true
+    },
+    {
+      "attempt_count": 3,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "cross_target_integration__source_disjoint_transfer",
+      "cohort": "development",
+      "evidence_hash": "9803696fb396a8db399d3d53c50ee74638d72ecd4aab1e3dad3fa389b607861a",
+      "method": "verified_cross_target_integration",
+      "recorded_at": "2026-07-31T23:11:51.347756+00:00",
+      "score": 1.0,
+      "task_id": "cross_target_integration__source_disjoint_transfer:development",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "authority": "sealed_sensor_classification_authority",
+      "capability": "cross_target_integration__source_disjoint_transfer",
+      "cohort": "transfer",
+      "evidence_hash": "3867d26078bfe89dde71e37b26c18f84e0c485124091eb41486ccdcc87b0aedd",
+      "method": "verified_cross_target_integration",
+      "recorded_at": "2026-07-31T23:11:51.349435+00:00",
+      "score": 1.0,
+      "task_id": "cross_target_integration__source_disjoint_transfer:transfer",
+      "verified": true
+    }
+  ],
+  "revision": 41,
+  "schema_version": "aion.hexcore.autonomous_mastery_runtime.v1",
+  "updated_at": "2026-07-31T23:14:40.180812+00:00"
+}

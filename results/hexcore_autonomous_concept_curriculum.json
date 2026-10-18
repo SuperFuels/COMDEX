@@ -1,0 +1,695 @@
+{
+  "benchmark": "active_failure_driven_ontology_extension",
+  "boundary_statement": "AION actively selected experiments that separated a bounded finite set of interaction predicates. It did not generate an unbounded scientific theory space or arbitrary experiments.",
+  "development": {
+    "current_meta_mean_accuracy": 0.9008264462809917,
+    "domains": [
+      {
+        "accuracy": 1.0,
+        "current_meta_accuracy": 0.8677685950413223,
+        "domain_id": "dual_reactor",
+        "fields": [
+          "core_a",
+          "core_b"
+        ],
+        "observations": [
+          {
+            "outcome": 1,
+            "point": [
+              8,
+              6
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              2,
+              3
+            ]
+          },
+          {
+            "outcome": 1,
+            "point": [
+              5,
+              5
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              4,
+              3
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              6,
+              3
+            ]
+          },
+          {
+            "outcome": 1,
+            "point": [
+              4,
+              4
+            ]
+          }
+        ],
+        "probes": 6,
+        "remaining_hypotheses": 1,
+        "selected_operator": "min_ge",
+        "selected_threshold": 4,
+        "structure_recovered": true
+      },
+      {
+        "accuracy": 1.0,
+        "current_meta_accuracy": 0.9338842975206612,
+        "domain_id": "paired_reserve",
+        "fields": [
+          "bank_l",
+          "bank_r"
+        ],
+        "observations": [
+          {
+            "outcome": 1,
+            "point": [
+              8,
+              6
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              2,
+              3
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              5,
+              5
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              7,
+              4
+            ]
+          },
+          {
+            "outcome": 1,
+            "point": [
+              6,
+              6
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              7,
+              5
+            ]
+          }
+        ],
+        "probes": 6,
+        "remaining_hypotheses": 1,
+        "selected_operator": "min_ge",
+        "selected_threshold": 6,
+        "structure_recovered": true
+      }
+    ],
+    "mean_accuracy": 1.0,
+    "mean_probes": 6.0,
+    "structure_recovery": 1.0,
+    "worst_accuracy": 1.0
+  },
+  "gate": {
+    "accepted": true,
+    "active_mean_probes": 4.333333333333333,
+    "current_meta_mean_accuracy": 0.8953168044077136,
+    "errors": [],
+    "gain_over_current_meta": 0.10468319559228645,
+    "negative_controls_rejected": true,
+    "probe_reduction": 0.6388888888888888,
+    "random_mean_probes": 12.0,
+    "sealed_mean_accuracy": 1.0,
+    "sealed_structure_recovery": 1.0,
+    "sealed_worst_accuracy": 1.0
+  },
+  "invented_concept": {
+    "concept_id": "concept_joint_minimum_81473a7af3f3",
+    "created_at": "2026-07-28T23:14:51.939536+00:00",
+    "curriculum_policy": "maximum_hypothesis_disagreement",
+    "development": {
+      "current_meta_mean_accuracy": 0.9008264462809917,
+      "domains": [
+        {
+          "accuracy": 1.0,
+          "current_meta_accuracy": 0.8677685950413223,
+          "domain_id": "dual_reactor",
+          "fields": [
+            "core_a",
+            "core_b"
+          ],
+          "observations": [
+            {
+              "outcome": 1,
+              "point": [
+                8,
+                6
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                2,
+                3
+              ]
+            },
+            {
+              "outcome": 1,
+              "point": [
+                5,
+                5
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                4,
+                3
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                6,
+                3
+              ]
+            },
+            {
+              "outcome": 1,
+              "point": [
+                4,
+                4
+              ]
+            }
+          ],
+          "probes": 6,
+          "remaining_hypotheses": 1,
+          "selected_operator": "min_ge",
+          "selected_threshold": 4,
+          "structure_recovered": true
+        },
+        {
+          "accuracy": 1.0,
+          "current_meta_accuracy": 0.9338842975206612,
+          "domain_id": "paired_reserve",
+          "fields": [
+            "bank_l",
+            "bank_r"
+          ],
+          "observations": [
+            {
+              "outcome": 1,
+              "point": [
+                8,
+                6
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                2,
+                3
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                5,
+                5
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                7,
+                4
+              ]
+            },
+            {
+              "outcome": 1,
+              "point": [
+                6,
+                6
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                7,
+                5
+              ]
+            }
+          ],
+          "probes": 6,
+          "remaining_hypotheses": 1,
+          "selected_operator": "min_ge",
+          "selected_threshold": 6,
+          "structure_recovered": true
+        }
+      ],
+      "mean_accuracy": 1.0,
+      "mean_probes": 6.0,
+      "structure_recovery": 1.0,
+      "worst_accuracy": 1.0
+    },
+    "gate": {
+      "accepted": true,
+      "active_mean_probes": 4.333333333333333,
+      "current_meta_mean_accuracy": 0.8953168044077136,
+      "errors": [],
+      "gain_over_current_meta": 0.10468319559228645,
+      "negative_controls_rejected": true,
+      "probe_reduction": 0.6388888888888888,
+      "random_mean_probes": 12.0,
+      "sealed_mean_accuracy": 1.0,
+      "sealed_structure_recovery": 1.0,
+      "sealed_worst_accuracy": 1.0
+    },
+    "kind": "interaction_meta_predicate",
+    "model_criticism": {
+      "current_meta_accuracy": 0.9008264462809917,
+      "current_meta_worst_accuracy": 0.8677685950413223,
+      "invention_required": true,
+      "status": "META_ONTOLOGY_INADEQUATE"
+    },
+    "name": "joint_minimum_requirement",
+    "operator": "min_ge",
+    "parameters": [
+      "threshold"
+    ],
+    "parent_concepts": [
+      "concept_signed_linear_relation_8b22663b2ca3"
+    ],
+    "schema_version": "aion.hexcore.invented_concept.v1",
+    "sealed": {
+      "current_meta_mean_accuracy": 0.8953168044077136,
+      "domains": [
+        {
+          "accuracy": 1.0,
+          "current_meta_accuracy": 0.8264462809917356,
+          "domain_id": "orchard_pair",
+          "fields": [
+            "root",
+            "canopy"
+          ],
+          "observations": [
+            {
+              "outcome": 1,
+              "point": [
+                8,
+                8
+              ]
+            },
+            {
+              "outcome": 1,
+              "point": [
+                3,
+                3
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                0,
+                0
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                2,
+                2
+              ]
+            }
+          ],
+          "probes": 4,
+          "remaining_hypotheses": 1,
+          "selected_operator": "min_ge",
+          "selected_threshold": 3,
+          "structure_recovered": true
+        },
+        {
+          "accuracy": 1.0,
+          "current_meta_accuracy": 0.9008264462809917,
+          "domain_id": "twin_signal",
+          "fields": [
+            "east",
+            "west"
+          ],
+          "observations": [
+            {
+              "outcome": 1,
+              "point": [
+                8,
+                8
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                3,
+                3
+              ]
+            },
+            {
+              "outcome": 1,
+              "point": [
+                6,
+                6
+              ]
+            },
+            {
+              "outcome": 1,
+              "point": [
+                5,
+                5
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                4,
+                4
+              ]
+            }
+          ],
+          "probes": 5,
+          "remaining_hypotheses": 1,
+          "selected_operator": "min_ge",
+          "selected_threshold": 5,
+          "structure_recovered": true
+        },
+        {
+          "accuracy": 1.0,
+          "current_meta_accuracy": 0.9586776859504132,
+          "domain_id": "alloy_pair",
+          "fields": [
+            "matrix",
+            "binder"
+          ],
+          "observations": [
+            {
+              "outcome": 1,
+              "point": [
+                8,
+                8
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                3,
+                3
+              ]
+            },
+            {
+              "outcome": 0,
+              "point": [
+                6,
+                6
+              ]
+            },
+            {
+              "outcome": 1,
+              "point": [
+                7,
+                7
+              ]
+            }
+          ],
+          "probes": 4,
+          "remaining_hypotheses": 1,
+          "selected_operator": "min_ge",
+          "selected_threshold": 7,
+          "structure_recovered": true
+        }
+      ],
+      "mean_accuracy": 1.0,
+      "mean_probes": 4.333333333333333,
+      "structure_recovery": 1.0,
+      "worst_accuracy": 1.0
+    }
+  },
+  "language_provider_used": false,
+  "model_criticism": {
+    "current_meta_accuracy": 0.9008264462809917,
+    "current_meta_worst_accuracy": 0.8677685950413223,
+    "invention_required": true,
+    "status": "META_ONTOLOGY_INADEQUATE"
+  },
+  "negative_controls": [
+    {
+      "current_meta_accuracy": 1.0,
+      "domain_id": "linear_balance",
+      "unnecessary_invention_rejected": true
+    }
+  ],
+  "passed": true,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "concept_id": "concept_joint_minimum_81473a7af3f3",
+        "evaluation": "phase25_autonomous_curriculum_sealed",
+        "gate": {
+          "accepted": true,
+          "active_mean_probes": 4.333333333333333,
+          "current_meta_mean_accuracy": 0.8953168044077136,
+          "errors": [],
+          "gain_over_current_meta": 0.10468319559228645,
+          "negative_controls_rejected": true,
+          "probe_reduction": 0.6388888888888888,
+          "random_mean_probes": 12.0,
+          "sealed_mean_accuracy": 1.0,
+          "sealed_structure_recovery": 1.0,
+          "sealed_worst_accuracy": 1.0
+        }
+      },
+      "goal": "autonomous_concept_curriculum",
+      "procedure_id": "procedure_autonomous_curriculum_61cc17827701",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "steps": [
+        "detect_meta_ontology_residual_failure",
+        "construct_competing_interaction_hypotheses",
+        "select_maximum_disagreement_experiments",
+        "ground_new_predicate_from_outcomes",
+        "verify_on_sealed_renamed_domains",
+        "reject_invention_when_current_abstraction_is_sufficient",
+        "retain_verified_extension_with_provenance"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_autonomous_curriculum_61cc17827701",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "autonomous_concept_curriculum_authority"
+        },
+        "reason": "procedure_promotion:procedure_autonomous_curriculum_61cc17827701",
+        "state_hash": "1a3aa62eeece0e24e7a0c729cb0633151fd30a8f468fda5e55580c0ad384f985"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "random_controls": [
+    {
+      "probes": 8,
+      "remaining_hypotheses": 1,
+      "selected_operator": "min_ge",
+      "selected_threshold": 3,
+      "structure_recovered": true
+    },
+    {
+      "probes": 15,
+      "remaining_hypotheses": 1,
+      "selected_operator": "min_ge",
+      "selected_threshold": 5,
+      "structure_recovered": true
+    },
+    {
+      "probes": 13,
+      "remaining_hypotheses": 1,
+      "selected_operator": "min_ge",
+      "selected_threshold": 7,
+      "structure_recovered": true
+    }
+  ],
+  "restart": {
+    "champion_retained": true,
+    "concept_retained": true,
+    "hierarchy_link_retained": true,
+    "relearning_experiments": 0
+  },
+  "schema_version": "aion.hexcore.autonomous_concept_curriculum.v1",
+  "sealed": {
+    "current_meta_mean_accuracy": 0.8953168044077136,
+    "domains": [
+      {
+        "accuracy": 1.0,
+        "current_meta_accuracy": 0.8264462809917356,
+        "domain_id": "orchard_pair",
+        "fields": [
+          "root",
+          "canopy"
+        ],
+        "observations": [
+          {
+            "outcome": 1,
+            "point": [
+              8,
+              8
+            ]
+          },
+          {
+            "outcome": 1,
+            "point": [
+              3,
+              3
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              0,
+              0
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              2,
+              2
+            ]
+          }
+        ],
+        "probes": 4,
+        "remaining_hypotheses": 1,
+        "selected_operator": "min_ge",
+        "selected_threshold": 3,
+        "structure_recovered": true
+      },
+      {
+        "accuracy": 1.0,
+        "current_meta_accuracy": 0.9008264462809917,
+        "domain_id": "twin_signal",
+        "fields": [
+          "east",
+          "west"
+        ],
+        "observations": [
+          {
+            "outcome": 1,
+            "point": [
+              8,
+              8
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              3,
+              3
+            ]
+          },
+          {
+            "outcome": 1,
+            "point": [
+              6,
+              6
+            ]
+          },
+          {
+            "outcome": 1,
+            "point": [
+              5,
+              5
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              4,
+              4
+            ]
+          }
+        ],
+        "probes": 5,
+        "remaining_hypotheses": 1,
+        "selected_operator": "min_ge",
+        "selected_threshold": 5,
+        "structure_recovered": true
+      },
+      {
+        "accuracy": 1.0,
+        "current_meta_accuracy": 0.9586776859504132,
+        "domain_id": "alloy_pair",
+        "fields": [
+          "matrix",
+          "binder"
+        ],
+        "observations": [
+          {
+            "outcome": 1,
+            "point": [
+              8,
+              8
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              3,
+              3
+            ]
+          },
+          {
+            "outcome": 0,
+            "point": [
+              6,
+              6
+            ]
+          },
+          {
+            "outcome": 1,
+            "point": [
+              7,
+              7
+            ]
+          }
+        ],
+        "probes": 4,
+        "remaining_hypotheses": 1,
+        "selected_operator": "min_ge",
+        "selected_threshold": 7,
+        "structure_recovered": true
+      }
+    ],
+    "mean_accuracy": 1.0,
+    "mean_probes": 4.333333333333333,
+    "structure_recovery": 1.0,
+    "worst_accuracy": 1.0
+  }
+}

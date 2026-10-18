@@ -1,0 +1,145 @@
+\section{Requirements-Based Business Onboarding and Progressive Capability Activation}
+\label{sec:aion-requirements-onboarding}
+
+\subsection{Decision: Do Not Classify the Customer by Business Size}
+
+AION must not require a customer to identify as a ``small'', ``medium'' or ``large'' business during
+onboarding.  These labels vary between countries, regulators and industries, and employee count or
+turnover rarely describes the operational, security or intelligence capabilities that the customer
+actually needs.  A one-person regulated consultancy may require stronger controls than an
+unregulated company employing hundreds of people.
+
+The onboarding process therefore constructs a requirements profile rather than assigning an
+arbitrary company-size category.  This profile determines which capabilities AION recommends and
+which parts of the interface it progressively reveals.  The customer's permanent brain, identity,
+Business Map and data ownership remain the same regardless of the selected capabilities or
+commercial package.
+
+\subsection{Requirements Qualification}
+
+The initial business conversation should establish only the information necessary to configure the
+customer's operating environment.  The qualification process covers:
+
+\begin{itemize}
+  \item legal entities, trading names and brands;
+  \item physical locations, operating countries, regions and currencies;
+  \item divisions, departments, product families and business units;
+  \item the number and types of users, including employees, contractors, advisers and guests;
+  \item reporting structures, matrix relationships, projects and temporary teams;
+  \item approval levels, delegated authority and separation-of-duty requirements;
+  \item identity systems such as Microsoft Entra ID, Google Workspace, local identity or another
+        approved single-sign-on provider;
+  \item data classification, residency, retention and regulatory requirements;
+  \item existing business systems, files, communications, calendars, CRM, accounting and databases;
+  \item local, customer-server, private-cloud and optional external model requirements;
+  \item audit, backup, disaster-recovery, availability and service-level expectations; and
+  \item the customer's preferred balance between simplicity, control, cost and technical management.
+\end{itemize}
+
+Questions should be progressive.  AION should not present enterprise configuration merely because
+it exists.  It should ask a deeper question only when a previous answer reveals a relevant need.  A
+customer with one entity, one location and one owner should be able to complete onboarding without
+encountering regional residency, matrix reporting or multi-entity consolidation settings.
+
+\subsection{Operating-Complexity Profile}
+
+Internally, AION may represent the customer's requirements as a composable operating-complexity
+profile.  The profile is not a status label and must not be shown as a judgment about company size.
+An illustrative profile is:
+
+\begin{quote}
+\texttt{Core business} \\
+$+$ \texttt{Project operations} \\
+$+$ \texttt{Multi-location} \\
+$+$ \texttt{Multi-entity} \\
+$+$ \texttt{Delegated authority} \\
+$+$ \texttt{Enterprise identity} \\
+$+$ \texttt{Regulated data} \\
+$+$ \texttt{Private compute}
+\end{quote}
+
+Each component is independently activated, reviewed and removable.  The profile should be derived
+from recorded requirements and approved by the customer.  AION must explain why a component was
+recommended and must not treat the recommendation as commercial entitlement or consent.
+
+\subsection{Progressive Disclosure of the Boardroom}
+
+The same Boardroom adapts to the customer's requirements rather than splitting into unrelated
+products:
+
+\begin{itemize}
+  \item A sole trader initially sees a simple Boardroom, Pilot, tasks, calendar, files and essential
+        business controls.
+  \item A project-based company receives project teams, budgets, milestones, risks, approvals and
+        project reporting.
+  \item A multi-site organisation receives location hierarchies, regional dashboards, local
+        responsibility and geographically scoped permissions.
+  \item A corporate group receives multiple legal entities, brands, currencies, inter-company
+        boundaries and consolidated reporting.
+  \item A regulated organisation receives explicit data residency, retention, legal hold, audit,
+        stronger approval and private-compute controls.
+  \item A complex organisation may add arbitrary divisions, matrix teams, temporary programmes and
+        roles that do not map cleanly to traditional departments such as Sales or Finance.
+\end{itemize}
+
+Advanced structures remain available without cluttering the experience of a simpler business.  If
+the customer's needs change, AION updates the requirements profile and proposes the additional
+module; it does not require the customer to migrate to a different brain or rebuild the Business Map.
+
+\subsection{Commercial Packaging Is a Separate Decision}
+
+Organisational complexity and commercial packaging must remain independent.  A requirements
+profile describes what the business needs.  An entitlement describes which supported capabilities
+the customer has chosen to activate.  The initial commercial structure may be expressed as:
+
+\begin{description}
+  \item[Core or free foundation.] Creates the customer-owned AION brain and provides useful local
+        intelligence without a mandatory paid model provider.
+  \item[Boardroom.] Adds the principal business-management, departmental and connected-system
+        capabilities.
+  \item[Growth modules.] Add project portfolios, teams, budgets, divisions, locations, multiple
+        entities and consolidated operation when required.
+  \item[Sovereign or enterprise modules.] Add enterprise identity, single sign-on, private cloud,
+        residency controls, advanced security, audit, operational assurance and contracted support.
+\end{description}
+
+Pricing and activation should consequently follow selected capabilities, verified usage and support
+requirements rather than employee count.  A regulated sole practitioner may select Sovereign
+controls, while a larger but operationally straightforward organisation may require only the
+Boardroom and selected Growth modules.
+
+\subsection{Onboarding Output Contract}
+
+The requirements conversation produces a customer-reviewable record containing:
+
+\begin{itemize}
+  \item the facts supplied by the customer and their provenance;
+  \item unresolved questions and assumptions;
+  \item the derived operating-complexity components;
+  \item recommended modules and the reason for each recommendation;
+  \item identity, authority, residency, retention and approval implications;
+  \item expected local or cloud compute requirements;
+  \item optional commercial entitlements, kept separate from technical need;
+  \item the minimum interface initially presented to each authorized role; and
+  \item an exact approval record for activating the configuration.
+\end{itemize}
+
+The output is written into the customer's governed Business Map only after review.  Inferred facts
+remain distinguishable from confirmed facts.  No model, installer or commercial package may silently
+grant a user authority, connect an external service, move data to a provider or activate a paid
+capability.
+
+\subsection{Relationship to the Medium-Business Operating Foundation}
+
+The implemented operating foundation already supports multi-entity groups, arbitrary divisions,
+locations, matrix teams, project portfolios, currency-separated budgets, enterprise identity
+subjects, delegated approvals, separation of duty and regional routing.  These capabilities are
+reusable for organizations of any nominal size.  The requirements qualification determines which
+of them become visible and configured for a particular customer.
+
+The resulting rule is:
+
+\begin{quote}
+\textbf{AION qualifies operational requirements, progressively reveals the necessary capabilities,
+and prices chosen service and support---it does not classify the customer by an unreliable size label.}
+\end{quote}

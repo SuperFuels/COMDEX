@@ -1,0 +1,29 @@
+\section{Phase 17H --- Functional Website Intake Actions Lock}
+
+\textbf{Status:} Locked.
+
+Phase 17H makes the Website Intake Installation panel interactive while preserving preview-only safety.
+
+The panel MUST support selecting an intake provider, testing Gmail OAuth readiness from Vault state, copying install values with visible feedback, and running a local Home Fixed payload test that creates only a workflow ticket preview.
+
+Gmail live send remains locked. Raw email passwords are not allowed. Gmail live read is treated only as a guarded readiness candidate and must not perform irreversible external actions.
+
+\subsection{Locked Guarantees}
+
+\begin{itemize}
+  \item Provider cards expose selectable provider metadata.
+  \item Gmail readiness updates a visible result panel.
+  \item Copy actions use clipboard/fallback and record visible copied state.
+  \item Local payload test remains preview-only.
+  \item No booking, payment, escrow, external message, or live chain write is created.
+  \item Live send remains disabled.
+  \item Raw passwords are not accepted.
+\end{itemize}
+
+\paragraph{Lock ID:} AION-PHASE17H-FUNCTIONAL-WEBSITE-INTAKE-ACTIONS
+
+\paragraph{Status:} LOCKED
+
+\paragraph{Maintainer:} Tessaris AI
+
+\paragraph{Author:} Kevin Robinson

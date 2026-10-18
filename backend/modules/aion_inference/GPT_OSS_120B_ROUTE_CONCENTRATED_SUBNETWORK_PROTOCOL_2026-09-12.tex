@@ -1,0 +1,249 @@
+% Append-only preregistration for the AION GPT-OSS 120B technical record.
+% Requires: amsmath, booktabs, tabularx.
+\section{Route-Concentrated Subnetwork: Pre-registered Quality-Track Protocol}
+\label{sec:gptoss120b-route-concentrated-protocol}
+
+\subsection{Reason for the architectural change}
+
+The exact unrestricted runtime remains approximately 1.72--1.83 generated
+tokens per second, whereas a resident fixed top-one path demonstrated a
+28.62-token-per-second physical ceiling but failed semantic quality.  Exact
+consequence oracles subsequently showed that omitting selected experts can
+remove only approximately 3.8\% of four-expert work on the measured cohort.
+The remaining gap therefore cannot honestly be closed by another cache,
+lossless encoding, expert-omission rule, or route-copy optimization alone.
+
+The next candidate changes the learned calculation.  GPT-OSS 120B remains the
+authoritative teacher and exact fallback, while a resident route-concentrated
+subnetwork attempts to reproduce the combined four-expert layer output with
+one original expert plus a compact learned correction.  This is explicitly a
+quality-gated derived model; it is not bit-exact unrestricted GPT-OSS 120B.
+
+\subsection{Candidate structure}
+
+For layer $\ell$, activation $x$, selected expert identities $e_{1:4}$ and
+normalized router gates $g_{1:4}$, the candidate is
+\begin{equation}
+ \widehat{M}_{\ell}(x)=g_1 E_{\ell,e_1}(x)+
+ C_{\ell}\!\left(x,e_{1:4},g_{1:4}\right),
+\end{equation}
+where the first term uses one original packed expert and $C_{\ell}$ is a
+resident correction.  The correction must materially differ from the stopped
+global affine, RBF, low-rank, Taylor-Atlas and 2.08\,MB AtomSheet calculators.
+Its first admissible form is layer-specific and route-conditioned, with
+expert-identity embeddings, activation-region addressing, a shared nonlinear
+trunk, and a bounded low-rank output head.  Training targets are produced only
+by the locally installed unrestricted teacher under the existing signed
+authorization; captures contain no prompt text, personal data, or customer
+data.
+
+\subsection{Frozen data separation}
+
+Whole prompt families, not individual positions, are assigned to training,
+development and blind evaluation.  Model capacity, optimizer settings,
+confidence thresholds and fallback rules are selected without opening the
+blind reasoning, business and writing families.  Synthetic perturbations may
+be generated around training activations to improve local coverage, but every
+such target must be recalculated by the original selected experts and bound to
+the source activation, route, teacher-weight manifest and random seed.
+
+\subsection{Promotion ladder}
+
+The first gate is restricted to one real layer and then two non-adjacent
+layers.  A candidate advances only if all of the following hold:
+\begin{enumerate}
+  \item held-out layer-output relative-$L_2$ p95 is at most 0.02;
+  \item maximum relative-$L_2$ is at most 0.05;
+  \item the certified non-fallback coverage is at least 10\%;
+  \item the resident correction plus the retained original expert moves at
+        most half the bytes of the four-expert teacher on accepted positions;
+  \item accepted calculation latency is below the corresponding two-expert
+        packed path and the confidence decision costs less than 0.05\,ms;
+  \item no evaluation example, fallback, or failed route is silently omitted.
+\end{enumerate}
+
+Passing the numerical gate permits a bounded full-transformer substitution on
+unseen generated positions.  Promotion then additionally requires coherent
+answers, semantic-score parity with the unrestricted teacher on arithmetic,
+extraction, reasoning, business and writing families, internal repeatability,
+and a positive balanced same-process speed result.  Results are reported at
+successive rungs of 5, 8, 12, 15, 20 and 25 tokens per second; the target is
+not redefined when a rung fails.
+
+\subsection{Fallback and claim boundary}
+
+The confidence system may use only information available before calculating
+the omitted experts.  If the layer, route, activation region or uncertainty is
+uncertified, the runtime executes all four original experts.  Oracle coverage
+may be reported only as an upper bound and never as deployable coverage.
+Exact-track results remain separate and unchanged.  A fast candidate that
+fails quality is a physical-ceiling experiment, while a quality-passing
+candidate that fails speed is preserved as \texttt{NOT\_PROMOTED}.
+
+This protocol converts the remaining problem into a falsifiable question:
+whether a compact, resident, route-conditioned student can absorb the useful
+effect of three experts often enough to approach the measured top-one hardware
+ceiling without surrendering the teacher's behaviour.
+
+\subsection{First real-anchor local candidate and falsification}
+
+The first implementation increased both teacher coverage and model locality
+relative to the stopped Atlas candidates.  It used 33 real arithmetic anchors
+from layer 12, spanning 23 distinct fourth-expert identities.  Around every
+anchor, 32 perturbations were sampled in a 24-dimensional empirical activation
+subspace.  The original SD-backed expert recalculated every target, producing
+1,056 additional training rows.  Extraction alone selected rank and ridge
+regularization; the 21-position reasoning family remained unopened until the
+final gate.
+
+The selected candidate used a rank-16 expert-conditioned local linear map with
+ridge 0.1 and occupied 12,186,061 bytes.  It covered 9 of 22 extraction rows,
+but none met the two-percent error boundary; extraction p95 relative layer-
+output error was 0.10258.  On the unseen reasoning family, matching expert
+identities existed for 10 of 21 rows.  Again, none met the boundary.  Reasoning
+relative-$L_2$ was 0.06752 at p50 and 0.07433 at p95.  Exact fallback would
+therefore be required for every observed position.
+
+The result is \texttt{STOP\_ROUTE\_CONCENTRATED\_LOCAL}.  It is a useful
+falsification because it materially strengthened the prior calculator: targets
+were generated from the original weights around route-specific real anchors,
+the model was conditioned on the actual omitted expert, and whole families
+remained separated.  The failure shows that small local linear neighborhoods
+around arithmetic activations do not transfer the omitted expert function to
+extraction or reasoning.  Increasing the number of perturbations around the
+same anchors cannot repair this missing cross-family coverage.  A successor
+must learn a genuinely nonlinear layer student from substantially broader
+teacher trajectories, or directly alter/train the retained expert, rather than
+add another nearest-anchor or local-Jacobian calculator.
+
+The augmentation dataset contains no prompt text, personal data or customer
+data.  Its canonical report hash is
+\texttt{5c32cc730b58b075c73251da5118edb8db79cc97f0a435b7c4778926804165f2}
+and its dataset SHA-256 is
+\texttt{c4cb50a0704ee2cf435c6d45ad5885e675875ec743f749d57055afefc15d9286}.
+The final gate canonical hash is
+\texttt{88ed9bfa47c06414c1b53133ddc42c4b53b77da6fbdebe7592b9c90e572e70b5}.
+The focused integrity suite passed 26/26 tests.
+
+\subsection{Higher-capacity nonlinear student}
+
+A materially larger nonlinear successor was then trained on the same isolated
+arithmetic teacher data.  Unlike the stopped 64-unit global calculator, this
+model was specific to layer 12, consumed the full 2,880-dimensional activation,
+embedded the omitted expert identity, included the fourth gate value, and used
+two nonlinear hidden layers.  Three candidates up to 512 hidden units were
+selected using extraction only.  The chosen cartridge occupied 12,980,881
+bytes and contained approximately 1,089 training rows after combining anchors
+and exact teacher perturbations.
+
+This additional capacity did not solve transfer.  It covered 9 of 22 extraction
+rows with known expert identities, but zero were within the two-percent error
+boundary; p95 was 0.11362.  On the unopened reasoning development family it
+covered 10 of 21 rows, again with zero safe positions.  Reasoning relative
+$L_2$ was 0.07343 at p50 and 0.08319 at p95.  Median measured Python/PyTorch
+calculation time was approximately 1.0004\,ms.  The decision is therefore
+\texttt{STOP\_ROUTE\_CONCENTRATED\_NONLINEAR}.
+
+The canonical report hash is
+\texttt{17baac2033d589a49f28d8fad17976f4973916dfa76dac0c4d3ab848d82e072d}.
+Together with the real-anchor local failure, this result closes small supervised
+correction networks trained around one prompt family's activation manifold.
+The next admissible student must first expand genuine teacher trajectories
+across prompt families and expert identities; simply adding parameters or more
+near-anchor perturbations is not a credible route to the missing speed factor.
+
+\subsection{Expanded genuine-family retraining}
+
+The nonlinear architecture was frozen before adding extraction to its training
+set.  A new teacher augmentation contained 55 real arithmetic and extraction
+anchors, 33 distinct omitted-expert identities, and 1,320 exact recalculations.
+The 512-unit architecture and $10^{-4}$ weight decay selected by the preceding
+gate were not retuned against reasoning.
+
+Broader genuine-family training increased reasoning identity coverage from
+10/21 to 12/21, but it did not create a safe operating region.  Zero of the 21
+reasoning positions met the two-percent boundary.  Among covered positions,
+relative layer-output error was 0.07193 at p50 and 0.08175 at p95.  The
+12,980,561-byte cartridge evaluated in approximately 0.9780\,ms median.  This
+is again \texttt{STOP\_ROUTE\_CONCENTRATED\_NONLINEAR}.
+
+The canonical report hash is
+\texttt{b933932701be63a9aea8ae3481379a826cbf23f2eb6bd2ff3d0c26f44b532d10}
+and the augmented dataset SHA-256 is
+\texttt{2e4a2c658771363b8ca84ba720079570910d077ed0414bd0f141605139ac4313}.
+The result closes the present stand-alone correction-network family: neither
+capacity, real-anchor teacher perturbations, nor combining two genuine prompt
+families yielded even oracle-certified reasoning coverage.  The next model
+change must train the retained expert/subnetwork itself, or use a substantially
+larger same-tokenizer student, with the original four-expert path retained as
+teacher and fallback.
+
+\subsection{Retained-expert low-rank adapter oracle}
+
+Before capturing and training an adapter on the top expert's internal SwiGLU
+features, an intentionally impossible output-space oracle tested whether such
+work could satisfy the gate with the present teacher cohort.  The oracle was
+given each unseen reasoning target itself and allowed to choose its optimal
+coefficients in the complete rank-54 span of the 55 arithmetic-and-extraction
+omitted-expert targets.  A deployable adapter would have less information.
+
+Even this upper bound admitted only one of 21 reasoning positions at the
+two-percent boundary, or 4.76\% coverage, below the predeclared 10\% minimum.
+Its p50, p95 and maximum relative layer-output errors were respectively
+0.05833, 0.07174 and 0.08183.  Lower ranks admitted no additional positions.
+The result is \texttt{STOP\_RETAINED\_EXPERT\_LOW\_RANK\_ADAPTER}.
+
+This saved a misleading implementation cycle: capturing the retained expert's
+internal feature can improve coefficient prediction, but it cannot create
+missing output directions when the adapter is restricted to the present
+learned low-rank target span.  The next admissible retained-subnetwork design
+must add broader genuine-family teacher targets or learn new full output
+directions through direct expert-weight training.  Its canonical report hash
+is
+\texttt{dee9800ef0d050989c8babd5113d6e3b8934fa058565ed9e80c6f2318295bf8d}.
+
+\subsection{Expanded-trajectory oracle}
+
+To test whether the adapter bound was merely a consequence of too few teacher
+directions, AION composed 12 previously verified families containing 957
+layer-position records.  Training combined the genuine arithmetic and
+extraction trajectories with BOS, four independent synthetic tokens and two
+independent eight-position KV-linked trajectories.  Reasoning remained the
+untouched semantic development family.  Rebuilding the top-three-expert
+dataset produced 78 layer-12 fit targets, rather than 55.
+
+The complete rank-77 teacher-target span still admitted only one of 21 unseen
+reasoning positions, or 4.76\%.  Relative layer-output error improved only
+slightly to 0.05744 p50 and 0.07101 p95, with a maximum of 0.07955.  The result
+remains \texttt{STOP\_RETAINED\_EXPERT\_LOW\_RANK\_ADAPTER}.  Its canonical
+hash is
+\texttt{c2d6cffbe982f886a24d3b4b329a03d23a59235d67ca798801aa0bf3ac4183d6}.
+
+This is a stronger boundary than the 55-row gate: adding existing independent
+token and trajectory directions did not increase safe reasoning coverage.
+The missing structure is not repaired by mixing more synthetic states into the
+same low-rank output span.  Further work must collect substantially broader
+genuine semantic trajectories and train new expert-weight directions, not
+repeat target-span projection.
+
+\subsection{SD-native tokenizer recovery}
+
+Collecting broader genuine semantic trajectories required a trustworthy local
+tokenizer without downloading another model or tokenizer package.  AION now
+reads the 201,088-token vocabulary and 446,189 BPE merges directly from the
+verified virtual GGUF header in the compressed SD warehouse.  It implements
+the GGUF-declared \texttt{gpt-4o} pre-tokenization rule, byte encoding, ranked
+BPE merges, special-token addressing and the GPT-OSS Harmony user wrapper.
+
+Against the frozen public prompt ``What is 17 multiplied by 23?'', the new
+tokenizer reproduced all 15 previously external token IDs exactly, including
+Harmony control tokens.  The canonical gate hash is
+\texttt{c2a2a3bd46a81573def806ccf91b07a66eb39c5c8508972d0331aaec8ef81f80}.
+The focused suite now passes 27/27 tests.
+
+This is not a token-per-second result.  It removes an experimental dependency:
+AION can now construct additional public/generic GPT-OSS prompt families from
+the same SD-resident model representation, capture genuine teacher
+trajectories, and keep the resulting student-data lineage bound to the
+warehouse itself.  The next gate uses this capability to widen semantic
+coverage before any new expert-weight training.

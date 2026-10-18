@@ -1,0 +1,81 @@
+\section{Phase 20C --- Deterministic Mission Planner Mock}
+\label{sec:aion-phase20c-mission-planner-lock}
+
+\subsection{Status}
+
+Phase 20C locks the first AION Pilot mission planner layer.
+
+This planner is deterministic and does not call an LLM. It exists so Mission Mode runtime, proof, replay, Boardroom, checkpoints, and artifact persistence can be built against stable plan structures before non-deterministic model adapters are introduced.
+
+\begin{quote}
+\textbf{Status: LOCKED --- deterministic mission planner mock installed.}
+\end{quote}
+
+\subsection{Contract}
+
+The Phase 20C planner MUST:
+
+\begin{itemize}
+  \item accept an \texttt{AionMissionContract};
+  \item accept an optional mission template id;
+  \item produce ordered mission steps;
+  \item classify initial safe/checkpoint steps;
+  \item produce human checkpoints;
+  \item produce blocked action records;
+  \item produce final output targets;
+  \item produce a deterministic \texttt{plan\_hash};
+  \item remain preview-only;
+  \item create no live side effects.
+\end{itemize}
+
+The planner MUST NOT:
+
+\begin{itemize}
+  \item call an LLM;
+  \item call external tools;
+  \item send email or WhatsApp messages;
+  \item create bookings;
+  \item take payments;
+  \item create escrow;
+  \item deploy live pages;
+  \item mutate live reputation or ETS.
+\end{itemize}
+
+\subsection{AION Pilot Artifact Targeting}
+
+Any step that produces a user-usable artifact MUST carry an artifact type and preferred business sub-container.
+
+For the Home Fixed lead campaign plan, artifact-producing steps include:
+
+\begin{itemize}
+  \item campaign offer drafts stored under \texttt{campaigns};
+  \item advert drafts stored under \texttt{campaigns};
+  \item landing page copy stored under \texttt{campaigns};
+  \item workflow previews stored under \texttt{workflows};
+  \item AgentMap previews stored under \texttt{agentmaps};
+  \item approval payloads stored under \texttt{approvals}.
+\end{itemize}
+
+\begin{quote}
+\textbf{Temporary planner outputs are not final storage. Any promoted Pilot artifact must later be committed into the active business container or correct sub-container with proof metadata.}
+\end{quote}
+
+\subsection{Validation}
+
+The focused validation command is:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20C-MISSION-PLANNER-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

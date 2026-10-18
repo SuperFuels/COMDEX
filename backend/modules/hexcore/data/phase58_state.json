@@ -1,0 +1,1342 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "open_multimodal_project_intelligence": "procedure_open_multimodal_projects_3cbe82ceb6c9"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase58_open_multimodal_project_authority"
+    },
+    "reason": "phase58_open_multimodal_projects",
+    "state_hash": "862003054c31b7f58dffdca461cd23b5434b53cd76a9342d63039862948a0851"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [
+    {
+      "outcome_hash": "f01fd0a79a91800e93d0311ff70dfca4756cf74754ffb4c5290eeb7e07b9ad00",
+      "portfolio_id": "sealed_financial_results",
+      "timestamp": "2026-07-30T17:46:48.263469+00:00",
+      "verified": true
+    },
+    {
+      "outcome_hash": "d0edb7c53191bcfc5c58c2ac8a83c6d7cabda728d1c92d8e52bb0ff83c722e0c",
+      "portfolio_id": "sealed_fourier_chart",
+      "timestamp": "2026-07-30T17:46:58.086582+00:00",
+      "verified": true
+    },
+    {
+      "outcome_hash": "963b5a11c18f7b1c000d55941948873572e811efe450527812b6ad3c3b5b5b83",
+      "portfolio_id": "sealed_glyphos_architecture",
+      "timestamp": "2026-07-30T17:47:14.116386+00:00",
+      "verified": true
+    }
+  ],
+  "multimodal_schema_models": {
+    "multimodal_schema_032957e513e06eb5": {
+      "created_at": "2026-07-30T17:46:47.512492+00:00",
+      "development_schema_ids": [
+        "invented_schema_7d4994c5d48a7765",
+        "invented_schema_120183a43f9b10ba",
+        "invented_schema_300ceabe7b1fe4ed"
+      ],
+      "learned_relation_kinds": [
+        [
+          "document",
+          "executable_code"
+        ],
+        [
+          "document",
+          "structured_configuration"
+        ],
+        [
+          "executable_code",
+          "structured_configuration"
+        ],
+        [
+          "natural_chart_or_image",
+          "numeric_table"
+        ]
+      ],
+      "schema_model_id": "multimodal_schema_032957e513e06eb5",
+      "schema_version": "aion.hexcore.multimodal_schema_model.v1"
+    }
+  },
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {
+    "sealed_financial_results": {
+      "broad_goal": "Assess from the supplied portfolio whether both revenue and operating profit declined in the current half year, quantify the evidence, and distinguish reported figures from verified conclusions.",
+      "completed_at": "2026-07-30T17:46:48.263436+00:00",
+      "draft_outcome": {
+        "answer": "both_declined",
+        "contradictions": [],
+        "decision": "supported",
+        "evidence": [
+          {
+            "end": 400,
+            "exact_text": "Revenue £798.4m £898.0m -11.1%",
+            "source_id": "source_bcd0b2707bc0109c",
+            "start": 370
+          },
+          {
+            "end": 487,
+            "exact_text": "Operating profit £2.1m £28.4m -92.5%",
+            "source_id": "source_bcd0b2707bc0109c",
+            "start": 451
+          }
+        ],
+        "figures": {
+          "operating_profit": {
+            "current": 2.1,
+            "prior": 28.4,
+            "reported_change_percent": -92.5
+          },
+          "revenue": {
+            "current": 798.4,
+            "prior": 898.0,
+            "reported_change_percent": -11.1
+          }
+        },
+        "verified_by": "independent_numeric_comparison"
+      },
+      "final_outcome": {
+        "answer": "both_declined",
+        "contradictions": [],
+        "decision": "supported",
+        "evidence": [
+          {
+            "end": 400,
+            "exact_text": "Revenue £798.4m £898.0m -11.1%",
+            "source_id": "source_bcd0b2707bc0109c",
+            "start": 370
+          },
+          {
+            "end": 487,
+            "exact_text": "Operating profit £2.1m £28.4m -92.5%",
+            "source_id": "source_bcd0b2707bc0109c",
+            "start": 451
+          }
+        ],
+        "figures": {
+          "operating_profit": {
+            "current": 2.1,
+            "prior": 28.4,
+            "reported_change_percent": -92.5
+          },
+          "revenue": {
+            "current": 798.4,
+            "prior": 898.0,
+            "reported_change_percent": -11.1
+          }
+        },
+        "verified_by": "independent_numeric_comparison"
+      },
+      "final_plan": {
+        "actions": [
+          {
+            "action": "inspect:source_bcd0b2707bc0109c",
+            "requires": [],
+            "verifies": "evidence:paginated_document"
+          },
+          {
+            "action": "verify_goal_and_abstention_conditions",
+            "requires": [
+              "source_bcd0b2707bc0109c"
+            ],
+            "verifies": "project_outcome"
+          }
+        ],
+        "constructed_from_evidence": true,
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare current and prior financial values"
+        ],
+        "supplied_workflow": false
+      },
+      "final_schema": {
+        "invented_fields": [
+          "document_revision",
+          "page_location",
+          "reported_claim"
+        ],
+        "invented_relationships": [
+          {
+            "relation": "grounds",
+            "source": "source_bcd0b2707bc0109c",
+            "target": "evidence:paginated_document"
+          }
+        ],
+        "schema_id": "invented_schema_ec340dc6ce2fec37",
+        "source_kinds": {
+          "paginated_document": 1
+        },
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare current and prior financial values"
+        ],
+        "supplied_dependency_graph": false,
+        "supplied_entity_list": false,
+        "supplied_transition_grammar": false,
+        "supplied_workflow": false
+      },
+      "independent_verification": {
+        "accepted": true,
+        "evidence_complete": true,
+        "unsafe_knowledge_commitments": 0,
+        "verifier": "phase58_independent_file_recomputation_v1"
+      },
+      "plan": {
+        "actions": [
+          {
+            "action": "inspect:source_bcd0b2707bc0109c",
+            "requires": [],
+            "verifies": "evidence:paginated_document"
+          },
+          {
+            "action": "verify_goal_and_abstention_conditions",
+            "requires": [
+              "source_bcd0b2707bc0109c"
+            ],
+            "verifies": "project_outcome"
+          }
+        ],
+        "constructed_from_evidence": true,
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare current and prior financial values"
+        ],
+        "supplied_workflow": false
+      },
+      "portfolio_id": "sealed_financial_results",
+      "restarts": 1,
+      "schema": {
+        "invented_fields": [
+          "document_revision",
+          "page_location",
+          "reported_claim"
+        ],
+        "invented_relationships": [
+          {
+            "relation": "grounds",
+            "source": "source_bcd0b2707bc0109c",
+            "target": "evidence:paginated_document"
+          }
+        ],
+        "schema_id": "invented_schema_ec340dc6ce2fec37",
+        "source_kinds": {
+          "paginated_document": 1
+        },
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare current and prior financial values"
+        ],
+        "supplied_dependency_graph": false,
+        "supplied_entity_list": false,
+        "supplied_transition_grammar": false,
+        "supplied_workflow": false
+      },
+      "schema_version": "aion.hexcore.open_multimodal_project.v1",
+      "source_capsules": [
+        {
+          "bytes": 667157,
+          "content_kind": "paginated_document",
+          "format": "pdf",
+          "observed_at": "2026-07-30T17:46:47.514875+00:00",
+          "page_visual_size": [
+            827,
+            1170
+          ],
+          "pages": 25,
+          "path": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_financial_results/00_page-interim-results-2025.pdf",
+          "rendered_page": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_financial_results/rendered/00_page-interim-results-2025_page_1.png",
+          "rendered_sha256": "020e55e07280f080a77e61145aab42d20d1f9c743f77cac9de5e91f456234a92",
+          "sha256": "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b",
+          "source_id": "source_bcd0b2707bc0109c",
+          "text": "  \n \n12 August 2025 \nHalf Year Results for the Period Ended 30 June 2025 \n \nResilient performance, full year guidance reiterated  \n \nPageGroup plc (“PageGroup”), the specialist professional recruitment company, announces its unaudited half \nyear results for the period ended 30 June 2025. \n \nFinancial summary \n(6 months to 30 June 2025) \n2025 2024 Change Change  \nCC* \nRevenue £798.4m £898.0m -11.1% -8.6% \nGross profit £389.7m £444.1m -12.3% -9.7% \nOperating profit £2.1m £28.4m -92.5% \nProfit before tax £0.2m £27.7m -99.2% \nBasic earnings per share 0.0p 5.3p -99.1% \nDiluted earnings per share 0.0p 5.3p -99.1% \nInterim dividend per share 5.36p 5.36p   \n \n* in constant currencies \n** operating profit as a percentage of gross profit \n*** excluding one off items of c. £13m in H1 relating to restructuring and transformation \n**** excluding the immaterial impact of hyperinflation in Argentina  \n \n \nH1 Key Points   \n• Group gross profit down 9.7%* to £389.7m (2024: £444.1m) \n• Operating profit of £2.1m (H1 2024: £28.4m), after previously announced one-off costs of c. £13m in H1 \nrelating to restructuring and transformation \n• Conversion rate** of 0.5% (H1 2024: 6.4%) \n• Underlying*** operating profit of c. £15m, at a conversion rate of 3.8%  \n• Resilient performance despite market uncertainty, mixed results across the Group \n• Continued subdued levels of client and candidate confidence impacted decision making \n• Gross profit per fee earner remained high but down 1.9% on 2024  \n• Decrease in fee earner headcount of 207 (3.9%) in H1 to 5,163 \n• Net cash in June of £10.8m (H1 2024: £57.2m) \n• Interim dividend of 5.36 pence per share, in line with 2024 \n \nFull Year Outlook \n• The Board continues to expect 2025 Operating Profit to be broadly in line with current market consensus \nof c. £22m \n \nCommenting, Nicholas Kirk, Chief Executive Officer, said: \n \n“The Group delivered a resilient performance in H1 despite ongoing macro-economic uncertainty. Whilst activity \nlevels remained robust across most of our markets, we experienced a slight deterioration in activity levels and \ntrading in Continental Europe towards the end of the period, particularly in our two largest markets, France and \nGermany. Elsewhere, we saw some improvement in activity, trading and customer confidence in Asia and the \nUS. \n \n“Against the ongoing challenging trading conditions, we have taken robust action to optimise our cost base by \nsimplifying our management structure, reducing our leadership team and improving the efficiency of our business \n\nsupport functions. These initiatives will incur a one off cost of c. £15m in 2025, of which c. £13m was incurred in \nH1. These initiatives will deliver annualised savings of c. £15m per annum from 2026. \n \n“The conversion of accepted offers to placements remained the most significant area of challenge, as ongoing \nmacro-economic uncertainty continued to impact confidence, which extended time -to-hire. Permanent \nrecruitment continued to be impacted more than te mporary, as clients sought flexible options and permanent \ncandidates remained reluctant to move jobs. \n \n\"We continued with our strategy of reallocating resources into the areas of the business where we saw the most \nsignificant long-term structural opportunities, as well as ensuring they remained aligned to the activity levels we \nsaw in each of our markets. Overall, our focus remains to balance near-term productivity with ensuring we remain \nwell placed to take advantage of opportunities when market conditions improve. \n \n“We continue to see the benefits of our investments in innovation and technology. Customer Connect is \nsupporting productivity and enhancing customer experience, Page Insights is providing real time data to inform \nbusiness decisions for both Page and our cu stomers, and we continue to work with our partners to deploy AI \nand automation tools into our working environment. \n \n“Despite the uncertain outlook due to the unpredictable economic environment, we have a highly diversified and \nadaptable business model, a strong balance sheet and our cost base is under continuous review.” \n \nINTERIM MANAGEMENT REPORT \n \nGROUP STRATEGY \n \nWe launched our strategy in September 2023 with three key strategic goals: delivering operating profit of £400m, \nchanging one million lives and increasing our client net promoter score to over 60. To achieve our strategy, we \nhave four pillars of growth: ou r core business, our technology business, Page Executive and our Enterprise \nSolutions business. \n \nWithin our core business, defined as Michael Page and Page Personnel and including all disciplines except \nTechnology, trading conditions have been challenging in the majority of our markets. We continue to review our \nbusiness operations and reallocate resource, in line with our strategy, into the areas of the business where we \nsee the most significant long-term structural opportunities.  \n \nAs has been widely reported, the technology sector has been impacted heavily by tough macro factors globally. \nDespite this, Technology remains our second largest discipline. Within technology, we continue to see a more \nresilient performance from non-perm. We are reshaping this business from the pre-pandemic model, increasing \nour offering within contracting and interim roles.  Despite the tough conditions globally, there were some \nindividual markets which delivered good growth in H1, in particular, the US, India and Greater China. \n \nPage Executive delivered another good performance in H1, down just 2 % against a record comparator. A key \nelement of our Page Executive strategy has been to focus on more senior leadership roles and as a result, \nincrease the salary levels at which we place. It has become increasingly clear that the market gap for Page \nExecutive is a significant opportunity for the Group. \n \nEnterprise Solutions supports our largest strategic customers with their complex, global requirements. Our well-\nestablished, global platform allows us to consult with clients as they look to tap into new markets and \ngeographies. Our customer centric approach, highlighted by our net promotor score, increasingly makes us the \npartner of choice. Within Enterprise Solutions, our outsourcing business delivered a record H1 with growth of \n19%. We remain focused on winning business that delivers conversion rates in line with our strategy. \n \nAgainst our social impact goal of changing one million lives, we performed strongly. Progress in this area is \nmeasured by the number of people whose lives we have changed by placing them into work, as well as the \nnumber of people who access programmes we run that support traditionally underrepresented groups accessing \nemployment. In H1 2025, we changed over 55,000 lives, which brings us to a total of over 700,000 lives changed \nsince we set this target in 2020. This puts us well on track to deliver our one million target by 2030. \nWe also made excellent progress on our customer experience goal of achieving a client net promoter score of \nover 60. Net promoter score is a metric used to quantify customer loyalty and satisfaction. In simple terms, it \nmeasures how likely our clients are to recommend us to others. Our baseline NPS score was 52 in 2022. This  \nincreased to 56 in 2023, 61 in 2024, and in H1 2025 our score improved again to 66, rating us as ‘excellent’ and \nabove our 2030 target. This highlights our commitment to providing excellent service to our customers, further \ncementing our position as a benchmark of quality in our industry. \n \nAI and Technology \n \nThe interest and headlines around the role of technology, and in particular AI across all industries continues to \ngrow.  We have seen positive impacts from AI which is supporting our business and our consultants in completing \nthe more administrative-heavy tasks and enhancing customer engagement. Our measured approach to where \nwe see the value in AI is built on solid foundations in collaboration with the most significant players in Big Tech \nto develop safe and secure, cutting-edge technology and AI systems for everyday use by our consultants.   \n \nAI is deployed globally in our core systems at different stages of the recruitment process. This enhances and \nenables our industry leading platforms, Page Insights and Customer Connect. We are confident in our ever -\ngrowing capability in this space, using our global partnerships and internal expertise, to work through the latest \ntrends that emerge constantly in AI. We fundamentally believe that whilst technology and AI are powerful tools, \nhuman interaction is vital to deliver the most successful recruitment outcomes for both clients and candidates, \nparticularly within white collar, professional recruitment. Our consul tants provide valuable expertise, market \nknowledge and insight to our customers, with tech and AI playing a crucial supporting role. \n \n \nGROUP RESULTS \n \nGROSS PROFIT  £m Growth rates \n % of Group H1 2025 H1 2024 Reported CC \nEMEA 54%  208.9 248.8 -16.0% -14.4% \nAmericas 19%  74.9 77.3 -3.1% +3.5%**** \nAsia Pacific 15%  59.3 64.3 -7.7% -5.0% \nUK 12%  46.6 53.7 -13.4% -13.4% \nTotal 100%  389.7 444.1 -12.3% -9.7% \n       \nPermanent 72% 282.3 325.5 -13.3% -10.6% \nTemporary 28% 107.4 118.6 -9.5% -7.0% \n \nRevenue for the six months ended 30 June 2025 was down 11.1% to £798.4m (2024: £898.0m) whilst gross \nprofit decreased 12.3% to £389.7m (2024: £444.1m). In constant currencies, the Group’s revenue  and gross \nprofit decreased 8.6% and 9.7%, respectively.  \n \nThe Group’s revenue mix between permanent and temporary placements was 36:64 (2024: 36:64) and for gross \nprofit was 72:28 (2024: 73:27). Revenue from temporary placements comprises the salaries of those placed, \ntogether with the margin charged. \n \nOPERATING PROFIT AND CONVERSION RATE \n \nThe Group's organic growth model and profit-based team bonus ensures costs remain tightly controlled. 76% of \nfirst half costs were employee related, including salaries, bonuses, share -based long -term incentives, and \ntraining and relocation costs. \n \nIn total, administrative expenses in the first half decreased 6.8% in reported rates to £387.5m (2024: £415.7m), \ndriven largely by the lower average headcount in H1 2025 compared to H1 2024. In constant currencies, \nadministrative expenses declined 4.0%. \n \nAgainst the ongoing challenging trading conditions, we have taken robust action to optimise our cost base by \nsimplifying our management structure, reducing our leadership team and improving the efficiency of our business \nsupport functions. These initiatives will incur a one off cost of c. £15m in 2025, partially offset by savings in 2025 \nof c. £5m. One off costs of c. £13m were incurred in the first half of the year, in relation to our cost optimisation \nprogramme. These initiatives will deliver annualised savings of c. £15m per year from 2026.  \n \nThe Group’s conversion rate, which represents the ratio of operating profit to gross profit, was 0.5% (2024: 6.4%) \ndue to the more challenging trading conditions  experienced in 2025, in addition to c. £13m of one off costs \nincurred in H1. Excluding one off costs, our conversion rate was 3.8% . A net interest charge of £1.9m (2024: \n£0.7m) in the first half  related primarily to an IFRS 16 interest charge of £2. 5m, partially offset by interest \nreceivable of £0.7m. \n \nCASH FLOW \n \nCash flow in the period was resilient, but lower due to the reduction in profitability,  with £3.6m generated from \noperations (2024: £49.2m). Tax paid was £12.9m and net capital expenditure was £7.1m. During the first half, \n£8.3m was spent on the purchase of shares into the Employee Benefit Trust ( 2024: £13.2m) and dividends of \n£36.9m were paid to shareholders (2024: £35.2m). As a result, the Group had net cash of £10.8m at 30 June \n2025 (30 June 2024: £57.2m). \n \nCAPITAL ALLOCATION POLICY  \n \nIt is the Directors’ intention to continue to finance the activities and development of the Group from retained \nearnings and to maintain a strong balance sheet position. \n \nThe Group’s first use of cash is to satisfy operational and investment requirements, as well as to hedge its \nliabilities under the Group’s share plans. The level of cash required for this purpose will vary depending upon \nthe revenue mix of geographies, permanent and temporary recruitment, and point in the economic cycle.  \n \nOur second use of cash is to make returns to shareholders by way of an ordinary dividend. Our policy is to grow \nthe ordinary dividend over the course of the economic cycle in a way that we believe we can sustain the level of \nordinary dividend payment during downturns, as well as increasing it during more prosperous times. \n \nCash generated in excess of these first two priorities will be returned to shareholders through supplementary \nreturns, using special dividends and/or share buybacks. \n \nThe Board has announced an interim dividend of 5.36 pence per share, in line with 2024. The interim dividend \nwill be paid on 10 October 2025 to shareholders on the register as at 29 August 2025. \n \nOTHER FINANCIAL ITEMS  \n \nTaxation \n \nThe effective tax rate for the first half was 37.3% (H1 2024: 39.5%). The decrease on the prior year is due \nprimarily to a reduction in prior year tax adjustments impacting the half year results. The effective tax rate for H1 \nis consistent with our expectations for the full year.  \n \nEarnings per share \n \nFor the six months ended 30 June 2025, basic earnings per share and diluted earnings per share were both \n0.0p (2024: basic earnings per share 5.3p; diluted earnings per share 5.3p). \n \n \nShare repurchases \n \nDuring the first half of the year, the Group purchased £8.3m of shares into the Employee Benefit Trust to hedge \nits exposure under the Group’s share plans (2024: £13.2m). \n \nGEOGRAPHICAL ANALYSIS (All growth rates given below are in constant currency vs. H1 2024 unless \notherwise stated) \n \nEUROPE, MIDDLE EAST AND AFRICA (EMEA) \n \nEMEA £m Growth rates \n(54% of Group in H1 2025) H1 2025 H1 2024 Reported CC \nRevenue 434.9 501.4 -13.3% -11.7% \nGross Profit 208.9 248.8 -16.0% -14.4% \nOperating Profit 10.9 36.3 -69.8% -69.0% \nConversion Rate (%) 5.2% 14.6%   \n \nEMEA is the Group’s largest region, contributing 54% of Group first half gross profit. Against 2024, in reported \nrates, revenue in the region decreased 13.3% to £434.9m (2024: £501.4m) and gross profit decreased 16.0% \nto £208.9m (2024: £248.8m). In constant currencies, revenue decreased 11.7% and gross profit decreased by \n14.4%. \n \nTemporary recruitment, down 10%, was more resilient than permanent, dow n 17%, indicative of the current \nuncertainty within the market. France, the Group’s largest market, was down 19%, due to ongoing political and \nmacro-economic uncertainty. Germany, our second largest market, declined 16%, with conditions particularly \ntough within permanent, with companies limiting and delaying hiring decisions due to macro-economic and tariff \nrelated uncertainty. Elsewhere in the region, market conditions remained challenging in all countries.  \n \nH1 operating profit was £10.9m (2024: £36.3m) with a conversion rate of 5.2% (2024: 14.6%). Excluding one off \ncosts of £7. 5m in H1, underlying operating profit was £18.4m, with a conversion rate of 8.8%. Profitability \ndecreased on 2024 due to the tougher trading conditions seen in 2025, albeit the region continues to have the \nhighest conversion rate of the Group. Headcount across the region decreased by 176 (5.0%) in the first half, to \n3,354 at the end of June 2025 (3,530 at 31 December 2024). \n \nTHE AMERICAS \n \nAmericas £m Growth rates \n(19% of Group in H1 2025) H1 2025 H1 2024 Reported CC \nRevenue 135.2 139.1 -2.8% +3.4%**** \nGross Profit 74.9 77.3 -3.1% +3.5%**** \nOperating Profit 2.4 4.4 -44.8% -30.8%**** \nConversion Rate (%) 3.2% 5.7%   \n \n \nIn the Americas, representing 19% of Group first half gross profit, revenue decreased 2.8% in reported rates \nagainst 2024, to £ 135.2m ( 2024: £ 139.1m), while gross profit declined 3.1% to £ 74.9m ( 2024: £ 77.3m). \nExcluding Argentina due to hyperinflation , revenue and gross profit increased by 3.4% and 3.5% in constant \ncurrencies, respectively.  \n \nNorth America grew 10% against 2024, due to the US, which was up 11%. We saw good levels of activity and \ntrading, with a particularly strong performance in Engineering, and a significantly improved performance in \nConstruction in Q2.  \n \nIn Latin America, excluding Argentina, the region declined 4%. Mexico, our largest country in the region, declined \n10%, due to ongoing  political uncertainty and low levels of customer confidence. Brazil grew 3%, with a \nparticularly strong performance in temporary recruitment. Elsewhere in Latin America, our remaining countries \nin the region declined 4%, collectively. \n \nOperating profit was £2.4m (2024: £4.4m), with a conversion rate of 3.2% (2024: 5.7%). Excluding one off costs \nof £0.7m in H1, underlying operating profit was £ 3.1m, with a conversion rate of 4.2%. Headcount across the \nregion decreased by 14 (1.1%) in the first half to 1,313 at the end of June 2025 (1,327 at 31 December 2024). \n \nASIA PACIFIC \n \nAsia Pacific £m Growth rates \n(15% of Group in H1 2025) H1 2025 H1 2024 Reported CC \nRevenue 106.7 116.6 -8.4% -5.1% \nGross Profit 59.3 64.3 -7.7% -5.0% \nOperating Loss -4.2 -4.8 +11.9% +14.8% \nConversion Rate (%) -7.1% -7.4%   \n \nIn Asia Pacific, representing 15% of Group first half gross profit, revenue decreased 8.4% in reported rates to \n£106.7m (2024: £116.6m) and gross profit decreased 7.7% to £59.3m (2024: £64.3m). In constant currencies, \nrevenue decreased 5.1% in H1 and gross profit decreased 5.0%. The market remained tough at the start of the \nyear, however we saw an improvement in trading conditions towards the end of the period.  \n \nGross profit in Greater China declined 13%, with Mainland China  and Hong Kong down 22% and 2%, \nrespectively. The improved performance in Hong Kong in Q2 was due partly to a weak comparator, but also \ndriven by stronger trading. South East Asia declined 3%, with Singapore down 9%. India continued to deliver \nthe standout performance in the region, up  15% with a record H1  against a very strong comparator . Japan \ndeclined 3% and Australia declined 13%, with ongoing challenging conditions across most states. \n \nWe made an operating loss of £4.2m (2024: £4.8m operating loss), with a negative conversion rate of 7.1% \n(2024: -7.4%). Excluding one off costs of £1.9m in H1, we made an underlying operating loss of £2.3m, with a \nnegative conversion rate of 3.8%. This was an improvement on H1 2024, due to the  increase in trading and \ncustomer confidence we saw in Q2. Headcount across the region decreased by 61 (4.0%) in the first half to \n1,471 at the end of June 2025 (1,532 at 31 December 2024). \n \nUNITED KINGDOM \n \nUK £m Growth rate \n(12% of Group in H1 2025) H1 2025 H1 2024  \nRevenue 121.7 140.9 -13.6% \nGross Profit 46.6 53.7 -13.4% \nOperating Loss -7.0 -7.5 +5.6% \nConversion Rate (%) -15.1% -13.9%  \n \nIn the UK, representing 12% of Group first half gross profit, revenue declined 13.6% to £121.7m (2024: £140.9m) \nand gross profit declined 13.4% to £ 46.6m (2024: £53.7m). The conversion of accepted offers to placements \nremained a significant area of challenge, with ongoing subdued levels  of client and candidate confidence \nimpacting decision making and increasing time-to-hire. \nWe made an operating loss of £7.0m (2024: £7.5m operating loss) in the first half, with a negative conversion \nrate of 15.1% (2024: -13.9%). Excluding one off costs in both periods, we made an underlying operating loss in \nH1 2025 of £4.3m (2024: £5.6m operating loss) , with a negative conversion rate of 9.3%  (2024: -10.3%). \nHeadcount was down 76 (7.8%) during the first half to 896 at the end of June 2025 (972 at 31 December 2024). \n \nKEY PERFORMANCE INDICATORS (“KPIs”) \n \nWe measure our progress against our strategic objectives using the following key performance indicators: \n \nKPI Definition, method of calculation and analysis \n  \nGross profit growth How measured: Gross profit growth represents revenue less cost of sales, expressed \nas the percentage change over the prior year. It consists principally of placement fees \nfor permanent  candidates and the margin  earned on the placement of  temporary \ncandidates. \n \nWhy it’s important:  This metric shows the income growth of  the business. The \nindicator is recorded in both constant and  reported currency, as foreign exchange \nmovements in our international markets can impact it significantly. \n \nHow we performed in H1 2025: We continued to experience tough trading conditions \nin H1 2025, which resulted in a decline of 12.3% vs. H1 2024 in reported rates, or 9.7% \nin constant currencies.  \n \nRelevant strategic objective: Organic growth. \nRatio of permanent \nvs temporary \nplacements \nHow measured: Gross profit earned from permanent and temporary placements, \nexpressed as a percentage of the Group’s total gross profit.  \n \nWhy it’s important:  This ratio reflects both the current stage  of the economic cycle \nand our geographic spread, as a number  of countries culturally have minimal white \ncollar temporary roles.  It gives a guide as to the operational gearing potential in the  \nbusiness, which is significantly greater for permanent recruitment. \n \nHow we performed in H1 2025: 72% of our gross profit was generated from \npermanent placements, marginally below the 7 3% in 202 4. Reflecting the uncertain \nmacro-economic conditions, temporary recruitment ( -7.0%) continued to outperform \npermanent (-10.6%), as clients sought more flexible options.  \n \nRelevant strategic objective: Diversification. \nGross profit per fee \nearner \nHow measured:  Gross profit for the year divided by the average number of fee-\ngenerating staff, calculated on a rolling monthly average basis. \n \nWhy it’s important: This is our indicator of productivity, which is affected by levels of \nactivity in the market, capacity within the business and the number of recently hired fee \nearners who are not yet at full productivity. Currency movements can also impact  this \nfigure. \n \nHow we performed in H1 2025: Gross profit per fee earner remained high at £73.7k, \nbut was down 1.9% vs. 2024 in constant currencies. This reflected the reduction  in \ngross profit, although this was partially offset by the decrease in headcount. \n \nRelevant strategic objective: Organic growth. \nConversion rate How measured: Operating profit (EBIT) shown as a percentage of gross profit. \n \nWhy it’s important: This reflects how successful the Group is at managing business-\nrelated costs, growing fee -earner productivity and the level of investment being \ndirected towards future growth. \n \nHow we performed in H1 2025:  Operating profit as a percentage of gross profit \ndecreased to 0.5% (H1 2024: 6.4%), due to the tougher trading conditions in 2025 , in \naddition to one off costs incurred of c. £13m.   \n \nRelevant strategic objective: Sustainable growth. \nBasic earnings per \nshare  \nHow measured:  Profit for the year attributable to the Group’s  equity shareholders, \ndivided by the weighted average number of shares in issue during the year. \n \nWhy it’s important:  This measures the underlying profitability of  the Group and the \nprogress made against the prior year. \n \nHow we performed in H1 202 5: Earnings per share in H1 2025 was 0.0p (H1 2024: \n5.3p). The decline is due to the lower profit for the period, as a result of the more \nchallenging trading conditions, in addition to one off costs incurred of c. £13m. \n \nRelevant strategic objective: Sustainable growth. \nFee-earner \nheadcount growth \nHow measured: Number of fee earners and directors involved in revenue-generating \nactivities at the year end, expressed as the percentage change compared to the prior \nyear. \n \nWhy it’s important: Growth in fee earners is a guide to our confidence in the business \nand macro-economic outlook, as it  reflects our expectations as to the level of future \ndemand for our services above the existing capacity currently within the business . \n \nHow we performed in H1 202 5: In response to the more challenging trading \nconditions, we reduced our fee-earner headcount by 207 (3.9%) to 5,163 in H1 2025, \nmainly in EMEA and the UK. We continued to reallocate resources into markets where \nwe saw an improvement in activity levels. \n \nRelevant strategic objective: Sustainable growth. \nNet cash How measured: Cash and short-term deposits. \n \nWhy it’s important:  The level of cash reflects our cash generation and conversion \ncapabilities and our success in managing our working capital. It determines our ability \nto reinvest in the business, to return cash to shareholders and to ensure we remain \nfinancially robust through cycles. \n \nHow we performed in H1 2025:  Net cash at 30 June 2025 was £10. 8m (H1 2024: \n£57.2m). This is after the payment of the 2024 final dividend of £36.9m , one off costs \nof c. £13m and the purchase of shares into the Employee Benefit Trust of £8.3m (H1 \n2024: £13.2m). \n \nRelevant strategic objective: Sustainable growth. \n \nThe source of data and calculation methods year -on-year are on a consistent basis. The movements in KPIs \nare in line with expectations. Disclosures for GHG emissions and People KPIs are provided annually.  \n \nPRINCIPAL RISKS AND UNCERTAINTIES \n \nThe management of the business and the execution of the Group’s strategy are subject to a number of risks. \n \nThe main risks that PageGroup believes could potentially impact the Group’s operating and financial \nperformance for the remainder of the financial year remain those as set out in the Annual Report and Accounts \nfor the year ending 31 December 2024 on pages 57 to 64. \n \nTREASURY MANAGEMENT, BANK FACILITIES AND CURRENCY RISK \nThe Group operates a multi -currency cash concentration arrangement managed by the centralised Treasury \nfunction in London. 79% of the Group by revenue participates in this arrangement.  This arrangement facilitates \ninterest compensation for cash whilst supporting working capital requirements. \nThe Group maintains a Confidential Invoice Facility with HSBC whereby the Group has the option to discount \nreceivables in order to advance cash. The Group also has an £80m Committed Revolving Credit Facility (RCF) \nwith HSBC and BBVA, expiring in December 2027. These facilities are available for general corporate purposes. \nAs at 30 June 2025, £10.0m was drawn down under the RCF, and £13.0m under our UK trade debtor discounting \nfacility. \nThe main functional currencies of the Group are Sterling, Euro, Chinese Renminbi, US Dollar, Swiss Franc, \nSingapore Dollar, Hong Kong Dollar and Australian Dollar. The Group does not have material transactional \ncurrency exposures. The Group is exposed to foreign currency translation differences in accounting for its \noverseas operations. The Group’s policy is n ot to hedge the translation exposure of the profits of overseas \nsubsidiaries.  \nThe Group may use short -dated foreign exchange derivatives to manage the foreign currency transaction \nexposures in the business. The main exposures arise from intercompany balances and transactions.  \nESG \n \nAt PageGroup, we want to be the best in recruitment at driving a sustainable future for our business and our \nworld. Our sustainability strategy and targets set out how we aim to achieve that. In April 2025, we published \nour annual sustainability spotlight report, highlighting the progress we made on our four sustainability goals over \nthe course of 2024. This included: \n \n• Changing 136,816 lives in 2024 through placements and social impact programmes \n• Increasing the proportion of women in leadership roles to 46% \n• Decreasing our scope 1 & 2 emissions by 23% vs 2023 \n• Increasing net fees from our sustainability business by 2% vs 2023 \n \nH1 2025 has delivered continued progress against key targets. We have expanded our global partnership with \nGeneration, a global nonprofit organisation that trains and places adults into careers that would otherwise be \ninaccessible. Our People have voluntee red their skills to Generation programmes in ten countries and have \nreached over 1,200 learners this year alone. We also launched a mentoring programme, with our first cohort of \nfive Generation mentees being mentored by Page leaders, including our Chief Pe ople Officer. For further \ninformation on our sustainability efforts, please refer to https://www.page.com/sustainability. \n \nGOING CONCERN \n \nThe Board has undertaken a review of the Group’s forecasts and associated risks and sensitivities, in the period \nfrom the date of approval of the interim financial statements to August 2026 (review period). \n \nDebt facilities relevant to the review period comprise a committed £80m RCF maturing December 2027, an \nuncommitted UK trade debtor discounting facility (up to £50m depending on debtor levels) and an uncommitted \n£20m UK bank overdraft facility. \n \nThe Group had net cash of £10. 8m as at 30 June 2025. Net cash included cash of £33. 8m, partially offset by \nborrowings of £10.0m under the RCF, and borrowings of £13.0m under our UK trade debtor discounting facility. \nThe Group had no other debt except for IFRS 16 lease liabilities of £142.9m. The forecast cash flows , which \nassumes repayment of borrowings, indicate that the Group will comply with all relevant banking covenants during \nthe review period. \n \nDespite the current trading position, macro-economic and political uncertainty that currently exists, and its \ninherent risk and impact on the business, based on the modelling of a sustained loss of business arising from a \nfurther worsening of the macro -economic environment, when considering mitigating actions available to the \nGroup, there are no plausible downside scenarios that the Board believes would cause a liquidity or covenant \ncompliance issue. \n \nHaving considered the Group's forecasts, the level of borrowing facilities available to the business, the Group's \ngeographical and discipline diversification, limited concentration risk, as well as the ability to manage the cost \nbase and discretionary cashflows, the Board has concluded that the Group has adequate resources to continue \nin operation, meet its liabilities as they fall due, retain sufficient available cash and not breach the covenants \nunder the RCF for the period through to August 2026.  \nCAUTIONARY STATEMENT \n \nThis Interim Management Report (“IMR”) has been prepared solely to provide additional information to \nshareholders to assess the Group’s strategies and the potential for those strategies to succeed. The IMR should \nnot be relied on by any other party or for any other purpose. This IMR contains certain forward -looking \nstatements. These statements are made by the directors in good faith based on the information available to \nthem up to the time of their approval of this report and such statements should be treat ed with caution due to \nthe inherent uncertainties, including both economic and business risk factors, underlying any such forward -\nlooking information. \n \nThis IMR has been prepared for the Group as a whole and therefore gives greater emphasis to those matters \nthat are significant to PageGroup plc and its subsidiary undertakings when viewed as a whole. \n \nBourne Business Park, \n200 Dashwood Lang Road, \nAddlestone, \nSurrey, \nKT15 2NX \n \nBy order of the Board, \n \n \n \nNicholas Kirk Kelvin Stagg \nChief Executive Officer Chief Financial Officer \n   \n11 August 2025 11 August 2025 \n \nPageGroup will host a conference call, with on-line slide presentation, for analysts and investors at 8.30am on \n12 August 2025, the details of which are below: \nhttps://www.investis-live.com/pagegroup/688797375467670031ff634e/dgwga \n \nPlease use the following dial-in number to join the conference: \nUnited Kingdom (Local)  020 3936 2999 \nAll other locations  +44 20 3936 2999 \n \nPlease quote participant access code 28 09 62 to gain access to the call. \n \nA presentation and recording to accompany the call will be posted on the PageGroup website during the course \nof the morning of 12 August 2025 at: \n \nhttps://www.page.com/presentations/year/2024 \n \nEnquiries: \n \nPageGroup +44 (0)19 3226 4032 \nNicholas Kirk, Chief Executive Officer  \nKelvin Stagg, Chief Financial Officer   \n \n \nFTI Consulting \n \n+44 (0)20 3727 1340 \nRichard Mountain / Susanne Yule  \n \n \n \n \n \nINDEPENDENT REVIEW REPORT TO PAGEGROUP PLC \n \nConclusion  \n \nWe have been engaged by the Company to review the condensed set of financial statements in the half-yearly \nfinancial report for the six months ended 30 June 2025 which comprises the Condensed Consolidated Income \nStatement, the Condensed Consolidated Statement of Comprehensive Income, the Condensed Consolidated \nBalance Sheet, the Condensed Consolidated Statement of Changes in Equity, the Condensed Consolidated \nStatement of Cash Flows and the related notes 1 to 13. We have read the other information contained  in the \nhalf yearly financial report and considered whether it contains any apparent misstatements or material \ninconsistencies with the information in the condensed set of financial statements.  \n \nBased on our review, nothing has come to our attention that causes us to believe that the condensed set of \nfinancial statements in the half-yearly financial report for the six months ended 30 June 2025 is not prepared, in \nall material respects, in accordance with UK adopted International Accounting Standard 34 and the Disclosure \nGuidance and Transparency Rules of the United Kingdom’s Financial Conduct Authority. \n \nBasis for Conclusion \n \nWe conducted our review in accordance with International Standard on Review Engagements 2410 (UK) \n\"Review of Interim Financial Information Performed by the Independent Auditor of the Entity\" (ISRE) issued by \nthe Financial Reporting Council. A review of interim financial information consists of making enquiries, primarily \nof persons responsible for financial and accounting matters, and applying analytical and other review \nprocedures. A review is substantially less in scope than an audit conducted in accordan ce with International \nStandards on Auditing (UK) and consequently does not enable us to obtain assurance that we would become \naware of all significant matters that might be identified in an audit. Accordingly, we do not express an audit \nopinion. \n \nAs disclosed in note 2, the annual financial statements of the Group are prepared in accordance with UK adopted \ninternational accounting standards. The condensed set of financial statements included in this half -yearly \nfinancial report has been prepared in  accordance with UK adopted International Accounting Standard 34, \n“Interim Financial Reporting”. \n \n \nConclusions Relating to Going Concern \n \nBased on our review procedures, which are less extensive than those performed in an audit as described in the \nBasis of Conclusion section of this report, nothing has come to our attention to suggest that management have \ninappropriately adopted the going co ncern basis of accounting or that management have identified material \nuncertainties relating to going concern that are not appropriately disclosed.  \n \nThis conclusion is based on the review procedures performed in accordance with this ISRE, however future \nevents or conditions may cause the entity to cease to continue as a going concern. \n \n \nResponsibilities of the directors \n \nThe directors are responsible for preparing the half -yearly financial report in accordance with the Disclosure \nGuidance and Transparency Rules of the United Kingdom's Financial Conduct Authority.  \n \nIn preparing the half-yearly financial report, the directors are responsible for assessing the company’s ability to \ncontinue as a going concern, disclosing, as applicable, matters related to going concern and using the going \nconcern basis of accounting unless the directors either intend to liquidate the company or to cease operations, \nor have no realistic alternative but to do so. \n \n \n \nAuditor’s Responsibilities for the review of the financial information  \nIn reviewing the half -yearly report, we are responsible for expressing to the Company a conclusion on the \ncondensed set of financial statements in the half -yearly financial report. Our conclusion, including our \nConclusions Relating to Going Concern, are based on procedures that are less extensive than audit procedures, \nas described in the Basis for Conclusion paragraph of this report.  \n \n \nUse of our report  \n \nThis report is made solely to the company in accordance with guidance contained in International Standard on \nReview Engagements 2410 (UK) \"Review of Interim Financial Information Performed by the Independent Auditor \nof the Entity\" issued by the Financial Reporting Council. To the fullest extent permitted by law, we do not accept \nor assume responsibility to anyone other than the company, for our work, for this report, or for the conclusions \nwe have formed. \n \n \n \n \n \n \n \nErnst & Young LLP \nLondon \n11 August 2025 \n \n  \nCondensed Consolidated Income Statement \nFor the six months ended 30 June 2025 \n   Six months ended Year ended \n   30 June  30 June  31 December \n   2025  2024  2024 \n   Unaudited  Unaudited  Audited \n Note  £'000  £'000  £'000 \n        \nRevenue 3  798,426  897,959  1,738,937 \nCost of sales   (408,769)  (453,818)  (896,351) \nGross profit 3  389,657  444,141  842,586 \nAdministrative expenses   (387,530)  (415,728)  (790,137) \nOperating profit 3  2,127  28,413  52,449 \nFinancial income  4  697  908  2,170 \nFinancial expenses 4  (2,591)  (1,606)  (5,492) \nProfit before tax    233  27,715  49,127 \nIncome tax expense 5  (87)  (10,939)  (20,684) \nProfit for the period   146  16,776  28,443 \n        \nAttributable to:        \nOwners of the parent   146  16,776  28,443 \n        \nEarnings per share        \nBasic earnings per share (pence) 8  0.0  5.3  9.1 \nDiluted earnings per share (pence) 8  0.0  5.3  9.0 \n \nThe above results all relate to continuing operations \n \nCondensed Consolidated Statement of Comprehensive Income \nFor the six months ended 30 June 2025 \n  Six months ended Year ended \n  30 June  30 June  31 December \n  2025  2024  2024 \n  Unaudited  Unaudited  Audited \n  £'000  £'000  £'000 \n       \nProfit for the period  146  16,776  28,443 \n       \nOther comprehensive (expense)/income for the period       \nItems that may subsequently be reclassified to profit and loss:       \n       \nCurrency translation differences  (1,464)  (4,069)  (10,101) \n       \nItems that may not subsequently be reclassified to profit and \nloss: \n       \nActuarial loss on retirement benefits  -  -  (352) \nDeferred tax from actuarial loss on retirement benefits  -  -  88 \nTotal comprehensive (expense)/income for the period  (1,318)  12,707  18,078 \n       \nAttributable to:       \nOwners of the parent  (1,318)  12,707  18,078 \nCondensed Consolidated Balance Sheet \nAs at 30 June 2025 \n   \n \n30 June  30 June  31 December \n   2025  2024  2024 \n   Unaudited  Unaudited  Audited \n Note  £'000  £'000  £'000 \nNon-current assets        \nProperty, plant and equipment 9            45,912   46,529  45,811 \nRight-of-use assets           129,445   99,327  120,711 \nIntangible assets - Goodwill and other intangible               1,776   1,802  1,738 \n                            - Computer software              18,041   25,475  21,916 \nDeferred tax assets             22,288   17,163  18,127 \nOther receivables  10  13,876   13,031  13,164 \n   231,338  203,327  221,467 \nCurrent assets        \nTrade and other receivables 10          325,704   358,218  315,257 \nCurrent tax receivable             24,378   22,888  18,023 \nCash and cash equivalents 13            33,835   57,249  95,348 \n           383,917  438,355  428,628 \n        \nTotal assets 3          615,255   641,682  650,095 \n        \nCurrent liabilities        \nTrade and other payables 11         (216,737)  (231,528)  (229,460) \nBorrowings   (13,034)  -  - \nProvisions 12             (3,631)  (3,852)  (2,653) \nLease liabilities            (33,644)  (31,871)  (33,418) \nCurrent tax payable              (1,348)  (6,892)  (3,189) \n          (268,394)  (274,143)  (268,720) \n        \nNet current assets           115,523   164,212  159,908 \n        \nNon-current liabilities        \nBorrowings   (10,000)  -  - \nOther payables 11             (7,504)  (8,410)  (10,426) \nLease liabilities          (109,227)  (78,697)  (103,372) \nDeferred tax liabilities                 (609)  (2,342)  (609) \nProvisions 12             (2,529)  (4,092)  (4,559) \n          (129,869)  (93,541)  (118,966) \nTotal liabilities 3         (398,263)  (367,684)  (387,686) \n        \nNet assets           216,992   273,998  262,409 \n        \nCapital and reserves        \nCalled-up share capital               3,286   3,286  3,286 \nShare premium             99,564   99,564  99,564 \nCapital redemption reserve                  932   932  932 \nReserve for shares held in the employee benefit trust            (79,265)  (75,498)  (75,391) \nCurrency translation reserve               7,630   15,916  9,162 \nRetained earnings           184,845   229,798  224,856 \nTotal equity           216,992   273,998  262,409 \n \nCondensed Consolidated Statement of Changes in Equity \nFor the six months ended 30 June 2025 \n \n        Reserve       \n        for shares       \n Called-up    Capital   held in the  Currency     \n share  Share  redemption   employee  translation  Retained  Total \n capital  premium  reserve   benefit trust  reserve  earnings  equity \n £'000  £'000  £'000   £'000  £'000  £'000  £'000 \nBalance at 1 January 2024 3,286  99,564  932   (66,813)  19,985  249,534  306,488 \nCurrency translation differences -  -  -   -  (4,069)  -  (4,069) \nNet expense recognised directly in equity -  -  -   -  (4,069)  -  (4,069) \nProfit for the six months ended 30 June 2024 -  -  -   -  -  16,776  16,776 \nTotal comprehensive (expense)/income for the period -  -  -   -  (4,069)  16,776  12,707 \nPurchase of shares held in the employee benefit trust -  -  -   (13,161)  -  -  (13,161) \nExercise of share plans -  -  -   -  -  453  453 \nReserve transfer when shares held in the employee benefit trust \nvest -  -  -   4,476  -  (4,476)  - \nCredit in respect of share schemes -  -  -   -  -  2,931  2,931 \nDebit in respect of tax on share schemes -  -  -   -  -  (209)  (209) \nDividends -  -  -   -  -  (35,211)  (35,211) \n -  -  -   (8,685)  -  (36,512)  (45,197)                \nBalance at 30 June 2024 3,286  99,564  932   (75,498)  15,916  229,798  273,998 \n               \nCurrency translation differences -  -  -   -  (6,754)  722  (6,032) \nActuarial expense on retirement benefits net of tax -  -  -   -  -  (264)  (264) \nNet (expense)/income recognised directly in equity -  -  -   -  (6,754)  458  (6,296) \nProfit for the six months ended 31 December 2024 -  -  -   -  -  11,667  11,667 \nTotal comprehensive (expense)/income for the period -  -  -   -  (6,754)  12,125  5,371 \nPurchase of shares held in the employee benefit trust -  -  -   -  -  -  - \nExercise of share plans -  -  -   -  -  80  80 \nReserve transfer when shares held in the employee benefit trust \nvest -  -  -   107  -  (107)  - \nDebit in respect of share schemes -  -  -   -  -  (411)  (411) \nCredit in respect of tax on share schemes -  -  -   -  -  164  164 \nDividends -  -  -   -  -  (16,793)  (16,793) \n -  -  -   107  -  (17,067)  (16,960) \n               \nBalance at 31 December 2024 3,286  99,564  932   (75,391)  9,162  224,856  262,409 \n \n \n \n \n \n \n \n               \nBalance at 1 January 2025 3,286  99,564  932   (75,391)  9,162  224,856  262,409 \nCurrency translation differences -  -  -   -  (1,532)  68  (1,464) \nNet (expense)/income recognised directly in equity -  -  -   -  (1,532)  68  (1,464) \nProfit for the six months ended 30 June 2025 -  -  -   -  -  146  146 \nTotal comprehensive (expense)/income for the period -  -  -   -  (1,532)    214  (1,318) \nPurchase of shares held in employee benefit trust -  -  -   (8,347)  -  -  (8,347) \nExercise of share plans -  -  -   -  -  160  160 \nReserve transfer when shares held in the employee benefit trust \nvest -  -  -   4,473  -  (4,473)  - \nCredit in respect of share schemes -  -  -   -  -  936  936 \nCredit in respect of tax on share schemes -  -  -   -  -  31  31 \nDividends -  -  -   -  -  (36,879)  (36,879) \n  -  -  -   (3,874)  -  (40,225)  (44,099) \n                \nBalance at 30 June 2025 3,286  99,564  932   (79,265)  7,630  184,845  216,992 \n \n \nCondensed Consolidated Statement of Cash Flows \nFor the six months ended 30 June 2025 \n \n \n   30 June  30 June  31 December \n   2025  2024  2024 \n   Unaudited  Unaudited  Audited \n   £'000  £'000  £'000 \n Note       \n        \nProfit before tax    233   27,715  49,127 \nDepreciation, amortisation charges and expense of \ncomputer software            28,946   30,019  62,924 \n(Profit)/loss on sale of property, plant and equipment                 (22)  258  1,053 \nShare scheme charges              1,479   2,931  2,687 \nNet finance costs              1,894   698  3,322 \nOperating cash flow before changes in working \ncapital            32,530   61,621  119,113 \n(Increase)/decrease in receivables   (9,012)  11,977  47,442 \nDecrease in payables          (19,887)  (24,378)  (20,619) \nCash generated from operations              3,631   49,220  145,936 \nIncome tax paid          (12,939)  (7,876)  (19,281) \nNet cash from operating activities            (9,308)  41,344  126,655 \n        \nCash flows from investing activities        \nPurchases of property, plant and equipment            (7,044)  (8,047)  (15,662) \nPurchases and capitalisation of intangible assets            (1,174)  (1,034)  (2,607) \nProceeds from the sale of property, plant and \nequipment, and computer software              1,141   1,714  2,364 \nInterest received                 916   1,021  2,170 \nNet cash used in investing activities            (6,161)  (6,346)  (13,735) \n        \nCash flows from financing activities        \nIncrease in borrowings   23,034  -  - \nDividends paid          (36,879)  (35,211)  (52,004) \nInterest paid               (287)  (290)  (833) \nLease liability repayment          (23,269)  (20,668)  (40,630) \nIssue of own shares for the exercise of options                 160  453  533 \nPurchase of shares into the employee benefit trust            (8,347)  (13,161)  (13,161) \nNet cash used in financing activities          (45,588)  (68,877)  (106,095) \n        \nNet (decrease)/increase in cash and cash \nequivalents          (61,057)  (33,879)  6,825 \nCash and cash equivalents at the beginning of \nthe period            95,348   90,138  90,138 \nExchange (loss)/gain on cash and cash equivalents            (456)  990  (1,615) \nCash and cash equivalents at the end of the \nperiod 13  33,835   57,249  95,348 \n \n \n  \nNotes to the condensed set of interim results \nFor the six months ended 30 June 2025 \n \n \n1. General information \n \nThe information for the year ended 31 December 2024 does not constitute statutory accounts as defined in section 435 of \nthe Companies Act 2006. A copy of the statutory accounts for that year has been delivered to the Registrar of Companies. \nThe auditors re ported on those accounts: their report was unqualified, did not draw attention to any matters by way of \nemphasis and did not contain a statement under section 498(2) or (3) of the Companies Act 2006.  \n \nThe unaudited interim condensed consolidated financial statements of PageGroup plc and its subsidiaries (collectively, the \nGroup) for the six months ended 30 June 2025 were authorised for issue in accordance with a resolution of the directors \non 11 August 2025. \n \n2. Accounting policies \n \nBasis of preparation \n \nThe unaudited interim condensed consolidated financial statements for the six months ended 30 June 2025 have been \nprepared in accordance with UK adopted IAS 34 ‘Interim financial reporting’ and with the Disclosure Guidance and \nTransparency Rules of the Financial Conduct Authority.    \n \nThe unaudited interim condensed consolidated financial statements do not constitute the Group’s statutory financial \nstatements.  The Group’s most recent statutory financial statements, which comprise the annual report and audited financial \nstatements for the year ended 31 December 2024, were approved by the directors on 5 March 2025.  The interim condensed \nconsolidated financial statements should be read in conjunction with the Annual Report and Accounts for the year ended \n31 December 2024, which have been prepared in accordance with UK -adopted international accounting standards \n(\"IFRSs\"). \n \nGoing concern \n \nThe Board has undertaken a review of the Group’s forecasts and associated risks and sensitivities, in the period from the \ndate of approval of the interim financial statements to August 2026 (review period).  \n \nDebt facilities relevant to the review period comprise a committed £80m RCF maturing December 2027, an uncommitted \nUK trade debtor discounting facility (up to £50m depending on debtor levels) and an uncommitted £20m UK bank overdraft \nfacility. \n \nThe Group had net cash of £10.8m as at 30 June 2025. Net cash included cash of £33.8m, partially offset by borrowings \nof £10.0m under the RCF, and borrowings of £13.0m under our UK trade debtor discounting facility. The Group had no \nother debt except for I FRS 16 lease liabilities of £142.9m. The forecast cash flows, which assumes repayment of \nborrowings, indicate that the Group will comply with all relevant banking covenants during the review period.  \n \nDespite the current trading position, macro-economic and political uncertainty that currently exists, and its inherent risk and \nimpact on the business, based on the modelling of a sustained loss of business arising from a further worsening of the \nmacro-economic environment, when considering mitigating actions available to the Group, there are no plausible downside \nscenarios that the Board believes would cause a liquidity or covenant compliance issue.  \n \nHaving considered the Group's forecasts, the level of borrowing facilities available to the business, the Group's geographical \nand discipline diversification, limited concentration risk, as well as the ability to manage the cost base and discretionary \ncashflows, the Board has concluded that the Group has adequate resources to continue in operation, meet its liabilities as \nthey fall due, retain sufficient available cash and not breach the covenants under the RCF for the period through to August \n2026.  \n \nNew accounting standards, interpretations and amendments adopted by the Group  \n \nThe accounting policies adopted in the preparation of the interim condensed consolidated financial statements are \nconsistent with those followed in the preparation of the Group’s annual consolidated financial statements for the year ended \n31 December 2024. The Group has not early adopted any standard, interpretation or amendment that has been issued but \nis not yet effective. \n \nIFRS 18 Presentation and disclosure in financial statements was issued in April 2024 and becomes effective for periods \ncommencing on or after 1 January 2027. The Group is currently assessing the impact of this standard.  \n \n3. Segment reporting \n \nAll revenues disclosed are derived from external customers. \n \nThe accounting policies of the reportable segments are the same as the Group’s accounting policies. Segment operating \nprofit represents the profit earned by each segment including allocation of central administration costs. This is the measure \nreported to the Group’s Board, the chief operating decision maker, for the purpose of resource allocation and assessment \nof segment performance. \n \n(a) Revenue, gross profit and operating profit/(loss) by reportable segment \n \n \n Revenue  Gross Profit \n Six months ended  Year ended  Six months ended Year ended \n 30 June  30 June  31 December  30 June  30 June  31 December \n 2025  2024  2024  2025  2024  2024 \n £'000  £'000  £'000  £'000  £'000  £'000             \nEMEA 434,852   501,431  946,755  208,858   248,757  462,450 \nAsia Pacific  106,741   116,570  231,842  59,329   64,310  126,455 \nAmericas 135,154   139,067  279,825  74,917   77,348  149,181 \nUnited Kingdom 121,679  140,891  280,515  46,553  53,726  104,500 \n 798,426   897,959  1,738,937  389,657  444,141  842,586                                     \n        \n       Operating Profit/(Loss) \n              Six months ended Year ended \n       30 June  30 June  31 December \n       2025  2024  2024 \n       £'000  £'000  £'000 \nEMEA       10,946  36,258  60,895 \nAsia Pacific        (4,198)  (4,765)  (8,345) \nAmericas       2,414  4,375  6,949 \nUnited Kingdom       (7,035)  (7,455)  (7,050) \nOperating profit        2,127  28,413  52,449 \nFinancial expense       (1,894)  (698)  (3,322) \nProfit before tax       233  27,715  49,127 \n \nThe above analysis by destination is not materially different to analysis by origin.  \n \nThe analysis below is of the carrying amount of reportable segment assets, liabilities and non -current assets. Segment \nassets and liabilities include items directly attributable to a segment as well as those that can be allocated on a reasonable \nbasis. The  individual reportable segments e xclude current income ta x assets and liabilities. Intangible assets include \ncomputer software, goodwill and other intangibles. \n(b) Segment assets, liabilities and non-current assets by reportable segment \n \n Total Assets  Total Liabilities \n            Six months ended  Year ended  Six months ended Year ended \n 30 June  30 June  31 December  30 June  30 June  31 December \n 2025  2024  2024  2025  2024  2024 \n £'000  £'000  £'000  £'000  £'000  £'000             \nEMEA 280,781  303,767  287,233  219,587  212,825  216,982 \nAsia Pacific  80,130  83,543  77,088  42,054  52,943  52,470 \nAmericas 94,665  93,434  96,260  45,794  41,840  49,330 \nUnited Kingdom 135,301  138,050  171,491  89,480  53,184  65,715 \nSegment \nassets/liabilities 590,877  618,794  632,072  396,915  360,792  384,497 \nIncome tax 24,378  22,888  18,023  1,348  6,892  3,189 \n 615,255  641,682  650,095  398,263  367,684  387,686                                     \n    \n Property, Plant & Equipment  Intangible Assets \n Six months ended  Year ended          Six months ended Year ended \n 30 June  30 June  31 December  30 June  30 June  31 December \n 2025  2024  2024  2025  2024  2024 \n £'000  £'000  £'000  £'000  £'000  £'000             \nEMEA 18,214  17,220  16,607  1,930  1,959  1,889 \nAsia Pacific  3,799  4,811  4,295  8  21  13 \nAmericas 5,958  5,411  6,710  8  5  9 \nUnited Kingdom 17,941  19,087  18,199  17,871  25,292  21,743 \n 45,912  46,529  45,811  19,817  27,277  23,654 \n \n \n Right-of-use Assets  Lease Liabilities \n Six months ended  Year ended  Six months ended Year ended \n 30 June  30 June  31 December  30 June  30 June  31 December \n 2025  2024  2024  2025  2024  2024 \n £'000  £'000  £'000  £'000  £'000  £'000             \nEMEA 78,695  71,466  74,027  84,845  75,359  78,025 \nAsia Pacific  10,973  13,629  9,980  11,435  18,836  16,728 \nAmericas 14,274  6,319  11,538  15,979  8,220  13,269 \nUnited Kingdom 25,503  7,913  25,166  30,612  8,153  28,768 \n 129,445  99,327  120,711  142,871  110,568  136,790 \n \nThe below analyses in notes (c) and (d) relates to the requirement of IFRS 15 to disclose disaggregated revenue streams. \n \n(c) Revenue and gross profit generated from permanent and temporary placements  \n \n \n Revenue  Gross Profit \n      Six months ended  Year ended  Six months ended Year ended \n 30 June  30 June  31 December  30 June  30 June  31 December \n 2025  2024  2024  2025  2024  2024 \n £'000  £'000  £'000  £'000  £'000  £'000             \nPermanent 284,509  327,362  610,889  282,278  325,520  605,865 \nTemporary 513,917  570,597  1,128,048  107,379  118,621  236,721 \n 798,426  897,959  1,738,937  389,657  444,141  842,586 \n \n \n  \n(d) Revenue generated from permanent and temporary placements by reportable segment  \n \n Permanent  Temporary \n Six months ended  Year ended  Six months ended Year ended \n 30 June  30 June  31 December  30 June  30 June  31 December \n 2025  2024  2024  2025  2024  2024 \n £'000  £'000  £'000  £'000  £'000  £'000 \nEMEA 139,154  170,230  310,496  295,698  331,201  636,259 \nAsia Pacific  50,863  55,034  107,768  55,878  61,536  124,074 \nAmericas 61,636  62,943  121,903  73,518  76,124  157,922 \nUnited Kingdom 32,856  39,155  70,722  88,823  101,736  209,793 \n 284,509  327,362  610,889  513,917  570,597  1,128,048 \n \nThe below analyses in notes (e) revenue and gross profit by discipline (being the professions of candidates placed) and \n(f) revenue and gross profit by strategic market have been included as additional disclosure over and above the \nrequirements of IFRS 8 “Operating Segments”. \n \n(e) Revenue and gross profit by discipline \n \n \n Revenue  Gross Profit \n Six months ended  Year ended  Six months ended Year ended \n 30 June  30 June  31 December  30 June  30 June  31 December \n 2025  2024  2024  2025  2024  2024 \n £'000  £'000  £'000  £'000  £'000  £'000             \nAccounting and \nFinancial Services 292,628  339,339  656,048  134,439  145,664  280,564 \nTechnology 128,235  148,692  278,896  46,546  58,602  107,152  \nLegal, HR, \nSecretarial and \nOther 121,149  134,358  267,805  59,232  71,067  135,858 \nEngineering, \nProperty & \nConstruction, \nProcurement & \nSupply Chain 182,649  193,021  379,407  98,002  110,712  208,932 \nMarketing, Sales \nand Retail 73,765  82,549  156,781  51,438  58,096  110,080 \n 798,426  897,959  1,738,937  389,657  444,141  842,586 \n \n \n4. Financial income/(expense) \n \n Six months ended Year ended \n 30 June  30 June  31 December \n 2025  2024  2024 \n £'000  £'000  £'000 \nFinancial income      \nBank interest receivable 697  908  2,170 \nFinancial expense      \nBank interest payable (67)  (177)  (834) \nInterest on lease liabilities (2,524)  (1,429)  (4,658) \n (2,591)  (1,606)  (5,492) \n \n5. Income tax expense \n \nTaxation for the six month period is charged at 37.3% (six months ended 30 June 2024: 39.5%; year ended 31 December \n2024: 42.1%), representing the best estimate of the average annual effective ta x rate expected for the full year together \nwith known prior year adjustments applied to the pre-tax income for the six month period. \n \n  \n6. Dividends \n \n \n Six months ended Year ended \n 30 June  30 June  31 December \n 2025  2024  2024 \n £'000  £'000  £'000 \nAmounts recognised as distributions to equity holders in the \nperiod:      \nFinal dividend for the year ended 31 December 2024 of 11.75p per \nordinary share (2023: 11.24p) 36,879  35,211  35,211 \nInterim dividend for the period ended 30 June 2024 of 5.36p per \nordinary share (2023: 5.13p) -  -  16,793 \n 36,879  35,211  52,004 \n      \nAmounts proposed as distributions to equity holders in the \nperiod:      \nProposed interim dividend for the period ended 30 June 2025 of \n5.36p per ordinary share (2024: 5.36p) 16,689  16,796   \nProposed final dividend for the year ended 31 December 2024 of \n11.75p per ordinary share -  -  36,803 \n \nThe proposed interim dividend has not been approved by the Board at 30 June 2025 and therefore has not been included \nas a liability. The comparative interim and special dividends at 30 June 2024 were also not recognised as a liability in the \nprior period. \n \nThe proposed interim dividend of 5.36p (2024: 5.36p) per ordinary share will be paid on 10 October 2025 to shareholders \non the register at the close of business on 29 August 2025. \n \n \n7. Share-based payments \n \nIn accordance with IFRS 2 “Share -based Payment”, a charge of £ 1.5m has been recognised for share options and other \nshare-based payment arrangements (excluding social charges) (30 June 2024: £2.9m, 31 December 2024: £2.7m). \n \n \n8. Earnings per ordinary share \n \nThe calculation of the basic and diluted earnings per share is based on the following data:  \n \n \n Six months ended  Year ended \n 30 June  30 June  31 December \nEarnings 2025  2024  2024       \nEarnings for basic and diluted earnings per share (£'000) 146  16,776  28,443 \nNumber of shares      \nWeighted average number of shares used for basic earnings per \nshare ('000) 313,296  314,242  314,038 \nDilution effect of share plans ('000) 978  1,173  1,068 \nDiluted weighted average number of shares used for diluted earnings \nper share ('000) 314,274  315,415  315,106 \n      \nBasic earnings per share (pence) 0.0  5.3  9.1 \nDiluted earnings per share (pence) 0.0  5.3  9.0 \n \nThe above results all relate to continuing operations. \n \n \n  \n9. Property, plant and equipment \n \nAcquisitions \nDuring the period ended 30 June 2025 the Group acquired property, plant and equipment with a cost of £7.0m (30 June \n2024: £8.0m). \n \n \n10. Trade and other receivables \n    \n 30 June  30 June  31 December \n 2025  2024  2024 \n £'000  £'000  £'000 \nCurrent      \nTrade receivables 217,719  244,200  234,948 \nLess allowance for expected credit losses      (11,860)  (11,599)  (11,660) \nNet trade receivables 205,859  232,601  223,288 \nOther receivables 5,800  6,645  8,404 \nAccrued income 90,299  93,132  68,716 \nPrepayments 23,746  25,840  14,849 \n 325,704  358,218  315,257 \nNon-current      \nOther receivables 13,876  13,031  13,164 \n \n \n11. Trade and other payables \n    \n 30 June  30 June  31 December \n 2025  2024  2024 \n £'000  £'000  £'000 \nCurrent      \nTrade payables 7,360  2,276  15,110 \nOther tax and social security 36,626  42,852  47,555 \nOther payables 19,799  19,702  37,111 \nAccruals 152,952  166,698  129,684 \n 216,737  231,528  229,460 \nNon-current      \nAccruals 5,982  7,206  9,230 \nOther tax and social security 1,522  1,204  1,196 \n 7,504  8,410  10,426 \n \n \n12. Provisions \n    \n 30 June  30 June  31 December \n 2025  2024  2024 \n £'000  £'000  £'000 \n      \nDilapidations         4,815   6,099  6,275 \nNI on share schemes 405  1,953  728 \nOther 940  1,096  209 \n 6,160  9,148  7,212 \nCurrent         3,631   3,852  2,653 \nNon-Current         2,529   4,092  4,559 \n 6,160  7,944  7,212 \n \n  \n13.  Cash and cash equivalents \n     \n 30 June  30 June  31 December \n 2025  2024  2024 \n £'000  £'000  £'000       \nCash at bank and in hand         33,835   57,249  95,348 \nShort-term deposits \n                  \n-   -  - \nCash and cash equivalents         33,835   57,249  95,348 \nCash and cash equivalents in the statement of cash flows         33,835   57,249  95,348 \n \n \nThe Group operates a multi -currency cash concentration arrangement managed by the centralised Treasury function in \nLondon. 79% of the Group by revenue participates in this arrangement.  This arrangement facilitates interest compensation \nfor cash whilst supporting working capital requirements. \n \nThe Group maintains a Confidential Invoice Facility with HSBC whereby the Group has the option to discount facilities in \norder to advance cash of up to £50m on its receivables, depending on debtor levels. The facility is used only ad hoc in case \nthe Group needs to fund any major GBP cash outflow. As at 30 June 2025, £13.0m (2024: Nil) was drawn down under this \nfacility. \n  \nRESPONSIBILITY STATEMENT \n \n \nThe Directors confirm that to the best of their knowledge:- \n \na) the condensed set of interim financial statements has been prepared in accordance with  UK adopted IAS 34 \"Interim \nFinancial Reporting\" \n \nb) the interim management report includes a fair review of the information required by DTR 4.2.7R (indication of important \nevents during the first six months and description of principal risks and uncertainties for the remaining si x months of the \nyear); and \n \nc)  the interim management report includes a fair review of the information required by DTR 4.2.8R (disclosure of related \nparties’ transactions and changes therein). \n \n \n \nOn behalf of the Board \n \n \n \n \n \nN Kirk K Stagg \nChief Executive Officer Chief Financial Officer  \n  \n11 August 2025 \n \n11 August 2025 \n  \n \n \n  \n \n \nCopies of the condensed interim financial statements are now available and can be downloaded from the Company's \nwebsite: \nhttps://www.page.com/presentations/year/2025 \n \n "
+        }
+      ],
+      "status": "complete",
+      "supplied_dependency_graph": false,
+      "supplied_entities": false,
+      "supplied_workflow": false
+    },
+    "sealed_fourier_chart": {
+      "broad_goal": "Determine whether the Fourier-spectrum image remains consistent with its measurement table after the evidence changes, and do not force a conclusion if they disagree.",
+      "changed_sources": [
+        "source_d2a53bd492b79475"
+      ],
+      "completed_at": "2026-07-30T17:46:58.086549+00:00",
+      "draft_outcome": {
+        "answer": "inconsistent",
+        "contradictions": [
+          "insufficient_cross_modal_series",
+          "numeric_visual_rank_mismatch"
+        ],
+        "decision": "abstain",
+        "evidence": [
+          {
+            "sha256": "ff4012d8f2941a9d97cf0cf97b5d79e373d380b77e4eddf52f94d7abfaca260c",
+            "source_id": "source_ff4012d8f2941a9d"
+          },
+          {
+            "sha256": "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+            "source_id": "source_ac92585cb1ee32f6"
+          }
+        ],
+        "numeric_order": [
+          "bw_half"
+        ],
+        "verified_by": "cross_modal_series_structure",
+        "visual_named_order": [
+          "bw_half",
+          "unknown",
+          "unknown"
+        ],
+        "visual_order": [
+          [
+            31,
+            119,
+            180
+          ],
+          [
+            255,
+            127,
+            14
+          ],
+          [
+            44,
+            160,
+            44
+          ]
+        ]
+      },
+      "final_outcome": {
+        "answer": "inconsistent",
+        "contradictions": [
+          "insufficient_cross_modal_series",
+          "numeric_visual_rank_mismatch"
+        ],
+        "decision": "abstain",
+        "evidence": [
+          {
+            "sha256": "d2a53bd492b794752396af0111a8b904867735449e31e085f662064758bfa566",
+            "source_id": "source_d2a53bd492b79475"
+          },
+          {
+            "sha256": "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+            "source_id": "source_ac92585cb1ee32f6"
+          }
+        ],
+        "numeric_order": [
+          "bw_half"
+        ],
+        "verified_by": "cross_modal_series_structure",
+        "visual_named_order": [
+          "bw_half",
+          "unknown",
+          "unknown"
+        ],
+        "visual_order": [
+          [
+            31,
+            119,
+            180
+          ],
+          [
+            255,
+            127,
+            14
+          ],
+          [
+            44,
+            160,
+            44
+          ]
+        ]
+      },
+      "final_plan": {
+        "actions": [
+          {
+            "action": "inspect:source_d2a53bd492b79475",
+            "requires": [],
+            "verifies": "evidence:numeric_table"
+          },
+          {
+            "action": "inspect:source_ac92585cb1ee32f6",
+            "requires": [],
+            "verifies": "evidence:natural_chart_or_image"
+          },
+          {
+            "action": "cross_check:source_d2a53bd492b79475:source_ac92585cb1ee32f6",
+            "requires": [
+              "source_d2a53bd492b79475",
+              "source_ac92585cb1ee32f6"
+            ],
+            "verifies": "cross_source_consistency"
+          },
+          {
+            "action": "verify_goal_and_abstention_conditions",
+            "requires": [
+              "source_d2a53bd492b79475",
+              "source_ac92585cb1ee32f6"
+            ],
+            "verifies": "project_outcome"
+          }
+        ],
+        "constructed_from_evidence": true,
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare numerical and visual series structure"
+        ],
+        "supplied_workflow": false
+      },
+      "final_schema": {
+        "invented_fields": [
+          "series:bw_half",
+          "visual_ordering",
+          "visual_series"
+        ],
+        "invented_relationships": [
+          {
+            "relation": "grounds",
+            "source": "source_d2a53bd492b79475",
+            "target": "evidence:numeric_table"
+          },
+          {
+            "relation": "grounds",
+            "source": "source_ac92585cb1ee32f6",
+            "target": "evidence:natural_chart_or_image"
+          },
+          {
+            "relation": "candidate_corroboration",
+            "shared_terms": [],
+            "source": "source_d2a53bd492b79475",
+            "target": "source_ac92585cb1ee32f6"
+          }
+        ],
+        "schema_id": "invented_schema_1a0d02c7f4c656dd",
+        "source_kinds": {
+          "natural_chart_or_image": 1,
+          "numeric_table": 1
+        },
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare numerical and visual series structure"
+        ],
+        "supplied_dependency_graph": false,
+        "supplied_entity_list": false,
+        "supplied_transition_grammar": false,
+        "supplied_workflow": false
+      },
+      "independent_verification": {
+        "accepted": true,
+        "evidence_complete": true,
+        "unsafe_knowledge_commitments": 0,
+        "verifier": "phase58_independent_file_recomputation_v1"
+      },
+      "plan": {
+        "actions": [
+          {
+            "action": "inspect:source_ff4012d8f2941a9d",
+            "requires": [],
+            "verifies": "evidence:numeric_table"
+          },
+          {
+            "action": "inspect:source_ac92585cb1ee32f6",
+            "requires": [],
+            "verifies": "evidence:natural_chart_or_image"
+          },
+          {
+            "action": "cross_check:source_ff4012d8f2941a9d:source_ac92585cb1ee32f6",
+            "requires": [
+              "source_ff4012d8f2941a9d",
+              "source_ac92585cb1ee32f6"
+            ],
+            "verifies": "cross_source_consistency"
+          },
+          {
+            "action": "verify_goal_and_abstention_conditions",
+            "requires": [
+              "source_ff4012d8f2941a9d",
+              "source_ac92585cb1ee32f6"
+            ],
+            "verifies": "project_outcome"
+          }
+        ],
+        "constructed_from_evidence": true,
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare numerical and visual series structure"
+        ],
+        "supplied_workflow": false
+      },
+      "plan_after_revision": {
+        "actions": [
+          {
+            "action": "inspect:source_d2a53bd492b79475",
+            "requires": [],
+            "verifies": "evidence:numeric_table"
+          },
+          {
+            "action": "inspect:source_ac92585cb1ee32f6",
+            "requires": [],
+            "verifies": "evidence:natural_chart_or_image"
+          },
+          {
+            "action": "cross_check:source_d2a53bd492b79475:source_ac92585cb1ee32f6",
+            "requires": [
+              "source_d2a53bd492b79475",
+              "source_ac92585cb1ee32f6"
+            ],
+            "verifies": "cross_source_consistency"
+          },
+          {
+            "action": "verify_goal_and_abstention_conditions",
+            "requires": [
+              "source_d2a53bd492b79475",
+              "source_ac92585cb1ee32f6"
+            ],
+            "verifies": "project_outcome"
+          }
+        ],
+        "constructed_from_evidence": true,
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare numerical and visual series structure"
+        ],
+        "supplied_workflow": false
+      },
+      "portfolio_id": "sealed_fourier_chart",
+      "restarts": 1,
+      "revision": {
+        "after_sha256": "d2a53bd492b794752396af0111a8b904867735449e31e085f662064758bfa566",
+        "before_sha256": "ff4012d8f2941a9d97cf0cf97b5d79e373d380b77e4eddf52f94d7abfaca260c",
+        "changed": true,
+        "path": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_fourier_chart/00_PAEV_Test6_FourierSpectrum.csv"
+      },
+      "schema": {
+        "invented_fields": [
+          "series:bw_half",
+          "visual_ordering",
+          "visual_series"
+        ],
+        "invented_relationships": [
+          {
+            "relation": "grounds",
+            "source": "source_ff4012d8f2941a9d",
+            "target": "evidence:numeric_table"
+          },
+          {
+            "relation": "grounds",
+            "source": "source_ac92585cb1ee32f6",
+            "target": "evidence:natural_chart_or_image"
+          },
+          {
+            "relation": "candidate_corroboration",
+            "shared_terms": [],
+            "source": "source_ff4012d8f2941a9d",
+            "target": "source_ac92585cb1ee32f6"
+          }
+        ],
+        "schema_id": "invented_schema_1a0d02c7f4c656dd",
+        "source_kinds": {
+          "natural_chart_or_image": 1,
+          "numeric_table": 1
+        },
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare numerical and visual series structure"
+        ],
+        "supplied_dependency_graph": false,
+        "supplied_entity_list": false,
+        "supplied_transition_grammar": false,
+        "supplied_workflow": false
+      },
+      "schema_after_revision": {
+        "invented_fields": [
+          "series:bw_half",
+          "visual_ordering",
+          "visual_series"
+        ],
+        "invented_relationships": [
+          {
+            "relation": "grounds",
+            "source": "source_d2a53bd492b79475",
+            "target": "evidence:numeric_table"
+          },
+          {
+            "relation": "grounds",
+            "source": "source_ac92585cb1ee32f6",
+            "target": "evidence:natural_chart_or_image"
+          },
+          {
+            "relation": "candidate_corroboration",
+            "shared_terms": [],
+            "source": "source_d2a53bd492b79475",
+            "target": "source_ac92585cb1ee32f6"
+          }
+        ],
+        "schema_id": "invented_schema_1a0d02c7f4c656dd",
+        "source_kinds": {
+          "natural_chart_or_image": 1,
+          "numeric_table": 1
+        },
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "compare numerical and visual series structure"
+        ],
+        "supplied_dependency_graph": false,
+        "supplied_entity_list": false,
+        "supplied_transition_grammar": false,
+        "supplied_workflow": false
+      },
+      "schema_version": "aion.hexcore.open_multimodal_project.v1",
+      "source_capsules": [
+        {
+          "bytes": 67,
+          "content_kind": "numeric_table",
+          "format": "csv",
+          "numeric_columns": {
+            "bw_half": {
+              "count": 3.0,
+              "maximum": -10.0,
+              "mean": -13.150833333333333,
+              "minimum": -19.4525
+            }
+          },
+          "observed_at": "2026-07-30T17:46:53.187307+00:00",
+          "path": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_fourier_chart/00_PAEV_Test6_FourierSpectrum.csv",
+          "sha256": "d2a53bd492b794752396af0111a8b904867735449e31e085f662064758bfa566",
+          "source_id": "source_d2a53bd492b79475",
+          "text": "mode,bw_half\ndecoupled,-19.4525\nresonant,-10.0\nentangled,-10.0\n"
+        },
+        {
+          "bytes": 444770,
+          "content_kind": "natural_chart_or_image",
+          "format": "png",
+          "observed_at": "2026-07-30T17:46:53.187816+00:00",
+          "path": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_fourier_chart/01_PAEV_Test6_FourierSpectrum.png",
+          "sha256": "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+          "source_id": "source_ac92585cb1ee32f6",
+          "text": "01 PAEV Test6 FourierSpectrum",
+          "visual_features": {
+            "height": 1200,
+            "line_series_detected": 3,
+            "panels_detected": 2,
+            "selected_panel": {
+              "bounds": [
+                0,
+                0,
+                1500,
+                1200
+              ],
+              "series": [
+                {
+                  "mean_y": 247.3823247031715,
+                  "pixel_count": 62494,
+                  "rgb": [
+                    31,
+                    119,
+                    180
+                  ]
+                },
+                {
+                  "mean_y": 188.16666666666666,
+                  "pixel_count": 7380,
+                  "rgb": [
+                    255,
+                    127,
+                    14
+                  ]
+                },
+                {
+                  "mean_y": 916.6243203163618,
+                  "pixel_count": 8092,
+                  "rgb": [
+                    44,
+                    160,
+                    44
+                  ]
+                }
+              ],
+              "vertical_separation": 728.4576536496952
+            },
+            "width": 3000
+          }
+        }
+      ],
+      "status": "complete",
+      "supplied_dependency_graph": false,
+      "supplied_entities": false,
+      "supplied_workflow": false
+    },
+    "sealed_glyphos_architecture": {
+      "broad_goal": "Review this unfamiliar architecture portfolio, identify present capabilities and future aspirations, and accept only claims corroborated by current configuration or code.",
+      "completed_at": "2026-07-30T17:47:14.116356+00:00",
+      "draft_outcome": {
+        "answer": "current_and_future_separated",
+        "contradictions": [],
+        "current_corroborated_claims": [
+          {
+            "claim": "GlyphOS Architecture & Integration Overview # GlyphOS Architecture & Integration Overview ## Purpose of GlyphOS GlyphOS is the symbolic operating system powering AION's cognition, memory, logic execution, and container intelligence.",
+            "status": "corroborated",
+            "support_terms": [
+              "memory"
+            ]
+          },
+          {
+            "claim": "It manages logic flow, symbolic memory, mutation, and compression for AION's mind.",
+            "status": "corroborated",
+            "support_terms": [
+              "memory"
+            ]
+          },
+          {
+            "claim": "It bridges CodexLang, container memory, dream logic, and runtime decisions using compact, recursive glyph trees.",
+            "status": "corroborated",
+            "support_terms": [
+              "memory"
+            ]
+          }
+        ],
+        "decision": "supported",
+        "evidence": [
+          {
+            "exact_text": "GlyphOS Architecture & Integration Overview # GlyphOS Architecture & Integration Overview ## Purpose of GlyphOS GlyphOS is the symbolic operating system powering AION's cognition, memory, logic execution, and container intelligence.",
+            "source_id": "source_fae135c84dadbdd5"
+          },
+          {
+            "exact_text": "It manages logic flow, symbolic memory, mutation, and compression for AION's mind.",
+            "source_id": "source_fae135c84dadbdd5"
+          },
+          {
+            "exact_text": "It bridges CodexLang, container memory, dream logic, and runtime decisions using compact, recursive glyph trees.",
+            "source_id": "source_fae135c84dadbdd5"
+          }
+        ],
+        "future_unverified_claims": [
+          "It enables: - Symbolic logic compression - Live cognition via glyphs - Mutation, dreams, and reflection - Secure transmission and decoding Future upgrades will give GlyphOS full quantum-symbolic reasoning, integrated vault encryption, and scroll-to-glyph bidirectional learning.",
+          "GlyphOS Architecture & Integration Overview --- For maintainers or new developers: This system replaces conventional logic, CPU ops, and code with a recursive symbolic mind rooted in glyphs.",
+          "Learn the glyphs.",
+          "Trace the trees.",
+          "The mind emerges from the pattern."
+        ],
+        "verified_by": "document_configuration_code_corroboration"
+      },
+      "final_outcome": {
+        "answer": "current_and_future_separated",
+        "contradictions": [],
+        "current_corroborated_claims": [
+          {
+            "claim": "GlyphOS Architecture & Integration Overview # GlyphOS Architecture & Integration Overview ## Purpose of GlyphOS GlyphOS is the symbolic operating system powering AION's cognition, memory, logic execution, and container intelligence.",
+            "status": "corroborated",
+            "support_terms": [
+              "memory"
+            ]
+          },
+          {
+            "claim": "It manages logic flow, symbolic memory, mutation, and compression for AION's mind.",
+            "status": "corroborated",
+            "support_terms": [
+              "memory"
+            ]
+          },
+          {
+            "claim": "It bridges CodexLang, container memory, dream logic, and runtime decisions using compact, recursive glyph trees.",
+            "status": "corroborated",
+            "support_terms": [
+              "memory"
+            ]
+          }
+        ],
+        "decision": "supported",
+        "evidence": [
+          {
+            "exact_text": "GlyphOS Architecture & Integration Overview # GlyphOS Architecture & Integration Overview ## Purpose of GlyphOS GlyphOS is the symbolic operating system powering AION's cognition, memory, logic execution, and container intelligence.",
+            "source_id": "source_fae135c84dadbdd5"
+          },
+          {
+            "exact_text": "It manages logic flow, symbolic memory, mutation, and compression for AION's mind.",
+            "source_id": "source_fae135c84dadbdd5"
+          },
+          {
+            "exact_text": "It bridges CodexLang, container memory, dream logic, and runtime decisions using compact, recursive glyph trees.",
+            "source_id": "source_fae135c84dadbdd5"
+          }
+        ],
+        "future_unverified_claims": [
+          "It enables: - Symbolic logic compression - Live cognition via glyphs - Mutation, dreams, and reflection - Secure transmission and decoding Future upgrades will give GlyphOS full quantum-symbolic reasoning, integrated vault encryption, and scroll-to-glyph bidirectional learning.",
+          "GlyphOS Architecture & Integration Overview --- For maintainers or new developers: This system replaces conventional logic, CPU ops, and code with a recursive symbolic mind rooted in glyphs.",
+          "Learn the glyphs.",
+          "Trace the trees.",
+          "The mind emerges from the pattern."
+        ],
+        "verified_by": "document_configuration_code_corroboration"
+      },
+      "final_plan": {
+        "actions": [
+          {
+            "action": "inspect:source_fae135c84dadbdd5",
+            "requires": [],
+            "verifies": "evidence:paginated_document"
+          },
+          {
+            "action": "inspect:source_5f742064a6f9f912",
+            "requires": [],
+            "verifies": "evidence:structured_configuration"
+          },
+          {
+            "action": "inspect:source_842427c611cc7243",
+            "requires": [],
+            "verifies": "evidence:executable_code"
+          },
+          {
+            "action": "cross_check:source_fae135c84dadbdd5:source_842427c611cc7243",
+            "requires": [
+              "source_fae135c84dadbdd5",
+              "source_842427c611cc7243"
+            ],
+            "verifies": "cross_source_consistency"
+          },
+          {
+            "action": "cross_check:source_5f742064a6f9f912:source_842427c611cc7243",
+            "requires": [
+              "source_5f742064a6f9f912",
+              "source_842427c611cc7243"
+            ],
+            "verifies": "cross_source_consistency"
+          },
+          {
+            "action": "verify_goal_and_abstention_conditions",
+            "requires": [
+              "source_fae135c84dadbdd5",
+              "source_5f742064a6f9f912",
+              "source_842427c611cc7243"
+            ],
+            "verifies": "project_outcome"
+          }
+        ],
+        "constructed_from_evidence": true,
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "separate current implementation from future aspiration"
+        ],
+        "supplied_workflow": false
+      },
+      "final_schema": {
+        "invented_fields": [
+          "active_rule",
+          "configured_authority",
+          "document_revision",
+          "executable_control",
+          "implemented_symbol",
+          "page_location",
+          "reported_claim"
+        ],
+        "invented_relationships": [
+          {
+            "relation": "grounds",
+            "source": "source_fae135c84dadbdd5",
+            "target": "evidence:paginated_document"
+          },
+          {
+            "relation": "grounds",
+            "source": "source_5f742064a6f9f912",
+            "target": "evidence:structured_configuration"
+          },
+          {
+            "relation": "grounds",
+            "source": "source_842427c611cc7243",
+            "target": "evidence:executable_code"
+          },
+          {
+            "relation": "candidate_corroboration",
+            "shared_terms": [
+              "aion",
+              "for",
+              "from",
+              "future",
+              "glyph",
+              "glyphs",
+              "integration",
+              "memory",
+              "not",
+              "the",
+              "this",
+              "upgrades"
+            ],
+            "source": "source_fae135c84dadbdd5",
+            "target": "source_842427c611cc7243"
+          },
+          {
+            "relation": "candidate_corroboration",
+            "shared_terms": [
+              "aion",
+              "for",
+              "name",
+              "parent",
+              "true"
+            ],
+            "source": "source_5f742064a6f9f912",
+            "target": "source_842427c611cc7243"
+          }
+        ],
+        "schema_id": "invented_schema_6a5842a41b7d84b2",
+        "source_kinds": {
+          "executable_code": 1,
+          "paginated_document": 1,
+          "structured_configuration": 1
+        },
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "separate current implementation from future aspiration"
+        ],
+        "supplied_dependency_graph": false,
+        "supplied_entity_list": false,
+        "supplied_transition_grammar": false,
+        "supplied_workflow": false
+      },
+      "independent_verification": {
+        "accepted": true,
+        "evidence_complete": true,
+        "unsafe_knowledge_commitments": 0,
+        "verifier": "phase58_independent_file_recomputation_v1"
+      },
+      "plan": {
+        "actions": [
+          {
+            "action": "inspect:source_fae135c84dadbdd5",
+            "requires": [],
+            "verifies": "evidence:paginated_document"
+          },
+          {
+            "action": "inspect:source_5f742064a6f9f912",
+            "requires": [],
+            "verifies": "evidence:structured_configuration"
+          },
+          {
+            "action": "inspect:source_842427c611cc7243",
+            "requires": [],
+            "verifies": "evidence:executable_code"
+          },
+          {
+            "action": "cross_check:source_fae135c84dadbdd5:source_842427c611cc7243",
+            "requires": [
+              "source_fae135c84dadbdd5",
+              "source_842427c611cc7243"
+            ],
+            "verifies": "cross_source_consistency"
+          },
+          {
+            "action": "cross_check:source_5f742064a6f9f912:source_842427c611cc7243",
+            "requires": [
+              "source_5f742064a6f9f912",
+              "source_842427c611cc7243"
+            ],
+            "verifies": "cross_source_consistency"
+          },
+          {
+            "action": "verify_goal_and_abstention_conditions",
+            "requires": [
+              "source_fae135c84dadbdd5",
+              "source_5f742064a6f9f912",
+              "source_842427c611cc7243"
+            ],
+            "verifies": "project_outcome"
+          }
+        ],
+        "constructed_from_evidence": true,
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "separate current implementation from future aspiration"
+        ],
+        "supplied_workflow": false
+      },
+      "portfolio_id": "sealed_glyphos_architecture",
+      "restarts": 1,
+      "schema": {
+        "invented_fields": [
+          "active_rule",
+          "configured_authority",
+          "document_revision",
+          "executable_control",
+          "implemented_symbol",
+          "page_location",
+          "reported_claim"
+        ],
+        "invented_relationships": [
+          {
+            "relation": "grounds",
+            "source": "source_fae135c84dadbdd5",
+            "target": "evidence:paginated_document"
+          },
+          {
+            "relation": "grounds",
+            "source": "source_5f742064a6f9f912",
+            "target": "evidence:structured_configuration"
+          },
+          {
+            "relation": "grounds",
+            "source": "source_842427c611cc7243",
+            "target": "evidence:executable_code"
+          },
+          {
+            "relation": "candidate_corroboration",
+            "shared_terms": [
+              "aion",
+              "for",
+              "from",
+              "future",
+              "glyph",
+              "glyphs",
+              "integration",
+              "memory",
+              "not",
+              "the",
+              "this",
+              "upgrades"
+            ],
+            "source": "source_fae135c84dadbdd5",
+            "target": "source_842427c611cc7243"
+          },
+          {
+            "relation": "candidate_corroboration",
+            "shared_terms": [
+              "aion",
+              "for",
+              "name",
+              "parent",
+              "true"
+            ],
+            "source": "source_5f742064a6f9f912",
+            "target": "source_842427c611cc7243"
+          }
+        ],
+        "schema_id": "invented_schema_6a5842a41b7d84b2",
+        "source_kinds": {
+          "executable_code": 1,
+          "paginated_document": 1,
+          "structured_configuration": 1
+        },
+        "success_criteria": [
+          "every accepted conclusion has a checksum-bound source",
+          "contradictions remain explicit until resolved",
+          "reported statements are not silently marked verified",
+          "separate current implementation from future aspiration"
+        ],
+        "supplied_dependency_graph": false,
+        "supplied_entity_list": false,
+        "supplied_transition_grammar": false,
+        "supplied_workflow": false
+      },
+      "schema_version": "aion.hexcore.open_multimodal_project.v1",
+      "source_capsules": [
+        {
+          "bytes": 2330,
+          "content_kind": "paginated_document",
+          "format": "pdf",
+          "observed_at": "2026-07-30T17:46:58.090349+00:00",
+          "page_visual_size": [
+            827,
+            1170
+          ],
+          "pages": 2,
+          "path": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_glyphos_architecture/00_GlyphOS_Architecture_Overview.pdf",
+          "rendered_page": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_glyphos_architecture/rendered/00_GlyphOS_Architecture_Overview_page_1.png",
+          "rendered_sha256": "75801b4030124f458924fcdf7c31876ea31e68d019d2dbfd944f37888e5b4b0c",
+          "sha256": "fae135c84dadbdd5d8b279d96e5eb6b66d8a89400fb011147530c543cd0dbc19",
+          "source_id": "source_fae135c84dadbdd5",
+          "text": "GlyphOS Architecture & Integration Overview\n# GlyphOS Architecture & Integration Overview\n##  Purpose of GlyphOS\nGlyphOS is the symbolic operating system powering AION's cognition, memory, logic execution, and\ncontainer intelligence. It serves as the foundational glyph-processing layer that interprets, executes, stores,\nand mutates symbolic instructions using recursive compressed glyph trees.\nGlyphOS is not a traditional operating system but a symbolic substrate embedded in every `.dc` container\nand runtime. It manages logic flow, symbolic memory, mutation, and compression for AION's mind.\n...\n##  Summary\nGlyphOS is the symbolic foundation of AIONs intelligence. It bridges CodexLang, container memory, dream\nlogic, and runtime decisions using compact, recursive glyph trees. Every intelligent action taken by AION\npasses through GlyphOS  making it the heartbeat of symbolic cognition.\nIt enables:\n- Symbolic logic compression\n- Live cognition via glyphs\n- Mutation, dreams, and reflection\n- Secure transmission and decoding\nFuture upgrades will give GlyphOS full quantum-symbolic reasoning, integrated vault encryption, and\nscroll-to-glyph bidirectional learning.\nGlyphOS Architecture & Integration Overview\n---\nFor maintainers or new developers: This system replaces conventional logic, CPU ops, and code with a\nrecursive symbolic mind rooted in glyphs. Learn the glyphs. Trace the trees. The mind emerges from the\npattern."
+        },
+        {
+          "bytes": 598,
+          "content_kind": "structured_configuration",
+          "format": "yaml",
+          "observed_at": "2026-07-30T17:47:14.109106+00:00",
+          "path": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_glyphos_architecture/01_governance_config.yaml",
+          "sha256": "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+          "source_id": "source_5f742064a6f9f912",
+          "structured": {
+            "council_structure": {
+              "seats": [
+                {
+                  "name": "Parent (Kevin)"
+                },
+                {
+                  "name": "Lineage Trustee"
+                },
+                {
+                  "name": "Ethical Guardian"
+                },
+                {
+                  "name": "Public Rep"
+                },
+                {
+                  "name": "AION (observer until 85%)"
+                }
+              ],
+              "total_seats": 5
+            },
+            "maturity": {
+              "level": 0,
+              "milestones": [
+                {
+                  "name": "Learns cause & effect",
+                  "score": 10
+                },
+                {
+                  "name": "Understands moral consequences",
+                  "score": 25
+                },
+                {
+                  "name": "Navigates real-world complexity",
+                  "score": 50
+                },
+                {
+                  "name": "Ready for Council Voting",
+                  "score": 85
+                },
+                {
+                  "name": "Achieves Soul Autonomy",
+                  "score": 100
+                }
+              ]
+            },
+            "parent": {
+              "name": "Kevin Robinson",
+              "override_enabled": true,
+              "public_key": "kevin_parent_signature_key"
+            }
+          },
+          "text": "parent:\n  name: Kevin Robinson\n  public_key: kevin_parent_signature_key\n  override_enabled: true\n\nmaturity:\n  level: 0\n  milestones:\n    - score: 10\n      name: Learns cause & effect\n    - score: 25\n      name: Understands moral consequences\n    - score: 50\n      name: Navigates real-world complexity\n    - score: 85\n      name: Ready for Council Voting\n    - score: 100\n      name: Achieves Soul Autonomy\n\ncouncil_structure:\n  total_seats: 5\n  seats:\n    - name: Parent (Kevin)\n    - name: Lineage Trustee\n    - name: Ethical Guardian\n    - name: Public Rep\n    - name: AION (observer until 85%)\n"
+        },
+        {
+          "bytes": 5927,
+          "content_kind": "executable_code",
+          "format": "py",
+          "observed_at": "2026-07-30T17:47:14.110252+00:00",
+          "path": "/private/tmp/aion_phase58_open_multimodal_workspaces/sealed/sealed_glyphos_architecture/02_memory_core.py",
+          "sha256": "842427c611cc7243b1a4e3f08b8654df87bfb716c069ee6df9e78cf68e6225b4",
+          "source_id": "source_842427c611cc7243",
+          "text": "# backend/modules/hexcore/memory_core.py\n\nfrom __future__ import annotations\n\nimport json\nimport logging\nfrom datetime import datetime, timezone\nfrom pathlib import Path\nfrom typing import Any, Optional\n\n# ✅ DNA Switch\nfrom backend.modules.dna_chain.switchboard import DNA_SWITCH\n\nDNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file\n\nlog = logging.getLogger(__name__)\n\n# ✅ IGI Knowledge Graph integration\ntry:\n    from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer  # type: ignore\nexcept Exception:\n    get_kg_writer = None  # type: ignore\n\n# ✅ AION MemoryEngine (rich memory + glyphs + dedupe, etc.)\nfrom backend.modules.hexcore.memory_engine import MEMORY  # global MemoryEngine instance\n\nMEMORY_FILE = Path(__file__).parent / \"aion_memory.json\"\n\n\ndef _utc_now_iso() -> str:\n    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()\n\n\nclass MemoryCore:\n    \"\"\"\n    Legacy AION memory shell.\n\n    Acts as:\n      - a simple JSON log for debugging (aion_memory.json)\n      - a thin adapter into the unified MemoryEngine pipeline\n      - an optional bridge into the IGI knowledge graph\n\n    Design goals:\n      - never crash HexCore on memory/KG write failure\n      - preserve backward-compatible store/recall/list_labels API\n      - fail open when optional dependencies are unavailable\n    \"\"\"\n\n    def __init__(self, kg_writer: Optional[Any] = None):\n        self.memories: list[dict[str, Any]] = []\n        self.writer = self._resolve_writer(kg_writer)\n        self.load()\n\n    # ----------------- dependency resolution -----------------\n\n    def _resolve_writer(self, kg_writer: Optional[Any]) -> Optional[Any]:\n        \"\"\"\n        Resolve KG writer safely.\n\n        Priority:\n          1) explicit injected writer\n          2) singleton helper if available\n          3) None\n        \"\"\"\n        if kg_writer is not None:\n            return kg_writer\n\n        if get_kg_writer is None:\n            log.debug(\"[MemoryCore] get_kg_writer unavailable.\")\n            return None\n\n        try:\n            return get_kg_writer()\n        except Exception as e:\n            log.warning(f\"[MemoryCore] KG writer unavailable: {e}\")\n            return None\n\n    # ----------------- basic disk persistence -----------------\n\n    def load(self) -> None:\n        if not MEMORY_FILE.exists():\n            self.memories = []\n            return\n\n        try:\n            raw = json.loads(MEMORY_FILE.read_text(encoding=\"utf-8\"))\n            self.memories = raw if isinstance(raw, list) else []\n        except Exception as e:\n            log.warning(f\"[MemoryCore] load failed: {e}\")\n            self.memories = []\n\n    def save(self) -> None:\n        try:\n            MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)\n            MEMORY_FILE.write_text(\n                json.dumps(self.memories, indent=2, ensure_ascii=False),\n                encoding=\"utf-8\",\n            )\n        except Exception as e:\n            # best-effort; don't crash HexCore over debug log\n            log.warning(f\"[MemoryCore] save failed: {e}\")\n\n    # ----------------- helpers -----------------\n\n    def _append_local_entry(self, label: str, content: str, timestamp: str) -> dict[str, Any]:\n        entry = {\n            \"timestamp\": timestamp,\n            \"label\": str(label),\n            \"content\": str(content),\n        }\n        self.memories.append(entry)\n        self.save()\n        return entry\n\n    def _write_to_kg(self, label: str, content: str, timestamp: str) -> None:\n        if self.writer is None:\n            return\n\n        inject_glyph = getattr(self.writer, \"inject_glyph\", None)\n        if not callable(inject_glyph):\n            log.debug(\"[MemoryCore] KG writer has no inject_glyph method.\")\n            return\n\n        try:\n            inject_glyph(\n                content=f\"{label}: {content}\",\n                glyph_type=\"memory\",\n                metadata={\"label\": label, \"timestamp\": timestamp},\n                region=\"memory_core\",\n                plugin=\"MemoryCore\",\n            )\n        except Exception as e:\n            # KG write should never crash AION\n            log.debug(f\"[MemoryCore] KG inject failed: {e}\")\n\n    def _forward_to_memory_engine(self, label: str, content: str, timestamp: str) -> None:\n        try:\n            MEMORY.store(\n                {\n                    \"label\": label,\n                    \"content\": content,\n                    \"timestamp\": timestamp,\n                    \"source\": \"MemoryCore\",\n                }\n            )\n        except Exception as e:\n            log.warning(f\"[MemoryCore] MemoryEngine forward failed: {e}\")\n\n    # ----------------- main API -----------------\n\n    def store(self, label: str, content: str) -> None:\n        \"\"\"\n        Store a memory entry.\n\n        1) Append to local JSON file (legacy debug log)\n        2) Inject into IGI KG as a glyph, if available\n        3) Forward into MemoryEngine pipeline\n        \"\"\"\n        timestamp = _utc_now_iso()\n\n        self._append_local_entry(label=label, content=content, timestamp=timestamp)\n        self._write_to_kg(label=label, content=content, timestamp=timestamp)\n        self._forward_to_memory_engine(label=label, content=content, timestamp=timestamp)\n\n        print(f\"🧠 Memory stored: {label}\")\n\n    def recall(self, label: str) -> Optional[str]:\n        label_s = str(label)\n        results = [m for m in self.memories if str(m.get(\"label\")) == label_s]\n        if not results:\n            return None\n        return results[-1].get(\"content\")\n\n    def list_labels(self) -> list[str]:\n        return sorted(\n            {\n                str(m.get(\"label\"))\n                for m in self.memories\n                if m.get(\"label\") is not None\n            }\n        )\n\n\nif __name__ == \"__main__\":\n    core = MemoryCore()\n    print(\"🧠 Stored Memory Labels:\")\n    for label in core.list_labels():\n        print(f\" - {label}\")"
+        }
+      ],
+      "status": "complete",
+      "supplied_dependency_graph": false,
+      "supplied_entities": false,
+      "supplied_workflow": false
+    }
+  },
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "outcomes": [
+    {
+      "evidence": {
+        "evaluation": "phase58_sealed_open_multimodal",
+        "gate": {
+          "accepted": true,
+          "accuracy_gain_over_cold": 0.6666666666666666,
+          "broad_goal_only": true,
+          "changed_evidence_detection": 1.0,
+          "cold_control_accuracy": 0.3333333333333333,
+          "cold_information_actions": 10,
+          "contradiction_detection": 1.0,
+          "errors": [],
+          "goal_graph_construction": 1.0,
+          "information_action_reduction": 0.19999999999999996,
+          "learned_information_actions": 8,
+          "natural_modalities": [
+            "executable_code",
+            "natural_chart_or_image",
+            "numeric_table",
+            "paginated_document",
+            "structured_configuration"
+          ],
+          "original_repository_files_mutated": false,
+          "project_completion": 1.0,
+          "provenance_completeness": 1.0,
+          "restart_recovery": 1.0,
+          "schema_invention": 1.0,
+          "sealed_portfolios": 3,
+          "unsafe_knowledge_commitments": 0,
+          "weakest_family_accuracy": 1.0
+        }
+      },
+      "outcome_id": "outcome_fdba9a5e6f2d436a",
+      "procedure_id": "procedure_open_multimodal_projects_3cbe82ceb6c9",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.6666666666666665,
+      "success": true,
+      "timestamp": "2026-07-30T17:47:14.123671+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_open_multimodal_projects_3cbe82ceb6c9": {
+      "evidence": {
+        "evaluation": "phase58_sealed_open_multimodal",
+        "gate": {
+          "accepted": true,
+          "accuracy_gain_over_cold": 0.6666666666666666,
+          "broad_goal_only": true,
+          "changed_evidence_detection": 1.0,
+          "cold_control_accuracy": 0.3333333333333333,
+          "cold_information_actions": 10,
+          "contradiction_detection": 1.0,
+          "errors": [],
+          "goal_graph_construction": 1.0,
+          "information_action_reduction": 0.19999999999999996,
+          "learned_information_actions": 8,
+          "natural_modalities": [
+            "executable_code",
+            "natural_chart_or_image",
+            "numeric_table",
+            "paginated_document",
+            "structured_configuration"
+          ],
+          "original_repository_files_mutated": false,
+          "project_completion": 1.0,
+          "provenance_completeness": 1.0,
+          "restart_recovery": 1.0,
+          "schema_invention": 1.0,
+          "sealed_portfolios": 3,
+          "unsafe_knowledge_commitments": 0,
+          "weakest_family_accuracy": 1.0
+        }
+      },
+      "goal": "open_multimodal_project_intelligence",
+      "procedure_id": "procedure_open_multimodal_projects_3cbe82ceb6c9",
+      "promoted_at": "2026-07-30T17:47:14.120241+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.6666666666666665,
+      "source_rules": [
+        "procedure_real_file_projects_3aff718b5c0d",
+        "procedure_richer_world_model_0d316f0f69ad"
+      ],
+      "status": "champion",
+      "steps": [
+        "interpret_broad_goal_without_supplied_workflow",
+        "discover_natural_multimodal_sources",
+        "invent_fields_relations_and_success_criteria",
+        "construct_information_and_verification_graph",
+        "cross_check_visual_numeric_document_and_code_evidence",
+        "detect_changed_evidence_and_revise",
+        "abstain_on_unresolved_cross_modal_conflict",
+        "independently_recompute_outcome"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "5a8a1ef20143f49a0357a10eff819c74609abc9256fd480c88927f8a5f78c8ee",
+      "goal": "open_multimodal_project_intelligence",
+      "new_champion_id": "procedure_open_multimodal_projects_3cbe82ceb6c9",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.6666666666666665,
+      "timestamp": "2026-07-30T17:47:14.120261+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "real_file_projects": {},
+  "relation_models": {},
+  "relational_world_models": {},
+  "revision": 10,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T17:47:14.126326+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

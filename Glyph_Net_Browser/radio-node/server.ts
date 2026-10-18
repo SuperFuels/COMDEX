@@ -376,12 +376,15 @@ function currentNeighbors(): Neighbor[] {
 }
 
 // Optional rolling token for rotation
-const BRIDGE_TOKEN = process.env.RADIO_BRIDGE_TOKEN || "dev-bridge";
+const BRIDGE_TOKEN = process.env.RADIO_BRIDGE_TOKEN || "";
 const BRIDGE_TOKEN_NEXT = process.env.RADIO_BRIDGE_TOKEN_NEXT || "";
 
 // Toggle: require signed auth (token + X-Bridge-Sig) on HTTP endpoints
 const REQUIRE_BRIDGE_SIG =
-  String(process.env.REQUIRE_BRIDGE_SIG || "").toLowerCase() === "true";
+  String(process.env.REQUIRE_BRIDGE_SIG ?? "true").toLowerCase() !== "false";
+const ENABLE_RF_MOCK_DEV_ROUTES =
+  String(process.env.ENABLE_RF_MOCK_DEV_ROUTES || "").toLowerCase() === "true";
+const seenBridgeNonces = new Map<string, number>();
 
 // --- Serial Link (optional) -------------------------------------
 // ---- Serial Link (optional, with auto-reconnect) ---------------
@@ -547,17 +550,25 @@ function ensureSerialDriverRegistered() {
   connectSerial(0);
 }
 
-/** Validate X-Bridge-Sig: "v1,<tsMs>,<hmacHex>" where hmac = HMAC_SHA256(token, `ws-bridge|${tsMs}`) */
+/** Validate X-Bridge-Sig: "v2,<tsMs>,<nonce>,<hmacHex>".
+ *  Each nonce is accepted once inside the narrow timestamp window.
+ */
 function validBridgeSig(sig: string, token: string): boolean {
   try {
-    const [v, tsStr, macHex] = String(sig).split(",");
-    if (v !== "v1") return false;
+    const [v, tsStr, nonce, macHex] = String(sig).split(",");
+    if (v !== "v2" || !/^[A-Za-z0-9_-]{16,96}$/.test(nonce || "")) return false;
     const ts = Number(tsStr);
     if (!Number.isFinite(ts)) return false;
-    if (Math.abs(Date.now() - ts) > BRIDGE_SIG_TOLERANCE_MS) return false; // uses your existing TOLERANCE var
+    const current = Date.now();
+    if (Math.abs(current - ts) > BRIDGE_SIG_TOLERANCE_MS) return false;
+    for (const [key, expires] of seenBridgeNonces) if (expires <= current) seenBridgeNonces.delete(key);
+    const replayKey = crypto.createHash("sha256").update(`${token}|${nonce}`).digest("hex");
+    if (seenBridgeNonces.has(replayKey)) return false;
 
-    const want = crypto.createHmac("sha256", token).update(`ws-bridge|${ts}`).digest("hex");
-    return secureEq(want, macHex);
+    const want = crypto.createHmac("sha256", token).update(`wave-bridge|${ts}|${nonce}`).digest("hex");
+    if (!secureEq(want, macHex)) return false;
+    seenBridgeNonces.set(replayKey, current + BRIDGE_SIG_TOLERANCE_MS);
+    return true;
   } catch {
     return false;
   }
@@ -567,10 +578,7 @@ function tokenMatchesAny(tok: string) {
   return !!tok && (secureEq(tok, BRIDGE_TOKEN) || (!!BRIDGE_TOKEN_NEXT && secureEq(tok, BRIDGE_TOKEN_NEXT)));
 }
 
-/** Validate token; if a signature is present it MUST verify against that specific token.
- *  If no signature is provided, allow plain token (dev/back-compat).
- *  Strict/lenient behavior is enforced by requireBridgeAuth via REQUIRE_BRIDGE_SIG.
- */
+/** Validate a token and its one-time signature against the active or rotating secret. */
 function tokenOkWithOptionalSig(tok?: string, sig?: string): boolean {
   if (!tok) return false;
 
@@ -2279,6 +2287,11 @@ app.use((_: Request, res: Response, next: NextFunction) => {
 
 // ───────────────────────────────────────────────────────────────
 // Dev endpoints (all under /dev/rf/mock)
+app.use("/dev/rf/mock", (_req, res, next) => {
+  if (!ENABLE_RF_MOCK_DEV_ROUTES) return res.status(404).json({ ok: false, error: "not found" });
+  next();
+});
+
 app.get("/dev/rf/mock/status", (_req, res) => {
   res.json({ ok: true, enabled: mockCfg.enabled, config: mockCfg, drivers: listDrivers(), rfOutbox: rfOutbox.length });
 });
@@ -3707,18 +3720,11 @@ function authTokenFromWS(req: IncomingMessage): string {
   if (h.startsWith("Bearer ")) return h.slice(7);
   const xbt = String(req.headers["x-bridge-token"] || "");
   if (xbt) return xbt;
-  try {
-    const url = new URL(req.url || "", URL_BASE);
-    return url.searchParams.get("token") || "";
-  } catch { return ""; }
+  return "";
 }
 function sigFromWS(req: IncomingMessage): string {
   const xsig = String(req.headers["x-bridge-sig"] || "");
-  if (xsig) return xsig;
-  try {
-    const url = new URL(req.url || "", URL_BASE);
-    return url.searchParams.get("sig") || "";
-  } catch { return ""; }
+  return xsig;
 }
 
 // --- WS bridge driver registration (one-time) -------------------
@@ -3753,7 +3759,10 @@ wssRF.on("connection", (ws, req) => {
 
   const shortTok = token ? token.slice(0, 3) + "…" : "(none)";
   const sigPresent = !!sig;
-  const ok = tokenOkWithOptionalSig(token, sig);
+  // A radio WebSocket can inject physical frames, so it always requires the
+  // replay-protected v2 bridge signature as well as the bearer token.  The
+  // HTTP compatibility opt-out is deliberately not honoured here.
+  const ok = Boolean(sig) && tokenOkWithOptionalSig(token, sig);
 
   if (!ok) {
     console.warn(`[rflink] auth fail token=${shortTok} sig=${sigPresent ? "yes" : "no"}`);

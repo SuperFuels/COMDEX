@@ -1,0 +1,852 @@
+\section{Canonical Business Twin Data, Function Persistence, and Boardroom Context Architecture}
+\label{sec:business-twin-function-persistence}
+
+\subsection{Purpose and Non-Negotiable Principle}
+
+This section defines the reusable persistence and context architecture that every
+business function must follow. It applies to Finance, Marketing, Sales,
+Operations, Support, Builder, Pilot, and any future function introduced into
+AION. Its purpose is to prevent each function from creating its own disconnected
+storage keys, document stores, context packets, or model memory assumptions.
+
+The governing principle is:
+
+\begin{quote}
+The scoped Business Container is the persistent source of truth. The Business
+Map is the structured living representation of known business facts. Function
+ledgers record departmental discovery, plans, work, evidence, and results. The
+File Cabinet is an index of pointers to Business Container artifacts. The
+Boardroom receives a bounded, immutable projection of this truth. External AI
+providers are not relied upon to remember the business between meetings.
+\end{quote}
+
+Local renderer variables, browser \texttt{localStorage}, session storage, and
+provider conversation history may be used as caches or resumable drafts, but
+must never become the only persistent copy of material business information.
+
+\subsection{System of Record and Projection Boundaries}
+
+The platform separates persistent truth from views and projections:
+
+\begin{verbatim}
+Business Container (persistent truth)
+    |
+    +-- Business Identity
+    +-- Business Structure
+    +-- Business Map
+    +-- Function Models and Ledgers
+    +-- Evidence and Artifact Records
+    +-- Goal Engine State, Memory, Evidence, Loops and Outcomes
+    |
+    +--> Business Twin / Boardroom Context Envelope (read projection)
+    |        |
+    |        +--> identical packet to OpenAI
+    |        +--> identical packet to Claude
+    |        +--> identical packet to Gemini
+    |        +--> identical packet to other Boardroom providers
+    |
+    +--> File Cabinet (index pointers only)
+\end{verbatim}
+
+The Boardroom must not become a second mutable truth store. It reads a projection,
+deliberates, creates decisions and packages, and writes approved results back
+through controlled Business Container mutation paths. Likewise, the File Cabinet
+does not own the bytes or canonical JSON of a business artifact; it indexes the
+artifact's canonical location.
+
+\subsection{Canonical Runtime Locations}
+
+The AION Business runtime root is currently defined by
+\texttt{AIONBusinessPaths.ROOT} as:
+
+\begin{verbatim}
+.runtime/AION_BUSINESS/
+\end{verbatim}
+
+The important persistent locations are:
+
+\begin{verbatim}
+.runtime/AION_BUSINESS/
+    business_containers/<business_id>/
+    workflow_file_cabinets/<business_id>/tree.json
+    container_bindings/<business_id>/
+    workspaces/<business_id>.json
+    topologies/<business_id>.json
+    audit/<business_id>/
+    tasks/<business_id>/
+    learning/<business_id>/
+\end{verbatim}
+
+The path owner is:
+
+\begin{verbatim}
+backend/modules/aion_business/runtime/paths.py
+\end{verbatim}
+
+Canonical structured-container persistence is owned by:
+
+\begin{verbatim}
+backend/modules/aion_business/runtime/business_container_repository.py
+backend/modules/aion_business/runtime/business_container_service.py
+backend/modules/aion_business/contracts/business_containers.py
+\end{verbatim}
+
+The Business Container repository writes one canonical JSON file per registered
+container kind under the business-scoped directory.
+
+\subsection{Canonical Business Identity}
+
+Every record, file, model, ledger, receipt, Boardroom packet, and File Cabinet
+pointer must resolve to one canonical \texttt{business\_id}. No function may
+independently slug or rename the business identifier.
+
+At the time of inspection, both \texttt{home\_fixed} and \texttt{home-fixed}
+normalisation rules existed in different paths. This can create two separate
+Business Containers and two separate File Cabinets. The platform must therefore
+provide one canonical resolver used by frontend and backend code.
+
+The canonical resolver must:
+
+\begin{enumerate}
+  \item accept the registered business identifier rather than the display name;
+  \item reject global, root, temporary, and session-only targets;
+  \item apply one documented slug rule exactly once;
+  \item return the same identifier for Business Container, File Cabinet,
+  Boardroom, artifact, audit, task, and function-ledger operations;
+  \item support a controlled alias migration for legacy identifiers; and
+  \item never silently fall back to a demo business.
+\end{enumerate}
+
+A representative identity object is:
+
+\begin{verbatim}
+{
+  "business_id": "home-fixed",
+  "display_name": "Home Fixed",
+  "workspace_id": "home-fixed",
+  "container_id": "home-fixed",
+  "legacy_aliases": ["home_fixed"],
+  "identity_status": "registered"
+}
+\end{verbatim}
+
+All write endpoints must reject \texttt{business\_not\_registered},
+\texttt{global}, \texttt{root}, \texttt{tmp}, \texttt{temp}, and
+\texttt{session\_vfs} as persistent business targets.
+
+\subsection{Existing Canonical Container Contracts}
+
+The existing canonical container kinds include:
+
+\begin{itemize}
+  \item \texttt{business\_identity};
+  \item \texttt{business\_structure};
+  \item \texttt{brand\_foundation};
+  \item \texttt{boardroom\_snapshot};
+  \item \texttt{operational\_runtime\_summary};
+  \item \texttt{goal\_engine\_state};
+  \item \texttt{goal\_engine\_memory};
+  \item \texttt{goal\_engine\_evidence};
+  \item \texttt{goal\_engine\_experiments};
+  \item \texttt{goal\_engine\_loops}; and
+  \item \texttt{goal\_engine\_outcomes}.
+\end{itemize}
+
+The Business Identity container holds legal and trading names, business type,
+sector, stage, owner, location, timezone, currency, domain, website, contact
+details, description, and source references.
+
+The Business Structure container already provides lists for services, revenue
+streams, cost items, payment terms, fulfilment processes, functions, teams,
+human agents, and AI agents. It is useful for cross-function structure, but it is
+not a replacement for a full Finance model or another specialist function model.
+
+\subsection{Required Extension for Function Models}
+
+Every substantive function requires a first-class canonical model, or an agreed
+generic function-model container contract. Finance must not be forced into a
+marketing summary field or stored only as an arbitrary artifact.
+
+Two acceptable implementation approaches are:
+
+\begin{enumerate}
+  \item register first-class kinds such as
+  \texttt{business\_financial\_model},
+  \texttt{business\_sales\_model},
+  \texttt{business\_operations\_model}, and
+  \texttt{business\_support\_model}; or
+  \item register one \texttt{business\_function\_models} container containing
+  schema-versioned records keyed by function.
+\end{enumerate}
+
+The first-class approach provides clearer validation and is preferred when the
+function has a stable specialist schema. Every model must include:
+
+\begin{itemize}
+  \item schema version;
+  \item business and function identifiers;
+  \item model status and lifecycle state;
+  \item structured facts and calculated values;
+  \item assumptions and unknowns;
+  \item evidence references;
+  \item provenance;
+  \item validation state;
+  \item created, updated, and effective timestamps;
+  \item revision or supersession information; and
+  \item completion and approval receipts.
+\end{itemize}
+
+\subsection{The Business Map as the Living Business Record}
+
+The Foundation runtime currently creates a Business Map with the schema
+\texttt{aion.business\_map.voice\_foundation.v0.1}. It contains facts,
+assumptions, unanswered fields, and department discovery gaps. Website scanning
+adds evidence-aware facts containing confidence, source URL, receipt, provider,
+model, and timestamps.
+
+This useful frontend packet must be promoted into a canonical backend contract.
+The canonical Business Map should not be a flat overwriteable dictionary. It
+should retain provenance and permit multiple observations about the same field.
+
+A reusable fact contract is:
+
+\begin{verbatim}
+{
+  "fact_id": "fact_finance_monthly_revenue_2026_06",
+  "business_id": "home-fixed",
+  "function": "finance",
+  "field": "average_monthly_revenue",
+  "category": "revenue",
+  "value": 4200,
+  "unit": "EUR",
+  "period": "2026-06",
+  "classification": "founder_provided_fact",
+  "confidence": 0.88,
+  "verification_status": "unverified",
+  "source_ref": "finance_discovery_turn_04",
+  "evidence_refs": [],
+  "supersedes": null,
+  "effective_at": "2026-06-30T23:59:59Z",
+  "observed_at": "2026-07-13T00:00:00Z",
+  "created_at": "2026-07-13T00:00:00Z"
+}
+\end{verbatim}
+
+Every fact must be classified as one of:
+
+\begin{itemize}
+  \item founder-provided fact;
+  \item connected-system fact;
+  \item uploaded-document fact;
+  \item website-derived fact;
+  \item calculated value;
+  \item Boardroom-approved decision;
+  \item assumption;
+  \item disputed value; or
+  \item unknown.
+\end{itemize}
+
+Corrections should append a new observation or revision and mark the older record
+as superseded. Silent destructive replacement should be avoided for material
+business facts.
+
+\subsection{Function Discovery State}
+
+Each function may keep a resumable discovery draft, but it must follow a common
+envelope:
+
+\begin{verbatim}
+{
+  "schema_version": "aion.function_discovery.v1",
+  "business_id": "home-fixed",
+  "function": "finance",
+  "status": "in_progress",
+  "current_section": "revenue",
+  "current_question_id": "revenue_monthly",
+  "answers": {},
+  "transcript": [],
+  "facts": [],
+  "assumptions": [],
+  "unknowns": [],
+  "evidence_refs": [],
+  "integration_refs": [],
+  "progress": {
+    "completed_fields": 0,
+    "total_fields": 0,
+    "percentage": 0
+  },
+  "safety": {
+    "external_actions_allowed": false,
+    "external_writes_allowed": false,
+    "payments_allowed": false,
+    "approval_required": true
+  },
+  "created_at": "...",
+  "updated_at": "..."
+}
+\end{verbatim}
+
+The renderer may cache this packet locally for fast resume. Material changes must
+also be committed through the backend into the active Business Container. The
+backend copy is authoritative after successful acknowledgement.
+
+\subsection{Department Intelligence Ledger}
+
+The existing frontend ledger uses \texttt{aion.departmentIntelligence.v1}. Its
+normalised entries already support:
+
+\begin{verbatim}
+{
+  "department": "finance",
+  "status": "needs_discovery",
+  "confidence": "empty",
+  "discovery": {},
+  "plan": {},
+  "tasks": [],
+  "runs": [],
+  "evidence": [],
+  "receipts": [],
+  "alerts": [],
+  "results": {},
+  "boardroom_summary": "",
+  "updated_at": "..."
+}
+\end{verbatim}
+
+This is the correct conceptual ledger but currently relies on browser storage.
+It must become a persistent Business Container record. Browser storage should
+remain a cache, with a recorded sync state such as \texttt{pending},
+\texttt{synced}, \texttt{conflicted}, or \texttt{failed}.
+
+The function model and Department Intelligence Ledger serve different purposes:
+
+\begin{itemize}
+  \item the function model contains detailed specialist truth;
+  \item the ledger contains operational state, discovery completion, plans,
+  tasks, evidence, receipts, results, alerts, and a bounded Boardroom summary;
+  \item the Boardroom reads both through a projection; and
+  \item the ledger should reference model revisions rather than duplicate the
+  entire model.
+\end{itemize}
+
+\subsection{Artifact Persistence Contract}
+
+The existing artifact contract is implemented in:
+
+\begin{verbatim}
+backend/services/aion_mission_mode/business_container_artifacts.py
+backend/services/aion_mission_mode/department_artifact_persistence.py
+\end{verbatim}
+
+It correctly requires a business-scoped target, department sub-container,
+artifact type, provenance, artifact hash, source-payload hash, receipt hash,
+storage path, and replay locator. It rejects global and temporary targets.
+
+Allowed department sub-containers include Marketing, Pilot, Sales, Finance,
+Operations, Support, and Builder. Supported user-usable types include PDF,
+spreadsheet, document, text, Markdown, JSON, report, evidence bundle, export,
+receipt, and Boardroom session.
+
+A canonical artifact record should contain:
+
+\begin{verbatim}
+{
+  "artifact_id": "artifact_...",
+  "target": {
+    "business_id": "home-fixed",
+    "business_container_id": "home-fixed",
+    "sub_container": "finance",
+    "artifact_type": "spreadsheet",
+    "artifact_name": "cashflow-2026.xlsx"
+  },
+  "provenance": {
+    "mission_id": "finance-onboarding",
+    "mission_run_id": "run_...",
+    "step_id": "finance-file-import",
+    "tool_id": "finance-file-ingestion",
+    "created_by": "user_upload"
+  },
+  "artifact_hash": "sha256:...",
+  "source_payload_hash": "sha256:...",
+  "receipt_hash": "sha256:...",
+  "storage_path": "business_containers/home-fixed/finance/spreadsheets/...",
+  "storage_state": "committed_to_business_container",
+  "session_vfs_only": false,
+  "live_side_effects_enabled": false,
+  "replay_locator": {}
+}
+\end{verbatim}
+
+At the time of inspection, the artifact commit helper builds and validates this
+record but does not itself write the physical artifact. A production backend
+commit endpoint must therefore:
+
+\begin{enumerate}
+  \item validate the canonical business identifier and sub-container;
+  \item stream the uploaded bytes into a temporary business-scoped staging area;
+  \item enforce size and file-type policy;
+  \item calculate a content hash;
+  \item reject path traversal and unsafe filenames;
+  \item place the artifact under the canonical business/function path;
+  \item write the artifact record and receipt atomically;
+  \item return the canonical storage path, hash, receipt, and replay locator; and
+  \item only then create or update the File Cabinet pointer.
+\end{enumerate}
+
+No UI should display \texttt{committed\_to\_business\_container} before the
+backend has confirmed that the bytes and record exist.
+
+\subsection{Function Artifact Directory Convention}
+
+Each function should use a predictable internal hierarchy. Finance is the first
+implementation and should use:
+
+\begin{verbatim}
+business_containers/<business_id>/finance/
+    spreadsheets/
+    bank-statements/
+    invoices-receipts/
+    management-accounts/
+    vat-tax/
+    payroll/
+    payment-processors/
+    crm-sales/
+    reports/
+    models/
+    evidence-receipts/
+\end{verbatim}
+
+Other functions should use equivalent domain-specific folders. A function must
+declare its folder taxonomy in one schema/configuration module so the uploader,
+artifact service, File Cabinet, and renderer do not each invent names.
+
+The original extension must be preserved. For example, \texttt{.xlsx},
+\texttt{.xls}, \texttt{.csv}, \texttt{.pdf}, \texttt{.ofx},
+\texttt{.qif}, \texttt{.xml}, and \texttt{.json} remain distinguishable.
+File classification determines the folder; the filename alone must not determine
+whether the content is trusted or parsed.
+
+\subsection{File Cabinet Contract}
+
+The backend-authoritative File Cabinet tree is stored at:
+
+\begin{verbatim}
+.runtime/AION_BUSINESS/workflow_file_cabinets/<business_id>/tree.json
+\end{verbatim}
+
+Its repository and API are:
+
+\begin{verbatim}
+backend/modules/aion_business/runtime/workflow_file_cabinet_repository.py
+backend/modules/aion_business/api/workflow_file_cabinet_api.py
+GET  /api/aion/business/workflow-file-cabinet/<business_id>
+POST /api/aion/business/workflow-file-cabinet/<business_id>
+\end{verbatim}
+
+The File Cabinet must contain pointer nodes, not copies of the source data. The
+existing pointer type is \texttt{business\_container\_artifact}, with
+\texttt{source\_of\_truth} set to \texttt{business\_container} and
+\texttt{file\_cabinet\_role} set to \texttt{index\_pointer\_only}.
+
+Every function must ensure its top-level department folder and required
+subfolders exist. Finance should appear as:
+
+\begin{verbatim}
+Finance
+    Spreadsheets
+    Bank Statements
+    Invoices & Receipts
+    Management Accounts
+    VAT & Tax
+    Payroll
+    Payment Processors
+    CRM & Sales
+    Reports
+    Financial Models
+    Evidence & Receipts
+\end{verbatim}
+
+A pointer should include:
+
+\begin{verbatim}
+{
+  "id": "finance_pointer_...",
+  "name": "cashflow-2026.xlsx",
+  "type": "business_container_artifact",
+  "document_type": "spreadsheet",
+  "source_of_truth": "business_container",
+  "file_cabinet_role": "index_pointer_only",
+  "target": {
+    "business_container_id": "home-fixed",
+    "sub_container": "finance",
+    "artifact_type": "spreadsheet",
+    "storage_path": "business_containers/home-fixed/finance/spreadsheets/...",
+    "artifact_id": "artifact_...",
+    "artifact_hash": "sha256:...",
+    "receipt_hash": "sha256:...",
+    "replay_locator_hash": "sha256:..."
+  }
+}
+\end{verbatim}
+
+Deleting a File Cabinet pointer must not silently delete the canonical artifact.
+Artifact deletion or archival requires a separate guarded operation and audit
+receipt.
+
+\subsection{Document Ingestion and Evidence Extraction}
+
+Upload, persistence, parsing, and acceptance as business truth are separate
+operations:
+
+\begin{enumerate}
+  \item \textbf{Upload}: persist original bytes and calculate a hash.
+  \item \textbf{Index}: create the File Cabinet pointer.
+  \item \textbf{Parse}: extract cells, text, transactions, or metadata.
+  \item \textbf{Map}: propose Business Map facts and function-model fields.
+  \item \textbf{Validate}: apply schema, period, currency, and consistency checks.
+  \item \textbf{Confirm}: obtain user confirmation where confidence or meaning
+  is uncertain.
+  \item \textbf{Promote}: write accepted facts/model revisions into canonical
+  containers.
+\end{enumerate}
+
+Selecting a file must not imply permission to write to an external accounting
+system. Parsing a file must not imply that every extracted number is correct.
+
+\subsection{Connected Systems}
+
+Accounting, CRM, payment, calendar, email, and other connectors must separate:
+
+\begin{itemize}
+  \item discovered or selected;
+  \item authentication pending;
+  \item read permission granted;
+  \item initial import completed;
+  \item synchronisation active;
+  \item write permission requested;
+  \item write permission approved for a bounded action; and
+  \item disconnected or revoked.
+\end{itemize}
+
+Read access never grants write access. Write access never grants authority for
+every future action. Payments, filings, customer communications, bookings,
+publishing, and production changes require specific approval policies.
+
+\subsection{Boardroom Context Envelope}
+
+The Boardroom should receive a slim, structured, immutable data sheet generated
+from canonical Business Containers. It should not send every raw file or rely on
+provider memory.
+
+A representative envelope is:
+
+\begin{verbatim}
+{
+  "schema_version": "aion.boardroom_context_envelope.v1",
+  "business_id": "home-fixed",
+  "snapshot_id": "boardroom_context_...",
+  "generated_at": "...",
+  "business_identity": {},
+  "business_structure": {},
+  "business_map_projection": {
+    "verified_facts": [],
+    "material_assumptions": [],
+    "unknowns": [],
+    "conflicts": []
+  },
+  "function_models": {
+    "finance": {},
+    "marketing": {},
+    "sales": {},
+    "operations": {},
+    "support": {}
+  },
+  "department_intelligence": {},
+  "goals": {},
+  "active_packages": {},
+  "latest_results": {},
+  "alerts_and_risks": [],
+  "evidence_index": [],
+  "previous_boardroom_decisions": [],
+  "permissions": {},
+  "source_revisions": {},
+  "context_hash": "sha256:..."
+}
+\end{verbatim}
+
+Every participating provider receives the same envelope and meeting instruction.
+Provider-specific formatting may adapt syntax but must not alter facts. The
+provider call record should retain the envelope hash, provider, model, prompt
+version, response hash, timestamps, and safety configuration.
+
+The existing Boardroom session packet already records an execution boundary in
+which approval is required, live external side effects are false, raw model tool
+access is false, and provider memory mutation is false. These boundaries must be
+preserved in the canonical implementation.
+
+\subsection{Boardroom Output and Consensus Persistence}
+
+Boardroom responses are proposals until consensus and user approval are recorded.
+The canonical meeting artifact should contain:
+
+\begin{itemize}
+  \item the exact context-envelope hash;
+  \item council members, providers, and models;
+  \item each independent response;
+  \item critiques and conflicts;
+  \item consensus result;
+  \item user amendments;
+  \item final approved decisions;
+  \item function assignments;
+  \item approval boundaries;
+  \item evidence requirements;
+  \item previous-session references; and
+  \item artifact, receipt, and replay hashes.
+\end{itemize}
+
+Approved decisions become versioned function packages. They must reference the
+Boardroom session and context snapshot that produced them. Functions execute
+against the active package and return results, evidence, and exceptions to their
+ledger for the next Boardroom projection.
+
+\subsection{Cross-Function Data Flow}
+
+The standard lifecycle for every function is:
+
+\begin{verbatim}
+Business Foundation
+    -> Canonical Foundation commit
+    -> Business Map facts
+    -> Function setup and source discovery
+    -> Function discovery draft
+    -> Function model
+    -> Department Intelligence summary
+    -> Boardroom context projection
+    -> Boardroom decision and approved package
+    -> Function execution
+    -> Results, evidence and receipts
+    -> Business Map/model updates
+    -> Next Boardroom context projection
+\end{verbatim}
+
+The Business Twin Orchestrator owns progression between functions. A function
+runtime must not directly unlock the next department, activate the Boardroom, or
+claim a package has been approved.
+
+\subsection{Required Backend APIs}
+
+The platform requires guarded APIs for:
+
+\begin{itemize}
+  \item registering and resolving canonical business identity;
+  \item committing the Foundation packet;
+  \item reading and appending Business Map facts;
+  \item reading and updating function discovery drafts;
+  \item reading and versioning function models;
+  \item reading and updating Department Intelligence records;
+  \item uploading and committing artifacts;
+  \item parsing artifacts as a separate operation;
+  \item reading and writing File Cabinet pointers;
+  \item generating a Boardroom Context Envelope;
+  \item committing Boardroom sessions and decisions; and
+  \item recording approvals, receipts, and replay locators.
+\end{itemize}
+
+Every mutation response should include \texttt{ok}, business identifier,
+container kind, record or revision identifier, updated timestamp, hash, receipt,
+and sync state. Failures must leave the previous canonical record intact.
+
+\subsection{Current Technical Gaps to Resolve}
+
+The code inspection identified these current gaps:
+
+\begin{enumerate}
+  \item the active Home Fixed runtime has an operational summary but does not yet
+  contain canonical Business Identity or Business Structure files produced from
+  onboarding;
+  \item Foundation and Business Map data are still principally frontend packets;
+  \item function discovery and Department Intelligence are principally stored in
+  browser storage;
+  \item no canonical Finance model container exists yet;
+  \item the artifact helper constructs a committed-looking record but does not
+  physically persist artifact bytes;
+  \item the File Cabinet is backend-authoritative but the active Home Fixed tree
+  can be empty and requires deterministic function-folder provisioning;
+  \item frontend and backend business-ID normalisation is inconsistent;
+  \item the frontend Boardroom session packet reads browser state while the
+  backend Boardroom reads canonical container projections; and
+  \item a single canonical Boardroom Context Envelope has not yet replaced these
+  parallel context paths.
+\end{enumerate}
+
+These gaps must be fixed centrally rather than separately inside each function.
+
+\subsection{Implementation Order}
+
+The recommended implementation order is:
+
+\begin{enumerate}
+  \item create and enforce the canonical business-ID resolver;
+  \item migrate or alias legacy business IDs without losing data;
+  \item add a guarded Foundation-to-Business-Container commit;
+  \item promote the Business Map to a canonical backend contract;
+  \item register the function-model and function-ledger container contracts;
+  \item implement Finance as the first full vertical slice;
+  \item implement physical artifact upload and receipt persistence;
+  \item implement deterministic File Cabinet folder provisioning and pointer
+  insertion;
+  \item make browser storage a cache with explicit sync status;
+  \item implement the canonical Boardroom Context Envelope;
+  \item route every provider the same immutable context snapshot;
+  \item persist Boardroom decisions and versioned function packages; and
+  \item generalise the completed Finance pattern into shared function modules.
+\end{enumerate}
+
+\subsection{Shared Function Module Boundaries}
+
+To avoid further growth of the monolithic desktop application file, reusable
+logic should be divided into modules such as:
+
+\begin{verbatim}
+desktop/mac/src/business_twin/
+    canonical_business_identity.js
+    business_container_client.js
+    business_map_client.js
+    function_ledger_client.js
+    artifact_client.js
+    file_cabinet_pointer_client.js
+    boardroom_context_client.js
+
+desktop/mac/src/departments/shared/
+    function_discovery_runtime.js
+    function_setup_renderer.js
+    function_source_registry.js
+    function_model_lifecycle.js
+
+desktop/mac/src/departments/<function>/
+    <function>_discovery_schema.js
+    <function>_model_schema.js
+    <function>_pilot_runtime.js
+    <function>_workspace.js
+\end{verbatim}
+
+The main application renderer should only select the active function and delegate
+to its module. It must not contain each function's schemas, persistence logic,
+upload handlers, or model calculations.
+
+\subsection{Finance Pilot Implementation Baseline}
+
+The Finance implementation establishes the reusable baseline for subsequent
+functions. The desktop modules are
+\texttt{aion\_finance\_discovery\_schema.js},
+\texttt{aion\_finance\_model\_builder.js}, and
+\texttt{aion\_finance\_pilot.js}. Canonical synchronisation and operational
+queries pass through \texttt{aion\_business\_container\_client.js}; lifecycle
+progression remains owned by
+\texttt{aion\_business\_twin\_orchestrator.js}.
+
+Finance discovery records reporting currency, pricing, monthly revenue, sales
+volume, revenue pattern, payment terms, direct costs, fixed overheads, owner
+labour and capacity, cash and buffer, receivables, payables, tax, debt, targets,
+and approval limits. Answers are founder-provided facts until reconciled to
+evidence. The model builder calculates annualised revenue, gross profit, gross
+margin, operating surplus, and operating margin only when the required numeric
+inputs exist. Every metric stores its formula and is marked
+\texttt{calculated\_from\_unverified\_input}; missing inputs and parsing
+assumptions remain explicit.
+
+On finalisation, Finance emits a completion receipt to the Business Twin
+Orchestrator. The orchestrator marks Finance complete, marks Operations
+\texttt{ready\_to\_activate}, and records Operations as the next department.
+Finance itself neither routes to nor activates Operations. The permanent
+Finance terminal sends read-only questions to
+\texttt{/api/aion/business/data/finance-agent/\{business\_id\}/turn}. Answers
+are grounded in the canonical Business Financial Model, remain approval-gated,
+and are appended to its bounded operational transcript.
+
+\subsection{Safety and Approval Rules}
+
+The following boundaries apply across every function:
+
+\begin{itemize}
+  \item discovery does not grant execution authority;
+  \item file selection does not grant external-system access;
+  \item read access does not grant write access;
+  \item a model recommendation does not approve an action;
+  \item Boardroom consensus does not replace required user approval;
+  \item provider responses cannot mutate canonical truth directly;
+  \item public posting, messaging, spending, payments, bookings, filings,
+  accounting writes, deployments, and destructive actions require explicit
+  bounded authority;
+  \item every approved mutation requires evidence and a receipt; and
+  \item permissions must be revalidated at execution time.
+\end{itemize}
+
+\subsection{Testing and Acceptance Requirements}
+
+Every function implementation must include tests proving:
+
+\begin{enumerate}
+  \item all records use the active canonical business identifier;
+  \item no global, temporary, or demo container can receive persistent data;
+  \item discovery resumes after restart without duplicate canonical writes;
+  \item frontend cache and backend truth reconcile correctly;
+  \item facts retain source, confidence, evidence, and timestamps;
+  \item model revisions preserve previous versions or supersession references;
+  \item uploaded files remain inside the active business/function directory;
+  \item traversal filenames and unsupported types are rejected;
+  \item artifact hashes and receipts reproduce correctly;
+  \item File Cabinet rows are pointers to existing canonical artifacts;
+  \item File Cabinet deletion does not delete canonical bytes implicitly;
+  \item Department Intelligence references the current function-model revision;
+  \item Boardroom context contains bounded structured data, not arbitrary raw
+  files;
+  \item every provider receives the same context hash;
+  \item provider memory mutation remains disabled;
+  \item unapproved external writes are blocked; and
+  \item the new function does not directly unlock another function.
+\end{enumerate}
+
+An end-to-end acceptance test should create a new business, complete Foundation,
+upload function evidence, finish function discovery, construct a model, verify
+the Business Container files, verify File Cabinet pointers, generate a Boardroom
+Context Envelope, conduct a provider fan-out using one context hash, approve a
+package, execute a safe internal task, and confirm that results and receipts
+appear in the next Boardroom projection.
+
+\subsection{Reusable Function Build Checklist}
+
+Before declaring any new function complete, confirm:
+
+\begin{itemize}
+  \item[$\square$] The function uses the canonical business-ID resolver.
+  \item[$\square$] Its discovery schema is modular and versioned.
+  \item[$\square$] Its draft is resumable and backend-synchronised.
+  \item[$\square$] Its facts write to the Business Map with provenance.
+  \item[$\square$] Its specialist model has a canonical container contract.
+  \item[$\square$] Its Department Intelligence entry is persistent.
+  \item[$\square$] Its model and ledger have distinct responsibilities.
+  \item[$\square$] Its evidence uses canonical artifact persistence.
+  \item[$\square$] Its File Cabinet hierarchy and pointer mapping are defined.
+  \item[$\square$] Its Boardroom summary is bounded and data-only.
+  \item[$\square$] Its context is included in the shared Boardroom envelope.
+  \item[$\square$] Its provider calls use the common context hash.
+  \item[$\square$] Its plans and actions are approval-gated.
+  \item[$\square$] Its results, evidence, and receipts feed back into the
+  Business Container.
+  \item[$\square$] Its runtime does not own cross-function orchestration.
+  \item[$\square$] Its implementation does not add substantive logic to the
+  monolithic main application renderer.
+  \item[$\square$] Restart, reset, migration, and full new-business tests pass.
+\end{itemize}
+
+\subsection{Definition of Done}
+
+The architecture is complete when AION can reconstruct the complete current
+business state from the scoped Business Container without relying on browser
+storage or provider memory; locate every user-facing artifact through File
+Cabinet pointers; produce a compact, hashed Boardroom Context Envelope; deliver
+the identical envelope to every participating Boardroom provider; persist the
+approved decision and function package; and feed subsequent function results back
+into the next business-state projection with full provenance, evidence, receipts,
+and approval history.

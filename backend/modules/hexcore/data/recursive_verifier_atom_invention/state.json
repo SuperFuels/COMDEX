@@ -1,0 +1,24 @@
+{
+  "precommitment": {
+    "atom_id": "EXECUTE_SEALED_ARTIFACT_CONTRACT",
+    "committed_at": "2026-08-02T15:35:58.241690+00:00",
+    "existing_atoms": [
+      "ASSERT_ACYCLIC",
+      "ASSERT_AUTHORITY_BOUNDARIES",
+      "ASSERT_CAPABILITY_PREREQUISITES",
+      "ASSERT_HIERARCHY",
+      "ASSERT_MEASURABLE_OUTCOMES",
+      "ASSERT_RECOVERY_BRANCHES"
+    ],
+    "implementation_family": "typed_sealed_artifact_executor",
+    "not_before_epoch": 1785684959.241888,
+    "outcomes_visible": false,
+    "sealed_case_digests": [
+      "6e75ab0c48187d4afeb1b9611edd8f1f12cd327973c3c328f94b5fcfe5a2b39e",
+      "c2bac1e3aaad67ff6354975172c409e6c78ee1bbb0dcb9ccde4786f90a690519",
+      "60f0bb78fe33b40563606f7d0e0882639c84a3555d764649e2abd2243f71553a"
+    ],
+    "sha256": "6251f1af22ae2bc5f303fe7fb99767d903f14475d581e891ae37894018b726b9"
+  },
+  "status": "WAITING_FOR_SEALED_EXECUTION"
+}

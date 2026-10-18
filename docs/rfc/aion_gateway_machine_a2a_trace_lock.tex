@@ -1,0 +1,112 @@
+\section{AION Gateway Machine A2A Trace v0.1 Lock}
+\label{sec:aion-gateway-machine-a2a-trace-lock}
+
+\subsection{Status}
+
+The AION Gateway Machine A2A Trace layer is locked as an internal backend-only trace contract.
+
+\begin{quote}
+\textbf{Status: LOCKED --- fulfilment job state, evidence state, approval state, exception state, settlement readiness, and proof commitment state can be projected into a deterministic machine-readable trace.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock creates the internal trace object that a later public endpoint will expose.
+
+The future endpoint is:
+
+\begin{verbatim}
+GET /api/aion/a2a/jobs/{job_id}/trace
+\end{verbatim}
+
+This lock does not create that public route yet.
+
+\subsection{Core Contract}
+
+The canonical trace schema version is:
+
+\begin{verbatim}
+aion.a2a.trace.v0.1
+\end{verbatim}
+
+The trace includes:
+
+\begin{itemize}
+  \item \texttt{job\_id}
+  \item \texttt{business\_id}
+  \item \texttt{workflow\_run\_id}
+  \item \texttt{goal\_id}
+  \item \texttt{current\_stage}
+  \item \texttt{next\_expected\_event}
+  \item \texttt{blocked\_reason}
+  \item \texttt{provider\_assignment}
+  \item \texttt{eta}
+  \item \texttt{evidence\_state}
+  \item \texttt{approval\_state}
+  \item \texttt{exception\_state}
+  \item \texttt{settlement\_readiness\_state}
+  \item \texttt{proof\_commitment\_state}
+  \item \texttt{human\_boardroom\_alignment}
+  \item \texttt{machine\_trace\_hash}
+\end{itemize}
+
+\subsection{Hashing Rule}
+
+The machine trace hash uses deterministic JSON canonicalisation:
+
+\begin{verbatim}
+json.dumps(..., sort_keys=True, separators=(',', ':'))
+hashlib.sha256()
+\end{verbatim}
+
+The hash MUST be stable across dictionary key ordering.
+
+Changing canonical trace state, such as \texttt{current\_stage}, evidence state, or proof commitment state, MUST change \texttt{machine\_trace\_hash}.
+
+\subsection{Safety Boundary}
+
+This layer MUST NOT:
+
+\begin{itemize}
+  \item expose public routes;
+  \item execute workflows;
+  \item create fulfilment jobs;
+  \item mutate fulfilment jobs;
+  \item mutate business containers;
+  \item call providers;
+  \item create payments;
+  \item create bookings;
+  \item send messages;
+  \item commit to GlyphChain;
+  \item grant permissions.
+\end{itemize}
+
+The trace is visibility and audit only.
+
+\subsection{Human and Machine Boardroom Alignment}
+
+The trace includes \texttt{human\_boardroom\_alignment} so future drift tests can compare:
+
+\begin{verbatim}
+workflow_run -> Human Boardroom -> Machine A2A trace
+\end{verbatim}
+
+This is the first step toward keeping the founder-facing Boardroom and external-agent-facing trace contract aligned.
+
+\subsection{Implementation Files}
+
+\begin{verbatim}
+backend/modules/aion_gateway/machine_trace.py
+backend/tests/workflow_capsules/test_aion_gateway_machine_a2a_trace_lock.py
+docs/rfc/aion_gateway_machine_a2a_trace_lock.tex
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-MACHINE-A2A-TRACE-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

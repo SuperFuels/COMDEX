@@ -7,15 +7,18 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import json
 import math
 import os
+import time
 import uuid
 
 from backend.modules.aion_learning.contracts_decision_influence import (
     DecisionInfluenceUpdate,
 )
+from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 
-SCHEMA_VERSION_WEIGHTS = "aion.trading.decision_influence_weights.v1"
-SCHEMA_VERSION_AUDIT = "aion.trading.decision_influence_audit.v1"
+SCHEMA_VERSION_WEIGHTS = "aion.decision_influence_weights.v2"
+SCHEMA_VERSION_AUDIT = "aion.decision_influence_audit.v2"
 
 # Adjust if you already have a preferred runtime path convention
 DEFAULT_WEIGHTS_PATH = Path(".runtime/COMDEX_MOVE/data/trading/decision_influence_weights.json")
@@ -93,12 +96,18 @@ class DecisionInfluenceRuntime:
     def __init__(
         self,
         *,
-        weights_path: Path = DEFAULT_WEIGHTS_PATH,
-        audit_jsonl_path: Path = DEFAULT_AUDIT_JSONL_PATH,
+        weights_path: Path | None = None,
+        audit_jsonl_path: Path | None = None,
         autoload: bool = True,
+        vault_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
     ) -> None:
-        self._weights_path = Path(weights_path)
-        self._audit_jsonl_path = Path(audit_jsonl_path)
+        explicit_paths = weights_path is not None or audit_jsonl_path is not None
+        self._weights_path = Path(weights_path or DEFAULT_WEIGHTS_PATH)
+        self._audit_jsonl_path = Path(audit_jsonl_path or DEFAULT_AUDIT_JSONL_PATH)
+        self._vault_store = vault_store
+        if vault_store is None and not explicit_paths and guardian_mode_requested():
+            self._vault_store = AionLearningVaultStore(workspace_id=workspace_id)
 
         self._state: Dict[str, Dict[str, Any]] = self._empty_state()
         self._weights_version: int = 1
@@ -296,10 +305,15 @@ class DecisionInfluenceRuntime:
 
     def _load_state_from_disk_nonfatal(self) -> None:
         try:
-            if not self._weights_path.exists():
-                return
+            if self._vault_store is not None:
+                raw = self._vault_store.get_state("decision_influence_weights", None)
+                if raw is None:
+                    return
+            else:
+                if not self._weights_path.exists():
+                    return
 
-            raw = json.loads(self._weights_path.read_text(encoding="utf-8"))
+                raw = json.loads(self._weights_path.read_text(encoding="utf-8"))
             state = raw.get("state")
             if not isinstance(state, dict):
                 self._last_persist_error = "weights file missing/invalid 'state' object"
@@ -325,17 +339,28 @@ class DecisionInfluenceRuntime:
 
     def _persist_state(self) -> None:
         doc = self._weights_doc()
-        _atomic_json_write(self._weights_path, doc)
+        if self._vault_store is not None:
+            self._vault_store.put_state("decision_influence_weights", doc)
+        else:
+            _atomic_json_write(self._weights_path, doc)
         self._last_persist_error = None
 
     def _append_audit_nonfatal(self, audit_entry: Dict[str, Any]) -> None:
         payload = {
             "schema_version": SCHEMA_VERSION_AUDIT,
             "audit_id": str(uuid.uuid4()),
+            "event_type": "decision_influence_audit",
+            "vault_order_ns": time.time_ns(),
             **deepcopy(audit_entry),
         }
         try:
-            _append_jsonl(self._audit_jsonl_path, payload)
+            if self._vault_store is not None:
+                self._vault_store.append_event(
+                    f"decision-influence-{payload['audit_id']}",
+                    payload,
+                )
+            else:
+                _append_jsonl(self._audit_jsonl_path, payload)
         except Exception as e:
             # Keep runtime non-breaking; record in memory and surface via metadata if needed
             payload["audit_write_error"] = str(e)
@@ -348,6 +373,8 @@ class DecisionInfluenceRuntime:
         Returns list of parsed dict entries in file order.
         """
         try:
+            if self._vault_store is not None:
+                return self._vault_store.list_events(kind="decision_influence_audit")
             if not self._audit_jsonl_path.exists():
                 return []
 
@@ -410,22 +437,36 @@ class DecisionInfluenceRuntime:
 
             # Prefer explicit applied payload if present
             applied = row.get("applied")
-            if not isinstance(applied, dict):
-                # Some rows may nest operational fields differently; skip if absent
-                continue
 
-            for section, payload in applied.items():
-                if section not in self.SECTION_CLAMPS:
-                    continue
-                if not isinstance(payload, dict):
+            if isinstance(applied, dict):
+                for section, payload in applied.items():
+                    if section not in self.SECTION_CLAMPS:
+                        continue
+                    if not isinstance(payload, dict):
+                        continue
+
+                    _applied, _rejected = self._apply_section(
+                        section=section,
+                        payload=payload,
+                        state_bucket=state[section],
+                    )
+            else:
+                # Fallback for older audit rows: reconstruct from post_snapshot state
+                post_snapshot = row.get("post_snapshot")
+                snap_state = post_snapshot.get("state") if isinstance(post_snapshot, dict) else None
+
+                if not isinstance(snap_state, dict):
                     continue
 
-                # Reuse existing clamp logic by applying into reconstructed state bucket
-                _applied, _rejected = self._apply_section(
-                    section=section,
-                    payload=payload,
-                    state_bucket=state[section],
-                )
+                reconstructed = self._empty_state()
+                for section in self.SECTION_CLAMPS.keys():
+                    payload = snap_state.get(section, {})
+                    if not isinstance(payload, dict):
+                        continue
+                    normalized, _rejected = self._normalize_section_payload(section, payload)
+                    reconstructed[section] = normalized
+
+                state = reconstructed
 
             try:
                 row_version_after = int(row.get("weights_version_after"))
@@ -626,6 +667,7 @@ class DecisionInfluenceRuntime:
                             "audit_jsonl_path": str(self._audit_jsonl_path),
                             "last_persist_error": self._last_persist_error,
                             "live_apply_authorized": self._is_live_apply_authorized(),
+                            "target_version": target_version_i,
                             "rollback_target_version": target_version_i,
                         },
                     }
@@ -651,6 +693,7 @@ class DecisionInfluenceRuntime:
                     "audit_jsonl_path": str(self._audit_jsonl_path),
                     "last_persist_error": self._last_persist_error,
                     "live_apply_authorized": self._is_live_apply_authorized(),
+                    "target_version": target_version_i,
                     "rollback_target_version": target_version_i,
                 },
             }
@@ -668,6 +711,7 @@ class DecisionInfluenceRuntime:
                 "weights_version_before": version_before,
                 "weights_version_after": version_before,
                 "changed": False,
+                "target_version": target_version_i,
                 "rollback_target_version": target_version_i,
             }
             self._append_audit_nonfatal(audit_entry)
@@ -694,6 +738,7 @@ class DecisionInfluenceRuntime:
                     "audit_jsonl_path": str(self._audit_jsonl_path),
                     "last_persist_error": self._last_persist_error,
                     "live_apply_authorized": self._is_live_apply_authorized(),
+                    "target_version": target_version_i,
                     "rollback_target_version": target_version_i,
                 },
             }
@@ -1367,6 +1412,7 @@ class DecisionInfluenceRuntime:
                 "reason": update.reason,
                 "confidence": float(update.confidence),
                 "dry_run": bool(dry_run),
+                "applied": deepcopy(applied),  # <-- REQUIRED FOR REPLAY
                 "applied_sections": sorted(list(applied.keys())),
                 "applied_count": applied_count,
                 "rejected_count": len(rejected),
@@ -1376,7 +1422,7 @@ class DecisionInfluenceRuntime:
                 "weights_version_after": version_before if dry_run else (version_before + (1 if changed else 0)),
                 "changed": changed,
                 "pre_snapshot": pre_snapshot,
-                "post_snapshot": post_snapshot_dry_run if dry_run else None,  # replaced on live apply after commit
+                "post_snapshot": post_snapshot_dry_run if dry_run else None,
             }
 
             if not dry_run:

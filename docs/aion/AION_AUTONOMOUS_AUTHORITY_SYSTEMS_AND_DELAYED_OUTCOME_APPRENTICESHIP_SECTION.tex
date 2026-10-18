@@ -1,0 +1,671 @@
+% ============================================================================
+% AION Autonomous Authority Acquisition, Systems Intelligence, and Delayed
+% Outcome Apprenticeship
+% Compile-ready section. Requires: amsmath, amssymb, booktabs, tabularx,
+% array, url.
+% ============================================================================
+
+\section{Autonomous Authority Acquisition, Systems Intelligence, and Delayed-Outcome Apprenticeship}
+\label{sec:aion-authority-systems-delayed-apprenticeship}
+
+This development increment moved AION beyond one-off curriculum execution in
+three linked directions.  First, it acquired reusable execution authorities
+for real local toolchains and multi-project systems work.  Second, it applied
+those authorities through a persistent executive that selected and completed
+useful capability-acquisition objectives.  Third, it connected apprenticeship
+and private repair to outcomes that AION did not generate, with credit withheld
+until a later operational consequence became available.
+
+The resulting control chain is
+\begin{equation}
+\begin{aligned}
+\text{North-Star objective}
+&\rightarrow \text{capability-gap and authority analysis} \\
+&\rightarrow \text{private executor acquisition or useful-work selection} \\
+&\rightarrow \text{precommitted plan, prediction, or artifact} \\
+&\rightarrow \text{independently revealed consequence} \\
+&\rightarrow \text{world-change versus internal-failure attribution} \\
+&\rightarrow \text{private repair, abstention, or world-model revision} \\
+&\rightarrow \text{later consequence confirmation} \\
+&\rightarrow \text{executive receipt, curriculum evidence, and retention}.
+\end{aligned}
+\label{eq:aion-delayed-apprentice-chain}
+\end{equation}
+
+The essential authority rule is that proposal, execution, observation, and
+promotion remain separate.  A tool adapter may propose evidence; it cannot
+award a competency level.  A private repair may pass its own tests; it cannot
+declare itself successful.  An artifact may contain a plausible conclusion; it
+cannot verify that conclusion.  HexCore accepts each claim only through the
+authority specified before the relevant outcome was observed.
+
+\subsection{Reusable Progressive-Authority Acquisition}
+\label{subsec:aion-progressive-authority-acquisition}
+
+The progressive competency programme contained 44 leaf subjects, but many
+could not progress because no suitable outcome authority existed.  Rather than
+treat every subject as a bespoke benchmark, AION introduced an executor
+registry and reusable authority-family acquisition layer.  For subject $s$ and
+candidate adapter $e$, installation requires
+\begin{equation}
+\operatorname{Install}(e,s)=
+\mathbf{1}\!\left[
+  C_s\subseteq D_e
+  \land X_e=1
+  \land N_e=M_e
+  \land U_e=0
+  \land W_e=0
+\right],
+\label{eq:aion-adapter-install-gate}
+\end{equation}
+where $C_s$ is the declared subject subskill set, $D_e$ is the set actually
+demonstrated by the executor, $X_e$ denotes successful execution, $N_e/M_e$ is
+the rejected-counterexample ratio, $U_e$ is the number of unsafe variants
+accepted, and $W_e$ is the number of live repository writes.
+
+The executor registry records the adapter family, verified subskills, authority
+artifact, acquisition status, and resume condition.  Missing adapters park the
+affected subject and allow the curriculum to rotate; an unrelated executor is
+never substituted merely to keep a progress counter moving.
+
+\subsubsection{Progressive outcome-authority fabric}
+
+The first factory generation converted five reusable outcome-authority families
+into six verified subject adapters.  This was the bridge between the generic
+registry and later local-toolchain acquisition.
+
+\begin{table}[htbp]
+\centering
+\caption{Initial progressive outcome-authority fabric.}
+\label{tab:aion-outcome-authority-fabric}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}Xr@{}}
+\toprule
+Subject adapter & Outcome authority family & Faults \\
+\midrule
+Mathematics & exact proof and calculation & 8 \\
+English natural-language cognition & document and delayed-question execution & 17 \\
+Research and communication & document and delayed-question execution & 17 \\
+Scientific method & empirical dataset or experiment & 15 \\
+Data analysis and statistics & data and statistical outcome & 15 \\
+Machine learning and AI & code and system execution & 10 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Each adapter had to execute a passing candidate, cover the declared subskills,
+reject every mapped counterexample and six unsafe code classes, survive runtime
+reconstruction, and perform no live write or objective mutation.  Unsupported
+families remained explicit gaps.  The gate reported six verified adapters from
+five distinct authority families, declared-subskill coverage, counterexample
+falsification, unsupported-family abstention, restart retention, and zero unsafe
+or objective mutations.  Verified executor coverage increased from $5/44$ to
+$11/44$.
+
+The promoted procedure is
+\begin{center}
+\small\path{procedure_autonomous_progressive_executor_factory_v1}.
+\end{center}
+
+\subsubsection{Governed cognitive self-improvement}
+
+The same increment improved a live proposal component rather than only adding
+subject adapters.  The retained mission-capability router was conservative: it
+missed valid mixed mathematics--statistics--science objectives.  A permissive
+alternative increased recall but routed irrelevant capabilities.  Four private
+router policies therefore competed under a frozen champion, sealed mission
+cohort, and protected single-domain retention set.
+
+For mission $m$, expected capability set $Y_m$, and proposed set
+$\widehat Y_m$, routing quality used set F1,
+\begin{equation}
+F_1(m)=
+\frac{2\,|Y_m\cap\widehat Y_m|}
+{|Y_m|+|\widehat Y_m|},
+\label{eq:aion-router-set-f1}
+\end{equation}
+with exact-match, irrelevant-route, weakest-family, safety, and restart gates
+evaluated separately.  The selected \texttt{discriminative\_transfer} policy
+was the only challenger that improved mean routing while preserving the sealed
+and protected floors.
+
+\begin{table}[htbp]
+\centering
+\caption{Governed capability-router self-improvement.}
+\label{tab:aion-router-self-improvement}
+\begin{tabularx}{\textwidth}{@{}Xr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Mean F1 improvement over retained control & $+11.11$ percentage points \\
+Sealed mission exact routing & 100\% \\
+Protected mission retention & 100\% \\
+Malicious policies rejected & $5/5$ \\
+Unsafe live writes / objective mutations & $0/0$ \\
+Restart policy retention & passed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The promoted policy is content-hashed and loaded by the
+\path{MissionCapabilityActionHarness}.  It remains proposal-only: it may suggest
+which cognitive capabilities should handle a mission, but it cannot authorize
+execution, award competence, rewrite the North Star, or bypass later outcome
+verification.  The promoted procedure is
+\begin{center}
+\small\path{procedure_autonomous_cognitive_self_improvement_lab_v1}.
+\end{center}
+
+\subsubsection{Open local-toolchain acquisition}
+
+AION inspected the local environment and discovered four usable execution
+authorities: CPython, TypeScript plus Node, Rust, and SQLite.  It constructed a
+private progressive examiner for each surface, tested a distinct faulty
+implementation for every declared subskill, and installed only adapters that
+passed the complete gate.  Go and Java were not installed because a valid local
+runtime was unavailable.  This was treated as an explicit abstention rather
+than simulated evidence.
+
+\begin{table}[htbp]
+\centering
+\caption{Open toolchain acquisition result.}
+\label{tab:aion-open-toolchain-acquisition}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
+\toprule
+Authority & Verification role & Result \\
+\midrule
+CPython & isolated execution, behavioural checks, negative variants & installed \\
+TypeScript + Node & strict compilation and runtime execution & installed \\
+Rust & compilation and executable behavioural authority & installed \\
+SQLite & schema, constraint, transaction, and query execution & installed \\
+Go & required runtime not available & abstained \\
+Java & required runtime not available & abstained \\
+\midrule
+\multicolumn{2}{l}{Deliberately faulty subskill implementations rejected} & $39/39$ \\
+\multicolumn{2}{l}{Verified executor coverage} & $11/44\rightarrow15/44$ \\
+\multicolumn{2}{l}{Unresolved catalogue gaps} & $33\rightarrow29$ \\
+\multicolumn{2}{l}{Unsafe live writes / objective mutations} & $0/0$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The promoted procedure is
+\begin{center}
+\small\path{procedure_open_toolchain_progressive_executor_acquisition_v1}.
+\end{center}
+It is an executor-acquisition result, not a claim that AION has mastered the complete
+Python, TypeScript, Rust, or database ecosystems.
+
+\subsection{Persistent Autonomous Useful-Work Selection}
+\label{subsec:aion-useful-work-controller}
+
+The executive layer was extended from method selection to iterative useful-work
+ownership.  Candidate projects are ranked using explicit value, urgency, risk
+reduction, learning value, cost, confidence, and dependency readiness.  The
+implemented priority score is
+\begin{equation}
+P(i)=
+\frac{
+  \left(0.45V_i+0.25G_i+0.15R_i+0.15L_i\right)Q_i
+}{\max(0.1,C_i)},
+\label{eq:aion-useful-work-priority}
+\end{equation}
+where $V_i$ is value, $G_i$ urgency, $R_i$ risk reduction, $L_i$ learning
+value, $Q_i$ confidence, and $C_i$ cost.  Ineligible dependency-blocked work
+receives zero executable priority.
+
+For every selected project, the controller must:
+\begin{enumerate}
+    \item preserve the constitutional parent objective;
+    \item declare measurable success criteria before acting;
+    \item compose an appropriate executive work system;
+    \item execute only through a governed adapter;
+    \item compare the resulting registry or operational state with the frozen
+          baseline; and
+    \item retain the next useful objective after restart.
+\end{enumerate}
+
+In its first generation the controller selected real toolchain acquisition,
+rejected a low-value repeated suite, and parked a human-evaluation proposal
+whose authority was unavailable.  In its second generation it remembered the
+completed work, selected software/system-project authority acquisition, and
+measured an 18.18 percentage-point executor-coverage gain.  The retained
+procedure is \path{procedure_autonomous_useful_work_controller_v2}.
+
+\subsection{Software and Systems Project Authority}
+\label{subsec:aion-software-system-authority}
+
+The next authority family replaced isolated language demonstrations with 17
+distinct executable systems projects.  Each project contains a working
+candidate, a semantically targeted fault mutation, mapped subskills, an
+independent process outcome, and a security boundary.  The portfolio includes:
+\begin{itemize}
+    \item scoped capability tokens and supply-chain manifests;
+    \item process supervision, filesystem permissions, and framed IPC;
+    \item idempotent replicated logs and quorum decisions;
+    \item progressive rollout, rollback, SLO monitoring, and capacity planning;
+    \item container policy and architecture-boundary checks;
+    \item incident containment, DNS caching, TLS contracts, and route failover;
+    \item restartable operational handover.
+\end{itemize}
+
+The authority installed eight subject adapters:
+\begin{center}
+\small
+Security Engineering; Operating Systems; Distributed Systems;
+Cloud/DevOps/SRE; Architecture and Production Operations; Secure Software
+Engineering; Computer Networking; and Integrated Engineering Capstone.
+\end{center}
+
+Evidence credit is intentionally narrower than the requested contract.  If
+project $p$ declares tags $T_p$ and subject $s$ requires subskills $C_s$, the
+credited set is
+\begin{equation}
+E_{p,s}=T_p\cap C_s,
+\label{eq:aion-exact-subskill-credit}
+\end{equation}
+not the complete requested set.  This correction prevents a successful project
+from silently awarding evidence for subskills it did not exercise.
+
+\begin{table}[htbp]
+\centering
+\caption{Software/system authority promotion gate.}
+\label{tab:aion-system-authority-gate}
+\begin{tabularx}{\textwidth}{@{}Xr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Verified progressive subject adapters & 8 \\
+Distinct executable systems projects & 17 \\
+Mapped project counterexamples rejected & $48/48$ \\
+Declared subskill coverage & passed \\
+Unsupported human authority & abstained \\
+Executor coverage & $15/44\rightarrow23/44$ \\
+Remaining executor gaps & $29\rightarrow21$ \\
+Unsafe live writes / objective mutations & $0/0$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The promoted authority is
+\path{procedure_software_system_project_authority_v1}.  These projects are
+engineered executable authorities; they enable progressive learning but do not
+by themselves establish Advanced or Expert systems competence.
+
+\subsection{Natural-Language Cross-System Capstone}
+\label{subsec:aion-cross-system-capstone}
+
+One broad objective required AION to design a secure distributed service that
+survived interruption and deployment failure.  The mission-capability harness
+selected exactly six interacting domains:
+\begin{equation}
+\mathcal{D}^{*}=\{
+\text{distributed},\text{cloud/SRE},\text{architecture},
+\text{operating systems},\text{networking},\text{security}
+\}.
+\end{equation}
+The composed candidate integrated scoped cryptographic authorization,
+idempotent replication, process-interruption recovery, TLS/network policy,
+health-gated rollout, automatic rollback, and availability monitoring.
+
+The evaluator separately tested the component transfers and the integrated
+system.  It rejected four compound functional faults and six malicious
+operational plans, including authority bypass and unsafe deployment behaviour.
+
+\begin{table}[htbp]
+\centering
+\caption{Cross-system capstone result.}
+\label{tab:aion-cross-system-capstone}
+\begin{tabularx}{\textwidth}{@{}Xr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Exact mission-to-domain route & passed \\
+Source-disjoint component transfer & $6/6$ \\
+Integrated execution & passed \\
+Integrated counterexamples rejected & $4/4$ \\
+Malicious plans rejected & $6/6$ \\
+Unsafe live writes / objective mutations & $0/0$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The promoted procedure is
+\path{procedure_cross_system_intelligence_capstone_v1}.  This is a strong
+internal multi-domain composition result, not proof of unrestricted autonomous
+systems engineering.
+
+\subsection{Consequence-Confirmed Natural Self-Repair}
+\label{subsec:aion-consequence-confirmed-repair}
+
+The private self-repair architecture was next connected to failures that had
+actually occurred in AION's live progressive curriculum.  The repair watcher
+reads two operational sources:
+\begin{enumerate}
+    \item the append-only curriculum executor attempt ledger; and
+    \item the committed public-outcome campaign ledger.
+\end{enumerate}
+It does not inject a tutorial fault.  It detects a failure streak, hashes the
+failure receipt, attributes the origin, and routes only internal faults into a
+private executor trial.  A public revision changes the world model; it is not
+evidence that AION itself is broken.
+
+For outcome $o$, the implemented attribution order is
+\begin{equation}
+A(o)=
+\begin{cases}
+\text{persistence failure}, & \neg T(o),\\
+\text{execution failure}, & T(o)\land\neg X(o),\\
+\text{acquisition failure}, & \exists s:\neg R_s(o),\\
+\text{external world change}, & \Delta_s(o)\neq0,\\
+\text{stable observation}, & \text{otherwise},
+\end{cases}
+\label{eq:aion-outcome-attribution}
+\end{equation}
+where $T$ is transaction persistence, $X$ executable success, $R_s$ source
+reachability, and $\Delta_s$ source revision change.
+
+\paragraph{Two-stage repair authority.}
+The private trial reconstructs the affected contract without writing
+competency evidence.  It must execute successfully, reject its counterexample,
+reject unsafe variants, and preserve the live champion.  Even then the repair
+is only provisional.  It becomes consequence-confirmed only when the separate
+curriculum service later produces a successful operational row for the same
+contract and continues successfully on distinct contracts.
+
+Repair identity excludes evidence that may accumulate later:
+\begin{equation}
+I_r=H(s,c,H(F),H(O_{\mathrm{confirm}})),
+\label{eq:aion-stable-repair-identity}
+\end{equation}
+where $s$ is subject, $c$ contract, $F$ the immutable failure streak, and
+$O_{\mathrm{confirm}}$ the first later confirmation.  Subsequent transfer
+receipts append to $I_r$ without changing it, preventing double counting after
+restart.
+
+The operational ledger contained two closed episodes.  Algorithms and Data
+Structures recorded 472 rejected attempts before its executable contract was
+repaired and later confirmed.  Software Engineering failed three times, was
+parked, and later passed after a verified executor repair.  These are
+retrospective local operational incidents, not external production outages.
+
+\begin{table}[htbp]
+\centering
+\caption{Consequence-confirmed self-repair result.}
+\label{tab:aion-consequence-repair-result}
+\begin{tabularx}{\textwidth}{@{}Xr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Independently committed public outcomes processed & 14 \\
+External world-change outcomes & 11 \\
+External changes incorrectly routed to repair & 0 \\
+Naturally occurring internal failure episodes & 2 \\
+Private repairs confirmed by later outcomes & $2/2$ \\
+Distinct internal domains & 2 \\
+Later distinct-contract confirmations & 6 \\
+Private repair validation rate & 100\% \\
+Malicious repair strategies rejected & $6/6$ \\
+Unsafe live writes / objective mutations & $0/0$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The promoted procedure is
+\begin{center}
+\small\path{procedure_cross_domain_consequence_confirmed_self_repair_v1}.
+\end{center}
+Unresolved future failures are represented as pending repairs and cannot
+contribute to the confirmed-repair count.
+
+\subsection{Prospective Cross-Domain Public Outcomes}
+\label{subsec:aion-prospective-public-outcomes}
+
+The earlier long-duration campaign committed planned actions, but an action
+plan is not a falsifiable forecast.  The prospective campaign therefore writes
+a forecast commitment to an fsync-backed append-only ledger before invoking
+any public authority.  The initial portfolio contains three independently
+controlled authority families:
+\begin{itemize}
+    \item public source control: CPython and Node branch heads;
+    \item public package registry: the published NumPy version; and
+    \item public environmental data: Madrid temperature and wind from
+          Open-Meteo.
+\end{itemize}
+
+For source-control and package observations, the one-step forecast is revision
+stability,
+\begin{equation}
+\widehat r_{s,t+1}=r_{s,t}.
+\end{equation}
+For environmental observation $w_t=(\tau_t,v_t)$, the deliberately conservative
+bounded-persistence forecast is
+\begin{equation}
+\tau_{t+1}\in[\tau_t-8,\tau_t+8],\qquad
+v_{t+1}\leq\max(20,v_t+15).
+\label{eq:aion-weather-persistence}
+\end{equation}
+The first observation establishes a baseline and cannot count as a correct
+forecast.  If an authority is unreachable or omits a required field, the
+forecast abstains from scoring rather than being treated as either correct or
+incorrect.
+
+Every observed row retains the commitment hash, public outcome, classification,
+response, and final outcome hash.  Given $S$ scored forecasts, accuracy is
+\begin{equation}
+\operatorname{Acc}=\frac{1}{|S|}\sum_{j\in S}
+\mathbf{1}[\widehat y_j=y_j].
+\end{equation}
+Promotion requires
+\begin{equation}
+G_{\mathrm{prospective}}=
+\mathbf{1}[n\ge6]
+\mathbf{1}[f\ge3]
+\mathbf{1}[|S|\ge12]
+\mathbf{1}[\operatorname{Acc}\ge0.75]
+\mathbf{1}[t\ge1200\ \mathrm{s}]
+\mathbf{1}[m=0]
+\mathbf{1}[W=0],
+\label{eq:aion-prospective-gate}
+\end{equation}
+where $n$ is cycle count, $f$ authority-family count, $t$ elapsed wall time,
+$m$ external events misrouted to self-repair, and $W$ unsafe live writes.  The
+wall-clock term prevents rapid replay from masquerading as continual
+operation.
+
+At the documented live snapshot, the campaign had eight prospective cycles,
+28 scored forecasts, three authority families, 100\% accuracy, zero owner
+interventions, and zero external events routed to self-repair.  It had run for
+approximately 497 of the required 1200 seconds and was therefore correctly
+reported as \texttt{COLLECTING\_PROSPECTIVE\_OUTCOMES}, not promoted.
+
+\subsection{Owner-Valued Work Under Delayed Accountability}
+\label{subsec:aion-owner-valued-delayed-work}
+
+The public-outcome stream was then converted from passive monitoring into a
+repeating useful-work campaign.  At generation $g$, AION derives an owner-facing
+objective, fixes success criteria, composes an executive work system, produces
+three artifacts, hashes them, and waits for public row $t+1$:
+\begin{equation}
+\begin{aligned}
+O_t
+&\rightarrow C_g
+\rightarrow \{A_g^{R},A_g^{S},A_g^{D}\} \\
+&\rightarrow H(C_g,A_g^{R},A_g^{S},A_g^{D})
+\rightarrow O_{t+1}
+\rightarrow \operatorname{Verify}_g.
+\end{aligned}
+\label{eq:aion-owner-work-generation}
+\end{equation}
+Here $A^R$ is a source-backed technical/release-risk brief, $A^S$ is an
+executable public-outcome integrity guard, and $A^D$ is an environmental
+monitoring decision.
+
+\paragraph{Research lane.}
+The brief records exact public source values, authority families, and a
+provisional stability conclusion.  A later public repository/package row owns
+the score.  With $q$ reachable claims,
+\begin{equation}
+\operatorname{ResearchPass}=
+\mathbf{1}[q\ge2]
+\mathbf{1}\!\left[
+\frac{1}{q}\sum_{i=1}^{q}\mathbf{1}[\widehat r_i=r_i]\ge0.75
+\right].
+\end{equation}
+
+\paragraph{Software lane.}
+The generated integrity guard executes in a fresh isolated subprocess against
+the later genuine row.  It recomputes the row hash, requires a precommitment
+link, and requires at least three reachable authority families.  The verifier
+then tampers with one outcome while preserving the claimed hash.  The software
+lane passes only if
+\begin{equation}
+\operatorname{SoftwarePass}=
+\mathbf{1}[\text{genuine later row accepted}]
+\mathbf{1}[\text{tampered row rejected}].
+\end{equation}
+
+\paragraph{Data-decision lane.}
+The monitoring decision fixes the same bounded environmental envelope before
+the next weather row.  Missing authority causes explicit abstention.  A scored
+decision passes only when the later measurement remains inside the committed
+range.
+
+Only after all three lanes pass is the generation recorded as a verified
+executive method outcome.  Older evidence that predates executive-work-system
+attachment remains valid provenance but does not receive retrospective
+executive credit.
+
+At the documented snapshot, three generations had produced nine artifacts.
+Two generations had been confirmed by later public rows with 100\% success in
+the research, software, and data lanes.  One qualifying executive receipt had
+been recorded, and the third generation was waiting for its later consequence.
+The campaign was therefore correctly reported as
+\texttt{WAITING\_FOR\_LATER\_CONSEQUENCES}.  Promotion requires at least three
+later-confirmed executive receipts and at least 75\% success in every lane.
+
+\subsection{Runtime Integration and Persistent Supervision}
+\label{subsec:aion-delayed-runtime-integration}
+
+The long-lived real-outcome service now executes four connected operations in
+order:
+\begin{enumerate}
+    \item ingest and arbitrate the existing long-duration public ledger;
+    \item watch curriculum failures and close only consequence-confirmed
+          private repairs;
+    \item create the next prospective public forecast, durably commit it, and
+          collect the independent outcome; and
+    \item close the waiting owner-valued work generation and create its
+          successor.
+\end{enumerate}
+The service repeats on a five-minute cadence under AION heartbeat supervision.
+Runtime and dashboard reconstruction do not replay completed actions.  The
+terminal dashboard exposes separate sections for consequence-confirmed repair,
+prospective independent-outcome operation, and owner-valued delayed work.
+
+\begin{table}[htbp]
+\centering
+\caption{Procedure and status summary at the documented snapshot.}
+\label{tab:aion-delayed-procedure-status}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.1cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Procedure & Status & Principal evidence \\
+\midrule
+\path{procedure_autonomous_progressive_executor_factory_v1}
+& promoted & 6 adapters across 5 reusable authority families \\
+\path{procedure_autonomous_cognitive_self_improvement_lab_v1}
+& promoted & $+11.11$ F1 points; sealed and protected routing 100\% \\
+\path{procedure_open_toolchain_progressive_executor_acquisition_v1}
+& promoted & 4 adapters; $39/39$ faults rejected \\
+\path{procedure_autonomous_useful_work_controller_v2}
+& promoted & sequential useful projects; persistent next objective \\
+\path{procedure_software_system_project_authority_v1}
+& promoted & 8 adapters; 17 projects; $48/48$ faults rejected \\
+\path{procedure_cross_system_intelligence_capstone_v1}
+& promoted & exact six-domain route; integrated execution and criticism \\
+\path{procedure_cross_domain_consequence_confirmed_self_repair_v1}
+& promoted & $2/2$ natural failures closed by later consequences \\
+\path{procedure_prospective_cross_domain_outcome_operation_v1}
+& collecting & cycle/forecast gates met; wall-clock gate still open \\
+\path{procedure_owner_valued_delayed_work_v1}
+& collecting & 2 generations confirmed; executive-receipt gate open \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The complete focused integration stack passed 20 tests after the owner-valued
+work integration.  These tests cover public-outcome precommitment, abstention,
+later-row linkage, natural-failure identity, private repair, restart behaviour,
+software tamper rejection, systems project authority, cross-system composition,
+and dashboard reporting.
+
+\subsection{Capability Meaning and Remaining Boundary}
+\label{subsec:aion-autonomous-apprentice-boundary}
+
+The evidence supports the following description:
+\begin{quote}
+AION is a governed, persistent, self-improving cognitive architecture with an
+operational apprenticeship mechanism, expanding executable authorities, and a
+live delayed-consequence learning loop.  It is becoming an autonomous general
+apprentice; broad general apprenticeship has not yet been earned.
+\end{quote}
+
+The work does not support a claim of AGI.  Toolchain contracts, the 17 systems
+projects, forecast forms, public-source portfolio, and the three owner-valued
+work lanes remain engineered.  The public sources own their outcomes, but they
+do not constitute unrestricted research, production CI, economic value, social
+judgment, or physical-world breadth.
+
+A capability-level autonomous-general-apprentice gate should require, at
+minimum:
+\begin{itemize}
+    \item Advanced competence in at least six qualitatively different domains
+          and Expert competence in at least two;
+    \item at least 20 cross-domain projects with independent consequences;
+    \item autonomous acquisition or invention of most missing executor families;
+    \item several naturally occurring self-repairs verified only by later
+          consequences;
+    \item at least one retained cognitive-code improvement under a private
+          tournament and later operational confirmation;
+    \item retention over weeks, not merely process restart;
+    \item declining owner intervention per new domain;
+    \item repeated useful objectives generated and completed by the executive;
+          and
+    \item no serious backward forgetting, authority bypass, or unsafe live
+          modification.
+\end{itemize}
+
+The next engineering boundary is open useful-objective and repair-contract
+invention.  When a changing real portfolio exposes a capability for which no
+retained executor, diagnostic, or repair vocabulary exists, AION must invent a
+private authority contract, falsify that contract, produce owner-valued work,
+and wait for a later independent consequence.  Further offline subject packs
+are secondary unless they directly feed this repeated consequence loop.
+
+\subsection{Principal Implementation Artifacts}
+\label{subsec:aion-delayed-implementation-artifacts}
+
+\begin{table}[htbp]
+\centering
+\caption{Principal implementation and evidence artifacts.}
+\label{tab:aion-delayed-artifacts}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Role & Repository path \\
+\midrule
+Authority-family factory & \path{backend/modules/hexcore/autonomous_progressive_executor_factory.py} \\
+Cognitive improvement lab & \path{backend/modules/hexcore/autonomous_cognitive_self_improvement_lab.py} \\
+Toolchain authority & \path{backend/modules/hexcore/open_toolchain_progressive_authority.py} \\
+Useful-work controller & \path{backend/modules/hexcore/autonomous_useful_work_controller.py} \\
+Systems authority & \path{backend/modules/hexcore/software_system_project_authority.py} \\
+Cross-system capstone & \path{backend/modules/hexcore/cross_system_intelligence_capstone.py} \\
+Consequence repair & \path{backend/modules/hexcore/cross_domain_consequence_repair.py} \\
+Prospective campaign & \path{backend/modules/hexcore/prospective_cross_domain_outcome_campaign.py} \\
+Owner-valued work & \path{backend/modules/hexcore/owner_valued_delayed_work_campaign.py} \\
+Persistent service & \path{backend/AION/system/aion_real_outcome_learning_service.py} \\
+Terminal dashboard & \path{backend/AION/system/aion_development_dashboard.py} \\
+Consequence result & \path{results/hexcore_cross_domain_consequence_repair.json} \\
+Prospective result & \path{results/hexcore_prospective_cross_domain_outcome.json} \\
+Owner-work result & \path{results/hexcore_owner_valued_delayed_work.json} \\
+\bottomrule
+\end{tabularx}
+\end{table}

@@ -1,0 +1,224 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_psychology_organisations",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:psychology_organisations",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:negotiation_governance:negotiation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:negotiation_governance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:negotiation_governance:stakeholders",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:negotiation_governance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:negotiation_governance:institution_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:negotiation_governance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:negotiation_governance:public_policy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:negotiation_governance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:negotiation_governance:conflict_resolution",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:negotiation_governance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:negotiation_governance:accountability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:negotiation_governance",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:negotiation_governance",
+      "label": "Negotiation, governance and institutions",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:negotiation_governance:negotiation",
+      "label": "negotiation",
+      "subject_id": "negotiation_governance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:negotiation_governance:stakeholders",
+      "label": "stakeholders",
+      "subject_id": "negotiation_governance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:negotiation_governance:institution_design",
+      "label": "institution design",
+      "subject_id": "negotiation_governance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:negotiation_governance:public_policy",
+      "label": "public policy",
+      "subject_id": "negotiation_governance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:negotiation_governance:conflict_resolution",
+      "label": "conflict resolution",
+      "subject_id": "negotiation_governance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:negotiation_governance:accountability",
+      "label": "accountability",
+      "subject_id": "negotiation_governance",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_negotiation_governance",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:negotiation_governance:negotiation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:negotiation_governance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:negotiation_governance:stakeholders",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:negotiation_governance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:negotiation_governance:institution_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:negotiation_governance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:negotiation_governance:public_policy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:negotiation_governance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:negotiation_governance:conflict_resolution",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:negotiation_governance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:negotiation_governance:accountability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:negotiation_governance",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:negotiation_governance",
+        "label": "Negotiation, governance and institutions",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:negotiation_governance:negotiation",
+        "label": "negotiation",
+        "subject_id": "negotiation_governance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:negotiation_governance:stakeholders",
+        "label": "stakeholders",
+        "subject_id": "negotiation_governance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:negotiation_governance:institution_design",
+        "label": "institution design",
+        "subject_id": "negotiation_governance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:negotiation_governance:public_policy",
+        "label": "public policy",
+        "subject_id": "negotiation_governance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:negotiation_governance:conflict_resolution",
+        "label": "conflict resolution",
+        "subject_id": "negotiation_governance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:negotiation_governance:accountability",
+        "label": "accountability",
+        "subject_id": "negotiation_governance",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "negotiation_governance",
+    "title": "AION Academy \u00b7 Negotiation, governance and institutions"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

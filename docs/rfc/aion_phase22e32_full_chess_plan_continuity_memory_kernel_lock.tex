@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.32 --- Plan Continuity Memory}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.32 introduces plan continuity memory for AION full chess.
+
+The kernel remembers the previous strategic plan and scores whether the next candidate move continues, changes, or breaks that plan.
+
+\section{Contract}
+
+The kernel MUST infer or accept a current plan.
+
+It MUST remember the previous strategic plan and emit:
+
+\begin{verbatim}
+plan_changed
+continuity_score
+move_supports_plan
+move_breaks_plan
+recommended_plan
+\end{verbatim}
+
+The kernel SHOULD detect plans such as:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{convert\_passed\_pawn};
+  \item \texttt{build\_mate\_net};
+  \item \texttt{build\_rook\_box};
+  \item \texttt{simplify\_and\_convert};
+  \item \texttt{escape\_or\_neutralise\_check};
+  \item \texttt{improve\_position}.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e32_full_chess_plan_continuity_memory_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e32_full_chess_plan_continuity_memory_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E32-FULL-CHESS-PLAN-CONTINUITY-MEMORY\\
+Status: LOCKED --- plan continuity memory implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

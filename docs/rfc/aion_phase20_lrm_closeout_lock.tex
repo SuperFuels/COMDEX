@@ -1,0 +1,319 @@
+\section{Phase 20 --- AION-LRM Sprint Closeout}
+\label{sec:phase20-aion-lrm-sprint-closeout}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION-LRM Phase 20 first sprint complete.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20 establishes AION-LRM, the Long-Running Reasoning Memory layer for AION.
+
+The purpose of AION-LRM is to let AION preserve governed reasoning state across a business operation without exposing private chain-of-thought and without granting live execution authority.
+
+This sprint moves AION from isolated workflow previews into a governed intelligence loop.
+
+\subsection{Completed Intelligence Spine}
+
+The completed Phase 20 spine is:
+
+\begin{verbatim}
+20A Governed Reasoning Packet
+  -> 20B Reasoning Memory Snapshot
+  -> 20C Reasoning Replay Trace
+  -> 20D Boardroom Replay Visibility
+  -> 20E Reasoning Recommendation Card
+  -> 20F Human Review Decision Envelope
+  -> 20G Evidence Gap Envelope
+  -> 20H Evidence Satisfaction Envelope
+  -> 20I End-to-End Decision Loop
+\end{verbatim}
+
+This gives AION a deterministic reasoning and review chain:
+
+\begin{verbatim}
+packet
+  -> memory
+  -> replay
+  -> boardroom visibility
+  -> recommendation
+  -> human review decision
+  -> evidence gap
+  -> evidence satisfaction
+  -> return_to_human_review
+\end{verbatim}
+
+\subsection{Phase 20A --- Governed Reasoning Packet}
+
+Phase 20A created the governed reasoning packet.
+
+The packet gathers the business context required for AION-LRM reasoning.
+
+It includes:
+
+\begin{itemize}
+  \item website intake context;
+  \item commercial ticket context;
+  \item workflow context;
+  \item AgentMap context;
+  \item Boardroom context;
+  \item proof context;
+  \item ETS context;
+  \item safety context.
+\end{itemize}
+
+Locked commit:
+
+\begin{verbatim}
+6091b7a lock(lrm): add governed reasoning packet v0
+\end{verbatim}
+
+\subsection{Phase 20B --- Reasoning Memory Snapshot}
+
+Phase 20B created the reasoning memory snapshot.
+
+The snapshot records safe durable memory from the governed packet.
+
+It MUST NOT store private chain-of-thought, hidden reasoning, credentials, secrets, access tokens, API keys, passwords, or live execution authority.
+
+Locked commit:
+
+\begin{verbatim}
+a0fde50 lock(lrm): add reasoning memory snapshot v0
+\end{verbatim}
+
+\subsection{Phase 20C --- Reasoning Replay Trace}
+
+Phase 20C created the reasoning replay trace.
+
+The replay trace explains why AION reached a recommendation using governed packet context, memory snapshot context, evidence anchors, proof anchors, and context hashes.
+
+It MUST NOT expose private chain-of-thought.
+
+Locked commit:
+
+\begin{verbatim}
+201cbc2 lock(lrm): add reasoning replay trace v0
+\end{verbatim}
+
+\subsection{Phase 20D --- Boardroom Replay Visibility}
+
+Phase 20D exposed the replay trace as a Boardroom-safe visibility payload.
+
+This allows the operator to inspect a safe operational explanation without exposing hidden reasoning.
+
+Locked commit:
+
+\begin{verbatim}
+d99b5a2 lock(lrm): expose reasoning replay boardroom panel v0
+\end{verbatim}
+
+\subsection{Phase 20E --- Reasoning Recommendation Card}
+
+Phase 20E created the Boardroom-facing recommendation card.
+
+The card records:
+
+\begin{itemize}
+  \item what AION recommends;
+  \item why AION recommends it;
+  \item what evidence supports it;
+  \item what proof and context hashes support it;
+  \item what blockers remain;
+  \item what human review is required.
+\end{itemize}
+
+The recommendation card does not grant permission.
+
+Locked commit:
+
+\begin{verbatim}
+e013d21 lock(lrm): add reasoning recommendation card v0
+\end{verbatim}
+
+\subsection{Phase 20F --- Human Review Decision Envelope}
+
+Phase 20F created the human review decision envelope.
+
+The allowed decisions are:
+
+\begin{verbatim}
+approve_preview
+reject
+request_more_evidence
+\end{verbatim}
+
+Even \texttt{approve\_preview} only approves continuation to another preview or review stage.
+
+It does not approve live execution.
+
+Locked commit:
+
+\begin{verbatim}
+9405a1b lock(lrm): add human review decision envelope v0
+\end{verbatim}
+
+\subsection{Phase 20G --- Evidence Gap Envelope}
+
+Phase 20G created the evidence request / evidence gap envelope.
+
+When the human decision is \texttt{request\_more\_evidence}, the envelope records:
+
+\begin{itemize}
+  \item required evidence;
+  \item existing evidence;
+  \item missing evidence;
+  \item the blocked recommendation card;
+  \item the source decision envelope;
+  \item proof hashes;
+  \item context hashes.
+\end{itemize}
+
+Locked commit:
+
+\begin{verbatim}
+f3e9ddf lock(lrm): add evidence gap envelope v0
+\end{verbatim}
+
+\subsection{Phase 20H --- Evidence Satisfaction Envelope}
+
+Phase 20H created the evidence intake / evidence satisfaction envelope.
+
+When evidence is received, the envelope records:
+
+\begin{itemize}
+  \item received evidence;
+  \item evidence hashes;
+  \item which evidence gap is satisfied;
+  \item which recommendation card is unblocked;
+  \item whether the case can return to human review.
+\end{itemize}
+
+Locked commit:
+
+\begin{verbatim}
+29cf282 lock(lrm): add evidence satisfaction envelope v0
+\end{verbatim}
+
+\subsection{Phase 20I --- End-to-End Decision Loop}
+
+Phase 20I closed the first sprint with a deterministic end-to-end decision loop.
+
+The loop proves the full chain from governed packet to evidence satisfaction and return to human review.
+
+Locked commit:
+
+\begin{verbatim}
+3b9c022 lock(lrm): add end-to-end decision loop v0
+\end{verbatim}
+
+\subsection{Focused Validation}
+
+The Phase 20 focused validation script is:
+
+\begin{verbatim}
+scripts/run_aion_lrm_phase20_lock_suite.sh
+\end{verbatim}
+
+It runs only the Phase 20 AION-LRM lock tests and compiles the AION-LRM module.
+
+It intentionally avoids the wider historical focused suite because that suite currently contains unrelated legacy failures outside the AION-LRM sprint.
+
+\subsection{Safety Boundary}
+
+AION-LRM Phase 20 is preview-only.
+
+Across all Phase 20 artifacts, AION-LRM MUST NOT:
+
+\begin{itemize}
+  \item create bookings;
+  \item create payments;
+  \item create escrow;
+  \item release funds;
+  \item send external messages;
+  \item write live chain data;
+  \item execute workflows;
+  \item grant live permission;
+  \item bypass human review;
+  \item expose private chain-of-thought;
+  \item expose hidden reasoning;
+  \item expose credentials.
+\end{itemize}
+
+The locked safety state is:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+live_side_effects_enabled = false
+\end{verbatim}
+
+\subsection{Repository Note}
+
+The only known unrelated local working-tree noise after the sprint was:
+
+\begin{verbatim}
+backend/modules/dna_chain/dna_switch_index.json
+\end{verbatim}
+
+This file MUST remain unstaged unless intentionally handled in a separate task.
+
+\subsection{Strategic Result}
+
+Phase 20 gives AION a governed intelligence loop.
+
+AION can now:
+
+\begin{itemize}
+  \item gather governed context;
+  \item preserve safe memory;
+  \item replay why a recommendation was produced;
+  \item expose the replay safely in the Boardroom;
+  \item produce a controlled recommendation card;
+  \item record a human review decision;
+  \item request missing evidence;
+  \item accept supplied evidence;
+  \item return the case to human review.
+\end{itemize}
+
+AION still cannot execute live business actions without later explicit authority layers.
+
+\subsection{Next Suggested Phase}
+
+The next logical phase is Phase 21.
+
+Phase 21 should connect the AION-LRM loop to visible Boardroom or Pilot mission workflows.
+
+Potential Phase 21 directions:
+
+\begin{itemize}
+  \item Boardroom UI integration for the full LRM loop;
+  \item Pilot mission memory persistence using the LRM artifacts;
+  \item business-container persistence of LRM artifacts;
+  \item one-click founder demo loop using Home Fixed;
+  \item replayable proof receipt integration.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20-LRM-SPRINT-CLOSEOUT-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Raw Safety Contract Terms}
+
+\begin{verbatim}
+no booking
+no payment
+no escrow
+no external messages
+no live chain
+preview-only
+human review
+private chain-of-thought
+\end{verbatim}

@@ -1,6 +1,8 @@
 # File: backend/routes/auth.py
 
-from fastapi import APIRouter, Depends, HTTPException, Body, status, Query
+import os
+
+from fastapi import APIRouter, Depends, HTTPException, Body, status, Query, Request, Response
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
@@ -16,6 +18,8 @@ from backend.utils.auth import (
     get_current_user,
     generate_nonce,
     verify_siwe,
+    AUTH_COOKIE_NAME,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
 )
 
 # ✅ DNA Switch
@@ -65,6 +69,25 @@ class ProfileOut(BaseModel):
 # ─── 2) Create APIRouter ─────────────────────────────────────────────────
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+
+def _cookie_secure(request: Request) -> bool:
+    configured = os.getenv("TESSARIS_AUTH_COOKIE_SECURE")
+    if configured is not None:
+        return configured.strip().lower() not in {"0", "false", "no", "off"}
+    return request.url.hostname not in {"127.0.0.1", "localhost", "testserver"}
+
+
+def _set_session_cookie(response: Response, request: Request, token: str) -> None:
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=token,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+        secure=_cookie_secure(request),
+        samesite="lax",
+        path="/",
+    )
+
 @router.get("/nonce")
 def get_siwe_nonce(
     address: str = Query(..., description="Wallet address for SIWE")
@@ -77,6 +100,8 @@ def get_siwe_nonce(
     status_code=status.HTTP_201_CREATED,
 )
 def register(
+    request: Request,
+    response: Response,
     body: RegisterBody = Body(...),
     db: Session = Depends(get_db),
 ):
@@ -138,10 +163,13 @@ def register(
 
     db.refresh(user)
     token = create_access_token(subject=user.id, role=user.role)
+    _set_session_cookie(response, request, token)
     return {"token": token, "role": user.role}
 
 @router.post("/login", response_model=TokenRoleOut)
 def login(
+    request: Request,
+    response: Response,
     body: LoginBody = Body(...),
     db: Session = Depends(get_db),
 ):
@@ -150,15 +178,29 @@ def login(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
 
     token = create_access_token(subject=user.id, role=user.role)
+    _set_session_cookie(response, request, token)
     return {"token": token, "role": user.role}
 
 @router.post("/siwe", response_model=TokenRoleOut)
 def siwe_login(
+    request: Request,
+    response: Response,
     body: SIWELogin = Body(...),
     db: Session = Depends(get_db),
 ):
     user, token = verify_siwe(body.message, body.signature, db)
+    _set_session_cookie(response, request, token)
     return {"token": token, "role": user.role}
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(response: Response):
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME,
+        path="/",
+        httponly=True,
+        samesite="lax",
+    )
 
 @router.get("/profile", response_model=ProfileOut)
 def profile(

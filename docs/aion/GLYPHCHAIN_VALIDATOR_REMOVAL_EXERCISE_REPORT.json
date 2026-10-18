@@ -1,0 +1,197 @@
+{
+  "checks": {
+    "accused_validator_approval_denied": true,
+    "governance_state_survived_restart": true,
+    "joining_validator_approval_denied": true,
+    "unaffected_current_quorum_finalized_transition": true
+  },
+  "claim_boundary": "Local cryptographic governance exercise; not production operational approval",
+  "current_checkpoint": {
+    "chain_id": "glyphchain-main",
+    "checkpoint_id": "7afa86cfab485cf4125551b612a5de21bc49b82b54cb10aa8ea6a6a97744eb8e",
+    "effective_height": 1,
+    "epoch": 0,
+    "network_id": "production-exercise",
+    "schema_version": "glyphchain.validator-set-checkpoint.v1",
+    "validator_set": [
+      {
+        "power": 1,
+        "public_key_base64": "Akuv5mmy5Hu5obCnetkwzVEbK3MYWgjxFMvsAX/cC9E=",
+        "validator_id": "val-1"
+      },
+      {
+        "power": 1,
+        "public_key_base64": "Aa5Eol0QxGgEVIOdINZPFyq3ai5i1UF9VrQ7Y29e7lE=",
+        "validator_id": "val-2"
+      },
+      {
+        "power": 1,
+        "public_key_base64": "5x4PsMyrLnAorjL2WuTIIU2+5xptOW/KDtiPb8TXSZk=",
+        "validator_id": "val-3"
+      },
+      {
+        "power": 1,
+        "public_key_base64": "nw6HnGSDgfVCuQjKloBRQiZo90v+GAdFjT9zXRbxR3g=",
+        "validator_id": "val-4"
+      }
+    ],
+    "validator_set_root": "ed73096b3aedda9486ad0e02b5e2b2b99d09404088498124614950af7f696fef"
+  },
+  "generated_at": "2026-09-26T21:18:11.462106Z",
+  "incident_reference": "exercise-incident-GC-001",
+  "legal_document_content_present": false,
+  "private_keys_exported": false,
+  "report_sha256": "f403a0083351dce26939671c0292b8232bf47f0531d563598bb6c0c189f12871",
+  "result": "PASS",
+  "schema_version": "glyphchain.validator-removal-exercise.v1",
+  "successor_checkpoint": {
+    "chain_id": "glyphchain-main",
+    "checkpoint_id": "38e50bb13e25c0f6505e87d2afa42e0efaad1afb661999dac6feeaa32796325c",
+    "effective_height": 120,
+    "epoch": 1,
+    "network_id": "production-exercise",
+    "schema_version": "glyphchain.validator-set-checkpoint.v1",
+    "validator_set": [
+      {
+        "power": 1,
+        "public_key_base64": "Akuv5mmy5Hu5obCnetkwzVEbK3MYWgjxFMvsAX/cC9E=",
+        "validator_id": "val-1"
+      },
+      {
+        "power": 1,
+        "public_key_base64": "Aa5Eol0QxGgEVIOdINZPFyq3ai5i1UF9VrQ7Y29e7lE=",
+        "validator_id": "val-2"
+      },
+      {
+        "power": 1,
+        "public_key_base64": "5x4PsMyrLnAorjL2WuTIIU2+5xptOW/KDtiPb8TXSZk=",
+        "validator_id": "val-3"
+      }
+    ],
+    "validator_set_root": "3a5ae3e706ef96c74aa39b3837bc2e1a428d87d04f47a1084ce554c641a89ec2"
+  },
+  "transition_proof": {
+    "approvals": [
+      {
+        "signature_base64": "rPRq3p5LUsZYlWz9U+LY3SpubzZVnT3RbQD2MP3/C9hddH9NjMxtoY8XWRjkCSklBw9d8bkLxO287UtI/1cUDw==",
+        "validator_id": "val-1"
+      },
+      {
+        "signature_base64": "JtNV8ZbNU+Kk/zzMBdgI1H8xUapbBGX2nOZ9PH6htAx8PgC3bms3LogC/LCBD56uI2XXeSRvWCRBe1NLdZOhBg==",
+        "validator_id": "val-2"
+      },
+      {
+        "signature_base64": "h/xpCpDPDfyRoCsgNjAQRkdVuQumCavtbCJiWZ52ueTf+dLSV8tMWuGnAcDwJzBn2zU7dh7LmNTxKo0VbS8ODw==",
+        "validator_id": "val-3"
+      }
+    ],
+    "current_checkpoint": {
+      "chain_id": "glyphchain-main",
+      "checkpoint_id": "7afa86cfab485cf4125551b612a5de21bc49b82b54cb10aa8ea6a6a97744eb8e",
+      "effective_height": 1,
+      "epoch": 0,
+      "network_id": "production-exercise",
+      "schema_version": "glyphchain.validator-set-checkpoint.v1",
+      "validator_set": [
+        {
+          "power": 1,
+          "public_key_base64": "Akuv5mmy5Hu5obCnetkwzVEbK3MYWgjxFMvsAX/cC9E=",
+          "validator_id": "val-1"
+        },
+        {
+          "power": 1,
+          "public_key_base64": "Aa5Eol0QxGgEVIOdINZPFyq3ai5i1UF9VrQ7Y29e7lE=",
+          "validator_id": "val-2"
+        },
+        {
+          "power": 1,
+          "public_key_base64": "5x4PsMyrLnAorjL2WuTIIU2+5xptOW/KDtiPb8TXSZk=",
+          "validator_id": "val-3"
+        },
+        {
+          "power": 1,
+          "public_key_base64": "nw6HnGSDgfVCuQjKloBRQiZo90v+GAdFjT9zXRbxR3g=",
+          "validator_id": "val-4"
+        }
+      ],
+      "validator_set_root": "ed73096b3aedda9486ad0e02b5e2b2b99d09404088498124614950af7f696fef"
+    },
+    "finalized_at_ms": 1790457491459,
+    "proposal": {
+      "action": "emergency_removal",
+      "admitted_validator_ids": [],
+      "chain_id": "glyphchain-main",
+      "current_checkpoint_id": "7afa86cfab485cf4125551b612a5de21bc49b82b54cb10aa8ea6a6a97744eb8e",
+      "current_validator_set_root": "ed73096b3aedda9486ad0e02b5e2b2b99d09404088498124614950af7f696fef",
+      "domain": "GLYPHCHAIN_VALIDATOR_TRANSITION_APPROVAL_V1",
+      "governance_reference": "exercise-incident-GC-001",
+      "network_id": "production-exercise",
+      "next_checkpoint": {
+        "chain_id": "glyphchain-main",
+        "checkpoint_id": "38e50bb13e25c0f6505e87d2afa42e0efaad1afb661999dac6feeaa32796325c",
+        "effective_height": 120,
+        "epoch": 1,
+        "network_id": "production-exercise",
+        "schema_version": "glyphchain.validator-set-checkpoint.v1",
+        "validator_set": [
+          {
+            "power": 1,
+            "public_key_base64": "Akuv5mmy5Hu5obCnetkwzVEbK3MYWgjxFMvsAX/cC9E=",
+            "validator_id": "val-1"
+          },
+          {
+            "power": 1,
+            "public_key_base64": "Aa5Eol0QxGgEVIOdINZPFyq3ai5i1UF9VrQ7Y29e7lE=",
+            "validator_id": "val-2"
+          },
+          {
+            "power": 1,
+            "public_key_base64": "5x4PsMyrLnAorjL2WuTIIU2+5xptOW/KDtiPb8TXSZk=",
+            "validator_id": "val-3"
+          }
+        ],
+        "validator_set_root": "3a5ae3e706ef96c74aa39b3837bc2e1a428d87d04f47a1084ce554c641a89ec2"
+      },
+      "proposal_id": "2735ab4c3db5d37ec57167e2eefe2e2a3b157b67a0f595f46e7da21c5b93017b",
+      "reason": "exercise: retained incident evidence identifies val-4 as compromised",
+      "removed_validator_ids": [
+        "val-4"
+      ]
+    },
+    "schema_version": "glyphchain.validator-transition-proof.v1"
+  },
+  "verification": {
+    "current_checkpoint_id": "7afa86cfab485cf4125551b612a5de21bc49b82b54cb10aa8ea6a6a97744eb8e",
+    "errors": [],
+    "next_checkpoint": {
+      "chain_id": "glyphchain-main",
+      "checkpoint_id": "38e50bb13e25c0f6505e87d2afa42e0efaad1afb661999dac6feeaa32796325c",
+      "effective_height": 120,
+      "epoch": 1,
+      "network_id": "production-exercise",
+      "schema_version": "glyphchain.validator-set-checkpoint.v1",
+      "validator_set": [
+        {
+          "power": 1,
+          "public_key_base64": "Akuv5mmy5Hu5obCnetkwzVEbK3MYWgjxFMvsAX/cC9E=",
+          "validator_id": "val-1"
+        },
+        {
+          "power": 1,
+          "public_key_base64": "Aa5Eol0QxGgEVIOdINZPFyq3ai5i1UF9VrQ7Y29e7lE=",
+          "validator_id": "val-2"
+        },
+        {
+          "power": 1,
+          "public_key_base64": "5x4PsMyrLnAorjL2WuTIIU2+5xptOW/KDtiPb8TXSZk=",
+          "validator_id": "val-3"
+        }
+      ],
+      "validator_set_root": "3a5ae3e706ef96c74aa39b3837bc2e1a428d87d04f47a1084ce554c641a89ec2"
+    },
+    "next_checkpoint_id": "38e50bb13e25c0f6505e87d2afa42e0efaad1afb661999dac6feeaa32796325c",
+    "quorum_power": 3,
+    "signed_power": 3,
+    "valid": true
+  }
+}

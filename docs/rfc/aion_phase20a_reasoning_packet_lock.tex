@@ -1,0 +1,160 @@
+\section{Phase 20A --- AION Reasoning Packet v0}
+\label{sec:phase20a-aion-reasoning-packet-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION Reasoning Packet v0 defines the first shared intelligence spine for Website Intake, Commercial Ticket, Workflow Canvas, AgentMap, Boardroom, Proof, and ETS context.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20A creates the first governed reasoning packet for AION-LRM.
+
+This is not a full language model.
+
+It is the canonical intelligence object that lets AION collect context from the existing system, reason over it, preserve the safety boundary, and produce a deterministic preview packet for Boardroom, Pilot, Workflow Canvas, AgentMap, and future language rendering.
+
+The AION Reasoning Packet combines:
+
+\begin{itemize}
+  \item \texttt{website\_intake}
+  \item \texttt{commercial\_ticket}
+  \item \texttt{workflow\_context}
+  \item \texttt{agentmap\_context}
+  \item \texttt{boardroom\_context}
+  \item \texttt{proof\_context}
+  \item \texttt{ets\_context}
+  \item \texttt{safety}
+  \item \texttt{recommended\_next\_action}
+\end{itemize}
+
+\subsection{Hash Boundary}
+
+The packet emits:
+
+\begin{verbatim}
+reasoning_packet_hash
+summary_hash
+\end{verbatim}
+
+These hashes are deterministic replay and audit anchors.
+
+They MUST NOT grant permission, create bookings, move money, create escrow, send messages, execute workflows, mutate memory, or write live chain data.
+
+\subsection{Safety Boundary}
+
+The packet is preview-only and human-review gated.
+
+The locked safety boundary is:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+booking_created = false
+payment_created = false
+escrow_created = false
+external_message_sent = false
+live_chain_write = false
+raw_tool_execution = false
+automatic_memory_mutation = false
+goal_engine_executed = false
+workflow_executed_live = false
+\end{verbatim}
+
+In plain terms:
+
+\begin{quote}
+AION may reason. AION may preview. AION may recommend. AION MUST NOT execute live side effects from this packet.
+\end{quote}
+
+\subsection{Home Fixed Preview}
+
+The first locked packet fixture uses the Home Fixed vertical.
+
+The preview request is:
+
+\begin{quote}
+Leaking pergola roof in Arboleas after rain.
+\end{quote}
+
+The packet routes this through:
+
+\begin{verbatim}
+website intake
+-> commercial ticket preview
+-> guarded workflow context
+-> AgentMap route
+-> Boardroom human review
+-> proof preview
+-> ETS preview
+\end{verbatim}
+
+No live quote, booking, payment, escrow, external message, or chain write is created.
+
+\subsection{Strategic Meaning}
+
+Phase 20A gives AION the shared reasoning object needed before building the full AION-LRM layer.
+
+The rule is:
+
+\begin{quote}
+\textbf{AION reasons first. Language explains second.}
+\end{quote}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_reasoning_packet_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20a_reasoning_packet_lock_doc.py
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+AION Reasoning Packet
+website_intake
+commercial_ticket
+workflow_context
+agentmap_context
+boardroom_context
+proof_context
+ets_context
+reasoning_packet_hash
+summary_hash
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20A-REASONING-PACKET-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

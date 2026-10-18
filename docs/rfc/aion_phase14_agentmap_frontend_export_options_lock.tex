@@ -1,0 +1,73 @@
+\section{Phase 14K --- AgentMap Hosted and Self-Hosted Export Options Lock}
+\label{sec:phase14k-agentmap-frontend-export-options}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- AgentMap hosted and self-hosted export options are visible and guarded by frontend lock tests.}
+
+Phase 14K completes the frontend export-readiness layer for AgentMap. The UI now has explicit contract markers for hosted AgentMap URLs and self-hosted \texttt{/.well-known/agentmap.json} export paths.
+
+\subsection{Locked Frontend Contract}
+
+The frontend MUST expose:
+
+\begin{itemize}
+  \item hosted AgentMap URL option;
+  \item self-hosted \texttt{/.well-known/agentmap.json} export option;
+  \item canonical \texttt{/agentmap.json} path;
+  \item well-known \texttt{/.well-known/agentmap.json} path;
+  \item preview-only publish boundary;
+  \item JSON export payload contract.
+\end{itemize}
+
+\subsection{Locked DOM Markers}
+
+\begin{verbatim}
+data-agentmap-export-options-panel
+data-agentmap-hosted-url-option
+data-agentmap-hosted-url-value
+data-agentmap-self-hosted-export-option
+data-agentmap-self-hosted-path-value
+data-agentmap-canonical-path-option
+data-agentmap-well-known-path-option
+data-agentmap-export-preview-only
+\end{verbatim}
+
+\subsection{Locked Frontend Helpers}
+
+\begin{verbatim}
+buildAgentMapHostedExportOptions
+renderAgentMapHostedSelfHostedOptions
+getAgentMapSelfHostedExportPayload
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+This lock is preview-only. It MUST NOT publish a live public route, mutate production website files, perform DNS operations, write remote storage, create bookings, capture payment, release escrow, dispatch jobs, send external messages, or write live chain receipts.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_export_options_lock.py
+\end{verbatim}
+
+\subsection{Raw Lock Terms}
+
+\begin{verbatim}
+phase 14k
+hosted agentmap url
+self-hosted
+/.well-known/agentmap.json
+preview only
+lock id:
+maintainer: tessaris ai
+author: kevin robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\textbf{Lock ID:} AION-PHASE14K-AGENTMAP-FRONTEND-EXPORT-OPTIONS-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson

@@ -1,0 +1,33 @@
+{
+  "schema": "aion.riemann_machine_seal.v1",
+  "sealed_at": "2026-08-15T00:03:00Z",
+  "authorization": "User explicitly directed full execution of the governed plan on 2026-08-15 Europe/Madrid.",
+  "review_type": "machine_preflight_fresh_packet_after_incomplete_protocol",
+  "independent_external_review": false,
+  "packet": {
+    "path": "research/riemann_lab/live_task_packet_v3.json",
+    "sha256": "1771f8b9977ce0cf1ffac73b1284361e61ae92d4f86672afe97a241a786abb6e",
+    "execution_status": "ready",
+    "source_closed_tasks": 6,
+    "arms": 5,
+    "max_output_tokens_per_call": 1000
+  },
+  "replaced_incomplete_protocol": {
+    "packet_sha256": "ed3275b00d4c02514c6a88003e7ed27698013a6be47e718f45cb978bf2e62bf9",
+    "incident_sha256": "94fa526a8933ab0e6061124fcdc11d3f9a685538f224bbd69209c7b81dbfe707",
+    "completed_comparator_arms": 0,
+    "completed_aion_arms": 0,
+    "comparative_result_exists": false
+  },
+  "pinned_environment_sha256": "6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591",
+  "implementation_hashes": {
+    "scripts/aion_riemann_live_exam.py": "4ec3de04143c71968f5f0510b9a97f2e7492539ebb5cf9a1230d1cd9180ba249",
+    "scripts/aion_riemann_verified_memory.py": "4d98ad00abad44ace86dd928d9ec03771e5c0d8b9d8e0702735d3352a354ab9d",
+    "scripts/aion_riemann_local_verify.py": "93d7d6a2f576a21f7a0637147d4ed951951984f01d7c5d6ce1230911e2020ba0",
+    "backend/tests/test_aion_riemann_lab.py": "e0b884fddcfeca7864181aecc3aca4f2f56978ee32dd0ccdfdbba208a156578d"
+  },
+  "verified_memory": {"state_sha256":"858eec1f0f56048648397e5c997f37fd06507625bfcc722d9d55e873e829c22a","active_claims":6,"verified_evidence_capsules":6,"contradictions":0,"proof_bodies_retained":false},
+  "preflight": {"fresh_tasks_locally_lean_verified":6,"tests_passed":14,"tests_failed":0,"provider_output_failures_now_scored_not_fatal":true,"active_arm_checkpointing":true},
+  "oracle_separation": "Fresh v3 proof bodies are absent from the packet and live prompts; they were used only in local Lean preflight.",
+  "claim_boundary": "This is an internally authorized machine seal, not independent review, RH evidence, or evidence of AION superiority."
+}

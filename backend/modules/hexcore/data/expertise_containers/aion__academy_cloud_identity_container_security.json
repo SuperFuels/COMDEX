@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cybersecurity",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cybersecurity",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_operating_distributed_networks",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_software_engineering",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:software_engineering",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:cloud_identity_container_security:identity_access_management",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cloud_identity_container_security:secrets",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cloud_identity_container_security:cloud_posture",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cloud_identity_container_security:container_security",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cloud_identity_container_security:kubernetes_security",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cloud_identity_container_security:serverless_security",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cloud_identity_container_security:tenant_isolation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cloud_identity_container_security:continuous_assurance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "label": "Cloud, identity and container security",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cloud_identity_container_security:identity_access_management",
+      "label": "identity access management",
+      "subject_id": "cloud_identity_container_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cloud_identity_container_security:secrets",
+      "label": "secrets",
+      "subject_id": "cloud_identity_container_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cloud_identity_container_security:cloud_posture",
+      "label": "cloud posture",
+      "subject_id": "cloud_identity_container_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cloud_identity_container_security:container_security",
+      "label": "container security",
+      "subject_id": "cloud_identity_container_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cloud_identity_container_security:kubernetes_security",
+      "label": "kubernetes security",
+      "subject_id": "cloud_identity_container_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cloud_identity_container_security:serverless_security",
+      "label": "serverless security",
+      "subject_id": "cloud_identity_container_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cloud_identity_container_security:tenant_isolation",
+      "label": "tenant isolation",
+      "subject_id": "cloud_identity_container_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cloud_identity_container_security:continuous_assurance",
+      "label": "continuous assurance",
+      "subject_id": "cloud_identity_container_security",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_cloud_identity_container_security",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:cloud_identity_container_security:identity_access_management",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cloud_identity_container_security:secrets",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cloud_identity_container_security:cloud_posture",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cloud_identity_container_security:container_security",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cloud_identity_container_security:kubernetes_security",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cloud_identity_container_security:serverless_security",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cloud_identity_container_security:tenant_isolation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cloud_identity_container_security:continuous_assurance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "label": "Cloud, identity and container security",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cloud_identity_container_security:identity_access_management",
+        "label": "identity access management",
+        "subject_id": "cloud_identity_container_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cloud_identity_container_security:secrets",
+        "label": "secrets",
+        "subject_id": "cloud_identity_container_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cloud_identity_container_security:cloud_posture",
+        "label": "cloud posture",
+        "subject_id": "cloud_identity_container_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cloud_identity_container_security:container_security",
+        "label": "container security",
+        "subject_id": "cloud_identity_container_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cloud_identity_container_security:kubernetes_security",
+        "label": "kubernetes security",
+        "subject_id": "cloud_identity_container_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cloud_identity_container_security:serverless_security",
+        "label": "serverless security",
+        "subject_id": "cloud_identity_container_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cloud_identity_container_security:tenant_isolation",
+        "label": "tenant isolation",
+        "subject_id": "cloud_identity_container_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cloud_identity_container_security:continuous_assurance",
+        "label": "continuous assurance",
+        "subject_id": "cloud_identity_container_security",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "cloud_identity_container_security",
+    "title": "AION Academy \u00b7 Cloud, identity and container security"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

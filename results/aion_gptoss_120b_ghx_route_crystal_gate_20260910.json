@@ -1,0 +1,98 @@
+{
+  "acceptance": {
+    "calculation_p50_below_1ms": true,
+    "fresh_validation_max_at_most_0_05": false,
+    "fresh_validation_p95_at_most_0_02": false,
+    "projected_traffic_reduction_above_1_10x": false
+  },
+  "authorization_sha256": "e1bd12cbde252a410b6cd293c71f70c46edb8a99f1b2bc84a57f549dfcfbaa90",
+  "calculation_ms_p50": 0.019,
+  "calculation_ms_p95": 0.02525,
+  "canonical_sha256": "562ed9cad0fb2c9a3f6fd6bbc0a7531c6a4a4d9e01efca532dc19c8a8ac43b87",
+  "cartridge_receipt_sha256": "0386db83c351bcbca3944db94b315693392a064cac2e6c0f7c11769dc9bcbde5",
+  "claim_boundary": "Changed-arithmetic layer-6 microgate. Earlier holdouts were used during hypothesis development and are reported only as development diagnostics. Only separately captured rows determine numerical validation. No full-model speed, quality, or exactness claim is made.",
+  "configuration": {
+    "kernel": "linear",
+    "ridge": 1e-06,
+    "route_weight": 16.0,
+    "router_normalized": true
+  },
+  "configuration_frozen_before_fresh_validation": true,
+  "created_at": "2026-09-10T13:37:29.004820+00:00",
+  "development_observations": [
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 6,
+      "relative_l2": 0.01962144604811706,
+      "route": [
+        121,
+        122,
+        35,
+        98
+      ],
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 6,
+      "relative_l2": 0.01920612977305195,
+      "route": [
+        121,
+        88,
+        122,
+        35
+      ],
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 6,
+      "relative_l2": 0.018084291427637927,
+      "route": [
+        121,
+        91,
+        35,
+        122
+      ],
+      "split": "numerical_holdout"
+    }
+  ],
+  "exact_fallback_required": true,
+  "fresh_validation_observations": [
+    {
+      "family_id": "aion_gptoss_120b_ghx_route_validation_85001_20260910",
+      "layer": 6,
+      "relative_l2": 0.05602908626690993,
+      "route": [
+        121,
+        55,
+        88,
+        122
+      ],
+      "split": "fresh_validation"
+    },
+    {
+      "family_id": "aion_gptoss_120b_ghx_route_validation_95001_20260910",
+      "layer": 6,
+      "relative_l2": 0.0735502276018706,
+      "route": [
+        121,
+        81,
+        55,
+        114
+      ],
+      "split": "fresh_validation"
+    }
+  ],
+  "fresh_validation_relative_l2_max": 0.0735502276018706,
+  "fresh_validation_relative_l2_p50": 0.06478965693439026,
+  "fresh_validation_relative_l2_p95": 0.05602908626690993,
+  "fresh_validation_rows": 2,
+  "layer": 6,
+  "projected_expert_traffic_reduction": 1.0909090909090908,
+  "quality_track": true,
+  "schema": "aion.shadow-expert-ghx-route-crystal-gate.v1",
+  "source_manifest_canonical_sha256": "a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a",
+  "status": "STOP_GHX_ROUTE_CRYSTAL",
+  "training_rows": 21
+}

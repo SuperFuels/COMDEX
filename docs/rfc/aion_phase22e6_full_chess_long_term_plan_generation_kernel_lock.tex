@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.6 --- Long-Term Plan Generation}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.6 introduces deterministic long-term plan generation for the AION chess stack.
+
+This phase extends the Phase 22E.3 simple plan layer into a multi-stage plan structure. It consumes positional features, simple plan telemetry, and Phase 22E.5 curriculum policy pressure.
+
+\section{Long-Term Plan Contract}
+
+The kernel emits a multi-stage plan containing:
+
+\begin{itemize}[leftmargin=*]
+  \item stage index;
+  \item stage identifier;
+  \item stage goal;
+  \item stage reason;
+  \item priority;
+  \item trigger feature;
+  \item expected effect;
+  \item success metric;
+  \item fallback goal.
+\end{itemize}
+
+\section{Canonical Stage Types}
+
+The generated plan can include:
+
+\begin{itemize}[leftmargin=*]
+  \item stabilise king;
+  \item stop immediate promotion;
+  \item reduce invasion pressure;
+  \item develop inactive pieces;
+  \item improve centre control;
+  \item improve piece activity;
+  \item simplify if losing;
+  \item convert to safer endgame.
+\end{itemize}
+
+\section{Technical Position}
+
+This is not a claim of open-ended chess mastery.
+
+The phase creates deterministic strategic plan structure from existing AION telemetry. It is a planning signal and policy-pressure bridge, not engine-level autonomous understanding.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It is deterministic local long-term plan generation over AION chess telemetry.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e6_full_chess_long_term_plan_generation_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e6_full_chess_long_term_plan_generation_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E6-FULL-CHESS-LONG-TERM-PLAN-GENERATION\\
+Status: LOCKED --- deterministic multi-stage long-term plan generation implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,114 @@
+\section{AION Phase 20N.2 --- Plan Diff and Sub-Plan Governance}
+\label{sec:aion-phase20n2-plan-diff-subplan-governance}
+
+\subsection{Status}
+
+Phase 20N.2 locks plan diff and sub-plan governance.
+
+\begin{quote}
+\textbf{Status: LOCKED --- sub-plans cannot silently expand authority and plan changes require re-review.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may generate new plans or sub-plans during mission execution.
+
+A sub-plan MUST NOT silently expand authority, add risky work, add cost, add external side effects, or bypass the user's original autonomy boundaries.
+
+\subsection{Plan Diff Contract}
+
+When a plan changes, AION MUST emit a deterministic plan diff.
+
+The diff MUST show:
+
+\begin{itemize}
+  \item added steps;
+  \item removed steps;
+  \item modified steps;
+  \item new approval gates;
+  \item new human tasks;
+  \item new external side effects;
+  \item estimated cost delta;
+  \item risk impact summary.
+\end{itemize}
+
+If the plan hash changes, the plan MUST require re-review.
+
+\subsection{Sub-Plan Review Rule}
+
+Every new sub-plan MUST produce its own approval matrix before execution.
+
+A sub-plan starts with:
+
+\begin{verbatim}
+subplan_review_required: true
+subplan_execution_allowed: false
+\end{verbatim}
+
+Execution is only allowed after review and approval.
+
+\subsection{Authority Inheritance}
+
+Sub-plans inherit the parent mission safety boundary.
+
+A sub-plan MAY be stricter than the parent.
+
+A sub-plan MUST NOT be looser than the parent.
+
+If a sub-plan attempts to downgrade a risky parent approval boundary into autonomous execution, AION MUST reject it.
+
+\subsection{Depth and Step Ceilings}
+
+AION MUST enforce:
+
+\begin{itemize}
+  \item \texttt{max\_subplan\_depth};
+  \item \texttt{max\_total\_steps\_across\_all\_plans};
+  \item \texttt{subplan\_tree\_hash}.
+\end{itemize}
+
+At maximum depth, a sub-plan MUST NOT spawn another sub-plan.
+
+If the total step ceiling is exceeded, the mission MUST pause and surface the issue to the operator.
+
+\subsection{Boardroom Review Cards}
+
+Sub-plan matrices SHOULD appear as Boardroom Review Cards.
+
+They SHOULD NOT appear as disruptive full-screen modals by default.
+
+The mission may pause at the sub-plan boundary, but the overall Boardroom mission view MUST remain visible.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20N2-PLAN-DIFF-SUBPLAN-GOVERNANCE
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

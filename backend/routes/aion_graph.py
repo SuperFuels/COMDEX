@@ -3,16 +3,14 @@
 # Serves the current resonance knowledge graph for the Brain dashboard.
 
 from fastapi import APIRouter
-import os, json
+
+from backend.modules.aion_resonance.phi_graph import GRAPH
 
 router = APIRouter()
-GRAPH_PATH = "data/phi_graph.json"
-
 @router.get("/graph")
 async def get_phi_graph():
     """Return the current Φ-Knowledge Graph (nodes + edges)."""
-    if not os.path.exists(GRAPH_PATH):
+    data = GRAPH.snapshot()
+    if not data["nodes"] and not data["edges"]:
         return {"status": "empty", "nodes": {}, "edges": {}}
-    with open(GRAPH_PATH, "r") as f:
-        data = json.load(f)
     return {"status": "ok", **data}

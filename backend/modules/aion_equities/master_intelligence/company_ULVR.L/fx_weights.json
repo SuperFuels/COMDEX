@@ -1,0 +1,27 @@
+{
+  "company_ref": "company/ULVR.L",
+  "hl_ticker": "ULVR",
+  "as_of": "2026-03-07",
+  "source": "manual_seed",
+  "notes": "Weights approximate revenue exposure. direction=inverse means higher EUR/CCY => CCY weaker => headwind (negative impact on EUR-reported revenue).",
+  "components": [
+    {
+      "feed_id": "eur_usd_quarterly_avg",
+      "weight": 0.22,
+      "direction": "inverse",
+      "prior_year_avg": 1.085
+    },
+    {
+      "feed_id": "eur_brl_quarterly_avg",
+      "weight": 0.37,
+      "direction": "inverse",
+      "prior_year_avg": 5.761
+    },
+    {
+      "feed_id": "eur_inr_quarterly_avg",
+      "weight": 0.13,
+      "direction": "inverse",
+      "prior_year_avg": 90.652
+    }
+  ]
+}

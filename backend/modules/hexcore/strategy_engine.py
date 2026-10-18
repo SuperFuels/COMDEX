@@ -28,7 +28,7 @@ from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCa
 
 # Optional ethics weighting (safe import)
 try:
-    from backend.modules.ethics.ethics_engine import EthicsEngine
+    from backend.modules.consciousness.ethics_engine import EthicsEngine
 except Exception:
     EthicsEngine = None
 
@@ -87,11 +87,15 @@ class StrategyEngine:
 
     # ─────────────────────────────────────────────────────────────
     def _semantic_alignment(self, goal: str):
-        """Approximate symbolic coherence via cached resonance or lexical mean."""
+        """Deterministic advisory coherence score."""
         cache = self.rmc.lookup(goal)
         if cache and "sqi" in cache:
             return cache["sqi"]
-        return round(random.uniform(0.4, 0.85), 3)
+        words = {word.strip(".,:;!?()[]{}").lower() for word in str(goal).split()}
+        specificity = min(0.24, max(0, len(words) - 2) * 0.02)
+        verification = 0.12 if words.intersection({"verify", "test", "measure", "evidence", "validate"}) else 0.0
+        ambiguity = 0.12 if words.intersection({"anything", "somehow", "whatever"}) else 0.0
+        return round(max(0.1, min(0.95, 0.46 + specificity + verification - ambiguity)), 3)
 
     # ─────────────────────────────────────────────────────────────
     def adjust_temperature(self, delta: float):
@@ -143,14 +147,22 @@ class StrategyEngine:
             "last_ethics": self.last_ethics
         }
 
-    def execute_plan(self, plan: dict):
-        """Executes a symbolic plan (stub until full strategy logic is linked)."""
-        goal = plan.get("goal", "undefined")
-        print(f"[StrategyEngine] 🧭 Executing plan goal='{goal}' ...")
-        # placeholder for real execution logic
-        time.sleep(0.3)
-        result = {"goal": goal, "status": "executed", "timestamp": time.time()}
-        return result
+    def execute_plan(self, plan: dict, execution_adapter=None):
+        """Execute only through an explicitly authorized, verifiable adapter.
+
+        The former stub returned ``executed`` without doing anything.  A plan
+        without an adapter now remains an honest proposal.
+        """
+        from backend.modules.hexcore.governed_cognitive_contract import (
+            CognitiveActionContract,
+            execute_with_authority,
+        )
+
+        contract = CognitiveActionContract.from_mapping({
+            **dict(plan),
+            "objective": plan.get("objective") or plan.get("goal") or "",
+        })
+        return execute_with_authority(contract, execution_adapter)
 
 # 🧪 Local diagnostic run
 if __name__ == "__main__":

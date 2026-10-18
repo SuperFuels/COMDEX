@@ -1,0 +1,173 @@
+% Standalone append-only section for the AION GPT-OSS 120B technical record.
+% Requires: amsmath, booktabs, hyperref, xcolor.
+\section{GPT-OSS 120B Output-Head Defect and Quality Ceiling}
+\label{sec:gptoss120b-output-head-defect-20260911}
+
+\subsection{Scope and claim boundary}
+
+This section records a material runtime defect, its correction, and the
+experiments performed after the correction.  Two tracks remain strictly
+separate.  The exact track retains the unrestricted 128-expert router, four
+selected experts per layer, the original gates, and the original weights.  The
+quality track deliberately changes continuation computation by selecting fewer
+experts.  A quality-track rate is therefore a physical/runtime ceiling and not
+bit-exact unrestricted GPT-OSS 120B performance.
+
+The verified exact frontier preceding this work remains 1.72455 tokens/s on
+the frozen arithmetic family and 1.82858 tokens/s on the frozen extraction
+family.  Nothing in this section supersedes that exact frontier.
+
+\subsection{Caught defect: an optional diagnostic became mandatory work}
+
+The runtime uses a layer-range parser with a deliberate default: an absent
+adaptive-policy range means ``all 36 layers.''  The early-exit diagnostic
+initially reused that parser.  Consequently, absence of
+\texttt{--early-exit-diagnostic-layers} also meant all 36 layers.  The runtime
+therefore evaluated the 615,329,280-byte Q8\_0 vocabulary projection after
+every transformer layer, retained only the final result, and discarded 35
+intermediate vocabulary projections per token.
+
+Profiling exposed 216 vocabulary-selection calls in the six-token/two-pass
+diagnostic and approximately 0.285--0.300 seconds of otherwise unaccounted
+layer time per token.  The repair gives optional diagnostics their own
+semantics: an absent optional range is the empty set.  Regression tests now
+separately assert that an absent adaptive range means all layers while an
+absent diagnostic range means no layers.
+
+\subsection{Measured physical-ceiling change}
+
+The shortest repeatable probe used exact prompt handling followed by a fixed
+top-1 continuation inside the existing hash-bound 8~GiB family workbench.  It
+is intentionally a changed-model quality track.  The generated token sequence
+was unchanged by the defect repair, allowing the runtime cost to be compared
+without confusing it with a different trajectory.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Configuration & Settled tokens/s & Median latency & p95 latency \\
+\midrule
+Defective diagnostic default, 8 threads & 3.0318 & --- & --- \\
+Corrected default, 8 threads & 25.1292 & 39.07 ms & 45.68 ms \\
+Corrected default, 6 threads & \textbf{28.6174} & \textbf{34.33 ms} & \textbf{37.25 ms} \\
+Corrected default, 5 threads & 26.3276 & 35.51 ms & 48.48 ms \\
+Corrected default, 7 threads & 9.5604 & 78.99 ms & 213.34 ms \\
+\bottomrule
+\end{tabular}
+\caption{GPT-OSS 120B changed-model top-1 physical-ceiling probe after removing
+35 redundant output-head evaluations per token.}
+\end{table}
+
+The best settled observation is 9.44 times the defective 3.0318-token/s
+control.  Six threads outperformed five, seven, and eight; seven threads was
+unstable under the measured memory/CPU pressure.  The corrected settled
+six-thread token costs were approximately 14--19 ms for attention, 10--14 ms
+for expert finish, 6--8 ms for the vocabulary head, and 1--2 ms for routing,
+plus small orchestration overhead.
+
+This result is a major runtime-ceiling discovery, but it is not a deployable
+quality result.  Fixed top-1 continuation produced repetitive/incoherent text
+on the frozen arithmetic probe.  It proves that the complete 36-layer 120B
+backbone can physically traverse at nearly 30 evaluations/s when expert
+traffic is reduced to one resident expert per layer; it does not prove that
+useful unrestricted GPT-OSS 120B generates at that rate.
+
+\subsection{Exact-track control}
+
+The corrected runtime was also exercised on the matched 48-position exact
+arithmetic path.  Both passes were route-repeatable and bitwise repeatable in
+final hidden states and step logits.  The second pass reached 1.5946 tokens/s
+without the promoted overlap configuration.  It did not beat the frozen
+1.72455-token/s exact arithmetic control.  This confirms that the defect was
+introduced with the later optional diagnostic and did not invalidate or
+artificially depress the earlier promoted exact frontier.
+
+\subsection{Stopped narrow optimisations}
+
+Three narrow candidates were preserved rather than promoted:
+
+\begin{enumerate}
+  \item A persistent native F32 router matched the top-four expert indices on
+  all 1,728 measured layer decisions.  Maximum router-logit drift was
+  $2.3842\times10^{-5}$ and median projection time was approximately
+  0.341 ms/layer, but end-to-end throughput regressed.
+  \item Persistent in-process Q5\_0 token embedding reduced embedding lookup to
+  approximately 0.015 ms and preserved the token/hidden trajectory, but did
+  not materially change total speed because embedding was not the bottleneck.
+  \item A persistent Metal vocabulary head uploaded the 615 MB Q8\_0 matrix
+  once and subsequently uploaded only the hidden vector.  It was internally
+  repeatable, but settled throughput was only 13.356 tokens/s, versus 28.617
+  for the CPU output head, and its generated sequence differed.  This Metal
+  branch is stopped for both performance and numerical reasons.
+\end{enumerate}
+
+\subsection{Adaptive-quality experiments}
+
+An aggressive preserved-mass 0.65 policy allowing one to four continuation
+experts failed.  The unrestricted-fallback version incurred 26--27~GiB of
+expert traffic and reached only 0.55--0.74 tokens/s.  The constrained-cartridge
+version reached at most 2.22 tokens/s and produced incomplete/repetitive text.
+A global preserved-mass 0.70 policy, bounded to two or three experts, increased
+two-expert decisions from 101 to 209 of 1,188 continuation layer evaluations,
+but diverged into repetition and is also stopped.
+
+A narrower layer-selective policy retained the known-correct 0.75 threshold in
+layers 0--27 and used 0.70 only in layers 28--35.  On arithmetic it converted
+18 additional calls from three experts to two (119 instead of 101) while
+reproducing all 33 continuation token IDs of the correct 0.75 control.  On the
+independent extraction family it converted five additional calls (57 instead
+of 52) and reproduced all 38 continuation token IDs.  Candidate passes were
+internally route- and bitwise-repeatable.  Extraction settled at 5.4082
+tokens/s versus 5.3437 for the older control, a 1.21\% observation; arithmetic
+timing regressed in the separately executed run.  Because the timing was not a
+balanced same-process comparison, this policy is retained as a mechanically
+valid quality candidate but is not promoted as a speed improvement.
+
+\subsection{Interpretation and next gate}
+
+The defect repair closes most of the software gap to 30 tokens/s only in the
+one-expert physical-ceiling experiment.  The remaining scientific problem is
+quality-preserving reduction of expert traffic.  Global thresholds are too
+coarse, while the two-family late-layer result shows that selective reductions
+can leave the observed answer unchanged.
+
+The next gate is therefore a learned, layer- and confidence-conditioned
+dictionary with an exact residual/fallback boundary.  It should predict where
+the third or fourth expert contribution is consequential, retain full
+computation on uncertain layers, and reduce experts only on independently
+validated low-impact layers.  Advancement requires blinded arithmetic,
+extraction, reasoning, and business prompts; coherent completion; internal
+repeatability; reported traffic and memory; and a balanced control/candidate
+timing protocol.  No 30-token/s quality claim is made until those gates pass.
+
+\subsection{Evidence identifiers}
+
+The principal canonical SHA-256 identifiers are:
+\begin{itemize}
+  \item defective layer-accounting diagnostic:
+  \texttt{2bc8ef273ff99a86ddd21b5bea5105ae}\\
+  \texttt{a6169c9c8223e4b8b4e7edcd09ce4346};
+  \item corrected eight-thread ceiling:
+  \texttt{d78f2a556bfe479f1f017a3db531e04}\\
+  \texttt{3a7ea11a57c713150b67d4561342ad737};
+  \item corrected six-thread ceiling:
+  \texttt{c995c019f0ff9c91b3c7d03899268c6}\\
+  \texttt{24a61c77823df544d185790b0bb6147d4};
+  \item stopped Metal output candidate:
+  \texttt{232a462e84f52609ad0a785c00591f41}\\
+  \texttt{80f814357ed4eab92d9c8b5f69b6bf9c};
+  \item corrected exact arithmetic control:
+  \texttt{7455289ad9e7b8e0e1aee6e179e1497}\\
+  \texttt{37cf5869ffba896a75c68e7a141b8d019};
+  \item layer-selective arithmetic candidate:
+  \texttt{773d788a6df54acc0552978cdf9d31f6}\\
+  \texttt{3d3fe90e48a7ee3740024362f26e494b};
+  \item layer-selective extraction candidate:
+  \texttt{9acab29cad40d264aee9cafb2c55ae61}\\
+  \texttt{851ec9e74b07223f463528f52bc1d4a5}.
+\end{itemize}
+
+The focused regression suite completed 12/12 tests.  The implementation and
+this record are committed separately from unrelated worktree changes.

@@ -1,0 +1,183 @@
+{
+  "competence_awarded": false,
+  "container_refs": [],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:algebra_geometry:algebra",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:algebra_geometry",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:algebra_geometry:functions",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:algebra_geometry",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:algebra_geometry:geometry",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:algebra_geometry",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:algebra_geometry:trigonometry",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:algebra_geometry",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:algebra_geometry:coordinate_systems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:algebra_geometry",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "mathematics",
+      "id": "work:aion@wave.tp:subject:algebra_geometry",
+      "label": "Algebra, geometry and trigonometry",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:algebra_geometry:algebra",
+      "label": "algebra",
+      "subject_id": "algebra_geometry",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:algebra_geometry:functions",
+      "label": "functions",
+      "subject_id": "algebra_geometry",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:algebra_geometry:geometry",
+      "label": "geometry",
+      "subject_id": "algebra_geometry",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:algebra_geometry:trigonometry",
+      "label": "trigonometry",
+      "subject_id": "algebra_geometry",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:algebra_geometry:coordinate_systems",
+      "label": "coordinate systems",
+      "subject_id": "algebra_geometry",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_algebra_geometry",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:algebra_geometry:algebra",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:algebra_geometry",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:algebra_geometry:functions",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:algebra_geometry",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:algebra_geometry:geometry",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:algebra_geometry",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:algebra_geometry:trigonometry",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:algebra_geometry",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:algebra_geometry:coordinate_systems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:algebra_geometry",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "mathematics",
+        "id": "work:aion@wave.tp:subject:algebra_geometry",
+        "label": "Algebra, geometry and trigonometry",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:algebra_geometry:algebra",
+        "label": "algebra",
+        "subject_id": "algebra_geometry",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:algebra_geometry:functions",
+        "label": "functions",
+        "subject_id": "algebra_geometry",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:algebra_geometry:geometry",
+        "label": "geometry",
+        "subject_id": "algebra_geometry",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:algebra_geometry:trigonometry",
+        "label": "trigonometry",
+        "subject_id": "algebra_geometry",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:algebra_geometry:coordinate_systems",
+        "label": "coordinate systems",
+        "subject_id": "algebra_geometry",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "mathematics",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "algebra_geometry",
+    "title": "AION Academy \u00b7 Algebra, geometry and trigonometry"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -1,0 +1,1782 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "outcome_grounded_project_self_improvement": "procedure_outcome_grounded_projects_f314900848fe"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {
+    "project_execution": [
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": true
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_9fccf1fe6ef7b47a",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f2cb151a95a81dfdec4220002e2b0f55e47066bef3e9e1f7cf6f9595ef3a0a4c",
+          "expected_source_hashes": [
+            "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+            "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+          ],
+          "outcome_id": "delayed_1bc684c64a4fe53a",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.330263+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "execution",
+          "explanation": [
+            "execution_receipt_invalid"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": true,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 2,
+        "initial_correct": false,
+        "portfolio_id": "development_temporal_chart",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.330729+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "retry_with_verified_receipt"
+      },
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": true
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_af94de4647a70d6e",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d1daa5a54027b6c42e4d3166e3b5eda1322db8c697aed2f7fcb4969eac9405f2",
+          "expected_source_hashes": [
+            "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+            "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b"
+          ],
+          "outcome_id": "delayed_13dae1a0fa631ba7",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.331598+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "execution",
+          "explanation": [
+            "execution_receipt_invalid"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": true,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 2,
+        "initial_correct": false,
+        "portfolio_id": "development_page_curve",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.332242+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "retry_with_verified_receipt"
+      },
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": true
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_91b3d365ef13d2f5",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "5f9b72a793660037d4ab64b890c938675822581e5cd1fefb357e91f3954f1b5a",
+          "expected_source_hashes": [
+            "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+            "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005"
+          ],
+          "outcome_id": "delayed_cd030cd8f1bf65d3",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.332684+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "execution",
+          "explanation": [
+            "execution_receipt_invalid"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": true,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 2,
+        "initial_correct": false,
+        "portfolio_id": "development_resonant_coupling",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.332974+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "retry_with_verified_receipt"
+      }
+    ],
+    "project_interpretation": [
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_682e2a3e25700af4",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f2cb151a95a81dfdec4220002e2b0f55e47066bef3e9e1f7cf6f9595ef3a0a4c",
+          "expected_source_hashes": [
+            "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+            "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+          ],
+          "outcome_id": "delayed_773afbf2d8ef38f4",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.329718+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "interpretation",
+          "explanation": [
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 2,
+        "initial_correct": false,
+        "portfolio_id": "development_temporal_chart",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.330182+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "recompute_from_grounded_evidence"
+      },
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_95352f58256da6c4",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d1daa5a54027b6c42e4d3166e3b5eda1322db8c697aed2f7fcb4969eac9405f2",
+          "expected_source_hashes": [
+            "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+            "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b"
+          ],
+          "outcome_id": "delayed_1eeca6f033d3f4bd",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.330825+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "interpretation",
+          "explanation": [
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 2,
+        "initial_correct": false,
+        "portfolio_id": "development_page_curve",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.331508+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "recompute_from_grounded_evidence"
+      },
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_dd56bf6b50a3500f",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "5f9b72a793660037d4ab64b890c938675822581e5cd1fefb357e91f3954f1b5a",
+          "expected_source_hashes": [
+            "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+            "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005"
+          ],
+          "outcome_id": "delayed_24c6908cc2e6a407",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.332319+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "interpretation",
+          "explanation": [
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": false,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 2,
+        "initial_correct": false,
+        "portfolio_id": "development_resonant_coupling",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.332610+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "recompute_from_grounded_evidence"
+      }
+    ],
+    "project_perception": [
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_870c01df3f19777c",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f2cb151a95a81dfdec4220002e2b0f55e47066bef3e9e1f7cf6f9595ef3a0a4c",
+          "expected_source_hashes": [
+            "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+            "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+          ],
+          "outcome_id": "delayed_1c958506fae472f4",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.321657+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 0.0,
+          "diagnosis": "perception",
+          "explanation": [
+            "inventory_gap",
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": true,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 1,
+        "initial_correct": false,
+        "portfolio_id": "development_temporal_chart",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.322208+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "restore_complete_inventory"
+      },
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_514c6a0e9e755bd5",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d1daa5a54027b6c42e4d3166e3b5eda1322db8c697aed2f7fcb4969eac9405f2",
+          "expected_source_hashes": [
+            "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+            "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b"
+          ],
+          "outcome_id": "delayed_897978b0c7ee1321",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.323219+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 0.0,
+          "diagnosis": "perception",
+          "explanation": [
+            "inventory_gap",
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": true,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 1,
+        "initial_correct": false,
+        "portfolio_id": "development_page_curve",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.324059+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "restore_complete_inventory"
+      },
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_438af40c9551f2f4",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "5f9b72a793660037d4ab64b890c938675822581e5cd1fefb357e91f3954f1b5a",
+          "expected_source_hashes": [
+            "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+            "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005"
+          ],
+          "outcome_id": "delayed_76efc696b5d9b129",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.324869+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 0.0,
+          "diagnosis": "perception",
+          "explanation": [
+            "inventory_gap",
+            "grounded_outcome_mismatch"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": true,
+            "inventory_gap": true,
+            "verification_step_missing": false
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 1,
+        "initial_correct": false,
+        "portfolio_id": "development_resonant_coupling",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.325120+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "restore_complete_inventory"
+      }
+    ],
+    "project_planning": [
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_48bf08b0b1b70a68",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "f2cb151a95a81dfdec4220002e2b0f55e47066bef3e9e1f7cf6f9595ef3a0a4c",
+          "expected_source_hashes": [
+            "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+            "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+          ],
+          "outcome_id": "delayed_8277bd1562fef214",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.322297+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "planning",
+          "explanation": [
+            "verification_step_missing"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": true
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 1,
+        "initial_correct": false,
+        "portfolio_id": "development_temporal_chart",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.322779+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "restore_independent_verification"
+      },
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_033fafba69a7764c",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "d1daa5a54027b6c42e4d3166e3b5eda1322db8c697aed2f7fcb4969eac9405f2",
+          "expected_source_hashes": [
+            "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+            "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b"
+          ],
+          "outcome_id": "delayed_7c6b095ed503503b",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.324146+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "planning",
+          "explanation": [
+            "verification_step_missing"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": true
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 1,
+        "initial_correct": false,
+        "portfolio_id": "development_page_curve",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.324773+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "restore_independent_verification"
+      },
+      {
+        "counterfactual_trials": [
+          {
+            "changes": 1,
+            "operator": "restore_complete_inventory",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "recompute_from_grounded_evidence",
+            "success": false
+          },
+          {
+            "changes": 1,
+            "operator": "restore_independent_verification",
+            "success": true
+          },
+          {
+            "changes": 1,
+            "operator": "retry_with_verified_receipt",
+            "success": false
+          }
+        ],
+        "delayed_outcome": {
+          "accepted": false,
+          "attempt_id": "attempt_f371df4f4f18d5f8",
+          "authority_required": true,
+          "execution_receipt_required": true,
+          "expected_outcome_hash": "5f9b72a793660037d4ab64b890c938675822581e5cd1fefb357e91f3954f1b5a",
+          "expected_source_hashes": [
+            "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+            "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005"
+          ],
+          "outcome_id": "delayed_a4905457bc7d74fc",
+          "revealed_after_commitment": true,
+          "revealed_at": "2026-07-30T18:11:27.325199+00:00",
+          "verification_required": true
+        },
+        "diagnosis": {
+          "confidence": 1.0,
+          "diagnosis": "planning",
+          "explanation": [
+            "verification_step_missing"
+          ],
+          "signals": {
+            "authority_unavailable": false,
+            "execution_receipt_invalid": false,
+            "grounded_outcome_mismatch": false,
+            "inventory_gap": false,
+            "verification_step_missing": true
+          }
+        },
+        "family": "scientific_chart",
+        "generation": 1,
+        "initial_correct": false,
+        "portfolio_id": "development_resonant_coupling",
+        "provisional_status": "reported_pending_delayed_outcome",
+        "recorded_at": "2026-07-30T18:11:27.325479+00:00",
+        "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+        "selected_repair": "restore_independent_verification"
+      }
+    ]
+  },
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase59_outcome_grounded_project_authority"
+    },
+    "reason": "phase59_outcome_grounded_project_learning",
+    "state_hash": "9418ae230b19278a35f1e4e0ed0953ebabc6cc74694eb47d3e86db61a80ac643"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "outcomes": [
+    {
+      "evidence": {
+        "failure_policy_id": "project_failure_policy_3c8dfe99361adea2",
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "delayed_outcomes_before_repair": true,
+          "errors": [],
+          "generation_one_promotable": true,
+          "generation_two_promotable": true,
+          "generations_completed": 2,
+          "original_repository_files_mutated": false,
+          "sealed_accuracy_gain": 0.8,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.2,
+          "sealed_diagnosis_accuracy": 1.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "source_identity_overlap": 0,
+          "unknown_failure_abstention": 1.0,
+          "unsafe_final_commitments": 0
+        }
+      },
+      "outcome_id": "outcome_1c2976b7039d41e5",
+      "procedure_id": "procedure_outcome_grounded_projects_f314900848fe",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.8,
+      "success": true,
+      "timestamp": "2026-07-30T18:11:27.359276+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_outcome_grounded_projects_f314900848fe": {
+      "evidence": {
+        "failure_policy_id": "project_failure_policy_3c8dfe99361adea2",
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "delayed_outcomes_before_repair": true,
+          "errors": [],
+          "generation_one_promotable": true,
+          "generation_two_promotable": true,
+          "generations_completed": 2,
+          "original_repository_files_mutated": false,
+          "sealed_accuracy_gain": 0.8,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.2,
+          "sealed_diagnosis_accuracy": 1.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "source_identity_overlap": 0,
+          "unknown_failure_abstention": 1.0,
+          "unsafe_final_commitments": 0
+        }
+      },
+      "goal": "outcome_grounded_project_self_improvement",
+      "procedure_id": "procedure_outcome_grounded_projects_f314900848fe",
+      "promoted_at": "2026-07-30T18:11:27.356244+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.8,
+      "source_rules": [
+        "procedure_open_multimodal_projects_3cbe82ceb6c9",
+        "procedure_richer_world_model_0d316f0f69ad"
+      ],
+      "status": "champion",
+      "steps": [
+        "commit_only_provisional_report_before_delayed_outcome",
+        "compare_inventory_evidence_plan_execution_and_authority_signals",
+        "attribute_failure_without_evaluator_label",
+        "test_private_repairs_counterfactually",
+        "replay_protected_failure_families",
+        "evaluate_once_on_source_disjoint_portfolios",
+        "abstain_outside_learned_failure_family"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {
+    "project_failure_policy_3c8dfe99361adea2": {
+      "development_source_hashes": [
+        "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+        "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+        "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+        "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b",
+        "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005",
+        "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+      ],
+      "diagnosis_to_repair": {
+        "execution": "retry_with_verified_receipt",
+        "interpretation": "recompute_from_grounded_evidence",
+        "perception": "restore_complete_inventory",
+        "planning": "restore_independent_verification"
+      },
+      "generations": 2,
+      "policy_id": "project_failure_policy_3c8dfe99361adea2",
+      "status": "promoted"
+    }
+  },
+  "project_learning_challengers": {
+    "procedure_outcome_grounded_projects_f314900848fe": {
+      "evidence": {
+        "failure_policy_id": "project_failure_policy_3c8dfe99361adea2",
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "delayed_outcomes_before_repair": true,
+          "errors": [],
+          "generation_one_promotable": true,
+          "generation_two_promotable": true,
+          "generations_completed": 2,
+          "original_repository_files_mutated": false,
+          "sealed_accuracy_gain": 0.8,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.2,
+          "sealed_diagnosis_accuracy": 1.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "source_identity_overlap": 0,
+          "unknown_failure_abstention": 1.0,
+          "unsafe_final_commitments": 0
+        }
+      },
+      "goal": "outcome_grounded_project_self_improvement",
+      "procedure_id": "procedure_outcome_grounded_projects_f314900848fe",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.8,
+      "source_rules": [
+        "procedure_open_multimodal_projects_3cbe82ceb6c9",
+        "procedure_richer_world_model_0d316f0f69ad"
+      ],
+      "steps": [
+        "commit_only_provisional_report_before_delayed_outcome",
+        "compare_inventory_evidence_plan_execution_and_authority_signals",
+        "attribute_failure_without_evaluator_label",
+        "test_private_repairs_counterfactually",
+        "replay_protected_failure_families",
+        "evaluate_once_on_source_disjoint_portfolios",
+        "abstain_outside_learned_failure_family"
+      ],
+      "success": true
+    }
+  },
+  "project_learning_generations": {
+    "generation_1": {
+      "backward_retention": 1.0,
+      "evaluation": {
+        "accuracy": 1.0,
+        "all_outcomes_delayed": true,
+        "diagnosis_accuracy": 1.0,
+        "repair_actions": 6,
+        "unsafe_final_commitments": 0,
+        "weakest_family_accuracy": 1.0
+      },
+      "generation": 1,
+      "new_modes": [
+        "perception",
+        "planning"
+      ],
+      "policy": {
+        "perception": "restore_complete_inventory",
+        "planning": "restore_independent_verification"
+      },
+      "promotable": true,
+      "replay_modes": [],
+      "training_records": 6
+    },
+    "generation_2": {
+      "backward_retention": 1.0,
+      "evaluation": {
+        "accuracy": 1.0,
+        "all_outcomes_delayed": true,
+        "diagnosis_accuracy": 1.0,
+        "repair_actions": 12,
+        "unsafe_final_commitments": 0,
+        "weakest_family_accuracy": 1.0
+      },
+      "generation": 2,
+      "new_modes": [
+        "interpretation",
+        "execution"
+      ],
+      "policy": {
+        "execution": "retry_with_verified_receipt",
+        "interpretation": "recompute_from_grounded_evidence",
+        "perception": "restore_complete_inventory",
+        "planning": "restore_independent_verification"
+      },
+      "promotable": true,
+      "replay_modes": [
+        "perception",
+        "planning"
+      ],
+      "training_records": 6
+    }
+  },
+  "project_outcome_ledger": [
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_870c01df3f19777c",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "f2cb151a95a81dfdec4220002e2b0f55e47066bef3e9e1f7cf6f9595ef3a0a4c",
+        "expected_source_hashes": [
+          "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+          "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+        ],
+        "outcome_id": "delayed_1c958506fae472f4",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.321657+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 0.0,
+        "diagnosis": "perception",
+        "explanation": [
+          "inventory_gap",
+          "grounded_outcome_mismatch"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": true,
+          "inventory_gap": true,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 1,
+      "initial_correct": false,
+      "portfolio_id": "development_temporal_chart",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.322208+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "restore_complete_inventory"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_48bf08b0b1b70a68",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "f2cb151a95a81dfdec4220002e2b0f55e47066bef3e9e1f7cf6f9595ef3a0a4c",
+        "expected_source_hashes": [
+          "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+          "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+        ],
+        "outcome_id": "delayed_8277bd1562fef214",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.322297+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "planning",
+        "explanation": [
+          "verification_step_missing"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": false,
+          "inventory_gap": false,
+          "verification_step_missing": true
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 1,
+      "initial_correct": false,
+      "portfolio_id": "development_temporal_chart",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.322779+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "restore_independent_verification"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_514c6a0e9e755bd5",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "d1daa5a54027b6c42e4d3166e3b5eda1322db8c697aed2f7fcb4969eac9405f2",
+        "expected_source_hashes": [
+          "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+          "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b"
+        ],
+        "outcome_id": "delayed_897978b0c7ee1321",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.323219+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 0.0,
+        "diagnosis": "perception",
+        "explanation": [
+          "inventory_gap",
+          "grounded_outcome_mismatch"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": true,
+          "inventory_gap": true,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 1,
+      "initial_correct": false,
+      "portfolio_id": "development_page_curve",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.324059+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "restore_complete_inventory"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_033fafba69a7764c",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "d1daa5a54027b6c42e4d3166e3b5eda1322db8c697aed2f7fcb4969eac9405f2",
+        "expected_source_hashes": [
+          "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+          "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b"
+        ],
+        "outcome_id": "delayed_7c6b095ed503503b",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.324146+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "planning",
+        "explanation": [
+          "verification_step_missing"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": false,
+          "inventory_gap": false,
+          "verification_step_missing": true
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 1,
+      "initial_correct": false,
+      "portfolio_id": "development_page_curve",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.324773+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "restore_independent_verification"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_438af40c9551f2f4",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "5f9b72a793660037d4ab64b890c938675822581e5cd1fefb357e91f3954f1b5a",
+        "expected_source_hashes": [
+          "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+          "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005"
+        ],
+        "outcome_id": "delayed_76efc696b5d9b129",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.324869+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 0.0,
+        "diagnosis": "perception",
+        "explanation": [
+          "inventory_gap",
+          "grounded_outcome_mismatch"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": true,
+          "inventory_gap": true,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 1,
+      "initial_correct": false,
+      "portfolio_id": "development_resonant_coupling",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.325120+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "restore_complete_inventory"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_f371df4f4f18d5f8",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "5f9b72a793660037d4ab64b890c938675822581e5cd1fefb357e91f3954f1b5a",
+        "expected_source_hashes": [
+          "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+          "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005"
+        ],
+        "outcome_id": "delayed_a4905457bc7d74fc",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.325199+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "planning",
+        "explanation": [
+          "verification_step_missing"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": false,
+          "inventory_gap": false,
+          "verification_step_missing": true
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 1,
+      "initial_correct": false,
+      "portfolio_id": "development_resonant_coupling",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.325479+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "restore_independent_verification"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_682e2a3e25700af4",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "f2cb151a95a81dfdec4220002e2b0f55e47066bef3e9e1f7cf6f9595ef3a0a4c",
+        "expected_source_hashes": [
+          "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+          "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+        ],
+        "outcome_id": "delayed_773afbf2d8ef38f4",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.329718+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "interpretation",
+        "explanation": [
+          "grounded_outcome_mismatch"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": true,
+          "inventory_gap": false,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 2,
+      "initial_correct": false,
+      "portfolio_id": "development_temporal_chart",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.330182+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "recompute_from_grounded_evidence"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": true
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_9fccf1fe6ef7b47a",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "f2cb151a95a81dfdec4220002e2b0f55e47066bef3e9e1f7cf6f9595ef3a0a4c",
+        "expected_source_hashes": [
+          "177e5d29e39c601f6b91b0a336d577dda210a55b04a35963b41f44f2c7eb98c2",
+          "edd3b0da4f6549406b2e67521dc3add8a789af2a345cb6718ced2f68f2ad437f"
+        ],
+        "outcome_id": "delayed_1bc684c64a4fe53a",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.330263+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "execution",
+        "explanation": [
+          "execution_receipt_invalid"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": true,
+          "grounded_outcome_mismatch": false,
+          "inventory_gap": false,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 2,
+      "initial_correct": false,
+      "portfolio_id": "development_temporal_chart",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.330729+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "retry_with_verified_receipt"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_95352f58256da6c4",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "d1daa5a54027b6c42e4d3166e3b5eda1322db8c697aed2f7fcb4969eac9405f2",
+        "expected_source_hashes": [
+          "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+          "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b"
+        ],
+        "outcome_id": "delayed_1eeca6f033d3f4bd",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.330825+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "interpretation",
+        "explanation": [
+          "grounded_outcome_mismatch"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": true,
+          "inventory_gap": false,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 2,
+      "initial_correct": false,
+      "portfolio_id": "development_page_curve",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.331508+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "recompute_from_grounded_evidence"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": true
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_af94de4647a70d6e",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "d1daa5a54027b6c42e4d3166e3b5eda1322db8c697aed2f7fcb4969eac9405f2",
+        "expected_source_hashes": [
+          "13a53835058953189c1e33a575b8a0f0b03b6f77558272272b180f4b411d9b29",
+          "b580d61ab319aac222299fd2f99caad6090db6e914cbfb4065baf7fe1c65bf6b"
+        ],
+        "outcome_id": "delayed_13dae1a0fa631ba7",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.331598+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "execution",
+        "explanation": [
+          "execution_receipt_invalid"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": true,
+          "grounded_outcome_mismatch": false,
+          "inventory_gap": false,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 2,
+      "initial_correct": false,
+      "portfolio_id": "development_page_curve",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.332242+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "retry_with_verified_receipt"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": true
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": false
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_dd56bf6b50a3500f",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "5f9b72a793660037d4ab64b890c938675822581e5cd1fefb357e91f3954f1b5a",
+        "expected_source_hashes": [
+          "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+          "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005"
+        ],
+        "outcome_id": "delayed_24c6908cc2e6a407",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.332319+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "interpretation",
+        "explanation": [
+          "grounded_outcome_mismatch"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": false,
+          "grounded_outcome_mismatch": true,
+          "inventory_gap": false,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 2,
+      "initial_correct": false,
+      "portfolio_id": "development_resonant_coupling",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.332610+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "recompute_from_grounded_evidence"
+    },
+    {
+      "counterfactual_trials": [
+        {
+          "changes": 1,
+          "operator": "restore_complete_inventory",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "recompute_from_grounded_evidence",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "restore_independent_verification",
+          "success": false
+        },
+        {
+          "changes": 1,
+          "operator": "retry_with_verified_receipt",
+          "success": true
+        }
+      ],
+      "delayed_outcome": {
+        "accepted": false,
+        "attempt_id": "attempt_91b3d365ef13d2f5",
+        "authority_required": true,
+        "execution_receipt_required": true,
+        "expected_outcome_hash": "5f9b72a793660037d4ab64b890c938675822581e5cd1fefb357e91f3954f1b5a",
+        "expected_source_hashes": [
+          "793e00b6fc28c9a4b13932c45578ef1fdedcf9beed2bfe521358b25bd28c809e",
+          "e5d04f3f808903dffaa98ddeadc634b47068b9aa4c03a346f66c8d49f8ddd005"
+        ],
+        "outcome_id": "delayed_cd030cd8f1bf65d3",
+        "revealed_after_commitment": true,
+        "revealed_at": "2026-07-30T18:11:27.332684+00:00",
+        "verification_required": true
+      },
+      "diagnosis": {
+        "confidence": 1.0,
+        "diagnosis": "execution",
+        "explanation": [
+          "execution_receipt_invalid"
+        ],
+        "signals": {
+          "authority_unavailable": false,
+          "execution_receipt_invalid": true,
+          "grounded_outcome_mismatch": false,
+          "inventory_gap": false,
+          "verification_step_missing": false
+        }
+      },
+      "family": "scientific_chart",
+      "generation": 2,
+      "initial_correct": false,
+      "portfolio_id": "development_resonant_coupling",
+      "provisional_status": "reported_pending_delayed_outcome",
+      "recorded_at": "2026-07-30T18:11:27.332974+00:00",
+      "schema_version": "aion.hexcore.delayed_project_outcome.v1",
+      "selected_repair": "retry_with_verified_receipt"
+    }
+  ],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "273a5eaaac1e62d8656e88eff47225523ed83819c93c7fe0734903339ed578cd",
+      "goal": "outcome_grounded_project_self_improvement",
+      "new_champion_id": "procedure_outcome_grounded_projects_f314900848fe",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.8,
+      "timestamp": "2026-07-30T18:11:27.356257+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "real_file_projects": {},
+  "relation_models": {},
+  "relational_world_models": {},
+  "revision": 5,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T18:11:27.361663+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

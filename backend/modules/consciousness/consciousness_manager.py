@@ -91,6 +91,15 @@ class ConsciousnessManager:
         else:
             print("[⚠️] Failed to load default container.")
 
+    def run_governed_mission(self, mission: dict | str) -> dict:
+        """Use the canonical cognition stack without starting legacy loops."""
+        from backend.modules.hexcore.governed_cognitive_stack import GovernedCognitiveStack
+
+        record = GovernedCognitiveStack().deliberate(mission)
+        self.state.record_cognitive_state(record)
+        record["awareness"] = self.awareness.assess_epistemic_state(record)
+        return record
+
     def run_cycle(self, mode="live"):
         print("\n🌐 Starting Consciousness Cycle")
 

@@ -98,9 +98,6 @@ export default function TopBar(p: Props) {
   // Base URLs (optional)
   const websiteBase = (import.meta as any)?.env?.VITE_WEBSITE_BASE || "";
   const websiteApi = (import.meta as any)?.env?.VITE_WEBSITE_API || websiteBase;
-  const radioBase =
-    (import.meta as any)?.env?.VITE_RADIO_BASE || "http://127.0.0.1:8787";
-
   // 🌙 / ☀️ theme toggle (wiring real theming later)
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const tessLogoSrc = theme === "dark" ? tessarisDarkLogo : tessarisLightLogo;
@@ -126,11 +123,7 @@ export default function TopBar(p: Props) {
   async function refreshWalletSummary(waOverride?: string | null) {
     if (typeof window === "undefined") return;
 
-    const wa =
-      waOverride ??
-      localStorage.getItem("gnet:ownerWa") ??
-      localStorage.getItem("gnet:wa") ??
-      null;
+    const wa = waOverride ?? p.session?.wa ?? null;
 
     setWalletPhoLoading(true);
 
@@ -170,11 +163,7 @@ export default function TopBar(p: Props) {
 
     async function loadWalletSummary() {
       try {
-        const ownerWa =
-          (p.session as any)?.wa ||
-          localStorage.getItem("gnet:ownerWa") ||
-          localStorage.getItem("gnet:wa") ||
-          null;
+        const ownerWa = (p.session as any)?.wa || null;
 
         const resp = await fetch("/api/wallet/balances", {
           headers: ownerWa ? { "X-Owner-WA": ownerWa } : {},
@@ -215,7 +204,7 @@ export default function TopBar(p: Props) {
   }, [p.session]);
 
   const goHome = () => {
-    const slug = p.session?.slug || localStorage.getItem("gnet:user_slug");
+    const slug = p.session?.slug;
     if (slug) window.location.hash = `#/container/${slug}__home`;
   };
 
@@ -238,31 +227,26 @@ export default function TopBar(p: Props) {
       const res = await fetch(`${websiteApi}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) throw new Error((await res.text()) || "Login failed");
-      const data = await res.json(); // { token, role, slug?, wa? }
+      const data = await res.json();
 
-      // 2) Attach to local radio runtime
+      // Keep the display identity in this renderer process only. A radio-node
+      // attachment must use a dedicated, short-lived signed ticket; never
+      // relay the website session credential to a loopback endpoint.
       const slug = (data.slug || email.split("@")[0])
         .toLowerCase()
         .replace(/[^a-z0-9._-]/g, "-");
       const wa = data.wa || `${slug}@wave.tp`;
 
-      await fetch(`${radioBase}/api/session/attach`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, wa, token: data.token }),
-      }).catch(() => {});
-
-      // 3) Persist locally
-      localStorage.setItem("gnet:user_slug", slug);
-      localStorage.setItem("gnet:wa", wa);
-
       setLoginOpen(false);
       setEmail("");
       setPassword("");
-      window.dispatchEvent(new CustomEvent("gnet:session:changed"));
+      window.dispatchEvent(
+        new CustomEvent("gnet:session:changed", { detail: { slug, wa } }),
+      );
     } catch (e: any) {
       setErr(e?.message || "Login failed");
     } finally {

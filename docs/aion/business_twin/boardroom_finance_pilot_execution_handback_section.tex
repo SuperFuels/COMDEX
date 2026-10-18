@@ -1,0 +1,133 @@
+\section{Canonical Boardroom Routing and Finance Pilot Handback}
+\label{sec:aion-boardroom-finance-pilot-handback}
+
+\subsection{Completed milestone}
+
+The first complete read-only Department Pilot vertical has been implemented for Finance.  A Finance action approved through the genuine live Boardroom flow can now be transformed into a canonical assignment package, routed into a durable Finance Pilot queue, executed against the exact approved Business Container context, recorded as a Finance report, written back to Department Intelligence, and returned as a structured handback for a subsequent Boardroom meeting.
+
+The implemented lifecycle is:
+\begin{quote}
+\texttt{Live Boardroom decision}
+$\rightarrow$ \texttt{founder approval}
+$\rightarrow$ \texttt{canonical Finance package}
+$\rightarrow$ \texttt{Finance Pilot queue}
+$\rightarrow$ \texttt{read-only analysis}
+$\rightarrow$ \texttt{report and receipt}
+$\rightarrow$ \texttt{Finance Intelligence}
+$\rightarrow$ \texttt{Boardroom handback}.
+\end{quote}
+
+This proves the shared Department Pilot architecture without activating unfinished Sales, Marketing, Support, HR or Operations agents.  Finance remains the only enabled specialist Pilot.  The Central Pilot remains a cross-department coordinator and monitor rather than performing Finance work itself.
+
+\subsection{Genuine Boardroom producer and approval boundary}
+
+The desktop Boardroom producer listens to the existing live Boardroom workflow.  It accepts only a live \texttt{aion.department\_task\_build.live.v1} record that has passed provider fan-out and reached \texttt{tasks\_ready\_for\_delegation\_preview}.  Simulated, legacy and preview-only packages cannot enter the canonical runtime.
+
+The founder's existing \emph{Delegate to Agents} action is the approval boundary.  At that point the producer:
+\begin{enumerate}
+  \item selects Finance actions from the approved live department-task build;
+  \item assigns stable package, action, approval and task identifiers;
+  \item sends the structured Finance action to the backend in one approve-and-route transaction;
+  \item reports non-Finance actions as design-gated rather than silently routing them; and
+  \item relies on idempotent backend routing so a repeated approval event cannot create duplicate work.
+\end{enumerate}
+
+The producer is implemented in \texttt{desktop/mac/src/aion\_boardroom\_department\_pilot\_producer.js}.  The reusable desktop queue bridge is implemented in \texttt{desktop/mac/src/aion\_department\_pilot\_backend.js}.  No additional Department Pilot implementation was added to the monolithic \texttt{app.js} file.
+
+\subsection{Canonical context binding and retrieval}
+
+If a Boardroom action does not explicitly contain context references, the backend binds the canonical records that exist at the moment of founder approval.  The common context includes Business Identity, Business Map and Department Intelligence.  Finance additionally binds the Business Financial Model and Business Operating Model when present.
+
+Each \texttt{ContextReference} records the workspace, container kind, container identifier, revision, content hash, verification state and a compact summary.  During execution, the Finance Pilot retrieves each referenced record through the canonical Business Container repository and verifies that its current hash still matches the approved hash.  The retrieved evidence, verification result and retrieval hash are stored in the durable work envelope.
+
+This prevents a Pilot from unknowingly analysing a materially changed record under an older approval.  The external AI provider is not durable memory and does not determine which version of the business truth is authoritative.
+
+\subsection{Finance capability and permission enforcement}
+
+Finance capabilities are defined by the backend profile in \texttt{department\_pilot\_profiles.py}.  The permitted read-only capability set currently includes:
+\begin{itemize}
+  \item \texttt{finance.boardroom\_analysis};
+  \item \texttt{finance.management\_report};
+  \item \texttt{finance.explain};
+  \item \texttt{finance.reconciliation};
+  \item \texttt{finance.scenario}; and
+  \item \texttt{cashflow.model}.
+\end{itemize}
+
+Safe internal tools are limited to the Finance report writer and calculator.  Xero and accepted Finance artifacts are classified as read-only sources.  Staged external and approved live-external tool lists are empty.  An action whose capability is not present in the backend allow-list is refused before the Finance task is claimed.  Interface state is therefore not the security authority.
+
+No Xero write, supplier instruction, payment, invoice mutation, filing, message or other external side effect is enabled by this milestone.  Future external actions must use the existing proposed-tool-call and exact-payload approval contracts before execution.
+
+\subsection{Durable Finance execution}
+
+The read-only execution service is implemented in \texttt{finance\_pilot\_execution\_service.py}.  A queued Finance task progresses through \texttt{queued}, \texttt{claimed}, \texttt{running} and \texttt{completed}.  Each transition appends a hash-linked task event and persists the updated canonical work envelope through the backend-authoritative Department Pilot repository.
+
+The first report implementation extracts the available reporting currency, revenue, gross profit, operating profit and closing cash from the approved financial context.  It also records missing information, unresolved evidence and decisions that must be returned to the founder.  The report explicitly records that its mode is read-only and that no external writes were performed.
+
+Re-running an already completed task is idempotent: the existing envelope and report are returned without creating a second artifact, receipt, Intelligence result or queue item.  If execution fails after claiming the task, the runtime records a failed task event and the Finance and Central Pilot queues display the failure rather than leaving an unexplained running state.
+
+\subsection{Artifact storage and File Cabinet projection}
+
+The generated JSON management report is stored under the registered Business Container path \texttt{finance/reports}.  A canonical \texttt{DepartmentArtifact} records:
+\begin{itemize}
+  \item artifact, task and department identifiers;
+  \item artifact type and human-readable title;
+  \item Business Container storage path;
+  \item Finance File Cabinet path;
+  \item media type and content hash;
+  \item evidence references; and
+  \item creation provenance.
+\end{itemize}
+
+The Workflow File Cabinet stores an index pointer under \texttt{Finance/Reports}; it does not become a second source of truth or duplicate the report bytes.  Re-registering the same artifact replaces the existing pointer by stable identifier rather than creating a duplicate entry.
+
+\subsection{Receipt, Intelligence writeback and Boardroom return}
+
+Every successful execution creates a canonical \texttt{DepartmentExecutionReceipt}.  The receipt links the requested package hash, executed artifact hash, before-state hash, after-state hash, evidence hashes and artifact identifiers.  It records whether the result succeeded or is partial and retains error fields for failed execution contracts.
+
+The Finance section of Department Intelligence receives a task-keyed \texttt{pilot\_results} record and a \texttt{latest\_pilot\_result} projection.  The result includes the task and package identifiers, outcome, executive summary, metrics, artifact identifier, evidence references and update timestamp.  The accompanying \texttt{DepartmentIntelligencePatch} records the intended JSON-pointer operations and verification state.
+
+The completed work envelope also contains a \texttt{BoardroomHandbackSummary}.  It includes the executive summary, completed action, unresolved items, requested decisions, artifact identifiers, receipt identifiers, Intelligence patch identifiers and evidence references.  When a Boardroom Snapshot exists, the handback is projected into \texttt{boardroom.runtime.department\_pilot\_handbacks} and \texttt{latest\_department\_pilot\_handback}.  The subsequent Boardroom context also receives the updated Department Intelligence, allowing every participating Boardroom provider to evaluate the same returned result without relying on provider memory.
+
+\subsection{Desktop behaviour}
+
+The Finance Pilot queue exposes a \emph{Run read-only Finance analysis} control for an approved queued Finance task.  While execution is running, the control is disabled.  On completion, the queue shows a Boardroom-ready executive summary and identifies that the report has been saved in \texttt{Finance/Reports}.  The Central Pilot displays the same task lifecycle in its cross-department monitor.
+
+Completed and failed states are visually distinct.  A failure includes the latest persisted failure message so the user can diagnose the problem before retrying or changing the approved instruction.  Design-gated departments remain disabled and continue to show the agreed design topics instead of exposing an unconfigured agent.
+
+\subsection{Grounded permanent Finance conversation}
+
+The permanent Finance terminal now uses a backend-authoritative conversation session stored separately under the Department Pilot runtime.  Conversation turns are no longer written into the Business Financial Model and therefore do not increment the revision of financial truth.  Each user and Finance Pilot turn carries a stable identifier, timestamp, previous-turn hash, turn hash, provider record, reliability label and an explicit statement that no external write occurred.
+
+For each question, the Finance Pilot selectively assembles canonical context from the Business Financial Model and, when relevant to the question, the Business Operating Model and Finance Department Intelligence.  It exposes the container revision, content hash and verification state for every supplied source.  Xero and accepted spreadsheet provenance already projected into the Financial Model influence the answer's reliability.  Conflicted evidence is labelled conflicted; source-backed evidence is distinguished from founder-supplied unverified information.
+
+Large catalogues are bounded before prompt construction.  Offerings, unit economics and financial targets are represented by their total count, a limited relevant sample and a truncation flag.  Operating context is omitted entirely when the Finance question does not need it.  This preserves selective retrieval and prevents a large product catalogue or Intelligence history from being copied wholesale into an AI prompt.
+
+The configured provider receives a strict read-only Finance instruction: it may answer from supplied context, identify missing or stale information, and recommend analysis, but it may not invent figures or imply that an external action was executed.  When no provider is available, a deterministic grounded fallback still answers supported revenue, profit, margin and cash questions from canonical metrics.  The interface displays the answer, reliability, source labels and the no-external-action boundary.  Conversation failures are displayed inside the Finance terminal.
+
+\subsection{Verification and source checkpoint}
+
+The completed vertical is covered by focused tests for canonical contracts, durable persistence, live Boardroom production, idempotent routing, context hash binding, permission denial, execution transitions, artifact storage, File Cabinet registration, Department Intelligence writeback, Boardroom handback, desktop presentation, Finance/Xero compatibility and the Products \& Services operating model.
+
+At the completion of the execution-and-conversation milestone:
+\begin{itemize}
+  \item 56 focused tests passed;
+  \item Python and JavaScript syntax checks passed;
+  \item desktop packaging completed successfully; and
+  \item the packaged application contained the updated Department Pilot desktop bridge.
+\end{itemize}
+
+The execution foundation is represented by the local commits \texttt{144c8dc6}, \texttt{37680cec} and \texttt{594db7be}.  These commits respectively establish the shared routing foundation, connect genuine live Boardroom Finance routing, and complete the first Finance result-and-handback vertical.  Grounded permanent conversation is recorded in the subsequent Finance conversation checkpoint.
+
+\subsection{Remaining Finance boundary}
+
+This milestone proves the architecture but does not complete the full Finance Pilot product.  The next Finance increments are:
+\begin{enumerate}
+  \item richer management reporting, period comparisons and KPI presentation;
+  \item cash forecasting and pricing, volume, cost, hiring, stock and downside scenarios;
+  \item Xero-to-spreadsheet reconciliation with visible conflicts, provenance and freshness;
+  \item proposed Finance actions using exact-payload approval gates; and
+  \item recurring read-only cash monitoring, period-close checks and management reporting.
+\end{enumerate}
+
+Sales, Marketing, Support, HR and Operations remain intentionally design-gated.  Their capabilities, interfaces, connectors and permission boundaries must be agreed with the founder before their specialist profiles can be enabled.  Operations remains last because it spans the canonical models owned by all preceding functions.

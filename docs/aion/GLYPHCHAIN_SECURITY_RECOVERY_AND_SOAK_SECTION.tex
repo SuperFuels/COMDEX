@@ -1,0 +1,173 @@
+\section{GlyphChain security, recovery and bounded soak qualification}
+\label{sec:glyphchain-security-recovery-soak}
+
+This stage extends the production-security foundation with a repeatable,
+content-free soak exercise.  It does not replace an independent application or
+consensus review, and it does not convert a local machine into a production
+network.  Its function is to prove that the durable control paths can be driven
+repeatedly under bounded restart, interruption, redelivery, partition and
+multi-network conditions without losing their safety invariants.
+
+\subsection{Relationship to account recovery and production security}
+
+Tessaris already has a monotonic application-account descriptor registry, a
+fail-closed HTTPS client, account-root-signed descriptors, recovery epochs,
+authorised-device checks and body-bound desktop sessions.  Production account
+recovery nevertheless remains gated on deployment of the registry under
+independent operational control, configuration of its production HTTPS URL,
+connection of every application-session issuer to current-epoch enforcement,
+and a clean-device lost-device exercise against that live service.
+
+Validator-finality credentials remain deployment-managed secrets.  They are
+not placed in an application-account recovery kit, copied during clean-device
+recovery or granted to a recovered user device.  Application recovery restores
+application authority only; it cannot confer consensus authority.
+
+The new soak exercise addresses a different part of the release gate: repeated
+local operation of the network control plane.  The two assurance statements
+must not be merged.  Passing a network soak does not prove live account
+revocation, and passing local account-recovery tests does not prove network
+availability.
+
+\subsection{Bounded multi-network topology}
+
+The runner creates three isolated logical networks.  Each network receives a
+distinct chain identifier, relay store and partition-recovery store.  The
+qualification run performs 256 cycles per network, for 768 total message
+cycles, and reconstructs the durable relay and recovery objects every sixteen
+cycles.
+
+The configured ranges are deliberately bounded:
+
+\begin{itemize}
+  \item two to eight logical networks;
+  \item eight to 5,000 cycles per network;
+  \item a restart interval between one and the selected cycle count;
+  \item at most thirty-two queued relay items;
+  \item at most sixteen queued items for one target;
+  \item a 4,096-byte envelope cap; and
+  \item a 120-second maximum relay time to live.
+\end{itemize}
+
+Invalid values fail before any exercise state is created.  The state root must
+be empty, and a symbolic-link root is refused.
+
+\subsection{Intermittent delivery and restart semantics}
+
+Each cycle enqueues a bounded \texttt{BLOCK\_ANNOUNCE} envelope for an
+intermittent recipient.  An immediate repeated put must resolve to the same
+content-derived relay identifier and be reported as an idempotent duplicate.
+The recipient then pulls the item twice before acknowledging it.  The second
+pull must show a delivery-attempt count of two, and the acknowledgement must
+remove exactly one item.
+
+At each restart boundary, the in-memory relay object is discarded and rebuilt
+from its durable state.  The test fails if the outstanding item is missing,
+duplicated or addressed to a different recipient after reconstruction.  Every
+network must finish with an empty queue.  This exercises at-least-once transport
+with recipient acknowledgement while preventing duplicate queue insertion; it
+does not claim that every downstream consensus handler is itself exactly once.
+
+Only protocol metadata is admitted to the exercise.  The generated evidence
+checks that document bodies, signer addresses, Legal matters and attachments do
+not occur in the relay payloads.
+
+\subsection{Repeated partition recovery}
+
+Every message cycle drives the node through a bounded interruption-recovery
+sequence:
+
+\begin{equation}
+  \texttt{HEALTHY}
+  \longrightarrow \texttt{BLOCK\_CATCHUP}
+  \longrightarrow \texttt{HEALTHY}.
+\end{equation}
+
+The transition journal is hash chained and persisted.  Halfway through each
+network run, the exercise additionally introduces a conflicting trusted
+finality condition.  This forces
+\texttt{SAFETY\_HALT}; ordinary health observations cannot clear it.  The
+exercise supplies the exact halt identifier, named operator, retained reason
+and exact administrative confirmation, after which the node returns through
+\texttt{REJOIN\_ASSESSING} and \texttt{BLOCK\_CATCHUP}.  Each network must end
+healthy with a valid journal.
+
+For an event body $E_i$, the journal link is
+
+\begin{equation}
+  H_i = \operatorname{SHA256}\!\left(
+    \operatorname{canon}(E_i,H_{i-1})
+  \right).
+\end{equation}
+
+Changing a recorded phase, height, reason or predecessor therefore invalidates
+the chain.
+
+\subsection{Cross-network isolation}
+
+After the three soak loops, an envelope carrying the chain identifier of the
+third network is submitted to the first network's relay.  Acceptance would be a
+qualification failure.  The expected result is the explicit
+\texttt{nat\_relay\_envelope\_chain\_mismatch} rejection.  This proves the
+local route is chain-bound under the tested implementation; it does not prove
+isolation between separately administered public infrastructures.
+
+\subsection{Content-free evidence and tamper detection}
+
+The exercise writes an owner-only JSON report with exclusive-create semantics.
+It cannot overwrite an earlier report, and a symbolic-link destination is
+refused.  The report contains configuration, aggregate counters, one-way
+network commitments, final queue depths, partition-journal results, the
+explicit assurance boundary and remaining external gates.  It contains no
+document, signer, delivery attachment or Legal-matter data.
+
+The report digest is
+
+\begin{equation}
+  H_R = \operatorname{SHA256}\!\left(
+    \operatorname{canon}(R \setminus \{\texttt{report\_sha256}\})
+  \right).
+\end{equation}
+
+The verifier recomputes $H_R$ using constant-time comparison.  Modifying a
+counter, check, configuration value, claim boundary or remaining gate therefore
+invalidates the report.
+
+\subsection{Implemented components and measured result}
+
+The reusable engine is
+\texttt{backend/modules/consensus/network\_soak\_qualification.py}.  The
+operator entry point is
+\texttt{backend/scripts/run\_glyphchain\_network\_soak\_qualification.py}, and
+the direct regression is
+\texttt{backend/tests/glyphchain/test\_network\_soak\_qualification.py}.  The
+retained content-free result is
+\texttt{docs/aion/GLYPHCHAIN\_NETWORK\_SOAK\_QUALIFICATION\_REPORT.json}.
+
+The retained run completed all 768 cycles, observed every planned delayed
+redelivery, acknowledged every message, treated every repeated put as
+idempotent, recovered after every planned restart, validated all partition
+journals, returned every network to \texttt{HEALTHY}, rejected the cross-chain
+envelope and found no Legal content.  The report state is
+\texttt{LOCAL\_BOUNDED\_SOAK\_PASSED} and remains explicitly
+\texttt{production\_ready=false}.
+
+Ten direct soak regressions plus the adversarial consensus delay/reordering,
+NAT-relay and partition-recovery suites form a focused twenty-five-test set.
+All twenty-five pass.
+
+\subsection{Claims and remaining release gates}
+
+The measured duration is diagnostic only.  It is not a transactions-per-second
+claim, finality service-level objective or production capacity result.  The
+exercise ran on one local computer and did not reproduce carrier NAT, real
+internet loss, an independently operated relay, hostile traffic volume or
+independent host failure.
+
+Production approval still requires sustained representative load, independent
+multi-host restarts, real intermittent networks and relay failures, multiple
+independently operated networks, live descriptor-registry/session enforcement,
+and independent application-security, consensus-protocol and cryptography
+reviews.  Findings from those reviews must be resolved and retested before the
+release gate can close.
+

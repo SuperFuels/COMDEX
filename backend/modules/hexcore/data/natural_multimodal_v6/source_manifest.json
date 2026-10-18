@@ -1,0 +1,84 @@
+{
+  "schema_version": "aion.hexcore.natural_multimodal_sources.v1",
+  "authority_class": "independently_maintained_public_scientific_sources",
+  "sources": [
+    {
+      "case_id": "orbital_cyclone",
+      "local_path": "nasa_hurricane_earl.jpg",
+      "sha256": "cc59bafdde241aa437a4170b326979496d7ad75b7ded3e8846d3189dfe15288f",
+      "source_page": "https://science.nasa.gov/earth/earth-observatory/hurricane-earl-the-astronaut-view-45583/",
+      "asset_url": "https://assets.science.nasa.gov/dynamicimage/assets/science/esd/eo/images/imagerecords/45000/45583/ISS024-E-012920_lrg.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1440",
+      "source_authority": "NASA Earth Observatory",
+      "official_claims": {
+        "scene": "orbital photograph of a hurricane over the tropical Atlantic",
+        "maximum_sustained_wind_kmh": 215,
+        "eye_diameter_km": 28,
+        "instrument_context": "digital SLR photograph from the International Space Station"
+      },
+      "pixel_expectations": [
+        ["spiral", "cyclone", "cyclonic", "swirl"],
+        ["cloud", "clouds"],
+        ["earth", "planet", "orbital"],
+        ["spacecraft", "solar panel", "station"]
+      ],
+      "active_visual_questions": [
+        "Does the cloud field visibly form an organized spiral or cyclonic circulation? Answer yes, no, or uncertain and identify the visible evidence.",
+        "Is the metallic structure at the image edge visually consistent with part of a spacecraft, station, or solar panel? Answer yes, no, or uncertain."
+      ],
+      "pixel_forbidden_without_reveal": ["Earl", "Category 4", "215 kilometers", "135 miles", "17 miles", "28 kilometers"]
+    },
+    {
+      "case_id": "martian_drilled_rock",
+      "local_path": "nasa_mars_atacama.png",
+      "sha256": "d3e08a8ff5e0a6af27645b192cb99bd3e9123cda569c786743a5d44e0629c5a1",
+      "source_page": "https://science.nasa.gov/photojournal/nasas-curiosity-takes-close-look-at-rock-that-got-stuck-on-drill/",
+      "asset_url": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia26/pia26724/PIA26724.png?crop=faces%2Cfocalpoint&fit=clip&h=900&w=1600",
+      "source_authority": "NASA/JPL-Caltech/MSSS",
+      "official_claims": {
+        "scene": "fragmented Martian rock with a visible circular drill hole",
+        "estimated_earth_mass_kg": 13,
+        "base_diameter_m": 0.4572,
+        "capture": "eight-image white-balanced Mastcam mosaic"
+      },
+      "pixel_expectations": [
+        ["rock", "stone"],
+        ["hole", "opening", "depression", "drill"],
+        ["sand", "sandy", "dust", "rocky surface", "ground"],
+        ["fragment", "broken", "pieces", "fracture"]
+      ],
+      "active_visual_questions": [
+        "Is a circular hole or drilled-looking opening visibly present in the main rock? Answer yes, no, or uncertain and describe its location.",
+        "Is the rock resting on a sandy, dusty, or granular ground surface? Answer yes, no, or uncertain."
+      ],
+      "pixel_forbidden_without_reveal": ["Atacama", "Curiosity", "May 6", "2026", "13 kilograms", "Mastcam"]
+    },
+    {
+      "case_id": "earthquake_summary_layout",
+      "local_path": "usgs_vanuatu_earthquake_poster.png",
+      "source_pdf_path": "usgs_vanuatu_earthquake_poster.pdf",
+      "sha256": "bedd48b7e2a41cf5fdb8242b874f6fc5cbefda2bf6bb89cb9c5ddecc76471cbe",
+      "source_pdf_sha256": "f6591400cd020cceb8f046a744b915580e5764989260df8820944ed747708ab9",
+      "source_page": "https://earthquake.usgs.gov/product/poster/usp000h2gd/us/1538164135254/poster.pdf",
+      "asset_url": "https://earthquake.usgs.gov/product/poster/usp000h2gd/us/1538164135254/poster.pdf",
+      "source_authority": "U.S. Geological Survey National Earthquake Information Center",
+      "official_claims": {
+        "scene": "earthquake summary poster combining maps, legends, explanatory text and a historical table",
+        "event_magnitude_mw": 7.3,
+        "event_depth_km": 33.3,
+        "relative_plate_motion_mm_per_year": 91,
+        "mechanism": "thrust faulting associated with subduction"
+      },
+      "pixel_expectations": [
+        ["map", "maps", "geographic"],
+        ["earthquake", "seismic"],
+        ["legend", "table", "chart", "diagram"],
+        ["text", "labels", "annotation"]
+      ],
+      "active_visual_questions": [
+        "Does the poster visibly combine a geographic map with legends, tables, charts, diagrams, or explanatory labels? List only the layout elements actually visible."
+      ],
+      "pixel_forbidden_without_reveal": []
+    }
+  ],
+  "claim_boundary": "Official captions and measurements are delayed public-source authority. They are not treated as facts visible in the pixels, independently administered hidden outcomes, or contamination-proof evaluation."
+}

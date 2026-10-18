@@ -1,0 +1,45 @@
+\section{Signed Mobile Workspace Manifests}
+\label{sec:pilot-mobile-signed-workspace-manifest}
+
+Pilot does not construct its Workspace or Boardroom interface from an unrestricted API
+response.  The mother brain now publishes a short-lived, cryptographically signed
+manifest describing the exact business surfaces and actions that one paired phone may
+present for one person, membership, lease, and workspace.
+
+\subsection{Manifest contents}
+
+The manifest contains canonical references for departments, agents, dashboards, files,
+packages, and decisions.  Each entry contains only a bounded identifier and display
+label; the business record remains in its authoritative provider.  The envelope also
+binds the provider identifier, membership identifier, person, mobile surface, workspace,
+capability lease, redaction declarations, issue time, and expiry time.
+
+Permitted actions are the intersection of two independently controlled declarations:
+the active membership scopes and the actions advertised by the workspace provider.
+Consequently a permissive provider cannot expand a restricted membership, while a broad
+membership cannot manufacture an action that the provider did not declare.  Empty,
+excessive, unknown, or out-of-membership capability sets are rejected.
+
+\subsection{Signing and validation}
+
+The mother serializes the complete manifest envelope as deterministic canonical JSON,
+calculates its SHA-256 payload hash, and signs the same bytes with its Ed25519 device
+identity.  The receiving surface verifies the hash, signature, schema version, expected
+person, expected phone surface, and expiry before rendering it.  Altering even a label or
+file reference invalidates the signature.  A manifest lives for between 30 seconds and
+15 minutes and therefore cannot act as permanent authority.
+
+The signed manifest is a presentation and routing boundary, not a provider token and not
+a replacement for the underlying capability lease.  Every subsequent read or action
+must still pass the live membership and lease checks.  Provider credentials and raw
+Boardroom records never enter the manifest.
+
+\subsection{Verification}
+
+Automated tests issue and verify a signed manifest, inspect its bounded catalogue,
+detect post-signature tampering, reject capabilities outside the membership, and reject
+an excessive lifetime.  The existing gateway tests continue to prove wrong-person,
+expired-membership, scope, surface, and cross-client isolation.  This closes
+\texttt{MOB-0602}; the next build stage adds governed invitations rather than silently
+creating membership.
+

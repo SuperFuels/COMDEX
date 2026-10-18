@@ -1,0 +1,224 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_ecology_microbiology",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:ecology_microbiology",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_earth_climate",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:earth_climate",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:agronomy_soil:soil",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:agronomy_soil",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:agronomy_soil:plant_nutrition",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:agronomy_soil",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:agronomy_soil:crop_cycles",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:agronomy_soil",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:agronomy_soil:irrigation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:agronomy_soil",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:agronomy_soil:pest_management",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:agronomy_soil",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:agronomy_soil:yield_measurement",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:agronomy_soil",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "agriculture",
+      "id": "work:aion@wave.tp:subject:agronomy_soil",
+      "label": "Agronomy and soil science",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:agronomy_soil:soil",
+      "label": "soil",
+      "subject_id": "agronomy_soil",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:agronomy_soil:plant_nutrition",
+      "label": "plant nutrition",
+      "subject_id": "agronomy_soil",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:agronomy_soil:crop_cycles",
+      "label": "crop cycles",
+      "subject_id": "agronomy_soil",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:agronomy_soil:irrigation",
+      "label": "irrigation",
+      "subject_id": "agronomy_soil",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:agronomy_soil:pest_management",
+      "label": "pest management",
+      "subject_id": "agronomy_soil",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:agronomy_soil:yield_measurement",
+      "label": "yield measurement",
+      "subject_id": "agronomy_soil",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_agronomy_soil",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:agronomy_soil:soil",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:agronomy_soil",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:agronomy_soil:plant_nutrition",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:agronomy_soil",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:agronomy_soil:crop_cycles",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:agronomy_soil",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:agronomy_soil:irrigation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:agronomy_soil",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:agronomy_soil:pest_management",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:agronomy_soil",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:agronomy_soil:yield_measurement",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:agronomy_soil",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "agriculture",
+        "id": "work:aion@wave.tp:subject:agronomy_soil",
+        "label": "Agronomy and soil science",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:agronomy_soil:soil",
+        "label": "soil",
+        "subject_id": "agronomy_soil",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:agronomy_soil:plant_nutrition",
+        "label": "plant nutrition",
+        "subject_id": "agronomy_soil",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:agronomy_soil:crop_cycles",
+        "label": "crop cycles",
+        "subject_id": "agronomy_soil",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:agronomy_soil:irrigation",
+        "label": "irrigation",
+        "subject_id": "agronomy_soil",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:agronomy_soil:pest_management",
+        "label": "pest management",
+        "subject_id": "agronomy_soil",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:agronomy_soil:yield_measurement",
+        "label": "yield measurement",
+        "subject_id": "agronomy_soil",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "agriculture",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "agronomy_soil",
+    "title": "AION Academy \u00b7 Agronomy and soil science"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

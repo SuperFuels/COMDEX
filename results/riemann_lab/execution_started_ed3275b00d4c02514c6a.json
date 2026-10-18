@@ -1,0 +1,6 @@
+{
+  "packet_sha256": "ed3275b00d4c02514c6a88003e7ed27698013a6be47e718f45cb978bf2e62bf9",
+  "started_at": "2026-08-14T23:56:29.964147+00:00",
+  "status": "execution_started_one_shot",
+  "claim_boundary": "This marker records an attempt, not a successful experiment."
+}

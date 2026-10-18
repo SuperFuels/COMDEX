@@ -1,0 +1,170 @@
+\section{Sprint N: Guarded Multi-Agent Orchestration Visibility Lock}
+\label{sec:sprint-n-guarded-multi-agent-orchestration-lock}
+
+\subsection{Status}
+
+This sprint locks the guarded multi-agent orchestration visibility path across the Goal Engine orchestrator, preview bundle, Boardroom UI, and focused lock suite.
+
+\begin{quote}
+\textbf{Status: LOCKED --- focused Goal Engine suite passing with 395 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+395 passed in 27.62s
+\end{verbatim}
+
+\subsection{Purpose}
+
+This sprint moves the parent-child orchestration layer one step closer to guarded execution while preserving the safety boundary.
+
+AION can now show:
+
+\begin{itemize}
+  \item parent-goal update proposals;
+  \item child-agent conflict previews;
+  \item multi-agent execution replay state;
+  \item guarded child-agent execution handoff previews;
+  \item human-approved conflict resolution previews;
+  \item Boardroom-visible review gates for all of the above.
+\end{itemize}
+
+The lock does not permit autonomous resolution, automatic parent-goal mutation, external writes, permission grants, or child-agent execution without a human review boundary.
+
+\subsection{Locked Runtime Contracts}
+
+The following canonical contracts are now part of the guarded multi-agent orchestration path:
+
+\begin{verbatim}
+parent_goal_update_proposal
+child_agent_conflict_preview
+orchestrator_parent_child_aggregation_runtime_summary
+parent_child_aggregation_runtime_summary
+parent_child_aggregation_previews
+orchestrator_parent_child_aggregation_previews
+guarded_child_agent_execution_handoff_preview
+human_approved_conflict_resolution_preview
+\end{verbatim}
+
+The guarded child-agent execution handoff preview is identified by:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.guarded_child_agent_execution_handoff.v1
+trace_type     = guarded_child_agent_execution_handoff_preview
+approval_gate  = child_agent_execution_review
+\end{verbatim}
+
+The human-approved conflict resolution preview is identified by:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.human_approved_conflict_resolution.v1
+trace_type     = human_approved_conflict_resolution_preview
+approval_gate  = conflict_resolution_human_review
+\end{verbatim}
+
+\subsection{Boardroom Visibility}
+
+The Boardroom now includes review-only visibility panels for:
+
+\begin{itemize}
+  \item parent-goal proposal plus child-agent conflict state;
+  \item multi-agent execution replay;
+  \item human-approved conflict resolution.
+\end{itemize}
+
+The locked UI markers are:
+
+\begin{verbatim}
+data-aion-goal-engine-parent-goal-proposal-conflict="v1"
+data-aion-goal-engine-multi-agent-execution-replay="v1"
+data-aion-goal-engine-human-approved-conflict-resolution="v1"
+\end{verbatim}
+
+The corresponding renderer entry points are:
+
+\begin{verbatim}
+renderAionGoalEngineParentGoalProposalConflictPanelV1
+renderAionGoalEngineMultiAgentExecutionReplayPanelV1
+renderAionGoalEngineHumanApprovedConflictResolutionPanelV1
+\end{verbatim}
+
+\subsection{Safety Lock}
+
+This sprint preserves the following safety invariants:
+
+\begin{itemize}
+  \item AION MUST NOT auto-resolve child-agent disagreement.
+  \item AION MUST NOT mutate a parent goal from a preview panel.
+  \item AION MUST NOT execute child agents from Boardroom visibility panels.
+  \item AION MUST NOT grant permissions from replay, handoff, or conflict-resolution previews.
+  \item AION MUST surface human review gates before any future execution path.
+  \item AION MUST keep these paths preview-visible and audit-visible before runtime execution is enabled.
+\end{itemize}
+
+\subsection{Validation Coverage}
+
+The following tests lock the current implementation:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_goal_engine_parent_goal_update_proposal.py
+backend/tests/workflow_capsules/test_goal_engine_child_agent_conflict_preview.py
+backend/tests/workflow_capsules/test_goal_engine_parent_goal_proposal_conflict_preview_bundle.py
+backend/tests/workflow_capsules/test_goal_engine_multi_agent_execution_replay_ui_lock.py
+backend/tests/workflow_capsules/test_goal_engine_guarded_child_agent_execution_handoff.py
+backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution.py
+backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution_ui_lock.py
+backend/tests/workflow_capsules/test_goal_engine_boardroom_parent_goal_proposal_conflict_payload_lock.py
+\end{verbatim}
+
+These tests are included in:
+
+\begin{verbatim}
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Locked Files}
+
+Primary implementation files:
+
+\begin{verbatim}
+backend/modules/aion/goal_engine/orchestrator.py
+backend/modules/aion/goal_engine/preview_bundle.py
+desktop/mac/src/app.js
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Primary lock document:
+
+\begin{verbatim}
+docs/rfc/aion_goal_engine_guarded_multi_agent_orchestration_lock.tex
+\end{verbatim}
+
+\subsection{Next Work}
+
+The next phase SHOULD keep the same guarded pattern and move toward execution only through explicit review gates.
+
+Recommended next tasks:
+
+\begin{itemize}
+  \item attach guarded child-agent handoff previews into the preview bundle;
+  \item surface handoff previews in the Boardroom beside replay and conflict resolution;
+  \item add a replay event list contract for child-agent step history;
+  \item add a human-approved action envelope that can later be executed by the runtime;
+  \item keep all mutation and execution paths disabled until approval semantics are locked.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-GUARDED-MULTI-AGENT-ORCHESTRATION-v1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

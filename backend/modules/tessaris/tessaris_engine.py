@@ -253,23 +253,41 @@ class TessarisEngine(ResonantReinforcementMixin):
     # ─────────────────────────────────────────────
     # 🧠 Reflection Generator
     # ─────────────────────────────────────────────
-    def generate_reflection(self, glyph: str, context: dict = None, trace: list = None) -> str:
+    def generate_reflection(self, glyph: Any, context: dict = None, trace: list = None) -> str:
         """
-        🌀 Generate a reasoning/reflection string for a glyph based on context and execution trace.
-        Auto-logs reasoning into MEMORY and Knowledge Graph for introspection tracking.
+        Generate a reasoning/reflection string for either:
+        - a real glyph string
+        - plain natural language
+        - a dict / structured payload
+
+        Never returns the old hard failure string for non-glyph input.
         """
+        context = context or {}
+        trace = trace or []
+
         try:
             parsed = self._parse_glyph(glyph)
-            if not parsed:
-                return "⚠️ Unable to parse glyph for reflection."
+            reasoning_parts: List[str] = []
 
-            reasoning_parts = []
+            if parsed and parsed.get("is_glyph", False):
+                g_type = parsed.get("type", "Unknown")
+                g_tag = parsed.get("tag", "Untitled")
+                g_value = parsed.get("value", "")
+                action = parsed.get("action", "Reflect")
+                reasoning_parts.append(f"{g_type} | {g_tag}: {g_value}")
+                reasoning_parts.append(f"Action -> {action}")
+            else:
+                plain_text = self._coerce_reflection_text(glyph)
+                reasoning_parts.append(f"Input -> {plain_text}")
 
-            # Include glyph type/tag/value
-            g_type = parsed.get("type", "Unknown")
-            g_tag = parsed.get("tag", "Untitled")
-            g_value = parsed.get("value", "")
-            reasoning_parts.append(f"{g_type} | {g_tag}: {g_value}")
+                inferred_mode = "field_report"
+                lowered = plain_text.lower()
+                if any(word in lowered for word in ("stabilize", "field", "symatics", "coherence", "drift")):
+                    inferred_mode = "symatics_reflection"
+                elif any(word in lowered for word in ("goal", "plan", "task")):
+                    inferred_mode = "goal_reflection"
+
+                reasoning_parts.append(f"Mode -> {inferred_mode}")
 
             # Include context hints
             if context:
@@ -279,44 +297,49 @@ class TessarisEngine(ResonantReinforcementMixin):
 
             # Include execution trace summary
             if trace:
-                steps = [f"{step['operator']} {step['action']}" for step in trace]
-                reasoning_parts.append(f"Trace -> {' -> '.join(steps)}")
+                steps = []
+                for step in trace:
+                    if isinstance(step, dict):
+                        operator = step.get("operator", "?")
+                        action = step.get("action", "?")
+                        steps.append(f"{operator} {action}")
+                    else:
+                        steps.append(str(step))
+                if steps:
+                    reasoning_parts.append(f"Trace -> {' -> '.join(steps)}")
 
-            # Add cost estimation (symbolic check)
+            # Add cost estimation only for real glyph-like strings
             try:
-                cost = self.codex_estimator.estimate_glyph_cost(glyph, context or {})
+                glyph_text = glyph if isinstance(glyph, str) else json.dumps(glyph, ensure_ascii=False, default=str)
+                cost = self.codex_estimator.estimate_glyph_cost(glyph_text, context)
                 reasoning_parts.append(f"Cost -> {cost.total():.2f} (E:{cost.energy} / R:{cost.ethics_risk})")
             except Exception as e:
                 sci_emit("tessaris_error", f"{str(e)[:200]}")
                 reasoning_parts.append(f"Cost -> unavailable ({e})")
 
-            # Join reasoning parts
             reasoning_text = " | ".join(reasoning_parts)
 
-            # 🧠 Auto-log into MEMORY
             MEMORY.store({
                 "label": "tessaris_reflection",
                 "role": "tessaris",
                 "type": "reasoning",
                 "content": reasoning_text,
                 "data": {
-                    "glyph": glyph,
-                    "context": context or {},
-                    "trace": trace or []
+                    "glyph": glyph if isinstance(glyph, str) else self._coerce_reflection_text(glyph),
+                    "context": context,
+                    "trace": trace,
                 }
             })
 
-            # 🗂 Auto-log into Knowledge Graph
             _kg_log_safe(self.kg_writer, "reasoning_generated", {
-                "glyph": glyph,
+                "glyph": glyph if isinstance(glyph, str) else self._coerce_reflection_text(glyph),
                 "reasoning": reasoning_text,
-                "context": context or {},
-                "trace_steps": trace or [],
+                "context": context,
+                "trace_steps": trace,
             })
 
-            # 🧠 Resonant reinforcement based on reflection quality
             try:
-                clarity = max(0.1, min(1.0, len(reasoning_text) / 500.0))  # heuristic: longer = deeper reflection
+                clarity = max(0.1, min(1.0, len(reasoning_text) / 500.0))
                 self.update_resonance_feedback(outcome_score=clarity, reason="Reflection clarity")
                 self.last_reflection_score = clarity
             except Exception as e:
@@ -328,6 +351,10 @@ class TessarisEngine(ResonantReinforcementMixin):
         except Exception as e:
             sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[⚠️] TessarisEngine.generate_reflection failed: {e}")
+
+            fallback_text = self._coerce_reflection_text(glyph)
+            if fallback_text:
+                return f"Tessaris reflection -> {fallback_text}"
             return "Reflection unavailable."
 
     def seed_thought(self, root_symbol: str, source: str = "manual", metadata: dict = {}):
@@ -733,24 +760,136 @@ class TessarisEngine(ResonantReinforcementMixin):
             else:
                 print("😕 No matching boot skill found.")
 
-    def _parse_glyph(self, glyph: str) -> dict:
+
+    def _coerce_reflection_text(self, value: Any) -> str:
+        """
+        Convert arbitrary input into safe readable reflection text.
+        """
         try:
-            inner = glyph.strip("⟦⟧").strip()
-            parts = inner.split("->")
-            left = parts[0].strip()
-            action = parts[1].strip() if len(parts) > 1 else "Reflect"
+            if value is None:
+                return ""
+
+            if isinstance(value, str):
+                return value.strip()
+
+            if isinstance(value, dict):
+                if "input" in value:
+                    return str(value.get("input", "")).strip()
+                if "signal" in value:
+                    return str(value.get("signal", "")).strip()
+                if "text" in value:
+                    return str(value.get("text", "")).strip()
+                return json.dumps(value, ensure_ascii=False, default=str)
+
+            if isinstance(value, (list, tuple)):
+                return json.dumps(list(value), ensure_ascii=False, default=str)
+
+            return str(value).strip()
+        except Exception:
+            return str(value)
+
+    def _parse_glyph(self, glyph: Any) -> Optional[dict]:
+        """
+        Parse canonical glyph syntax if present.
+
+        Supported canonical form:
+            ⟦ Type | Tag : Value -> Action ⟧
+
+        Fail-open:
+        - returns a structured plain-text packet for non-glyph inputs
+        - never raises intentionally
+        """
+        try:
+            if glyph is None:
+                return None
+
+            if isinstance(glyph, dict):
+                return {
+                    "type": "Input",
+                    "tag": glyph.get("tag", "Structured"),
+                    "value": self._coerce_reflection_text(glyph),
+                    "action": glyph.get("action", "Reflect"),
+                    "is_glyph": False,
+                    "raw": glyph,
+                }
+
+            if not isinstance(glyph, str):
+                return {
+                    "type": "Input",
+                    "tag": "NonString",
+                    "value": self._coerce_reflection_text(glyph),
+                    "action": "Reflect",
+                    "is_glyph": False,
+                    "raw": glyph,
+                }
+
+            text = glyph.strip()
+            if not text:
+                return None
+
+            # Non-glyph plain language -> structured fallback, not an error
+            if not (text.startswith("⟦") and text.endswith("⟧")):
+                return {
+                    "type": "Input",
+                    "tag": "PlainText",
+                    "value": text,
+                    "action": "Reflect",
+                    "is_glyph": False,
+                    "raw": text,
+                }
+
+            inner = text[1:-1].strip("⟦⟧").strip()
+
+            action = "Reflect"
+            left = inner
+            if "->" in inner:
+                left, action = inner.split("->", 1)
+                left = left.strip()
+                action = action.strip() or "Reflect"
+
+            if ":" not in left:
+                return {
+                    "type": "Glyph",
+                    "tag": "Untitled",
+                    "value": left.strip(),
+                    "action": action,
+                    "is_glyph": True,
+                    "raw": text,
+                }
+
             type_tag, value = left.split(":", 1)
-            g_type, tag = type_tag.split("|", 1)
+            type_tag = type_tag.strip()
+            value = value.strip()
+
+            if "|" in type_tag:
+                g_type, tag = type_tag.split("|", 1)
+            else:
+                g_type, tag = type_tag, "Untitled"
+
             return {
-                "type": g_type.strip(),
-                "tag": tag.strip(),
-                "value": value.strip(),
-                "action": action
+                "type": g_type.strip() or "Glyph",
+                "tag": tag.strip() or "Untitled",
+                "value": value,
+                "action": action,
+                "is_glyph": True,
+                "raw": text,
             }
+
         except Exception as e:
             sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[⚠️] Glyph parse failed: {e}")
-            return None
+
+            try:
+                return {
+                    "type": "Input",
+                    "tag": "Fallback",
+                    "value": self._coerce_reflection_text(glyph),
+                    "action": "Reflect",
+                    "is_glyph": False,
+                    "raw": glyph,
+                }
+            except Exception:
+                return None
 
     def extract_intents_from_glyphs(self, glyphs, metadata=None):
         """
@@ -825,12 +964,26 @@ class TessarisEngine(ResonantReinforcementMixin):
                 print(f"🧠 Queued Tessaris intent ({intent_type}): {payload}")
 
     # ---- Compatibility shim: allow executor to call tessaris.interpret(...) ----
+    def interpret_governed(self, instruction_tree, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Interpret a mission through the canonical proposal/authority boundary."""
+        from backend.modules.hexcore.governed_cognitive_stack import GovernedCognitiveStack
+
+        ctx = dict(context or {})
+        mission = instruction_tree if isinstance(instruction_tree, dict) else {
+            "objective": _summarize_tree(instruction_tree)
+        }
+        if isinstance(mission, dict):
+            mission = {**mission, **ctx}
+        return GovernedCognitiveStack().deliberate(mission)
+
     def interpret(self, instruction_tree, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Execute/interpret a Codex instruction tree.
         Tries existing methods if present; otherwise returns a shallow echo result.
         """
         ctx = context or {}
+        if ctx.get("governed_mission") is True:
+            return self.interpret_governed(instruction_tree, ctx)
         sci_emit("tessaris_start", f"Instruction -> {str(instruction_tree)[:240]}")
 
         # Prefer an existing concrete method if you already implemented one

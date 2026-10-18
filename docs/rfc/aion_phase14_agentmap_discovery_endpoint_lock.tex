@@ -1,0 +1,264 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Phase 14C --- Read-only AgentMap Discovery Endpoint Preview v0}
+\author{Tessaris AI}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\section{Phase 14C --- Read-only AgentMap Discovery Endpoint Preview v0}
+\label{sec:phase14c-agentmap-discovery-endpoint-preview}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- read-only AgentMap discovery endpoint preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 14C locks the preview contract for the future AgentMap discovery endpoint.
+
+The endpoint preview declares the machine-readable discovery paths:
+
+\begin{verbatim}
+/agentmap.json
+/.well-known/agentmap.json
+\end{verbatim}
+
+This phase is read-only and preview-only.
+
+It prepares the route contract that future websites, dashboards, and external agents will use to discover the AgentMap for an AION-enabled business.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/agentmap_discovery_endpoint.py
+\end{verbatim}
+
+The module is exported through:
+
+\begin{verbatim}
+backend/modules/aion_gateway/__init__.py
+\end{verbatim}
+
+The locked tests live in:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_discovery_endpoint_lock.py
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_discovery_endpoint_lock_doc.py
+\end{verbatim}
+
+\subsection{Endpoint Contract}
+
+The locked preview declares two discovery paths:
+
+\begin{itemize}
+  \item \texttt{/agentmap.json}
+  \item \texttt{/.well-known/agentmap.json}
+\end{itemize}
+
+The endpoint preview allows only read methods:
+
+\begin{verbatim}
+GET
+HEAD
+\end{verbatim}
+
+The endpoint preview forbids write methods:
+
+\begin{verbatim}
+POST
+PUT
+PATCH
+DELETE
+\end{verbatim}
+
+The locked public route state is:
+
+\begin{verbatim}
+route_exposed = false
+public_route_mounted = false
+preview_only = true
+read_only = true
+\end{verbatim}
+
+This means Phase 14C declares the read-only endpoint shape but does not mount a live public route.
+
+\subsection{Hash Contract}
+
+The endpoint preview exposes deterministic hash fields:
+
+\begin{itemize}
+  \item \texttt{agentmap\_hash}
+  \item \texttt{endpoint\_hash}
+  \item \texttt{summary\_hash}
+\end{itemize}
+
+The \texttt{agentmap\_hash} anchors the generated AgentMap payload.
+
+The \texttt{endpoint\_hash} anchors the discovery endpoint preview response.
+
+The \texttt{summary\_hash} anchors the minimal read-only endpoint summary.
+
+These hashes are replay and audit anchors only.
+
+They MUST NOT grant permissions, create bookings, create live jobs, move money, create payments, create escrow, release funds, dispatch work, send external messages, or write live chain data.
+
+\subsection{Safe Capability Routes}
+
+Phase 14C exposes safe capability routes only.
+
+The preview may describe routes such as:
+
+\begin{itemize}
+  \item AgentMap manifest preview,
+  \item capabilities catalog preview,
+  \item availability quote preview,
+  \item proof receipt lookup preview,
+  \item trust summary preview,
+  \item public intent preview,
+  \item human review handoff preview.
+\end{itemize}
+
+Each safe capability route MUST include:
+
+\begin{itemize}
+  \item \texttt{route\_type}
+  \item \texttt{method}
+  \item \texttt{path}
+  \item \texttt{read\_only}
+  \item \texttt{input\_schema\_ref}
+  \item \texttt{output\_schema\_ref}
+  \item \texttt{side\_effects\_enabled}
+  \item \texttt{requires\_human\_review\_before\_execution}
+\end{itemize}
+
+Raw contract field names:
+
+\begin{verbatim}
+input_schema_ref
+output_schema_ref
+safe capability routes
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+The read-only AgentMap discovery endpoint preview MUST NOT create bookings.
+
+It MUST NOT create live jobs.
+
+It MUST NOT execute the Goal Engine.
+
+It MUST NOT bypass human review.
+
+It MUST NOT move money.
+
+It MUST NOT move PHO.
+
+It MUST NOT require wallets.
+
+It MUST NOT create payments.
+
+It MUST NOT create escrow.
+
+It MUST NOT release funds.
+
+It MUST NOT dispatch work.
+
+It MUST NOT send external messages.
+
+It MUST NOT write live chain data.
+
+It MUST NOT expose unsafe public write routes.
+
+The locked safety fields are:
+
+\begin{verbatim}
+preview_only = true
+read_only = true
+human_review_required = true
+live_side_effects_enabled = false
+public_route_mounted = false
+unauthenticated_public_write_route_exposed = false
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_dispatch_work = false
+would_send_external_messages = false
+would_write_live_chain = false
+\end{verbatim}
+
+\subsection{Relationship to Previous Phase 14 Locks}
+
+Phase 14C depends on:
+
+\begin{itemize}
+  \item Phase 14A --- AgentMap machine metadata manifest,
+  \item Phase 14B --- Universal vertical adapter contract.
+\end{itemize}
+
+Phase 14C does not replace either lock.
+
+It wraps the existing AgentMap manifest in a read-only endpoint preview contract so future websites and external agents can discover the AgentMap safely.
+
+\subsection{Next Step}
+
+The next implementation step should be:
+
+\begin{quote}
+\textbf{Phase 14D --- AgentMap Live Verification Preview v0.}
+\end{quote}
+
+Phase 14D should verify that a website has installed or hosted its AgentMap at the expected path and that the response is valid, deterministic, read-only, and safe.
+
+
+
+\subsection{Raw Contract Field Names}
+
+For documentation lock tests and machine-readable contract clarity, the raw deterministic field names are:
+
+\begin{verbatim}
+agentmap_hash
+endpoint_hash
+summary_hash
+input_schema_ref
+output_schema_ref
+preview_only
+read_only
+human_review_required
+public_route_mounted
+would_create_booking
+would_create_payment
+would_create_escrow
+would_send_external_messages
+\end{verbatim}
+
+These fields are replay, audit, discovery, and future verification anchors only. They MUST NOT grant permissions, create bookings, create live jobs, move money, create payments, create escrow, release funds, dispatch work, send external messages, or write live chain data.
+
+\subsection{Lock Footer}
+
+\bigskip
+\noindent\textbf{Lock ID:} AION-PHASE14C-AGENTMAP-DISCOVERY-ENDPOINT-PREVIEW-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson
+
+\end{document}

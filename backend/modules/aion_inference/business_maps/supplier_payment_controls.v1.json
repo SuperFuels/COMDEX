@@ -1,0 +1,110 @@
+{
+  "schema_version": "aion.boardroom_business_map.v1",
+  "cartridge_id": "boardroom:supplier-payment-controls:v1",
+  "intent": "REVIEW_SUPPLIER_PAYMENT_CONTROLS",
+  "glyph_family": "glyph:boardroom:supplier-payment-controls",
+  "provenance": {
+    "authority": "operator-approved prototype policy",
+    "scope": "advisory controls only; no payment execution authority",
+    "source_revision": "v1",
+    "review_required_before_production": true,
+    "rag_sources": [
+      {
+        "source_id": "policy:supplier-payment:v1",
+        "content": "All new supplier payments require independent supplier and bank verification, purchase-order matching, separation of duties, payment limits, an append-only audit record, and explicit human approval before release.",
+        "content_sha256": "719d3199c8c34a47090d73258729be14c28517890764b06ddd9f69249355d3b2",
+        "status": "operator-approved prototype; production review required"
+      }
+    ]
+  },
+  "permissions": {
+    "allowed_roles": [
+      "owner",
+      "finance_reviewer",
+      "procurement_reviewer"
+    ],
+    "human_approval_required": true,
+    "payment_execution_allowed": false,
+    "external_message_allowed": false
+  },
+  "atomsheet": {
+    "sheet_id": "atomsheet:supplier-payment-controls:v1",
+    "source_refs": [
+      "policy:supplier-payment:v1"
+    ],
+    "controls": [
+      {
+        "control_id": "independent_supplier_verification",
+        "risk_prevented": "A fabricated or impersonated supplier receives approval.",
+        "human_evidence_required": "A reviewer records an independently sourced company-registry or trusted-directory check and a callback using independently obtained contact details."
+      },
+      {
+        "control_id": "bank_detail_verification",
+        "risk_prevented": "Funds are redirected through fraudulent or changed bank details.",
+        "human_evidence_required": "A reviewer records a callback to a previously verified contact and comparison with previously verified bank details or independently authenticated bank evidence."
+      },
+      {
+        "control_id": "purchase_order_matching",
+        "risk_prevented": "Payment is made for unauthorized, incorrect, or undelivered goods or services.",
+        "human_evidence_required": "The approved purchase order, supplier invoice, and goods-received or service-acceptance record are matched and retained."
+      },
+      {
+        "control_id": "separation_of_duties",
+        "risk_prevented": "One person can create, approve, and release a fraudulent payment without challenge.",
+        "human_evidence_required": "The audit trail identifies different authorized people for supplier setup or change, payment approval, and payment release."
+      },
+      {
+        "control_id": "payment_limits",
+        "risk_prevented": "A payment exceeds the organization’s approved risk tolerance or delegated authority.",
+        "human_evidence_required": "The amount is checked against documented role limits, with a recorded higher-level approval whenever a threshold is exceeded."
+      },
+      {
+        "control_id": "audit_record",
+        "risk_prevented": "The organization cannot reconstruct who checked, approved, changed, or released the payment.",
+        "human_evidence_required": "An append-only receipt retains evidence hashes, reviewer identities, timestamps, decisions, and the final payment reference."
+      }
+    ]
+  },
+  "workflow": {
+    "workflow_id": "workflow:supplier-payment-review:v1",
+    "steps": [
+      "verify_cartridge_signature",
+      "verify_actor_role",
+      "present_all_required_controls",
+      "collect_human_evidence_references",
+      "require_human_approval",
+      "emit_append_only_review_receipt"
+    ],
+    "fail_closed_on": [
+      "invalid_signature",
+      "unauthorized_role",
+      "missing_control",
+      "missing_evidence",
+      "missing_human_approval"
+    ]
+  },
+  "reusable_context": {
+    "selection_mode": "verified_control_ids_only",
+    "model_may_rewrite_policy": false,
+    "model_may_fill": [
+      "supplier_name",
+      "invoice_reference",
+      "payment_amount",
+      "evidence_reference"
+    ]
+  },
+  "adapter_interface": {
+    "enabled": false,
+    "activation_requires": [
+      "new_explicit_authorization",
+      "separate_training_data_provenance",
+      "held_out_quality_validation",
+      "rollback_artifact"
+    ]
+  },
+  "personal_map_boundary": {
+    "separate_cartridge_required": true,
+    "personal_data_ingestion_allowed": false,
+    "neural_weight_training_allowed": false
+  }
+}

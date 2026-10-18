@@ -1,0 +1,229 @@
+{
+  "best_power_range": [
+    1.25,
+    1.5
+  ],
+  "certified_all_pivots_positive": true,
+  "certified_strict_decrease_count": 209,
+  "claim_boundary": "Positivity and strict-decrease counts are interval-certified. Power-law fits use midpoints and are diagnostic only; they provide no all-n inequality.",
+  "completed_order": 210,
+  "decision": "retain_power_law_candidate_for_symbolic_attack",
+  "digits": 3200,
+  "experiment": "gram_rover_pivot_invariant_stability",
+  "payload_sha256": "2110bd91b4b57d5083208fdd83f7fa5128664245bbbbb7bb95cb29d1d96910ff",
+  "power_grid": "0, 0.25, ..., 4",
+  "source_state": "experiments/results/li_gram_rover_state_3200d_v1.json.gz",
+  "source_state_sha256": "dc7ea72e71b90490b6186d775e854d07d0f5691e596526b2d0fe86de0c40b7a3",
+  "stable_power_at_quarter_grid_resolution": true,
+  "transition_count": 209,
+  "windows": [
+    {
+      "best": {
+        "mean_C": 0.009271180497331983,
+        "power": 1.25,
+        "relative_spread": 0.07910679852111467
+      },
+      "end": 54,
+      "start": 25,
+      "top_three": [
+        {
+          "mean_C": 0.009271180497331983,
+          "power": 1.25,
+          "relative_spread": 0.07910679852111467
+        },
+        {
+          "mean_C": 0.023131475119705133,
+          "power": 1.5,
+          "relative_spread": 0.09545377368981196
+        },
+        {
+          "mean_C": 0.0037278991632618903,
+          "power": 1.0,
+          "relative_spread": 0.0994036120199899
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.009103564805331078,
+        "power": 1.25,
+        "relative_spread": 0.059406588421303294
+      },
+      "end": 79,
+      "start": 50,
+      "top_three": [
+        {
+          "mean_C": 0.009103564805331078,
+          "power": 1.25,
+          "relative_spread": 0.059406588421303294
+        },
+        {
+          "mean_C": 0.025745777583829108,
+          "power": 1.5,
+          "relative_spread": 0.06319734172722476
+        },
+        {
+          "mean_C": 0.0032227387153314297,
+          "power": 1.0,
+          "relative_spread": 0.07399437117751059
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.008786654477877036,
+        "power": 1.25,
+        "relative_spread": 0.049595108285697215
+      },
+      "end": 104,
+      "start": 75,
+      "top_three": [
+        {
+          "mean_C": 0.008786654477877036,
+          "power": 1.25,
+          "relative_spread": 0.049595108285697215
+        },
+        {
+          "mean_C": 0.0028609580157955877,
+          "power": 1.0,
+          "relative_spread": 0.05528844002404562
+        },
+        {
+          "mean_C": 0.027001900989101005,
+          "power": 1.5,
+          "relative_spread": 0.055396915943279446
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.00851674841574943,
+        "power": 1.25,
+        "relative_spread": 0.04922778361847595
+      },
+      "end": 129,
+      "start": 100,
+      "top_three": [
+        {
+          "mean_C": 0.00851674841574943,
+          "power": 1.25,
+          "relative_spread": 0.04922778361847595
+        },
+        {
+          "mean_C": 0.02784370150472832,
+          "power": 1.5,
+          "relative_spread": 0.052125634426937434
+        },
+        {
+          "mean_C": 0.00260603132522112,
+          "power": 1.0,
+          "relative_spread": 0.05372370473535916
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.028352077272079234,
+        "power": 1.5,
+        "relative_spread": 0.04693528397492983
+      },
+      "end": 154,
+      "start": 125,
+      "top_three": [
+        {
+          "mean_C": 0.028352077272079234,
+          "power": 1.5,
+          "relative_spread": 0.04693528397492983
+        },
+        {
+          "mean_C": 0.09739853581508659,
+          "power": 1.75,
+          "relative_spread": 0.04858051740992327
+        },
+        {
+          "mean_C": 0.008255118102596406,
+          "power": 1.25,
+          "relative_spread": 0.0504173965320495
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.007998056536708495,
+        "power": 1.25,
+        "relative_spread": 0.035268015697325364
+      },
+      "end": 179,
+      "start": 150,
+      "top_three": [
+        {
+          "mean_C": 0.007998056536708495,
+          "power": 1.25,
+          "relative_spread": 0.035268015697325364
+        },
+        {
+          "mean_C": 0.02863483971508293,
+          "power": 1.5,
+          "relative_spread": 0.036635429867506224
+        },
+        {
+          "mean_C": 0.0022343414320720465,
+          "power": 1.0,
+          "relative_spread": 0.03862477470487957
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.02892279453949833,
+        "power": 1.5,
+        "relative_spread": 0.044862272774208324
+      },
+      "end": 204,
+      "start": 175,
+      "top_three": [
+        {
+          "mean_C": 0.02892279453949833,
+          "power": 1.5,
+          "relative_spread": 0.044862272774208324
+        },
+        {
+          "mean_C": 0.0077974375279533875,
+          "power": 1.25,
+          "relative_spread": 0.045016151236624606
+        },
+        {
+          "mean_C": 0.10729658877967371,
+          "power": 1.75,
+          "relative_spread": 0.04762218269584457
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.0077308548455837945,
+        "power": 1.25,
+        "relative_spread": 0.04221589868158118
+      },
+      "end": 210,
+      "start": 181,
+      "top_three": [
+        {
+          "mean_C": 0.0077308548455837945,
+          "power": 1.25,
+          "relative_spread": 0.04221589868158118
+        },
+        {
+          "mean_C": 0.0020680141059871327,
+          "power": 1.0,
+          "relative_spread": 0.042690892602541164
+        },
+        {
+          "mean_C": 0.028903761576445638,
+          "power": 1.5,
+          "relative_spread": 0.04450526500962079
+        }
+      ]
+    }
+  ]
+}

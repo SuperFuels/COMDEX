@@ -5,21 +5,52 @@ import json
 import os
 import time
 import random
+import shutil
+import tempfile
 from collections import OrderedDict
+from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, Optional
-from fastapi import APIRouter, Body, HTTPException, Request
+from fastapi import APIRouter, Body, HTTPException, Query, Request
 from backend.modules.chain_sim.chain_sim_ledger import get_block
 from .p2p_types import P2PEnvelope
-from .peer_store import add_peer, list_peers, load_peers_from_env
+from .peer_store import add_peer, list_peers, load_peers_from_env, peer_store_status
 from .rate_limit import allow as rl_allow
 from .transport_http import get_json, post_json
+from .peer_discovery import PeerDiscoveryError, SignedPeerDiscoveryStore, trust_anchors_from_env
+from .network_identity import NetworkIdentityStore
+from .nat_relay import (
+    NATRelayError,
+    NATRelayStore,
+    active_transport_private_key,
+    build_relay_operation,
+    enqueue_via_nat_relay,
+    relay_limits_from_env,
+    relay_post,
+    validate_nat_relay_url,
+    verify_relay_operation,
+)
 import asyncio
 import httpx
 from backend.modules.p2p.lane_limiter import LaneLimiter
 from backend.modules.p2p.ingress import get_lanes
-from fastapi.responses import JSONResponse
-from backend.modules.consensus.ingress_validate import validate_vote_payload_or_error
+from fastapi.background import BackgroundTasks
+from fastapi.responses import FileResponse, JSONResponse
+from backend.modules.consensus.ingress_validate import (
+    validate_qc_dict_or_error,
+    validate_vote_payload_or_error,
+)
+from backend.modules.chain_sim.ledger_snapshot import (
+    LedgerSnapshotError,
+    SNAPSHOT_MEDIA_TYPE,
+    export_current_finalized_snapshot,
+)
+from .network_participation import participation_from_env
+from backend.modules.consensus.protocol_upgrade import (
+    ProtocolUpgradeError,
+    local_protocol_advertisement,
+    normalize_protocol_advertisement,
+)
 
 _LIM = get_lanes()
 
@@ -90,6 +121,23 @@ _SELF_VAL_ID = (os.getenv("GLYPHCHAIN_SELF_VAL_ID", "") or "").strip()
 _BASE_URL = (os.getenv("GLYPHCHAIN_BASE_URL", "") or "http://127.0.0.1:8080").strip().rstrip("/")
 _SELF_PRIVKEY_HEX = (os.getenv("GLYPHCHAIN_P2P_PRIVKEY_HEX", "") or "").strip().lower()
 _SELF_PUBKEY_HEX = ""  # lazily derived
+_DISCOVERY_STORE: SignedPeerDiscoveryStore | None = None
+_NETWORK_IDENTITY_STORE: NetworkIdentityStore | None = None
+_NAT_RELAY_STORE: NATRelayStore | None = None
+_NAT_NONCES: "OrderedDict[str, int]" = OrderedDict()
+_NAT_NONCES_LOCK = Lock()
+
+
+def _local_protocol() -> dict[str, Any]:
+    finalized = 0
+    try:
+        if get_engine is not None:
+            finalized = int(get_engine().status().get("finalized_height") or 0)
+    except Exception:
+        pass
+    return local_protocol_advertisement(
+        chain_id=_CHAIN_ID, node_id=_NODE_ID, finalized_height=finalized,
+    )
 
 
 from backend.modules.consensus.validator_set import ValidatorSet  # adjust path if different
@@ -101,23 +149,38 @@ from .crypto_ed25519 import (
 )
 
 def _self_pubkey_hex() -> str:
-    global _SELF_PUBKEY_HEX
-    if _SELF_PUBKEY_HEX:
-        return _SELF_PUBKEY_HEX
-    if not _SELF_PRIVKEY_HEX:
+    priv_hex = _active_transport_private_key_hex()
+    if not priv_hex:
         return ""
     try:
         from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
         from cryptography.hazmat.primitives import serialization
-        sk = bytes.fromhex(_SELF_PRIVKEY_HEX)
+        sk = bytes.fromhex(priv_hex)
         pk = Ed25519PrivateKey.from_private_bytes(sk).public_key()
-        _SELF_PUBKEY_HEX = pk.public_bytes(
+        return pk.public_bytes(
             encoding=serialization.Encoding.Raw,
             format=serialization.PublicFormat.Raw,
         ).hex()
-        return _SELF_PUBKEY_HEX
     except Exception:
         return ""
+
+
+def _managed_network_identity_store() -> NetworkIdentityStore | None:
+    global _NETWORK_IDENTITY_STORE
+    configured = str(os.getenv("GLYPHCHAIN_NETWORK_KEY_DIR", "") or "").strip()
+    if not configured:
+        return None
+    if _NETWORK_IDENTITY_STORE is None:
+        _NETWORK_IDENTITY_STORE = NetworkIdentityStore(configured, chain_id=_CHAIN_ID, node_id=_NODE_ID)
+    return _NETWORK_IDENTITY_STORE
+
+
+def _active_transport_private_key_hex() -> str:
+    configured = (_SELF_PRIVKEY_HEX or "").strip().lower()
+    if configured:
+        return configured
+    store = _managed_network_identity_store()
+    return store.active_private_key_hex() if store is not None else ""
 
 def _env_truthy(name: str, default: str = "0") -> bool:
     return (os.getenv(name, default) or "").strip().lower() in ("1", "true", "yes", "on")
@@ -131,7 +194,124 @@ def _env_is_set(name: str) -> bool:
 
 def _has_local_p2p_identity() -> bool:
     # If we don't have a privkey, we can't sign HELLO/consensus anyway.
-    return bool((_SELF_PRIVKEY_HEX or "").strip())
+    return bool(_active_transport_private_key_hex())
+
+
+def _signed_discovery_store() -> SignedPeerDiscoveryStore:
+    global _DISCOVERY_STORE
+    if _DISCOVERY_STORE is not None:
+        return _DISCOVERY_STORE
+    root = str(os.getenv("GLYPHCHAIN_DISCOVERY_DIR", "") or "").strip()
+    if not root:
+        from pathlib import Path
+        root = str(Path(str(os.getenv("GLYPHCHAIN_STATE_DIR", "") or ".glyphchain_state")) / "peer-discovery")
+    _DISCOVERY_STORE = SignedPeerDiscoveryStore(
+        root, chain_id=_CHAIN_ID, trust_anchors=trust_anchors_from_env(),
+        allow_private_addresses=_env_truthy("GLYPHCHAIN_DISCOVERY_ALLOW_PRIVATE", "0"),
+    )
+    return _DISCOVERY_STORE
+
+
+def _install_discovered_peers(store: SignedPeerDiscoveryStore) -> int:
+    installed = 0
+    for peer in store.active_peers():
+        if peer["node_id"] == _NODE_ID:
+            continue
+        add_peer(
+            peer["base_url"], peer["node_id"], peer.get("val_id"), peer["role"],
+            relay_url=peer.get("relay_url"),
+        )
+        set_peer_identity(
+            node_id=peer["node_id"], base_url=peer["base_url"], val_id=peer.get("val_id"),
+            pubkey_hex=peer["pubkey_hex"], hello_ok=False,
+        )
+        installed += 1
+    return installed
+
+
+def _nat_relay_store() -> NATRelayStore:
+    global _NAT_RELAY_STORE
+    if _NAT_RELAY_STORE is None:
+        root = str(os.getenv("GLYPHCHAIN_NAT_RELAY_DIR", "") or "").strip()
+        if not root:
+            root = str(Path(str(os.getenv("GLYPHCHAIN_STATE_DIR", "") or ".glyphchain_state")) / "nat-relay")
+        _NAT_RELAY_STORE = NATRelayStore(root, chain_id=_CHAIN_ID, limits=relay_limits_from_env())
+    return _NAT_RELAY_STORE
+
+
+def _require_nat_relay_role() -> dict[str, Any]:
+    participation = participation_from_env()
+    if str(participation.get("role") or "light") not in {"relay", "validator"}:
+        raise HTTPException(status_code=403, detail="nat_relay_service_requires_relay_or_validator_role")
+    if participation.get("capabilities", {}).get("relay_messages") is not True:
+        raise HTTPException(status_code=403, detail="nat_relay_message_capability_not_approved")
+    return participation
+
+
+def _remember_nat_nonce(node_id: str, nonce: str, issued_at_ms: int) -> None:
+    try:
+        _nat_relay_store().remember_operation_nonce(
+            node_id=node_id,
+            nonce=nonce,
+            issued_at_ms=issued_at_ms,
+        )
+    except NATRelayError as exc:
+        detail = str(exc)
+        status = 409 if detail == "nat_relay_operation_replayed" else 503
+        raise HTTPException(status_code=status, detail=detail) from exc
+
+
+def _verify_nat_operation(body: Dict[str, Any], expected_operation: str) -> tuple[dict[str, Any], Any]:
+    _require_nat_relay_role()
+    node_id = str(body.get("node_id") or "").strip()
+    peer = get_peer_by_node_id(node_id)
+    pubkey = str(getattr(peer, "pubkey_hex", "") or "").strip().lower() if peer else ""
+    if peer is None or not bool(getattr(peer, "hello_ok", False)) or not pubkey:
+        raise HTTPException(status_code=403, detail="nat_relay_peer_requires_verified_hello")
+    try:
+        verified = verify_relay_operation(body, expected_chain_id=_CHAIN_ID, public_key_hex=pubkey)
+    except NATRelayError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    if verified["operation"] != expected_operation:
+        raise HTTPException(status_code=400, detail="nat_relay_operation_route_mismatch")
+    _rl_or_429(node_id, _approx_bytes(body))
+    _remember_nat_nonce(node_id, str(verified["nonce"]), int(verified["issued_at_ms"]))
+    return verified, peer
+
+
+def _nat_relay_url() -> str:
+    configured = str(os.getenv("GLYPHCHAIN_NAT_RELAY_URL", "") or "").strip()
+    if not configured:
+        return ""
+    return validate_nat_relay_url(
+        configured,
+        allow_insecure=_env_truthy("GLYPHCHAIN_NAT_ALLOW_INSECURE", "0"),
+    )
+
+
+def _make_local_hello_envelope(*, is_reply: bool = False) -> dict[str, Any] | None:
+    from backend.modules.p2p.crypto_ed25519 import sign_ed25519
+    private = active_transport_private_key(chain_id=_CHAIN_ID, node_id=_NODE_ID)
+    public = _self_pubkey_hex()
+    base_url = _local_base_url()
+    if not private or not public or not base_url:
+        return None
+    protocol = _local_protocol()
+    message = canonical_hello_sign_bytes(
+        chain_id=_CHAIN_ID, node_id=_NODE_ID, val_id=(_SELF_VAL_ID or None),
+        base_url=base_url, pubkey_hex=public, protocol=protocol,
+    )
+    return {
+        "type": "HELLO", "from_node_id": _NODE_ID,
+        "from_val_id": (_SELF_VAL_ID or None), "chain_id": _CHAIN_ID,
+        "ts_ms": float(time.time() * 1000), "hops": 0,
+        "base_url": base_url,
+        "payload": {
+            "base_url": base_url, "val_id": _SELF_VAL_ID, "role": "peer",
+            "pubkey_hex": public, "sig_hex": sign_ed25519(private, message),
+            "is_reply": bool(is_reply), "via_nat_relay": True, "protocol": protocol,
+        },
+    }
 
 def _require_signed_consensus() -> bool:
     # If explicitly configured, obey env; else require only when identity exists.
@@ -247,6 +427,26 @@ def _enforce_peer_binding(request: Request, env: P2PEnvelope, *, lane: str = "co
     if stored_val and (env.from_val_id or "").strip() != stored_val:
         raise HTTPException(status_code=403, detail="from_val_id mismatch vs registered peer")
 
+    if lane == "consensus":
+        local_protocol = _local_protocol()
+        require_protocol = (
+            _env_truthy("GLYPHCHAIN_REQUIRE_PROTOCOL_NEGOTIATION", "0")
+            or int(local_protocol.get("active_version") or 1) > 1
+        )
+        peer_protocol = dict(getattr(p, "protocol", {}) or {})
+        if require_protocol and not peer_protocol:
+            raise HTTPException(status_code=403, detail="peer protocol advertisement required")
+        if peer_protocol:
+            try:
+                peer_protocol = normalize_protocol_advertisement(peer_protocol)
+            except ProtocolUpgradeError as exc:
+                raise HTTPException(status_code=403, detail=str(exc)) from exc
+            if int(peer_protocol.get("active_version") or 0) != int(local_protocol.get("active_version") or 0):
+                raise HTTPException(status_code=409, detail="peer active protocol version mismatch")
+            local_plan = str(local_protocol.get("plan_id") or "")
+            if local_plan and str(peer_protocol.get("plan_id") or "") != local_plan:
+                raise HTTPException(status_code=409, detail="peer protocol upgrade plan mismatch")
+
 def _require_signed_p2p() -> bool:
     # simplest: reuse the same switch you already use for consensus
     return _require_signed_consensus()
@@ -301,7 +501,7 @@ async def _send_hello(to_base_url: str, *, is_reply: bool = False) -> None:
     node_id  = (_NODE_ID or "").strip()
     val_id   = (_SELF_VAL_ID or "").strip()
     base_url = (_BASE_URL or "").strip().rstrip("/")
-    priv_hex = (_SELF_PRIVKEY_HEX or "").strip().lower()
+    priv_hex = _active_transport_private_key_hex()
 
     to_base_url = (to_base_url or "").strip().rstrip("/")
     if not to_base_url:
@@ -314,12 +514,13 @@ async def _send_hello(to_base_url: str, *, is_reply: bool = False) -> None:
     if not pub_hex:
         return
 
+    protocol = _local_protocol()
     msg = canonical_hello_sign_bytes(
         chain_id=chain_id,
         node_id=node_id,
         val_id=(val_id or None),
         base_url=base_url,
-        pubkey_hex=pub_hex,
+        pubkey_hex=pub_hex, protocol=protocol,
     )
     sig_hex = sign_ed25519(priv_hex, msg)
 
@@ -336,6 +537,7 @@ async def _send_hello(to_base_url: str, *, is_reply: bool = False) -> None:
             "pubkey_hex": pub_hex,
             "sig_hex": sig_hex,
             "is_reply": bool(is_reply),
+            "protocol": protocol,
         },
         "hops": 0,
     }
@@ -355,7 +557,40 @@ async def _send_hello(to_base_url: str, *, is_reply: bool = False) -> None:
     for i in range(max(1, attempts)):
         try:
             async with httpx.AsyncClient(timeout=4.0) as c:
-                await c.post(url, json=env, headers=headers)
+                response = await c.post(url, json=env, headers=headers)
+            if response.status_code != 200:
+                raise RuntimeError(f"hello_http_{response.status_code}")
+            try:
+                result = response.json()
+            except Exception:
+                result = None
+            responder = result.get("responder") if isinstance(result, dict) else None
+            if isinstance(responder, dict):
+                responder_payload = dict(responder.get("payload") or {})
+                responder_node = str(responder.get("from_node_id") or "").strip()
+                responder_val = responder.get("from_val_id") or responder_payload.get("val_id") or None
+                responder_base = str(responder.get("base_url") or responder_payload.get("base_url") or to_base_url).strip().rstrip("/")
+                responder_public = str(responder_payload.get("pubkey_hex") or "").strip().lower()
+                responder_signature = str(responder_payload.get("sig_hex") or "").strip().lower()
+                responder_protocol = responder_payload.get("protocol") if isinstance(responder_payload.get("protocol"), dict) else None
+                expected = get_peer_by_node_id(responder_node)
+                expected_public = str(getattr(expected, "pubkey_hex", "") or "").strip().lower() if expected else ""
+                signed = canonical_hello_sign_bytes(
+                    chain_id=chain_id, node_id=responder_node,
+                    val_id=(str(responder_val).strip() if responder_val else None),
+                    base_url=responder_base, pubkey_hex=responder_public, protocol=responder_protocol,
+                )
+                if (
+                    responder_node and responder_public and responder_signature
+                    and (not expected_public or expected_public == responder_public)
+                    and (expected_public or not _env_truthy("GLYPHCHAIN_REQUIRE_SIGNED_DISCOVERY", "0"))
+                    and verify_ed25519(responder_public, responder_signature, signed)
+                ):
+                    set_peer_identity(
+                        node_id=responder_node, base_url=responder_base,
+                        val_id=(str(responder_val).strip() if responder_val else None),
+                        pubkey_hex=responder_public, hello_ok=True, protocol=responder_protocol,
+                    )
             return
         except Exception:
             if i >= attempts - 1:
@@ -647,6 +882,15 @@ def _resp_cache_set(peer_key: str, env: P2PEnvelope, resp: Dict[str, Any]) -> No
 async def _p2p_bootstrap_hello() -> None:
     try:
         load_peers_from_env()
+        raw_records = str(os.getenv("GLYPHCHAIN_BOOTSTRAP_RECORDS_JSON", "") or "").strip()
+        if raw_records:
+            records = json.loads(raw_records)
+            if not isinstance(records, list):
+                raise PeerDiscoveryError("bootstrap_records_json_invalid")
+            discovery = _signed_discovery_store()
+            for record in records:
+                discovery.import_record(record)
+            _install_discovered_peers(discovery)
     except Exception:
         return
 
@@ -663,6 +907,8 @@ async def _p2p_bootstrap_hello() -> None:
                     base = (p.base_url or "").strip().rstrip("/")
                     if not base:
                         continue
+                    if str(getattr(p, "relay_url", "") or "").strip():
+                        continue
                     if base == (_BASE_URL or "").strip().rstrip("/"):
                         continue
                     await _send_hello(base, is_reply=False)
@@ -672,6 +918,135 @@ async def _p2p_bootstrap_hello() -> None:
             return
 
     # ✅ do NOT block FastAPI startup
+    asyncio.create_task(_run())
+
+
+_NAT_LOCAL_ROUTES = {
+    "HELLO": "/api/p2p/hello",
+    "TX_RELAY": "/api/p2p/tx_relay",
+    "BLOCK_ANNOUNCE": "/api/p2p/block_announce",
+    "PROPOSAL": "/api/p2p/proposal",
+    "VOTE": "/api/p2p/vote",
+}
+
+
+async def _nat_relay_broadcast_hello(relay_url: str) -> int:
+    envelope = _make_local_hello_envelope(is_reply=False)
+    if envelope is None:
+        return 0
+    sent = 0
+    for peer in list_peers():
+        target = str(getattr(peer, "node_id", "") or "").strip()
+        base = str(getattr(peer, "base_url", "") or "").strip().rstrip("/")
+        role = str(getattr(peer, "role", "") or "").strip().lower()
+        if not target or target == _NODE_ID or (base == relay_url and role in {"relay", "validator"}):
+            continue
+        try:
+            await enqueue_via_nat_relay(
+                relay_url=relay_url, chain_id=_CHAIN_ID, from_node_id=_NODE_ID,
+                target_node_id=target, envelope=envelope, ttl_ms=120_000,
+            )
+            sent += 1
+        except Exception:
+            continue
+    return sent
+
+
+async def _nat_relay_pull_once(relay_url: str) -> dict[str, int]:
+    private = active_transport_private_key(chain_id=_CHAIN_ID, node_id=_NODE_ID)
+    if not private:
+        raise NATRelayError("nat_relay_transport_identity_required")
+    pull = build_relay_operation(
+        operation="PULL", chain_id=_CHAIN_ID, node_id=_NODE_ID,
+        private_key_hex=private,
+        payload={"limit": relay_limits_from_env().pull_batch},
+    )
+    result = await relay_post(
+        relay_url=relay_url, route="/api/p2p/nat/pull", operation=pull,
+        timeout_s=10.0,
+    )
+    payload = result.get("json")
+    if result.get("status") != 200 or not isinstance(payload, dict) or payload.get("ok") is not True:
+        raise NATRelayError(f"nat_relay_pull_failed:{result.get('status')}")
+    acknowledged: list[str] = []
+    delivered = rejected = 0
+    for item in payload.get("messages") or []:
+        if not isinstance(item, dict) or not isinstance(item.get("envelope"), dict):
+            continue
+        envelope = dict(item["envelope"])
+        message_type = str(envelope.get("type") or "").strip().upper()
+        route = _NAT_LOCAL_ROUTES.get(message_type)
+        relay_id = str(item.get("relay_id") or "").strip()
+        if not route or not relay_id:
+            acknowledged.append(relay_id)
+            rejected += 1
+            continue
+        sender = str(envelope.get("from_node_id") or "").strip()
+        sender_val = str(envelope.get("from_val_id") or "").strip()
+        try:
+            local = await post_json(
+                _local_base_url(), route, envelope, timeout_s=15.0,
+                add_p2p_headers=True, p2p_from_node_id=sender,
+                p2p_from_val_id=sender_val, p2p_chain_id=_CHAIN_ID,
+            )
+            status = int(local.get("status") or 0)
+            if 200 <= status < 500 and status != 429:
+                acknowledged.append(relay_id)
+                delivered += int(status < 300)
+                rejected += int(status >= 300)
+        except Exception:
+            continue
+    if acknowledged:
+        ack = build_relay_operation(
+            operation="ACK", chain_id=_CHAIN_ID, node_id=_NODE_ID,
+            private_key_hex=private, payload={"relay_ids": acknowledged},
+        )
+        response = await relay_post(
+            relay_url=relay_url, route="/api/p2p/nat/ack", operation=ack,
+            timeout_s=8.0,
+        )
+        if response.get("status") != 200:
+            raise NATRelayError(f"nat_relay_ack_failed:{response.get('status')}")
+    return {"received": len(payload.get("messages") or []), "delivered": delivered, "rejected": rejected}
+
+
+@router.on_event("startup")
+async def _p2p_nat_relay_client() -> None:
+    try:
+        relay_url = _nat_relay_url()
+    except NATRelayError:
+        return
+    if not relay_url:
+        return
+
+    async def _run() -> None:
+        poll_seconds = max(0.25, min(30.0, float(os.getenv("GLYPHCHAIN_NAT_POLL_SECONDS", "1") or 1)))
+        last_hello = 0.0
+        while True:
+            try:
+                relay_peer = next((
+                    peer for peer in list_peers()
+                    if str(getattr(peer, "base_url", "") or "").strip().rstrip("/") == relay_url
+                    and str(getattr(peer, "role", "") or "").lower() in {"relay", "validator"}
+                ), None)
+                if relay_peer is None or not str(getattr(relay_peer, "pubkey_hex", "") or "").strip():
+                    await asyncio.sleep(poll_seconds)
+                    continue
+                await _send_hello(relay_url, is_reply=False)
+                if not bool(getattr(get_peer_by_node_id(relay_peer.node_id), "hello_ok", False)):
+                    await asyncio.sleep(poll_seconds)
+                    continue
+                now = time.monotonic()
+                if now - last_hello >= 30.0:
+                    await _nat_relay_broadcast_hello(relay_url)
+                    last_hello = now
+                await _nat_relay_pull_once(relay_url)
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                pass
+            await asyncio.sleep(poll_seconds)
+
     asyncio.create_task(_run())
 # -----------------------------------------------------------------------------
 # routes
@@ -684,17 +1059,21 @@ async def p2p_peers() -> Dict[str, Any]:
         "ok": True,
         "node_id": _NODE_ID,
         "chain_id": _CHAIN_ID,
+        "storage": peer_store_status(),
         "peers": [p.model_dump() for p in list_peers()],
     }
 
 
 @router.post("/connect")
 async def p2p_connect(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    if _env_truthy("GLYPHCHAIN_REQUIRE_SIGNED_DISCOVERY", "0"):
+        raise HTTPException(status_code=403, detail="unsigned peer connect disabled; import a signed discovery record")
     load_peers_from_env()
     base_url = str(body.get("base_url") or body.get("url") or "").strip()
     node_id = str(body.get("node_id") or "").strip()
     val_id = body.get("val_id")
     role = str(body.get("role") or "peer")
+    relay_url = str(body.get("relay_url") or "").strip() or None
     if not base_url or not node_id:
         raise HTTPException(status_code=400, detail="base_url and node_id required")
 
@@ -703,10 +1082,11 @@ async def p2p_connect(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
         node_id=node_id,
         val_id=(str(val_id) if val_id is not None else None),
         role=role,
+        relay_url=relay_url,
     )
 
     # ✅ NEW: on connect, initiate HELLO so we can accept SYNC_RESP from them.
-    if base_url and base_url.rstrip("/") != _BASE_URL.rstrip("/"):
+    if base_url and not relay_url and base_url.rstrip("/") != _BASE_URL.rstrip("/"):
         asyncio.create_task(_send_hello(base_url, is_reply=False))
 
     return {"ok": True, "added": True, "peer": p.model_dump()}
@@ -731,18 +1111,36 @@ async def p2p_hello(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str,
     pubkey_hex = str(payload.get("pubkey_hex") or "").strip().lower()
     sig_hex = str(payload.get("sig_hex") or "").strip().lower()
     is_reply = bool(payload.get("is_reply"))
+    protocol = payload.get("protocol") if isinstance(payload.get("protocol"), dict) else None
 
     if not base_url or not node_id:
         raise HTTPException(status_code=400, detail="base_url and from_node_id required")
     if not pubkey_hex or not sig_hex:
         raise HTTPException(status_code=400, detail="payload.pubkey_hex and payload.sig_hex required")
+    if protocol is not None:
+        try:
+            protocol = normalize_protocol_advertisement(protocol)
+        except ProtocolUpgradeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if _env_truthy("GLYPHCHAIN_REQUIRE_PROTOCOL_NEGOTIATION", "0") and protocol is None:
+        raise HTTPException(status_code=403, detail="HELLO protocol advertisement required")
+
+    expected_peer = get_peer_by_node_id(node_id)
+    expected_pubkey = (
+        str(getattr(expected_peer, "pubkey_hex", "") or "").strip().lower()
+        if expected_peer is not None else ""
+    )
+    if expected_pubkey and expected_pubkey != pubkey_hex:
+        raise HTTPException(status_code=403, detail="HELLO public key differs from trusted peer binding")
+    if _env_truthy("GLYPHCHAIN_REQUIRE_SIGNED_DISCOVERY", "0") and not expected_pubkey:
+        raise HTTPException(status_code=403, detail="HELLO peer is not present in signed discovery")
 
     msg = canonical_hello_sign_bytes(
         chain_id=_CHAIN_ID,
         node_id=node_id,
         val_id=(str(val_id).strip() if val_id is not None else None),
         base_url=base_url,
-        pubkey_hex=pubkey_hex,
+        pubkey_hex=pubkey_hex, protocol=protocol,
     )
     if not verify_ed25519(pubkey_hex, sig_hex, msg):
         raise HTTPException(status_code=403, detail="HELLO signature invalid")
@@ -761,6 +1159,7 @@ async def p2p_hello(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str,
         val_id=(str(val_id).strip() if val_id is not None else None),
         pubkey_hex=pubkey_hex,
         hello_ok=True,
+        protocol=protocol,
     )
 
     # **CRITICAL**: reply once so both sides become hello_ok (restart-safe)
@@ -772,11 +1171,14 @@ async def p2p_hello(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str,
         "added": True,
         "peer": p.model_dump(),
         "peers": [x.model_dump() for x in list_peers()],
+        "responder": _make_local_hello_envelope(is_reply=True),
     }
 
 
 @router.post("/refresh")
 async def p2p_refresh(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    if _env_truthy("GLYPHCHAIN_REQUIRE_SIGNED_DISCOVERY", "0"):
+        raise HTTPException(status_code=403, detail="unsigned peer refresh disabled; use signed discovery refresh")
     load_peers_from_env()
     target = str(body.get("base_url") or body.get("url") or "").strip().rstrip("/")
     if not target:
@@ -801,14 +1203,122 @@ async def p2p_refresh(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
             node_id=node_id,
             val_id=(str(pj.get("val_id")) if pj.get("val_id") is not None else None),
             role=str(pj.get("role") or "peer"),
+            relay_url=(str(pj.get("relay_url") or "").strip() or None),
         )
         merged += 1
 
         # ✅ NEW: proactively HELLO newly learned peers so we can accept SYNC_RESP, etc.
-        if base_url and base_url.rstrip("/") != _BASE_URL.rstrip("/"):
+        if base_url and not str(pj.get("relay_url") or "").strip() and base_url.rstrip("/") != _BASE_URL.rstrip("/"):
             asyncio.create_task(_send_hello(base_url, is_reply=False))
 
     return {"ok": True, "merged": merged, "peers": [p.model_dump() for p in list_peers()]}
+
+
+@router.get("/discovery/records")
+async def p2p_discovery_records() -> Dict[str, Any]:
+    try:
+        store = _signed_discovery_store()
+        return {"ok": True, "records": store.active_records(), "status": store.status()}
+    except PeerDiscoveryError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@router.post("/discovery/import")
+async def p2p_discovery_import(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    try:
+        store = _signed_discovery_store()
+        result = store.import_record(body)
+        installed = _install_discovered_peers(store)
+        return {"ok": True, **result, "installed_peer_count": installed, "status": store.status()}
+    except PeerDiscoveryError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/discovery/refresh")
+async def p2p_discovery_refresh(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    target = str(body.get("base_url") or body.get("url") or "").strip().rstrip("/")
+    known = {str(peer.base_url or "").strip().rstrip("/") for peer in list_peers()}
+    if not target or target not in known:
+        raise HTTPException(status_code=403, detail="discovery refresh target is not an existing peer")
+    upstream = await get_json(target, "/api/p2p/discovery/records", timeout_s=8.0)
+    payload = upstream.get("json") or {}
+    if not isinstance(payload, dict) or payload.get("ok") is not True or not isinstance(payload.get("records"), list):
+        raise HTTPException(status_code=502, detail="signed discovery fetch failed")
+    try:
+        store = _signed_discovery_store()
+        accepted = duplicates = 0
+        for record in payload["records"]:
+            result = store.import_record(record)
+            accepted += int(bool(result.get("accepted")))
+            duplicates += int(bool(result.get("duplicate")))
+        installed = _install_discovered_peers(store)
+        return {"ok": True, "accepted": accepted, "duplicates": duplicates,
+                "installed_peer_count": installed, "status": store.status()}
+    except PeerDiscoveryError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/nat/put")
+async def p2p_nat_put(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    verified, _peer = _verify_nat_operation(body, "PUT")
+    target_node_id = str(verified.get("target_node_id") or "").strip()
+    target = get_peer_by_node_id(target_node_id)
+    if (
+        target is None or bool(getattr(target, "banned", False))
+        or not str(getattr(target, "pubkey_hex", "") or "").strip()
+    ):
+        raise HTTPException(status_code=403, detail="nat_relay_target_not_in_trusted_peer_registry")
+    try:
+        result = _nat_relay_store().put(
+            from_node_id=verified["node_id"],
+            target_node_id=target_node_id,
+            envelope=dict(verified.get("envelope") or {}),
+            ttl_ms=int(verified.get("ttl_ms") or 0),
+        )
+    except NATRelayError as exc:
+        status = 429 if str(exc) in {"nat_relay_target_queue_full", "nat_relay_queue_full"} else 422
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
+    return {"ok": True, **result}
+
+
+@router.post("/nat/pull")
+async def p2p_nat_pull(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    verified, _peer = _verify_nat_operation(body, "PULL")
+    try:
+        result = _nat_relay_store().pull(
+            target_node_id=verified["node_id"], limit=int(verified.get("limit") or 0) or None,
+        )
+    except NATRelayError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"ok": True, **result}
+
+
+@router.post("/nat/ack")
+async def p2p_nat_ack(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    verified, _peer = _verify_nat_operation(body, "ACK")
+    relay_ids = verified.get("relay_ids")
+    if not isinstance(relay_ids, list):
+        raise HTTPException(status_code=422, detail="nat_relay_ack_invalid")
+    try:
+        result = _nat_relay_store().ack(
+            target_node_id=verified["node_id"], relay_ids=[str(value) for value in relay_ids],
+        )
+    except NATRelayError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"ok": True, **result}
+
+
+@router.get("/nat/status")
+async def p2p_nat_status() -> Dict[str, Any]:
+    participation = _require_nat_relay_role()
+    return {
+        "ok": True,
+        "role": participation.get("role"),
+        "transport": "outbound_https_polling",
+        "end_to_end_peer_signatures_required": True,
+        "stores_legal_documents": False,
+        "queue": _nat_relay_store().status(),
+    }
 
 
 @router.post("/tx_relay")
@@ -1228,6 +1738,20 @@ async def p2p_consensus_status() -> Dict[str, Any]:
     return st
 
 
+@router.get("/consensus_finality")
+async def p2p_consensus_finality(
+    height: int = Query(..., ge=1),
+    block_id: Optional[str] = Query(None),
+) -> Dict[str, Any]:
+    """Fetch a retained QC/finality receipt without trusting a status summary."""
+    if not _CONSENSUS_OK or get_engine is None:
+        raise HTTPException(status_code=501, detail=f"consensus not available: {_CONSENSUS_ERR}")
+    result = get_engine().finality_receipt(height=height, block_id=block_id)
+    if result.get("found") is not True:
+        raise HTTPException(status_code=404, detail="finality receipt not retained")
+    return result
+
+
 @router.post("/proposal")
 async def p2p_proposal(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, Any]:
     if not _CONSENSUS_OK or get_engine is None or Proposal is None:
@@ -1322,7 +1846,7 @@ async def p2p_proposal(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
             "enqueued": False,
             "dropped": True,
             "reason": str(q.get("reason") or "dropped"),
-            "accepted": True,
+            "accepted": False,
         }
 
     try:
@@ -1350,7 +1874,21 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
     peer_val = (request.headers.get(_P2P_HDR_VAL) or env.from_val_id or "").strip()
     peer_key = peer_val or peer_node or (getattr(request.client, "host", "") or "unknown")
 
-    _rl_or_429(peer_key, _approx_bytes(env.model_dump()))
+    try:
+        _rl_or_429(peer_key, _approx_bytes(env.model_dump()))
+    except HTTPException as exc:
+        if exc.status_code != 429:
+            raise
+        # Votes are one-way gossip.  A bounded, observable drop prevents
+        # retry storms while still ensuring rate-limited work never reaches
+        # signature/model/consensus processing.
+        return {
+            "ok": True,
+            "enqueued": False,
+            "dropped": True,
+            "accepted": False,
+            "reason": "peer_rate_limited",
+        }
     _enforce_peer_binding(request, env)
 
     vset = ValidatorSet.from_env()
@@ -1442,7 +1980,7 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
             "enqueued": False,
             "dropped": True,
             "reason": str(q.get("reason") or "dropped"),
-            "accepted": True,
+            "accepted": False,
         }
 
     # ✅ never 500 (tests require 200/400/403 only)
@@ -1663,6 +2201,66 @@ async def p2p_sync_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
     return resp
 
 
+@router.post("/snapshot_req")
+async def p2p_snapshot_req(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    env: P2PEnvelope = Body(...),
+):
+    """Serve a finality-anchored ledger snapshot to a verified peer.
+
+    Snapshot transport is intentionally unavailable on light nodes and on nodes
+    without a signing identity.  The receiver must still verify the archive
+    against its own independently pinned checkpoint before installation.
+    """
+    if not _CONSENSUS_OK or get_engine is None:
+        raise HTTPException(status_code=501, detail=f"consensus not available: {_CONSENSUS_ERR}")
+    if env.type != "SNAPSHOT_REQ":
+        raise HTTPException(status_code=400, detail="expected type=SNAPSHOT_REQ")
+    if (env.chain_id or "").strip() != _CHAIN_ID:
+        raise HTTPException(status_code=400, detail=f"chain_id mismatch (got={env.chain_id}, want={_CHAIN_ID})")
+    participation = participation_from_env()
+    if str(participation.get("role") or "light") not in {"relay", "validator"}:
+        raise HTTPException(status_code=403, detail="snapshot_service_requires_relay_or_validator_role")
+    if not _has_local_p2p_identity():
+        raise HTTPException(status_code=503, detail="snapshot_service_requires_managed_network_identity")
+    peer_node = (request.headers.get(_P2P_HDR_NODE) or env.from_node_id or "").strip()
+    peer_val = (request.headers.get(_P2P_HDR_VAL) or env.from_val_id or "").strip()
+    peer_key = peer_val or peer_node or (getattr(request.client, "host", "") or "unknown")
+    _rl_or_429(peer_key, _approx_bytes(env.model_dump()))
+    _enforce_peer_binding(request, env, lane="sync")
+    payload = env.payload or {}
+    if not isinstance(payload, dict) or payload.get("want") != "latest_finalized_snapshot":
+        raise HTTPException(status_code=400, detail="snapshot_request_invalid")
+    _verify_sig_or_403(peer_node=peer_node, msg_type="SNAPSHOT_REQ", payload=payload)
+
+    temporary_root = Path(tempfile.mkdtemp(prefix="glyphchain-peer-snapshot-"))
+    output = temporary_root / "ledger.glyphchain-snapshot"
+    try:
+        manifest = await asyncio.to_thread(export_current_finalized_snapshot, output)
+        minimum_height = max(0, int(payload.get("minimum_height") or 0))
+        snapshot_height = int(dict(manifest.get("ledger") or {}).get("height") or 0)
+        if snapshot_height <= minimum_height:
+            raise HTTPException(status_code=409, detail="peer_has_no_newer_finalized_snapshot")
+    except HTTPException:
+        shutil.rmtree(temporary_root, ignore_errors=True)
+        raise
+    except (LedgerSnapshotError, OSError, RuntimeError) as exc:
+        shutil.rmtree(temporary_root, ignore_errors=True)
+        raise HTTPException(status_code=503, detail=f"glyphchain_snapshot_unavailable:{exc}") from exc
+    background_tasks.add_task(shutil.rmtree, temporary_root, True)
+    return FileResponse(
+        output,
+        media_type=SNAPSHOT_MEDIA_TYPE,
+        filename=f"glyphchain-{manifest['snapshot_id'][:16]}-h{snapshot_height}.glyphchain-snapshot",
+        background=background_tasks,
+        headers={
+            "X-GlyphChain-Snapshot-Id": str(manifest["snapshot_id"]),
+            "X-GlyphChain-Snapshot-Height": str(snapshot_height),
+        },
+    )
+
+
 @router.post("/sync_resp")
 async def p2p_sync_resp(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, Any]:
     if not _CONSENSUS_OK or get_engine is None:
@@ -1723,4 +2321,7 @@ async def p2p_sync_resp(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
     out = await asyncio.wait_for(fut, timeout=10.0)
     if not isinstance(out, dict) or out.get("ok") is not True:
         raise HTTPException(status_code=400, detail=str((out or {}).get("error") or "bad sync_resp"))
-    return {"ok": True, "applied": out}
+    # Preserve the engine's response contract at the HTTP boundary.  Wrapping
+    # the whole result under ``applied`` changes a boolean into an object and
+    # makes rejected/conflicting sync data look truthy to clients.
+    return {"ok": True, **out}

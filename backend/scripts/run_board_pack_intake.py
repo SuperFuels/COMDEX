@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # /workspaces/COMDEX/backend/scripts/run_board_pack_intake.py
 from __future__ import annotations
 
@@ -7,7 +8,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 # --- AION Equities modules ---
 from backend.modules.aion_equities.assessment_runtime import AssessmentRuntime
@@ -66,6 +67,11 @@ def _read_text(path: Path) -> str:
 def _write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
+
+
+def _write_json(path: Path, payload: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 # -----------------------------
@@ -146,7 +152,7 @@ def load_openai_client_from_env() -> Any:
     if not api_key:
         raise RuntimeError(
             "Missing OPENAI_API_KEY in environment.\n"
-            "Add it to /workspaces/COMDEX/.env.local as:\n"
+            "Add it to .env.local (project root) as:\n"
             "  OPENAI_API_KEY=sk-...\n"
             "Optionally set:\n"
             "  OPENAI_MODEL=gpt-4.1-mini\n"
@@ -327,7 +333,7 @@ def main() -> None:
     ap.add_argument("--company-ref", required=True, help="e.g. company/ULVR.L")
     ap.add_argument("--fiscal-period", required=True, help="e.g. 2026-Q4")
     ap.add_argument("--source-type", default="board_pack", help="board_pack | quarterly_report | trading_update ...")
-    ap.add_argument("--base-dir", default="/workspaces/COMDEX/.runtime/equities", help="Runtime base dir for stores")
+    ap.add_argument("--base-dir", default=".runtime/equities", help="Runtime base dir for stores")
     ap.add_argument("--brief-id", default="brief/aion_equities_default", help="Operating brief id")
     ap.add_argument("--brief-version", default=None, help="Operating brief version lock (optional)")
     ap.add_argument("--document-type", default="board_pack", help="document_type passed to OpenAI runtime")
@@ -335,6 +341,7 @@ def main() -> None:
     ap.add_argument("--no-autoload", action="store_true", help="Disable autoload text from parsed_text_ref")
     ap.add_argument("--text-file", default=None, help="Path to already-extracted text to skip PDF extraction")
     ap.add_argument("--dump-json", action="store_true", help="Dump full intake JSON to stdout")
+    ap.add_argument("--out", default=None, help="Write full intake JSON to this path (optional)")
 
     ap.add_argument(
         "--disable-phase2",
@@ -348,7 +355,6 @@ def main() -> None:
         help="Max chars of document text to pass into Phase-2 variable spec packet.",
     )
 
-    # Debug knobs (helps you see why nulls happen)
     ap.add_argument(
         "--dump-phase2-response",
         action="store_true",
@@ -357,8 +363,9 @@ def main() -> None:
 
     args = ap.parse_args()
 
-    repo_root = Path("/workspaces/COMDEX")
-    env_path = repo_root / ".env.local"
+    # repo root detection: /workspaces/COMDEX/backend/scripts/run_board_pack_intake.py -> /workspaces/COMDEX
+    repo_root = Path(__file__).resolve().parents[2]
+    env_path = repo_root / "env.local"
     loaded = load_env_file(env_path)
     if loaded:
         print(f"✅ Loaded environment file: {env_path}")
@@ -476,6 +483,8 @@ def main() -> None:
         reference_maintenance_runtime=ref_runtime,
         source_document_store=source_store,
         document_text_base_dir=base_dir,
+        # NOTE: reported metrics backfill is implemented inside OpenAIDocumentIntakeRuntime.
+        # If you want toggles here later, expose args and pass into ctor.
     )
 
     # 5) Run intake
@@ -490,6 +499,12 @@ def main() -> None:
         autoload_document_text=not args.no_autoload,
         fiscal_period_ref=args.fiscal_period,
     )
+
+    # Optional: write full intake JSON to file (so you can jq it)
+    if args.out:
+        out_path = Path(args.out).expanduser().resolve()
+        _write_json(out_path, intake_out)
+        print(f"✅ Wrote intake JSON -> {out_path}")
 
     # 6) Load snapshot for quick sanity
     loader = CompanyIntelligenceSnapshotLoader(
@@ -507,15 +522,29 @@ def main() -> None:
     print("fiscal_period:", args.fiscal_period)
     print("source_document_id:", document_id)
     print("parsed_text_ref:", str(parsed_txt))
-    print("resolved_document_text_len:", intake_out["persisted_objects"].get("resolved_document_text_len"))
-    print("quarter_event_ref:", intake_out["persisted_objects"].get("quarter_event_ref"))
-    print("trigger_map_ref:", intake_out["persisted_objects"].get("trigger_map_ref"))
-    print("variable_watch_ref:", intake_out["persisted_objects"].get("variable_watch_ref"))
-    print("assessment_ref:", intake_out["persisted_objects"].get("assessment_ref"))
-    print("thesis_ref:", intake_out["persisted_objects"].get("thesis_ref"))
+    print("resolved_document_text_len:", (intake_out.get("persisted_objects") or {}).get("resolved_document_text_len"))
+    print("quarter_event_ref:", (intake_out.get("persisted_objects") or {}).get("quarter_event_ref"))
+    print("trigger_map_ref:", (intake_out.get("persisted_objects") or {}).get("trigger_map_ref"))
+    print("variable_watch_ref:", (intake_out.get("persisted_objects") or {}).get("variable_watch_ref"))
+    print("assessment_ref:", (intake_out.get("persisted_objects") or {}).get("assessment_ref"))
+    print("thesis_ref:", (intake_out.get("persisted_objects") or {}).get("thesis_ref"))
 
-    cp = (intake_out.get("mapped_objects") or {}).get("company_profile", {})
-    qs = (intake_out.get("mapped_objects") or {}).get("quarter_summary", {})
+    # Quick visibility into the *new* backfill behavior
+    po = intake_out.get("persisted_objects") or {}
+    if isinstance(po, dict):
+        if "reported_metrics_found" in po:
+            print("reported_metrics_found:", po.get("reported_metrics_found"))
+        if "reported_metrics_applied" in po:
+            print("reported_metrics_applied:", po.get("reported_metrics_applied"))
+        if "reported_metrics_skipped_existing" in po:
+            print("reported_metrics_skipped_existing:", po.get("reported_metrics_skipped_existing"))
+        if "reported_metrics_missing_trigger" in po:
+            print("reported_metrics_missing_trigger:", po.get("reported_metrics_missing_trigger"))
+        if "reported_metrics_reason" in po:
+            print("reported_metrics_reason:", po.get("reported_metrics_reason"))
+
+    cp = (intake_out.get("mapped_objects") or {}).get("company_profile", {}) or {}
+    qs = (intake_out.get("mapped_objects") or {}).get("quarter_summary", {}) or {}
     print("\n--- SUMMARY ---")
     print("company_profile.name:", cp.get("name"))
     print("company_profile.sector:", cp.get("sector"))

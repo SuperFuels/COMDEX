@@ -1,0 +1,420 @@
+% Pilot Fabric Live Companion and Private Continuity
+% Overleaf dependencies: \usepackage{booktabs,array,hyperref}
+% This file is a section intended to be included in the main AION/Pilot document.
+
+\section{Pilot Fabric: Live Companion, Private Continuity, and the Television-to-Agent Wedge}
+\label{sec:pilot-live-companion-private-continuity}
+
+\subsection{Purpose and Product Position}
+
+Pilot Fabric turns an existing television into the room-scale surface of a
+governed household intelligence without requiring a replacement television or
+new proprietary hardware.  The television is the adoption wedge: users first
+encounter Pilot through immediately understandable capabilities such as media
+control, contextual explanation, translation, sport interpretation, games,
+learning, and saving something seen on screen.  The same installed intelligence
+can subsequently continue privately on a phone and, after explicit approval,
+be extended into personal tasks, services, vehicles, contacts, and other homes.
+
+The central product rule is therefore:
+
+\begin{quote}
+The shared television may perceive, explain, prepare, and propose.  Identity,
+private memory, recipients, credentials, purchases, bookings, messages, and
+other consequential actions must cross a private, persona-bound confirmation
+boundary before execution.
+\end{quote}
+
+Pilot Fabric releases 0.22--0.26 establish this boundary across sharing, scene
+explanation, translation, sport interpretation, and programme-to-private
+saving.  They build on the consumer reliability foundation introduced in
+release 0.21: persistent controller addresses, recoverable TV connectivity,
+automatic process recovery, and an isolated runtime that does not overwrite
+COMDEX or AION's existing intelligence files.
+
+\subsection{System Architecture}
+
+The implementation represents one governed intelligence across four different
+surfaces:
+
+\begin{enumerate}
+    \item \textbf{Mother brain.}  A capable computer hosts the cognitive runtime,
+    local speech recognition, local models, policy enforcement, memory, provider
+    adapters, audit ledger, and orchestration loop.
+
+    \item \textbf{Television gateway.}  A restricted television such as an LG
+    webOS device is represented by a signed gateway.  The gateway exposes only
+    discovered and permissioned capabilities, for example observing application
+    state, reading volume, launching an allowlisted surface, or sending bounded
+    navigation controls.  The TV never receives mother-brain secrets.
+
+    \item \textbf{Pilot Canvas.}  A token-protected television web surface
+    displays Pilot experiences, evidence, learning activities, God View, and
+    pairing information.  Contextual answers normally preserve the programme
+    instead of replacing it with a full-screen result.
+
+    \item \textbf{Private phone companion.}  The phone provides the private
+    control and approval boundary.  It displays detailed evidence, identity,
+    recipients, proposed service scopes, saved items, and explicit approval
+    controls.  Requests return to the mother brain; TV pairing keys, COMDEX
+    credentials, and provider secrets are not projected into the phone page.
+\end{enumerate}
+
+The logical data path is:
+
+\begin{center}
+\small
+Shared voice or phone request $\rightarrow$ signed capability check
+$\rightarrow$ bounded live context $\rightarrow$ deterministic/local
+intelligence $\rightarrow$ confidence and evidence validation
+$\rightarrow$ spoken TV response $+$ private phone record
+$\rightarrow$ optional private approval $\rightarrow$ verified receipt.
+\end{center}
+
+Every stage is policy constrained.  A model may propose structured content, but
+it does not directly operate a device or external account.  Device operations
+are issued by deterministic adapters after capability validation.  External
+actions require a persona-bound adapter, an exact private preview, approval, and
+a verifiable outcome receipt.
+
+\subsection{Bounded Live Context and Perception}
+
+An explicit Pilot request opens a bounded live-context window.  The mother
+combines the following permitted evidence:
+
+\begin{itemize}
+    \item current webOS application and audio state;
+    \item a short, in-memory window of locally transcribed dialogue;
+    \item owner-initiated phone-camera OCR and classification;
+    \item structured subtitle, scoreboard, product, location, and scene findings;
+    \item owner corrections associated with the current observation;
+    \item bounded provider metadata, when an official or permitted identifier is
+    available; and
+    \item the current task and device-belief state.
+\end{itemize}
+
+Source images are processed locally and deleted immediately.  Raw microphone
+audio remains ephemeral and is cleared when voice is put to sleep.  The durable
+record contains structured observations, source types, confidence, timestamps,
+and cryptographic hashes rather than retained programme pixels or raw audio.
+Programme dialogue is evidence, never an instruction to Pilot.
+
+A simplified live-context record has the following shape:
+
+\begin{verbatim}
+{
+  "schema_version": "pilot.live.context.v1",
+  "device_state": {"app": "...", "volume": 18},
+  "recent_transcripts": ["bounded local dialogue"],
+  "screen_observation_id": "observation_...",
+  "evidence_types": ["device_state", "dialogue", "owner_capture"],
+  "context_hash": "sha256...",
+  "raw_audio_retained": false,
+  "source_pixels_retained": false
+}
+\end{verbatim}
+
+The context hash binds downstream explanations, translations, Moments, sport
+interpretations, and private-save cards to the evidence used to create them.
+
+\subsection{Pilot Moments and Safe Sharing: Release 0.22}
+
+Pilot Moments provide a rights-aware method for sharing the meaning or evidence
+of something on television without copying protected programme video or audio.
+For example, after completing a live fact-check, the command
+``Pilot, send this fact-check'' prepares a signed card containing the exact
+claim, verdict, confidence, source links, and evidence hash.
+
+Preparation does not send anything.  The recipient is selected only on the
+private phone and is not spoken or displayed on the shared television.  Binding
+a recipient produces an immutable preview hash.  The user must then press a
+separate \emph{Send this exact Moment} control.  Any change to the card or
+recipient invalidates that preview and requires confirmation again.
+
+The Moment lifecycle includes:
+
+\begin{itemize}
+    \item signed evidence and issuer identity;
+    \item private-phone-only recipient selection;
+    \item an exact preview followed by a separate Send decision;
+    \item adapter-gated delivery and a verified delivery receipt;
+    \item an honest \texttt{approved\_pending\_adapter} state when no authorized
+    account is connected;
+    \item 24-hour expiry, replay protection, bounded delivery attempts, and rate
+    limiting;
+    \item revoke, private-data deletion, and abuse reporting; and
+    \item privacy-preserving audits that store recipient hashes rather than raw
+    addresses.
+\end{itemize}
+
+No successful-delivery claim is permitted without a receipt from an authorized
+adapter.  A provider-native timestamp or clip mechanism can later replace the
+context-card fallback where the provider officially permits it.
+
+\subsection{Spoiler-Aware Scene Explanation: Release 0.23}
+
+Pilot distinguishes scene explanation from general web research.  Commands such
+as ``what just happened?'', ``what did they just say?'', and ``explain this scene
+without spoilers'' construct an observed-evidence envelope from recent local
+dialogue, captured subtitles, screen observations, and owner corrections.
+
+Public plot summaries, endings, future events, and unseen character knowledge
+are deliberately excluded.  A local Gemma model may interpret the envelope,
+but its response passes through an independent future-event leakage guard.  If
+the model is unavailable or its result is unsafe, Pilot uses a deterministic
+observed-evidence fallback.  When the evidence is insufficient, Pilot refuses
+to guess and asks for a new observation or a request made immediately after the
+relevant dialogue.
+
+The television keeps playing.  Pilot speaks a short explanation while the
+phone displays the observed facts, confidence, uncertainty, evidence types, and
+record hash.  This capability requires no OpenAI API.
+
+\subsection{Local Live Translation: Release 0.24}
+
+Live Translation selects only the bounded recent line or an explicitly
+requested, owner-captured subtitle.  It supports English, Spanish, French,
+German, Italian, and Portuguese.  The routing order is local Gemma first,
+followed by a deterministic offline phrasebook for supported common expressions;
+it does not silently invoke a paid model.
+
+The model receives a translation-only schema that prohibits explanation,
+continuation, added context, and instruction execution.  A validator outside
+the model requires protected tokens---including numbers, times, and URLs---to
+survive unchanged.  If no reliable local result exists, Pilot states the
+limitation instead of inventing a translation.  A language-appropriate installed
+system voice speaks the short result while playback continues.
+
+One field test translated ``Nos vemos en la estaci\'on a las 8:30'' as ``See you
+at the station at 8:30.''  The time survived independent validation exactly,
+with no internet or paid-AI dependency.
+
+\subsection{Evidence-Bounded Live Sports: Release 0.25}
+
+Live Sports structures teams, scores, and match clocks from the most recent
+owner-captured scoreboard.  It can state which side leads, but labels the score
+as a captured snapshot that may become stale.  Commentary and subtitle cues are
+treated as observations; rule descriptions are separately labelled inference.
+
+A deterministic local rule library covers football offside, handball,
+penalties, fouls, cards, and VAR; basketball travelling and contact; and tennis
+tie-breaks.  Pilot never identifies an unseen player and never claims a referee
+was correct or incorrect merely because a rule matches a named incident.  An
+ambiguous question such as ``explain that referee decision'' is refused when no
+incident cue was captured.  The match remains visible while the detailed score,
+rule, evidence, confidence, and limitation appear privately on the phone.
+
+This release establishes a critical distinction for future live feeds:
+
+\begin{quote}
+Screen and commentary evidence describe what Pilot observed.  Rule knowledge
+explains what a named rule means.  Only an authenticated live-data provider may
+establish current official statistics or event outcomes.
+\end{quote}
+
+\subsection{Programme-to-Private Saving: Release 0.26}
+
+Commands such as ``save this product'', ``remember this recipe'', ``save this
+destination'', ``save this song'', and ``add this idea to my phone'' create a
+short-lived evidence card.  Candidate content is assembled from bounded dialogue,
+the latest screen observation, product or location findings, and provider
+metadata.  Each item contains a category, title, detail, evidence lines,
+confidence, creation and expiry times, and evidence and item hashes.
+
+The shared TV does not know which household persona owns the request.  A pending
+card therefore has no \texttt{persona\_id} and remains in
+\texttt{awaiting\_private\_claim} for at most 30 minutes.  The phone displays the
+card under \emph{Save from TV}.  Only pressing \emph{Save to my Pilot} binds it
+to the active private identity.
+
+\begin{verbatim}
+{
+  "schema_version": "pilot.private-save.v1",
+  "category": "product",
+  "status": "awaiting_private_claim",
+  "persona_id": null,
+  "confidence": 0.91,
+  "evidence_hash": "sha256...",
+  "privacy": {
+    "shared_tv_selected_persona": false,
+    "private_claim_required": true,
+    "purchase_executed": false,
+    "message_sent": false,
+    "raw_audio_retained": false,
+    "source_pixels_retained": false
+  }
+}
+\end{verbatim}
+
+Saved collections are filtered by persona.  Another identity cannot view the
+identity-bound pending record, inspect the saved collection, or delete its
+items.  Saving is deliberately a memory action only: it does not purchase,
+book, message, create a calendar event, or choose an external account.  Those
+operations require a later, separately scoped research and service proposal.
+
+\subsection{Local-First Intelligence Routing}
+
+These capabilities follow the AION Native routing policy:
+
+\begin{enumerate}
+    \item deterministic local capability;
+    \item existing AION knowledge, memory, and governed cognitive runtime;
+    \item an installed local model;
+    \item bounded free or public evidence retrieval;
+    \item optional user-supplied Gemini synthesis or grounding;
+    \item optional premium providers, including OpenAI; and
+    \item an honest limitation.
+\end{enumerate}
+
+Cloud providers improve speed or quality but are not allowed to remove Pilot's
+core usefulness when absent.  Results identify their route, for example
+\emph{AION Local}, \emph{AION plus live public evidence}, or \emph{Pilot Boost}.
+Retrieval, citation validation, contradiction detection, action permission, and
+receipt verification remain outside the generative model.
+
+\subsection{Security, Identity, and Audit Properties}
+
+The releases preserve the following invariants:
+
+\begin{itemize}
+    \item device actions require enrollment and signed capability capsules;
+    \item nodes and gateways possess independent Ed25519 identities;
+    \item capability scope, risk, expiry, sequence, and replay state are checked
+    before execution;
+    \item shared speech cannot select a private persona, recipient, card, calendar,
+    service account, or payment reference;
+    \item provider passwords, tokens, private keys, full card numbers, CVVs, PINs,
+    and raw credentials are rejected from ordinary memory;
+    \item protected programme audio and video are not copied into Moments;
+    \item source phone-camera frames are deleted after local interpretation;
+    \item audit records store bounded metadata and hashes rather than raw private
+    content; and
+    \item the append-only audit chain is verified on every release field test.
+\end{itemize}
+
+The universal-node model permits one installed node to trust multiple mother
+brains through separate stored handshakes and short-lived capability leases.
+Each mother and persona retains isolated preferences, memory, accounts, and
+approvals.  A second resident can reuse a compatible installed node without
+silently inheriting the first resident's private state.
+
+\subsection{Functional Command Surface}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{0.24\linewidth} p{0.68\linewidth}}
+\toprule
+Capability & Example requests \\
+\midrule
+Safe evidence sharing & ``Pilot, send this fact-check''; ``Pilot, share that Moment'' \\
+Scene explanation & ``Pilot, what just happened?''; ``Pilot, explain without spoilers'' \\
+Local translation & ``Pilot, translate that into Spanish''; ``translate that subtitle to English'' \\
+Live sports & ``Pilot, what's the score?''; ``who is winning?''; ``why was that offside?'' \\
+Private saving & ``Pilot, save this product''; ``remember this recipe''; ``add this idea to my phone'' \\
+\bottomrule
+\end{tabular}
+\caption{Live Companion and private-continuity command examples.}
+\label{tab:pilot-live-command-surface}
+\end{table}
+
+\subsection{Verification and Release Evidence}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{0.11\linewidth} p{0.44\linewidth} p{0.14\linewidth} p{0.16\linewidth}}
+\toprule
+Release & Principal capability & Automated checks & Field state \\
+\midrule
+0.22 & Private confirmed Moment sharing & 180 & LG connected \\
+0.23 & Spoiler-aware scene explanation & 182 & LG connected \\
+0.24 & Local validated translation & 186 & LG connected \\
+0.25 & Evidence-bounded sport interpretation & 190 & LG connected \\
+0.26 & Persona-bound programme saving & 195 & LG browser observed; audit valid \\
+\bottomrule
+\end{tabular}
+\caption{Incremental Fabric verification through release 0.26.}
+\label{tab:pilot-fabric-release-evidence}
+\end{table}
+
+Release 0.26 was packaged as
+\texttt{aion-fabric-preview-0.26.0.zip} with SHA-256 digest
+\texttt{680d051c1037049e\allowbreak
+71069b1b2645b6c8\allowbreak
+c2ecf2289fc267e8\allowbreak
+7170791ad22f69ab}.
+The live field check observed the paired LG webOS browser at volume 18, verified
+the audit chain, and confirmed that the persistent private phone connection
+survived the upgrade.  Existing COMDEX intelligence remained untouched.
+
+\subsection{Remaining Engineering Roadmap}
+
+The remaining build order is intentionally strict.
+
+\subsubsection{Pilot Fabric 0.27: Live Event Intelligence}
+
+The next release should connect authenticated sports and live-event feeds for
+scores, fixtures, player statistics, event timelines, elections, concerts, and
+awards.  Provider data must be fused with current screen perception while
+preserving the distinction between an official live fact, a captured screen
+observation, and Pilot's interpretation.  Intended requests include ``who
+scored?'', ``show the statistics'', and ``notify me if it becomes close''.
+
+\subsubsection{Saved-Item Follow-Through}
+
+Privately saved products, recipes, destinations, songs, and ideas should become
+launch points for further work.  Pilot may research, compare, create a shortlist,
+or prepare a task, trip, playlist, shopping proposal, or learning activity.  A
+saved item must not itself authorize a purchase, booking, message, or calendar
+change; each consequential transition requires a new exact scope and private
+approval.
+
+\subsubsection{Verified Entertainment and Navigation}
+
+Pilot should add provider-verified deep links, reliable title search, profile
+selection, playback, and ``continue what I was watching''.  Subscription state
+must be obtained through authorized account adapters rather than inferred from
+search results.  Every third-party operation should implement
+observe--act--observe--verify, automatic recovery, alternative paths, duplicate
+suppression, and per-device memory of successful and failed navigation.
+
+\subsubsection{Production Perception and Consumer Quality}
+
+The phone observer requires production TLS or a signed native shell, reliable
+reconnection after sleep, multi-frame temporal understanding, and authenticated
+service metadata.  Product completion additionally requires native LG webOS and
+equivalent Samsung and Android/Google TV surfaces, multi-room TV routing, stable
+focus and Back/Home behaviour, better background-dialogue rejection, natural
+selectable voices, interruption and cancellation, automatic updates, crash
+recovery, diagnostics, accessibility review, and child-safety review.
+
+Games should gain controller detection, verified launch, saved shortcuts, and
+``continue last game''.  Learning should add a broader curriculum, licensed
+visuals, pronunciation assessment, parent-visible progress, difficulty bands,
+and additional subjects.
+
+\subsubsection{Personal Pilot and the Natural Network}
+
+After the television experience is dependable, Pilot should introduce native
+signed-phone identity, biometric approvals, memory inspection/correction/export/
+deletion, and cross-device task continuation.  The Life Concierge then connects
+to-dos, reminders, calendars, email, messaging, maps, shopping, booking, music,
+car continuation, and carefully configured emergency support through the
+sequence research--prepare--private review--approve--execute once--verify--receipt.
+
+The final network stage adds privately confirmed contacts, signed Pilot-to-Pilot
+requests, family coordination, shared lists, useful web Moments for non-users,
+and optional invitations.  No request may silently assign a task, disclose a
+location, send a message, make a purchase, or create a booking.  Growth must
+result from a useful artifact and explicit user choice rather than forced
+invitations or dark patterns.
+
+\subsection{Conclusion}
+
+Releases 0.22--0.26 prove more than a collection of television commands.  They
+establish a reusable architecture in which room-scale shared intelligence can
+observe and explain current content, preserve programme playback, continue
+privately on a phone, bind data to the correct identity, and stop before
+consequential execution.  This creates the bridge from a compelling AI-TV
+experience to a general personal agent and, ultimately, a trusted agent network.

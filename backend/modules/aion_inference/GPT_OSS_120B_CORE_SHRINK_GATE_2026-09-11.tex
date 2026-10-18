@@ -1,0 +1,41 @@
+% Standalone append-only section for the AION GPT-OSS 120B technical record.
+\section{Exact Protected-Core Shrink Transfer Gate}
+\label{sec:gptoss120b-core-shrink-20260911}
+
+Additional RAM hotsets had already been falsified because memory pressure slowed
+expert calculation.  The inverse hypothesis was therefore tested: reduce the
+protected request core from 8~GiB to 6~GiB and accept more exact L2 deliveries in
+exchange for additional unified-memory headroom.  The unrestricted top-four
+router, gates, original weights, 36-layer path, exact pool escape, three-touch
+admission, and read/compute overlap were preserved.
+
+On the short arithmetic screen, four matched warm observations gave a median
+1.35598 tokens/s for 6~GiB and 1.27873 tokens/s for 8~GiB, a 6.04\% candidate
+gain.  All token IDs, final hidden states, and logits were bitwise equivalent
+between configurations.  The gain was not free: median L2 delivery increased
+from 15.441~GB to 20.146~GB per pass, or 30.47\%.
+
+The unchanged mechanism then transferred to the frozen extraction family.  To
+respect local capacity, both candidates used independently fresh, identically
+constructed 12~GiB L2 cartridges and the cold first pass was excluded from the
+settled comparison.  The 6~GiB core reached only 0.19713 tokens/s median versus
+0.26809 tokens/s for 8~GiB, a 26.47\% regression.  It delivered 31.418~GB from
+L2 and 6.138~GB from SD at median, compared with 24.877~GB and 2.893~GB for the
+8~GiB control.  Cross-configuration tokens, hidden states, and logits remained
+bitwise equivalent; the failure is performance, not correctness.
+
+Decision: \texttt{STOP\_CORE\_SHRINK\_NOT\_GENERAL}.  Reducing memory pressure
+can slightly accelerate an already-warm, favourable arithmetic route, but the
+smaller protected set exposes too many exact extraction misses.  The 8~GiB core
+remains the cross-family control.  The 12~GiB offline cartridge plan is a
+capacity-constrained experimental aid and is not a promoted replacement for the
+20~GiB cartridge.
+
+During the sweep, three generated L2 cache directories exhausted local storage.
+No evidence was lost: completed JSON results were preserved first, then only the
+reproducible cache contents were deleted, recovering approximately 30~GiB.  The
+extraction transfer likewise used one temporary L2 root at a time and removed it
+after evidence capture.  The cross-family receipt canonical SHA-256 is
+\texttt{7d4c049b9a5a9603cf2b5e70021a9209ff21c37a5c56f43b2ce8d028d3b19090}.
+All source reports, the 12~GiB plan, receipt, and checksum manifest are preserved
+on the SD evidence volume under \texttt{core-shrink-gate-20260911}.

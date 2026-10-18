@@ -1,0 +1,113 @@
+{
+  "backup": {
+    "archive_sha256": "eaebc8f081c898b4dddccee76ba6aef6514fd0f05b1300b57cb894521537a362",
+    "checkpoint_present": true,
+    "file_count": 13,
+    "independent_pin_present": true,
+    "ledger_present": true,
+    "network_identity_recovery_present": true,
+    "raw_private_keys_exposed": false
+  },
+  "checks": {
+    "backup_authenticated_after_creation": true,
+    "backup_excludes_raw_private_keys": true,
+    "checkpoint_restored": true,
+    "clean_restore_requires_restart": true,
+    "clean_restore_verified": true,
+    "consensus_state_restored": true,
+    "delivery_outbox_restored": true,
+    "encrypted_records_authenticated": true,
+    "ledger_integrity_restored": true,
+    "legal_document_restored": true,
+    "legal_matter_restored": true,
+    "legal_template_restored": true,
+    "lost_or_compromised_validator_exercise_passed": true,
+    "matter_audit_chain_valid": true,
+    "network_identity_restored": true,
+    "occupied_restore_rejected": true,
+    "occupied_target_preserved": true,
+    "proof_outbox_restored": true,
+    "raw_legacy_private_key_excluded": true,
+    "restored_ledger_integrity_ok": true,
+    "restored_network_rotation_chain_valid": true,
+    "signing_audit_chain_valid": true,
+    "signing_envelope_restored": true,
+    "tampered_backup_rejected": true,
+    "wrong_password_rejected": true
+  },
+  "claim_boundary": "Local synthetic disaster-recovery and validator-governance exercise; not application-account recovery, representative-device testing, or production approval",
+  "exercise_id": "exercise-legal-glyphchain-dr-001",
+  "finding_owners": [],
+  "findings": [],
+  "generated_at": "2026-09-26T21:34:46.443007Z",
+  "implementation": {
+    "files": [
+      {
+        "bytes": 19009,
+        "path": "backend/scripts/run_glyphchain_legal_disaster_recovery_exercise.py",
+        "sha256": "c482fb6c32bfaf38edca6b3b78bd9fe195389d4e0c0ef1dcc159fc139d6d8835"
+      },
+      {
+        "bytes": 6448,
+        "path": "backend/scripts/run_glyphchain_validator_removal_exercise.py",
+        "sha256": "804ee85cba65827e4842f9f4de4c453ced40878065e6d99532431ec75cf1657c"
+      },
+      {
+        "bytes": 46124,
+        "path": "backend/modules/aion_business/runtime/legal_full_state_backup.py",
+        "sha256": "b3e862e858c4194517cd2e85774ad4ce494ff933961961efd99e3f60dc6df532"
+      },
+      {
+        "bytes": 18010,
+        "path": "backend/modules/consensus/validator_governance.py",
+        "sha256": "bae7e7290cd6913244dda309f417457e60c18b524b967a947a041bcb788f735a"
+      },
+      {
+        "bytes": 15919,
+        "path": "backend/modules/p2p/network_identity.py",
+        "sha256": "d17dfe27ba015215eaf17d08881fa825ce1c511eb31d75b241aa5bee79cefbe9"
+      }
+    ],
+    "files_sha256": "578c1f0ff2b40c1334dcd70fca7f433da409e2994ed7a4d6a72dcce89094d2b9",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3"
+  },
+  "inputs": {
+    "backup_format": "tessaris.legal-glyphchain-full-state.v1",
+    "fixture": "synthetic Legal records, delivery/proof outboxes, ledger, checkpoint and node identity",
+    "validator_exercise_schema": "glyphchain.validator-removal-exercise.v1"
+  },
+  "legal_document_content_present": false,
+  "observed_timings_seconds": {
+    "backup_and_clean_restore": 2.898462,
+    "total": 2.929946,
+    "validator_removal": 0.007081
+  },
+  "participants": [
+    "automated local exercise runner"
+  ],
+  "password_exported": false,
+  "private_keys_exported": false,
+  "report_sha256": "5292954e58104c6f454a00ddb1b9e7e567bef716372ed4ee962cb7f1f849c93e",
+  "result": "PASS",
+  "retest_evidence": {
+    "automated_test": "python -m pytest -q backend/tests/workflow_capsules/test_aion_legal_disaster_recovery_exercise.py",
+    "exercise_command": "python backend/scripts/run_glyphchain_legal_disaster_recovery_exercise.py --output <content-free-report.json>"
+  },
+  "schema_version": "tessaris.legal-glyphchain-disaster-recovery-exercise.v1",
+  "topology": {
+    "external_network_used": false,
+    "recovery": "one synthetic source device, one occupied refusal target, one clean restore target",
+    "validator_governance": "four current validators, one accused validator and one joining replacement"
+  },
+  "validator_exercise": {
+    "checks": {
+      "accused_validator_approval_denied": true,
+      "governance_state_survived_restart": true,
+      "joining_validator_approval_denied": true,
+      "unaffected_current_quorum_finalized_transition": true
+    },
+    "report_sha256": "2666ef0d58a930d5b378b4903e2f3a291b4dcbf32e19e6477c572ad660074938",
+    "result": "PASS"
+  }
+}

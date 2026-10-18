@@ -17,6 +17,9 @@ from pathlib import Path
 from statistics import mean
 from typing import Any, Dict
 
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+from backend.modules.aion_resonance.conversation_memory import MEMORY, ConversationMemory
+
 log = logging.getLogger("comdex")
 
 ENV_DATA_ROOT = "TESSARIS_DATA_ROOT"
@@ -41,10 +44,10 @@ def _data_root() -> Path:
     return _repo_root() / "data"
 
 DATA_ROOT = _data_root()
-DATA_ROOT.mkdir(parents=True, exist_ok=True)
-
 MEMORY_PATH = str(DATA_ROOT / "conversation_memory.json")
 REINFORCE_PATH = str(DATA_ROOT / "phi_reinforce_state.json")
+REINFORCE_ENTITY_ID = "phi_reinforce_state"
+REINFORCE_VAULT = AionLearningVaultStore()
 
 DEFAULT_BASELINE: Dict[str, Any] = {
     "Φ_load": 0.0,
@@ -78,6 +81,33 @@ def _save_json(path: str, data: Any) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
+
+def _load_reinforce_state(
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    state_path: str | Path | None = None,
+) -> Dict[str, Any]:
+    store = vault_store or REINFORCE_VAULT
+    if state_path is None and store.enabled:
+        payload = store.get_state(REINFORCE_ENTITY_ID, dict(DEFAULT_BASELINE))
+        return dict(payload) if isinstance(payload, dict) else dict(DEFAULT_BASELINE)
+    return _load_json(str(state_path or REINFORCE_PATH), dict(DEFAULT_BASELINE))
+
+
+def save_reinforce_state(
+    state: Dict[str, Any],
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    state_path: str | Path | None = None,
+) -> Dict[str, Any]:
+    payload = dict(state)
+    store = vault_store or REINFORCE_VAULT
+    if state_path is None and store.enabled:
+        store.put_state(REINFORCE_ENTITY_ID, payload)
+    else:
+        _save_json(str(state_path or REINFORCE_PATH), payload)
+    return payload
+
 def _truthy_env(key: str, default: str = "0") -> bool:
     return os.getenv(key, default).strip().lower() in {"1", "true", "yes", "y", "on"}
 
@@ -91,14 +121,19 @@ def _round4(x: float) -> float:
 # Baseline Reinforcement
 # ----------------------------------------------------------
 
-def reinforce_from_memory() -> Dict[str, Any]:
+def reinforce_from_memory(
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    conversation_memory: ConversationMemory | None = None,
+    state_path: str | Path | None = None,
+) -> Dict[str, Any]:
     """
     Read recent Φ-memory, compute average coherence / entropy,
     update baseline + belief vector accordingly.
     Prints deltas ONLY if AION_REINFORCE_PRINT=1.
     """
-    memory = _load_json(MEMORY_PATH, [])
-    baseline = _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+    memory = (conversation_memory or MEMORY).load()
+    baseline = _load_reinforce_state(vault_store=vault_store, state_path=state_path)
 
     if not memory:
         return baseline
@@ -133,8 +168,12 @@ def reinforce_from_memory() -> Dict[str, Any]:
         beliefs["clarity"]   = _clamp01(beliefs.get("clarity", 0.5) - 0.005)
 
     baseline["beliefs"] = beliefs
-    baseline["last_update"] = datetime.datetime.utcnow().isoformat()
-    _save_json(REINFORCE_PATH, baseline)
+    baseline["last_update"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    save_reinforce_state(
+        baseline,
+        vault_store=vault_store,
+        state_path=state_path,
+    )
 
     if _truthy_env(ENV_REINFORCE_PRINT, "0"):
         coh_delta = float(baseline["Φ_coherence"]) - float(prev.get("Φ_coherence", 0.0))
@@ -151,7 +190,11 @@ def reinforce_from_memory() -> Dict[str, Any]:
 # Demo breathe tick (optional)
 # ----------------------------------------------------------
 
-def breathe_tick() -> Dict[str, Any]:
+def breathe_tick(
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    state_path: str | Path | None = None,
+) -> Dict[str, Any]:
     """
     Tiny idle-motion for the demo: gently relax Φ fields toward DEFAULT_BASELINE.
     Safe to run in a background loop.
@@ -159,9 +202,9 @@ def breathe_tick() -> Dict[str, Any]:
     If AION_PHI_BREATHE != 1 -> no-op (returns current state).
     """
     if not _truthy_env(ENV_PHI_BREATHE, "0"):
-        return _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+        return _load_reinforce_state(vault_store=vault_store, state_path=state_path)
 
-    state = _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+    state = _load_reinforce_state(vault_store=vault_store, state_path=state_path)
 
     alpha = 0.06
     for k in ("Φ_load", "Φ_flux", "Φ_entropy", "Φ_coherence"):
@@ -169,8 +212,8 @@ def breathe_tick() -> Dict[str, Any]:
         cur = float(state.get(k, tgt))
         state[k] = cur + alpha * (tgt - cur)
 
-    state["last_update"] = datetime.datetime.utcnow().isoformat()
-    _save_json(REINFORCE_PATH, state)
+    state["last_update"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    save_reinforce_state(state, vault_store=vault_store, state_path=state_path)
 
     if _truthy_env(ENV_VERBOSE_LOG, "0"):
         log.info("[phi] breathe tick")
@@ -181,7 +224,12 @@ def breathe_tick() -> Dict[str, Any]:
 # Belief updates (used by feedback loops)
 # ----------------------------------------------------------
 
-def update_beliefs(delta: Dict[str, float]) -> Dict[str, Any]:
+def update_beliefs(
+    delta: Dict[str, float],
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    state_path: str | Path | None = None,
+) -> Dict[str, Any]:
     """
     Incrementally update AION's belief vector in response to feedback.
     Includes decay toward neutral (0.5) and resistance to abrupt jumps.
@@ -191,7 +239,7 @@ def update_beliefs(delta: Dict[str, float]) -> Dict[str, Any]:
       - only emits when something actually changed (epsilon)
       - logs to comdex DEBUG (respects uvicorn log level)
     """
-    state = _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+    state = _load_reinforce_state(vault_store=vault_store, state_path=state_path)
     beliefs = dict((state.get("beliefs") or DEFAULT_BASELINE["beliefs"]))
     before = dict(beliefs)
 
@@ -214,8 +262,8 @@ def update_beliefs(delta: Dict[str, float]) -> Dict[str, Any]:
 
     if changed:
         state["beliefs"] = beliefs
-        state["last_update"] = datetime.datetime.utcnow().isoformat()
-        _save_json(REINFORCE_PATH, state)
+        state["last_update"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        save_reinforce_state(state, vault_store=vault_store, state_path=state_path)
 
         # debug log (won’t show at warning level)
         log.debug("[beliefs] adjusted %s", beliefs)
@@ -229,11 +277,23 @@ def update_beliefs(delta: Dict[str, float]) -> Dict[str, Any]:
 # Public Accessors
 # ----------------------------------------------------------
 
-def get_reinforce_state() -> Dict[str, Any]:
-    return _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+def get_reinforce_state(
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    state_path: str | Path | None = None,
+) -> Dict[str, Any]:
+    return _load_reinforce_state(vault_store=vault_store, state_path=state_path)
 
-def reset_reinforce_state() -> Dict[str, Any]:
-    _save_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+def reset_reinforce_state(
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    state_path: str | Path | None = None,
+) -> Dict[str, Any]:
+    save_reinforce_state(
+        dict(DEFAULT_BASELINE),
+        vault_store=vault_store,
+        state_path=state_path,
+    )
     if _truthy_env(ENV_REINFORCE_PRINT, "0") or _truthy_env(ENV_BELIEF_PRINT, "0"):
         print("[AION Reinforce] Baseline reset to defaults.")
     return dict(DEFAULT_BASELINE)

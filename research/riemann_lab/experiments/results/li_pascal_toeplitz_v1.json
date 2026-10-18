@@ -1,0 +1,71 @@
+{
+  "claim_boundary": "Finite exact-integer verification of a rational coefficient identity. It neither proves the universal identity nor proves/disproves RH.",
+  "coefficient_pairs_checked": 1024,
+  "examples_as_x_coefficient_lists": {
+    "h_1_1": [
+      0,
+      2
+    ],
+    "h_32_32": [
+      0,
+      930856706510522176,
+      465428353255261088,
+      228899190125538240,
+      110634608560676816,
+      52504559994897472,
+      24441777928659168,
+      11148881160441024,
+      4977179089482600,
+      2171859966319680,
+      925051467136160,
+      383983627867840,
+      155070311254320,
+      60811886766400,
+      23108516971232,
+      8488842969024,
+      3006465218196,
+      1023477521088,
+      333742669920,
+      103831052864,
+      30677356528,
+      8561122752,
+      2242198816,
+      546877760,
+      123047496,
+      25240512,
+      4649568,
+      753984,
+      104720,
+      11968,
+      1056,
+      64,
+      2
+    ],
+    "h_3_2": [
+      0,
+      -6,
+      -3,
+      -1
+    ],
+    "h_5_3": [
+      0,
+      30,
+      15,
+      7,
+      3,
+      1
+    ],
+    "h_5_5": [
+      0,
+      140,
+      70,
+      30,
+      10,
+      2
+    ]
+  },
+  "experiment": "exact_pascal_toeplitz_generating_function",
+  "generating_function": "sum_(n,m>=1) h_nm(x) z^n w^m = x*z*w*(2+x*(z+w))/((1+z+w)*(1+x*z)*(1+x*w))",
+  "payload_sha256": "39ce330a7d67ef42fcff042b4a6a3e4d98e67a1c935be7499abf9099ff9c8f52",
+  "verified_square_order": 32
+}

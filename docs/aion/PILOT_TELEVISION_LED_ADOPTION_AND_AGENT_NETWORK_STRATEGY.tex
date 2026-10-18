@@ -1,0 +1,589 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=24mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+
+\definecolor{pilotblue}{HTML}{2368FF}
+\definecolor{pilotgreen}{HTML}{16834A}
+\definecolor{pilotamber}{HTML}{B56A00}
+\definecolor{pilotred}{HTML}{C52F46}
+\newcommand{\Pilot}{\textbf{Pilot}}
+\newcommand{\AION}{\textbf{AION Device Fabric}}
+\newcommand{\decision}[1]{\par\medskip\noindent\colorbox{pilotblue!9}{\parbox{0.95\linewidth}{\textbf{Decided approach.} #1}}\par\medskip}
+
+\title{\textbf{Pilot}\\Television-Led Adoption, Live Intelligence, Moments, and Agent Network Strategy}
+\author{Tessaris / AION Product and Technical Record}
+\date{29 August 2026\\Strategy decision following Fabric version 0.14.0}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document records the decided product and distribution strategy for
+Pilot, the consumer-facing intelligence operating on the AION Device Fabric.
+Pilot will not initially be marketed as a general personal agent, household
+operating system, or abstract artificial-intelligence platform.  Its entry
+product is a highly demonstrable proposition: add conversational intelligence
+to the television a person already owns, without requiring a new television or
+dedicated AI appliance.  Entertainment, games, learning, search, live screen
+intelligence, and moment sharing provide acquisition and immediate delight.
+Once installed, the same governed mother brain becomes useful for reminders,
+messages, calendars, shopping, booking, navigation, device control, safety,
+and person-to-person agent handoffs.  The television is therefore the
+adoption wedge; Pilot Actions creates habit; Pilot Relay creates network
+growth; cross-device continuity creates retention.
+\end{abstract}
+
+\section{Status of this Record}
+
+This is a product decision and implementation direction, not a claim that all
+described capabilities are already complete.  The current Fabric proof has
+already demonstrated discovery and governed control of an existing LG webOS
+television, a mother node, a private phone controller, local voice activation,
+television search and navigation, cloud-gaming composition, an interactive
+learning centre, household persona boundaries, capability capsules, compact
+device updates, and an auditable action chain.  Pilot Live, Pilot Moments,
+cross-household Relay, car continuation, and emergency escalation are the next
+strategic layers and require the additional work identified below.
+
+\decision{The name \emph{Pilot} is the consumer identity and spoken activation
+word.  AION Device Fabric remains the underlying technical substrate,
+governance system, node architecture, memory, and execution boundary.}
+
+\section{Core Product Thesis}
+
+Consumers are unlikely to seek out and install a new ``personal autonomous AI
+agent'' merely because it exists.  That description is abstract and asks for
+trust before demonstrating value.  By contrast, the proposition
+
+\begin{center}
+\Large\textbf{``Add Pilot to the television you already own.''}
+\end{center}
+
+is concrete, visual, inexpensive to understand, and easy to demonstrate to
+another person.  The user first experiences Pilot as an extraordinary upgrade
+to a familiar device.  The broader personal agent emerges through use rather
+than through an onboarding lecture.
+
+\decision{AI television is the primary acquisition product.  It is not a
+distraction from the general agent: it is the mechanism by which the general
+agent enters the home, earns trust, pairs with the phone, learns permitted
+preferences, and becomes available for wider action.}
+
+The product should therefore be positioned in the following order:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Install:} give an existing television Pilot capabilities.
+  \item \textbf{Delight:} demonstrate entertainment control, games, learning,
+        live understanding, search, and social sharing.
+  \item \textbf{Habit:} let the user create reminders, lists, messages,
+        calendar actions, research tasks, and shopping requests naturally.
+  \item \textbf{Expansion:} continue the same identity, memory, and objective
+        on the phone, computer, car, and other authorised nodes.
+  \item \textbf{Network:} let useful moments and structured intents move to
+        other people and their Pilots.
+  \item \textbf{Retention:} preserve trusted context, preferences, completed
+        work, device relationships, and verified service connections.
+\end{enumerate}
+
+\section{The Adoption Funnel}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{19mm}XX@{}}
+\toprule
+Stage & What the user believes they installed & What Pilot is becoming\\
+\midrule
+Hook & AI for an existing television & A governed mother brain inside the home\\
+Delight & Entertainment, games, learning, search, and live intelligence & Screen context, service knowledge, and useful memory\\
+Habit & Reminders, lists, messaging, comparison, and scheduling & A personal action agent\\
+Expansion & Phone, computer, car, calendar, and connected devices & One continuous intelligence across surfaces\\
+Network & Sharing moments and requests with other people & A permissioned person-to-person agent network\\
+Retention & ``Pilot already understands how I work'' & A persistent, trusted intelligence layer\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The strategic relationship between the principal engines is:
+
+\begin{center}
+\textbf{Pilot TV acquires users} $\rightarrow$
+\textbf{Pilot Live creates wonder} $\rightarrow$
+\textbf{Pilot Moments spreads} $\rightarrow$\\[4pt]
+\textbf{Pilot Actions creates daily use} $\rightarrow$
+\textbf{Pilot Relay creates network effects} $\rightarrow$
+\textbf{Pilot Everywhere creates permanence}.
+\end{center}
+
+\section{Pilot Live: Intelligence for Anything on Screen}
+
+Pilot Live is the immediate room-scale intelligence layer.  It should
+understand the current programme, application, conversation, event, and
+available metadata sufficiently to answer and act on requests such as:
+
+\begin{itemize}[leftmargin=*]
+  \item ``Pilot, fact-check that.''
+  \item ``Pilot, who is telling the truth here?''
+  \item ``Pilot, explain what just happened without spoilers.''
+  \item ``Pilot, translate what she just said.''
+  \item ``Pilot, who is that actor?''
+  \item ``Pilot, find the original source.''
+  \item ``Pilot, explain that referee decision.''
+  \item ``Pilot, teach the children the science behind this scene.''
+  \item ``Pilot, is that advertised product actually any good?''
+  \item ``Pilot, remember this; we should discuss it later.''
+\end{itemize}
+
+The differentiation is not the answer alone.  Pilot can move the answer into
+memory, a message, a task, a shopping comparison, an educational activity, a
+calendar item, a phone, a car, or a handoff to another person.
+
+\subsection{Flagship fact-check proof}
+
+The first headline demonstration should be:
+
+\begin{center}
+\Large\textbf{``We made an ordinary television fact-check a live broadcast
+when you speak to it.''}
+\end{center}
+
+The intended flow is:
+
+\begin{enumerate}[leftmargin=*]
+  \item A factual statement is made in a live or recorded programme.
+  \item The viewer says, ``Pilot, fact-check that.''
+  \item Pilot identifies the relevant recent statement and extracts its
+        falsifiable claims.
+  \item The mother brain searches current, attributable evidence, preferring
+        primary sources and clearly separating fact, inference, uncertainty,
+        and disagreement.
+  \item A compact television overlay displays a plain-language finding,
+        confidence, and the most important comparison without unnecessarily
+        replacing the programme.
+  \item The user can ask a contextual follow-up such as ``show me the
+        evidence'' without repeating the activation word during the bounded
+        dialogue window.
+  \item Full sources and private detail transfer to the paired phone.
+\end{enumerate}
+
+Because restricted LG televisions do not expose a supported general-purpose
+screen-capture interface to third-party applications, the initial proof should
+fuse bounded evidence rather than claim perfect visual access:
+
+\begin{itemize}[leftmargin=*]
+  \item a short, ephemeral, memory-only audio ring buffer;
+  \item local speech transcription triggered for use only by an explicit
+        request;
+  \item foreground application, media, and programme-guide metadata;
+  \item streaming-service title and playback-position evidence where exposed;
+  \item phone-camera observation when visual evidence is necessary;
+  \item claim extraction, current research, source grading, and contradiction
+        detection; and
+  \item a sanitized TV overlay plus a private evidence view on the phone.
+\end{itemize}
+
+Audio in the rolling buffer must be overwritten continuously and must not be
+persisted by default.  An explicit user action is required before derived
+transcript content is retained as part of a request or audit receipt.
+
+\section{Pilot Moments: Entertainment as the Viral Loop}
+
+Pilot Moments turns something seen on television into a social object.  The
+canonical demonstration is:
+
+\begin{quote}
+``Pilot, share the last thirty seconds with Mike.''\\
+``I found the moment.  Send it to Mike?''\\
+``Yes.''
+\end{quote}
+
+If Mike already has Pilot, the moment can open on his phone or television and
+retain its conversational context.  If Mike does not have Pilot, he receives a
+normal secure link or provider-supported share.  The landing surface delivers
+the value first and only then offers \emph{Watch on TV with Pilot}.  The content
+therefore sells the product more effectively than an abstract invitation to an
+AI platform.
+
+\subsection{Service-aware sharing hierarchy}
+
+Pilot must not bypass copyright controls, DRM, service terms, or access
+controls.  ``Clip that'' is a user intent whose permitted execution depends on
+the active source:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Provider-native clip.} Invoke an official clipping function
+        when the creator and service permit it.  Twitch, for example, exposes
+        viewer clip creation and authorised sharing.\cite{twitchclips}
+  \item \textbf{Provider-native moment.} Invoke an authorised moment-saving
+        flow such as Netflix Moments when it is exposed to the signed-in user
+        and available on the relevant device or service surface.\cite{netflixmoments}
+  \item \textbf{Timestamp link.} Share the official title at the precise
+        playback position where the service supports deep linking.  YouTube is
+        moving toward Share at Timestamp as its principal viewer-sharing
+        mechanism.\cite{youtubetimestamp}
+  \item \textbf{Pilot Moment Card.} When video export is unavailable, create a
+        copyright-safe card containing the title, episode, timestamp, official
+        watch link, user reaction, short contextual description, and an
+        ``open at this moment'' action where supported.
+  \item \textbf{Media export.} Create a video file only for user-owned,
+        public-domain, explicitly licensed, or provider-authorised content.
+\end{enumerate}
+
+Protected streams are intentionally encrypted and access-controlled; Pilot
+must integrate with their approved interfaces rather than attempting to
+defeat those protections.\cite{fairplay}
+
+\subsection{Moment object}
+
+A normalized moment record should contain no more information than necessary:
+
+\begin{verbatim}
+moment_id          signed opaque identifier
+sender_persona     public/contact identity, not account credentials
+service            netflix | youtube | twitch | broadcast | other
+content_reference  provider title identifier or programme identifier
+position           timestamp or bounded live-window reference
+share_mode         native_clip | native_moment | timestamp | moment_card
+reaction           sender-approved text or voice-derived caption
+recipient          selected Pilot contact or external share destination
+permissions        expiry, replay, forwarding, and audience policy
+evidence_hash      hash of the normalized context used to prepare the share
+\end{verbatim}
+
+The card must not reveal a household member's viewing history, service token,
+profile identity, private transcript, location, or unrelated context.
+
+\section{Pilot Actions: The Personal Agent Revealed Through Use}
+
+After installation for television intelligence, the user naturally begins to
+delegate ordinary work:
+
+\begin{itemize}[leftmargin=*]
+  \item ``Pilot, add that to my to-do list.''
+  \item ``Pilot, remind me tomorrow.''
+  \item ``Pilot, message John that I will be twenty minutes late.''
+  \item ``Pilot, reply to that email and say Thursday works.''
+  \item ``Pilot, put this in my calendar.''
+  \item ``Pilot, order more dog food.''
+  \item ``Pilot, find the best three options and send them to my phone.''
+  \item ``Pilot, arrange someone to repair the boiler.''
+  \item ``Pilot, move the delivery to Friday.''
+  \item ``Pilot, send this destination to the car.''
+\end{itemize}
+
+Shopping comparison is therefore a capability of Pilot Actions rather than a
+separate strategic product.  The durable execution pattern remains:
+
+\begin{center}
+\textbf{Understand $\rightarrow$ research $\rightarrow$ prepare exact action
+$\rightarrow$ private approval $\rightarrow$ execute once $\rightarrow$
+verify $\rightarrow$ receipt.}
+\end{center}
+
+Shared television speech must never silently choose a person's card, account,
+calendar, recipient, or private identity.  Consequential actions transfer to
+the relevant person's private phone and connected service adapter.
+
+\section{Pilot Relay: Person-to-Person Agent Handoffs}
+
+Pilot Relay is the distribution engine.  Its central insight is:
+
+\begin{center}
+\large\textbf{The sender creates the recipient's first useful Pilot task before
+the recipient has installed Pilot.}
+\end{center}
+
+For example, one person says:
+
+\begin{quote}
+``Pilot, ask Kevin to collect the dry cleaning on his way home.''
+\end{quote}
+
+The sender's Pilot creates a signed proposal, not a remote command.  Kevin's
+Pilot may respond privately:
+
+\begin{quote}
+``Becca asked you to collect the dry cleaning on your way home.  Shall I remind
+you when you leave work and add it to your route?''
+\end{quote}
+
+If Kevin accepts, his own Pilot---not Becca's---chooses an appropriate reminder
+time, checks closing hours, and offers the stop to the navigation surface.  On
+completion, it asks whether Kevin wants to send an acknowledgement.  Becca
+does not gain access to Kevin's location, calendar, route, contacts, or
+messages.
+
+\subsection{Structured intent rather than unstructured messaging}
+
+Relay should transport a typed, bounded proposal:
+
+\begin{verbatim}
+type:       task
+from:       sender contact identity
+to:         recipient contact identity
+action:     collect
+object:     dry cleaning
+window:     journey home
+location:   recipient-resolved usual dry cleaner
+status:     proposed
+return:     optional completion acknowledgement
+\end{verbatim}
+
+Additional handoff types include message, event, invitation, recommendation,
+shopping item, location, document, payment request, decision, emergency alert,
+introduction, moment, and shared plan.  Typed objects let the recipient's Pilot
+reason about time, place, interruption, dependencies, and permitted execution
+without conflating every request with ordinary chat.
+
+\subsection{Installed and uninstalled recipients}
+
+If the recipient has Pilot, the proposal is delivered through the recipient's
+trusted contact and capability policy.  If the recipient does not have Pilot,
+the system sends a conventional, sender-approved message containing a secure
+temporary page.  The recipient can accept, add the request to an existing
+phone tool, decline without creating an account, or activate Pilot.  Contact
+discovery and SMS invitation are established low-friction patterns in existing
+communications products.\cite{whatsappinvite}
+
+Pilot must support households but must not be limited to a rigid household
+account.  The useful graph includes partners, children, parents, friends,
+colleagues, neighbours, carers, tradespeople, school contacts, and temporary
+groups.  Conventional family-account systems are often deliberately small;
+for example, Google documents a family manager inviting up to five other
+people.\cite{googlefamily}  Pilot instead requires a permissioned contact graph
+and temporary or persistent \emph{Circles} for household, trip, school, care,
+work, and friend contexts.
+
+\subsection{Non-negotiable trust rule}
+
+\decision{One person's Pilot must never command another person's Pilot.  The
+sender's Pilot proposes; the recipient's Pilot evaluates; the recipient
+controls acceptance, scheduling, disclosure, execution, and acknowledgement.}
+
+Recipient policies must support at least:
+
+\begin{itemize}[leftmargin=*]
+  \item always allow ordinary reminders from selected contacts;
+  \item require confirmation before calendar modification;
+  \item never share location or presence by default;
+  \item silence non-urgent proposals during protected periods;
+  \item allow explicitly configured emergency interruption;
+  \item block, mute, expire, or rate-limit a contact;
+  \item forbid purchases or payments requested by another person;
+  \item prevent private proposals from appearing on communal screens; and
+  \item apply transparent, age-appropriate guardian policy for children and
+        teenagers without creating invisible surveillance.
+\end{itemize}
+
+Every handoff requires signed sender identity, intended recipient, expiry,
+nonce or replay protection, scope, audit receipt, and a human-readable preview.
+
+\section{Pilot Companion, Guardian, Everywhere, and Work}
+
+\subsection{Pilot Companion}
+
+Pilot Companion provides contextual conversation rather than a detached
+chatbot.  It may discuss the active programme, remember permitted preferences,
+explain confusing material, conduct quizzes, continue a conversation on
+another device, and help a user contact family.  It must not claim to be human,
+manipulate emotional dependence, manufacture urgency, or interrupt without a
+user-controlled policy.  Warmth and continuity are product qualities; honesty
+and user agency are system requirements.
+
+\subsection{Pilot Guardian}
+
+The long-term safety proposition includes requests such as ``Pilot, help me'',
+``Pilot, I have fallen'', and ``Pilot, call an ambulance''.  A safe proof may
+acknowledge the call, display a large emergency interface, contact configured
+trusted people, share explicitly authorised location, and open a two-way
+response surface.  Automatic emergency-service escalation cannot be marketed
+or relied upon until the system has jurisdiction-specific authorised calling,
+reliable identity and location, connectivity fallback, false-positive
+handling, health and emergency review, continuous availability monitoring,
+and a tested failure protocol.  Guardian is safety infrastructure, not an
+ordinary voice shortcut.
+
+\subsection{Pilot Everywhere}
+
+The intelligence must continue across surfaces rather than being copied into
+unrelated assistants.  A restaurant shortlist created on the television can
+move privately to the phone; the selected destination can later appear in the
+car; a voice note from the car can become a work task; a household request can
+become an authorised navigation stop.  The same persona, objective, memory,
+permissions, and audit chain continue while each surface receives only the
+capabilities and data appropriate to it.
+
+\subsection{Pilot Work}
+
+Work mode remains a high-value expansion: live briefings, research walls,
+meeting preparation, document review, operational dashboards, scenario
+analysis, action extraction, and governed execution.  It is deliberately not
+the initial consumer acquisition message.  The television-led consumer proof
+establishes the cross-device substrate on which a later room-scale work and
+Boardroom product can operate.
+
+\section{Fabric Architecture Required by the Strategy}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}p{38mm}X@{}}
+\toprule
+Fabric component & Strategic responsibility\\
+\midrule
+Mother brain & Reasoning, planning, service orchestration, private memory,
+persona resolution, policy, and recovery.\\
+Universal node identity & Stable public identity and stored handshakes that
+allow one device node to serve multiple independently authorised mothers.\\
+Television gateway/node & Governed control, current-service evidence, Canvas
+presentation, and verified restricted-device actions.\\
+Private phone companion & Identity selection, private detail collection,
+contact choice, camera observation, approval, and consequential-action receipt.\\
+Pilot Live context layer & Ephemeral recent-audio context, metadata fusion,
+claim extraction, current research, and evidence-labelled response.\\
+Moment adapter layer & Provider-native clips, moments, timestamp links, and
+copyright-safe fallback cards.\\
+Relay envelope & Signed typed proposal with recipient, scope, expiry, replay
+protection, privacy policy, status, and optional acknowledgement.\\
+Service adapters & Calendar, email, messaging, tasks, maps, shopping, booking,
+media, and later authorised emergency providers.\\
+Audit and glyph ledgers & Compact, verifiable records of permission, action,
+state transition, handoff, outcome, and reconstruction without raw secret data.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Decided Implementation Sequence}
+
+\subsection*{Phase 1: Pilot Live and Pilot Moments}
+
+\begin{enumerate}[leftmargin=*]
+  \item Add the ephemeral recent-audio context buffer and explicit activation
+        boundary.
+  \item Fuse current application, content, programme, playback-position, and
+        phone-observer evidence into a normalized live-context object.
+  \item Implement ``fact-check that'', ``explain that'', ``translate that'',
+        and contextual follow-up on the television and phone.
+  \item Implement the service-aware moment hierarchy: native share, timestamp,
+        Moment Card, or explicit refusal.
+  \item Add private contact selection and a single-recipient share receipt.
+\end{enumerate}
+
+\subsection*{Phase 2: Pilot Contacts and Relay}
+
+Implement contact identity, signed invitations, installed-recipient delivery,
+temporary value-first web delivery for uninstalled recipients, typed handoff
+objects, recipient policies, expiry, replay protection, acknowledgement, and
+block/mute controls.
+
+\subsection*{Phase 3: Pilot Actions}
+
+Connect real user-authorised task, messaging, calendar, email, maps, shopping,
+and booking services to the existing prepare--approve--execute--verify flow.
+Moment and Relay objects then become direct inputs to useful action.
+
+\subsection*{Phase 4: Pilot Everywhere}
+
+Provide phone background continuity, car-safe voice interaction, authorised
+navigation handoff, location-triggered reminders, and multi-surface objective
+resumption without exposing private state to unrelated nodes.
+
+\subsection*{Phase 5: Pilot Guardian and Pilot Work}
+
+Develop Guardian only with the necessary reliability, emergency, privacy, and
+regulatory partners.  Expand Work and Boardroom mode using the proven identity,
+handoff, service, and room-scale presentation layers.
+
+\section{Success Measures}
+
+The strategy should be measured as a behavioural system, not merely as a list
+of available commands:
+
+\begin{itemize}[leftmargin=*]
+  \item time from download to first successful television action;
+  \item percentage of activated households pairing a private phone;
+  \item first-day use of a Live command or Moment share;
+  \item successful provider-native or timestamp share rate;
+  \item percentage of recipients receiving value before installation;
+  \item recipient-to-Pilot activation conversion;
+  \item accepted Relay proposals per active contact pair;
+  \item weekly use of at least one Pilot Action outside entertainment;
+  \item cross-surface continuation rate among television, phone, and car;
+  \item false activation, failed execution, reversal, and complaint rates;
+  \item percentage of consequential actions with explicit private approval and
+        verified outcome; and
+  \item user-controlled deletion, mute, block, and privacy-policy effectiveness.
+\end{itemize}
+
+Growth must not be optimized by dark patterns, involuntary contact uploads,
+silent invitations, public exposure of private viewing, or pressure to accept
+another person's request.  A network of personal agents is valuable only if
+each person remains sovereign over their own agent.
+
+\section{Final Product Position}
+
+Pilot should not initially ask the market to understand an autonomous agent,
+a device fabric, or a household operating system.  It should make one promise:
+
+\begin{center}
+\Large\textbf{Add Pilot to the television you already own.}
+\end{center}
+
+The demonstration then proves that Pilot can understand, fact-check, find,
+remember, and share what the user is watching.  Entertainment creates the
+installation; live intelligence creates the story people repeat; Moment
+sharing creates the invitation; Actions creates daily utility; Relay turns
+individual utility into a network; and continuity across phone, home, and car
+makes the intelligence indispensable.
+
+\begin{center}
+\textbf{Screen $\rightarrow$ understanding $\rightarrow$ action
+$\rightarrow$ another person.}
+\end{center}
+
+This is the decided approach: the television is the visible beginning, not the
+product boundary.  Pilot enters through entertainment and becomes a governed,
+persistent personal intelligence through demonstrated usefulness.
+
+\begin{thebibliography}{9}
+
+\bibitem{netflixmoments}
+Netflix, ``Introducing Moments: Save, Relive and Share Your Favorite Netflix
+Scenes,'' 28 October 2024.\\
+\url{https://about.netflix.com/en/news/introducing-moments-save-relive-and-share-your-favorite-netflix-scenes}
+
+\bibitem{twitchclips}
+Twitch Help, ``How to Create, Edit, and Share Clips.''\\
+\url{https://help.twitch.tv/s/article/how-to-use-clips}
+
+\bibitem{youtubetimestamp}
+TeamYouTube, ``Updating how you share video moments,'' 16 April 2026.\\
+\url{https://support.google.com/youtube/thread/425735532}
+
+\bibitem{fairplay}
+Apple Developer, ``FairPlay Streaming.''\\
+\url{https://developer.apple.com/streaming/fps/}
+
+\bibitem{whatsappinvite}
+WhatsApp Help Center, ``How to find and invite contacts.''\\
+\url{https://faq.whatsapp.com/1183494482518500/}
+
+\bibitem{googlefamily}
+Google Account Help, ``Invite more members.''\\
+\url{https://support.google.com/accounts/answer/15077834}
+
+\end{thebibliography}
+
+\end{document}

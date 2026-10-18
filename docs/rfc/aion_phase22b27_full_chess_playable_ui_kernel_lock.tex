@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.27: Full Chess Playable UI Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.27 defines the AION Full Chess Playable UI Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can emit a UI-ready playable chess state after a user move and AION response.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.27 creates the first playable UI state contract for chess.
+
+\section{Playable UI Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{initial\_fen};
+  \item \texttt{user\_uci\_move};
+  \item \texttt{selected\_aion\_uci\_move};
+  \item \texttt{final\_fen};
+  \item \texttt{final\_pgn};
+  \item \texttt{ui\_status};
+  \item \texttt{user\_move\_accepted};
+  \item \texttt{aion\_response\_ready};
+  \item \texttt{board\_updated\_after\_user\_move};
+  \item \texttt{board\_updated\_after\_aion\_move};
+  \item \texttt{move\_log\_count};
+  \item \texttt{playable\_ui\_state};
+  \item \texttt{playable\_ui\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates a deterministic playable chess UI state contract. It does not yet implement the final graphical frontend, online bot play, engine-strength evaluation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B27-FULL-CHESS-PLAYABLE-UI-KERNEL-LOCK\\
+Status: LOCKED --- full chess playable UI kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

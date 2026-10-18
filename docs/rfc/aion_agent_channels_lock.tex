@@ -1,0 +1,156 @@
+\section{AION Agent Communication Channels v0.1 Lock}
+\label{sec:aion-agent-channels-lock}
+
+\subsection{Status}
+
+The AION Gateway now defines the internal Agent Communication Channels preview layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- agent channel routing is preview-only and side-effect free.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Agent Communication Channels layer is the reserved intake surface for machine and semi-machine communication.
+
+It allows future agent inboxes, supplier messages, email bridges, WhatsApp bridges, embedded chat, and booking inboxes to normalize messages into the same AION Gateway intent path.
+
+This lock does not send messages, call providers, mutate job timelines, or expose public routes.
+
+\subsection{Protocol}
+
+\begin{verbatim}
+aion.agent_channels.v0.1
+\end{verbatim}
+
+\subsection{Reserved Channels}
+
+The reserved channel vocabulary is:
+
+\begin{itemize}
+  \item \texttt{agent\_email}
+  \item \texttt{agent\_phone}
+  \item \texttt{whatsapp}
+  \item \texttt{embedded\_chat}
+  \item \texttt{supplier\_email}
+  \item \texttt{booking\_inbox}
+\end{itemize}
+
+Only \texttt{agent\_email} and \texttt{supplier\_email} are preview-enabled in this lock.
+
+All other channels are reserved only.
+
+\subsection{Core Objects}
+
+\subsubsection{AgentChannel}
+
+The \texttt{AgentChannel} object describes a reserved communication channel.
+
+Core fields include:
+
+\begin{itemize}
+  \item \texttt{channel\_key}
+  \item \texttt{display\_name}
+  \item \texttt{reserved\_only}
+  \item \texttt{preview\_enabled}
+  \item \texttt{can\_send\_externally}
+  \item \texttt{can\_call\_provider}
+  \item \texttt{can\_mutate\_job\_timeline}
+\end{itemize}
+
+\subsubsection{AgentInboxMessage}
+
+The \texttt{AgentInboxMessage} object is the canonical preview record for an inbound message.
+
+Core fields include:
+
+\begin{itemize}
+  \item \texttt{message\_id}
+  \item \texttt{business\_id}
+  \item \texttt{channel\_key}
+  \item \texttt{raw\_subject}
+  \item \texttt{raw\_body}
+  \item \texttt{sender\_ref}
+  \item \texttt{job\_id}
+  \item \texttt{received\_at\_ms}
+  \item \texttt{message\_hash}
+\end{itemize}
+
+\subsubsection{AgentChannelRoutingResult}
+
+The \texttt{AgentChannelRoutingResult} object is the side-effect-free routing preview.
+
+It contains:
+
+\begin{itemize}
+  \item \texttt{normalized\_intent\_preview}
+  \item \texttt{timeline\_preview}
+  \item \texttt{blocked\_reasons}
+  \item \texttt{requires\_human\_review}
+  \item \texttt{dry\_run\_only}
+  \item \texttt{would\_send\_email = false}
+  \item \texttt{would\_send\_whatsapp = false}
+  \item \texttt{would\_call\_phone\_provider = false}
+  \item \texttt{would\_mutate\_job\_timeline = false}
+  \item \texttt{would\_create\_external\_side\_effect = false}
+\end{itemize}
+
+\subsection{Hashing Rule}
+
+Message hashes use deterministic JSON:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+The \texttt{message\_hash} MUST be stable for identical message payloads.
+
+Changing message content MUST change the hash.
+
+\subsection{Safety Boundary}
+
+This lock is internal and preview-only.
+
+The Agent Channels layer MUST NOT:
+
+\begin{itemize}
+  \item send email,
+  \item send WhatsApp messages,
+  \item call a phone provider,
+  \item mutate an active job timeline,
+  \item create external side effects,
+  \item create a booking,
+  \item create a payment,
+  \item create escrow,
+  \item execute the Goal Engine,
+  \item expose a public route,
+  \item grant permissions.
+\end{itemize}
+
+Human review remains required by default.
+
+\subsection{Strategic Role}
+
+This module creates the first internal communication layer for the AION Parallel Business Infrastructure.
+
+AION can now reserve channels for future agent inboxes and supplier updates while keeping the current implementation safe, deterministic, and preview-only.
+
+For Home Fixed, this means future customer emails, supplier emails, WhatsApp messages, and booking updates can all become structured operational intent without immediately mutating live business state.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_agent_channels_lock.py
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-AGENT-CHANNELS-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

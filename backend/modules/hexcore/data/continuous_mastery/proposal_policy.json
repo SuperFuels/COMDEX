@@ -1,0 +1,203 @@
+{
+  "revision": 15,
+  "strategy_outcomes": {
+    "algebraic_rule_induction": {
+      "affine_rule": {
+        "attempts": 3,
+        "mean_score": 1.0,
+        "total_score": 3.0
+      },
+      "lookup_table": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      }
+    },
+    "causal_structure_discovery": {
+      "correlation_proxy": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      },
+      "coupled_cause": {
+        "attempts": 3,
+        "mean_score": 1.0,
+        "total_score": 3.0
+      },
+      "delayed_cause": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      },
+      "independent_causes": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      }
+    },
+    "evidence_strategy_selection": {
+      "exact_primary_evidence": {
+        "attempts": 3,
+        "mean_score": 1.0,
+        "total_score": 3.0
+      },
+      "single_summary": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      },
+      "source_vote": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      }
+    },
+    "novel_language_induction": {
+      "sov_grammar": {
+        "attempts": 3,
+        "mean_score": 1.0,
+        "total_score": 3.0
+      },
+      "surface_overlap": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      },
+      "svo_grammar": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      },
+      "vso_grammar": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      }
+    },
+    "tool_selection": {
+      "free_text_guess": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      },
+      "regex_only": {
+        "attempts": 1,
+        "mean_score": 0.0,
+        "total_score": 0.0
+      },
+      "typed_json_query": {
+        "attempts": 3,
+        "mean_score": 1.0,
+        "total_score": 3.0
+      }
+    }
+  },
+  "trials": [
+    {
+      "attempt_count": 2,
+      "family": "algebraic_rule_induction",
+      "selected_strategy": "affine_rule",
+      "task_id": "algebraic_rule_induction:development:1",
+      "verified": true
+    },
+    {
+      "attempt_count": 4,
+      "family": "causal_structure_discovery",
+      "selected_strategy": "coupled_cause",
+      "task_id": "causal_structure_discovery:development:1",
+      "verified": true
+    },
+    {
+      "attempt_count": 3,
+      "family": "evidence_strategy_selection",
+      "selected_strategy": "exact_primary_evidence",
+      "task_id": "evidence_strategy_selection:development:1",
+      "verified": true
+    },
+    {
+      "attempt_count": 4,
+      "family": "novel_language_induction",
+      "selected_strategy": "sov_grammar",
+      "task_id": "novel_language_induction:development:1",
+      "verified": true
+    },
+    {
+      "attempt_count": 3,
+      "family": "tool_selection",
+      "selected_strategy": "typed_json_query",
+      "task_id": "tool_selection:development:1",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "algebraic_rule_induction",
+      "selected_strategy": "affine_rule",
+      "task_id": "algebraic_rule_induction:development:2",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "causal_structure_discovery",
+      "selected_strategy": "coupled_cause",
+      "task_id": "causal_structure_discovery:development:2",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "evidence_strategy_selection",
+      "selected_strategy": "exact_primary_evidence",
+      "task_id": "evidence_strategy_selection:development:2",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "novel_language_induction",
+      "selected_strategy": "sov_grammar",
+      "task_id": "novel_language_induction:development:2",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "tool_selection",
+      "selected_strategy": "typed_json_query",
+      "task_id": "tool_selection:development:2",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "algebraic_rule_induction",
+      "selected_strategy": "affine_rule",
+      "task_id": "algebraic_rule_induction:transfer:3",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "causal_structure_discovery",
+      "selected_strategy": "coupled_cause",
+      "task_id": "causal_structure_discovery:transfer:3",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "evidence_strategy_selection",
+      "selected_strategy": "exact_primary_evidence",
+      "task_id": "evidence_strategy_selection:transfer:3",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "novel_language_induction",
+      "selected_strategy": "sov_grammar",
+      "task_id": "novel_language_induction:transfer:3",
+      "verified": true
+    },
+    {
+      "attempt_count": 1,
+      "family": "tool_selection",
+      "selected_strategy": "typed_json_query",
+      "task_id": "tool_selection:transfer:3",
+      "verified": true
+    }
+  ],
+  "updated_at": "2026-07-31T21:35:06.520533+00:00"
+}

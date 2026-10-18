@@ -1,0 +1,38 @@
+{
+  "all_six_component_frame_hashes_verified": true,
+  "cache_ceiling_bytes": 67108864,
+  "canonical_sha256": "88f0104a8f6b3d781e8f9bca47bfd184824964a32ab9e5aaa2b8c439ee758974",
+  "claim_boundary": "This proves exact bounded demand loading and process-cache reuse of one six-component gpt-oss expert. The first read is a process-cache fault, not proof of an operating-system-cold SD read. It is not model inference.",
+  "cold_process_fault_seconds": 0.17347049998352304,
+  "created_at": "2026-09-09T15:30:53.798571+00:00",
+  "expert": 0,
+  "expert_payload_sha256": "fc3a42126570268b2c4078391d3ba2170803e2ab55a09c0d9e4deb75ce3a8cfd",
+  "expert_raw_bytes": 13253760,
+  "layer": 0,
+  "manifest": "/Volumes/AION_120B/AION-Warehouse/v1/expert-bank/gpt-oss-120b-q4km-expert-frames.v1/manifest.v1.json",
+  "manifest_sha256": "dfc85d22c833d3c25a6caf3575a40cb3964656b336c98b5873b94faa3dacc2c3",
+  "metrics": {
+    "capacity_bytes": 67108864,
+    "compressed_bytes_read": 12595862,
+    "evictions": 0,
+    "faults": 1,
+    "hit_rate": 0.8888888888888888,
+    "hits": 8,
+    "peak_resident_bytes": 13253760,
+    "raw_bytes_materialized": 13253760,
+    "resident_bytes": 13253760
+  },
+  "schema": "aion.gptoss-verified-expert-gate.v1",
+  "status": "PASSED",
+  "warm_cache_p50_seconds": 2.5625049602240324e-06,
+  "warm_cache_seconds": [
+    5.875015631318092e-06,
+    3.958004526793957e-06,
+    1.0840012691915035e-06,
+    7.919734343886375e-07,
+    1.129199517890811e-05,
+    2.374988980591297e-06,
+    2.7500209398567677e-06,
+    8.329516276717186e-07
+  ]
+}

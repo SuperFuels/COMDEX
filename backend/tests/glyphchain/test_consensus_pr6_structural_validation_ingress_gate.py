@@ -88,12 +88,12 @@ async def test_consensus_pr6_structural_validation_ingress_gate() -> None:
             _mk_env(src=sender, msg_type="VOTE", payload=bad_vote),
             timeout_s=10.0,
         )
-        assert int(rr.get("status") or 0) in (200, 400, 403), rr
+        assert int(rr.get("status") or 0) == 400, rr
         assert int(rr.get("status") or 0) < 500, rr
 
         st1 = await _status(target)
         assert int(st1.get("finalized_height") or 0) >= fh0, "finalized_height regressed after bad vote"
-        assert st1.get("last_qc") == last0, "last_qc changed after bad vote"
+        assert int((st1.get("last_qc") or {}).get("height") or 0) >= int((last0 or {}).get("height") or 0), "last_qc regressed after bad vote"
 
         # --- malformed sync_resp QC dict (bad types / missing structure) ---
         bad_sync_payload: Dict[str, Any] = {
@@ -117,12 +117,12 @@ async def test_consensus_pr6_structural_validation_ingress_gate() -> None:
             _mk_env(src=sender, msg_type="SYNC_RESP", payload=bad_sync_payload),
             timeout_s=10.0,
         )
-        assert int(rr2.get("status") or 0) in (200, 400, 403), rr2
+        assert int(rr2.get("status") or 0) == 400, rr2
         assert int(rr2.get("status") or 0) < 500, rr2
 
         st2 = await _status(target)
         assert int(st2.get("finalized_height") or 0) >= fh0, "finalized_height regressed after bad sync_resp"
-        assert st2.get("last_qc") == last0, "last_qc changed after bad sync_resp"
+        assert int((st2.get("last_qc") or {}).get("height") or 0) >= int((last0 or {}).get("height") or 0), "last_qc regressed after bad sync_resp"
 
     finally:
         await stop_nodes(nodes)

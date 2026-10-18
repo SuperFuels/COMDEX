@@ -1,0 +1,245 @@
+\section{AION Phase 20Q --- Mission Failure Recovery Protocol}
+\label{sec:aion-phase20q-mission-failure-recovery}
+
+\subsection{Status}
+
+Phase 20Q locks the mission failure recovery protocol.
+
+\begin{quote}
+\textbf{Status: LOCKED --- failed or blocked missions preserve useful outputs, receipts, traces, proof, and revised safe plans.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot must fail safely without losing useful work.
+
+When a mission blocks, fails, or partially succeeds, AION must preserve trace state, proof state, receipts, and useful partial outputs.
+
+\begin{quote}
+\textbf{Failure is not data loss. A stopped mission still produces a receipt, recovery summary, and safe next plan.}
+\end{quote}
+
+\subsection{Recovery States}
+
+The recovery protocol defines:
+
+\begin{itemize}
+  \item \texttt{failed\_recoverable}
+  \item \texttt{failed\_final}
+  \item \texttt{partial\_success}
+  \item \texttt{blocked\_for\_safety}
+\end{itemize}
+
+\subsection{Partial Output Preservation}
+
+Useful partial outputs MUST be preserved with:
+
+\begin{itemize}
+  \item output ID;
+  \item step ID;
+  \item artifact type;
+  \item business container path;
+  \item output hash;
+  \item usability flag.
+\end{itemize}
+
+\subsection{Failure Receipt}
+
+Every failed or blocked mission MUST emit a failure receipt containing:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item failure state;
+  \item failure reason;
+  \item stopped step ID;
+  \item trace hash;
+  \item proof hash;
+  \item partial output hashes;
+  \item receipt hashes;
+  \item blocked actions;
+  \item failure receipt hash.
+\end{itemize}
+
+\subsection{Recovery Summary}
+
+A recovery summary MUST explain:
+
+\begin{itemize}
+  \item why AION stopped;
+  \item which step stopped;
+  \item which outputs were preserved;
+  \item which actions were blocked;
+  \item whether a safer revised plan is available.
+\end{itemize}
+
+\subsection{Revised Safe Plan}
+
+After a failure, AION MAY propose a revised plan.
+
+The revised plan MUST:
+
+\begin{itemize}
+  \item preserve safe autonomous steps;
+  \item convert blocked or unsafe steps to checkpoint-required steps;
+  \item disable live side effects;
+  \item require human review before external, financial, legal, deployment, memory, escrow, booking, payment, dispatch, or send actions.
+\end{itemize}
+
+\subsection{Failure Invariant}
+
+A failed mission MUST NOT lose:
+
+\begin{itemize}
+  \item trace hash;
+  \item proof hash;
+  \item receipt hashes;
+  \item useful partial outputs;
+  \item blocked action explanation;
+  \item recovery hash.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Q-MISSION-FAILURE-RECOVERY-PROTOCOL
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20Q.1 --- Atomic Recovery Transition and Recovery Hash Closure}
+\label{subsec:aion-phase20q1-atomic-recovery}
+
+\subsubsection{Status}
+
+Phase 20Q.1 hardens the recovery boundary with atomic transition semantics and a cryptographic recovery closure hash.
+
+\begin{quote}
+\textbf{Status: LOCKED --- recovery transitions MUST freeze execution, suspend VFS handles, snapshot state, drop process permissions, and emit deterministic closure hashes.}
+\end{quote}
+
+\subsubsection{Recovery State Transition Matrix}
+
+To prevent unhandled exceptions or memory-exhaustion faults from dropping the runtime engine into undefined or unlogged states, the mission controller MUST implement an atomic recovery transition function $\mathcal{F}_{\mathrm{recovery}}$.
+
+Let $\mathcal{S}_{\mathrm{current}}$ be the active execution state, and let $\mathcal{E}$ be the intercepting error or policy violation block.
+
+The state transition is formalised as:
+
+\begin{equation}
+\mathcal{F}_{\mathrm{recovery}}
+(
+\mathcal{S}_{\mathrm{current}},
+\mathcal{E}
+)
+\longrightarrow
+\mathcal{S}_{\mathrm{target}}
+\in
+\{
+\mathtt{failed\_recoverable},
+\mathtt{failed\_final},
+\mathtt{partial\_success},
+\mathtt{blocked\_for\_safety}
+\}
+\end{equation}
+
+When this transition triggers, the runtime engine MUST:
+
+\begin{itemize}
+  \item freeze all execution threads;
+  \item suspend the active VFS handle;
+  \item write a snapshot memory buffer to the tracking layer;
+  \item drop active process permissions;
+  \item preserve trace, proof, receipt and partial output state;
+  \item prevent further out-of-bounds mutations.
+\end{itemize}
+
+\subsubsection{Atomic Transition Record}
+
+The transition record MUST include:
+
+\begin{itemize}
+  \item current state;
+  \item error type;
+  \item target state;
+  \item execution thread freeze flag;
+  \item VFS suspension flag;
+  \item snapshot buffer requirement flag;
+  \item process permission drop flag;
+  \item transition hash.
+\end{itemize}
+
+\subsubsection{Recovery Cryptographic Closure Formula}
+
+The recovery hash $\mathcal{R}_{\mathrm{hash}}$ acts as an unalterable signature anchor sealing the system state during an abort routine.
+
+The deterministic hash signature is defined as:
+
+\begin{equation}
+\mathcal{R}_{\mathrm{hash}}
+=
+\mathrm{SHA256}
+(
+H_{\mathrm{receipt}}
+\parallel
+H_{\mathrm{trace}}
+\parallel
+H_{\mathrm{proof}}
+\parallel
+\sum_i H_{\mathrm{partial\_output}_i}
+\parallel
+\mathtt{State}_{\mathrm{target}}
+)
+\end{equation}
+
+This signature validation block MUST be pushed to the persistent logging layer before the container context relinquishes host thread priority.
+
+\subsubsection{Validation Coverage}
+
+Phase 20Q.1 tests prove:
+
+\begin{itemize}
+  \item atomic recovery transitions map safety violations to \texttt{blocked\_for\_safety};
+  \item recoverable failures with partial outputs map to \texttt{partial\_success};
+  \item recovery closure hashes are deterministic;
+  \item recovery closure hashes change when target state changes;
+  \item full atomic recovery includes both transition record and closure hash.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION failure recovery is an atomic transition, not a best-effort cleanup. Once recovery starts, execution freezes, state is preserved, permissions drop, and the recovery boundary is cryptographically sealed.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Q1-ATOMIC-RECOVERY-TRANSITION-CLOSURE-HASH
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -21,25 +21,9 @@ const api = axios.create({
   },
 })
 
-// 🔐 3) Attach JWT token if available
-api.interceptors.request.use((config) => {
-  try {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers = config.headers || {}
-      config.headers['Authorization'] = `Bearer ${token}`
-    }
-  } catch (err) {
-    console.warn('Token injection failed:', err)
-  }
-  return config
-})
-
-// 🐞 Debug outgoing requests
-api.interceptors.request.use((config) => {
-  console.debug('[API]', config.method?.toUpperCase(), config.url, config)
-  return config
-})
+// Browser authentication is carried by the backend-issued HttpOnly session
+// cookie. Do not copy credentials into script-readable browser storage or
+// request logs.
 
 export default api
 export { axios }

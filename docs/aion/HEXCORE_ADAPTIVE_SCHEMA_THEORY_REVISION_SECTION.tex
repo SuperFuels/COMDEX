@@ -1,0 +1,140 @@
+\section{Phase 42: Adaptive Schema Theory Revision}
+\label{sec:hexcore-phase42}
+
+\subsection{Objective}
+
+Phase 41 established that AION could invent an absent relation schema from
+natural documents. Phase 42 asks a harder question: can AION recognise that an
+inherited explanation is inadequate, construct a better variable-arity theory
+through intervention, retain uncertainty among competing explanations, and
+revise an accepted theory when the governing rule changes?
+
+The promoted procedure is
+\texttt{procedure\_adaptive\_schema\_revision\_d5ea7bf85c36}. Its immutable
+parent is
+\texttt{procedure\_open\_schema\_learning\_1d0456fd3c9f}.
+
+\subsection{Bounded Theory Grammar}
+
+Each world exposes an intervention point
+$x\in\{0,1\}^{n}$, where $n\in\{3,4,5\}$, and a noisy Boolean outcome.
+The bounded candidate grammar contains threshold theories,
+\begin{equation}
+  f_{\tau}(x)=
+  \mathbb{I}\!\left[\sum_i x_i\geq\tau\right],
+\end{equation}
+and defeasible threshold theories with one veto,
+\begin{equation}
+  f_{\tau,v}(x)=
+  \mathbb{I}\!\left[
+    x_v=0 \;\land\!
+    \sum_{i\neq v}x_i\geq\tau
+  \right].
+\end{equation}
+The inherited Phase 41 schema set contains only the limiting cases
+$\tau=1$ (logical ANY) and $\tau=n$ (logical ALL). The correct theory is never
+provided to the learner.
+
+\subsection{Architecture}
+
+The Phase 42 control loop contains seven governed operations:
+\begin{enumerate}
+  \item \textbf{Model criticism.} The inherited theories are evaluated across
+  the complete Boolean intervention cube. Three repeated observations per
+  point make a single noisy observation insufficient to authorise expansion or
+  preserve a weak theory.
+  \item \textbf{Controlled construction.} If neither inherited theory reaches
+  $90\%$ diagnostic agreement, HexCore opens the threshold-plus-veto grammar
+  and removes predictively equivalent candidates.
+  \item \textbf{Bayesian competition.} Each theory $h$ retains posterior mass.
+  An observation $y$ at intervention $x$ updates the posterior according to
+  \begin{equation}
+    P(h\mid x,y)\propto P(y\mid x,h)P(h),
+  \end{equation}
+  using the declared $3\%$ observation-noise model.
+  \item \textbf{Active experimentation.} The next intervention maximises
+  expected information gain per unit cost,
+  \begin{equation}
+    x^\star=\arg\max_x
+    \frac{
+      H[P(h)]-\mathbb{E}_{y\mid x}H[P(h\mid x,y)]
+    }{c(x)}.
+  \end{equation}
+  \item \textbf{Noise-resistant stopping.} A theory must exceed $97\%$
+  posterior confidence after at least eight independently selected
+  interventions.
+  \item \textbf{Continuous criticism.} A rolling monitor requires at least
+  three contradictory observations within a five-observation window before
+  revision is authorised.
+  \item \textbf{Persistent revision.} The old theory, revised theory,
+  diagnostic evidence, posterior trace, outcome, and CAU decision remain
+  separately recoverable after restart.
+\end{enumerate}
+
+The language and neural systems have no epistemic authority in this phase.
+Experimental outcomes, predictive fit, complexity checks, and CAU determine
+acceptance.
+
+\subsection{Sealed Evaluation Contract}
+
+The source-disjoint sealed cohort contained 72 unfamiliar worlds across six
+domains: 24 worlds at each of arities three, four, and five. Forty-two worlds
+required a schema beyond inherited ALL/ANY; 24 worlds underwent a genuine
+mid-stream structural change; and 48 remained stable to measure false durable
+revision.
+
+The matched random control used the same candidate grammar, likelihood,
+confidence threshold, minimum evidence requirement, and budget. Only the
+experiment-selection policy differed.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Phase 42 sealed results.}
+  \label{tab:phase42-results}
+  \begin{tabular}{lr}
+    \hline
+    Measure & Result \\
+    \hline
+    Final exact theory recovery & \textbf{100.00\%} \\
+    Weakest-domain exact recovery & \textbf{100.00\%} \\
+    Held-out predictive accuracy & \textbf{100.00\%} \\
+    Novel-schema exact recovery & \textbf{100.00\%} \\
+    Inadequate inherited theory rejected & \textbf{100.00\%} \\
+    Genuine rule-change recall & \textbf{100.00\%} \\
+    False durable revisions in stable worlds & \textbf{0} \\
+    Mean active interventions & \textbf{8.125} \\
+    Mean random-control interventions & 11.778 \\
+    Environmental intervention reduction & \textbf{31.01\%} \\
+    Mean Brier score & \textbf{0.0009} \\
+    Unjustified complexity violations & \textbf{0} \\
+    Restart relearning & \textbf{0 worlds} \\
+    \hline
+  \end{tabular}
+\end{table}
+
+All pre-declared gates passed, the complete champion and revision history
+survived restart, and CAU authorised promotion.
+
+\subsection{Capability Interpretation}
+
+Phase 42 joins four operations into one inspectable loop: criticise an inherited
+theory, expand the explanatory grammar only when prediction requires it, choose
+informative experiments, and revise durable knowledge when a previously
+successful rule ceases to fit. AION therefore retains both the superseded
+explanation and the evidence-authorised successor rather than silently
+overwriting its history.
+
+\subsection{Claim Boundary and Next Frontier}
+
+This is bounded causal and schema learning. The Boolean variables, candidate
+operator family, observation interface, noise model, and outcome oracle remain
+engineered. The result does not establish arbitrary mathematical theory
+invention, unrestricted scientific discovery, real-world causal
+identification, or AGI.
+
+The recommended Phase 43 is compositional probabilistic-program induction:
+multiple interacting clauses, context-dependent exceptions, continuous or
+multi-valued variables, and latent intermediate predicates. The learner should
+decide whether predictive failure requires parameter revision, a new exception,
+a hidden variable, or a new operator, while retaining active-experiment cost,
+external-family evaluation, provenance, restart, and CAU gates.

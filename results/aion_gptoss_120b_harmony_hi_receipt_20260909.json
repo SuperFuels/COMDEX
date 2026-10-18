@@ -1,0 +1,49 @@
+{
+  "acceptance": {
+    "hidden_and_logits_bitwise_repeatable": true,
+    "physical_vocab_shell_under_32_mib": true,
+    "prompt_has_at_least_one_token": true,
+    "response_token_sequence_repeatable": true,
+    "routes_repeatable": true,
+    "transformer_evaluated_complete_prompt": true,
+    "transformer_evidence_hash_valid": true,
+    "transformer_execution_passed": true,
+    "transformer_input_matches_tokenizer": true,
+    "warehouse_complete_verified": true
+  },
+  "canonical_sha256": "f2a39370083fa15a91fbab48f238b73eee27618605fb533b7fa844540760cc9e",
+  "claim_boundary": "One real text prompt was tokenized from header-only sparse GGUF shells, teacher-forced through the complete custom 36-layer SD-backed transformer twice with KV history, and its first continuation token was detokenized. This proves the prompt/vocabulary bridge and exact repeatability for this sequence; it is not chat-template quality beyond the declared mode or sustained throughput.",
+  "generated_text": "<|channel|>analysis<|message|>",
+  "generated_token_id": 200008,
+  "generated_token_ids": [
+    200005,
+    35644,
+    200008
+  ],
+  "hashes": {
+    "transformer_canonical_sha256": "9cea326fe691bddd58f4312a3d9225826b00d332181e3c276aec764036a151db",
+    "transformer_evidence_sha256": "b0db139405c5a25ee19d738489c63030bcd15125187fbb5131eaab6a7e68d485",
+    "vocab_tool_source_sha256": "cfa5b7c74a3cd837ceb8f27204101e79731e4eb762e616714cf3373d94034952",
+    "warehouse_manifest_sha256": "dfc85d22c833d3c25a6caf3575a40cb3964656b336c98b5873b94faa3dacc2c3"
+  },
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "model_declared_chat_template_applied": true,
+  "prompt": "Hi",
+  "prompt_token_ids": [
+    200006,
+    1428,
+    200008,
+    12194,
+    200007,
+    200006,
+    173781
+  ],
+  "schema": "aion.gptoss-120b-prompt-sequence-receipt.v1",
+  "sparse_vocab_shell": {
+    "logical_bytes": 62841713344,
+    "physical_bytes": 13025280,
+    "physical_reduction_percent": 99.97927287575898,
+    "temporary_and_deleted_after_use": true
+  },
+  "status": "PASSED"
+}

@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_quantitative_research",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:quantitative_research",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_market_microstructure_execution",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:market_microstructure_execution",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_financial_risk_management",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_risk_management",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:systematic_trading:signal_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:systematic_trading:portfolio_signals",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:systematic_trading:position_sizing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:systematic_trading:execution_integration",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:systematic_trading:drawdown_control",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:systematic_trading:regime_robustness",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:systematic_trading:live_monitoring",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:systematic_trading:strategy_retirement",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:systematic_trading",
+      "label": "Systematic trading and alpha engineering",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:systematic_trading:signal_design",
+      "label": "signal design",
+      "subject_id": "systematic_trading",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:systematic_trading:portfolio_signals",
+      "label": "portfolio signals",
+      "subject_id": "systematic_trading",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:systematic_trading:position_sizing",
+      "label": "position sizing",
+      "subject_id": "systematic_trading",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:systematic_trading:execution_integration",
+      "label": "execution integration",
+      "subject_id": "systematic_trading",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:systematic_trading:drawdown_control",
+      "label": "drawdown control",
+      "subject_id": "systematic_trading",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:systematic_trading:regime_robustness",
+      "label": "regime robustness",
+      "subject_id": "systematic_trading",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:systematic_trading:live_monitoring",
+      "label": "live monitoring",
+      "subject_id": "systematic_trading",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:systematic_trading:strategy_retirement",
+      "label": "strategy retirement",
+      "subject_id": "systematic_trading",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_systematic_trading",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:systematic_trading:signal_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:systematic_trading:portfolio_signals",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:systematic_trading:position_sizing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:systematic_trading:execution_integration",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:systematic_trading:drawdown_control",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:systematic_trading:regime_robustness",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:systematic_trading:live_monitoring",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:systematic_trading:strategy_retirement",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:systematic_trading",
+        "label": "Systematic trading and alpha engineering",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:systematic_trading:signal_design",
+        "label": "signal design",
+        "subject_id": "systematic_trading",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:systematic_trading:portfolio_signals",
+        "label": "portfolio signals",
+        "subject_id": "systematic_trading",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:systematic_trading:position_sizing",
+        "label": "position sizing",
+        "subject_id": "systematic_trading",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:systematic_trading:execution_integration",
+        "label": "execution integration",
+        "subject_id": "systematic_trading",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:systematic_trading:drawdown_control",
+        "label": "drawdown control",
+        "subject_id": "systematic_trading",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:systematic_trading:regime_robustness",
+        "label": "regime robustness",
+        "subject_id": "systematic_trading",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:systematic_trading:live_monitoring",
+        "label": "live monitoring",
+        "subject_id": "systematic_trading",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:systematic_trading:strategy_retirement",
+        "label": "strategy retirement",
+        "subject_id": "systematic_trading",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "systematic_trading",
+    "title": "AION Academy \u00b7 Systematic trading and alpha engineering"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

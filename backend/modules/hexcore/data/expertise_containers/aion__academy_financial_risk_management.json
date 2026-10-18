@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_derivatives_structured_products",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_accounting_corporate_finance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:financial_risk_management:market_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_risk_management",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_risk_management:credit_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_risk_management",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_risk_management:liquidity_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_risk_management",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_risk_management:counterparty_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_risk_management",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_risk_management:var_expected_shortfall",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_risk_management",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_risk_management:stress_testing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_risk_management",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_risk_management:scenario_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_risk_management",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_risk_management:model_governance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_risk_management",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:financial_risk_management",
+      "label": "Financial risk management",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_risk_management:market_risk",
+      "label": "market risk",
+      "subject_id": "financial_risk_management",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_risk_management:credit_risk",
+      "label": "credit risk",
+      "subject_id": "financial_risk_management",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_risk_management:liquidity_risk",
+      "label": "liquidity risk",
+      "subject_id": "financial_risk_management",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_risk_management:counterparty_risk",
+      "label": "counterparty risk",
+      "subject_id": "financial_risk_management",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_risk_management:var_expected_shortfall",
+      "label": "var expected shortfall",
+      "subject_id": "financial_risk_management",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_risk_management:stress_testing",
+      "label": "stress testing",
+      "subject_id": "financial_risk_management",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_risk_management:scenario_analysis",
+      "label": "scenario analysis",
+      "subject_id": "financial_risk_management",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_risk_management:model_governance",
+      "label": "model governance",
+      "subject_id": "financial_risk_management",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_financial_risk_management",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:financial_risk_management:market_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_risk_management",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_risk_management:credit_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_risk_management",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_risk_management:liquidity_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_risk_management",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_risk_management:counterparty_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_risk_management",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_risk_management:var_expected_shortfall",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_risk_management",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_risk_management:stress_testing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_risk_management",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_risk_management:scenario_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_risk_management",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_risk_management:model_governance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_risk_management",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:financial_risk_management",
+        "label": "Financial risk management",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_risk_management:market_risk",
+        "label": "market risk",
+        "subject_id": "financial_risk_management",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_risk_management:credit_risk",
+        "label": "credit risk",
+        "subject_id": "financial_risk_management",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_risk_management:liquidity_risk",
+        "label": "liquidity risk",
+        "subject_id": "financial_risk_management",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_risk_management:counterparty_risk",
+        "label": "counterparty risk",
+        "subject_id": "financial_risk_management",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_risk_management:var_expected_shortfall",
+        "label": "var expected shortfall",
+        "subject_id": "financial_risk_management",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_risk_management:stress_testing",
+        "label": "stress testing",
+        "subject_id": "financial_risk_management",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_risk_management:scenario_analysis",
+        "label": "scenario analysis",
+        "subject_id": "financial_risk_management",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_risk_management:model_governance",
+        "label": "model governance",
+        "subject_id": "financial_risk_management",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "financial_risk_management",
+    "title": "AION Academy \u00b7 Financial risk management"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

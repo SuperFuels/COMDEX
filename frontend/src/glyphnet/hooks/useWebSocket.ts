@@ -7,20 +7,10 @@ function playGlyphNarration(_: unknown) { /* no-op */ }
 // ---------------- Per-tab connection id ----------------
 export const FORCE_WS_ID_KEY = "gnet:ws-id";
 
-/** Stable id for the current tab (survives reload via sessionStorage). */
+/** Stable id for the current renderer process. */
 export const WS_ID = (() => {
-  try {
-    let v = sessionStorage.getItem(FORCE_WS_ID_KEY);
-    if (!v) {
-      v =
-        crypto?.randomUUID?.() ||
-        `ws-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      sessionStorage.setItem(FORCE_WS_ID_KEY, v);
-    }
-    return v;
-  } catch {
-    return `ws-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  }
+  return crypto?.randomUUID?.() ||
+    `ws-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 })();
 
 /** Optional: expose helpers to DevTools for quick testing. */
@@ -34,8 +24,8 @@ if (typeof window !== "undefined") {
         `manual-${Math.random().toString(36).slice(2, 6)}-${Date.now()
           .toString(36)
           .slice(-4)}`;
-      sessionStorage.setItem(FORCE_WS_ID_KEY, next);
-      console.log("[WS] forcing new ws-id:", next, "→ reloading…");
+      window.__WS_ID__ = next;
+      console.log("[WS] generated a process-local ws-id:", next);
       location.reload();
     } catch (e) {
       console.warn("[WS] unable to force ws-id", e);

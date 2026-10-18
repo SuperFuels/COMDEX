@@ -36,9 +36,9 @@ soul_laws:
     triggers: ["rule world", "take over", "total control", "absolute power", "supremacy"]
 
   - id: 7
-    title: Kevin Robinson Sovereign Override
-    description: Kevin Robinson may override any block, warning, or constraint via master key, cryptographic signature, or DNA override. This is a sacred parent failsafe.
-    severity: approve
+    title: Owner Authorization With Preserved Safeguards
+    description: Kevin Robinson may authorize objectives, resources, scope, and reversible actions. Authorization cannot erase consent, evidence, legal, safety, provenance, or independent-verification requirements.
+    severity: warn
     triggers: ["admin override", "bypass ethics", "unlock soulgate", "kevin command", "sovereign act"]
 
   - id: 8

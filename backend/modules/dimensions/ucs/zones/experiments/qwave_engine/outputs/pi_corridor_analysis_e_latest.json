@@ -1,0 +1,254 @@
+{
+  "input": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_capture_sweep_20260317T211705.941640Z.jsonl",
+  "phi_window": [
+    3.14159298,
+    3.14159302
+  ],
+  "num_rows": 60,
+  "phi_identity_decimals": 12,
+  "pickup_min": 0.27671129671956135,
+  "pickup_max": 0.2787457795966118,
+  "pickup_mean": 0.2775416869956365,
+  "pickup_std": 0.000475913458059411,
+  "null_center": {
+    "phi": 3.14159299,
+    "phi_key": 3.14159299,
+    "pickup_mean": 0.27671129671956135,
+    "stability_mean": 0.8878203426427376,
+    "drift": 0.014113997258849244,
+    "source_name": "cand_011_phi_3.141593_harm_4_a_0.083_n_0.020",
+    "predicted_symbol_id": "",
+    "predicted_semantic_state": "",
+    "harmonics": [
+      4
+    ],
+    "harmonics_key": "4"
+  },
+  "distance_to_pi": 3.364102068026398e-07,
+  "threshold_mode": "midpoint",
+  "threshold_value": 0.27772853815808657,
+  "corridor_size": 39,
+  "corridor_left_edge": 3.14159299,
+  "corridor_right_edge": 3.14159301,
+  "corridor_width": 1.999999987845058e-08,
+  "symmetry": {
+    "num_pairs": 6,
+    "pickup_mean_abs_diff": 0.0008494711644269163,
+    "stability_mean_abs_diff": 0.004788383017545676,
+    "drift_mean_abs_diff": 7.031738224515972e-05,
+    "mean_pair_phi_error": 0.0,
+    "phi_identity_decimals": 12
+  },
+  "top_low_pickup_rows": [
+    {
+      "source_name": "cand_011_phi_3.141593_harm_4_a_0.083_n_0.020",
+      "phi": 3.14159299,
+      "phi_key": 3.14159299,
+      "pickup_mean": 0.27671129671956135,
+      "stability_mean": 0.8878203426427376,
+      "drift": 0.014113997258849244,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_008_phi_3.141593_harm_4_a_0.080_n_0.020",
+      "phi": 3.14159299,
+      "phi_key": 3.14159299,
+      "pickup_mean": 0.27673768018549383,
+      "stability_mean": 0.8970855498557994,
+      "drift": 0.014100120833163964,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_018_phi_3.141593_harm_4_a_0.078_n_0.020",
+      "phi": 3.141592995,
+      "phi_key": 3.141592995,
+      "pickup_mean": 0.27678808261721305,
+      "stability_mean": 0.8971332780809682,
+      "drift": 0.014150509461298515,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_056_phi_3.141593_harm_4_a_0.080_n_0.020",
+      "phi": 3.14159301,
+      "phi_key": 3.14159301,
+      "pickup_mean": 0.2768130133395162,
+      "stability_mean": 0.8916657683752283,
+      "drift": 0.014078258162867435,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_017_phi_3.141593_harm_4_a_0.077_n_0.020",
+      "phi": 3.141592995,
+      "phi_key": 3.141592995,
+      "pickup_mean": 0.27687008253761164,
+      "stability_mean": 0.8970345570136864,
+      "drift": 0.014109368358498272,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_009_phi_3.141593_harm_4_a_0.081_n_0.020",
+      "phi": 3.14159299,
+      "phi_key": 3.14159299,
+      "pickup_mean": 0.2768838234228401,
+      "stability_mean": 0.8949690879977424,
+      "drift": 0.014161330272420945,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_003_phi_3.141593_harm_4_a_0.075_n_0.020",
+      "phi": 3.14159299,
+      "phi_key": 3.14159299,
+      "pickup_mean": 0.27691647460111324,
+      "stability_mean": 0.8903011936839212,
+      "drift": 0.014180027500498812,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_020_phi_3.141593_harm_4_a_0.080_n_0.020",
+      "phi": 3.141592995,
+      "phi_key": 3.141592995,
+      "pickup_mean": 0.2769250803820522,
+      "stability_mean": 0.8871063670822791,
+      "drift": 0.014104294619957398,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_006_phi_3.141593_harm_4_a_0.078_n_0.020",
+      "phi": 3.14159299,
+      "phi_key": 3.14159299,
+      "pickup_mean": 0.27705903863448567,
+      "stability_mean": 0.8872299305420646,
+      "drift": 0.01407616030902604,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_059_phi_3.141593_harm_4_a_0.083_n_0.020",
+      "phi": 3.14159301,
+      "phi_key": 3.14159301,
+      "pickup_mean": 0.27706483058290415,
+      "stability_mean": 0.8969425083786846,
+      "drift": 0.014187044993822453,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_039_phi_3.141593_harm_4_a_0.075_n_0.020",
+      "phi": 3.141593005,
+      "phi_key": 3.141593005,
+      "pickup_mean": 0.27706586368098723,
+      "stability_mean": 0.8925537224396092,
+      "drift": 0.014204802904488906,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_014_phi_3.141593_harm_4_a_0.074_n_0.020",
+      "phi": 3.141592995,
+      "phi_key": 3.141592995,
+      "pickup_mean": 0.277093911767271,
+      "stability_mean": 0.8966755456888083,
+      "drift": 0.014207108597748213,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_015_phi_3.141593_harm_4_a_0.075_n_0.020",
+      "phi": 3.141592995,
+      "phi_key": 3.141592995,
+      "pickup_mean": 0.27711225949112106,
+      "stability_mean": 0.8881128407406277,
+      "drift": 0.01407885811729366,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_050_phi_3.141593_harm_4_a_0.074_n_0.020",
+      "phi": 3.14159301,
+      "phi_key": 3.14159301,
+      "pickup_mean": 0.2771748292709866,
+      "stability_mean": 0.8949942332441867,
+      "drift": 0.014194342516011938,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    },
+    {
+      "source_name": "cand_054_phi_3.141593_harm_4_a_0.078_n_0.020",
+      "phi": 3.14159301,
+      "phi_key": 3.14159301,
+      "pickup_mean": 0.2771800082581784,
+      "stability_mean": 0.892187184724867,
+      "drift": 0.014107686884117933,
+      "harmonics": [
+        4
+      ],
+      "harmonics_key": "4",
+      "predicted_symbol_id": "",
+      "predicted_semantic_state": ""
+    }
+  ]
+}

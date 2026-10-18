@@ -1,164 +1,104 @@
-# ──────────────────────────────────────────────
-#  Tessaris * HQCE Telemetry Database (Stage 10)
-#  Persistent store for ψ-κ-T-C metrics
-#  Supports trend queries and dashboard integration
-# ──────────────────────────────────────────────
+"""Guardian-backed HQCE telemetry storage.
 
-import os
+Importing this module has no filesystem side effects. Customer telemetry is
+encrypted in the Business Vault when Guardian is configured; local experiments
+use process memory only. JSON import/export remains an explicit user action.
+"""
+from __future__ import annotations
+
 import json
-import time
-import sqlite3
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from pathlib import Path
+import time
+from typing import Any, Dict, List, Optional, Tuple
+
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 logger = logging.getLogger(__name__)
 
 
 class HQCETelemetryDB:
-    """Persistent telemetry store for HQCE field tensor data."""
+    """HQCE field tensor store with encrypted or memory-only custody."""
 
-    def __init__(self, db_path: str = "data/ledger/hqce_telemetry.db"):
-        self.db_path = db_path
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-        self.conn = sqlite3.connect(self.db_path)
-        self._init_schema()
+    def __init__(self, db_path: str | None = None, *, vault_store: AionLearningVaultStore | None = None) -> None:
+        self.db_path = db_path  # Compatibility label only; never opened.
+        self.vault_store = vault_store or AionLearningVaultStore()
+        self._records: dict[str, dict[str, Any]] = {}
+        for event in self.vault_store.list_events(kind="hqce_telemetry"):
+            record = event.get("record")
+            if isinstance(record, dict) and record.get("id"):
+                self._records[str(record["id"])] = dict(record)
 
-    # ──────────────────────────────────────────────
-    #  Schema
-    # ──────────────────────────────────────────────
-    def _init_schema(self):
-        cur = self.conn.cursor()
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS telemetry (
-                id TEXT PRIMARY KEY,
-                timestamp REAL,
-                session_id TEXT,
-                observer TEXT,
-                psi REAL,
-                kappa REAL,
-                T REAL,
-                coherence REAL,
-                stability REAL,
-                meta TEXT
-            );
-        """)
-        cur.execute("CREATE INDEX IF NOT EXISTS idx_time ON telemetry(timestamp);")
-        self.conn.commit()
-        logger.info("[HQCETelemetryDB] Schema initialized.")
-
-    # ──────────────────────────────────────────────
-    #  Ingestion
-    # ──────────────────────────────────────────────
     def ingest_record(self, record: Dict[str, Any], session_id: str) -> None:
-        """Insert a telemetry record (from MorphicLedger)."""
-        try:
-            t = record.get("tensor", {})
-            cur = self.conn.cursor()
-            cur.execute("""
-                INSERT INTO telemetry VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                record.get("id"),
-                record.get("timestamp", time.time()),
-                session_id,
-                record.get("observer", "HQCE_Runtime"),
-                t.get("psi", 0.0),
-                t.get("kappa", 0.0),
-                t.get("T", 0.0),
-                t.get("coherence", 0.0),
-                t.get("stability", 0.0),
-                json.dumps(record.get("meta", {}))
-            ))
-            self.conn.commit()
-        except sqlite3.IntegrityError:
-            logger.debug(f"[HQCETelemetryDB] Duplicate record skipped: {record.get('id')}")
-        except Exception as e:
-            logger.error(f"[HQCETelemetryDB] Ingestion failed: {e}")
+        tensor = record.get("tensor", {})
+        record_id = str(record.get("id") or f"entry_{time.time_ns()}")
+        if record_id in self._records:
+            logger.debug("[HQCETelemetryDB] Duplicate record skipped: %s", record_id)
+            return
+        normalized = {
+            "id": record_id,
+            "timestamp": float(record.get("timestamp", time.time())),
+            "session_id": session_id,
+            "observer": record.get("observer", "HQCE_Runtime"),
+            "psi": float(tensor.get("psi", 0.0)),
+            "kappa": float(tensor.get("kappa", 0.0)),
+            "T": float(tensor.get("T", 0.0)),
+            "coherence": float(tensor.get("coherence", 0.0)),
+            "stability": float(tensor.get("stability", 0.0)),
+            "meta": dict(record.get("meta", {}) or {}),
+        }
+        if self.vault_store.enabled:
+            self.vault_store.append_event(
+                f"hqce-telemetry-{record_id}",
+                {"event_type": "hqce_telemetry", "event_id": record_id, "timestamp": normalized["timestamp"], "record": normalized},
+            )
+        self._records[record_id] = normalized
 
     def bulk_ingest_jsonl(self, path: str, session_id: Optional[str] = None) -> int:
-        """Load MorphicLedger JSONL file into the DB."""
-        if not os.path.exists(path):
-            logger.warning(f"[HQCETelemetryDB] Ledger not found: {path}")
+        source = Path(path)
+        if not source.is_file():
+            logger.warning("[HQCETelemetryDB] Ledger not found: %s", path)
             return 0
-
-        session_id = session_id or f"session_{int(time.time())}"
+        resolved_session = session_id or f"session_{int(time.time())}"
         count = 0
-        with open(path, "r", encoding="utf-8") as f:
-            for line in f:
+        with source.open("r", encoding="utf-8") as handle:
+            for line in handle:
                 try:
-                    rec = json.loads(line)
-                    rec.setdefault("id", f"entry_{time.time_ns()}")
-                    self.ingest_record(rec, session_id)
-                    count += 1
+                    record = json.loads(line)
                 except json.JSONDecodeError:
                     continue
-        logger.info(f"[HQCETelemetryDB] Imported {count} records from {path}")
+                record.setdefault("id", f"entry_{time.time_ns()}")
+                self.ingest_record(record, resolved_session)
+                count += 1
         return count
 
-    # ──────────────────────────────────────────────
-    #  Query API
-    # ──────────────────────────────────────────────
     def query_range(self, start: float, end: float) -> List[Dict[str, Any]]:
-        """Return all telemetry between timestamps."""
-        cur = self.conn.cursor()
-        cur.execute("SELECT * FROM telemetry WHERE timestamp BETWEEN ? AND ? ORDER BY timestamp ASC", (start, end))
-        rows = cur.fetchall()
-        return [self._row_to_dict(r) for r in rows]
+        return sorted([r.copy() for r in self._records.values() if start <= r["timestamp"] <= end], key=lambda row: row["timestamp"])
 
     def latest_values(self, limit: int = 20) -> List[Dict[str, Any]]:
-        cur = self.conn.cursor()
-        cur.execute("SELECT * FROM telemetry ORDER BY timestamp DESC LIMIT ?", (limit,))
-        rows = cur.fetchall()
-        return [self._row_to_dict(r) for r in rows]
+        return sorted((r.copy() for r in self._records.values()), key=lambda row: row["timestamp"], reverse=True)[:limit]
 
     def summary(self) -> Dict[str, Any]:
-        """Return aggregate metrics (mean ψ, κ, coherence, stability)."""
-        cur = self.conn.cursor()
-        cur.execute("""
-            SELECT AVG(psi), AVG(kappa), AVG(coherence), AVG(stability)
-            FROM telemetry
-        """)
-        ψ, κ, C, S = cur.fetchone()
-        return {"ψ_mean": ψ or 0, "κ_mean": κ or 0, "C_mean": C or 0, "stability_mean": S or 0}
+        rows = list(self._records.values())
+        def mean(key: str) -> float:
+            return sum(float(row[key]) for row in rows) / len(rows) if rows else 0.0
+        return {"ψ_mean": mean("psi"), "κ_mean": mean("kappa"), "C_mean": mean("coherence"), "stability_mean": mean("stability")}
 
     def coherence_trend(self, limit: int = 100) -> List[Tuple[float, float]]:
-        """Return timestamp -> coherence pairs for visualization."""
-        cur = self.conn.cursor()
-        cur.execute("SELECT timestamp, coherence FROM telemetry ORDER BY timestamp DESC LIMIT ?", (limit,))
-        return cur.fetchall()
+        return [(row["timestamp"], row["coherence"]) for row in self.latest_values(limit)]
 
-    # ──────────────────────────────────────────────
-    #  Export
-    # ──────────────────────────────────────────────
     def export_json(self, path: str = "data/ledger/hqce_telemetry_export.json") -> str:
-        cur = self.conn.cursor()
-        cur.execute("SELECT * FROM telemetry ORDER BY timestamp ASC")
-        data = [self._row_to_dict(r) for r in cur.fetchall()]
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-        logger.info(f"[HQCETelemetryDB] Exported {len(data)} entries -> {path}")
-        return path
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        data = sorted(self._records.values(), key=lambda row: row["timestamp"])
+        with target.open("w", encoding="utf-8") as handle:
+            json.dump(data, handle, indent=2)
+        return str(target)
 
-    # ──────────────────────────────────────────────
-    #  Helpers
-    # ──────────────────────────────────────────────
     @staticmethod
-    def _row_to_dict(row: Tuple) -> Dict[str, Any]:
-        return {
-            "id": row[0],
-            "timestamp": row[1],
-            "session_id": row[2],
-            "observer": row[3],
-            "psi": row[4],
-            "kappa": row[5],
-            "T": row[6],
-            "coherence": row[7],
-            "stability": row[8],
-            "meta": json.loads(row[9]) if row[9] else {},
-        }
+    def _row_to_dict(row: Tuple[Any, ...]) -> Dict[str, Any]:
+        return {"id": row[0], "timestamp": row[1], "session_id": row[2], "observer": row[3], "psi": row[4], "kappa": row[5], "T": row[6], "coherence": row[7], "stability": row[8], "meta": json.loads(row[9]) if row[9] else {}}
 
 
-# ──────────────────────────────────────────────
-#  Singleton instance (used by HQCE Dashboard)
-# ──────────────────────────────────────────────
+# Safe singleton: construction creates no database or application-tree file.
 hqce_telemetry_db = HQCETelemetryDB()

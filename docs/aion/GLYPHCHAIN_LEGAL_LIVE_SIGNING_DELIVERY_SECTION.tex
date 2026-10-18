@@ -1,0 +1,236 @@
+% Compile-ready section. Requires: enumitem, tabularx, booktabs, hyperref.
+
+\section{Legal Signed-Copy Delivery and Live Provider Qualification}
+\label{sec:legal-live-signing-delivery}
+
+\noindent\textbf{Status:} The encrypted delivery engine, authenticated provider
+receipt handling, recovery workflows and content-free qualification evaluator
+are implemented and locally verified.  Registration of the production Resend
+callback, connection of the approved Microsoft 365 tenant and execution of the
+qualification matrix against both live providers remain production release
+gates.
+
+\subsection{Purpose and User Functionality}
+
+After all required parties have completed an approved Legal signature envelope,
+Tessaris can prepare the exact completed evidence package for controlled delivery
+to each signer.  The delivery workflow is intended to provide the following
+user-visible functions:
+
+\begin{itemize}[leftmargin=*]
+  \item prepare the completed document, signing certificate, tamper-evident audit
+        history, portable \texttt{.tessaris-proof} receipt and local verification
+        instructions as one exact private attachment;
+  \item place the approved message and attachment into an encrypted, durable
+        outbox before calling an external provider;
+  \item deliver through a connected Resend or Microsoft 365 Vault connection;
+  \item distinguish provider acceptance, delay, bounce or failure from confirmed
+        delivery;
+  \item preserve a human-readable delivery state without exposing private message
+        content in ordinary API responses;
+  \item recover after a temporary provider failure or application restart; and
+  \item require an explicit human reauthorisation before a delayed, bounced or
+        rejected item is sent again.
+\end{itemize}
+
+Delivery is not an implicit consequence of signing.  Queueing and each retry
+require acknowledgement that an external message will be sent.  A completed
+signature envelope therefore remains usable as a downloadable local evidence
+package even when no external-delivery provider is configured.
+
+\subsection{Encrypted Outbox and Delivery State Machine}
+
+Each delivery has a deterministic identifier derived from the workspace,
+signature envelope, sealed manifest, signer commitment, recipient and selected
+provider.  Repeating the same request is idempotent; a conflicting immutable
+payload fails closed.  Before the first network operation Tessaris stores the
+exact approved subject, body and evidence-package bytes under workspace-bound
+authenticated encryption.  The public view removes the attachment bytes and
+replaces the private body with a fixed explanatory sentence.
+
+The outbox uses the following principal states:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{State} & \textbf{Meaning} \\
+\midrule
+\texttt{APPROVED\_PENDING} & The exact private delivery has been approved and
+persisted but has not yet been submitted. \\
+\texttt{SUBMITTING} & A bounded provider operation is in progress. \\
+\texttt{RETRY\_PENDING} & Submission failed or an authorised recovery was
+scheduled; bounded exponential backoff applies. \\
+\texttt{SUBMITTED\_TO\_PROVIDER} & The provider accepted the request and returned
+a request or Internet Message-ID.  This is explicitly \emph{not} delivery. \\
+\texttt{DELIVERY\_DELAYED} & Authenticated provider evidence reports delay,
+quarantine or filtering that requires attention. \\
+\texttt{DELIVERED} & Authenticated provider evidence confirms delivery. \\
+\texttt{BOUNCED} & Resend reported a recipient-specific bounce. \\
+\texttt{REJECTED} & The provider reported a failed or suppressed delivery. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Submission failures are scheduled with bounded exponential backoff.  Terminal
+bounce and rejection states are not automatically replayed.  Reauthorisation
+archives the previous provider request, status, submission time, confirmation
+reference and outcome, records the reason as a hash-bound audit event and resets
+only the provider-specific attempt fields.  The message and attachment remain
+the exact approved encrypted payload.
+
+Every state transition is appended to a SHA--256 event chain.  Each event binds
+its type, time, actor, a digest of the bounded detail and the previous event
+hash.  Loading a record verifies this chain; altered history is rejected before
+status reporting, retry or qualification.  Provider request identifiers are
+held in a separate encrypted index so callbacks can locate the correct
+workspace record without scanning or trusting callback-supplied workspace data.
+
+\subsection{Resend Delivery Evidence}
+
+The Resend submission response is treated only as provider acceptance.  Final
+and intermediate outcomes enter Tessaris through the dedicated Legal callback.
+The callback verifies the Svix identifier, timestamp and signature over the
+\emph{exact request bytes} before parsing the JSON body.  It enforces a bounded
+clock tolerance, supports controlled signing-secret rotation, limits request
+size and stores only delivery-relevant metadata.  Duplicate event identifiers
+are idempotent when the payload digest matches and fail closed when the same
+identifier is reused with different bytes.
+
+The implemented mapping is:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Authenticated Resend event} & \textbf{Tessaris outcome} \\
+\midrule
+\texttt{email.delivered} & \texttt{DELIVERED} \\
+\texttt{email.delivery\_delayed} & \texttt{DELIVERY\_DELAYED} \\
+\texttt{email.bounced} & \texttt{BOUNCED} \\
+\texttt{email.failed}, \texttt{email.suppressed} & \texttt{REJECTED} \\
+\texttt{email.complained} & retained for mandatory human review \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+If two authenticated provider events assert conflicting terminal outcomes,
+Tessaris retains the first final state, records the conflict and requires human
+review rather than silently rewriting history.  Production qualification
+requires an HTTPS callback registered with the provider, a signing secret held
+in approved Vault custody and observed authenticated delay, bounce, rejection,
+retry and delivery paths.
+
+\subsection{Microsoft 365 Delivery Evidence}
+
+The Microsoft connector uses a two-step traceable send.  It first creates an
+immutable-ID draft, obtains the exact Internet Message-ID, and then sends that
+specific draft.  The send response is an acceptance receipt only.  Delivery is
+confirmed separately through Exchange Online Message Trace using an exact
+Internet Message-ID and recipient-address filter.  A trace that refers to a
+different identifier is rejected.
+
+The Vault connection requires \texttt{Mail.ReadWrite} to create the traceable
+draft, \texttt{Mail.Send} to send it and tenant-approved
+\texttt{ExchangeMessageTrace.Read.All} for delivery evidence.  Microsoft also
+requires the Exchange message-trace service principal to be provisioned in the
+tenant before the trace API can be used.\footnote{Microsoft Graph,
+\emph{exchangeMessageTrace resource type} and \emph{Get details by recipient},
+\url{https://learn.microsoft.com/graph/api/resources/exchangemessagetrace} and
+\url{https://learn.microsoft.com/graph/api/exchangemessagetrace-getdetailsbyrecipient}.}
+
+The high-level trace states map as follows:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Exchange Message Trace state} & \textbf{Tessaris outcome} \\
+\midrule
+\texttt{delivered} & \texttt{DELIVERED} \\
+\texttt{quarantined}, \texttt{filteredAsSpam} &
+\texttt{DELIVERY\_DELAYED} plus human review \\
+\texttt{failed} & \texttt{REJECTED} \\
+\texttt{gettingStatus}, \texttt{pending}, \texttt{expanded} & recorded, not final \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The high-level Microsoft trace does not independently distinguish an SMTP bounce
+from every other failed-delivery cause.  Tessaris therefore reports this path as
+\emph{failed delivery} rather than manufacturing a more specific bounce claim.
+Detailed recipient-trace evidence may later refine the diagnosis, but it must
+not weaken the exact Message-ID and recipient binding.
+
+\subsection{Content-Free Qualification Evidence}
+
+The operator command
+\texttt{backend/scripts/run\_legal\_delivery\_qualification.py} reads the
+existing encrypted outbox and creates a bounded JSON qualification report.  It
+does not send email, retrieve private attachments or accept provider secrets on
+the command line.  A separate content-free provider-configuration inventory
+declares only whether the Vault connection, HTTPS callback, signing-secret
+registration, Microsoft scopes and message-trace service principal are present.
+
+The evaluator counts a scenario only when all of the following are true:
+
+\begin{enumerate}[leftmargin=*]
+  \item the delivery record's complete internal event chain verifies;
+  \item the failure or delivery appears in an authenticated Resend webhook event
+        or an exact Microsoft Message Trace event;
+  \item a recovery case contains the original provider outcome in immutable
+        provider history;
+  \item the audit sequence contains a subsequent explicit
+        \texttt{DELIVERY\_RETRY\_AUTHORIZED} event, a new provider submission and
+        authenticated delivery; and
+  \item the applicable live-configuration assertions pass.
+\end{enumerate}
+
+A manual confirmation, a successful HTTP submission or an operator assertion by
+itself never satisfies the qualification gate.  Test-environment evidence can
+produce \texttt{LOCAL\_QUALIFICATION\_LOGIC\_PASSED} but can never set
+\texttt{production\_ready=true}.
+
+The output omits recipient addresses, signer identifiers, subjects, bodies,
+attachment names, provider request identifiers and trace identifiers.  It
+retains only one-way workspace and delivery commitments, the private
+attachment's existing SHA--256 digest, the last audit-event hash and a digest of
+the provider-event set.  The complete canonical report has its own SHA--256
+digest and is created exclusively with owner-only permissions; an existing or
+symbolic-link destination is refused.  This digest detects later alteration but
+is not an independent provider signature.  Production release evidence must be
+retained with the signed release baseline and independently reviewed.
+
+\subsection{Qualification Matrix and Release Gate}
+
+The required observed matrix is:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Provider} & \textbf{Required authenticated paths} &
+\textbf{Provider-specific boundary} \\
+\midrule
+Resend & delivered; delayed then reauthorised and delivered; bounced then
+reauthorised and delivered; rejected then reauthorised and delivered & Webhook
+signature over exact bytes and recipient-specific event type are authoritative. \\
+Microsoft 365 & delivered; delayed or quarantined then reauthorised and
+delivered; failed then reauthorised and delivered & Exact Internet Message-ID
+and recipient trace is authoritative; high-level \texttt{failed} is not relabelled
+as a specific bounce. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The focused local regression currently verifies encrypted and redacted storage,
+idempotent queueing, explicit send acknowledgement, restart recovery, bounded
+retry, workspace isolation, event-chain tamper rejection, authenticated and
+idempotent Resend callbacks, conflicting final-outcome retention, exact Microsoft
+trace matching, delay and failure recovery, content-free reporting, exclusive
+report creation, report-digest verification and the complete qualification
+matrix.  Twenty-eight focused delivery, callback and provider-adapter tests pass.
+
+These local tests do not prove that the production DNS name receives callbacks,
+that a live Vault token carries the declared permissions, that a real recipient
+server generated the expected outcomes or that either provider was continuously
+available.  Tessaris must not describe automated signed-copy delivery as
+production-ready until the report is generated in \texttt{production} mode from
+real provider-authenticated evidence for every required case and the resulting
+content-free report is included in the approved release evidence.

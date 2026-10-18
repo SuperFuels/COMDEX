@@ -1,0 +1,122 @@
+\section{Signed Intelligence Templates and Production Qualification}
+\label{sec:aion-flow-templates-production}
+
+This section records the completion of the AION Flow template ecosystem and the locally verifiable
+part of production qualification. It is intended to be appended to the existing Pilot and AION
+technical document. It does not replace earlier architecture sections.
+
+\subsection{Purpose and trust boundary}
+
+A template is reusable workflow logic, not a copy of a customer's brain. A template package must
+therefore exclude credentials, private memory, Business Map facts, account data and granted
+authority. Customer state is attached only after installation through local bindings retained by
+the customer's mother brain. A template can describe a capability that may eventually send a
+message or update a business system, but installing or loading that template never grants the
+permission to do so.
+
+The operating sequence is:
+
+\begin{quote}
+Signed template $\rightarrow$ dependency and permission review $\rightarrow$ customer-local vault
+binding $\rightarrow$ non-executing draft $\rightarrow$ simulation $\rightarrow$ exact approval
+$\rightarrow$ governed capability $\rightarrow$ verification and receipt.
+\end{quote}
+
+\subsection{Built-in template gallery}
+
+The existing Workflow Canvas exposes a \textbf{Templates} control. It opens an inspectable gallery
+rather than a separate automation product. The initial signed catalogue contains:
+
+\begin{itemize}
+  \item Local-first research;
+  \item Gemini evidence analysis;
+  \item Private business analysis;
+  \item Multi-model critic and reconciliation;
+  \item Governed email drafting; and
+  \item Boardroom decision analysis.
+\end{itemize}
+
+Each catalogue entry declares an immutable identifier and version, publisher class, department,
+description, dependencies, licences, permissions, required bindings and workflow graph. Its
+canonical manifest hash is signed with an Ed25519 publisher identity. Inspection verifies that
+signature and presents dependency, licence and permission information before use.
+
+The package validator rejects embedded \texttt{vault://} references, redacted secret placeholders,
+credential-bearing packages and customer-data-bearing packages. The catalogue API returns public
+metadata only. It never returns a raw key, token or customer record.
+
+\subsection{Visual Vault binding and installation}
+
+Templates that require Gemini, private compute, email or critic models declare named binding slots.
+The user selects an active Visual Vault binding for each slot. The canvas and installation record
+retain only an opaque reference such as \texttt{vault://model/provider-name}; secret material
+remains encrypted on the mother brain.
+
+Selecting \textbf{Load logic into canvas} replaces the visible draft with the signed graph and
+marks it as a draft. Selecting \textbf{Install for this organisation} pins the exact signed version,
+stores only its opaque binding map and records that execution authority remains false. Execution still
+requires normal policy, identity, approval and connector checks.
+
+Private organisation libraries require an owner, administrator or workflow-publisher role. Template
+versions are immutable. Updates therefore create and pin a new version while preserving the prior
+reference. Rollback swaps the active and previous references. Quarantine, revocation and removal
+prevent use without destroying historical evidence. Third-party publishing and commercial
+settlement remain disabled pending a separate supply-chain and legal review.
+
+\subsection{Production review and signed collaboration}
+
+The Workflow Canvas also exposes a \textbf{Production} centre. Desktop and tablet surfaces support
+authoring review; a narrow mobile surface is explicitly read-only. Production checks validate
+workflow identity, node identity uniqueness, edge targets, graph size and the caller's declared
+review or editing role. The check performs no workflow execution and no external write.
+
+Commits use optimistic concurrency. An editor supplies the revision from which they began. If the
+stored revision has advanced, AION rejects the commit with a revision conflict instead of silently
+overwriting another person's work. Accepted revisions retain the workflow hash, base revision,
+author identity, role, timestamp, mother-brain public key and Ed25519 signature. A version-difference
+service identifies added, removed and changed nodes plus the edge-count difference without executing
+either version.
+
+For larger graphs, the Production centre can group a selected set of nodes, focus the canvas on a
+named group and save selected internal logic as a reusable subflow. Subflows preserve their own
+version and definition hash but inherit no credential or execution authority. The visual revision
+review shows added, removed and changed node identities and the edge-count change between two signed
+revisions.
+
+\subsection{Encrypted portability}
+
+Workflow movement uses a password-protected envelope. AION normalizes the graph to the current
+schema, derives a 256-bit key using scrypt with a random salt, and encrypts the package using
+AES-256-GCM with a random nonce. The authenticated header identifies the schema, workflow and
+expected graph hash without containing workflow content. Import authenticates and decrypts the
+envelope, deterministically migrates legacy edge names, checks the resulting graph hash and restores
+the workflow with \texttt{authority\_granted=false}. Migration cannot silently restore approvals,
+tokens or external-write authority.
+
+\subsection{Zero-content observability}
+
+Customer-owned operational telemetry contains only the workflow hash, node and edge counts, node
+families, bounded status totals, latency buckets, timestamp and telemetry hash. It explicitly marks
+that it contains no workflow content, credentials or customer identifiers. This permits local
+health and performance review without turning Tessaris into a collector of business prompts,
+documents or results.
+
+\subsection{Verified scope and remaining qualification}
+
+Automated tests currently prove signed template verification, state-free packages, opaque binding
+enforcement, role-based private publication, version pinning, rollback, quarantine, revocation,
+least-privilege review, revision conflict detection, encrypted round trips, zero-content telemetry
+and adversarial rejection of malformed or excessive graphs.
+
+Production qualification is not yet complete. The remaining work is:
+
+\begin{enumerate}
+  \item complete a formal threat model and third party dependency review;
+  \item benchmark parallel routes and long running recovery under representative loads; and
+  \item perform accessibility, privacy, regulatory and representative medium business field
+        qualification.
+\end{enumerate}
+
+These items remain openly recorded because local automated checks cannot substitute for independent
+field evidence. Until they are complete, AION Flow may be locally qualified for controlled use but
+must not be represented as fully enterprise-qualified.

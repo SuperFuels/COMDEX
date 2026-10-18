@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.16 --- Live Level-2 One-Move Authorized Sender}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.16 introduces the live Level-2 one-move authorized sender.
+
+This phase consumes the Phase 22E.15 one-move live smoke test gate and creates the first controlled path where a real POST can exist.
+
+\section{Sender Contract}
+
+A real POST can only occur when all of the following are true:
+
+\begin{itemize}[leftmargin=*]
+  \item target opponent is Level 2;
+  \item token is present;
+  \item selected move is legal;
+  \item explicit live send authorization is true;
+  \item human operator confirmation is true;
+  \item live game stream confirmation is true;
+  \item one-move gate is enabled;
+  \item live sender is enabled;
+  \item allow real POST is true.
+\end{itemize}
+
+The sender remains one move only.
+
+\section{Technical Position}
+
+This phase introduces the authorized sender boundary.
+
+By default the sender blocks and performs no POST. A real POST is only reachable behind explicit flags.
+
+The test suite uses a mocked post callable to prove the sender path without contacting Lichess.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+The only permitted live action in this phase is one authorized Lichess move POST when all safety flags are explicitly true.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e16_full_chess_live_level2_one_move_authorized_sender_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e16_full_chess_live_level2_one_move_authorized_sender_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E16-FULL-CHESS-LIVE-LEVEL2-ONE-MOVE-AUTHORIZED-SENDER\\
+Status: LOCKED --- live Level-2 one-move authorized sender implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

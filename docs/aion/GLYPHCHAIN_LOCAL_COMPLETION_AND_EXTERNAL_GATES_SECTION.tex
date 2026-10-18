@@ -1,0 +1,239 @@
+\section{GlyphChain and Legal local completion and external release gates}
+\label{sec:glyphchain-local-completion-external-gates}
+
+This section records the final local implementation boundary.  The document-proof,
+signing, delivery, consensus, recovery, template-governance and release-evidence
+mechanisms required for a controlled GlyphChain Legal release are implemented and
+covered by the retained regression baseline.  The remaining thirty-four tasks are
+not unfinished synthetic-development exercises: each requires evidence from a live
+provider, an independently operated system or reviewer, a qualified Legal reviewer,
+a customer pilot, or an authorised production decision.
+
+This distinction prevents Tessaris from manufacturing the evidence needed to
+approve itself.  A local feature is complete when it can securely collect and
+verify the external evidence.  The associated release gate remains open until that
+evidence actually exists for the exact release candidate.
+
+\subsection{Completed local product foundation}
+
+The following capabilities are available to the Legal workspace and release
+process:
+
+\begin{itemize}
+  \item encrypted Legal matters, documents, templates, envelopes, audit events and
+        retention state, with production key custody separated from tracked data;
+  \item controlled signature-envelope preparation, signer sequencing, access-token
+        boundaries, evidence capture, completion certificates, signed-copy
+        manifests and downloadable private evidence packages;
+  \item portable \texttt{.tessaris-proof} receipts and a standalone local verifier
+        for document hash, device Ed25519 signature, GlyphChain transaction,
+        Merkle inclusion and trust-anchored quorum-finality evidence;
+  \item a durable, idempotent proof-submission outbox with restart recovery,
+        exponential retry, duplicate-chain lookup and workspace isolation;
+  \item verified consensus restart recovery, peer identity handshakes, malformed
+        message rejection, congestion controls, bounded catch-up and deterministic
+        finality-certificate validation;
+  \item Resend and Microsoft 365 delivery adapters with authenticated-event
+        ingestion, exact-recipient state, controlled retry and a content-free
+        delivery-qualification report;
+  \item immutable trust-release construction, an independently pinnable checkpoint
+        identifier and a bounded clean-device verification exercise;
+  \item representative network, protocol-upgrade, relay/partition, validator-
+        removal and sustained-soak qualification tools whose reports exclude Legal
+        document content;
+  \item encrypted application-account recovery kits, root-signed public account
+        descriptors, monotonic recovery epochs, device revocation and application-
+        session authority checks;
+  \item exact-hash Legal template approval, jurisdiction binding, withdrawal,
+        supersession and review-required fallback behaviour; and
+  \item a signed exact-source baseline and fail-closed release-readiness evaluator
+        covering every remaining production task.
+\end{itemize}
+
+These functions provide document integrity, attributable consent evidence,
+controlled workflow and verifiable ledger assurance.  They do not by themselves
+establish universal legal enforceability, qualified-electronic-signature status,
+professional Legal advice, independent network operation or production approval.
+
+\subsection{Canonical external task register}
+
+The written remaining-work checklist and the machine release policy share the same
+stable identifiers.  A regression extracts the identifiers from the checklist and
+requires exact equality with the runtime register; duplicate, omitted and unknown
+identifiers fail the test.  The register is:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+\textbf{Identifiers} & \textbf{External workstream} & \textbf{Count} \\
+\hline
+\texttt{LD-01--LD-05} & Live signing delivery & 5 \\
+\texttt{TR-01--TR-03} & Independent trust publication & 3 \\
+\texttt{NET-01--NET-05} & Distributed-network production validation & 5 \\
+\texttt{SEC-01--SEC-04} & Production security and recovery & 4 \\
+\texttt{LEGAL-01--LEGAL-07} & Qualified Legal content & 7 \\
+\texttt{REL-01--REL-10} & Controlled deployment and release & 10 \\
+\hline
+& \textbf{Total} & \textbf{34} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Live delivery closure evidence}
+
+Tasks \texttt{LD-01} to \texttt{LD-04} require authenticated events from the
+production Resend account and Microsoft 365 tenant.  The local implementation can
+verify Resend webhook signatures, ingest Microsoft Message Trace evidence, preserve
+the exact Internet Message-ID and recipient, distinguish delivery, delay and
+failure, and require renewed authority before retry.  It deliberately does not
+promote provider submission to delivery or infer a detailed bounce reason from a
+coarse failure state.
+
+Task \texttt{LD-05} closes only when the production-mode qualification report is
+retained for the exact release and signed by a delivery operator and a distinct
+independent security reviewer.  Synthetic callback fixtures prove parser and state
+machine behaviour but cannot replace live provider evidence.
+
+\subsection{Independent trust and clean-device evidence}
+
+Task \texttt{TR-01} requires the immutable checkpoint, offline verifier and
+digest-bound manifest to be published through the approved versioned release
+channel.  Task \texttt{TR-02} requires the checkpoint identifier to be published
+through a genuinely independent channel.  The release package cannot appoint its
+own trust anchor merely by carrying both checkpoint and pin.
+
+Task \texttt{TR-03} requires a separate clean physical or virtual device to verify
+a real private Legal evidence package with an independently obtained pin.  The
+implemented exercise retains only content-free digests and outcomes; the private
+document remains with the authorised verifier.
+
+\subsection{Distributed-network and security evidence}
+
+The local qualification runners model representative node profiles, reconnects,
+relay outages, partitions, protocol activation, validator removal and sustained
+load.  Tasks \texttt{NET-01} to \texttt{NET-05} nevertheless require independent
+operators, real network boundaries, a production-like public relay and an
+independently observed proof that no Legal document content crosses the relay.
+Several logical nodes on one development Mac are regression evidence, not a claim
+of production decentralisation.
+
+Task \texttt{SEC-01} requires the bounded current-account-descriptor registry to be
+deployed under separate operational control and used by every production session
+issuer.  A recovered account must advance its epoch, authorise only the replacement
+device and cause stale epochs and removed device identifiers to fail closed.
+Validator-finality keys remain in deployment secret custody and outside the account
+recovery kit.
+
+Tasks \texttt{SEC-02} and \texttt{SEC-03} require independent application-security
+and consensus/cryptography review, including resolution and retest of findings.
+Task \texttt{SEC-04} requires the passing bounded soak to be repeated across
+representative independently operated hosts, real restarts and intermittent
+networks under production-like load.
+
+\subsection{Qualified Legal content boundary}
+
+Tasks \texttt{LEGAL-01} to \texttt{LEGAL-06} require qualified reviewers and
+approved wording for every enabled jurisdiction and template family: customer,
+supplier, contractor and employment agreements, terms and conditions, privacy
+notices and data-processing agreements.  The product cannot appoint a qualified
+reviewer or approve its own Legal wording.
+
+Task \texttt{LEGAL-07} uses the implemented encrypted template library to bind the
+exact reviewed bytes to reviewer identity, jurisdiction, approval date, SHA-256
+content hash and supersession rules.  A changed byte creates a different version
+and requires review.  Withdrawn, superseded, unmatched or unapproved templates
+fall back to a clearly labelled review-required draft; they cannot silently power
+automated issue or signature.
+
+\subsection{Controlled release and measured pilot}
+
+Tasks \texttt{REL-01} to \texttt{REL-03} require publication of the versioned
+assurance, privacy, participation, recovery, operator and electronic-signature
+claim boundaries.  Product wording must continue to distinguish local evidence,
+ledger commitment, internally valid but unanchored signatures, and independently
+trust-anchored quorum finality.  It must not claim qualified-electronic-signature
+status unless that separate regulatory route is completed or an approved trust
+service supplies it.
+
+Tasks \texttt{REL-04} to \texttt{REL-07} require an internal multi-device
+deployment, an approved closed customer pilot, measured proof-finality, delivery,
+verification, restore and recovery outcomes, and resolution plus retest of live
+security, reliability and usability findings.  Tasks \texttt{REL-08} and
+\texttt{REL-09} then freeze the exact release, independently pin its trust material
+and collect distinct final security, Legal product and release approvals.
+
+\subsection{Exact-release authorization algorithm}
+
+Each external evidence body includes the task identifier $t$, production
+environment, observation time, result, statement, typed artifact digests and the
+exact release-manifest digest $h_M$.  Required authorities sign a domain-separated
+canonical body with Ed25519.  Trust roots define authorised roles and whether a
+signer is independent.
+
+For task $t$, let $B_t$, $A_t$, $R_t$, $I_t$ and $S_t$ denote valid release
+binding, artifact evidence, role signatures, required independence and separation
+of duties respectively.  The task result is
+
+\begin{equation}
+  G_t = B_t \land A_t \land R_t \land I_t \land S_t.
+\end{equation}
+
+The production decision for the fixed register $T$ is
+
+\begin{equation}
+  G_{\mathrm{production}} =
+  \left(\bigwedge_{t \in T} G_t\right)
+  \land (U=\varnothing)
+  \land (D=\varnothing),
+\end{equation}
+
+where $U$ and $D$ are the unknown and duplicate identifier sets.  Multi-role tasks
+require distinct signers, and an independent task requires an independent signer
+who actually fulfils one of its required roles.  There is no percentage threshold,
+implicit waiver, development override or self-attested substitute.
+
+Task \texttt{REL-10} is satisfied only after this algorithm reports all thirty-four
+tasks passed for the frozen release.  The readiness report is written with
+owner-only permissions, refuses overwrite and symbolic-link destinations, and
+contains a SHA-256 commitment over all decision fields.
+
+\subsection{Current release state and permitted claim}
+
+The production evidence and trust-root inventories intentionally contain no
+fabricated authorities or events.  The current exact-release evaluation therefore
+returns \texttt{BLOCKED\_EXTERNAL\_GATES}, zero passed, thirty-four unmet and
+\texttt{production\_release\_authorized=false}.  This is the expected safe result
+after local implementation completion.
+
+The permitted statement is: ``The local GlyphChain and Legal protocol foundation,
+evidence collectors and release-verification mechanisms are implemented and pass
+the retained regression baseline; production remains gated on live, independent,
+qualified and pilot evidence for the exact release.''  Tessaris must not shorten
+this to ``blockchain certified'', ``legally certified'', ``qualified signature''
+or ``production ready'' until the corresponding external gates have genuinely
+closed.
+
+\subsection{Release artefacts and operator sequence}
+
+The authoritative local artefacts are the remaining-work checklist, this local-
+completion section, the signed baseline report, the empty evidence and trust-root
+inventory templates, the versioned readiness report, and the standalone assurance,
+recovery, delivery, trust-publication, network and security sections.
+
+For each production candidate, operators shall:
+
+\begin{enumerate}
+  \item run the full retained regression suite and refuse a failing baseline;
+  \item generate and sign the exact source/release manifest;
+  \item collect external evidence without private Legal document content;
+  \item verify artifact digests and role-scoped attestations against independently
+        administered trust roots;
+  \item run the readiness evaluator for the exact manifest;
+  \item resolve every unmet, unknown or duplicate task; and
+  \item publish or deploy only when all thirty-four tasks pass and the final report
+        explicitly authorises the candidate.
+\end{enumerate}
+
+This sequence completes all work that can safely be automated locally while
+preserving the human, professional and independent controls that give the release
+evidence its meaning.

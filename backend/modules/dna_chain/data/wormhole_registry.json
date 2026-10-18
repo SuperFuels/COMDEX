@@ -306,5 +306,47 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "aion_goals->ucs_hub": {
+    "from": "aion_goals",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_consciousness_cycle->ucs_hub": {
+    "from": "symatics_consciousness_cycle",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_control->ucs_hub": {
+    "from": "symatics_control",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_runtime_primary->ucs_hub": {
+    "from": "symatics_runtime_primary",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "aion_learning_decision_influence->ucs_hub": {
+    "from": "aion_learning_decision_influence",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_actuation->ucs_hub": {
+    "from": "symatics_actuation",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

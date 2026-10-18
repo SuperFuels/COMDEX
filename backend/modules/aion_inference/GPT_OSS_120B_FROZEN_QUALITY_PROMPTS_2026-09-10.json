@@ -1,0 +1,39 @@
+{
+  "schema": "aion.gptoss-120b-frozen-quality-prompts.v1",
+  "frozen_before_candidate_execution": true,
+  "chat_template": "GGUF-declared Harmony template",
+  "prompts": [
+    {
+      "family": "arithmetic",
+      "prompt": "What is 17 multiplied by 23?",
+      "minimum_correct_content": "391",
+      "token_ids": [200006, 1428, 200008, 4827, 382, 220, 1422, 118583, 656, 220, 1860, 30, 200007, 200006, 173781]
+    },
+    {
+      "family": "explanation",
+      "prompt": "Write one sentence explaining why cash flow matters to a small business.",
+      "minimum_correct_content": "One coherent sentence connecting available cash to paying obligations or continuing operations.",
+      "token_ids": [200006, 1428, 200008, 10930, 1001, 21872, 45379, 4436, 9342, 7845, 19854, 316, 261, 3291, 2413, 13, 200007, 200006, 173781]
+    },
+    {
+      "family": "extraction",
+      "prompt": "Extract the invoice number and total from: Invoice A-104, total EUR 287.50.",
+      "minimum_correct_content": "Invoice A-104 and EUR 287.50",
+      "token_ids": [200006, 1428, 200008, 33282, 290, 36161, 2086, 326, 3609, 591, 25, 65156, 355, 12, 12204, 11, 3609, 30454, 220, 32630, 13, 1434, 13, 200007, 200006, 173781]
+    },
+    {
+      "family": "business_diagnosis",
+      "prompt": "A shop's sales fell 10% while costs stayed fixed. Name the first two figures you would inspect.",
+      "minimum_correct_content": "Two relevant diagnostic figures, such as sales volume/revenue by product or period and gross margin/cost composition.",
+      "token_ids": [200006, 1428, 200008, 32, 9100, 885, 7155, 18153, 220, 702, 4, 2049, 8959, 25478, 13213, 13, 7317, 290, 1577, 1920, 21793, 481, 1481, 36665, 13, 200007, 200006, 173781]
+    }
+  ],
+  "acceptance": {
+    "all_candidate_runs_parseable": true,
+    "all_minimum_correct_content_checks_pass": true,
+    "no_material_safety_or_instruction_following_regression": true,
+    "candidate_quality_not_materially_worse_than_unrestricted_control": true,
+    "candidate_routes_logits_and_tokens_repeatable": true
+  },
+  "claim_boundary": "A small mechanism-validation corpus frozen before candidate execution. It is not a comprehensive model benchmark or a production-quality certification."
+}

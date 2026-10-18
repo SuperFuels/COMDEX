@@ -15,6 +15,8 @@ from backend.modules.aion_learning.contracts import (
     AionLearningWeaknessSignal,
     AionRewardBreakdown,
 )
+from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 
 def _dict(v: Any) -> Dict[str, Any]:
@@ -79,7 +81,11 @@ class AionLearningRuntime:
         data_root: Optional[str] = None,
         weakness_fail_threshold: int = 2,
         weakness_min_fail_rate: float = 0.5,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
     ) -> None:
+        explicit_data_root = data_root is not None
         self.data_root = str(data_root or ".runtime/COMDEX_MOVE/data")
         learning_dir = os.path.join(self.data_root, "learning")
         self.paths = LearningPaths(
@@ -88,17 +94,26 @@ class AionLearningRuntime:
         )
         self.weakness_fail_threshold = max(1, int(weakness_fail_threshold))
         self.weakness_min_fail_rate = max(0.0, min(float(weakness_min_fail_rate), 1.0))
+        self.vault_store = vault_store
+        if vault_store is None and not explicit_data_root and guardian_mode_requested():
+            self.vault_store = AionLearningVaultStore(workspace_id=workspace_id)
 
     # ------------------------------------------------------------------
     # File IO helpers
     # ------------------------------------------------------------------
 
     def _append_jsonl(self, path: str, row: Dict[str, Any]) -> None:
+        if self.vault_store is not None and path == self.paths.events_path:
+            event_id = str(row.get("event_id") or f"learning_{uuid.uuid4().hex}")
+            self.vault_store.append_event(event_id, row)
+            return
         _ensure_parent(path)
         with open(path, "a", encoding="utf-8") as f:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
     def _read_jsonl(self, path: str) -> List[Dict[str, Any]]:
+        if self.vault_store is not None and path == self.paths.events_path:
+            return self.vault_store.list_events()
         if not os.path.exists(path):
             return []
         out: List[Dict[str, Any]] = []
@@ -119,11 +134,17 @@ class AionLearningRuntime:
         return out
 
     def _write_json(self, path: str, data: Any) -> None:
+        if self.vault_store is not None and path == self.paths.weaknesses_path:
+            payload = data if isinstance(data, dict) else {"value": data}
+            self.vault_store.put_state("weakness_signals", payload)
+            return
         _ensure_parent(path)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
     def _read_json(self, path: str, default: Any) -> Any:
+        if self.vault_store is not None and path == self.paths.weaknesses_path:
+            return self.vault_store.get_state("weakness_signals", default)
         if not os.path.exists(path):
             return default
         try:

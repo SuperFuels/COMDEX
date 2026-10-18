@@ -1,0 +1,120 @@
+% Append-only technical-record section. Requires amsmath, booktabs and hyperref.
+\begingroup
+\sloppy
+\section{Verified 120B SD Warehouse and First Packed Expert Computation}
+\label{sec:gptoss120b-verified-storage-first-compute}
+
+\subsection{Final capacity and integrity result}
+
+The expert-aligned import completed all 689 transactional regions on the
+nominal 64~GB removable card.  The frozen source comprised
+62,841,713,344 bytes across two GGUF shards; the independent Zstandard frame
+warehouse occupied 60,110,598,209 bytes, a lossless reduction of
+4.3460\%.  The required 1~GiB reserve was preserved.  This result establishes
+that the selected Q4\_K\_M representation can be stored in its complete,
+expert-addressable form on this card; it does not imply that 120B inference
+has completed.
+
+The importer decoded and hashed every frame before committing its region.
+After all 689 regions were present, it reconstructed both logical shards from
+the SD packs and obtained exact agreement with the frozen upstream hashes:
+\begin{itemize}
+  \item shard~1: \texttt{48b6bea561b52aaa3c10ca7681f35a92}%
+  \allowbreak\texttt{3196cc348098e55ffc6ee3d184eb0949};
+  \item shard~2: \texttt{06ab40ac3a9e2d7a77b6491b4cf76af}%
+  \allowbreak\texttt{152bee88ce493331a1f5147a0207abcad}.
+\end{itemize}
+The resulting warehouse status is \texttt{COMPLETE\_VERIFIED}.  Its canonical
+SHA-256 is
+\texttt{ce9514c469fb8037d5d5fd500d0115a9}%
+\allowbreak\texttt{c85e69ae647f976fddffbcd1092921ab}; the manifest file SHA-256 is
+\texttt{dfc85d22c833d3c25a6caf3575a40cb3}%
+\allowbreak\texttt{964656b336c98b5873b94faa3dacc2c3}.  The manifest remains bound to
+the frozen plan hash
+\texttt{379913c699fae493a66ef72d9664c071}%
+\allowbreak\texttt{9458da6db6fce2cf360bc3ec64ec96e6}.
+
+\subsection{Bounded logical-GGUF reader}
+
+A seekable expert-frame reader was implemented to expose either verified
+logical shard without reconstructing a full GGUF file.  It maps requested byte
+ranges to independently compressed frames, uses positional reads, verifies the
+compressed and decoded SHA-256 values on every fault, and retains decoded bytes
+under a strict LRU ceiling.  Coverage is required to be contiguous from byte
+zero through the declared source size, and a source whose expected and verified
+hashes differ is rejected.
+
+Six focused reader, expert-store and GGUF-stream-index tests passed 6/6.  A
+separate three-test reader gate passed 3/3, including cross-frame random access,
+bounded residency, rejection of incomplete warehouses and rejection of source
+hash disagreement.
+
+\subsection{Direct header gate}
+
+Both GGUF headers were parsed directly from the compressed SD warehouse under
+a 32~MiB per-reader ceiling.  Only one frame per shard faulted into memory:
+13,007,264 raw bytes for shard~1 and 15,392 raw bytes for shard~2.  The parser
+identified GGUF version~3 and the following model facts:
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Property & Verified value \\
+\midrule
+Architecture & \texttt{gpt-oss} \\
+Model name & \texttt{Gpt Oss 120b} \\
+Transformer blocks & 36 \\
+Experts per block & 128 \\
+Experts active per token & 4 \\
+Tensors across both shards & 687 \\
+\bottomrule
+\end{tabular}
+\end{center}
+The gate passed with canonical evidence SHA-256
+\texttt{98eb3a094f58e2486b753d6b7f4058c0}%
+\allowbreak\texttt{c4e3a66923b94c844ba21748a9834156}.
+
+\subsection{Exact expert retrieval and reuse}
+
+Layer~0, expert~0 was demanded through the verified expert store.  Its gate,
+up and down weights and biases totalled 13,253,760 raw bytes.  All six frame
+hashes passed.  The first process-cache fault took 0.1734705~s, read
+12,595,862 compressed bytes and retained the complete expert under a 64~MiB
+ceiling.  Eight subsequent accesses were cache hits; their median lookup time
+was 2.5625 microseconds, with no eviction.  The evidence canonical SHA-256 is
+\texttt{88f0104a8f6b3d781e8f9bca47bfd184}%
+\allowbreak\texttt{824964a32ab9e5aaa2b8c439ee758974}.
+
+The first timing is a process-cache fault, not a claim that every relevant
+operating-system page was physically cold.  It therefore must not be presented
+as a universal cold-SD latency.
+
+\subsection{First computation with the stored 120B weights}
+
+A native GGML microgate executed the three packed MXFP4 matrices and biases for
+the same real expert, using a deterministic synthetic 2,880-element activation
+and the gpt-oss SwiGLU-OAI operation.  Two independent runs produced the same
+finite checksum, $-20.8766$.  With eight CPU threads, the measured expert
+calculation medians were 0.204833~ms and 0.205958~ms; measured p95 values were
+0.571125~ms and 0.344125~ms.  Each run used 13,219,200 packed weight bytes.
+The gate passed with canonical evidence SHA-256
+\texttt{c9a38d97ede8767ee7d57d3bb514d2f}%
+\allowbreak\texttt{5689ddac2085826b962a7d46b401a2402}.
+
+This is the first verified mathematical operation using real gpt-oss-120B
+expert weights fetched from the new SD warehouse.  It proves that the stored
+representation is executable and that packed expert arithmetic itself is fast
+once the weights are resident.  It is not a complete transformer layer, a
+token, semantic generation, or a tokens-per-second result.  The 0.205~ms
+resident computation must not be compared directly with the 0.173~s initial
+storage fault without accounting for routing, attention, shared tensors,
+transfer, synchronization and expert reuse.
+
+\subsection{Next acceptance boundary}
+
+The next implementation must connect the verified logical-GGUF reader to the
+complete gpt-oss graph while preserving bounded residency.  It must measure a
+real four-expert layer route, shared-tensor access, packed computation and
+eviction under cold and retained conditions.  Only after a valid full forward
+step may the record claim first-token execution.  Generated-token speed and
+quality remain unmeasured and must remain explicitly unclaimed.
+\endgroup

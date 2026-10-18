@@ -1,0 +1,39 @@
+{
+  "best_optimistic_attention_only_speedup": 1.0023764141832543,
+  "canonical_sha256": "925fead4196b841ca1b854742859b4d41dae9dae02107f75b837b11d2a71b0c6",
+  "claim_boundary": "This is an optimistic upper bound from exact eight-position full-model instrumentation, not a measured candidate speed. Subtracting component time from wall time can overstate the available gain when timings overlap.",
+  "decision": "Do not implement attention batching as a primary speed strategy. Even making measured attention completely free cannot approach the declared material-speed threshold. Preserve attention batching only as a future compound optimization after expert work and delivery are reduced.",
+  "minimum_material_speedup": 1.5,
+  "runs": [
+    {
+      "all_positions_bitwise_exact": true,
+      "attention_fraction_of_wall": 0.0023707802274961828,
+      "measured_attention_seconds": 0.217300162,
+      "measured_expert_delivery_seconds": 90.18733917089412,
+      "measured_moe_seconds": 0.320001413,
+      "measured_output_seconds": 0.378658667,
+      "mode": "sequential",
+      "optimistic_speedup_if_attention_and_moe_were_free": 1.005896614096745,
+      "optimistic_speedup_if_attention_were_free": 1.0023764141832543,
+      "positions": 8,
+      "wall_seconds": 91.65765745798126
+    },
+    {
+      "all_positions_bitwise_exact": true,
+      "attention_fraction_of_wall": 0.002370270199379574,
+      "measured_attention_seconds": 0.209245205,
+      "measured_expert_delivery_seconds": 87.5883327043266,
+      "measured_moe_seconds": 0.28408787,
+      "measured_output_seconds": 0.057510913999999996,
+      "mode": "union",
+      "optimistic_speedup_if_attention_and_moe_were_free": 1.00561974184242,
+      "optimistic_speedup_if_attention_were_free": 1.0023759017284433,
+      "positions": 8,
+      "wall_seconds": 88.27905150002334
+    }
+  ],
+  "schema": "aion.gptoss-120b-attention-batch-ceiling.v1",
+  "source": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_full_causal_block_8pos_exploratory_gate_20260910.json",
+  "source_file_sha256": "9b10cae78cfc220b2944d4bc73bee279e13cef6f3e3f9ee1dd74986a59d4db33",
+  "status": "STOP_BATCHED_ATTENTION_AS_MATERIAL_SPEED_STRATEGY"
+}

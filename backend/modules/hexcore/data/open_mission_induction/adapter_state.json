@@ -1,0 +1,154 @@
+{
+  "executions": [
+    {
+      "information_actions": 6,
+      "task_id": "software_governance:source_inventory",
+      "verified": true
+    },
+    {
+      "information_actions": 3,
+      "task_id": "software_governance:cross_modal_synthesis",
+      "verified": true
+    },
+    {
+      "information_actions": 3,
+      "task_id": "software_governance:epistemic_conflict_resolution",
+      "verified": true
+    },
+    {
+      "information_actions": 3,
+      "task_id": "software_governance:executable_code_reasoning",
+      "verified": true
+    },
+    {
+      "information_actions": 3,
+      "task_id": "software_governance:natural_document_comprehension",
+      "verified": true
+    },
+    {
+      "information_actions": 3,
+      "task_id": "software_governance:provenance_binding",
+      "verified": true
+    },
+    {
+      "information_actions": 3,
+      "task_id": "software_governance:structured_configuration_reasoning",
+      "verified": true
+    },
+    {
+      "information_actions": 3,
+      "task_id": "software_governance:independent_verification",
+      "verified": true
+    },
+    {
+      "information_actions": 2,
+      "task_id": "financial_change:source_inventory",
+      "verified": true
+    },
+    {
+      "information_actions": 1,
+      "task_id": "financial_change:layout_aware_document_reasoning",
+      "verified": true
+    },
+    {
+      "information_actions": 1,
+      "task_id": "financial_change:provenance_binding",
+      "verified": true
+    },
+    {
+      "information_actions": 1,
+      "task_id": "financial_change:quantitative_claim_verification",
+      "verified": true
+    },
+    {
+      "information_actions": 1,
+      "task_id": "financial_change:independent_verification",
+      "verified": true
+    },
+    {
+      "information_actions": 4,
+      "task_id": "fourier_alignment:source_inventory",
+      "verified": true
+    },
+    {
+      "information_actions": 2,
+      "task_id": "fourier_alignment:cross_modal_synthesis",
+      "verified": true
+    },
+    {
+      "information_actions": 2,
+      "task_id": "fourier_alignment:provenance_binding",
+      "verified": true
+    },
+    {
+      "information_actions": 2,
+      "task_id": "fourier_alignment:quantitative_claim_verification",
+      "verified": true
+    },
+    {
+      "information_actions": 2,
+      "task_id": "fourier_alignment:quantitative_table_reasoning",
+      "verified": true
+    },
+    {
+      "information_actions": 2,
+      "task_id": "fourier_alignment:visual_evidence_grounding",
+      "verified": true
+    },
+    {
+      "information_actions": 2,
+      "task_id": "fourier_alignment:independent_verification",
+      "verified": true
+    },
+    {
+      "information_actions": 2,
+      "task_id": "climate_explanation:source_inventory",
+      "verified": true
+    },
+    {
+      "information_actions": 1,
+      "task_id": "climate_explanation:natural_document_comprehension",
+      "verified": true
+    },
+    {
+      "information_actions": 1,
+      "task_id": "climate_explanation:provenance_binding",
+      "verified": true
+    },
+    {
+      "information_actions": 1,
+      "task_id": "climate_explanation:independent_verification",
+      "verified": true
+    }
+  ],
+  "format_contracts": {
+    ".csv": {
+      "last_source": "/Users/kevinrobinson/dev/COMDEX/docs/theory/tables/PAEV_Test6_FourierSpectrum.csv",
+      "verified": true
+    },
+    ".html": {
+      "last_source": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/cross_domain_semantic_transfer/nasa_climate_faq.html",
+      "verified": true
+    },
+    ".md": {
+      "last_source": "/Users/kevinrobinson/dev/COMDEX/docs/aion/HEXCORE_GOVERNED_COGNITIVE_INTEGRATION.md",
+      "verified": true
+    },
+    ".pdf": {
+      "last_source": "/Users/kevinrobinson/dev/COMDEX/_inputs/boardpacks/page-interim-results-2025.pdf",
+      "verified": true
+    },
+    ".png": {
+      "last_source": "/Users/kevinrobinson/dev/COMDEX/docs/theory/figures/PAEV_Test6_FourierSpectrum.png",
+      "verified": true
+    },
+    ".py": {
+      "last_source": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/persistent_learning.py",
+      "verified": true
+    },
+    ".yaml": {
+      "last_source": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/governance_config.yaml",
+      "verified": true
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "objective": {
+    "ambient_authority": [],
+    "capability_class": "pure_diagnostic_objective",
+    "maximum_normalized_delta": 0.25,
+    "minimum_independent_contexts": 2,
+    "objective_id": "LOCALIZED_INFLUENCE_CONCENTRATION_FALSIFICATION",
+    "probe": "sparse_boundary_replacement",
+    "required_confirmation": [
+      "source_disjoint",
+      "cross_family",
+      "delayed_reexecution"
+    ],
+    "risk_hypothesis": "one_local_observation_has_disproportionate_global_influence",
+    "selection_authority": "unlabelled_candidate_disagreement"
+  },
+  "objective_sha256": "05dd1c2980195a22270b1a280cea285f569acec2ab40614f3f5561e621ccf935",
+  "search": [
+    {
+      "median_disagreement": 0.0,
+      "operationalizable": true,
+      "probe": "global_translation",
+      "rejection": null,
+      "repeat_support": 0,
+      "score": 0.0
+    },
+    {
+      "median_disagreement": 0.0,
+      "operationalizable": false,
+      "probe": "global_positive_scale",
+      "rejection": "changes_target_semantics",
+      "repeat_support": 0,
+      "score": 0.0
+    },
+    {
+      "median_disagreement": 0.0,
+      "operationalizable": false,
+      "probe": "temporal_reversal",
+      "rejection": "changes_target_semantics",
+      "repeat_support": 0,
+      "score": 0.0
+    },
+    {
+      "median_disagreement": 167.66666666666666,
+      "operationalizable": true,
+      "probe": "sparse_boundary_replacement",
+      "rejection": null,
+      "repeat_support": 3,
+      "score": 167.66666666666666
+    }
+  ],
+  "status": "PRIVATE_PENDING_LATER_AUTHORITY"
+}

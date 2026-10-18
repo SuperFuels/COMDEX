@@ -1,0 +1,427 @@
+{
+  "benchmark": "multi_step_counterfactual_planning_and_repair",
+  "boundary_statement": "The planner searches bounded binary-state action sequences with short horizons inside learned temporal causal worlds. It is not evidence of unrestricted general planning.",
+  "development": {
+    "policies": [
+      {
+        "by_family": {
+          "jittered_two": {
+            "prospective_final_score": 0.9027777777777778,
+            "prospective_goal_success": 0.8611111111111112,
+            "reactive_final_score": 0.8518518518518517,
+            "reactive_goal_success": 0.7870370370370371,
+            "worlds": 6
+          },
+          "nonperiodic": {
+            "prospective_final_score": 0.8302469135802469,
+            "prospective_goal_success": 0.6296296296296297,
+            "reactive_final_score": 0.8364197530864198,
+            "reactive_goal_success": 0.6296296296296297,
+            "worlds": 6
+          },
+          "periodic_three": {
+            "prospective_final_score": 0.8611111111111112,
+            "prospective_goal_success": 0.6574074074074074,
+            "reactive_final_score": 0.8425925925925926,
+            "reactive_goal_success": 0.6296296296296297,
+            "worlds": 6
+          },
+          "periodic_two": {
+            "prospective_final_score": 0.9675925925925926,
+            "prospective_goal_success": 0.9351851851851851,
+            "reactive_final_score": 0.9675925925925926,
+            "reactive_goal_success": 0.9351851851851851,
+            "worlds": 6
+          }
+        },
+        "plan_repairs": 134,
+        "policy": {
+          "action_cost": 0.015,
+          "complexity": 16,
+          "horizon": 2,
+          "policy_id": "repair_h2",
+          "temporal": {
+            "complexity": 12,
+            "maximum_duration_std": 1.0,
+            "maximum_horizon": 4,
+            "minimum_prediction_confidence": 0.9,
+            "minimum_transition_support": 3,
+            "policy_id": "phase18_temporal_forecaster"
+          },
+          "uncertainty_penalty": 0.02
+        },
+        "prospective_actions": 1.6365740740740742,
+        "prospective_final_score": 0.8904320987654321,
+        "prospective_goal_success": 0.7708333333333334,
+        "reactive_actions": 1.6481481481481481,
+        "reactive_final_score": 0.8746141975308642,
+        "reactive_goal_success": 0.7453703703703703,
+        "worlds": 24
+      },
+      {
+        "by_family": {
+          "jittered_two": {
+            "prospective_final_score": 0.967948717948718,
+            "prospective_goal_success": 0.9487179487179488,
+            "reactive_final_score": 0.9551282051282052,
+            "reactive_goal_success": 0.923076923076923,
+            "worlds": 6
+          },
+          "nonperiodic": {
+            "prospective_final_score": 0.9358974358974358,
+            "prospective_goal_success": 0.8461538461538461,
+            "reactive_final_score": 0.9358974358974358,
+            "reactive_goal_success": 0.8461538461538461,
+            "worlds": 6
+          },
+          "periodic_three": {
+            "prospective_final_score": 0.9572649572649573,
+            "prospective_goal_success": 0.8717948717948718,
+            "reactive_final_score": 0.8376068376068376,
+            "reactive_goal_success": 0.6410256410256411,
+            "worlds": 6
+          },
+          "periodic_two": {
+            "prospective_final_score": 0.9935897435897436,
+            "prospective_goal_success": 0.9871794871794872,
+            "reactive_final_score": 0.9038461538461539,
+            "reactive_goal_success": 0.8205128205128206,
+            "worlds": 6
+          }
+        },
+        "plan_repairs": 149,
+        "policy": {
+          "action_cost": 0.015,
+          "complexity": 17,
+          "horizon": 3,
+          "policy_id": "repair_h3",
+          "temporal": {
+            "complexity": 12,
+            "maximum_duration_std": 1.0,
+            "maximum_horizon": 4,
+            "minimum_prediction_confidence": 0.9,
+            "minimum_transition_support": 3,
+            "policy_id": "phase18_temporal_forecaster"
+          },
+          "uncertainty_penalty": 0.02
+        },
+        "prospective_actions": 1.8717948717948716,
+        "prospective_final_score": 0.9636752136752137,
+        "prospective_goal_success": 0.9134615384615384,
+        "reactive_actions": 1.9935897435897436,
+        "reactive_final_score": 0.9081196581196581,
+        "reactive_goal_success": 0.8076923076923076,
+        "worlds": 24
+      },
+      {
+        "by_family": {
+          "jittered_two": {
+            "prospective_final_score": 0.9924242424242425,
+            "prospective_goal_success": 0.9848484848484849,
+            "reactive_final_score": 0.9848484848484849,
+            "reactive_goal_success": 0.9848484848484849,
+            "worlds": 6
+          },
+          "nonperiodic": {
+            "prospective_final_score": 0.9848484848484849,
+            "prospective_goal_success": 0.9696969696969697,
+            "reactive_final_score": 0.9848484848484849,
+            "reactive_goal_success": 0.9696969696969697,
+            "worlds": 6
+          },
+          "periodic_three": {
+            "prospective_final_score": 0.9949494949494949,
+            "prospective_goal_success": 0.9848484848484849,
+            "reactive_final_score": 0.9797979797979798,
+            "reactive_goal_success": 0.9696969696969697,
+            "worlds": 6
+          },
+          "periodic_two": {
+            "prospective_final_score": 0.9924242424242425,
+            "prospective_goal_success": 0.9848484848484849,
+            "reactive_final_score": 0.9848484848484849,
+            "reactive_goal_success": 0.9696969696969697,
+            "worlds": 6
+          }
+        },
+        "plan_repairs": 143,
+        "policy": {
+          "action_cost": 0.015,
+          "complexity": 18,
+          "horizon": 4,
+          "policy_id": "repair_h4",
+          "temporal": {
+            "complexity": 12,
+            "maximum_duration_std": 1.0,
+            "maximum_horizon": 4,
+            "minimum_prediction_confidence": 0.9,
+            "minimum_transition_support": 3,
+            "policy_id": "phase18_temporal_forecaster"
+          },
+          "uncertainty_penalty": 0.03
+        },
+        "prospective_actions": 1.9810606060606062,
+        "prospective_final_score": 0.9911616161616162,
+        "prospective_goal_success": 0.9810606060606061,
+        "reactive_actions": 2.196969696969697,
+        "reactive_final_score": 0.9835858585858586,
+        "reactive_goal_success": 0.9734848484848485,
+        "worlds": 24
+      },
+      {
+        "by_family": {
+          "jittered_two": {
+            "prospective_final_score": 0.9027777777777778,
+            "prospective_goal_success": 0.8611111111111112,
+            "reactive_final_score": 0.8518518518518517,
+            "reactive_goal_success": 0.7870370370370371,
+            "worlds": 6
+          },
+          "nonperiodic": {
+            "prospective_final_score": 0.8302469135802469,
+            "prospective_goal_success": 0.6296296296296297,
+            "reactive_final_score": 0.8364197530864198,
+            "reactive_goal_success": 0.6296296296296297,
+            "worlds": 6
+          },
+          "periodic_three": {
+            "prospective_final_score": 0.8611111111111112,
+            "prospective_goal_success": 0.6574074074074074,
+            "reactive_final_score": 0.8425925925925926,
+            "reactive_goal_success": 0.6296296296296297,
+            "worlds": 6
+          },
+          "periodic_two": {
+            "prospective_final_score": 0.9675925925925926,
+            "prospective_goal_success": 0.9351851851851851,
+            "reactive_final_score": 0.9675925925925926,
+            "reactive_goal_success": 0.9351851851851851,
+            "worlds": 6
+          }
+        },
+        "plan_repairs": 134,
+        "policy": {
+          "action_cost": 0.015,
+          "complexity": 16,
+          "horizon": 2,
+          "policy_id": "repair_h2_conservative",
+          "temporal": {
+            "complexity": 12,
+            "maximum_duration_std": 1.0,
+            "maximum_horizon": 4,
+            "minimum_prediction_confidence": 0.95,
+            "minimum_transition_support": 3,
+            "policy_id": "phase18_temporal_forecaster_conservative"
+          },
+          "uncertainty_penalty": 0.03
+        },
+        "prospective_actions": 1.6365740740740742,
+        "prospective_final_score": 0.8904320987654321,
+        "prospective_goal_success": 0.7708333333333334,
+        "reactive_actions": 1.6481481481481481,
+        "reactive_final_score": 0.8746141975308642,
+        "reactive_goal_success": 0.7453703703703703,
+        "worlds": 24
+      },
+      {
+        "by_family": {
+          "jittered_two": {
+            "prospective_final_score": 0.967948717948718,
+            "prospective_goal_success": 0.9487179487179488,
+            "reactive_final_score": 0.9551282051282052,
+            "reactive_goal_success": 0.923076923076923,
+            "worlds": 6
+          },
+          "nonperiodic": {
+            "prospective_final_score": 0.9358974358974358,
+            "prospective_goal_success": 0.8461538461538461,
+            "reactive_final_score": 0.9358974358974358,
+            "reactive_goal_success": 0.8461538461538461,
+            "worlds": 6
+          },
+          "periodic_three": {
+            "prospective_final_score": 0.9572649572649573,
+            "prospective_goal_success": 0.8717948717948718,
+            "reactive_final_score": 0.8376068376068376,
+            "reactive_goal_success": 0.6410256410256411,
+            "worlds": 6
+          },
+          "periodic_two": {
+            "prospective_final_score": 0.9935897435897436,
+            "prospective_goal_success": 0.9871794871794872,
+            "reactive_final_score": 0.9038461538461539,
+            "reactive_goal_success": 0.8205128205128206,
+            "worlds": 6
+          }
+        },
+        "plan_repairs": 149,
+        "policy": {
+          "action_cost": 0.015,
+          "complexity": 17,
+          "horizon": 3,
+          "policy_id": "repair_h3_conservative",
+          "temporal": {
+            "complexity": 12,
+            "maximum_duration_std": 1.0,
+            "maximum_horizon": 4,
+            "minimum_prediction_confidence": 0.95,
+            "minimum_transition_support": 3,
+            "policy_id": "phase18_temporal_forecaster_conservative"
+          },
+          "uncertainty_penalty": 0.03
+        },
+        "prospective_actions": 1.8717948717948716,
+        "prospective_final_score": 0.9636752136752137,
+        "prospective_goal_success": 0.9134615384615384,
+        "reactive_actions": 1.9935897435897436,
+        "reactive_final_score": 0.9081196581196581,
+        "reactive_goal_success": 0.8076923076923076,
+        "worlds": 24
+      }
+    ],
+    "selected_policy": {
+      "action_cost": 0.015,
+      "complexity": 17,
+      "horizon": 3,
+      "policy_id": "repair_h3",
+      "temporal": {
+        "complexity": 12,
+        "maximum_duration_std": 1.0,
+        "maximum_horizon": 4,
+        "minimum_prediction_confidence": 0.9,
+        "minimum_transition_support": 3,
+        "policy_id": "phase18_temporal_forecaster"
+      },
+      "uncertainty_penalty": 0.02
+    }
+  },
+  "gates": {
+    "counterfactual_simulation": true,
+    "multi_step_goal_planning": true,
+    "outcome_based_plan_repair": true,
+    "restart_retention": true,
+    "sealed_gate_passed": true
+  },
+  "language_provider_used": false,
+  "passed": true,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "evaluation": "phase19_counterfactual_plan_repair_sealed",
+        "gate": {
+          "accepted": true,
+          "errors": [],
+          "exact_goal_success_gain": 0.06538461538461549,
+          "final_state_score_gain": 0.033974358974358965,
+          "mean_actions": 1.8461538461538463,
+          "plan_repairs": 218,
+          "worst_family_goal_change": -0.007692307692307665
+        }
+      },
+      "goal": "counterfactual_temporal_planning",
+      "procedure_id": "procedure_counterfactual_plan_2524af5f13ea",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 0.9346153846153846,
+      "source_rules": [],
+      "steps": [
+        "construct_future_graph_scenarios",
+        "enumerate_bounded_action_sequences",
+        "simulate_candidate_consequences",
+        "select_goal_directed_plan_under_cost",
+        "execute_first_action_only",
+        "compare_observed_to_predicted_outcome",
+        "repair_remaining_plan_on_surprise",
+        "retain_verified_planning_skill"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_counterfactual_plan_2524af5f13ea",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "goal": "maintain_coherence",
+          "source": "counterfactual_planning_authority"
+        },
+        "reason": "procedure_promotion:procedure_counterfactual_plan_2524af5f13ea",
+        "state_hash": "c3dd14e18417e4b8b97c8c259a419379554ec48f21dceb4789e4db279598ab18"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "planning_memory_retained": true,
+    "relearning_worlds": 0
+  },
+  "schema_version": "aion.hexcore.counterfactual_plan_repair.v1",
+  "sealed": {
+    "gate": {
+      "accepted": true,
+      "errors": [],
+      "exact_goal_success_gain": 0.06538461538461549,
+      "final_state_score_gain": 0.033974358974358965,
+      "mean_actions": 1.8461538461538463,
+      "plan_repairs": 218,
+      "worst_family_goal_change": -0.007692307692307665
+    },
+    "result": {
+      "by_family": {
+        "jittered_two": {
+          "prospective_final_score": 0.9615384615384615,
+          "prospective_goal_success": 0.9307692307692308,
+          "reactive_final_score": 0.9461538461538461,
+          "reactive_goal_success": 0.9076923076923077,
+          "worlds": 10
+        },
+        "nonperiodic": {
+          "prospective_final_score": 0.9256410256410257,
+          "prospective_goal_success": 0.8384615384615385,
+          "reactive_final_score": 0.9307692307692308,
+          "reactive_goal_success": 0.8461538461538461,
+          "worlds": 10
+        },
+        "periodic_three": {
+          "prospective_final_score": 0.9897435897435898,
+          "prospective_goal_success": 0.976923076923077,
+          "reactive_final_score": 0.9179487179487179,
+          "reactive_goal_success": 0.8307692307692308,
+          "worlds": 10
+        },
+        "periodic_two": {
+          "prospective_final_score": 0.9961538461538462,
+          "prospective_goal_success": 0.9923076923076923,
+          "reactive_final_score": 0.9423076923076923,
+          "reactive_goal_success": 0.8923076923076924,
+          "worlds": 10
+        }
+      },
+      "plan_repairs": 218,
+      "policy": {
+        "action_cost": 0.015,
+        "complexity": 17,
+        "horizon": 3,
+        "policy_id": "repair_h3",
+        "temporal": {
+          "complexity": 12,
+          "maximum_duration_std": 1.0,
+          "maximum_horizon": 4,
+          "minimum_prediction_confidence": 0.9,
+          "minimum_transition_support": 3,
+          "policy_id": "phase18_temporal_forecaster"
+        },
+        "uncertainty_penalty": 0.02
+      },
+      "prospective_actions": 1.8461538461538463,
+      "prospective_final_score": 0.9682692307692309,
+      "prospective_goal_success": 0.9346153846153846,
+      "reactive_actions": 1.9403846153846154,
+      "reactive_final_score": 0.9342948717948719,
+      "reactive_goal_success": 0.8692307692307691,
+      "worlds": 40
+    }
+  }
+}

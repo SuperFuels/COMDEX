@@ -1,0 +1,271 @@
+\section{Phase 11F --- A2A Proof Commitment and Proof Receipt Preview v0}
+\label{sec:aion-a2a-proof-commitment-proof-receipt-preview-v0}
+
+\subsection{Status}
+
+Phase 11F locks the guarded A2A proof commitment and proof receipt preview layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- A2A proof commitment and proof receipt preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 11F extends the guarded A2A Gateway with preview-only proof commitment and proof receipt contracts.
+
+The purpose is to let a future external-agent-facing A2A layer inspect whether a job can produce a proof commitment and whether a proof receipt can be looked up or verified.
+
+This phase does not execute a GlyphChain commit, issue a real proof receipt, verify a live receipt, move money, create payments, create escrow, release funds, send messages, or expose a public A2A route.
+
+The preview is internal, deterministic, schema-versioned, and read-only.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_proof_receipt.py
+\end{verbatim}
+
+The module exports:
+
+\begin{itemize}
+  \item \texttt{A2A\_PROOF\_RECEIPT\_VERSION}
+  \item \texttt{build\_a2a\_proof\_commitment\_preview}
+  \item \texttt{build\_a2a\_proof\_receipt\_preview}
+  \item \texttt{build\_a2a\_proof\_bundle\_preview}
+  \item \texttt{build\_a2a\_proof\_bundle\_summary}
+\end{itemize}
+
+The contract version is:
+
+\begin{verbatim}
+aion.a2a_proof_receipt.preview.v0.1
+\end{verbatim}
+
+\subsection{A2A Endpoint Alignment}
+
+Phase 11F supports the internal preview contract for the future A2A endpoint family:
+
+\begin{itemize}
+  \item \texttt{GET proof\_commitment}
+  \item \texttt{GET proof\_receipt}
+\end{itemize}
+
+These are contract previews only.
+
+They do not expose public HTTP routes yet.
+
+The route family remains guarded under:
+
+\begin{verbatim}
+/api/aion/a2a/*
+\end{verbatim}
+
+\subsection{Default Business Context}
+
+The default business context remains the Home Fixed vertical testbed:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+industry_key = trades
+\end{verbatim}
+
+The contract remains universal and MUST NOT become hardcoded to trades only. Home Fixed is only the live/test vertical.
+
+\subsection{Proof Commitment Preview Contract}
+
+The proof commitment preview records the proof subject and hashes that would be committed in a future guarded proof flow.
+
+The locked preview boundary is:
+
+\begin{verbatim}
+status = proof_commitment_preview_only
+endpoint_key = proof_commitment
+method = GET
+proof_commitment_created = false
+proof_commitment_status = preview_not_committed
+glyphchain_commit_enabled = false
+glyphchain_commit_executed = false
+glyphchain_is_payment_rail = false
+proof_only_not_payment = true
+human_review_required = true
+next_step = future_guarded_approval_path
+\end{verbatim}
+
+The proof commitment preview includes:
+
+\begin{itemize}
+  \item \texttt{job\_id}
+  \item \texttt{proof\_subject}
+  \item \texttt{evidence\_hash}
+  \item \texttt{settlement\_readiness\_hash}
+  \item \texttt{proof\_commitment\_hash}
+\end{itemize}
+
+\subsection{Proof Receipt Preview Contract}
+
+The proof receipt preview records whether a future proof receipt can be inspected.
+
+The locked preview boundary is:
+
+\begin{verbatim}
+status = proof_receipt_preview_only
+endpoint_key = proof_receipt
+method = GET
+proof_receipt_created = false
+proof_receipt_status = preview_not_issued
+proof_verified = false
+verification_status = not_verified_preview_only
+glyphchain_receipt_lookup_enabled = false
+glyphchain_receipt_lookup_executed = false
+glyphchain_is_payment_rail = false
+proof_only_not_payment = true
+human_review_required = true
+next_step = future_guarded_approval_path
+\end{verbatim}
+
+The proof receipt preview includes:
+
+\begin{itemize}
+  \item \texttt{job\_id}
+  \item \texttt{proof\_commitment\_hash}
+  \item \texttt{proof\_receipt\_hash}
+  \item \texttt{proof\_verified}
+  \item \texttt{verification\_status}
+\end{itemize}
+
+\subsection{Combined Bundle Contract}
+
+The combined proof bundle includes both:
+
+\begin{itemize}
+  \item \texttt{proof\_commitment}
+  \item \texttt{proof\_receipt}
+\end{itemize}
+
+The bundle status is:
+
+\begin{verbatim}
+proof_bundle_preview_only
+\end{verbatim}
+
+The combined bundle hash is:
+
+\begin{verbatim}
+bundle_hash
+\end{verbatim}
+
+The summary helper exposes compact presence flags:
+
+\begin{itemize}
+  \item \texttt{has\_proof\_commitment}
+  \item \texttt{has\_proof\_receipt}
+  \item \texttt{proof\_commitment\_created}
+  \item \texttt{proof\_receipt\_created}
+  \item \texttt{proof\_verified}
+  \item \texttt{glyphchain\_is\_payment\_rail}
+  \item \texttt{human\_review\_required}
+  \item \texttt{public\_route\_exposed}
+  \item \texttt{summary\_hash}
+\end{itemize}
+
+\subsection{Hashing Contract}
+
+Phase 11F includes deterministic hashes for proof commitment, proof receipt, bundle, and summary objects.
+
+The locked hash fields are:
+
+\begin{verbatim}
+proof_commitment_hash
+proof_receipt_hash
+bundle_hash
+summary_hash
+\end{verbatim}
+
+Changing the \texttt{job\_id} MUST change the proof commitment hash, proof receipt hash, and bundle hash.
+
+\subsection{GlyphChain Boundary}
+
+GlyphChain remains a proof and receipt rail only.
+
+It MUST NOT be treated as a payment rail.
+
+The locked boundary is:
+
+\begin{verbatim}
+glyphchain_is_payment_rail = false
+proof_only_not_payment = true
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+The A2A proof commitment and proof receipt preview MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item confirm final completion,
+  \item execute a GlyphChain commit,
+  \item issue a live proof receipt,
+  \item verify a live proof receipt,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item enable live status polling.
+\end{itemize}
+
+\subsection{Relationship to Previous Locks}
+
+Phase 11F builds on the prior guarded A2A locks:
+
+\begin{itemize}
+  \item Phase 11A --- guarded A2A namespace preview,
+  \item Phase 11B --- business capabilities and machine catalog preview,
+  \item Phase 11C --- availability and quote request preview,
+  \item Phase 11D --- job request and trace preview,
+  \item Phase 11E --- job evidence and settlement readiness preview.
+\end{itemize}
+
+Together these phases now cover the internal A2A preview path from discovery through proof-readiness inspection.
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_a2a_proof_receipt_lock.py \
+  backend/tests/workflow_capsules/test_aion_a2a_proof_receipt_lock_doc.py
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-A2A-PROOF-COMMITMENT-PROOF-RECEIPT-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

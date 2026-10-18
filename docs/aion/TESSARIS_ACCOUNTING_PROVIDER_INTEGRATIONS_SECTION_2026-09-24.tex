@@ -1,0 +1,432 @@
+% Tessaris accounting provider integration record.
+% Intended for inclusion in a larger document.  The parent document should load:
+% \usepackage{booktabs,longtable,tabularx,array,enumitem,url,xcolor}
+
+\section{Governed Accounting-Product Integrations}
+\label{sec:accounting-provider-integrations}
+
+\subsection{Purpose and delivered position}
+
+Tessaris now has live OAuth connections and verified read synchronisation for
+six small-business accounting products: Xero, QuickBooks Online, Sage Business
+Cloud Accounting, Zoho Books, FreeAgent and FreshBooks.  The integrations are
+bound to the Tessaris workspace \texttt{home-fixed}.  Each provider remains the
+system of record for its own accounting data; Tessaris creates a normalized,
+read-only evidence projection for Finance Pilot, reconciliation and management
+reporting.
+
+The phrase \emph{connected} has a precise meaning in this implementation.  It
+means that the provider application has been registered, OAuth authorization
+has completed, a provider company or organisation has been selected, the
+credential material is held outside the Business Container, and a first
+provider read has completed successfully.  It does not mean that Tessaris is a
+regulated accountant, that tax returns can be filed, or that Finance Pilot may
+post arbitrary entries.
+
+The installed state recorded on 24 September 2026 is shown in
+Table~\ref{tab:accounting-installed-state}.
+
+\begin{longtable}{@{}p{0.14\textwidth}p{0.20\textwidth}p{0.13\textwidth}p{0.13\textwidth}p{0.25\textwidth}@{}}
+\caption{Installed accounting-provider state for \texttt{home-fixed}.}
+\label{tab:accounting-installed-state}\\
+\toprule
+Provider & Bound company & Environment & Last read & Control position \\
+\midrule
+\endfirsthead
+\toprule
+Provider & Bound company & Environment & Last read & Control position \\
+\midrule
+\endhead
+Xero & Home Fixed & Live organisation & Succeeded & OAuth includes accounting write scopes; all Tessaris writes remain exact-payload, approval and provider-read-back gated. \\
+QuickBooks Online & Intuit realm \texttt{9341457984196080} & Sandbox & Succeeded & Read adapter active; external writes disabled. \\
+Sage Accounting & Tessaris AI Limited & Connected company & Succeeded & OAuth grant is \texttt{full\_access}, but the Tessaris connector exposes no external write execution. \\
+Zoho Books & Tessaris AI Limited & US data centre, Global edition & Succeeded & Explicit read scopes only; external writes disabled. \\
+FreeAgent & tessaris ai limited & Sandbox & Succeeded & Read-only company connection; external writes disabled. \\
+FreshBooks & Tessaris Ai Limited & Connected business & Succeeded & Read-only business connection; external writes disabled. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Provider subscription caveats.}
+The Sage company was created through a trial and the subscription was
+subsequently cancelled.  The successful sync is valid evidence of connector
+operation, but future Sage token refreshes or reads may cease when provider
+access expires.  Zoho Books is currently a Global-edition organisation in the
+US data centre; Zoho warned during creation that this edition might not provide
+all Irish-local tax compliance features.  Neither fact changes the connector
+architecture, but both must be considered before production bookkeeping use.
+
+\subsection{Architecture and trust boundary}
+
+The implementation separates provider access, normalization, accounting
+evidence and business judgement:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Provider OAuth layer.}  Each connector creates a state-bound
+        authorization request, exchanges the returned code for tokens, refreshes
+        expired access tokens and binds a selected provider company to one
+        canonical Tessaris workspace.
+  \item \textbf{Provider adapter.}  A narrow adapter retrieves provider facts
+        and translates provider-specific records.  It may not invent missing
+        accounting data or decide ambiguous tax or nominal-account treatment.
+  \item \textbf{Canonical contract.}  All non-Xero adapters emit exactly seven
+        collections: accounts, invoices, bank transactions, payments, manual
+        journals, tracking categories and projects.
+  \item \textbf{Accountant harness.}  The harness hashes the raw snapshot,
+        records a secret-free sync receipt, writes a canonical ledger, projects
+        the result into the Business Financial Model and indexes the ledger in
+        the Finance File Cabinet.
+  \item \textbf{Finance controls.}  Deterministic matching and reconciliation
+        use amounts, dates, references and counterparties.  A model may explain
+        or propose; it does not receive direct ledger authority.
+\end{enumerate}
+
+The canonical boundary is defined in
+\path{backend/modules/aion_business/providers/accounting_provider_contract.py}.
+The orchestration and evidence-writing layer is implemented by
+\path{backend/modules/aion_business/runtime/accountant_harness_service.py}.
+The live OAuth routes and workspace bindings are implemented in
+\path{backend/modules/aion_business/api/finance_integrations_api.py}.
+
+\subsection{Canonical evidence model}
+
+Every non-Xero provider snapshot is normalized into the following collections:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{accounts};
+  \item \texttt{invoices}, containing both sales invoices and supplier bills;
+  \item \texttt{bank\_transactions};
+  \item \texttt{payments};
+  \item \texttt{manual\_journals};
+  \item \texttt{tracking\_categories}; and
+  \item \texttt{projects}.
+\end{itemize}
+
+Each normalized record retains a provider source reference containing provider,
+sync identifier, source collection, provider record identifier and the status
+\texttt{provider\_sourced}.  Each row receives a deterministic record hash.  A
+sync creates:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{evidence.json}, including workspace, provider, selected company,
+        record counts, raw-snapshot hash and sync hash;
+  \item \texttt{raw\_snapshot.json}, preserving the provider response used by
+        the adapter;
+  \item one JSON Lines file for each canonical collection;
+  \item \texttt{ledger.json}, containing summaries, counts, warnings and a
+        ledger hash; and
+  \item a Finance File Cabinet pointer to the ledger artifact.
+\end{itemize}
+
+The evidence object explicitly records \texttt{read\_only=true} and
+\texttt{external\_write\_performed=false}.  The raw evidence hash and ledger
+hash allow a later report or reconciliation result to be traced back to the
+exact provider response from which it was derived.
+
+\subsection{Provider adapters}
+
+\begin{description}[leftmargin=0pt,style=nextline]
+  \item[Xero]
+  Uses the established Xero connector rather than the generic snapshot adapter.
+  It retrieves organisation settings, accounts, contacts, invoices, payments,
+  bank transactions, journals, tracking categories, projects and the profit and
+  loss, balance-sheet and bank-summary reports.  Xero also has controlled
+  supplier-contact, bookkeeping-export and sales-invoice-export workflows.
+
+  \item[QuickBooks Online]
+  \path{quickbooks_online_accounting_adapter.py} reads the Intuit company realm,
+  chart of accounts, invoices, bills, payments, purchases and journal entries.
+  The installed connection points to an Intuit sandbox company.  Concurrency
+  tokens and provider object relationships must be preserved in any future
+  approved write implementation.
+
+  \item[Sage Business Cloud Accounting]
+  \path{sage_accounting_adapter.py} reads ledger accounts, sales and purchase
+  invoices, contact payments, bank-account transactions and ledger entries.
+  The OAuth application may receive the provider's broad
+  \texttt{full\_access} scope, but the current Tessaris route only performs a
+  read snapshot and reports \texttt{external\_write\_performed=false}.
+
+  \item[Zoho Books]
+  \path{zoho_books_accounting_adapter.py} reads chart-of-account entries,
+  invoices, bills, customer payments, vendor payments, banking transactions and
+  journals.  The OAuth response's regional API domain is retained alongside the
+  organisation selection so a tenant is not silently routed to the wrong data
+  centre.  This installation uses \url{https://accounts.zoho.com} and
+  \url{https://www.zohoapis.com}.
+
+  \item[FreeAgent]
+  \path{freeagent_accounting_adapter.py} reads categories, contacts, invoices,
+  bills, bank accounts, bank transactions and journal sets.  It preserves
+  explained and unexplained bank-activity evidence.  The installed connection
+  uses the FreeAgent sandbox.
+
+  \item[FreshBooks]
+  \path{freshbooks_accounting_adapter.py} reads service invoices, supplier
+  bills, customer and supplier payment evidence, expenses and the chart of
+  accounts.  FreshBooks identity and business discovery produce both an account
+  identifier and a business UUID; both are retained because the chart-of-
+  accounts endpoint requires the business UUID.
+\end{description}
+
+\subsection{OAuth, credentials and callback handling}
+
+No client secret, access token or refresh token is written to the normal
+Business Container or committed to Git.  On macOS, Tessaris uses Keychain.  App
+credentials and user/company OAuth tokens are separated.  The current service
+names are listed in Table~\ref{tab:accounting-keychain-services}; the Keychain
+account for an OAuth token payload is the canonical workspace identifier,
+\texttt{home-fixed}.
+
+\begin{longtable}{@{}p{0.18\textwidth}p{0.35\textwidth}p{0.35\textwidth}@{}}
+\caption{macOS Keychain services used by the accounting connectors.}
+\label{tab:accounting-keychain-services}\\
+\toprule
+Provider & OAuth application credentials & OAuth token payload \\
+\midrule
+\endfirsthead
+\toprule
+Provider & OAuth application credentials & OAuth token payload \\
+\midrule
+\endhead
+Xero & Environment/Vault application configuration & \texttt{com.tessaris.aion.xero} \\
+QuickBooks Online & \texttt{com.tessaris.aion.quickbooks-online-app} & \texttt{com.tessaris.aion.quickbooks-online} \\
+Sage Accounting & \texttt{com.tessaris.aion.sage-accounting-app} & \texttt{com.tessaris.aion.sage-accounting} \\
+Zoho Books & \texttt{com.tessaris.aion.zoho-books-app} & \texttt{com.tessaris.aion.zoho-books} \\
+FreeAgent & \texttt{com.tessaris.aion.freeagent-app} & \texttt{com.tessaris.aion.freeagent} \\
+FreshBooks & \texttt{com.tessaris.aion.freshbooks-app} & \texttt{com.tessaris.aion.freshbooks} \\
+\bottomrule
+\end{longtable}
+
+For tests only, provider-specific token-store environment variables may redirect
+tokens into an isolated temporary directory.  Production code defaults to
+Keychain and stores only a non-secret \texttt{keychain://} reference in
+connection metadata.
+
+OAuth requests use a cryptographically random state value.  Pending state is
+stored under the target workspace's integration directory and includes the
+canonical workspace identifier, callback URI, creation time and the previous
+connection state.  The callback rejects an unrecognised state.  A cancelled or
+failed reauthorization restores the prior connected state where one existed,
+rather than destroying a working connection.  Refresh-token exchange occurs
+automatically when the access token is close to expiry.
+
+The local callback pattern is:
+
+\begin{verbatim}
+http://localhost:8080/api/aion/integrations/<provider>/callback
+\end{verbatim}
+
+FreshBooks additionally supports the deployed callback
+\url{https://tessaris.ai/api/aion/integrations/freshbooks/callback}.  Public
+deployment routing must continue to forward that path to the Tessaris callback
+handler.  Redirect URIs are exact provider-registration values and must not be
+changed independently in code and the provider console.
+
+\subsection{Workspace and company binding}
+
+Connection state is stored beneath:
+
+\begin{verbatim}
+.runtime/AION_BUSINESS/business_containers/<workspace>/integrations/<provider>/
+\end{verbatim}
+
+The stored \texttt{connection.json} contains only public connection metadata:
+provider, canonical workspace, selected tenant/company/organisation identifiers,
+provider region or environment, granted scope, timestamps, last-sync status and
+a Keychain reference.  It must not contain raw credentials.
+
+Multi-company providers have an explicit selection stage.  Xero binds a tenant;
+Sage binds a business; Zoho binds an organisation; FreshBooks binds an account
+and business pair; QuickBooks binds the OAuth \texttt{realmId}; and FreeAgent
+binds the company returned by its company endpoint.  No sync runs until this
+binding is complete.
+
+\subsection{HTTP API surface}
+
+All routes use the prefix \texttt{/api/aion/integrations}.  Each provider
+exposes a status route, a connect route, a callback and a read-snapshot route.
+The common pattern is:
+
+\begin{verbatim}
+GET  /<provider>/<workspace>/status
+POST /<provider>/<workspace>/connect
+GET  /<provider>/callback
+POST /<provider>/<workspace>/sync-read-snapshot
+\end{verbatim}
+
+Provider slugs are \texttt{sage-accounting},
+\texttt{quickbooks-online}, \texttt{zoho-books}, \texttt{freeagent} and
+\texttt{freshbooks}.  Sage adds \texttt{/business}, Zoho adds
+\texttt{/organization}, and FreshBooks adds \texttt{/business} selection
+routes.  Xero uses \texttt{/xero/<workspace>/sync}, a tenant-selection route and
+its established controlled-export routes.
+
+The provider-neutral routes are:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{GET /accounting/providers}, which reports adapter capabilities;
+  \item \texttt{POST /accounting/<provider>/<workspace>/ingest-read-snapshot},
+        an internal normalized-ingestion boundary; and
+  \item \texttt{POST /accounting/<workspace>/reconcile}, which runs the shared
+        deterministic reconciliation service.
+\end{itemize}
+
+\subsection{Verified synchronization results}
+
+Table~\ref{tab:accounting-sync-results} records the first successful reads.  A
+zero count is not a failed connector when the newly created provider company
+contains no records; it is recorded as an empty-evidence warning in the
+canonical ledger.
+
+\begin{longtable}{@{}p{0.16\textwidth}rrrrrrr@{}}
+\caption{Verified record counts from the first provider reads.}
+\label{tab:accounting-sync-results}\\
+\toprule
+Provider & Accts. & Inv. & Bank & Pay. & Journ. & Track. & Proj. \\
+\midrule
+\endfirsthead
+\toprule
+Provider & Accts. & Inv. & Bank & Pay. & Journ. & Track. & Proj. \\
+\midrule
+\endhead
+QuickBooks Online & 89 & 46 & 35 & 16 & 3 & 0 & 0 \\
+Sage Accounting & 126 & 0 & 0 & 0 & 0 & 0 & 0 \\
+Zoho Books & 49 & 0 & 0 & 0 & 0 & 0 & 0 \\
+FreeAgent & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+FreshBooks & 35 & 0 & 0 & 0 & 0 & 0 & 0 \\
+\bottomrule
+\end{longtable}
+
+Xero's latest live read returned 87 accounts, one organisation and the profit
+and loss, balance-sheet and bank-summary reports.  The newly created Xero
+organisation contained no contacts, invoices, payments, bank transactions,
+journals, tracking categories or projects at the time of the recorded sync.
+
+\subsection{Write governance}
+
+The shared accountant harness is deliberately incapable of posting to a
+provider.  For QuickBooks Online, Sage, Zoho Books, FreeAgent and FreshBooks,
+\texttt{external\_writes\_enabled} is false even where the upstream OAuth grant
+is broad enough to support future writes.
+
+Xero is the current exception at the connection-capability level: its granted
+scopes include contacts, invoices, payments, bank transactions, journals and
+attachments.  This does not provide conversational write authority.  A Xero
+mutation must pass the following sequence:
+
+\begin{enumerate}[leftmargin=*]
+  \item prepare a typed, exact provider payload;
+  \item calculate and display the payload hash and material effect;
+  \item obtain approval for that exact hash;
+  \item execute once with an idempotency key;
+  \item read the provider object back independently; and
+  \item create a receipt binding request, approval, provider identifier,
+        read-back evidence and final status.
+\end{enumerate}
+
+An LLM or Pilot may interpret an instruction and prepare a proposal, but only
+the governed execution service may perform the mutation.  A model-generated
+sentence is not evidence that a ledger entry, invoice, contact or payment was
+created.
+
+\subsection{Failure handling and observability}
+
+Provider transport failures and timeouts are mapped to explicit gateway
+responses with provider, operation, error type and retryability.  Provider HTTP
+errors are not replaced with invented accounting data.  A failed sync updates
+\texttt{last\_sync\_status=failed} and records a non-secret error type.  A
+successful sync records its UTC timestamp and clears the previous error.
+
+Xero additionally records a hash-bound connector-attempt receipt for each
+provider call.  These receipts contain no credentials and are indexed in the
+Finance File Cabinet.  The generic harness similarly records sync and ledger
+hashes, record counts and empty-collection warnings.
+
+Operational health is determined from both connection and evidence:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{configured} proves that application credentials can be found;
+  \item \texttt{connected} proves that OAuth and company selection completed;
+  \item \texttt{last\_sync\_status=succeeded} proves that a provider read
+        completed; and
+  \item the sync and ledger hashes prove which evidence was normalized.
+\end{itemize}
+
+These states must not be collapsed into one green indicator in operational or
+support tooling.
+
+\subsection{Source-file inventory}
+
+The principal implementation files are:
+
+\begin{itemize}[leftmargin=*]
+  \item \path{backend/modules/aion_business/api/finance_integrations_api.py} ---
+        OAuth, company binding, connection status, refresh and sync routes;
+  \item \path{backend/modules/aion_business/providers/accounting_provider_contract.py}
+        --- canonical provider contract;
+  \item \path{backend/modules/aion_business/providers/quickbooks_online_accounting_adapter.py};
+  \item \path{backend/modules/aion_business/providers/sage_accounting_adapter.py};
+  \item \path{backend/modules/aion_business/providers/zoho_books_accounting_adapter.py};
+  \item \path{backend/modules/aion_business/providers/freeagent_accounting_adapter.py};
+  \item \path{backend/modules/aion_business/providers/freshbooks_accounting_adapter.py};
+  \item \path{backend/modules/aion_business/runtime/accountant_harness_service.py};
+  \item \path{backend/modules/aion_business/runtime/finance_transaction_reconciliation_service.py};
+  \item \path{backend/modules/aion_business/runtime/xero_bookkeeping_export_service.py};
+  \item \path{backend/modules/aion_business/runtime/xero_supplier_contact_service.py};
+  \item \path{backend/modules/aion_business/runtime/xero_sales_invoice_export_service.py}; and
+  \item \path{backend/tests/workflow_capsules/test_aion_finance_live_integrations_and_artifacts.py}.
+\end{itemize}
+
+\subsection{Operational runbook}
+
+For each provider, support or release verification should perform the following
+steps without exposing secrets:
+
+\begin{enumerate}[leftmargin=*]
+  \item verify that the application credential pair is present in Keychain or
+        the approved Vault-backed environment;
+  \item call the provider status route for the intended workspace;
+  \item if disconnected, generate a new state-bound OAuth URL and authorize the
+        correct provider account;
+  \item select the required tenant, company, business or organisation where the
+        provider returns more than one;
+  \item run the first read-only sync;
+  \item verify the provider company identifier, record counts, UTC timestamp,
+        sync hash, ledger hash and \texttt{external\_write\_performed=false};
+  \item confirm that the ledger appears in the Finance File Cabinet; and
+  \item test token refresh and revoked-access behaviour before declaring a
+        production connection healthy.
+\end{enumerate}
+
+Never paste credentials into source files, documentation, issue trackers,
+screenshots or logs.  A backup of the Git repository does not back up macOS
+Keychain tokens.  Disaster-recovery documentation must therefore record how to
+re-register or reauthorize each provider without attempting to export secrets
+into Git.
+
+\subsection{Remaining production work}
+
+The integration layer is complete for connected read ingestion and canonical
+reconciliation.  The following work remains intentionally separate:
+
+\begin{itemize}[leftmargin=*]
+  \item promote the QuickBooks connection from sandbox only when a production
+        company owner explicitly authorizes it;
+  \item replace or renew the cancelled Sage trial with an active company before
+        relying on recurring Sage reads;
+  \item select a Zoho Books edition appropriate to the relevant jurisdiction and
+        have local tax treatment reviewed by a qualified professional;
+  \item implement provider-specific approved-write executors only where there is
+        a real operational need, retaining payload hashing, idempotency,
+        separation of duties and independent provider read-back;
+  \item add scheduled health checks for token refresh, revoked grants, company
+        access and provider API-version changes;
+  \item add credential-revocation and disaster-recovery acceptance tests; and
+  \item complete jurisdiction-specific tax, retention, privacy and audit review
+        before production finance data is relied upon.
+\end{itemize}
+
+Payment records imported from these products are accounting evidence only.
+They do not enable Tessaris to charge a card, initiate a bank transfer, approve
+a payment or operate as a payment processor.
+

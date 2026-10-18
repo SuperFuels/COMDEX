@@ -1,0 +1,4980 @@
+{
+  "activation_capture_dir": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_ghx_route_validation_95001_20260910",
+  "additional_runs": [],
+  "canonical_sha256": "b6ade2a1fc37f16d18ca85626727d1ed6505d1910647092fa186437b86c73dc1",
+  "capture_layers": [
+    6,
+    9
+  ],
+  "capture_positions": [
+    0
+  ],
+  "claim_boundary": "A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.",
+  "compressed_expert_cache": true,
+  "constrain_after_prompt": false,
+  "constrained_expert_pool_canonical_sha256": null,
+  "constrained_expert_pool_path": null,
+  "constrained_expert_pool_preload_metrics": null,
+  "constrained_expert_pool_preload_seconds": 0.0,
+  "constrained_expert_pool_preloaded": false,
+  "created_at": "2026-09-10T13:37:16.281754+00:00",
+  "declared_largest_native_arena_bytes": 805306368,
+  "declared_streaming_cache_bytes": 3221225472,
+  "embedding_row_bytes": 1980,
+  "embedding_row_sha256": "31fe4c696b369ae50297b837f7640e6b221b1dd9151229a5c29f3765583ca4ba",
+  "embedding_run": {
+    "checksum": 52.7466,
+    "finite": true,
+    "schema": "aion.gptoss.embedding-row-cpu.v1"
+  },
+  "exact_pool_escape_after_prompt": false,
+  "final_hidden_and_logits_bitwise_repeatable": true,
+  "generated_token_id": 2471,
+  "incremental_pool_admission": false,
+  "inmemory_layer_flow": true,
+  "inprocess_attention": true,
+  "inprocess_finish": true,
+  "inprocess_output": true,
+  "input_semantics": "Externally tokenized prompt tokens are teacher-forced in order, followed by greedy argmax tokens with per-layer KV history",
+  "input_token_id": 95001,
+  "input_token_ids": [
+    95001
+  ],
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "output_norm": {
+    "bytes": 11520,
+    "dimensions": [
+      2880
+    ],
+    "ggml_type": 0,
+    "sha256": "212afa1935207179fd445d3d5dc6c56fed73712e616564afafaa4c1c83df4261",
+    "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+  },
+  "output_weight": {
+    "bytes": 615329280,
+    "one_time_stage_seconds": 6.392834291968029,
+    "sha256": "049b19820999b23070d21c7d623bb31a697d8bf5f7492f175b5701084aa98692"
+  },
+  "passes": 2,
+  "quality_track": false,
+  "reader_metrics": {
+    "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf": {
+      "cache_capacity_bytes": 67108864,
+      "cache_hit_rate": 0.9997604067076877,
+      "cache_hits": 1297722,
+      "cache_resident_bytes": 63032576,
+      "compressed_bytes_read": 1100115091,
+      "frame_faults": 311,
+      "peak_resident_bytes": 67108864,
+      "raw_bytes_materialized": 1168588192
+    },
+    "openai_gpt-oss-120b-Q4_K_M-00002-of-00002.gguf": {
+      "cache_capacity_bytes": 67108864,
+      "cache_hit_rate": 0.9082618025751072,
+      "cache_hits": 1693,
+      "cache_resident_bytes": 64150016,
+      "compressed_bytes_read": 256312218,
+      "frame_faults": 171,
+      "peak_resident_bytes": 65806080,
+      "raw_bytes_materialized": 268753696
+    }
+  },
+  "resident_replay": true,
+  "routes_repeatable": true,
+  "run_a": {
+    "final_hidden_sha256": "360dfeaa5d007d9a1026232a0d57f6038d2b39082afc8e740b25a6b7e16c7a36",
+    "label": "a",
+    "layers": [
+      {
+        "attention": {
+          "compute_ms": 3.313792,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.023981000005733222,
+        "expert_file_stage_seconds": 1.1249794624745846e-06,
+        "expert_load_seconds": 0.5664998330175877,
+        "finish": {
+          "compute_ms": 2.876042,
+          "finite": true,
+          "output_checksum": 149.87038018926978,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.03630920802243054,
+        "gates": [
+          0.32622017281961563,
+          0.2618033686853331,
+          0.20609325401208137,
+          0.20588320448296987
+        ],
+        "layer": 0,
+        "output_sha256": "8e1b9687d99a56e699be6905fd5b3c86d69e8249354b8d1523ae8d0479ee6815",
+        "route": [
+          15,
+          20,
+          76,
+          28
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.735125,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0007975000189617276,
+        "expert_file_stage_seconds": 7.500057108700275e-07,
+        "expert_load_seconds": 0.5703621249995194,
+        "finish": {
+          "compute_ms": 1.095458,
+          "finite": true,
+          "output_checksum": 292.2279405537993,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0015530840028077364,
+        "gates": [
+          0.6791681012584508,
+          0.16738989862023937,
+          0.09182306290703006,
+          0.061618937214279655
+        ],
+        "layer": 1,
+        "output_sha256": "529b7141135e3f074c8899a797b62da1135d365c49774415653323c2160e1f84",
+        "route": [
+          93,
+          64,
+          14,
+          121
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.486292,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005179159925319254,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.5713030830374919,
+        "finish": {
+          "compute_ms": 0.909167,
+          "finite": true,
+          "output_checksum": 397.83315804973245,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013920830097049475,
+        "gates": [
+          0.36752701761325957,
+          0.23121126459512018,
+          0.20789899598396067,
+          0.19336272180765948
+        ],
+        "layer": 2,
+        "output_sha256": "9ef6c4b6d1df69c57f402faccf97d8f4fc5cf4d11495808ff884db0be5e3ff44",
+        "route": [
+          112,
+          23,
+          119,
+          105
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6705598682165146e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.499625,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005289579858072102,
+        "expert_file_stage_seconds": 4.1601015254855156e-07,
+        "expert_load_seconds": 0.5661032920470461,
+        "finish": {
+          "compute_ms": 1.188292,
+          "finite": true,
+          "output_checksum": 466.84064991399646,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.001613166998140514,
+        "gates": [
+          0.4103626436196286,
+          0.20328035846041154,
+          0.19533665051441843,
+          0.1910203474055415
+        ],
+        "layer": 3,
+        "output_sha256": "35128dbcaf7315edc630491539c33cea8a9a59e9347f5f8b883fb087e17211fc",
+        "route": [
+          110,
+          5,
+          74,
+          82
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.0797597244381905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.544833,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005803339881822467,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.5676994160166942,
+        "finish": {
+          "compute_ms": 1.077208,
+          "finite": true,
+          "output_checksum": 551.0226443894207,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013592499890364707,
+        "gates": [
+          0.3125527269849172,
+          0.24156274263737812,
+          0.22417633249542432,
+          0.22170819788228036
+        ],
+        "layer": 4,
+        "output_sha256": "7ef50bf9affb059b8e9d5b67f44ead0bd09bc8ce9b4ca6a9055705380952ab7e",
+        "route": [
+          14,
+          63,
+          89,
+          12
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.300412446260452e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 0.476,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005106249591335654,
+        "expert_file_stage_seconds": 3.750319592654705e-07,
+        "expert_load_seconds": 0.5681076250039041,
+        "finish": {
+          "compute_ms": 1.432875,
+          "finite": true,
+          "output_checksum": 676.3957765847445,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0017372500151395798,
+        "gates": [
+          0.502452899081058,
+          0.24618356532452124,
+          0.1314779379553037,
+          0.11988559763911714
+        ],
+        "layer": 5,
+        "output_sha256": "b16d7282d358127f18d6c8a84f1d3dbb23eb365784edd010c40ba060997dc820",
+        "route": [
+          111,
+          7,
+          6,
+          120
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.9103830456733704e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.519625,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005503749707713723,
+        "expert_file_stage_seconds": 3.7497375160455704e-07,
+        "expert_load_seconds": 0.5707684579538181,
+        "finish": {
+          "compute_ms": 0.999792,
+          "finite": true,
+          "output_checksum": -7825.393443211913,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013321670121513307,
+        "gates": [
+          0.8304564377562302,
+          0.06423980773559504,
+          0.05837924096272818,
+          0.04692451354544666
+        ],
+        "layer": 6,
+        "output_sha256": "3309795dd568f87028b8d0722d3713e3a32bffed1fc9cbce98eda69d92a78ddc",
+        "route": [
+          121,
+          81,
+          55,
+          114
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.482417,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005135840037837625,
+        "expert_file_stage_seconds": 9.159557521343231e-07,
+        "expert_load_seconds": 0.5668080829782411,
+        "finish": {
+          "compute_ms": 1.078375,
+          "finite": true,
+          "output_checksum": -6426.873827591538,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0012707909918390214,
+        "gates": [
+          0.4245785512199581,
+          0.2786779615258196,
+          0.1793516808399279,
+          0.11739180641429432
+        ],
+        "layer": 7,
+        "output_sha256": "9e12efaf00944175cba498c6278b6b783bc803c34a8dfeec8c8bb52f9879534f",
+        "route": [
+          84,
+          80,
+          1,
+          75
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.0797597244381905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.540625,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005707909585908055,
+        "expert_file_stage_seconds": 2.500019036233425e-07,
+        "expert_load_seconds": 0.5735262079979293,
+        "finish": {
+          "compute_ms": 1.271584,
+          "finite": true,
+          "output_checksum": -6441.891311727464,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0014802920049987733,
+        "gates": [
+          0.8773642469111615,
+          0.04244128167826647,
+          0.04056307471734933,
+          0.0396313966932227
+        ],
+        "layer": 8,
+        "output_sha256": "ad528bd3856aa446e8e12f2504275970483ac810581b0720b54fd3ce74f71ed3",
+        "route": [
+          43,
+          32,
+          93,
+          7
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.713166,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0007969170110300183,
+        "expert_file_stage_seconds": 3.7497375160455704e-07,
+        "expert_load_seconds": 0.5675528749707155,
+        "finish": {
+          "compute_ms": 0.880709,
+          "finite": true,
+          "output_checksum": -6169.887731730938,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013590420130640268,
+        "gates": [
+          0.7025811770064596,
+          0.1605755349649376,
+          0.07475282961480148,
+          0.06209045841380116
+        ],
+        "layer": 9,
+        "output_sha256": "ec6c6120100c55ea2362aa609b54179ee86a913fef5a68a9f428745fbc138127",
+        "route": [
+          85,
+          87,
+          6,
+          98
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.5902561396360397e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.784666,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0008170419605448842,
+        "expert_file_stage_seconds": 1.207983586937189e-06,
+        "expert_load_seconds": 0.5707601250032894,
+        "finish": {
+          "compute_ms": 1.335333,
+          "finite": true,
+          "output_checksum": -6062.3183306753635,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0015884579624980688,
+        "gates": [
+          0.5512171324351297,
+          0.19282545606704857,
+          0.1463144954176542,
+          0.10964291608016756
+        ],
+        "layer": 10,
+        "output_sha256": "413ff2e3bbb82b2d83d7818264f5ac582f48ffa575bb5aab4e8670b8cc5dca3f",
+        "route": [
+          20,
+          41,
+          80,
+          44
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 2.405458,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0025049590039998293,
+        "expert_file_stage_seconds": 2.0803418010473251e-07,
+        "expert_load_seconds": 0.5690288749756292,
+        "finish": {
+          "compute_ms": 1.600334,
+          "finite": true,
+          "output_checksum": -5743.659781962633,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.002363333012908697,
+        "gates": [
+          0.8775831775460589,
+          0.04116857726954759,
+          0.04110161010611868,
+          0.04014663507827509
+        ],
+        "layer": 11,
+        "output_sha256": "bbcad0ce1793d52d5e00a096096d27ef75cea808a728cda40daabbc5e78f72c3",
+        "route": [
+          56,
+          68,
+          20,
+          13
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 5.830079317092896e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 5.703875,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.005762999993748963,
+        "expert_file_stage_seconds": 5.409820005297661e-07,
+        "expert_load_seconds": 0.5688851659651846,
+        "finish": {
+          "compute_ms": 0.955458,
+          "finite": true,
+          "output_checksum": -5595.759760290384,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0014697079895995557,
+        "gates": [
+          0.4322060224597963,
+          0.32533637997468823,
+          0.1218522352665318,
+          0.12060536229898361
+        ],
+        "layer": 12,
+        "output_sha256": "7970b3f309312872cf89748a5a418eecc0c69da4c8c682b9d278ebde3ac4b3a8",
+        "route": [
+          109,
+          16,
+          5,
+          86
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 5.930833,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00598237500526011,
+        "expert_file_stage_seconds": 3.750319592654705e-07,
+        "expert_load_seconds": 0.5717399590066634,
+        "finish": {
+          "compute_ms": 0.948958,
+          "finite": true,
+          "output_checksum": -6150.024130642414,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0010745420004241168,
+        "gates": [
+          0.7235433080220353,
+          0.09561874246578352,
+          0.09251914438333252,
+          0.08831880512884874
+        ],
+        "layer": 13,
+        "output_sha256": "b57c0b2ede39b19941aa374cc4c67e604a347058f0b8d3b1ae55e3408eed2ccf",
+        "route": [
+          57,
+          104,
+          22,
+          51
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.25030055642128e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.816125,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004864874994382262,
+        "expert_file_stage_seconds": 5.409820005297661e-07,
+        "expert_load_seconds": 0.5687154590268619,
+        "finish": {
+          "compute_ms": 0.890875,
+          "finite": true,
+          "output_checksum": -6398.89417925477,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0010497079929336905,
+        "gates": [
+          0.8060585411461102,
+          0.07812093429442749,
+          0.0594966195413672,
+          0.056323905018095095
+        ],
+        "layer": 14,
+        "output_sha256": "150e1a8a8afc34ab0f7bd26a4626cdf5f358689d48c82b5f72d06a2a8a5c21f4",
+        "route": [
+          60,
+          104,
+          112,
+          100
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.300412446260452e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 4.407375,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004454667039681226,
+        "expert_file_stage_seconds": 7.500057108700275e-07,
+        "expert_load_seconds": 0.5675952499732375,
+        "finish": {
+          "compute_ms": 1.317792,
+          "finite": true,
+          "output_checksum": -4987.946236848831,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0014886659919284284,
+        "gates": [
+          0.32949118310371206,
+          0.3292794619697684,
+          0.1784972018004322,
+          0.16273215312608733
+        ],
+        "layer": 15,
+        "output_sha256": "54154169b425cbc5a4a6cdf5daba06344814fe734a3b5d62802ad5a3b1737ce2",
+        "route": [
+          124,
+          33,
+          26,
+          100
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.300412446260452e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 4.565917,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004612249962519854,
+        "expert_file_stage_seconds": 4.169996827840805e-07,
+        "expert_load_seconds": 0.5675474999588914,
+        "finish": {
+          "compute_ms": 0.86325,
+          "finite": true,
+          "output_checksum": -5058.127204880118,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0014560839626938105,
+        "gates": [
+          0.5920956853465078,
+          0.1690326941300242,
+          0.12852022980268984,
+          0.11035139072077817
+        ],
+        "layer": 16,
+        "output_sha256": "4f8ff258d32bd7a3425eb834996a1603bee7c286a9353442b5748dcffbfcb104",
+        "route": [
+          21,
+          29,
+          39,
+          13
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.2497184798121452e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.513292,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0045682499767281115,
+        "expert_file_stage_seconds": 5.830079317092896e-07,
+        "expert_load_seconds": 0.5655574160045944,
+        "finish": {
+          "compute_ms": 1.189667,
+          "finite": true,
+          "output_checksum": -5167.754812538624,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.001328375015873462,
+        "gates": [
+          0.2758200589597736,
+          0.27148409965565595,
+          0.2271713908724766,
+          0.22552445051209385
+        ],
+        "layer": 17,
+        "output_sha256": "0636b01c4299b3e5528a8c8140aee64b1e1f7b5b760063277f45f5dc292ef70c",
+        "route": [
+          99,
+          20,
+          4,
+          1
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.293417,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0043290830217301846,
+        "expert_file_stage_seconds": 4.169996827840805e-07,
+        "expert_load_seconds": 0.5687183340196498,
+        "finish": {
+          "compute_ms": 1.751458,
+          "finite": true,
+          "output_checksum": -1898.6195205152035,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0019328329944983125,
+        "gates": [
+          0.28552738030955327,
+          0.2674043282604597,
+          0.22592906430008028,
+          0.22113922712990677
+        ],
+        "layer": 18,
+        "output_sha256": "0a0034dd6e2dc06dbe8990eaae551c27861fd927d80a09c56e02987f8b4501fe",
+        "route": [
+          53,
+          115,
+          102,
+          113
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.25030055642128e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.00425,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004045750014483929,
+        "expert_file_stage_seconds": 4.5797787606716156e-07,
+        "expert_load_seconds": 0.5663030000287108,
+        "finish": {
+          "compute_ms": 0.909333,
+          "finite": true,
+          "output_checksum": 360.8891304731369,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0010391250252723694,
+        "gates": [
+          0.35918124914975885,
+          0.23665622659745406,
+          0.21278582846767527,
+          0.19137669578511188
+        ],
+        "layer": 19,
+        "output_sha256": "f930853d9760361dbbe2341c7bbcc1f9232f396e10d2743796d4d77368f874c8",
+        "route": [
+          96,
+          12,
+          38,
+          108
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 2.5525,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0025877910084091127,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.5669132500188425,
+        "finish": {
+          "compute_ms": 0.819542,
+          "finite": true,
+          "output_checksum": 1585.692863702774,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0010766659979708493,
+        "gates": [
+          0.26199916517159283,
+          0.25896854590366764,
+          0.24022220413543613,
+          0.23881008478930338
+        ],
+        "layer": 20,
+        "output_sha256": "c18cbf39ca201232ef4eeac061b69a6ae9cd27f3c19be67b4c1625b71cdf13a4",
+        "route": [
+          12,
+          104,
+          78,
+          51
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.0803418010473251e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.051875,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004087209003046155,
+        "expert_file_stage_seconds": 5.830079317092896e-07,
+        "expert_load_seconds": 0.6142509590135887,
+        "finish": {
+          "compute_ms": 1.215,
+          "finite": true,
+          "output_checksum": 1791.729192018509,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013482089852914214,
+        "gates": [
+          0.27844993089304787,
+          0.2565017803408624,
+          0.2383212597255903,
+          0.2267270290404995
+        ],
+        "layer": 21,
+        "output_sha256": "3f3074eac92f8b3adbd130eb6eb317d9e80bd7f27f5044c4d2060d003bc73447",
+        "route": [
+          123,
+          111,
+          10,
+          102
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 3.034291,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0031010419479571283,
+        "expert_file_stage_seconds": 3.3300602808594704e-07,
+        "expert_load_seconds": 0.5686298329965211,
+        "finish": {
+          "compute_ms": 0.910959,
+          "finite": true,
+          "output_checksum": 1208.0576887130737,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0012144999927841127,
+        "gates": [
+          0.3264473284847898,
+          0.2446974571003618,
+          0.22459433974866883,
+          0.2042608746661796
+        ],
+        "layer": 22,
+        "output_sha256": "a91ed775b89e24e12df2429deec9a5237af8aa4a5005e7241896d0fbffb9cb96",
+        "route": [
+          111,
+          2,
+          81,
+          21
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.300412446260452e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 4.924209,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004964416031725705,
+        "expert_file_stage_seconds": 9.169452823698521e-07,
+        "expert_load_seconds": 0.5699242079863325,
+        "finish": {
+          "compute_ms": 2.149333,
+          "finite": true,
+          "output_checksum": 3969.311718225479,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.002424500009510666,
+        "gates": [
+          0.2950806409004258,
+          0.2677717529250382,
+          0.23259504774710016,
+          0.2045525584274359
+        ],
+        "layer": 23,
+        "output_sha256": "919e990ff78469ee5a9f34c68c5e90a5ec19814332fa2303d9529e600f2ea4f0",
+        "route": [
+          36,
+          106,
+          8,
+          66
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.005541,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0041255829855799675,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.5680317910155281,
+        "finish": {
+          "compute_ms": 0.909667,
+          "finite": true,
+          "output_checksum": 2660.643723487854,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.001185790984891355,
+        "gates": [
+          0.3381964775294046,
+          0.23985898444234294,
+          0.2252319711239077,
+          0.19671256690434483
+        ],
+        "layer": 24,
+        "output_sha256": "a650b1a6b69e0011b945d1491b0607e3643235b6b1b8e1e83ae9b450d2b593a9",
+        "route": [
+          113,
+          79,
+          29,
+          50
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.589674063026905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.402667,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00444141699699685,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.5654278339934535,
+        "finish": {
+          "compute_ms": 1.271375,
+          "finite": true,
+          "output_checksum": 159.41677904129028,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.001655584026593715,
+        "gates": [
+          0.30723851098836846,
+          0.24307301908788398,
+          0.22728943052787728,
+          0.22239903939587022
+        ],
+        "layer": 25,
+        "output_sha256": "28924b4283a7e32bdb7d2bf8544018638c1df7189d3ca0618d2b07f6dd949fd9",
+        "route": [
+          17,
+          43,
+          122,
+          42
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.199166,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004273999948054552,
+        "expert_file_stage_seconds": 4.5902561396360397e-07,
+        "expert_load_seconds": 0.5687143750255927,
+        "finish": {
+          "compute_ms": 0.871875,
+          "finite": true,
+          "output_checksum": -313.39864206314087,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013094170135445893,
+        "gates": [
+          0.34670520048910175,
+          0.23633048191388503,
+          0.20904973801292692,
+          0.20791457958408632
+        ],
+        "layer": 26,
+        "output_sha256": "5bc757d90db6bec66c7e3953e976122b6ec2e5faa9d100b95a952111ed8692ed",
+        "route": [
+          120,
+          79,
+          94,
+          84
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.2497184798121452e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.427375,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004484125005546957,
+        "expert_file_stage_seconds": 4.169996827840805e-07,
+        "expert_load_seconds": 0.5670493750367314,
+        "finish": {
+          "compute_ms": 1.136875,
+          "finite": true,
+          "output_checksum": -3287.8305311203003,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013011249830015004,
+        "gates": [
+          0.3526657690935101,
+          0.31339036317904395,
+          0.18339854753869417,
+          0.15054532018875172
+        ],
+        "layer": 27,
+        "output_sha256": "bdf3455055b75ae0b34b39bd6814adacfa4397e307e89532226719a99846c793",
+        "route": [
+          125,
+          14,
+          49,
+          62
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.810625,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0008603340247645974,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.5705011659883894,
+        "finish": {
+          "compute_ms": 1.185209,
+          "finite": true,
+          "output_checksum": -5839.787453651428,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013606249704025686,
+        "gates": [
+          0.3491629632348417,
+          0.23410744560825633,
+          0.22318353946484473,
+          0.19354605169205724
+        ],
+        "layer": 28,
+        "output_sha256": "0466076c127eb56b9f9c2b088427244dbda677e900aa4151ce8936f22ecc5001",
+        "route": [
+          59,
+          74,
+          51,
+          85
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.2497184798121452e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.298417,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004411000001709908,
+        "expert_file_stage_seconds": 4.5902561396360397e-07,
+        "expert_load_seconds": 0.5675664590089582,
+        "finish": {
+          "compute_ms": 0.942333,
+          "finite": true,
+          "output_checksum": -15813.306929588318,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0012008339981548488,
+        "gates": [
+          0.41397209505626703,
+          0.29441544427939337,
+          0.17253460410565744,
+          0.11907785655868228
+        ],
+        "layer": 29,
+        "output_sha256": "28d223df67102ff0dbf720bc559141fd81e6f9a1e769e6748223edd8bf813a04",
+        "route": [
+          11,
+          29,
+          22,
+          120
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 5.420297384262085e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.7895,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0048382499953731894,
+        "expert_file_stage_seconds": 3.3300602808594704e-07,
+        "expert_load_seconds": 0.5727499169879593,
+        "finish": {
+          "compute_ms": 1.155458,
+          "finite": true,
+          "output_checksum": -7279.880590438843,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013317919801920652,
+        "gates": [
+          0.3115470459486309,
+          0.2677848567813547,
+          0.2194021146043244,
+          0.20126598266569
+        ],
+        "layer": 30,
+        "output_sha256": "c90c2a7b45c1beff55ae2d511eed73e13180c14732ff262af74243b845061a51",
+        "route": [
+          48,
+          106,
+          40,
+          7
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.300412446260452e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 2.674291,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0027368749724701047,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.5648154580267146,
+        "finish": {
+          "compute_ms": 0.906209,
+          "finite": true,
+          "output_checksum": -3869.316679954529,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0010663330322131515,
+        "gates": [
+          0.2909618950900525,
+          0.24980350717785874,
+          0.24594776996065557,
+          0.21328682777143318
+        ],
+        "layer": 31,
+        "output_sha256": "8f209e565174174737a04e4955380b3bb13af9dec0c3c294b29aa13658adf94f",
+        "route": [
+          126,
+          24,
+          83,
+          96
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 2.626917,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00267370801884681,
+        "expert_file_stage_seconds": 4.169996827840805e-07,
+        "expert_load_seconds": 0.5654782080091536,
+        "finish": {
+          "compute_ms": 0.928417,
+          "finite": true,
+          "output_checksum": 18942.16672849655,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.001050791994202882,
+        "gates": [
+          0.34803581729499267,
+          0.2674526743663426,
+          0.22287725706467887,
+          0.16163425127398587
+        ],
+        "layer": 32,
+        "output_sha256": "3b0ccaf754000b4fc9349b4550100615b8e44536aa961a60cd8437516b66120d",
+        "route": [
+          98,
+          48,
+          23,
+          66
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.2497184798121452e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 2.566042,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0026050000451505184,
+        "expert_file_stage_seconds": 4.5902561396360397e-07,
+        "expert_load_seconds": 0.5672028750414029,
+        "finish": {
+          "compute_ms": 0.931958,
+          "finite": true,
+          "output_checksum": 32520.429134368896,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0010765420156531036,
+        "gates": [
+          0.3245661085217003,
+          0.27433962026668657,
+          0.20525104290379756,
+          0.19584322830781553
+        ],
+        "layer": 33,
+        "output_sha256": "0bdcbe919cf58bfe10119ea0805a0544127799ad4907381f0efd8b5f692b8042",
+        "route": [
+          101,
+          53,
+          26,
+          41
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.399365469813347e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 2.202541,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.002253540966194123,
+        "expert_file_stage_seconds": 5.420297384262085e-07,
+        "expert_load_seconds": 0.5643730000010692,
+        "finish": {
+          "compute_ms": 0.93925,
+          "finite": true,
+          "output_checksum": 88055.62283802032,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013980839867144823,
+        "gates": [
+          0.28767348318498676,
+          0.2821002271165607,
+          0.2288059277176746,
+          0.20142036198077803
+        ],
+        "layer": 34,
+        "output_sha256": "9481953045a4cad2c22555d478389c0134a3bcd01a1423607fa9f498628e6cc9",
+        "route": [
+          111,
+          49,
+          93,
+          67
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 4.370417,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.004430833039805293,
+        "expert_file_stage_seconds": 2.92027834802866e-07,
+        "expert_load_seconds": 0.5622167920228094,
+        "finish": {
+          "compute_ms": 1.35025,
+          "finite": true,
+          "output_checksum": 68522.63651275635,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0015022499719634652,
+        "gates": [
+          0.3222461195319375,
+          0.24785355874467518,
+          0.24352823662929576,
+          0.18637208509409156
+        ],
+        "layer": 35,
+        "output_sha256": "360dfeaa5d007d9a1026232a0d57f6038d2b39082afc8e740b25a6b7e16c7a36",
+        "route": [
+          111,
+          61,
+          80,
+          88
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.2497184798121452e-07
+      }
+    ],
+    "logits_sha256": "fd36b61222d4b41e931b86decffa776e3eaf615df49f41c1a1cf9206d50d2cb4",
+    "output": {
+      "argmax_token_id": 2471,
+      "compute_ms": 381.752417,
+      "finite": true,
+      "logit_checksum": -281663.1151893018,
+      "max_logit": 13.909780502319336,
+      "schema": "aion.gptoss.persistent-output.v1"
+    },
+    "prompt_to_continuation_rehydrate_metric_delta": null,
+    "prompt_to_continuation_rehydrate_seconds": 0.0,
+    "store_metric_delta": {
+      "compressed_bytes_read": 1826752494,
+      "evictions": 0,
+      "faults": 144,
+      "hits": 0,
+      "raw_bytes_materialized": 1908541440
+    },
+    "store_metrics": {
+      "admission_allowlist_entries": 0,
+      "admission_bypasses": 0,
+      "cache_representation": "verified_compressed_frames",
+      "capacity_bytes": 3221225472,
+      "compressed_bytes_read": 1826752494,
+      "evictions": 0,
+      "faults": 144,
+      "freeze_when_full": false,
+      "hit_rate": 0.0,
+      "hits": 0,
+      "peak_resident_bytes": 1826752494,
+      "protected_entries": 0,
+      "raw_bytes_materialized": 1908541440,
+      "resident_bytes": 1826752494
+    },
+    "tokens": [
+      {
+        "embedding": {
+          "checksum": 52.7466,
+          "finite": true,
+          "schema": "aion.gptoss.embedding-row-cpu.v1"
+        },
+        "embedding_row_sha256": "31fe4c696b369ae50297b837f7640e6b221b1dd9151229a5c29f3765583ca4ba",
+        "final_hidden_sha256": "360dfeaa5d007d9a1026232a0d57f6038d2b39082afc8e740b25a6b7e16c7a36",
+        "generated_token_id": 2471,
+        "input_token_id": 95001,
+        "input_was_forced_prompt": true,
+        "layers": [
+          {
+            "attention": {
+              "compute_ms": 3.313792,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.023981000005733222,
+            "expert_file_stage_seconds": 1.1249794624745846e-06,
+            "expert_load_seconds": 0.5664998330175877,
+            "finish": {
+              "compute_ms": 2.876042,
+              "finite": true,
+              "output_checksum": 149.87038018926978,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.03630920802243054,
+            "gates": [
+              0.32622017281961563,
+              0.2618033686853331,
+              0.20609325401208137,
+              0.20588320448296987
+            ],
+            "layer": 0,
+            "output_sha256": "8e1b9687d99a56e699be6905fd5b3c86d69e8249354b8d1523ae8d0479ee6815",
+            "route": [
+              15,
+              20,
+              76,
+              28
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6600824892520905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.735125,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0007975000189617276,
+            "expert_file_stage_seconds": 7.500057108700275e-07,
+            "expert_load_seconds": 0.5703621249995194,
+            "finish": {
+              "compute_ms": 1.095458,
+              "finite": true,
+              "output_checksum": 292.2279405537993,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0015530840028077364,
+            "gates": [
+              0.6791681012584508,
+              0.16738989862023937,
+              0.09182306290703006,
+              0.061618937214279655
+            ],
+            "layer": 1,
+            "output_sha256": "529b7141135e3f074c8899a797b62da1135d365c49774415653323c2160e1f84",
+            "route": [
+              93,
+              64,
+              14,
+              121
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.500019036233425e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.486292,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005179159925319254,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.5713030830374919,
+            "finish": {
+              "compute_ms": 0.909167,
+              "finite": true,
+              "output_checksum": 397.83315804973245,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013920830097049475,
+            "gates": [
+              0.36752701761325957,
+              0.23121126459512018,
+              0.20789899598396067,
+              0.19336272180765948
+            ],
+            "layer": 2,
+            "output_sha256": "9ef6c4b6d1df69c57f402faccf97d8f4fc5cf4d11495808ff884db0be5e3ff44",
+            "route": [
+              112,
+              23,
+              119,
+              105
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6705598682165146e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.499625,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005289579858072102,
+            "expert_file_stage_seconds": 4.1601015254855156e-07,
+            "expert_load_seconds": 0.5661032920470461,
+            "finish": {
+              "compute_ms": 1.188292,
+              "finite": true,
+              "output_checksum": 466.84064991399646,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.001613166998140514,
+            "gates": [
+              0.4103626436196286,
+              0.20328035846041154,
+              0.19533665051441843,
+              0.1910203474055415
+            ],
+            "layer": 3,
+            "output_sha256": "35128dbcaf7315edc630491539c33cea8a9a59e9347f5f8b883fb087e17211fc",
+            "route": [
+              110,
+              5,
+              74,
+              82
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.0797597244381905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.544833,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005803339881822467,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.5676994160166942,
+            "finish": {
+              "compute_ms": 1.077208,
+              "finite": true,
+              "output_checksum": 551.0226443894207,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013592499890364707,
+            "gates": [
+              0.3125527269849172,
+              0.24156274263737812,
+              0.22417633249542432,
+              0.22170819788228036
+            ],
+            "layer": 4,
+            "output_sha256": "7ef50bf9affb059b8e9d5b67f44ead0bd09bc8ce9b4ca6a9055705380952ab7e",
+            "route": [
+              14,
+              63,
+              89,
+              12
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.300412446260452e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 0.476,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005106249591335654,
+            "expert_file_stage_seconds": 3.750319592654705e-07,
+            "expert_load_seconds": 0.5681076250039041,
+            "finish": {
+              "compute_ms": 1.432875,
+              "finite": true,
+              "output_checksum": 676.3957765847445,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0017372500151395798,
+            "gates": [
+              0.502452899081058,
+              0.24618356532452124,
+              0.1314779379553037,
+              0.11988559763911714
+            ],
+            "layer": 5,
+            "output_sha256": "b16d7282d358127f18d6c8a84f1d3dbb23eb365784edd010c40ba060997dc820",
+            "route": [
+              111,
+              7,
+              6,
+              120
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.9103830456733704e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.519625,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005503749707713723,
+            "expert_file_stage_seconds": 3.7497375160455704e-07,
+            "expert_load_seconds": 0.5707684579538181,
+            "finish": {
+              "compute_ms": 0.999792,
+              "finite": true,
+              "output_checksum": -7825.393443211913,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013321670121513307,
+            "gates": [
+              0.8304564377562302,
+              0.06423980773559504,
+              0.05837924096272818,
+              0.04692451354544666
+            ],
+            "layer": 6,
+            "output_sha256": "3309795dd568f87028b8d0722d3713e3a32bffed1fc9cbce98eda69d92a78ddc",
+            "route": [
+              121,
+              81,
+              55,
+              114
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.500019036233425e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.482417,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005135840037837625,
+            "expert_file_stage_seconds": 9.159557521343231e-07,
+            "expert_load_seconds": 0.5668080829782411,
+            "finish": {
+              "compute_ms": 1.078375,
+              "finite": true,
+              "output_checksum": -6426.873827591538,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0012707909918390214,
+            "gates": [
+              0.4245785512199581,
+              0.2786779615258196,
+              0.1793516808399279,
+              0.11739180641429432
+            ],
+            "layer": 7,
+            "output_sha256": "9e12efaf00944175cba498c6278b6b783bc803c34a8dfeec8c8bb52f9879534f",
+            "route": [
+              84,
+              80,
+              1,
+              75
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.0797597244381905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.540625,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005707909585908055,
+            "expert_file_stage_seconds": 2.500019036233425e-07,
+            "expert_load_seconds": 0.5735262079979293,
+            "finish": {
+              "compute_ms": 1.271584,
+              "finite": true,
+              "output_checksum": -6441.891311727464,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0014802920049987733,
+            "gates": [
+              0.8773642469111615,
+              0.04244128167826647,
+              0.04056307471734933,
+              0.0396313966932227
+            ],
+            "layer": 8,
+            "output_sha256": "ad528bd3856aa446e8e12f2504275970483ac810581b0720b54fd3ce74f71ed3",
+            "route": [
+              43,
+              32,
+              93,
+              7
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6600824892520905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.713166,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0007969170110300183,
+            "expert_file_stage_seconds": 3.7497375160455704e-07,
+            "expert_load_seconds": 0.5675528749707155,
+            "finish": {
+              "compute_ms": 0.880709,
+              "finite": true,
+              "output_checksum": -6169.887731730938,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013590420130640268,
+            "gates": [
+              0.7025811770064596,
+              0.1605755349649376,
+              0.07475282961480148,
+              0.06209045841380116
+            ],
+            "layer": 9,
+            "output_sha256": "ec6c6120100c55ea2362aa609b54179ee86a913fef5a68a9f428745fbc138127",
+            "route": [
+              85,
+              87,
+              6,
+              98
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.5902561396360397e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.784666,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0008170419605448842,
+            "expert_file_stage_seconds": 1.207983586937189e-06,
+            "expert_load_seconds": 0.5707601250032894,
+            "finish": {
+              "compute_ms": 1.335333,
+              "finite": true,
+              "output_checksum": -6062.3183306753635,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0015884579624980688,
+            "gates": [
+              0.5512171324351297,
+              0.19282545606704857,
+              0.1463144954176542,
+              0.10964291608016756
+            ],
+            "layer": 10,
+            "output_sha256": "413ff2e3bbb82b2d83d7818264f5ac582f48ffa575bb5aab4e8670b8cc5dca3f",
+            "route": [
+              20,
+              41,
+              80,
+              44
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6600824892520905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 2.405458,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0025049590039998293,
+            "expert_file_stage_seconds": 2.0803418010473251e-07,
+            "expert_load_seconds": 0.5690288749756292,
+            "finish": {
+              "compute_ms": 1.600334,
+              "finite": true,
+              "output_checksum": -5743.659781962633,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.002363333012908697,
+            "gates": [
+              0.8775831775460589,
+              0.04116857726954759,
+              0.04110161010611868,
+              0.04014663507827509
+            ],
+            "layer": 11,
+            "output_sha256": "bbcad0ce1793d52d5e00a096096d27ef75cea808a728cda40daabbc5e78f72c3",
+            "route": [
+              56,
+              68,
+              20,
+              13
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 5.830079317092896e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 5.703875,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.005762999993748963,
+            "expert_file_stage_seconds": 5.409820005297661e-07,
+            "expert_load_seconds": 0.5688851659651846,
+            "finish": {
+              "compute_ms": 0.955458,
+              "finite": true,
+              "output_checksum": -5595.759760290384,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0014697079895995557,
+            "gates": [
+              0.4322060224597963,
+              0.32533637997468823,
+              0.1218522352665318,
+              0.12060536229898361
+            ],
+            "layer": 12,
+            "output_sha256": "7970b3f309312872cf89748a5a418eecc0c69da4c8c682b9d278ebde3ac4b3a8",
+            "route": [
+              109,
+              16,
+              5,
+              86
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.66997779160738e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 5.930833,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00598237500526011,
+            "expert_file_stage_seconds": 3.750319592654705e-07,
+            "expert_load_seconds": 0.5717399590066634,
+            "finish": {
+              "compute_ms": 0.948958,
+              "finite": true,
+              "output_checksum": -6150.024130642414,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0010745420004241168,
+            "gates": [
+              0.7235433080220353,
+              0.09561874246578352,
+              0.09251914438333252,
+              0.08831880512884874
+            ],
+            "layer": 13,
+            "output_sha256": "b57c0b2ede39b19941aa374cc4c67e604a347058f0b8d3b1ae55e3408eed2ccf",
+            "route": [
+              57,
+              104,
+              22,
+              51
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.25030055642128e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.816125,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004864874994382262,
+            "expert_file_stage_seconds": 5.409820005297661e-07,
+            "expert_load_seconds": 0.5687154590268619,
+            "finish": {
+              "compute_ms": 0.890875,
+              "finite": true,
+              "output_checksum": -6398.89417925477,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0010497079929336905,
+            "gates": [
+              0.8060585411461102,
+              0.07812093429442749,
+              0.0594966195413672,
+              0.056323905018095095
+            ],
+            "layer": 14,
+            "output_sha256": "150e1a8a8afc34ab0f7bd26a4626cdf5f358689d48c82b5f72d06a2a8a5c21f4",
+            "route": [
+              60,
+              104,
+              112,
+              100
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.300412446260452e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 4.407375,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004454667039681226,
+            "expert_file_stage_seconds": 7.500057108700275e-07,
+            "expert_load_seconds": 0.5675952499732375,
+            "finish": {
+              "compute_ms": 1.317792,
+              "finite": true,
+              "output_checksum": -4987.946236848831,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0014886659919284284,
+            "gates": [
+              0.32949118310371206,
+              0.3292794619697684,
+              0.1784972018004322,
+              0.16273215312608733
+            ],
+            "layer": 15,
+            "output_sha256": "54154169b425cbc5a4a6cdf5daba06344814fe734a3b5d62802ad5a3b1737ce2",
+            "route": [
+              124,
+              33,
+              26,
+              100
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.300412446260452e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 4.565917,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004612249962519854,
+            "expert_file_stage_seconds": 4.169996827840805e-07,
+            "expert_load_seconds": 0.5675474999588914,
+            "finish": {
+              "compute_ms": 0.86325,
+              "finite": true,
+              "output_checksum": -5058.127204880118,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0014560839626938105,
+            "gates": [
+              0.5920956853465078,
+              0.1690326941300242,
+              0.12852022980268984,
+              0.11035139072077817
+            ],
+            "layer": 16,
+            "output_sha256": "4f8ff258d32bd7a3425eb834996a1603bee7c286a9353442b5748dcffbfcb104",
+            "route": [
+              21,
+              29,
+              39,
+              13
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.2497184798121452e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.513292,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0045682499767281115,
+            "expert_file_stage_seconds": 5.830079317092896e-07,
+            "expert_load_seconds": 0.5655574160045944,
+            "finish": {
+              "compute_ms": 1.189667,
+              "finite": true,
+              "output_checksum": -5167.754812538624,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.001328375015873462,
+            "gates": [
+              0.2758200589597736,
+              0.27148409965565595,
+              0.2271713908724766,
+              0.22552445051209385
+            ],
+            "layer": 17,
+            "output_sha256": "0636b01c4299b3e5528a8c8140aee64b1e1f7b5b760063277f45f5dc292ef70c",
+            "route": [
+              99,
+              20,
+              4,
+              1
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.66997779160738e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.293417,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0043290830217301846,
+            "expert_file_stage_seconds": 4.169996827840805e-07,
+            "expert_load_seconds": 0.5687183340196498,
+            "finish": {
+              "compute_ms": 1.751458,
+              "finite": true,
+              "output_checksum": -1898.6195205152035,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0019328329944983125,
+            "gates": [
+              0.28552738030955327,
+              0.2674043282604597,
+              0.22592906430008028,
+              0.22113922712990677
+            ],
+            "layer": 18,
+            "output_sha256": "0a0034dd6e2dc06dbe8990eaae551c27861fd927d80a09c56e02987f8b4501fe",
+            "route": [
+              53,
+              115,
+              102,
+              113
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.25030055642128e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.00425,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004045750014483929,
+            "expert_file_stage_seconds": 4.5797787606716156e-07,
+            "expert_load_seconds": 0.5663030000287108,
+            "finish": {
+              "compute_ms": 0.909333,
+              "finite": true,
+              "output_checksum": 360.8891304731369,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0010391250252723694,
+            "gates": [
+              0.35918124914975885,
+              0.23665622659745406,
+              0.21278582846767527,
+              0.19137669578511188
+            ],
+            "layer": 19,
+            "output_sha256": "f930853d9760361dbbe2341c7bbcc1f9232f396e10d2743796d4d77368f874c8",
+            "route": [
+              96,
+              12,
+              38,
+              108
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.66997779160738e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 2.5525,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0025877910084091127,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.5669132500188425,
+            "finish": {
+              "compute_ms": 0.819542,
+              "finite": true,
+              "output_checksum": 1585.692863702774,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0010766659979708493,
+            "gates": [
+              0.26199916517159283,
+              0.25896854590366764,
+              0.24022220413543613,
+              0.23881008478930338
+            ],
+            "layer": 20,
+            "output_sha256": "c18cbf39ca201232ef4eeac061b69a6ae9cd27f3c19be67b4c1625b71cdf13a4",
+            "route": [
+              12,
+              104,
+              78,
+              51
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.0803418010473251e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.051875,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004087209003046155,
+            "expert_file_stage_seconds": 5.830079317092896e-07,
+            "expert_load_seconds": 0.6142509590135887,
+            "finish": {
+              "compute_ms": 1.215,
+              "finite": true,
+              "output_checksum": 1791.729192018509,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013482089852914214,
+            "gates": [
+              0.27844993089304787,
+              0.2565017803408624,
+              0.2383212597255903,
+              0.2267270290404995
+            ],
+            "layer": 21,
+            "output_sha256": "3f3074eac92f8b3adbd130eb6eb317d9e80bd7f27f5044c4d2060d003bc73447",
+            "route": [
+              123,
+              111,
+              10,
+              102
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6600824892520905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 3.034291,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0031010419479571283,
+            "expert_file_stage_seconds": 3.3300602808594704e-07,
+            "expert_load_seconds": 0.5686298329965211,
+            "finish": {
+              "compute_ms": 0.910959,
+              "finite": true,
+              "output_checksum": 1208.0576887130737,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0012144999927841127,
+            "gates": [
+              0.3264473284847898,
+              0.2446974571003618,
+              0.22459433974866883,
+              0.2042608746661796
+            ],
+            "layer": 22,
+            "output_sha256": "a91ed775b89e24e12df2429deec9a5237af8aa4a5005e7241896d0fbffb9cb96",
+            "route": [
+              111,
+              2,
+              81,
+              21
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.300412446260452e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 4.924209,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004964416031725705,
+            "expert_file_stage_seconds": 9.169452823698521e-07,
+            "expert_load_seconds": 0.5699242079863325,
+            "finish": {
+              "compute_ms": 2.149333,
+              "finite": true,
+              "output_checksum": 3969.311718225479,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.002424500009510666,
+            "gates": [
+              0.2950806409004258,
+              0.2677717529250382,
+              0.23259504774710016,
+              0.2045525584274359
+            ],
+            "layer": 23,
+            "output_sha256": "919e990ff78469ee5a9f34c68c5e90a5ec19814332fa2303d9529e600f2ea4f0",
+            "route": [
+              36,
+              106,
+              8,
+              66
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.66997779160738e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.005541,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0041255829855799675,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.5680317910155281,
+            "finish": {
+              "compute_ms": 0.909667,
+              "finite": true,
+              "output_checksum": 2660.643723487854,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.001185790984891355,
+            "gates": [
+              0.3381964775294046,
+              0.23985898444234294,
+              0.2252319711239077,
+              0.19671256690434483
+            ],
+            "layer": 24,
+            "output_sha256": "a650b1a6b69e0011b945d1491b0607e3643235b6b1b8e1e83ae9b450d2b593a9",
+            "route": [
+              113,
+              79,
+              29,
+              50
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.589674063026905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.402667,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00444141699699685,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.5654278339934535,
+            "finish": {
+              "compute_ms": 1.271375,
+              "finite": true,
+              "output_checksum": 159.41677904129028,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.001655584026593715,
+            "gates": [
+              0.30723851098836846,
+              0.24307301908788398,
+              0.22728943052787728,
+              0.22239903939587022
+            ],
+            "layer": 25,
+            "output_sha256": "28924b4283a7e32bdb7d2bf8544018638c1df7189d3ca0618d2b07f6dd949fd9",
+            "route": [
+              17,
+              43,
+              122,
+              42
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6600824892520905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.199166,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004273999948054552,
+            "expert_file_stage_seconds": 4.5902561396360397e-07,
+            "expert_load_seconds": 0.5687143750255927,
+            "finish": {
+              "compute_ms": 0.871875,
+              "finite": true,
+              "output_checksum": -313.39864206314087,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013094170135445893,
+            "gates": [
+              0.34670520048910175,
+              0.23633048191388503,
+              0.20904973801292692,
+              0.20791457958408632
+            ],
+            "layer": 26,
+            "output_sha256": "5bc757d90db6bec66c7e3953e976122b6ec2e5faa9d100b95a952111ed8692ed",
+            "route": [
+              120,
+              79,
+              94,
+              84
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.2497184798121452e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.427375,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004484125005546957,
+            "expert_file_stage_seconds": 4.169996827840805e-07,
+            "expert_load_seconds": 0.5670493750367314,
+            "finish": {
+              "compute_ms": 1.136875,
+              "finite": true,
+              "output_checksum": -3287.8305311203003,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013011249830015004,
+            "gates": [
+              0.3526657690935101,
+              0.31339036317904395,
+              0.18339854753869417,
+              0.15054532018875172
+            ],
+            "layer": 27,
+            "output_sha256": "bdf3455055b75ae0b34b39bd6814adacfa4397e307e89532226719a99846c793",
+            "route": [
+              125,
+              14,
+              49,
+              62
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.66997779160738e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.810625,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0008603340247645974,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.5705011659883894,
+            "finish": {
+              "compute_ms": 1.185209,
+              "finite": true,
+              "output_checksum": -5839.787453651428,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013606249704025686,
+            "gates": [
+              0.3491629632348417,
+              0.23410744560825633,
+              0.22318353946484473,
+              0.19354605169205724
+            ],
+            "layer": 28,
+            "output_sha256": "0466076c127eb56b9f9c2b088427244dbda677e900aa4151ce8936f22ecc5001",
+            "route": [
+              59,
+              74,
+              51,
+              85
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.2497184798121452e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.298417,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004411000001709908,
+            "expert_file_stage_seconds": 4.5902561396360397e-07,
+            "expert_load_seconds": 0.5675664590089582,
+            "finish": {
+              "compute_ms": 0.942333,
+              "finite": true,
+              "output_checksum": -15813.306929588318,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0012008339981548488,
+            "gates": [
+              0.41397209505626703,
+              0.29441544427939337,
+              0.17253460410565744,
+              0.11907785655868228
+            ],
+            "layer": 29,
+            "output_sha256": "28d223df67102ff0dbf720bc559141fd81e6f9a1e769e6748223edd8bf813a04",
+            "route": [
+              11,
+              29,
+              22,
+              120
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 5.420297384262085e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.7895,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0048382499953731894,
+            "expert_file_stage_seconds": 3.3300602808594704e-07,
+            "expert_load_seconds": 0.5727499169879593,
+            "finish": {
+              "compute_ms": 1.155458,
+              "finite": true,
+              "output_checksum": -7279.880590438843,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013317919801920652,
+            "gates": [
+              0.3115470459486309,
+              0.2677848567813547,
+              0.2194021146043244,
+              0.20126598266569
+            ],
+            "layer": 30,
+            "output_sha256": "c90c2a7b45c1beff55ae2d511eed73e13180c14732ff262af74243b845061a51",
+            "route": [
+              48,
+              106,
+              40,
+              7
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.300412446260452e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 2.674291,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0027368749724701047,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.5648154580267146,
+            "finish": {
+              "compute_ms": 0.906209,
+              "finite": true,
+              "output_checksum": -3869.316679954529,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0010663330322131515,
+            "gates": [
+              0.2909618950900525,
+              0.24980350717785874,
+              0.24594776996065557,
+              0.21328682777143318
+            ],
+            "layer": 31,
+            "output_sha256": "8f209e565174174737a04e4955380b3bb13af9dec0c3c294b29aa13658adf94f",
+            "route": [
+              126,
+              24,
+              83,
+              96
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6600824892520905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 2.626917,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00267370801884681,
+            "expert_file_stage_seconds": 4.169996827840805e-07,
+            "expert_load_seconds": 0.5654782080091536,
+            "finish": {
+              "compute_ms": 0.928417,
+              "finite": true,
+              "output_checksum": 18942.16672849655,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.001050791994202882,
+            "gates": [
+              0.34803581729499267,
+              0.2674526743663426,
+              0.22287725706467887,
+              0.16163425127398587
+            ],
+            "layer": 32,
+            "output_sha256": "3b0ccaf754000b4fc9349b4550100615b8e44536aa961a60cd8437516b66120d",
+            "route": [
+              98,
+              48,
+              23,
+              66
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.2497184798121452e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 2.566042,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0026050000451505184,
+            "expert_file_stage_seconds": 4.5902561396360397e-07,
+            "expert_load_seconds": 0.5672028750414029,
+            "finish": {
+              "compute_ms": 0.931958,
+              "finite": true,
+              "output_checksum": 32520.429134368896,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0010765420156531036,
+            "gates": [
+              0.3245661085217003,
+              0.27433962026668657,
+              0.20525104290379756,
+              0.19584322830781553
+            ],
+            "layer": 33,
+            "output_sha256": "0bdcbe919cf58bfe10119ea0805a0544127799ad4907381f0efd8b5f692b8042",
+            "route": [
+              101,
+              53,
+              26,
+              41
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.399365469813347e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 2.202541,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.002253540966194123,
+            "expert_file_stage_seconds": 5.420297384262085e-07,
+            "expert_load_seconds": 0.5643730000010692,
+            "finish": {
+              "compute_ms": 0.93925,
+              "finite": true,
+              "output_checksum": 88055.62283802032,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013980839867144823,
+            "gates": [
+              0.28767348318498676,
+              0.2821002271165607,
+              0.2288059277176746,
+              0.20142036198077803
+            ],
+            "layer": 34,
+            "output_sha256": "9481953045a4cad2c22555d478389c0134a3bcd01a1423607fa9f498628e6cc9",
+            "route": [
+              111,
+              49,
+              93,
+              67
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6600824892520905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 4.370417,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.004430833039805293,
+            "expert_file_stage_seconds": 2.92027834802866e-07,
+            "expert_load_seconds": 0.5622167920228094,
+            "finish": {
+              "compute_ms": 1.35025,
+              "finite": true,
+              "output_checksum": 68522.63651275635,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0015022499719634652,
+            "gates": [
+              0.3222461195319375,
+              0.24785355874467518,
+              0.24352823662929576,
+              0.18637208509409156
+            ],
+            "layer": 35,
+            "output_sha256": "360dfeaa5d007d9a1026232a0d57f6038d2b39082afc8e740b25a6b7e16c7a36",
+            "route": [
+              111,
+              61,
+              80,
+              88
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.2497184798121452e-07
+          }
+        ],
+        "logits_sha256": "fd36b61222d4b41e931b86decffa776e3eaf615df49f41c1a1cf9206d50d2cb4",
+        "output": {
+          "argmax_token_id": 2471,
+          "compute_ms": 381.752417,
+          "finite": true,
+          "logit_checksum": -281663.1151893018,
+          "max_logit": 13.909780502319336,
+          "schema": "aion.gptoss.persistent-output.v1"
+        },
+        "output_process_seconds": 0.5776333749527112,
+        "position": 0,
+        "wall_seconds": 21.30045858299127
+      }
+    ],
+    "wall_seconds": 21.300850874977186
+  },
+  "run_b": {
+    "final_hidden_sha256": "360dfeaa5d007d9a1026232a0d57f6038d2b39082afc8e740b25a6b7e16c7a36",
+    "label": "b",
+    "layers": [
+      {
+        "attention": {
+          "compute_ms": 0.28475,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00033066701143980026,
+        "expert_file_stage_seconds": 7.500057108700275e-07,
+        "expert_load_seconds": 0.03549858299084008,
+        "finish": {
+          "compute_ms": 0.977459,
+          "finite": true,
+          "output_checksum": 149.87038018926978,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0012376669910736382,
+        "gates": [
+          0.32622017281961563,
+          0.2618033686853331,
+          0.20609325401208137,
+          0.20588320448296987
+        ],
+        "layer": 0,
+        "output_sha256": "8e1b9687d99a56e699be6905fd5b3c86d69e8249354b8d1523ae8d0479ee6815",
+        "route": [
+          15,
+          20,
+          76,
+          28
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.196772351861e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 0.364792,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004973749746568501,
+        "expert_file_stage_seconds": 5.830079317092896e-07,
+        "expert_load_seconds": 0.035555707989260554,
+        "finish": {
+          "compute_ms": 0.8415,
+          "finite": true,
+          "output_checksum": 292.2279405537993,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0016651659971103072,
+        "gates": [
+          0.6791681012584508,
+          0.16738989862023937,
+          0.09182306290703006,
+          0.061618937214279655
+        ],
+        "layer": 1,
+        "output_sha256": "529b7141135e3f074c8899a797b62da1135d365c49774415653323c2160e1f84",
+        "route": [
+          93,
+          64,
+          14,
+          121
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 5.84055669605732e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.360625,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004508750280365348,
+        "expert_file_stage_seconds": 6.67001586407423e-07,
+        "expert_load_seconds": 0.03031487500993535,
+        "finish": {
+          "compute_ms": 2.718083,
+          "finite": true,
+          "output_checksum": 397.83315804973245,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.003965499985497445,
+        "gates": [
+          0.36752701761325957,
+          0.23121126459512018,
+          0.20789899598396067,
+          0.19336272180765948
+        ],
+        "layer": 2,
+        "output_sha256": "9ef6c4b6d1df69c57f402faccf97d8f4fc5cf4d11495808ff884db0be5e3ff44",
+        "route": [
+          112,
+          23,
+          119,
+          105
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 3.7497375160455704e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.311417,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004040420171804726,
+        "expert_file_stage_seconds": 5.830079317092896e-07,
+        "expert_load_seconds": 0.03324133297428489,
+        "finish": {
+          "compute_ms": 0.862833,
+          "finite": true,
+          "output_checksum": 466.84064991399646,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0016839579911902547,
+        "gates": [
+          0.4103626436196286,
+          0.20328035846041154,
+          0.19533665051441843,
+          0.1910203474055415
+        ],
+        "layer": 3,
+        "output_sha256": "35128dbcaf7315edc630491539c33cea8a9a59e9347f5f8b883fb087e17211fc",
+        "route": [
+          110,
+          5,
+          74,
+          82
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 3.750319592654705e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.288,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00033549999352544546,
+        "expert_file_stage_seconds": 5.410402081906796e-07,
+        "expert_load_seconds": 0.02777325001079589,
+        "finish": {
+          "compute_ms": 0.762083,
+          "finite": true,
+          "output_checksum": 551.0226443894207,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013086670078337193,
+        "gates": [
+          0.3125527269849172,
+          0.24156274263737812,
+          0.22417633249542432,
+          0.22170819788228036
+        ],
+        "layer": 4,
+        "output_sha256": "7ef50bf9affb059b8e9d5b67f44ead0bd09bc8ce9b4ca6a9055705380952ab7e",
+        "route": [
+          14,
+          63,
+          89,
+          12
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.2497184798121452e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.346375,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00042975001269951463,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.028956416994333267,
+        "finish": {
+          "compute_ms": 1.265667,
+          "finite": true,
+          "output_checksum": 676.3957765847445,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.001644750009290874,
+        "gates": [
+          0.502452899081058,
+          0.24618356532452124,
+          0.1314779379553037,
+          0.11988559763911714
+        ],
+        "layer": 5,
+        "output_sha256": "b16d7282d358127f18d6c8a84f1d3dbb23eb365784edd010c40ba060997dc820",
+        "route": [
+          111,
+          7,
+          6,
+          120
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 3.7497375160455704e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.272083,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00031491596018895507,
+        "expert_file_stage_seconds": 5.410402081906796e-07,
+        "expert_load_seconds": 0.02813033398706466,
+        "finish": {
+          "compute_ms": 0.783958,
+          "finite": true,
+          "output_checksum": -7825.393443211913,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0014771250425837934,
+        "gates": [
+          0.8304564377562302,
+          0.06423980773559504,
+          0.05837924096272818,
+          0.04692451354544666
+        ],
+        "layer": 6,
+        "output_sha256": "3309795dd568f87028b8d0722d3713e3a32bffed1fc9cbce98eda69d92a78ddc",
+        "route": [
+          121,
+          81,
+          55,
+          114
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.25030055642128e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.3,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00033229199470952153,
+        "expert_file_stage_seconds": 6.660120561718941e-07,
+        "expert_load_seconds": 0.02708266698755324,
+        "finish": {
+          "compute_ms": 0.729042,
+          "finite": true,
+          "output_checksum": -6426.873827591538,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0012210829881951213,
+        "gates": [
+          0.4245785512199581,
+          0.2786779615258196,
+          0.1793516808399279,
+          0.11739180641429432
+        ],
+        "layer": 7,
+        "output_sha256": "9e12efaf00944175cba498c6278b6b783bc803c34a8dfeec8c8bb52f9879534f",
+        "route": [
+          84,
+          80,
+          1,
+          75
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.294591680169106e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 0.309959,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00037345802411437035,
+        "expert_file_stage_seconds": 7.500057108700275e-07,
+        "expert_load_seconds": 0.028649792016949505,
+        "finish": {
+          "compute_ms": 1.334459,
+          "finite": true,
+          "output_checksum": -6441.891311727464,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0024722919915802777,
+        "gates": [
+          0.8773642469111615,
+          0.04244128167826647,
+          0.04056307471734933,
+          0.0396313966932227
+        ],
+        "layer": 8,
+        "output_sha256": "ad528bd3856aa446e8e12f2504275970483ac810581b0720b54fd3ce74f71ed3",
+        "route": [
+          43,
+          32,
+          93,
+          7
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 3.750319592654705e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.429292,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005086250021122396,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.0290992499794811,
+        "finish": {
+          "compute_ms": 0.914625,
+          "finite": true,
+          "output_checksum": -6169.887731730938,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0019174999906681478,
+        "gates": [
+          0.7025811770064596,
+          0.1605755349649376,
+          0.07475282961480148,
+          0.06209045841380116
+        ],
+        "layer": 9,
+        "output_sha256": "ec6c6120100c55ea2362aa609b54179ee86a913fef5a68a9f428745fbc138127",
+        "route": [
+          85,
+          87,
+          6,
+          98
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 3.33995558321476e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.398208,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005001249955967069,
+        "expert_file_stage_seconds": 6.660120561718941e-07,
+        "expert_load_seconds": 0.027926124981604517,
+        "finish": {
+          "compute_ms": 1.826708,
+          "finite": true,
+          "output_checksum": -6062.3183306753635,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.002852790988981724,
+        "gates": [
+          0.5512171324351297,
+          0.19282545606704857,
+          0.1463144954176542,
+          0.10964291608016756
+        ],
+        "layer": 10,
+        "output_sha256": "413ff2e3bbb82b2d83d7818264f5ac582f48ffa575bb5aab4e8670b8cc5dca3f",
+        "route": [
+          20,
+          41,
+          80,
+          44
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 6.25033862888813e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.623916,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0008064169669523835,
+        "expert_file_stage_seconds": 5.830079317092896e-07,
+        "expert_load_seconds": 0.02773999999044463,
+        "finish": {
+          "compute_ms": 0.809417,
+          "finite": true,
+          "output_checksum": -5743.659781962633,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0015674169990234077,
+        "gates": [
+          0.8775831775460589,
+          0.04116857726954759,
+          0.04110161010611868,
+          0.04014663507827509
+        ],
+        "layer": 11,
+        "output_sha256": "bbcad0ce1793d52d5e00a096096d27ef75cea808a728cda40daabbc5e78f72c3",
+        "route": [
+          56,
+          68,
+          20,
+          13
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.169996827840805e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.374125,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00046199996722862124,
+        "expert_file_stage_seconds": 9.589712135493755e-07,
+        "expert_load_seconds": 0.02968637499725446,
+        "finish": {
+          "compute_ms": 0.930916,
+          "finite": true,
+          "output_checksum": -5595.759760290384,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0015435420209541917,
+        "gates": [
+          0.4322060224597963,
+          0.32533637997468823,
+          0.1218522352665318,
+          0.12060536229898361
+        ],
+        "layer": 12,
+        "output_sha256": "7970b3f309312872cf89748a5a418eecc0c69da4c8c682b9d278ebde3ac4b3a8",
+        "route": [
+          109,
+          16,
+          5,
+          86
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.919696271419525e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.338417,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004307919880375266,
+        "expert_file_stage_seconds": 5.829497240483761e-07,
+        "expert_load_seconds": 0.027698167017661035,
+        "finish": {
+          "compute_ms": 0.784042,
+          "finite": true,
+          "output_checksum": -6150.024130642414,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0014906660071574152,
+        "gates": [
+          0.7235433080220353,
+          0.09561874246578352,
+          0.09251914438333252,
+          0.08831880512884874
+        ],
+        "layer": 13,
+        "output_sha256": "b57c0b2ede39b19941aa374cc4c67e604a347058f0b8d3b1ae55e3408eed2ccf",
+        "route": [
+          57,
+          104,
+          22,
+          51
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 5.00003807246685e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.345958,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004179159877821803,
+        "expert_file_stage_seconds": 6.67001586407423e-07,
+        "expert_load_seconds": 0.03368299995781854,
+        "finish": {
+          "compute_ms": 1.034875,
+          "finite": true,
+          "output_checksum": -6398.89417925477,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.001544833998195827,
+        "gates": [
+          0.8060585411461102,
+          0.07812093429442749,
+          0.0594966195413672,
+          0.056323905018095095
+        ],
+        "layer": 14,
+        "output_sha256": "150e1a8a8afc34ab0f7bd26a4626cdf5f358689d48c82b5f72d06a2a8a5c21f4",
+        "route": [
+          60,
+          104,
+          112,
+          100
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.919696271419525e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.405625,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004706669715233147,
+        "expert_file_stage_seconds": 5.420297384262085e-07,
+        "expert_load_seconds": 0.026821125007700175,
+        "finish": {
+          "compute_ms": 0.931291,
+          "finite": true,
+          "output_checksum": -4987.946236848831,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0022182909888215363,
+        "gates": [
+          0.32949118310371206,
+          0.3292794619697684,
+          0.1784972018004322,
+          0.16273215312608733
+        ],
+        "layer": 15,
+        "output_sha256": "54154169b425cbc5a4a6cdf5daba06344814fe734a3b5d62802ad5a3b1737ce2",
+        "route": [
+          124,
+          33,
+          26,
+          100
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.504709,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005950830527581275,
+        "expert_file_stage_seconds": 5.830079317092896e-07,
+        "expert_load_seconds": 0.03389374999096617,
+        "finish": {
+          "compute_ms": 1.504542,
+          "finite": true,
+          "output_checksum": -5058.127204880118,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0030328750144690275,
+        "gates": [
+          0.5920956853465078,
+          0.1690326941300242,
+          0.12852022980268984,
+          0.11035139072077817
+        ],
+        "layer": 16,
+        "output_sha256": "4f8ff258d32bd7a3425eb834996a1603bee7c286a9353442b5748dcffbfcb104",
+        "route": [
+          21,
+          29,
+          39,
+          13
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 6.249756552278996e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.5795,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0006790829938836396,
+        "expert_file_stage_seconds": 6.67001586407423e-07,
+        "expert_load_seconds": 0.04542529198806733,
+        "finish": {
+          "compute_ms": 7.792208,
+          "finite": true,
+          "output_checksum": -5167.754812538624,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.008200458018109202,
+        "gates": [
+          0.2758200589597736,
+          0.27148409965565595,
+          0.2271713908724766,
+          0.22552445051209385
+        ],
+        "layer": 17,
+        "output_sha256": "0636b01c4299b3e5528a8c8140aee64b1e1f7b5b760063277f45f5dc292ef70c",
+        "route": [
+          99,
+          20,
+          4,
+          1
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.169996827840805e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.695875,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0007626249571330845,
+        "expert_file_stage_seconds": 4.5797787606716156e-07,
+        "expert_load_seconds": 0.03522458404768258,
+        "finish": {
+          "compute_ms": 0.762791,
+          "finite": true,
+          "output_checksum": -1898.6195205152035,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013384170015342534,
+        "gates": [
+          0.28552738030955327,
+          0.2674043282604597,
+          0.22592906430008028,
+          0.22113922712990677
+        ],
+        "layer": 18,
+        "output_sha256": "0a0034dd6e2dc06dbe8990eaae551c27861fd927d80a09c56e02987f8b4501fe",
+        "route": [
+          53,
+          115,
+          102,
+          113
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 5.00003807246685e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.295167,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0003254999755881727,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.0270750829949975,
+        "finish": {
+          "compute_ms": 1.084541,
+          "finite": true,
+          "output_checksum": 360.8891304731369,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.002078958961647004,
+        "gates": [
+          0.35918124914975885,
+          0.23665622659745406,
+          0.21278582846767527,
+          0.19137669578511188
+        ],
+        "layer": 19,
+        "output_sha256": "f930853d9760361dbbe2341c7bbcc1f9232f396e10d2743796d4d77368f874c8",
+        "route": [
+          96,
+          12,
+          38,
+          108
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.0902371034026146e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.297542,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0003390840138308704,
+        "expert_file_stage_seconds": 5.410402081906796e-07,
+        "expert_load_seconds": 0.028931875014677644,
+        "finish": {
+          "compute_ms": 1.392583,
+          "finite": true,
+          "output_checksum": 1585.692863702774,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0018887079786509275,
+        "gates": [
+          0.26199916517159283,
+          0.25896854590366764,
+          0.24022220413543613,
+          0.23881008478930338
+        ],
+        "layer": 20,
+        "output_sha256": "c18cbf39ca201232ef4eeac061b69a6ae9cd27f3c19be67b4c1625b71cdf13a4",
+        "route": [
+          12,
+          104,
+          78,
+          51
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 1.234334,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0013592499890364707,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.027550208033062518,
+        "finish": {
+          "compute_ms": 0.890625,
+          "finite": true,
+          "output_checksum": 1791.729192018509,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0016887499950826168,
+        "gates": [
+          0.27844993089304787,
+          0.2565017803408624,
+          0.2383212597255903,
+          0.2267270290404995
+        ],
+        "layer": 21,
+        "output_sha256": "3f3074eac92f8b3adbd130eb6eb317d9e80bd7f27f5044c4d2060d003bc73447",
+        "route": [
+          123,
+          111,
+          10,
+          102
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 5.420297384262085e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.267834,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00029799999902024865,
+        "expert_file_stage_seconds": 5.00003807246685e-07,
+        "expert_load_seconds": 0.025152916961815208,
+        "finish": {
+          "compute_ms": 0.758916,
+          "finite": true,
+          "output_checksum": 1208.0576887130737,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0013813750119879842,
+        "gates": [
+          0.3264473284847898,
+          0.2446974571003618,
+          0.22459433974866883,
+          0.2042608746661796
+        ],
+        "layer": 22,
+        "output_sha256": "a91ed775b89e24e12df2429deec9a5237af8aa4a5005e7241896d0fbffb9cb96",
+        "route": [
+          111,
+          2,
+          81,
+          21
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.25030055642128e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.336958,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004075419856235385,
+        "expert_file_stage_seconds": 7.500057108700275e-07,
+        "expert_load_seconds": 0.028878249984700233,
+        "finish": {
+          "compute_ms": 0.935209,
+          "finite": true,
+          "output_checksum": 3969.311718225479,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0022079170448705554,
+        "gates": [
+          0.2950806409004258,
+          0.2677717529250382,
+          0.23259504774710016,
+          0.2045525584274359
+        ],
+        "layer": 23,
+        "output_sha256": "919e990ff78469ee5a9f34c68c5e90a5ec19814332fa2303d9529e600f2ea4f0",
+        "route": [
+          36,
+          106,
+          8,
+          66
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.169996827840805e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.274833,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00030691694701090455,
+        "expert_file_stage_seconds": 5.839974619448185e-07,
+        "expert_load_seconds": 0.03575825004372746,
+        "finish": {
+          "compute_ms": 1.004417,
+          "finite": true,
+          "output_checksum": 2660.643723487854,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0019961250363849103,
+        "gates": [
+          0.3381964775294046,
+          0.23985898444234294,
+          0.2252319711239077,
+          0.19671256690434483
+        ],
+        "layer": 24,
+        "output_sha256": "a650b1a6b69e0011b945d1491b0607e3643235b6b1b8e1e83ae9b450d2b593a9",
+        "route": [
+          113,
+          79,
+          29,
+          50
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.9098009690642357e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.293916,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00034070899710059166,
+        "expert_file_stage_seconds": 1.6705598682165146e-07,
+        "expert_load_seconds": 0.030682832992170006,
+        "finish": {
+          "compute_ms": 0.784417,
+          "finite": true,
+          "output_checksum": 159.41677904129028,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0014448330039158463,
+        "gates": [
+          0.30723851098836846,
+          0.24307301908788398,
+          0.22728943052787728,
+          0.22239903939587022
+        ],
+        "layer": 25,
+        "output_sha256": "28924b4283a7e32bdb7d2bf8544018638c1df7189d3ca0618d2b07f6dd949fd9",
+        "route": [
+          17,
+          43,
+          122,
+          42
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.919696271419525e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.412042,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.000440916046500206,
+        "expert_file_stage_seconds": 5.830079317092896e-07,
+        "expert_load_seconds": 0.02572558302199468,
+        "finish": {
+          "compute_ms": 0.84825,
+          "finite": true,
+          "output_checksum": -313.39864206314087,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.001880040974356234,
+        "gates": [
+          0.34670520048910175,
+          0.23633048191388503,
+          0.20904973801292692,
+          0.20791457958408632
+        ],
+        "layer": 26,
+        "output_sha256": "5bc757d90db6bec66c7e3953e976122b6ec2e5faa9d100b95a952111ed8692ed",
+        "route": [
+          120,
+          79,
+          94,
+          84
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.257583,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00028745800955221057,
+        "expert_file_stage_seconds": 1.6600824892520905e-07,
+        "expert_load_seconds": 0.02694166696164757,
+        "finish": {
+          "compute_ms": 1.015375,
+          "finite": true,
+          "output_checksum": -3287.8305311203003,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0016448749811388552,
+        "gates": [
+          0.3526657690935101,
+          0.31339036317904395,
+          0.18339854753869417,
+          0.15054532018875172
+        ],
+        "layer": 27,
+        "output_sha256": "bdf3455055b75ae0b34b39bd6814adacfa4397e307e89532226719a99846c793",
+        "route": [
+          125,
+          14,
+          49,
+          62
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.399365469813347e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 0.439083,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00047199998516589403,
+        "expert_file_stage_seconds": 6.25033862888813e-07,
+        "expert_load_seconds": 0.025918375002220273,
+        "finish": {
+          "compute_ms": 0.814084,
+          "finite": true,
+          "output_checksum": -5839.787453651428,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.00105441699270159,
+        "gates": [
+          0.3491629632348417,
+          0.23410744560825633,
+          0.22318353946484473,
+          0.19354605169205724
+        ],
+        "layer": 28,
+        "output_sha256": "0466076c127eb56b9f9c2b088427244dbda677e900aa4151ce8936f22ecc5001",
+        "route": [
+          59,
+          74,
+          51,
+          85
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 8.300412446260452e-08
+      },
+      {
+        "attention": {
+          "compute_ms": 0.297292,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.00033587496727705,
+        "expert_file_stage_seconds": 6.67001586407423e-07,
+        "expert_load_seconds": 0.025919041014276445,
+        "finish": {
+          "compute_ms": 0.885417,
+          "finite": true,
+          "output_checksum": -15813.306929588318,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.002325583016499877,
+        "gates": [
+          0.41397209505626703,
+          0.29441544427939337,
+          0.17253460410565744,
+          0.11907785655868228
+        ],
+        "layer": 29,
+        "output_sha256": "28d223df67102ff0dbf720bc559141fd81e6f9a1e769e6748223edd8bf813a04",
+        "route": [
+          11,
+          29,
+          22,
+          120
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.25030055642128e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.306959,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0003922079922631383,
+        "expert_file_stage_seconds": 6.249756552278996e-07,
+        "expert_load_seconds": 0.025940457999240607,
+        "finish": {
+          "compute_ms": 0.710584,
+          "finite": true,
+          "output_checksum": -7279.880590438843,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0012068329961039126,
+        "gates": [
+          0.3115470459486309,
+          0.2677848567813547,
+          0.2194021146043244,
+          0.20126598266569
+        ],
+        "layer": 30,
+        "output_sha256": "c90c2a7b45c1beff55ae2d511eed73e13180c14732ff262af74243b845061a51",
+        "route": [
+          48,
+          106,
+          40,
+          7
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 5.00003807246685e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.305292,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0003720829845406115,
+        "expert_file_stage_seconds": 7.08969309926033e-07,
+        "expert_load_seconds": 0.026339709002058953,
+        "finish": {
+          "compute_ms": 0.96075,
+          "finite": true,
+          "output_checksum": -3869.316679954529,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0019009580137208104,
+        "gates": [
+          0.2909618950900525,
+          0.24980350717785874,
+          0.24594776996065557,
+          0.21328682777143318
+        ],
+        "layer": 31,
+        "output_sha256": "8f209e565174174737a04e4955380b3bb13af9dec0c3c294b29aa13658adf94f",
+        "route": [
+          126,
+          24,
+          83,
+          96
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 2.9098009690642357e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.3265,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004240840207785368,
+        "expert_file_stage_seconds": 1.2909877113997936e-06,
+        "expert_load_seconds": 0.03344637498958036,
+        "finish": {
+          "compute_ms": 0.99575,
+          "finite": true,
+          "output_checksum": 18942.16672849655,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0018691669683903456,
+        "gates": [
+          0.34803581729499267,
+          0.2674526743663426,
+          0.22287725706467887,
+          0.16163425127398587
+        ],
+        "layer": 32,
+        "output_sha256": "3b0ccaf754000b4fc9349b4550100615b8e44536aa961a60cd8437516b66120d",
+        "route": [
+          98,
+          48,
+          23,
+          66
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.5803608372807503e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.340166,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0004782920004799962,
+        "expert_file_stage_seconds": 6.67001586407423e-07,
+        "expert_load_seconds": 0.025807042024098337,
+        "finish": {
+          "compute_ms": 0.922875,
+          "finite": true,
+          "output_checksum": 32520.429134368896,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0015746669960208237,
+        "gates": [
+          0.3245661085217003,
+          0.27433962026668657,
+          0.20525104290379756,
+          0.19584322830781553
+        ],
+        "layer": 33,
+        "output_sha256": "0bdcbe919cf58bfe10119ea0805a0544127799ad4907381f0efd8b5f692b8042",
+        "route": [
+          101,
+          53,
+          26,
+          41
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 1.249951310455799e-06
+      },
+      {
+        "attention": {
+          "compute_ms": 0.554209,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0006663340027444065,
+        "expert_file_stage_seconds": 6.67001586407423e-07,
+        "expert_load_seconds": 0.03378966700984165,
+        "finish": {
+          "compute_ms": 0.829167,
+          "finite": true,
+          "output_checksum": 88055.62283802032,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0016845830250531435,
+        "gates": [
+          0.28767348318498676,
+          0.2821002271165607,
+          0.2288059277176746,
+          0.20142036198077803
+        ],
+        "layer": 34,
+        "output_sha256": "9481953045a4cad2c22555d478389c0134a3bcd01a1423607fa9f498628e6cc9",
+        "route": [
+          111,
+          49,
+          93,
+          67
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.169996827840805e-07
+      },
+      {
+        "attention": {
+          "compute_ms": 0.461917,
+          "finite": true,
+          "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+        },
+        "attention_process_seconds": 0.0005385829717852175,
+        "expert_file_stage_seconds": 6.669433787465096e-07,
+        "expert_load_seconds": 0.02954154199687764,
+        "finish": {
+          "compute_ms": 0.939334,
+          "finite": true,
+          "output_checksum": 68522.63651275635,
+          "schema": "aion.gptoss.persistent-moe.v1"
+        },
+        "finish_process_seconds": 0.0018309580045752227,
+        "gates": [
+          0.3222461195319375,
+          0.24785355874467518,
+          0.24352823662929576,
+          0.18637208509409156
+        ],
+        "layer": 35,
+        "output_sha256": "360dfeaa5d007d9a1026232a0d57f6038d2b39082afc8e740b25a6b7e16c7a36",
+        "route": [
+          111,
+          61,
+          80,
+          88
+        ],
+        "route_pool_complete": false,
+        "shared_load_seconds": 4.1601015254855156e-07
+      }
+    ],
+    "logits_sha256": "fd36b61222d4b41e931b86decffa776e3eaf615df49f41c1a1cf9206d50d2cb4",
+    "output": {
+      "argmax_token_id": 2471,
+      "compute_ms": 5.56325,
+      "finite": true,
+      "logit_checksum": -281663.1151893018,
+      "max_logit": 13.909780502319336,
+      "schema": "aion.gptoss.persistent-output.v1"
+    },
+    "prompt_to_continuation_rehydrate_metric_delta": null,
+    "prompt_to_continuation_rehydrate_seconds": 0.0,
+    "store_metric_delta": {
+      "compressed_bytes_read": 0,
+      "evictions": 0,
+      "faults": 0,
+      "hits": 144,
+      "raw_bytes_materialized": 1908541440
+    },
+    "store_metrics": {
+      "admission_allowlist_entries": 0,
+      "admission_bypasses": 0,
+      "cache_representation": "verified_compressed_frames",
+      "capacity_bytes": 3221225472,
+      "compressed_bytes_read": 1826752494,
+      "evictions": 0,
+      "faults": 144,
+      "freeze_when_full": false,
+      "hit_rate": 0.5,
+      "hits": 144,
+      "peak_resident_bytes": 1826752494,
+      "protected_entries": 0,
+      "raw_bytes_materialized": 3817082880,
+      "resident_bytes": 1826752494
+    },
+    "tokens": [
+      {
+        "embedding": {
+          "checksum": 52.7466,
+          "finite": true,
+          "schema": "aion.gptoss.embedding-row-cpu.v1"
+        },
+        "embedding_row_sha256": "31fe4c696b369ae50297b837f7640e6b221b1dd9151229a5c29f3765583ca4ba",
+        "final_hidden_sha256": "360dfeaa5d007d9a1026232a0d57f6038d2b39082afc8e740b25a6b7e16c7a36",
+        "generated_token_id": 2471,
+        "input_token_id": 95001,
+        "input_was_forced_prompt": true,
+        "layers": [
+          {
+            "attention": {
+              "compute_ms": 0.28475,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00033066701143980026,
+            "expert_file_stage_seconds": 7.500057108700275e-07,
+            "expert_load_seconds": 0.03549858299084008,
+            "finish": {
+              "compute_ms": 0.977459,
+              "finite": true,
+              "output_checksum": 149.87038018926978,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0012376669910736382,
+            "gates": [
+              0.32622017281961563,
+              0.2618033686853331,
+              0.20609325401208137,
+              0.20588320448296987
+            ],
+            "layer": 0,
+            "output_sha256": "8e1b9687d99a56e699be6905fd5b3c86d69e8249354b8d1523ae8d0479ee6815",
+            "route": [
+              15,
+              20,
+              76,
+              28
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.196772351861e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 0.364792,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004973749746568501,
+            "expert_file_stage_seconds": 5.830079317092896e-07,
+            "expert_load_seconds": 0.035555707989260554,
+            "finish": {
+              "compute_ms": 0.8415,
+              "finite": true,
+              "output_checksum": 292.2279405537993,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0016651659971103072,
+            "gates": [
+              0.6791681012584508,
+              0.16738989862023937,
+              0.09182306290703006,
+              0.061618937214279655
+            ],
+            "layer": 1,
+            "output_sha256": "529b7141135e3f074c8899a797b62da1135d365c49774415653323c2160e1f84",
+            "route": [
+              93,
+              64,
+              14,
+              121
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 5.84055669605732e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.360625,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004508750280365348,
+            "expert_file_stage_seconds": 6.67001586407423e-07,
+            "expert_load_seconds": 0.03031487500993535,
+            "finish": {
+              "compute_ms": 2.718083,
+              "finite": true,
+              "output_checksum": 397.83315804973245,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.003965499985497445,
+            "gates": [
+              0.36752701761325957,
+              0.23121126459512018,
+              0.20789899598396067,
+              0.19336272180765948
+            ],
+            "layer": 2,
+            "output_sha256": "9ef6c4b6d1df69c57f402faccf97d8f4fc5cf4d11495808ff884db0be5e3ff44",
+            "route": [
+              112,
+              23,
+              119,
+              105
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 3.7497375160455704e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.311417,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004040420171804726,
+            "expert_file_stage_seconds": 5.830079317092896e-07,
+            "expert_load_seconds": 0.03324133297428489,
+            "finish": {
+              "compute_ms": 0.862833,
+              "finite": true,
+              "output_checksum": 466.84064991399646,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0016839579911902547,
+            "gates": [
+              0.4103626436196286,
+              0.20328035846041154,
+              0.19533665051441843,
+              0.1910203474055415
+            ],
+            "layer": 3,
+            "output_sha256": "35128dbcaf7315edc630491539c33cea8a9a59e9347f5f8b883fb087e17211fc",
+            "route": [
+              110,
+              5,
+              74,
+              82
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 3.750319592654705e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.288,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00033549999352544546,
+            "expert_file_stage_seconds": 5.410402081906796e-07,
+            "expert_load_seconds": 0.02777325001079589,
+            "finish": {
+              "compute_ms": 0.762083,
+              "finite": true,
+              "output_checksum": 551.0226443894207,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013086670078337193,
+            "gates": [
+              0.3125527269849172,
+              0.24156274263737812,
+              0.22417633249542432,
+              0.22170819788228036
+            ],
+            "layer": 4,
+            "output_sha256": "7ef50bf9affb059b8e9d5b67f44ead0bd09bc8ce9b4ca6a9055705380952ab7e",
+            "route": [
+              14,
+              63,
+              89,
+              12
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.2497184798121452e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.346375,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00042975001269951463,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.028956416994333267,
+            "finish": {
+              "compute_ms": 1.265667,
+              "finite": true,
+              "output_checksum": 676.3957765847445,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.001644750009290874,
+            "gates": [
+              0.502452899081058,
+              0.24618356532452124,
+              0.1314779379553037,
+              0.11988559763911714
+            ],
+            "layer": 5,
+            "output_sha256": "b16d7282d358127f18d6c8a84f1d3dbb23eb365784edd010c40ba060997dc820",
+            "route": [
+              111,
+              7,
+              6,
+              120
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 3.7497375160455704e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.272083,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00031491596018895507,
+            "expert_file_stage_seconds": 5.410402081906796e-07,
+            "expert_load_seconds": 0.02813033398706466,
+            "finish": {
+              "compute_ms": 0.783958,
+              "finite": true,
+              "output_checksum": -7825.393443211913,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0014771250425837934,
+            "gates": [
+              0.8304564377562302,
+              0.06423980773559504,
+              0.05837924096272818,
+              0.04692451354544666
+            ],
+            "layer": 6,
+            "output_sha256": "3309795dd568f87028b8d0722d3713e3a32bffed1fc9cbce98eda69d92a78ddc",
+            "route": [
+              121,
+              81,
+              55,
+              114
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.25030055642128e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.3,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00033229199470952153,
+            "expert_file_stage_seconds": 6.660120561718941e-07,
+            "expert_load_seconds": 0.02708266698755324,
+            "finish": {
+              "compute_ms": 0.729042,
+              "finite": true,
+              "output_checksum": -6426.873827591538,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0012210829881951213,
+            "gates": [
+              0.4245785512199581,
+              0.2786779615258196,
+              0.1793516808399279,
+              0.11739180641429432
+            ],
+            "layer": 7,
+            "output_sha256": "9e12efaf00944175cba498c6278b6b783bc803c34a8dfeec8c8bb52f9879534f",
+            "route": [
+              84,
+              80,
+              1,
+              75
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.294591680169106e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 0.309959,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00037345802411437035,
+            "expert_file_stage_seconds": 7.500057108700275e-07,
+            "expert_load_seconds": 0.028649792016949505,
+            "finish": {
+              "compute_ms": 1.334459,
+              "finite": true,
+              "output_checksum": -6441.891311727464,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0024722919915802777,
+            "gates": [
+              0.8773642469111615,
+              0.04244128167826647,
+              0.04056307471734933,
+              0.0396313966932227
+            ],
+            "layer": 8,
+            "output_sha256": "ad528bd3856aa446e8e12f2504275970483ac810581b0720b54fd3ce74f71ed3",
+            "route": [
+              43,
+              32,
+              93,
+              7
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 3.750319592654705e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.429292,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005086250021122396,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.0290992499794811,
+            "finish": {
+              "compute_ms": 0.914625,
+              "finite": true,
+              "output_checksum": -6169.887731730938,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0019174999906681478,
+            "gates": [
+              0.7025811770064596,
+              0.1605755349649376,
+              0.07475282961480148,
+              0.06209045841380116
+            ],
+            "layer": 9,
+            "output_sha256": "ec6c6120100c55ea2362aa609b54179ee86a913fef5a68a9f428745fbc138127",
+            "route": [
+              85,
+              87,
+              6,
+              98
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 3.33995558321476e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.398208,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005001249955967069,
+            "expert_file_stage_seconds": 6.660120561718941e-07,
+            "expert_load_seconds": 0.027926124981604517,
+            "finish": {
+              "compute_ms": 1.826708,
+              "finite": true,
+              "output_checksum": -6062.3183306753635,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.002852790988981724,
+            "gates": [
+              0.5512171324351297,
+              0.19282545606704857,
+              0.1463144954176542,
+              0.10964291608016756
+            ],
+            "layer": 10,
+            "output_sha256": "413ff2e3bbb82b2d83d7818264f5ac582f48ffa575bb5aab4e8670b8cc5dca3f",
+            "route": [
+              20,
+              41,
+              80,
+              44
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 6.25033862888813e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.623916,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0008064169669523835,
+            "expert_file_stage_seconds": 5.830079317092896e-07,
+            "expert_load_seconds": 0.02773999999044463,
+            "finish": {
+              "compute_ms": 0.809417,
+              "finite": true,
+              "output_checksum": -5743.659781962633,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0015674169990234077,
+            "gates": [
+              0.8775831775460589,
+              0.04116857726954759,
+              0.04110161010611868,
+              0.04014663507827509
+            ],
+            "layer": 11,
+            "output_sha256": "bbcad0ce1793d52d5e00a096096d27ef75cea808a728cda40daabbc5e78f72c3",
+            "route": [
+              56,
+              68,
+              20,
+              13
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.169996827840805e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.374125,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00046199996722862124,
+            "expert_file_stage_seconds": 9.589712135493755e-07,
+            "expert_load_seconds": 0.02968637499725446,
+            "finish": {
+              "compute_ms": 0.930916,
+              "finite": true,
+              "output_checksum": -5595.759760290384,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0015435420209541917,
+            "gates": [
+              0.4322060224597963,
+              0.32533637997468823,
+              0.1218522352665318,
+              0.12060536229898361
+            ],
+            "layer": 12,
+            "output_sha256": "7970b3f309312872cf89748a5a418eecc0c69da4c8c682b9d278ebde3ac4b3a8",
+            "route": [
+              109,
+              16,
+              5,
+              86
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.919696271419525e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.338417,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004307919880375266,
+            "expert_file_stage_seconds": 5.829497240483761e-07,
+            "expert_load_seconds": 0.027698167017661035,
+            "finish": {
+              "compute_ms": 0.784042,
+              "finite": true,
+              "output_checksum": -6150.024130642414,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0014906660071574152,
+            "gates": [
+              0.7235433080220353,
+              0.09561874246578352,
+              0.09251914438333252,
+              0.08831880512884874
+            ],
+            "layer": 13,
+            "output_sha256": "b57c0b2ede39b19941aa374cc4c67e604a347058f0b8d3b1ae55e3408eed2ccf",
+            "route": [
+              57,
+              104,
+              22,
+              51
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 5.00003807246685e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.345958,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004179159877821803,
+            "expert_file_stage_seconds": 6.67001586407423e-07,
+            "expert_load_seconds": 0.03368299995781854,
+            "finish": {
+              "compute_ms": 1.034875,
+              "finite": true,
+              "output_checksum": -6398.89417925477,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.001544833998195827,
+            "gates": [
+              0.8060585411461102,
+              0.07812093429442749,
+              0.0594966195413672,
+              0.056323905018095095
+            ],
+            "layer": 14,
+            "output_sha256": "150e1a8a8afc34ab0f7bd26a4626cdf5f358689d48c82b5f72d06a2a8a5c21f4",
+            "route": [
+              60,
+              104,
+              112,
+              100
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.919696271419525e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.405625,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004706669715233147,
+            "expert_file_stage_seconds": 5.420297384262085e-07,
+            "expert_load_seconds": 0.026821125007700175,
+            "finish": {
+              "compute_ms": 0.931291,
+              "finite": true,
+              "output_checksum": -4987.946236848831,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0022182909888215363,
+            "gates": [
+              0.32949118310371206,
+              0.3292794619697684,
+              0.1784972018004322,
+              0.16273215312608733
+            ],
+            "layer": 15,
+            "output_sha256": "54154169b425cbc5a4a6cdf5daba06344814fe734a3b5d62802ad5a3b1737ce2",
+            "route": [
+              124,
+              33,
+              26,
+              100
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.500019036233425e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.504709,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005950830527581275,
+            "expert_file_stage_seconds": 5.830079317092896e-07,
+            "expert_load_seconds": 0.03389374999096617,
+            "finish": {
+              "compute_ms": 1.504542,
+              "finite": true,
+              "output_checksum": -5058.127204880118,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0030328750144690275,
+            "gates": [
+              0.5920956853465078,
+              0.1690326941300242,
+              0.12852022980268984,
+              0.11035139072077817
+            ],
+            "layer": 16,
+            "output_sha256": "4f8ff258d32bd7a3425eb834996a1603bee7c286a9353442b5748dcffbfcb104",
+            "route": [
+              21,
+              29,
+              39,
+              13
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 6.249756552278996e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.5795,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0006790829938836396,
+            "expert_file_stage_seconds": 6.67001586407423e-07,
+            "expert_load_seconds": 0.04542529198806733,
+            "finish": {
+              "compute_ms": 7.792208,
+              "finite": true,
+              "output_checksum": -5167.754812538624,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.008200458018109202,
+            "gates": [
+              0.2758200589597736,
+              0.27148409965565595,
+              0.2271713908724766,
+              0.22552445051209385
+            ],
+            "layer": 17,
+            "output_sha256": "0636b01c4299b3e5528a8c8140aee64b1e1f7b5b760063277f45f5dc292ef70c",
+            "route": [
+              99,
+              20,
+              4,
+              1
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.169996827840805e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.695875,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0007626249571330845,
+            "expert_file_stage_seconds": 4.5797787606716156e-07,
+            "expert_load_seconds": 0.03522458404768258,
+            "finish": {
+              "compute_ms": 0.762791,
+              "finite": true,
+              "output_checksum": -1898.6195205152035,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013384170015342534,
+            "gates": [
+              0.28552738030955327,
+              0.2674043282604597,
+              0.22592906430008028,
+              0.22113922712990677
+            ],
+            "layer": 18,
+            "output_sha256": "0a0034dd6e2dc06dbe8990eaae551c27861fd927d80a09c56e02987f8b4501fe",
+            "route": [
+              53,
+              115,
+              102,
+              113
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 5.00003807246685e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.295167,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0003254999755881727,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.0270750829949975,
+            "finish": {
+              "compute_ms": 1.084541,
+              "finite": true,
+              "output_checksum": 360.8891304731369,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.002078958961647004,
+            "gates": [
+              0.35918124914975885,
+              0.23665622659745406,
+              0.21278582846767527,
+              0.19137669578511188
+            ],
+            "layer": 19,
+            "output_sha256": "f930853d9760361dbbe2341c7bbcc1f9232f396e10d2743796d4d77368f874c8",
+            "route": [
+              96,
+              12,
+              38,
+              108
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.0902371034026146e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.297542,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0003390840138308704,
+            "expert_file_stage_seconds": 5.410402081906796e-07,
+            "expert_load_seconds": 0.028931875014677644,
+            "finish": {
+              "compute_ms": 1.392583,
+              "finite": true,
+              "output_checksum": 1585.692863702774,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0018887079786509275,
+            "gates": [
+              0.26199916517159283,
+              0.25896854590366764,
+              0.24022220413543613,
+              0.23881008478930338
+            ],
+            "layer": 20,
+            "output_sha256": "c18cbf39ca201232ef4eeac061b69a6ae9cd27f3c19be67b4c1625b71cdf13a4",
+            "route": [
+              12,
+              104,
+              78,
+              51
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.66997779160738e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 1.234334,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0013592499890364707,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.027550208033062518,
+            "finish": {
+              "compute_ms": 0.890625,
+              "finite": true,
+              "output_checksum": 1791.729192018509,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0016887499950826168,
+            "gates": [
+              0.27844993089304787,
+              0.2565017803408624,
+              0.2383212597255903,
+              0.2267270290404995
+            ],
+            "layer": 21,
+            "output_sha256": "3f3074eac92f8b3adbd130eb6eb317d9e80bd7f27f5044c4d2060d003bc73447",
+            "route": [
+              123,
+              111,
+              10,
+              102
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 5.420297384262085e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.267834,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00029799999902024865,
+            "expert_file_stage_seconds": 5.00003807246685e-07,
+            "expert_load_seconds": 0.025152916961815208,
+            "finish": {
+              "compute_ms": 0.758916,
+              "finite": true,
+              "output_checksum": 1208.0576887130737,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0013813750119879842,
+            "gates": [
+              0.3264473284847898,
+              0.2446974571003618,
+              0.22459433974866883,
+              0.2042608746661796
+            ],
+            "layer": 22,
+            "output_sha256": "a91ed775b89e24e12df2429deec9a5237af8aa4a5005e7241896d0fbffb9cb96",
+            "route": [
+              111,
+              2,
+              81,
+              21
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.25030055642128e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.336958,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004075419856235385,
+            "expert_file_stage_seconds": 7.500057108700275e-07,
+            "expert_load_seconds": 0.028878249984700233,
+            "finish": {
+              "compute_ms": 0.935209,
+              "finite": true,
+              "output_checksum": 3969.311718225479,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0022079170448705554,
+            "gates": [
+              0.2950806409004258,
+              0.2677717529250382,
+              0.23259504774710016,
+              0.2045525584274359
+            ],
+            "layer": 23,
+            "output_sha256": "919e990ff78469ee5a9f34c68c5e90a5ec19814332fa2303d9529e600f2ea4f0",
+            "route": [
+              36,
+              106,
+              8,
+              66
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.169996827840805e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.274833,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00030691694701090455,
+            "expert_file_stage_seconds": 5.839974619448185e-07,
+            "expert_load_seconds": 0.03575825004372746,
+            "finish": {
+              "compute_ms": 1.004417,
+              "finite": true,
+              "output_checksum": 2660.643723487854,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0019961250363849103,
+            "gates": [
+              0.3381964775294046,
+              0.23985898444234294,
+              0.2252319711239077,
+              0.19671256690434483
+            ],
+            "layer": 24,
+            "output_sha256": "a650b1a6b69e0011b945d1491b0607e3643235b6b1b8e1e83ae9b450d2b593a9",
+            "route": [
+              113,
+              79,
+              29,
+              50
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.9098009690642357e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.293916,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00034070899710059166,
+            "expert_file_stage_seconds": 1.6705598682165146e-07,
+            "expert_load_seconds": 0.030682832992170006,
+            "finish": {
+              "compute_ms": 0.784417,
+              "finite": true,
+              "output_checksum": 159.41677904129028,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0014448330039158463,
+            "gates": [
+              0.30723851098836846,
+              0.24307301908788398,
+              0.22728943052787728,
+              0.22239903939587022
+            ],
+            "layer": 25,
+            "output_sha256": "28924b4283a7e32bdb7d2bf8544018638c1df7189d3ca0618d2b07f6dd949fd9",
+            "route": [
+              17,
+              43,
+              122,
+              42
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.919696271419525e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.412042,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.000440916046500206,
+            "expert_file_stage_seconds": 5.830079317092896e-07,
+            "expert_load_seconds": 0.02572558302199468,
+            "finish": {
+              "compute_ms": 0.84825,
+              "finite": true,
+              "output_checksum": -313.39864206314087,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.001880040974356234,
+            "gates": [
+              0.34670520048910175,
+              0.23633048191388503,
+              0.20904973801292692,
+              0.20791457958408632
+            ],
+            "layer": 26,
+            "output_sha256": "5bc757d90db6bec66c7e3953e976122b6ec2e5faa9d100b95a952111ed8692ed",
+            "route": [
+              120,
+              79,
+              94,
+              84
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.6600824892520905e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.257583,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00028745800955221057,
+            "expert_file_stage_seconds": 1.6600824892520905e-07,
+            "expert_load_seconds": 0.02694166696164757,
+            "finish": {
+              "compute_ms": 1.015375,
+              "finite": true,
+              "output_checksum": -3287.8305311203003,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0016448749811388552,
+            "gates": [
+              0.3526657690935101,
+              0.31339036317904395,
+              0.18339854753869417,
+              0.15054532018875172
+            ],
+            "layer": 27,
+            "output_sha256": "bdf3455055b75ae0b34b39bd6814adacfa4397e307e89532226719a99846c793",
+            "route": [
+              125,
+              14,
+              49,
+              62
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.399365469813347e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 0.439083,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00047199998516589403,
+            "expert_file_stage_seconds": 6.25033862888813e-07,
+            "expert_load_seconds": 0.025918375002220273,
+            "finish": {
+              "compute_ms": 0.814084,
+              "finite": true,
+              "output_checksum": -5839.787453651428,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.00105441699270159,
+            "gates": [
+              0.3491629632348417,
+              0.23410744560825633,
+              0.22318353946484473,
+              0.19354605169205724
+            ],
+            "layer": 28,
+            "output_sha256": "0466076c127eb56b9f9c2b088427244dbda677e900aa4151ce8936f22ecc5001",
+            "route": [
+              59,
+              74,
+              51,
+              85
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 8.300412446260452e-08
+          },
+          {
+            "attention": {
+              "compute_ms": 0.297292,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.00033587496727705,
+            "expert_file_stage_seconds": 6.67001586407423e-07,
+            "expert_load_seconds": 0.025919041014276445,
+            "finish": {
+              "compute_ms": 0.885417,
+              "finite": true,
+              "output_checksum": -15813.306929588318,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.002325583016499877,
+            "gates": [
+              0.41397209505626703,
+              0.29441544427939337,
+              0.17253460410565744,
+              0.11907785655868228
+            ],
+            "layer": 29,
+            "output_sha256": "28d223df67102ff0dbf720bc559141fd81e6f9a1e769e6748223edd8bf813a04",
+            "route": [
+              11,
+              29,
+              22,
+              120
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.25030055642128e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.306959,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0003922079922631383,
+            "expert_file_stage_seconds": 6.249756552278996e-07,
+            "expert_load_seconds": 0.025940457999240607,
+            "finish": {
+              "compute_ms": 0.710584,
+              "finite": true,
+              "output_checksum": -7279.880590438843,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0012068329961039126,
+            "gates": [
+              0.3115470459486309,
+              0.2677848567813547,
+              0.2194021146043244,
+              0.20126598266569
+            ],
+            "layer": 30,
+            "output_sha256": "c90c2a7b45c1beff55ae2d511eed73e13180c14732ff262af74243b845061a51",
+            "route": [
+              48,
+              106,
+              40,
+              7
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 5.00003807246685e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.305292,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0003720829845406115,
+            "expert_file_stage_seconds": 7.08969309926033e-07,
+            "expert_load_seconds": 0.026339709002058953,
+            "finish": {
+              "compute_ms": 0.96075,
+              "finite": true,
+              "output_checksum": -3869.316679954529,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0019009580137208104,
+            "gates": [
+              0.2909618950900525,
+              0.24980350717785874,
+              0.24594776996065557,
+              0.21328682777143318
+            ],
+            "layer": 31,
+            "output_sha256": "8f209e565174174737a04e4955380b3bb13af9dec0c3c294b29aa13658adf94f",
+            "route": [
+              126,
+              24,
+              83,
+              96
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 2.9098009690642357e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.3265,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004240840207785368,
+            "expert_file_stage_seconds": 1.2909877113997936e-06,
+            "expert_load_seconds": 0.03344637498958036,
+            "finish": {
+              "compute_ms": 0.99575,
+              "finite": true,
+              "output_checksum": 18942.16672849655,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0018691669683903456,
+            "gates": [
+              0.34803581729499267,
+              0.2674526743663426,
+              0.22287725706467887,
+              0.16163425127398587
+            ],
+            "layer": 32,
+            "output_sha256": "3b0ccaf754000b4fc9349b4550100615b8e44536aa961a60cd8437516b66120d",
+            "route": [
+              98,
+              48,
+              23,
+              66
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.5803608372807503e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.340166,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0004782920004799962,
+            "expert_file_stage_seconds": 6.67001586407423e-07,
+            "expert_load_seconds": 0.025807042024098337,
+            "finish": {
+              "compute_ms": 0.922875,
+              "finite": true,
+              "output_checksum": 32520.429134368896,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0015746669960208237,
+            "gates": [
+              0.3245661085217003,
+              0.27433962026668657,
+              0.20525104290379756,
+              0.19584322830781553
+            ],
+            "layer": 33,
+            "output_sha256": "0bdcbe919cf58bfe10119ea0805a0544127799ad4907381f0efd8b5f692b8042",
+            "route": [
+              101,
+              53,
+              26,
+              41
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 1.249951310455799e-06
+          },
+          {
+            "attention": {
+              "compute_ms": 0.554209,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0006663340027444065,
+            "expert_file_stage_seconds": 6.67001586407423e-07,
+            "expert_load_seconds": 0.03378966700984165,
+            "finish": {
+              "compute_ms": 0.829167,
+              "finite": true,
+              "output_checksum": 88055.62283802032,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0016845830250531435,
+            "gates": [
+              0.28767348318498676,
+              0.2821002271165607,
+              0.2288059277176746,
+              0.20142036198077803
+            ],
+            "layer": 34,
+            "output_sha256": "9481953045a4cad2c22555d478389c0134a3bcd01a1423607fa9f498628e6cc9",
+            "route": [
+              111,
+              49,
+              93,
+              67
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.169996827840805e-07
+          },
+          {
+            "attention": {
+              "compute_ms": 0.461917,
+              "finite": true,
+              "schema": "aion.gptoss.persistent-attention-position-zero.v1"
+            },
+            "attention_process_seconds": 0.0005385829717852175,
+            "expert_file_stage_seconds": 6.669433787465096e-07,
+            "expert_load_seconds": 0.02954154199687764,
+            "finish": {
+              "compute_ms": 0.939334,
+              "finite": true,
+              "output_checksum": 68522.63651275635,
+              "schema": "aion.gptoss.persistent-moe.v1"
+            },
+            "finish_process_seconds": 0.0018309580045752227,
+            "gates": [
+              0.3222461195319375,
+              0.24785355874467518,
+              0.24352823662929576,
+              0.18637208509409156
+            ],
+            "layer": 35,
+            "output_sha256": "360dfeaa5d007d9a1026232a0d57f6038d2b39082afc8e740b25a6b7e16c7a36",
+            "route": [
+              111,
+              61,
+              80,
+              88
+            ],
+            "route_pool_complete": false,
+            "shared_load_seconds": 4.1601015254855156e-07
+          }
+        ],
+        "logits_sha256": "fd36b61222d4b41e931b86decffa776e3eaf615df49f41c1a1cf9206d50d2cb4",
+        "output": {
+          "argmax_token_id": 2471,
+          "compute_ms": 5.56325,
+          "finite": true,
+          "logit_checksum": -281663.1151893018,
+          "max_logit": 13.909780502319336,
+          "schema": "aion.gptoss.persistent-output.v1"
+        },
+        "output_process_seconds": 0.005782791005913168,
+        "position": 0,
+        "wall_seconds": 1.1784531669691205
+      }
+    ],
+    "wall_seconds": 1.1787468749680556
+  },
+  "scan_resistant_cache": false,
+  "schema": "aion.gptoss-first-token-gate.v1",
+  "shared_one_time_stage_seconds": 8.690050499979407,
+  "status": "PASSED",
+  "tiered_expert_cache": false,
+  "token_count": 1
+}

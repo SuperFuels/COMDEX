@@ -1,0 +1,54 @@
+% Append-only technical-record section. Requires amsmath and booktabs.
+\section{Balanced Direct-I/O Startup Replication}
+\label{sec:qwen30b-dio-abba}
+
+The initial direct-I/O result was followed by a predeclared balanced
+auto/DIO/DIO/auto replication.  Before every arm, the complete preserved
+17.28~GiB Q4 control was read sequentially from SD to \texttt{/dev/null}; the
+four displacement passes each required approximately 194.1~s.  Every server
+used the same Q2-expert model, all 48 Metal layers, context 4096, four slots,
+eight orchestration threads, poll 50, and automatic attention.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Arm & Mode & Ready time (s) & First probe (tokens/s) \\
+\midrule
+1 & auto & 221.030 & 24.038 \\
+2 & DIO  & 117.353 & 58.473 \\
+3 & DIO  & 116.392 & 58.356 \\
+4 & auto & 232.056 & 24.051 \\
+\bottomrule
+\end{tabular}
+\caption{Balanced cache-displaced startup and immediate first-request rate.}
+\end{table}
+
+Median readiness was 226.543~s for automatic mmap and 116.873~s for direct
+I/O.  Direct I/O therefore reduced median readiness by 48.410\% and was
+1.9384 times as fast.  Both DIO arms were faster than both automatic arms, so
+the direction survived the balanced order.  All four arms became healthy,
+none reported Metal out-of-memory, and every completion produced identical
+text and an identical top-10 log-probability payload with canonical SHA-256
+\texttt{1fe300c9fb23f5314920617a1a61980a8d27934aa4bc860752f3300ff445919b}.
+
+The audit also caught a predeclared-gate defect in the experimental design.
+The plan required \emph{every arm}, including the control arms, to deliver at
+least 50 tokens/s on the first post-ready probe.  Both automatic arms delivered
+approximately 24 tokens/s, whereas both DIO arms exceeded 58 tokens/s.  The
+literal all-arm gate therefore failed and was not relaxed.  Formal promotion
+under this specific ABBA plan is withheld even though the DIO mechanism and
+direction replicated cleanly.
+
+The control failure is itself informative: mmap reported service readiness
+while first-use page work apparently remained, whereas DIO provided both
+earlier readiness and immediately fast inference.  This is an inference from
+the measurements, not yet a proven causal decomposition.  The next experiment
+must separately predeclare process-start-to-first-response latency and
+second-response warm performance, with candidate acceptance distinct from
+control characterization.
+
+The canonical result is
+\texttt{qwen3-30b-a3b-dio-abba-result-v1.json}, SHA-256
+\texttt{f9f064f18d6dd8ab327bfdf8aabf007c58996ea2e05dc2b9793572a374693498}.
+

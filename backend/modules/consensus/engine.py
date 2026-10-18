@@ -1,8 +1,10 @@
 # backend/modules/consensus/engine.py
 from __future__ import annotations
 import hashlib
+import hmac
 import json
 import asyncio
+import base64
 import os
 import threading
 import time
@@ -13,7 +15,31 @@ from backend.modules.p2p.peer_store import load_peers_from_env, list_peers
 from .store import load_state, save_state
 from .types import Proposal, QC, Vote, VoteType
 from .validator_set import ValidatorSet
+from .finality_certificate import (
+    build_finality_certificate,
+    verify_finality_certificate,
+    verify_finality_vote,
+    vote_sign_bytes,
+)
+from .finality_checkpoint import load_trusted_checkpoint_from_env
+from .ledger_commitment import empty_ledger_block, normalize_ledger_block
+from .partition_recovery import (
+    PHASE_BLOCK_CATCHUP,
+    PHASE_HEALTHY,
+    PHASE_PARTITION_SUSPECTED,
+    PHASE_REJOIN_ASSESSING,
+    PHASE_SAFETY_HALT,
+    PHASE_SNAPSHOT_REQUIRED,
+    PartitionRecoveryError,
+    PartitionRecoveryStore,
+    classify_validated_views,
+    peer_digest,
+)
+from .protocol_upgrade import ProtocolUpgradeError, ProtocolUpgradeStore
+from .validator_governance import sign_approval as sign_validator_governance_approval
 from collections import deque
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 # Optional networking layer (PR2). If missing, engine still runs but won't broadcast.
 _NET_OK = True
@@ -22,6 +48,7 @@ try:
     from .net import (
         broadcast_proposal,
         broadcast_vote,
+        ensure_peer_hello,
         request_sync_one,
         request_block,
         request_blocks,
@@ -31,6 +58,7 @@ except Exception as e:  # pragma: no cover
     _NET_ERR = str(e)
     broadcast_proposal = None  # type: ignore
     broadcast_vote = None  # type: ignore
+    ensure_peer_hello = None  # type: ignore
     request_sync_one = None  # type: ignore
     request_block = None  # type: ignore
     request_blocks = None  # type: ignore
@@ -40,6 +68,14 @@ def _truthy(name: str, default: bool = False) -> bool:
     if v is None:
         return default
     return v.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _bounded_int_env(name: str, default: int, minimum: int, maximum: int) -> int:
+    try:
+        value = int(os.getenv(name, str(default)) or default)
+    except (TypeError, ValueError):
+        value = default
+    return max(minimum, min(value, maximum))
 
 def _stable_json_bytes(x: Any) -> bytes:
     try:
@@ -67,8 +103,8 @@ def _best_prevoted_block_id(self, *, height: int, round: int) -> Optional[str]:
     if best_bid:
         exp_leader = self.leader_for(h, r)
         if exp_leader:
-            exp_bid = _canon_block_id(h, r, str(exp_leader))
-            if best_bid != exp_bid:
+            parsed = _parse_canon_block_id(best_bid)
+            if parsed != (h, r, str(exp_leader)):
                 return None
 
     return best_bid
@@ -96,6 +132,8 @@ def _proposal_fingerprint(p: Any) -> str:
         "round": int(d.get("round") or 0),
         "proposer": str(d.get("proposer") or ""),
         "block_id": str(d.get("block_id") or ""),
+        "ledger_commitment": str(d.get("ledger_commitment") or ""),
+        "txs_root": str(d.get("txs_root") or ""),
     }
     return hashlib.sha256(_stable_json_bytes(canon)).hexdigest()
 
@@ -108,9 +146,16 @@ def _as_int(x: Any, default: Optional[int] = None) -> Optional[int]:
     except Exception:
         return default
 
-def _canon_block_id(height: int, round: int, proposer: str) -> str:
+def _canon_block_id(
+    height: int,
+    round: int,
+    proposer: str,
+    ledger_commitment: str | None = None,
+) -> str:
     # MUST match tick() proposal creation format
-    return f"h{int(height)}-r{int(round)}-P{str(proposer)}"
+    base = f"h{int(height)}-r{int(round)}-P{str(proposer)}"
+    commitment = str(ledger_commitment or "").strip().lower()
+    return f"{base}-C{commitment}" if commitment else base
 
 def _is_qc_strictly_newer(a: QC, b: QC) -> bool:
     """
@@ -149,6 +194,11 @@ def _parse_canon_block_id(bid: str) -> Optional[tuple[int, int, str]]:
         h = int(h_part[1:])
         r = int(r_part[1:])
         proposer = p_part[1:]
+        if "-C" in proposer:
+            proposer, commitment = proposer.rsplit("-C", 1)
+            if len(commitment) != 64:
+                return None
+            bytes.fromhex(commitment)
         if h <= 0 or r < 0 or not proposer:
             return None
         return (h, r, proposer)
@@ -200,6 +250,18 @@ def _validate_qc_structural_or_error(
     ph, pr, _pp = parsed
     if int(ph) != int(h) or int(pr) != int(r):
         return "qc block_id (h,r) mismatch"
+    ledger_commitment = str(getattr(qc, "ledger_commitment", "") or "").strip().lower()
+    txs_root = str(getattr(qc, "txs_root", "") or "").strip().lower()
+    if ledger_commitment:
+        if not bid.endswith(f"-C{ledger_commitment}"):
+            return "qc ledger commitment does not match block_id"
+        try:
+            if len(ledger_commitment) != 64 or len(txs_root) != 64:
+                raise ValueError
+            bytes.fromhex(ledger_commitment)
+            bytes.fromhex(txs_root)
+        except ValueError:
+            return "qc ledger commitment invalid"
 
     if not voters:
         return "qc voters empty"
@@ -268,40 +330,105 @@ class ConsensusEngine:
     def __init__(self) -> None:
         self.chain_id = (os.getenv("GLYPHCHAIN_CHAIN_ID", "") or "glyphchain-dev").strip()
         self.node_id = (os.getenv("GLYPHCHAIN_NODE_ID", "") or "dev-node").strip()
-        self.self_val_id = (os.getenv("GLYPHCHAIN_SELF_VAL_ID", "") or "").strip()
+        configured_self_val_id = (os.getenv("GLYPHCHAIN_SELF_VAL_ID", "") or "").strip()
+        from backend.modules.p2p.network_participation import participation_from_env
+        self._network_participation = participation_from_env()
+        if self._network_participation.get("enforced"):
+            self.self_val_id = (
+                configured_self_val_id
+                if self._network_participation.get("role") == "validator" else ""
+            )
+        else:
+            self.self_val_id = configured_self_val_id
 
         self.vset = ValidatorSet.from_env()
 
+        # Portable quorum-finality is enabled only with an operator-pinned
+        # validator-set checkpoint.  Ordinary development consensus remains
+        # backwards compatible, but cannot claim independent finality.
+        self._finality_checkpoint = load_trusted_checkpoint_from_env()
+        self._finality_private_key: Optional[Ed25519PrivateKey] = None
+        self._finality_config_error: Optional[str] = None
+        self.network_id = (os.getenv("GLYPHCHAIN_NETWORK_ID", "") or "devnet").strip()
+        if self._finality_checkpoint is not None:
+            cp = self._finality_checkpoint.value
+            if str(cp["chain_id"]) != self.chain_id or str(cp["network_id"]) != self.network_id:
+                raise ValueError("finality checkpoint chain_id/network_id mismatch")
+            checkpoint_powers = {
+                str(item["validator_id"]): int(item["power"])
+                for item in cp["validator_set"]
+            }
+            if checkpoint_powers != {str(k): int(v) for k, v in self.vset.powers.items()}:
+                raise ValueError("finality checkpoint validator set does not match consensus validator set")
+            key_hex = str(os.getenv("GLYPHCHAIN_FINALITY_PRIVKEY_HEX", "") or "").strip().lower()
+            p2p_key_hex = str(os.getenv("GLYPHCHAIN_P2P_PRIVKEY_HEX", "") or "").strip().lower()
+            if key_hex and p2p_key_hex and hmac.compare_digest(key_hex, p2p_key_hex):
+                raise ValueError("finality and P2P transport keys must be distinct")
+            if self.self_val_id and key_hex:
+                try:
+                    candidate = Ed25519PrivateKey.from_private_bytes(bytes.fromhex(key_hex))
+                    validator = self._finality_checkpoint.validator(self.self_val_id)
+                    local_public = base64.b64encode(candidate.public_key().public_bytes(
+                        serialization.Encoding.Raw,
+                        serialization.PublicFormat.Raw,
+                    )).decode("ascii")
+                    if validator is None or local_public != str(validator["public_key_base64"]):
+                        raise ValueError("local finality key does not match trusted checkpoint")
+                    self._finality_private_key = candidate
+                except Exception as exc:
+                    self._finality_config_error = str(exc)
+        if self._network_participation.get("enforced") and self._network_participation.get("role") == "validator":
+            if not self.self_val_id:
+                raise ValueError("validator participation requires GLYPHCHAIN_SELF_VAL_ID")
+            if self._finality_checkpoint is None:
+                raise ValueError("validator participation requires a trusted finality checkpoint")
+            if (
+                str(self._network_participation.get("validator_set_checkpoint_id") or "")
+                != self._finality_checkpoint.checkpoint_id
+            ):
+                raise ValueError("validator participation checkpoint does not match trusted finality checkpoint")
+
         # config knobs
-        self._tick_ms = int(os.getenv("CONSENSUS_TICK_MS", "50") or "50")
-        self._round_timeout_ms = int(os.getenv("CONSENSUS_ROUND_TIMEOUT_MS", "1500") or "1500")
+        self._tick_ms = _bounded_int_env("CONSENSUS_TICK_MS", 50, 1, 600_000)
+        self._round_timeout_ms = _bounded_int_env("CONSENSUS_ROUND_TIMEOUT_MS", 1500, 10, 3_600_000)
         self._rebcast_s = float(os.getenv("CONSENSUS_PROPOSAL_REBCAST_S", "0.75") or "0.75")
 
         # Freeze tick progression briefly after a big jump-finalization (tests inject far-ahead heights)
-        self._post_jump_freeze_ms = int(os.getenv("CONSENSUS_POST_JUMP_FREEZE_MS", "20000") or "20000")
+        self._post_jump_freeze_ms = _bounded_int_env("CONSENSUS_POST_JUMP_FREEZE_MS", 20_000, 0, 3_600_000)
         self._freeze_until_ms: float = 0.0
         self._no_proposal_timeouts: Dict[Tuple[int, int], int] = {}
 
         self._proposal_seen_ms: Dict[tuple[int, int, str], float] = {}
         self._finality_lat_ms: Deque[float] = deque(
-            maxlen=int(os.getenv("CONSENSUS_FINALITY_LAT_SAMPLES", "64") or 64)
+            maxlen=_bounded_int_env("CONSENSUS_FINALITY_LAT_SAMPLES", 64, 8, 10_000)
         )
 
         # proposal-missing timeout backoff (prevents runaway + keeps liveness)
-        self._no_proposal_wait_n = int(os.getenv("CONSENSUS_NO_PROPOSAL_WAIT_N", "2") or "2")
+        self._no_proposal_wait_n = _bounded_int_env("CONSENSUS_NO_PROPOSAL_WAIT_N", 2, 1, 1_000)
 
         # PR4 sync knobs
-        self._sync_every_ms = int(os.getenv("CONSENSUS_SYNC_EVERY_MS", "1500") or "1500")
+        self._sync_every_ms = _bounded_int_env("CONSENSUS_SYNC_EVERY_MS", 1500, 10, 600_000)
+        self._max_recovery_blocks = _bounded_int_env(
+            "CONSENSUS_MAX_BLOCKS_PER_RECOVERY", 2_048, 1, 10_000,
+        )
         self._sync_enabled = _truthy("CONSENSUS_SYNC_ENABLE", True)
         self._last_sync_ms: float = 0.0
 
         self._lock = threading.Lock()
         self._sync_policy = SyncPolicy()
         self._sync_height_fails: dict[int, int] = {}
+        self._partition_recovery = PartitionRecoveryStore.from_env(
+            chain_id=self.chain_id,
+            node_id=self.node_id,
+        )
+        self._protocol_upgrade = ProtocolUpgradeStore.from_env(
+            chain_id=self.chain_id, node_id=self.node_id,
+        )
 
         # proposal/vote storage
         self._proposals: Dict[Tuple[int, int], Proposal] = {}  # (h,r) -> Proposal
         self._votes: Dict[Tuple[int, int, VoteType, str], Set[str]] = {}  # (h,r,type,block_id) -> voters
+        self._finality_vote_evidence: Dict[Tuple[int, int, str, str], str] = {}
 
         # PR6.2: round-hint fork-choice memory
         self._round_hint: Dict[int, int] = {}  # height -> max observed round
@@ -333,6 +460,15 @@ class ConsensusEngine:
                 self._last_qc = QC(**ps.last_qc)  # type: ignore[arg-type]
             except Exception:
                 self._last_qc = None
+        if self._last_qc is not None and self._finality_checkpoint is not None:
+            persisted_finality_error = self._qc_finality_error(self._last_qc)
+            if persisted_finality_error:
+                raise ValueError(f"persisted consensus state is not trust-anchored: {persisted_finality_error}")
+        self._recent_qcs: Deque[QC] = deque(
+            maxlen=_bounded_int_env("CONSENSUS_RECENT_QC_LIMIT", 64, 8, 10_000)
+        )
+        if self._last_qc is not None:
+            self._recent_qcs.append(self._last_qc)
 
         # round state should never start behind finalized_height
         self._cur_height: int = self._finalized_height + 1
@@ -353,6 +489,204 @@ class ConsensusEngine:
     # -------------------------
     # Introspection
     # -------------------------
+    def _partition_recovery_status(self) -> Dict[str, Any]:
+        try:
+            state = self._partition_recovery.status()
+            return {
+                **state,
+                "journal_valid": self._partition_recovery.verify_journal(),
+                "state_readable": True,
+            }
+        except PartitionRecoveryError as exc:
+            # A corrupt recovery record is itself a safety condition.  Do not
+            # silently replace it with a healthy default.
+            return {
+                "schema_version": "glyphchain.partition-recovery.v1",
+                "phase": PHASE_SAFETY_HALT,
+                "reason": "partition_recovery_state_invalid",
+                "last_error": str(exc),
+                "journal_valid": False,
+                "state_readable": False,
+            }
+
+    def _partition_recovery_halted(self) -> bool:
+        return self._partition_recovery_status().get("phase") == PHASE_SAFETY_HALT
+
+    def _protocol_upgrade_status(self, *, next_height: Optional[int] = None) -> Dict[str, Any]:
+        try:
+            peer_views: list[dict[str, Any]] = []
+            load_peers_from_env()
+            for peer in list_peers():
+                if not bool(getattr(peer, "hello_ok", False)):
+                    continue
+                peer_views.append({
+                    "validator_id": str(getattr(peer, "val_id", "") or ""),
+                    "protocol": dict(getattr(peer, "protocol", {}) or {}),
+                })
+            with self._lock:
+                height = int(next_height or self._cur_height)
+            result = self._protocol_upgrade.assess(
+                next_height=height,
+                validator_powers=dict(self.vset.powers),
+                self_validator_id=self.self_val_id,
+                peer_advertisements=peer_views,
+            )
+            return {
+                **result,
+                "journal_valid": self._protocol_upgrade.verify_journal(),
+                "state_readable": True,
+            }
+        except (ProtocolUpgradeError, OSError, ValueError) as exc:
+            return {
+                "phase": "UPGRADE_HALT",
+                "consensus_allowed": False,
+                "reason": "protocol_upgrade_state_invalid",
+                "last_error": str(exc),
+                "journal_valid": False,
+                "state_readable": False,
+            }
+
+    def _set_partition_recovery_phase(self, phase: str, *, reason: str, **fields: Any) -> Dict[str, Any]:
+        try:
+            current = self._partition_recovery.status()
+            if current.get("phase") == PHASE_SAFETY_HALT and phase != PHASE_SAFETY_HALT:
+                return current
+            comparable = {"phase": phase, "reason": reason, **fields}
+            if all(current.get(key) == value for key, value in comparable.items()):
+                return current
+            return self._partition_recovery.transition(phase, reason=reason, **fields)
+        except PartitionRecoveryError:
+            return self._partition_recovery_status()
+
+    def clear_partition_safety_halt(
+        self,
+        *,
+        halt_id: str,
+        operator_id: str,
+        reason: str,
+        confirmation: str,
+    ) -> Dict[str, Any]:
+        return self._partition_recovery.clear_safety_halt(
+            halt_id=halt_id,
+            operator_id=operator_id,
+            reason=reason,
+            confirmation=confirmation,
+        )
+
+    def sign_validator_governance_approval(self, proposal: Dict[str, Any]) -> Dict[str, str]:
+        """Sign a checkpoint transition in a domain separate from finality votes."""
+        if not self.self_val_id or not self.vset.is_member(self.self_val_id):
+            raise ValueError("local node is not an active validator")
+        if self._finality_private_key is None:
+            raise ValueError("local validator governance signing key is unavailable")
+        return sign_validator_governance_approval(
+            proposal,
+            validator_id=self.self_val_id,
+            private_key=self._finality_private_key,
+        )
+
+    def apply_verified_snapshot_finality(
+        self,
+        *,
+        snapshot_summary: Dict[str, Any],
+        finality_certificate: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Persist a separately trust-anchored snapshot tip after installation.
+
+        Snapshot verification and atomic database installation occur before this
+        call.  This method revalidates the certificate against the engine's own
+        trust anchor and binds the installed tip block before changing consensus
+        state.  It is the explicit large-gap partition-recovery path.
+        """
+        if self._partition_recovery_halted():
+            raise ValueError("partition recovery safety halt must be explicitly cleared before snapshot installation")
+        if self._finality_checkpoint is None:
+            raise ValueError("verified snapshot finality requires a trusted validator checkpoint")
+        ledger = snapshot_summary.get("ledger") if isinstance(snapshot_summary.get("ledger"), dict) else {}
+        height = int(ledger.get("height") or 0)
+        certificate = dict(finality_certificate or {})
+        voters = [
+            str(item.get("validator_id") or "").strip()
+            for item in list(certificate.get("votes") or [])
+            if isinstance(item, dict) and str(item.get("validator_id") or "").strip()
+        ]
+        qc = QC(
+            height=height,
+            round=int(certificate.get("round") or 0),
+            vote_type="PRECOMMIT",
+            block_id=str(certificate.get("block_id") or ""),
+            voters=voters,
+            ts_ms=_now_ms(),
+            quorum_finality_certificate=certificate,
+            trusted_validator_set_root=self._finality_checkpoint.validator_set_root,
+            validator_set_checkpoint_id=self._finality_checkpoint.checkpoint_id,
+            ledger_commitment=str(certificate.get("ledger_commitment") or "") or None,
+            txs_root=str(certificate.get("txs_root") or "") or None,
+        )
+        structural = _validate_qc_structural_or_error(qc, vset=self.vset, last_qc=None, expect_height=height)
+        if structural:
+            raise ValueError(structural)
+        finality_error = self._qc_finality_error(qc)
+        if finality_error:
+            raise ValueError(finality_error)
+        block = self._read_local_block(height)
+        if block is None:
+            raise ValueError("verified snapshot tip block is not installed")
+        block_error = self._verify_recovery_block(block, height=height, tip_qc=qc)
+        if block_error:
+            raise ValueError(block_error)
+
+        with self._lock:
+            old_fh = int(self._finalized_height)
+            old_qc = self._last_qc
+        if height < old_fh:
+            raise ValueError("verified snapshot would regress finalized height")
+        if height == old_fh and old_qc is not None and str(old_qc.block_id) != str(qc.block_id):
+            classification = classify_validated_views(
+                [{"height": height, "round": int(qc.round), "block_id": str(qc.block_id)}],
+                local_height=old_fh,
+                local_block_id=str(old_qc.block_id),
+            )
+            state = self._set_partition_recovery_phase(
+                PHASE_SAFETY_HALT,
+                reason="verified_snapshot_conflicts_with_local_finality",
+                local_finalized_height=old_fh,
+                target_finalized_height=height,
+                target_block_id=str(qc.block_id),
+                conflict_digest=str(classification.get("conflict_digest") or ""),
+                conflicting_heights=[height],
+                last_error="verified snapshot conflicts with local finalized block",
+            )
+            raise ValueError(f"verified snapshot conflicts with local finality; halt_id={state.get('halt_id')}")
+
+        with self._lock:
+            if height > int(self._finalized_height):
+                self._finalized_height = height
+                self._last_qc = qc
+                self._retain_finality_qc_locked(qc)
+                self._cur_height = height + 1
+                self._cur_round = 0
+                self._round_started_ms = _now_ms()
+        save_state(
+            int(self._finalized_height),
+            self._last_qc.model_dump() if self._last_qc else None,
+            round=0,
+        )
+        recovery = self._set_partition_recovery_phase(
+            PHASE_HEALTHY,
+            reason="verified_snapshot_installed_and_finality_applied",
+            local_finalized_height=height,
+            valid_view_count=1,
+            installed_snapshot_id=str(snapshot_summary.get("snapshot_id") or ""),
+        )
+        return {
+            "applied": height > old_fh,
+            "old_finalized_height": old_fh,
+            "finalized_height": int(self._finalized_height),
+            "block_id": str(qc.block_id),
+            "partition_recovery": recovery,
+        }
+
     def status(self) -> Dict[str, Any]:
         def _pct(vals: list[float], p: float) -> Optional[float]:
             if not vals:
@@ -384,6 +718,11 @@ class ConsensusEngine:
 
             lat = list(self._finality_lat_ms)
             last_qc = (self._last_qc.model_dump() if self._last_qc else None)
+            recent_qcs = [qc.model_dump() for qc in self._recent_qcs]
+            latest_finality_certificate = (
+                getattr(self._last_qc, "quorum_finality_certificate", None)
+                if self._last_qc is not None else None
+            )
 
         last_lat = float(lat[-1]) if lat else None
 
@@ -394,6 +733,7 @@ class ConsensusEngine:
             "chain_id": self.chain_id,
             "node_id": self.node_id,
             "self_val_id": self.self_val_id,
+            "network_participation": dict(self._network_participation),
             "validators": self.vset.ordered_ids(),
             "finalized_height": fh,
             "height": h,
@@ -407,6 +747,23 @@ class ConsensusEngine:
             "net_ok": _NET_OK,
             "net_err": (_NET_ERR if not _NET_OK else None),
             "last_qc": last_qc,
+            "recent_qcs": recent_qcs,
+            "quorum_finality": {
+                "enabled": self._finality_checkpoint is not None,
+                "local_signer_ready": self._finality_private_key is not None,
+                "configuration_error": self._finality_config_error,
+                "checkpoint_id": (
+                    self._finality_checkpoint.checkpoint_id
+                    if self._finality_checkpoint is not None else None
+                ),
+                "trusted_validator_set_root": (
+                    self._finality_checkpoint.validator_set_root
+                    if self._finality_checkpoint is not None else None
+                ),
+                "latest_certificate": latest_finality_certificate,
+            },
+            "partition_recovery": self._partition_recovery_status(),
+            "protocol_upgrade": self._protocol_upgrade_status(next_height=h),
             "finality_latency_ms_last": last_lat,
             "finality_latency_ms_p50": _pct(lat, 50.0),
             "finality_latency_ms_p95": _pct(lat, 95.0),
@@ -419,6 +776,64 @@ class ConsensusEngine:
             return None
         idx = (int(height) - 1 + int(round)) % len(ids)
         return ids[idx]
+
+    def _ledger_candidate(self, *, height: int) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Return the local ledger block and its independently checkable commitment."""
+        try:
+            from backend.modules.chain_sim.chain_sim_ledger import get_block
+            block = get_block(int(height))
+        except Exception:
+            block = None
+        candidate = dict(block or empty_ledger_block(height=int(height)))
+        commitment = normalize_ledger_block(candidate, chain_id=self.chain_id, height=int(height))
+        return candidate, commitment
+
+    def finality_receipt(self, *, height: int, block_id: str | None = None) -> Dict[str, Any]:
+        """Return a finalized QC and its portable certificate, if retained."""
+        wanted_height = int(height)
+        wanted_block = str(block_id or "").strip()
+        with self._lock:
+            match = next(
+                (
+                    qc for qc in reversed(self._recent_qcs)
+                    if int(qc.height) == wanted_height
+                    and (not wanted_block or str(qc.block_id) == wanted_block)
+                ),
+                None,
+            )
+        if match is None:
+            return {"ok": False, "found": False, "height": wanted_height}
+        certificate = getattr(match, "quorum_finality_certificate", None)
+        return {
+            "ok": True,
+            "found": True,
+            "height": wanted_height,
+            "block_id": str(match.block_id),
+            "qc": match.model_dump(),
+            "quorum_finality_certificate": certificate,
+            "trusted_validator_set_root": getattr(match, "trusted_validator_set_root", None),
+            "validator_set_checkpoint_id": getattr(match, "validator_set_checkpoint_id", None),
+            "ledger_commitment": getattr(match, "ledger_commitment", None),
+            "txs_root": getattr(match, "txs_root", None),
+            "independently_verifiable": bool(
+                certificate
+                and getattr(match, "trusted_validator_set_root", None)
+                and getattr(match, "validator_set_checkpoint_id", None)
+            ),
+        }
+
+    def _retain_finality_qc_locked(self, qc: QC) -> None:
+        """Retain every accepted finalized height, independent of last-QC updates.
+
+        Callers hold ``self._lock``.  This prevents an intermediate finalized
+        height from disappearing when concurrent progress advances ``last_qc``
+        before status or snapshot export reads the receipt history.
+        """
+        height = int(qc.height)
+        block_id = str(qc.block_id)
+        if any(int(item.height) == height and str(item.block_id) == block_id for item in self._recent_qcs):
+            return
+        self._recent_qcs.append(qc)
 
     def _preferred_round_for_height_locked(self, *, height: int, fallback_round: int) -> int:
         # assumes self._lock is already held
@@ -515,6 +930,16 @@ class ConsensusEngine:
                 if not (int(k[0]) == hh and int(k[1]) < mr)
             }
 
+            self._finality_vote_evidence = {
+                k: v for (k, v) in self._finality_vote_evidence.items()
+                if not (int(k[0]) == hh and int(k[1]) < mr)
+            }
+
+            self._proposal_seen_ms = {
+                k: v for (k, v) in self._proposal_seen_ms.items()
+                if not (int(k[0]) == hh and int(k[1]) < mr)
+            }
+
             self._proposals = {
                 k: v for (k, v) in self._proposals.items()
                 if not (int(k[0]) == hh and int(k[1]) < mr)
@@ -544,6 +969,18 @@ class ConsensusEngine:
                 k: v
                 for (k, v) in self._seen_votes.items()
                 if k[0] >= height and not (k[0] == height and k[1] < round)
+            }
+            self._finality_vote_evidence = {
+                k: v for (k, v) in self._finality_vote_evidence.items()
+                if k[0] >= height and not (k[0] == height and k[1] < round)
+            }
+            self._proposal_seen_ms = {
+                k: v for (k, v) in self._proposal_seen_ms.items()
+                if k[0] >= height and not (k[0] == height and k[1] < round)
+            }
+            self._sync_height_fails = {
+                h: failures for h, failures in self._sync_height_fails.items()
+                if int(h) >= int(height)
             }
             if len(self._evidence) > 2000:
                 self._evidence = self._evidence[-1000:]
@@ -631,6 +1068,14 @@ class ConsensusEngine:
             if do_sync:
                 self._spawn_async(self._sync_once())
 
+        # Recovery polling remains active during a halt, but this node must not
+        # propose or vote until a signed administrator explicitly clears the
+        # conflicting-finality condition.
+        if self._partition_recovery_halted():
+            return
+        if not self._protocol_upgrade_status(next_height=h).get("consensus_allowed"):
+            return
+
         # --- IMPORTANT: timeout handling must be proposal-aware (prevents runaway rounds) ---
         leader = self.leader_for(h, r)
         if not leader:
@@ -702,7 +1147,16 @@ class ConsensusEngine:
 
         # if leader, create proposal if absent
         if proposal is None and leader == self.self_val_id:
-            block_id = _canon_block_id(h, r, leader)
+            ledger_block: dict[str, Any] = {}
+            ledger_commitment: dict[str, Any] = {}
+            if self._finality_checkpoint is not None:
+                ledger_block, ledger_commitment = self._ledger_candidate(height=h)
+            block_id = _canon_block_id(
+                h,
+                r,
+                leader,
+                ledger_commitment.get("ledger_commitment"),
+            )
 
             try:
                 p = Proposal(
@@ -710,7 +1164,9 @@ class ConsensusEngine:
                     round=r,
                     proposer=leader,
                     block_id=block_id,
-                    block={},
+                    block=ledger_block,
+                    ledger_commitment=ledger_commitment.get("ledger_commitment"),
+                    txs_root=ledger_commitment.get("txs_root"),
                     ts_ms=_now_ms(),
                 )
             except Exception:
@@ -719,7 +1175,9 @@ class ConsensusEngine:
                     "round": r,
                     "proposer": leader,
                     "block_id": block_id,
-                    "block": {},
+                    "block": ledger_block,
+                    "ledger_commitment": ledger_commitment.get("ledger_commitment"),
+                    "txs_root": ledger_commitment.get("txs_root"),
                     "ts_ms": _now_ms(),
                 }
                 p = Proposal(**payload)  # type: ignore
@@ -791,6 +1249,13 @@ class ConsensusEngine:
     # -------------------------
 
     def handle_proposal(self, p: Proposal) -> Dict[str, Any]:
+        if self._partition_recovery_halted():
+            return {
+                "ok": True,
+                "accepted": False,
+                "ignored": True,
+                "reason": "partition recovery safety halt",
+            }
         h = _as_int(getattr(p, "height", None), None)
         r = _as_int(getattr(p, "round", None), None)
         proposer = str(getattr(p, "proposer", "") or "").strip()
@@ -798,6 +1263,8 @@ class ConsensusEngine:
 
         if h is None or h <= 0:
             return {"ok": False, "error": "height must be > 0"}
+        if not self._protocol_upgrade_status(next_height=h).get("consensus_allowed"):
+            return {"ok": True, "accepted": False, "ignored": True, "reason": "protocol upgrade activation halt"}
         if r is None or r < 0:
             return {"ok": False, "error": "round must be >= 0"}
         if not block_id or not proposer:
@@ -807,7 +1274,25 @@ class ConsensusEngine:
         if exp and proposer != exp:
             return {"ok": False, "error": f"bad proposer: expected {exp}, got {proposer}"}
 
-        expected_bid = _canon_block_id(h, r, proposer)
+        supplied_commitment = str(getattr(p, "ledger_commitment", "") or "").strip().lower()
+        supplied_txs_root = str(getattr(p, "txs_root", "") or "").strip().lower()
+        if self._finality_checkpoint is not None and (not supplied_commitment or not supplied_txs_root):
+            return {"ok": False, "error": "ledger commitment and transaction root required"}
+        if supplied_commitment or supplied_txs_root:
+            try:
+                checked = normalize_ledger_block(
+                    dict(getattr(p, "block", None) or {}),
+                    chain_id=self.chain_id,
+                    height=int(h),
+                )
+            except (TypeError, ValueError) as exc:
+                return {"ok": False, "error": f"ledger block invalid: {exc}"}
+            if checked["ledger_commitment"] != supplied_commitment:
+                return {"ok": False, "error": "ledger commitment mismatch"}
+            if checked["txs_root"] != supplied_txs_root:
+                return {"ok": False, "error": "ledger transaction root mismatch"}
+
+        expected_bid = _canon_block_id(h, r, proposer, supplied_commitment or None)
         if block_id != expected_bid:
             return {"ok": False, "error": f"non-canonical block_id (got={block_id}, want={expected_bid})"}
 
@@ -901,14 +1386,27 @@ class ConsensusEngine:
 
 
     def handle_vote(self, v: Vote) -> Dict[str, Any]:
+        if self._partition_recovery_halted():
+            return {
+                "ok": True,
+                "accepted": False,
+                "ignored": True,
+                "reason": "partition recovery safety halt",
+                "finalized": False,
+                "finalized_height": int(self._finalized_height),
+            }
         h = _as_int(getattr(v, "height", None), None)
         r = _as_int(getattr(v, "round", None), None)
         voter = str(getattr(v, "voter", "") or "").strip()
         vote_type = getattr(v, "vote_type", None)
         block_id = str(getattr(v, "block_id", "") or "").strip()
+        ledger_commitment = str(getattr(v, "ledger_commitment", "") or "").strip().lower()
+        txs_root = str(getattr(v, "txs_root", "") or "").strip().lower()
 
         if h is None or h <= 0:
             return {"ok": False, "error": "height must be > 0"}
+        if not self._protocol_upgrade_status(next_height=h).get("consensus_allowed"):
+            return {"ok": True, "accepted": False, "ignored": True, "reason": "protocol upgrade activation halt", "finalized": False, "finalized_height": int(self._finalized_height)}
         if r is None or r < 0:
             return {"ok": False, "error": "round must be >= 0"}
         if not block_id or not voter:
@@ -922,9 +1420,48 @@ class ConsensusEngine:
         exp_leader = self.leader_for(int(h), int(r))
         if not exp_leader:
             return {"ok": False, "error": "no leader (empty validator set)"}
-        exp_bid = _canon_block_id(int(h), int(r), str(exp_leader))
+        if self._finality_checkpoint is not None and (not ledger_commitment or not txs_root):
+            return {"ok": False, "error": "vote ledger commitment and transaction root required"}
+        exp_bid = _canon_block_id(int(h), int(r), str(exp_leader), ledger_commitment or None)
         if block_id != exp_bid:
             return {"ok": False, "error": f"non-canonical block_id (got={block_id}, want={exp_bid})"}
+        if ledger_commitment or txs_root:
+            with self._lock:
+                matching_proposal = self._proposals.get((int(h), int(r)))
+            if matching_proposal is None:
+                return {"ok": False, "error": "content-bound vote requires matching proposal"}
+            if (
+                str(getattr(matching_proposal, "block_id", "") or "") != block_id
+                or str(getattr(matching_proposal, "ledger_commitment", "") or "") != ledger_commitment
+                or str(getattr(matching_proposal, "txs_root", "") or "") != txs_root
+            ):
+                return {"ok": False, "error": "vote ledger commitment does not match proposal"}
+
+        finality_signature: str | None = None
+        if vote_type == "PRECOMMIT" and self._finality_checkpoint is not None:
+            supplied_root = str(getattr(v, "finality_validator_set_root", "") or "")
+            supplied_checkpoint = str(getattr(v, "finality_checkpoint_id", "") or "")
+            finality_signature = str(getattr(v, "finality_signature_base64", "") or "")
+            if not finality_signature:
+                return {"ok": False, "error": "precommit finality signature required"}
+            if supplied_root != self._finality_checkpoint.validator_set_root:
+                return {"ok": False, "error": "precommit finality validator-set root mismatch"}
+            if supplied_checkpoint != self._finality_checkpoint.checkpoint_id:
+                return {"ok": False, "error": "precommit finality checkpoint mismatch"}
+            validator = self._finality_checkpoint.validator(voter)
+            context = self._finality_certificate_context(
+                height=int(h),
+                round=int(r),
+                block_id=block_id,
+                ledger_commitment=ledger_commitment,
+                txs_root=txs_root,
+            )
+            if validator is None or not verify_finality_vote(
+                context,
+                validator=validator,
+                signature_base64=finality_signature,
+            ):
+                return {"ok": False, "error": "precommit finality signature invalid"}
 
         # PR6.2: remember we've seen (h,r) so we can start at r when we reach height h.
         self._record_round_hint(height=int(h), round=int(r))
@@ -995,7 +1532,8 @@ class ConsensusEngine:
                     "new_block_id": str(block_id),
                     "ts_ms": _now_ms(),
                 }
-                self._evidence.append(proof)
+                if len(self._evidence) < 2_000:
+                    self._evidence.append(proof)
                 return {"ok": False, "error": "equivocation detected", "equivocation": True, "proof": proof}
             if prev_bid is None:
                 self._seen_votes[ev_key] = str(block_id)
@@ -1025,6 +1563,8 @@ class ConsensusEngine:
                 s = set()
                 self._votes[key] = s
             s.add(str(voter))
+            if vote_type == "PRECOMMIT" and finality_signature:
+                self._finality_vote_evidence[(int(h), int(r), str(block_id), str(voter))] = finality_signature
 
             power = 0
             for vv in s:
@@ -1048,6 +1588,14 @@ class ConsensusEngine:
 
                 # finalized_height monotonic (only advance)
                 if int(h) > int(self._finalized_height):
+                    finality_certificate = self._build_quorum_finality_certificate_locked(
+                        height=int(h),
+                        round=int(r),
+                        block_id=str(block_id),
+                        voters=sorted(list(s)),
+                        ledger_commitment=ledger_commitment,
+                        txs_root=txs_root,
+                    )
                     qc_out = QC(
                         height=int(h),
                         round=int(r),
@@ -1055,6 +1603,17 @@ class ConsensusEngine:
                         block_id=str(block_id),
                         voters=sorted(list(s)),
                         ts_ms=now_ms,
+                        quorum_finality_certificate=finality_certificate,
+                        trusted_validator_set_root=(
+                            self._finality_checkpoint.validator_set_root
+                            if self._finality_checkpoint is not None else None
+                        ),
+                        validator_set_checkpoint_id=(
+                            self._finality_checkpoint.checkpoint_id
+                            if self._finality_checkpoint is not None else None
+                        ),
+                        ledger_commitment=ledger_commitment or None,
+                        txs_root=txs_root or None,
                     )
 
                     err = _validate_qc_structural_or_error(qc=qc_out, vset=self.vset, last_qc=self._last_qc)
@@ -1068,6 +1627,7 @@ class ConsensusEngine:
 
                     self._finalized_height = int(h)
                     finalized = True
+                    self._retain_finality_qc_locked(qc_out)
 
                     # ✅ only set last_qc if strictly newer
                     if self._last_qc is None or _is_qc_strictly_newer(qc_out, self._last_qc):
@@ -1112,6 +1672,15 @@ class ConsensusEngine:
                 pass
 
             try:
+                with self._lock:
+                    finalized_proposal = self._proposals.get((int(h), int(r)))
+                proposed_block = dict(getattr(finalized_proposal, "block", None) or {})
+                if proposed_block.get("txs"):
+                    self._import_block_into_chain_sim_db(proposed_block)
+            except Exception:
+                pass
+
+            try:
                 self._persist_finalized_block_shell(
                     height=int(h),
                     block_id=str(block_id),
@@ -1129,7 +1698,105 @@ class ConsensusEngine:
             "finalized": finalized,
             "finalized_height": int(self._finalized_height),
             "qc": (qc_out.model_dump() if qc_out else None),
+            "quorum_finality_certificate": (
+                getattr(qc_out, "quorum_finality_certificate", None) if qc_out else None
+            ),
+            "trusted_validator_set_root": (
+                getattr(qc_out, "trusted_validator_set_root", None) if qc_out else None
+            ),
         }
+
+    def _finality_certificate_context(
+        self,
+        *,
+        height: int,
+        round: int,
+        block_id: str,
+        ledger_commitment: str | None = None,
+        txs_root: str | None = None,
+    ) -> dict[str, Any]:
+        if self._finality_checkpoint is None:
+            raise ValueError("finality checkpoint is not configured")
+        return build_finality_certificate(
+            chain_id=self.chain_id,
+            network_id=self.network_id,
+            height=int(height),
+            round=int(round),
+            block_id=str(block_id),
+            validator_set=self._finality_checkpoint.value["validator_set"],
+            votes=[],
+            checkpoint_id=self._finality_checkpoint.checkpoint_id,
+            ledger_commitment=ledger_commitment,
+            txs_root=txs_root,
+        )
+
+    def _build_quorum_finality_certificate_locked(
+        self,
+        *,
+        height: int,
+        round: int,
+        block_id: str,
+        voters: list[str],
+        ledger_commitment: str | None = None,
+        txs_root: str | None = None,
+    ) -> dict[str, Any] | None:
+        if self._finality_checkpoint is None:
+            return None
+        votes = []
+        for voter in voters:
+            signature = self._finality_vote_evidence.get((height, round, block_id, voter))
+            if signature:
+                votes.append({"validator_id": voter, "signature_base64": signature})
+        certificate = build_finality_certificate(
+            chain_id=self.chain_id,
+            network_id=self.network_id,
+            height=height,
+            round=round,
+            block_id=block_id,
+            validator_set=self._finality_checkpoint.value["validator_set"],
+            votes=votes,
+            checkpoint_id=self._finality_checkpoint.checkpoint_id,
+            ledger_commitment=ledger_commitment,
+            txs_root=txs_root,
+        )
+        verification = verify_finality_certificate(
+            certificate,
+            trusted_validator_set_root=self._finality_checkpoint.validator_set_root,
+            expected_chain_id=self.chain_id,
+            expected_height=height,
+            expected_block_id=block_id,
+            expected_ledger_commitment=ledger_commitment,
+            expected_txs_root=txs_root,
+        )
+        if not verification.get("valid") or verification.get("trust_anchor_verified") is not True:
+            raise ValueError("quorum finality certificate could not be verified")
+        return certificate
+
+    def _qc_finality_error(self, qc: QC) -> str | None:
+        """Enforce portable finality on every QC when a trust anchor is active."""
+        if self._finality_checkpoint is None:
+            return None
+        certificate = getattr(qc, "quorum_finality_certificate", None)
+        if not isinstance(certificate, dict):
+            return "qc missing required quorum finality certificate"
+        if not getattr(qc, "ledger_commitment", None) or not getattr(qc, "txs_root", None):
+            return "qc missing ledger commitment"
+        if str(getattr(qc, "trusted_validator_set_root", "") or "") != self._finality_checkpoint.validator_set_root:
+            return "qc trusted validator-set root mismatch"
+        if str(getattr(qc, "validator_set_checkpoint_id", "") or "") != self._finality_checkpoint.checkpoint_id:
+            return "qc validator-set checkpoint mismatch"
+        result = verify_finality_certificate(
+            certificate,
+            trusted_validator_set_root=self._finality_checkpoint.validator_set_root,
+            expected_chain_id=self.chain_id,
+            expected_height=int(qc.height),
+            expected_block_id=str(qc.block_id),
+            expected_ledger_commitment=str(getattr(qc, "ledger_commitment", "") or "") or None,
+            expected_txs_root=str(getattr(qc, "txs_root", "") or "") or None,
+        )
+        if not result.get("valid") or result.get("trust_anchor_verified") is not True:
+            return "qc quorum finality certificate invalid"
+        return None
 
     # -------------------------
     # PR4: sync helpers
@@ -1163,6 +1830,10 @@ class ConsensusEngine:
         if qc is not None:
             try:
                 header["qc"] = qc.model_dump() if hasattr(qc, "model_dump") else dict(qc)  # type: ignore
+                if getattr(qc, "ledger_commitment", None):
+                    header["ledger_commitment"] = str(qc.ledger_commitment)
+                if getattr(qc, "txs_root", None):
+                    header["txs_root"] = str(qc.txs_root)
             except Exception:
                 header["qc"] = None
 
@@ -1254,6 +1925,62 @@ class ConsensusEngine:
             pass
 
         return False
+
+    def _read_local_block(self, height: int) -> Optional[Dict[str, Any]]:
+        h = int(height or 0)
+        if h <= 0:
+            return None
+        try:
+            from backend.modules.chain_sim.chain_sim_ledger import get_block, replay_ledger_only_from_db
+            block = get_block(h)
+            if not isinstance(block, dict):
+                replay_ledger_only_from_db()
+                block = get_block(h)
+            return dict(block) if isinstance(block, dict) else None
+        except Exception:
+            return None
+
+    def _verify_recovery_block(self, block: Dict[str, Any], *, height: int, tip_qc: Optional[QC] = None) -> Optional[str]:
+        try:
+            commitment = normalize_ledger_block(block, chain_id=self.chain_id, height=int(height))
+        except (TypeError, ValueError) as exc:
+            return f"ledger block invalid: {exc}"
+        if tip_qc is not None:
+            expected_commitment = str(getattr(tip_qc, "ledger_commitment", "") or "").strip().lower()
+            expected_root = str(getattr(tip_qc, "txs_root", "") or "").strip().lower()
+            if expected_commitment and commitment["ledger_commitment"] != expected_commitment:
+                return "tip ledger commitment mismatch"
+            if expected_root and commitment["txs_root"] != expected_root:
+                return "tip transaction root mismatch"
+        return None
+
+    def _local_recovery_range_status(self, from_h: int, to_h: int, *, tip_qc: Optional[QC] = None) -> Dict[str, Any]:
+        missing: list[int] = []
+        invalid: list[dict[str, Any]] = []
+        a = int(from_h or 0)
+        b = int(to_h or 0)
+        if a <= 0 or b <= 0 or a > b:
+            return {"complete": False, "missing": [], "invalid": [], "error": "bad height range"}
+        if b - a + 1 > self._max_recovery_blocks:
+            return {"complete": False, "missing": [], "invalid": [], "error": "recovery height range exceeds limit"}
+        for height in range(a, b + 1):
+            block = self._read_local_block(height)
+            if block is None:
+                missing.append(height)
+                continue
+            error = self._verify_recovery_block(
+                block,
+                height=height,
+                tip_qc=tip_qc if height == b else None,
+            )
+            if error:
+                invalid.append({"height": height, "error": error})
+        return {
+            "complete": not missing and not invalid,
+            "missing": missing,
+            "invalid": invalid,
+            "error": "" if not missing and not invalid else "recovery range incomplete",
+        }
 
     def _import_block_into_chain_sim_db(self, blk: Dict[str, Any]) -> bool:
         """
@@ -1375,37 +2102,54 @@ class ConsensusEngine:
                         "base_url": base,
                         "node_id": getattr(p, "node_id", None),
                         "val_id": getattr(p, "val_id", None),
+                        "hello_ok": bool(getattr(p, "hello_ok", False)),
+                        "relay_url": getattr(p, "relay_url", None),
                     }
                 )
             return out
         except Exception:
             return []
 
-    async def _sync_blocks_range(self, from_h: int, to_h: int) -> None:
+    async def _sync_blocks_range(self, from_h: int, to_h: int, *, tip_qc: Optional[QC] = None) -> Dict[str, Any]:
         """
         PR4.2/PR4.4: for each missing height in [from_h..to_h], fetch via /api/p2p/block_req
         with per-peer lane backoff + height-based retry schedule + peer rotation.
         """
         if request_block is None:
-            return
+            return {"complete": False, "missing": [], "imported": [], "error": "block transport unavailable"}
 
         a = int(from_h or 0)
         b = int(to_h or 0)
         if a <= 0 or b <= 0 or a > b:
-            return
+            return {"complete": False, "missing": [], "imported": [], "error": "bad height range"}
+        if b - a + 1 > self._max_recovery_blocks:
+            return {
+                "complete": False, "missing": [], "imported": [],
+                "error": "recovery height range exceeds limit",
+            }
 
         # cheap in-flight guard (avoid multiple concurrent replays)
         with self._lock:
             if self._syncing_blocks:
-                return
+                return {"complete": False, "missing": list(range(a, b + 1)), "imported": [], "error": "block recovery already running"}
             self._syncing_blocks = True
 
         imported_any = False
+        imported_heights: list[int] = []
         lane = "BLOCK_REQ"
 
         try:
             for h in range(a, b + 1):
-                if self._have_block_local(h):
+                local_block = self._read_local_block(h)
+                local_error = (
+                    self._verify_recovery_block(
+                        local_block,
+                        height=h,
+                        tip_qc=tip_qc if h == b else None,
+                    )
+                    if local_block is not None else "missing"
+                )
+                if local_block is not None and local_error is None:
                     # if we already have it, clear any height-fail counter
                     try:
                         self._sync_height_fails.pop(h, None)
@@ -1488,6 +2232,18 @@ class ConsensusEngine:
                             pass
                         continue
 
+                    block_error = self._verify_recovery_block(
+                        blk,
+                        height=h,
+                        tip_qc=tip_qc if h == b else None,
+                    )
+                    if block_error:
+                        try:
+                            self._sync_policy.on_failure(peer_key, lane, err=block_error)
+                        except Exception:
+                            pass
+                        continue
+
                     # import
                     imported = False
                     try:
@@ -1497,6 +2253,7 @@ class ConsensusEngine:
 
                     if imported:
                         imported_any = True
+                        imported_heights.append(h)
                         filled = True
                         try:
                             self._sync_policy.on_success(peer_key, lane)
@@ -1526,16 +2283,18 @@ class ConsensusEngine:
                 except Exception:
                     pass
 
+            checked = self._local_recovery_range_status(a, b, tip_qc=tip_qc)
+            return {
+                **checked,
+                "imported": imported_heights,
+            }
+
         finally:
             with self._lock:
                 self._syncing_blocks = False
 
-    def handle_sync_resp(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Apply a peer's reported finalized tip if it has a valid QC and is ahead of us.
-        PR6.1: reject QC regressions/conflicts at same finalized height.
-        PR6.3: enforce monotonicity (finalized_height + last_qc) on sync path too.
-        """
+    def _validate_sync_payload(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate a peer tip without mutating consensus or persistent state."""
         try:
             peer_fh = int(payload.get("finalized_height") or 0)
         except Exception:
@@ -1561,44 +2320,93 @@ class ConsensusEngine:
         if qc_h != int(peer_fh):
             return {"ok": False, "error": "sync_resp invalid: finalized_height != last_qc.height"}
 
-        # snapshot local state
+        # Snapshot local state.  A behind view cannot change state and is not a
+        # recovery candidate, so it is ignored before expensive certificate
+        # verification just as the legacy sync path did.
         with self._lock:
             local_fh = int(self._finalized_height)
             local_last = self._last_qc
 
         # ✅ If peer is behind us, ignore (do NOT treat as an error).
         if int(peer_fh) < int(local_fh):
-            return {"ok": True, "applied": False, "finalized_height": int(local_fh), "old_fh": int(local_fh)}
+            return {
+                "ok": True,
+                "behind": True,
+                "peer_fh": peer_fh,
+                "local_fh": local_fh,
+                "qc": qc,
+            }
 
-        # ✅ structural validation first
-        err = _validate_qc_structural_or_error(qc, vset=self.vset, last_qc=local_last, expect_height=peer_fh)
+        # Validate the certificate independently of local monotonic state.  A
+        # same-height different finalized block is not merely malformed input:
+        # it is a safety conflict that must be durably halted and surfaced.
+        err = _validate_qc_structural_or_error(qc, vset=self.vset, last_qc=None, expect_height=peer_fh)
         if err:
             return {"ok": False, "error": err}
+        finality_error = self._qc_finality_error(qc)
+        if finality_error:
+            return {"ok": False, "error": finality_error}
 
-        # compute old_fh for return/persist decisions
-        old_fh = int(local_fh)
+        local_block_id = str(getattr(local_last, "block_id", "") or "") if local_last else ""
+        conflict = bool(
+            local_last is not None
+            and int(peer_fh) == int(local_fh)
+            and str(qc.block_id) != local_block_id
+        )
+        return {
+            "ok": True,
+            "behind": False,
+            "peer_fh": peer_fh,
+            "local_fh": local_fh,
+            "local_block_id": local_block_id,
+            "conflict_with_local": conflict,
+            "qc": qc,
+        }
 
-        # ✅ PR6.3: monotonic invariants under lock
+    def _apply_validated_sync_tip(self, validated: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Commit a previously validated tip only after its ledger range exists."""
+        qc = validated.get("qc")
+        if not isinstance(qc, QC):
+            return {"ok": False, "error": "validated sync tip missing qc"}
+        peer_fh = int(validated.get("peer_fh") or 0)
+        if self._partition_recovery_halted():
+            return {"ok": False, "error": "partition recovery safety halt"}
+
         with self._lock:
+            local_fh = int(self._finalized_height)
+        if peer_fh <= local_fh:
+            return {"ok": True, "applied": False, "finalized_height": local_fh, "old_fh": local_fh}
+
+        material = self._local_recovery_range_status(local_fh + 1, peer_fh, tip_qc=qc)
+        if not material.get("complete"):
+            return {
+                "ok": True,
+                "applied": False,
+                "recovery_required": True,
+                "finalized_height": local_fh,
+                "old_fh": local_fh,
+                "missing": material.get("missing", []),
+                "invalid": material.get("invalid", []),
+            }
+
+        old_fh = local_fh
+
+        with self._lock:
+            # Recheck after block acquisition in case live consensus advanced.
+            old_fh = int(self._finalized_height)
+            if peer_fh <= old_fh:
+                return {"ok": True, "applied": False, "finalized_height": old_fh, "old_fh": old_fh}
             err2 = self._qc_monotonicity_error_locked(qc)
             if err2:
                 return {"ok": False, "error": err2}
-
-            # ✅ finalized_height monotonic: only advance forward
-            if int(peer_fh) > int(self._finalized_height):
-                self._finalized_height = int(peer_fh)
-
-            # ✅ last_qc monotonic: only update if strictly newer
+            self._finalized_height = int(peer_fh)
             if self._last_qc is None or _is_qc_strictly_newer(qc, self._last_qc):
                 self._last_qc = qc
+            self._retain_finality_qc_locked(qc)
+            self._cur_height = int(self._finalized_height) + 1
+            self._cur_round = 0
+            self._round_started_ms = _now_ms()
 
-            # restart local round state at new tip (only if we actually advanced)
-            if int(self._finalized_height) > int(old_fh):
-                self._cur_height = int(self._finalized_height) + 1
-                self._cur_round = 0
-                self._round_started_ms = _now_ms()
-
-        # persist (best-effort)
         try:
             save_state(
                 int(self._finalized_height),
@@ -1608,33 +2416,93 @@ class ConsensusEngine:
         except Exception:
             pass
 
-        # persist shells (only if we advanced)
-        if int(peer_fh) > int(old_fh):
-            try:
-                self._persist_finalized_shell_range(
-                    from_height=int(old_fh) + 1,
-                    to_height=int(peer_fh),
-                    tip_block_id=str(qc.block_id),
-                    tip_qc=qc,
-                    tip_created_at_ms=int(qc.ts_ms or _now_ms()),
-                )
-            except Exception:
-                pass
+        # The exact blocks already exist.  This patches only the trusted tip
+        # metadata and never fabricates missing intermediate shell blocks.
+        try:
+            self._persist_finalized_block_shell(
+                height=int(peer_fh),
+                block_id=str(qc.block_id),
+                qc=qc,
+                created_at_ms=int(qc.ts_ms or _now_ms()),
+            )
+        except Exception:
+            pass
+
+        self._set_partition_recovery_phase(
+            PHASE_HEALTHY,
+            reason="trusted_tip_materialized_and_applied",
+            local_finalized_height=int(peer_fh),
+            valid_view_count=int(validated.get("valid_view_count") or 1),
+        )
 
         return {
             "ok": True,
-            "applied": (int(peer_fh) > int(old_fh)),
+            "applied": True,
             "finalized_height": int(self._finalized_height),
             "old_fh": int(old_fh),
         }
 
+    def handle_sync_resp(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle pushed sync data without advancing ahead of ledger material."""
+        validated = self._validate_sync_payload(payload)
+        if not validated.get("ok"):
+            return validated
+        if validated.get("behind"):
+            local_fh = int(validated.get("local_fh") or 0)
+            return {"ok": True, "applied": False, "finalized_height": local_fh, "old_fh": local_fh}
+
+        qc = validated["qc"]
+        classification = classify_validated_views(
+            [{"height": int(qc.height), "round": int(qc.round), "block_id": str(qc.block_id)}],
+            local_height=int(validated.get("local_fh") or 0),
+            local_block_id=str(validated.get("local_block_id") or ""),
+        )
+        if classification["phase"] == PHASE_SAFETY_HALT:
+            state = self._set_partition_recovery_phase(
+                PHASE_SAFETY_HALT,
+                reason=str(classification["reason"]),
+                local_finalized_height=int(validated.get("local_fh") or 0),
+                target_finalized_height=int(qc.height),
+                target_block_id=str(qc.block_id),
+                target_round=int(qc.round),
+                valid_view_count=1,
+                conflict_digest=str(classification.get("conflict_digest") or ""),
+                conflicting_heights=classification.get("conflicting_heights", []),
+                last_error="conflicting trusted finalized block at local height",
+            )
+            return {"ok": False, "error": "conflicting trusted finality view", "halt_id": state.get("halt_id")}
+
+        local_fh = int(validated.get("local_fh") or 0)
+        if int(qc.height) <= local_fh:
+            return {"ok": True, "applied": False, "finalized_height": local_fh, "old_fh": local_fh}
+        material = self._local_recovery_range_status(local_fh + 1, int(qc.height), tip_qc=qc)
+        if not material.get("complete"):
+            self._set_partition_recovery_phase(
+                PHASE_BLOCK_CATCHUP,
+                reason="trusted_tip_waiting_for_ledger_material",
+                local_finalized_height=local_fh,
+                target_finalized_height=int(qc.height),
+                target_block_id=str(qc.block_id),
+                target_round=int(qc.round),
+                valid_view_count=1,
+                missing_from_height=local_fh + 1,
+                missing_to_height=int(qc.height),
+                last_error=str(material.get("error") or "ledger material missing"),
+            )
+            return {
+                "ok": True,
+                "applied": False,
+                "recovery_required": True,
+                "finalized_height": local_fh,
+                "old_fh": local_fh,
+            }
+        return self._apply_validated_sync_tip(validated, payload)
+
     async def _sync_once(self) -> None:
         """
-        Policy-backed SYNC_REQ polling:
-          - peer rotation
-          - per-peer lane backoff/rate via SyncPolicy
-          - stop when an applied higher finalized tip is found
-          - then fill blocks ONLY via _sync_blocks_range (policy-backed path)
+        Assess all trusted peer views, materialize any missing ledger range, and
+        only then advance the persisted finalized tip.  Conflicting trusted
+        finality at one height enters a sticky safety halt.
         """
         if request_sync_one is None:
             return
@@ -1643,12 +2511,23 @@ class ConsensusEngine:
 
         peers = self._peers_snapshot()
         if not peers:
+            with self._lock:
+                local_fh = int(self._finalized_height)
+            self._set_partition_recovery_phase(
+                PHASE_PARTITION_SUSPECTED,
+                reason="no_configured_peers_available",
+                local_finalized_height=local_fh,
+                valid_view_count=0,
+                last_error="no peers available for finality assessment",
+            )
             return
 
         random.shuffle(peers)
         lane = "SYNC_REQ"
 
-        payloads: list[Dict[str, Any]] = []
+        payloads: list[tuple[Dict[str, Any], str]] = []
+        with self._lock:
+            local_fh = int(self._finalized_height)
 
         for peer in peers:
             if not isinstance(peer, dict):
@@ -1670,6 +2549,14 @@ class ConsensusEngine:
                 pass
 
             try:
+                if ensure_peer_hello is not None and not bool(peer.get("hello_ok")):
+                    await ensure_peer_hello(
+                        chain_id=self.chain_id,
+                        from_node_id=self.node_id,
+                        from_val_id=self.self_val_id,
+                        peer_base_url=base_url,
+                        finalized_height=local_fh,
+                    )
                 r = await request_sync_one(
                     chain_id=self.chain_id,
                     from_node_id=self.node_id,
@@ -1695,22 +2582,154 @@ class ConsensusEngine:
             except Exception:
                 pass
 
-            payloads.append(r["payload"])
+            payloads.append((r["payload"], peer_digest(peer_key)))
 
         if not payloads:
+            with self._lock:
+                local_fh = int(self._finalized_height)
+            self._set_partition_recovery_phase(
+                PHASE_PARTITION_SUSPECTED,
+                reason="trusted_peers_unreachable_or_invalid",
+                local_finalized_height=local_fh,
+                valid_view_count=0,
+                last_error="no trusted peer sync response accepted",
+            )
             return
 
-        payloads.sort(key=lambda p: int(p.get("finalized_height") or 0), reverse=True)
+        with self._lock:
+            local_fh = int(self._finalized_height)
+            local_block_id = str(getattr(self._last_qc, "block_id", "") or "") if self._last_qc else ""
 
-        for p in payloads:
-            out = self.handle_sync_resp(p)
-            if isinstance(out, dict) and out.get("ok") and out.get("applied"):
-                new_fh = int(out.get("finalized_height") or 0)
-                old_fh = int(out.get("old_fh") or 0)
-                if new_fh > 0 and new_fh > old_fh:
-                    # ONE block-fill path: policy-backed BLOCK_REQ range fill
-                    await self._sync_blocks_range(old_fh + 1, new_fh)
-                return
+        validated_payloads: list[tuple[Dict[str, Any], Dict[str, Any], str]] = []
+        views: list[Dict[str, Any]] = []
+        for index, (payload, source_digest) in enumerate(payloads):
+            validated = self._validate_sync_payload(payload)
+            if not validated.get("ok") or validated.get("behind"):
+                continue
+            qc = validated.get("qc")
+            if not isinstance(qc, QC):
+                continue
+            validated_payloads.append((payload, validated, source_digest))
+            views.append({
+                "height": int(qc.height),
+                "round": int(qc.round),
+                "block_id": str(qc.block_id),
+                "source_digest": source_digest,
+                "payload_index": len(validated_payloads) - 1,
+            })
+
+        if not views:
+            self._set_partition_recovery_phase(
+                PHASE_PARTITION_SUSPECTED,
+                reason="no_cryptographically_valid_peer_finality_view",
+                local_finalized_height=local_fh,
+                valid_view_count=0,
+                last_error="peer responses did not yield a valid finality view",
+            )
+            return
+
+        self._set_partition_recovery_phase(
+            PHASE_REJOIN_ASSESSING,
+            reason="trusted_peer_views_collected",
+            local_finalized_height=local_fh,
+            valid_view_count=len(views),
+            last_error="",
+        )
+        classification = classify_validated_views(
+            views,
+            local_height=local_fh,
+            local_block_id=local_block_id,
+        )
+        if classification["phase"] == PHASE_SAFETY_HALT:
+            self._set_partition_recovery_phase(
+                PHASE_SAFETY_HALT,
+                reason=str(classification["reason"]),
+                local_finalized_height=local_fh,
+                valid_view_count=int(classification.get("valid_view_count") or 0),
+                conflict_digest=str(classification.get("conflict_digest") or ""),
+                conflicting_heights=classification.get("conflicting_heights", []),
+                last_error="trusted peers reported conflicting finalized blocks",
+            )
+            return
+
+        # Never auto-clear a safety halt merely because a later poll looks calm.
+        if self._partition_recovery_halted():
+            return
+
+        candidate = classification.get("candidate")
+        if not isinstance(candidate, dict):
+            self._set_partition_recovery_phase(
+                PHASE_HEALTHY,
+                reason="trusted_peers_confirm_no_higher_finality",
+                local_finalized_height=local_fh,
+                valid_view_count=len(views),
+            )
+            return
+
+        candidate_index = int(candidate.get("payload_index") or 0)
+        if candidate_index < 0 or candidate_index >= len(validated_payloads):
+            return
+        payload, validated, source_digest = validated_payloads[candidate_index]
+        qc = validated.get("qc")
+        if not isinstance(qc, QC):
+            return
+        target_height = int(qc.height)
+        gap = target_height - local_fh
+        maximum_block_gap = max(1, int(os.getenv("CONSENSUS_PARTITION_BLOCK_CATCHUP_MAX", "512") or "512"))
+        if gap > maximum_block_gap:
+            self._set_partition_recovery_phase(
+                PHASE_SNAPSHOT_REQUIRED,
+                reason="partition_gap_exceeds_bounded_block_catchup",
+                local_finalized_height=local_fh,
+                target_finalized_height=target_height,
+                target_block_id=str(qc.block_id),
+                target_round=int(qc.round),
+                source_peer_digest=source_digest,
+                valid_view_count=len(views),
+                missing_from_height=local_fh + 1,
+                missing_to_height=target_height,
+                last_error="verified snapshot synchronization required before finality can advance",
+            )
+            return
+
+        prior = self._partition_recovery_status()
+        attempts = int(prior.get("recovery_attempts") or 0) + 1
+        self._set_partition_recovery_phase(
+            PHASE_BLOCK_CATCHUP,
+            reason="materializing_trusted_finality_range",
+            local_finalized_height=local_fh,
+            target_finalized_height=target_height,
+            target_block_id=str(qc.block_id),
+            target_round=int(qc.round),
+            source_peer_digest=source_digest,
+            valid_view_count=len(views),
+            missing_from_height=local_fh + 1,
+            missing_to_height=target_height,
+            recovery_attempts=attempts,
+            last_error="",
+        )
+        recovered = await self._sync_blocks_range(local_fh + 1, target_height, tip_qc=qc)
+        if not recovered.get("complete"):
+            missing = recovered.get("missing") if isinstance(recovered.get("missing"), list) else []
+            invalid = recovered.get("invalid") if isinstance(recovered.get("invalid"), list) else []
+            self._set_partition_recovery_phase(
+                PHASE_BLOCK_CATCHUP,
+                reason="trusted_finality_range_incomplete",
+                local_finalized_height=local_fh,
+                target_finalized_height=target_height,
+                target_block_id=str(qc.block_id),
+                target_round=int(qc.round),
+                source_peer_digest=source_digest,
+                valid_view_count=len(views),
+                missing_from_height=min(missing) if missing else local_fh + 1,
+                missing_to_height=max(missing) if missing else target_height,
+                recovery_attempts=attempts,
+                last_error=str(recovered.get("error") or invalid or "ledger range incomplete")[:500],
+            )
+            return
+
+        validated["valid_view_count"] = len(views)
+        self._apply_validated_sync_tip(validated, payload)
 
 
     def _import_block_into_db(
@@ -1919,6 +2938,10 @@ class ConsensusEngine:
     async def _maybe_send_vote(self, *, height: int, round: int, vote_type: VoteType, block_id: str) -> None:
         if not self.self_val_id or not self.vset.is_member(self.self_val_id):
             return
+        if self._partition_recovery_halted():
+            return
+        if not self._protocol_upgrade_status(next_height=int(height)).get("consensus_allowed"):
+            return
 
         h = int(height)
         r = int(round)
@@ -1936,6 +2959,13 @@ class ConsensusEngine:
                 if str(self._lock_block_id) != bid and int(r) <= int(self._lock_round):
                     return
 
+        with self._lock:
+            proposal = self._proposals.get((h, r))
+        ledger_commitment = str(getattr(proposal, "ledger_commitment", "") or "")
+        txs_root = str(getattr(proposal, "txs_root", "") or "")
+        if self._finality_checkpoint is not None and (not ledger_commitment or not txs_root):
+            return
+
         sent_key = (h, r, vote_type, bid, str(self.self_val_id))
         with self._lock:
             if sent_key in self._sent:
@@ -1949,7 +2979,28 @@ class ConsensusEngine:
             vote_type=vote_type,
             block_id=bid,
             ts_ms=_now_ms(),
+            ledger_commitment=ledger_commitment or None,
+            txs_root=txs_root or None,
         )
+
+        if vote_type == "PRECOMMIT" and self._finality_checkpoint is not None:
+            if self._finality_private_key is None:
+                # A validator configured in the trusted set must never cast an
+                # uncertifiable precommit.  This deliberately halts its own
+                # finality contribution instead of degrading assurance.
+                return
+            context = self._finality_certificate_context(
+                height=h,
+                round=r,
+                block_id=bid,
+                ledger_commitment=ledger_commitment,
+                txs_root=txs_root,
+            )
+            v.finality_signature_base64 = base64.b64encode(
+                self._finality_private_key.sign(vote_sign_bytes(context, self.self_val_id))
+            ).decode("ascii")
+            v.finality_validator_set_root = self._finality_checkpoint.validator_set_root
+            v.finality_checkpoint_id = self._finality_checkpoint.checkpoint_id
 
         out = self.handle_vote(v)
 

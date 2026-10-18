@@ -1,4 +1,3 @@
-// Glyph_Net_Browser/src/components/QFCViewport.tsx
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -20,7 +19,7 @@ import QFCDemoWormhole from "./qfc/demos/QFCDemoWormhole";
 import QFCDemoGenome from "./qfc/demos/QFCDemoGenome";
 import QFCDemoTopology from "./qfc/demos/QFCDemoTopology";
 
-// Extra demos (your list)
+// Extra demos
 import QFCAxiomStability from "./qfc/demos/QFCAxiomStability";
 import QFCBornRuleConvergence from "./qfc/demos/QFCBornRuleConvergence";
 import QFCCausalSpacetimeK from "./qfc/demos/QFCCausalSpacetimeK";
@@ -38,18 +37,18 @@ import QFCSemanticCurvature from "./qfc/demos/QFCSemanticCurvature";
 import QFCTelemetryAuditv3 from "./qfc/demos/QFCTelemetryAuditv3";
 import QFCVacuumLandscapeF from "./qfc/demos/QFCVacuumLandscapeF";
 
+// Boardroom demo
+import QFCDemoBoardroom from "./qfc/demos/QFCDemoBoardroom";
+
 // GlyphOS demo
 import QFCMultiverseActionDemo from "./qfc/demos/QFC_Demo_GlyphOS";
 
-export type QFCDomain = "phys" | "bio";
-export const isQfcDomain = (d: any): d is QFCDomain => d === "phys" || d === "bio";
+export type QFCDomain = "phys" | "bio" | "business";
 
-/**
- * Modes are now authoritative and extensible.
- * Keep these strings stable because URLs + HUDs use them.
- */
+export const isQfcDomain = (d: any): d is QFCDomain =>
+  d === "phys" || d === "bio" || d === "business";
+
 export const QFC_MODES = [
-  // core
   "gravity",
   "tunnel",
   "matter",
@@ -58,8 +57,7 @@ export const QFC_MODES = [
   "genome",
   "topology",
   "glyphos",
-
-  // extra demos
+  "boardroom",
   "axiom_stability",
   "born",
   "causal_spacetime_k",
@@ -76,13 +74,12 @@ export const QFC_MODES = [
   "semantic_curvature",
   "telemetry_audit_v3",
   "vacuum_landscape_f",
-
-  // optional legacy aliases
   "antigrav",
   "sync",
 ] as const;
 
 export type QFCMode = (typeof QFC_MODES)[number];
+
 export const isQfcMode = (m: any): m is QFCMode =>
   typeof m === "string" && (QFC_MODES as readonly string[]).includes(m);
 
@@ -97,6 +94,11 @@ export type QFCTheme = {
   sync?: string;
   topology?: string;
   glyphos?: string;
+  boardroom?: string;
+  finance?: string;
+  marketing?: string;
+  sales?: string;
+  operations?: string;
 };
 
 export type QFCFlags = {
@@ -123,31 +125,26 @@ export type QFCFrame = {
   curv?: number;
   coupling_score?: number;
   max_norm?: number;
-
   mode?: QFCMode;
   theme?: QFCTheme;
   flags?: QFCFlags;
   topology?: QFCTopology;
-
   topo_gate01?: number;
+  workspaceId?: string;
+  boardroom?: any;
 };
 
 export type QFCViewportProps = {
   title?: string;
   subtitle?: string;
   rightBadge?: string;
-
   domain?: QFCDomain;
   domainLabel?: string;
-
   mode?: QFCMode;
   theme?: QFCTheme;
-
   frame?: QFCFrame | null;
   frames?: QFCFrame[];
-
   telemetry?: TessarisTelemetry;
-
   showDataPanel?: boolean;
 };
 
@@ -158,8 +155,12 @@ function inferDomainFromHash(): QFCDomain {
   try {
     if (typeof window === "undefined") return "phys";
     const h = window.location.hash || "";
+
     if (h.startsWith("#/qfc-bio")) return "bio";
+    if (h.startsWith("#/boardroom")) return "business";
+    if (h.startsWith("#/qfc-boardroom")) return "business";
     if (h.startsWith("#/qfc-hud")) return "phys";
+
     return "phys";
   } catch {
     return "phys";
@@ -171,10 +172,8 @@ function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
 
   const analytics: any = (t as any).analytics ?? {};
   const fusion: any = (t as any).fusion ?? {};
-
   const rqfsAny: any = (t as any).rqfs ?? {};
   const rqfsState: any = rqfsAny?.state ?? rqfsAny ?? {};
-
   const qfcAny: any = (t as any).qfc ?? fusion?.qfc ?? analytics?.qfc ?? {};
 
   const flags: QFCFlags =
@@ -194,9 +193,16 @@ function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
   const rawMode: any = qfcAny.mode ?? fusion?.mode ?? undefined;
   const mode: QFCMode | undefined = isQfcMode(rawMode) ? rawMode : undefined;
 
-  // NOTE: keep these telemetry mappings as-is; HUD overrides can pass frame/mode props.
-  const kappa = num(rqfsState.nu_bias ?? rqfsState.kappa ?? analytics.mean_nu, 0);
-  const chi = num(rqfsState.phi_bias ?? rqfsState.chi ?? analytics.mean_phi, 0);
+  const kappa = num(
+    rqfsState.nu_bias ?? rqfsState.kappa ?? analytics.mean_nu,
+    0,
+  );
+
+  const chi = num(
+    rqfsState.phi_bias ?? rqfsState.chi ?? analytics.mean_phi,
+    0,
+  );
+
   const sigma = num(
     rqfsState.amp_bias ?? rqfsState.sigma ?? analytics.mean_amp,
     0,
@@ -210,6 +216,7 @@ function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
       fusion.signal,
     NaN,
   );
+
   const psi01 = Number.isFinite(psiRaw) ? clamp01(0.5 + 0.5 * psiRaw) : NaN;
 
   const alpha = num(
@@ -290,6 +297,12 @@ function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
     flags: flags2,
     topology,
     topo_gate01,
+    boardroom: qfcAny?.boardroom ?? fusion?.boardroom ?? analytics?.boardroom,
+    workspaceId:
+      qfcAny?.workspace_id ??
+      fusion?.workspace_id ??
+      analytics?.workspace_id ??
+      undefined,
   };
 }
 
@@ -299,12 +312,10 @@ function fmt(v: any, digits = 4) {
   return x.toFixed(digits);
 }
 
-/**
- * Central registry: mode -> renderer
- * This avoids a giant if/else chain and makes adding scenes trivial.
- */
-const DEMO_REGISTRY: Record<QFCMode, React.ComponentType<{ frame: QFCFrame | null }>> = {
-  // core
+const DEMO_REGISTRY: Record<
+  QFCMode,
+  React.ComponentType<{ frame: QFCFrame | null }>
+> = {
   gravity: QFCDemoGravity,
   tunnel: QFCDemoTunnel,
   matter: QFCDemoMatter,
@@ -313,8 +324,7 @@ const DEMO_REGISTRY: Record<QFCMode, React.ComponentType<{ frame: QFCFrame | nul
   genome: QFCDemoGenome,
   topology: QFCDemoTopology,
   glyphos: QFCMultiverseActionDemo,
-
-  // extra demos
+  boardroom: QFCDemoBoardroom,
   axiom_stability: QFCAxiomStability,
   born: QFCBornRuleConvergence,
   causal_spacetime_k: QFCCausalSpacetimeK,
@@ -331,8 +341,6 @@ const DEMO_REGISTRY: Record<QFCMode, React.ComponentType<{ frame: QFCFrame | nul
   semantic_curvature: QFCSemanticCurvature,
   telemetry_audit_v3: QFCTelemetryAuditv3,
   vacuum_landscape_f: QFCVacuumLandscapeF,
-
-  // legacy aliases (map to a sane default)
   antigrav: QFCDemoGravity,
   sync: QFCDemoConnect,
 };
@@ -342,26 +350,26 @@ export default function QFCViewport(props: QFCViewportProps) {
     title = "Quantum Field Canvas",
     subtitle,
     rightBadge,
-
     domain: domainProp,
     domainLabel: domainLabelProp,
-
     mode: modeProp,
     theme: themeProp,
-
     frame,
     frames,
     telemetry: telemetryProp,
-
     showDataPanel = true,
   } = props;
 
   const domain: QFCDomain = useMemo(() => {
     if (isQfcDomain(domainProp)) return domainProp;
+    if (modeProp === "boardroom") return "business";
+    if (frame?.mode === "boardroom") return "business";
     return inferDomainFromHash();
-  }, [domainProp]);
+  }, [domainProp, modeProp, frame?.mode]);
 
-  const domainLabel = domainLabelProp ?? (domain === "bio" ? "BIO" : "PHYS");
+  const domainLabel =
+    domainLabelProp ??
+    (domain === "bio" ? "BIO" : domain === "business" ? "BUSINESS" : "PHYS");
 
   const liveTelemetry = useTessarisTelemetry();
   const telemetry = telemetryProp ?? liveTelemetry;
@@ -371,6 +379,7 @@ export default function QFCViewport(props: QFCViewportProps) {
   useEffect(() => {
     const hasExternalFrames =
       frame !== undefined || (Array.isArray(frames) && frames.length > 0);
+
     if (hasExternalFrames) return;
     if (!telemetry) return;
 
@@ -378,26 +387,32 @@ export default function QFCViewport(props: QFCViewportProps) {
     if (fr) setLiveFrame(fr);
   }, [telemetry, frame, frames]);
 
-  const effectiveFrame: QFCFrame | null = frame === undefined ? liveFrame : frame;
+  const effectiveFrame: QFCFrame | null =
+    frame === undefined ? liveFrame : frame;
 
-  // Parent mode prop wins, then frame.mode, else default
-  const effectiveMode: QFCMode =
-    (isQfcMode(modeProp) ? modeProp : undefined) ??
-    (isQfcMode(effectiveFrame?.mode) ? (effectiveFrame!.mode as QFCMode) : undefined) ??
-    "gravity";
+  const effectiveMode: QFCMode = useMemo(() => {
+    if (modeProp === "boardroom") return "boardroom";
+    if (effectiveFrame?.mode === "boardroom") return "boardroom";
+    if (isQfcMode(modeProp)) return modeProp;
+    if (isQfcMode(effectiveFrame?.mode)) return effectiveFrame.mode;
+    return "gravity";
+  }, [modeProp, effectiveFrame?.mode]);
 
-  const effectiveTheme: QFCTheme | undefined = themeProp ?? effectiveFrame?.theme;
+  const effectiveTheme: QFCTheme | undefined =
+    themeProp ?? effectiveFrame?.theme;
 
   const topoGate01 = useMemo(() => {
     const g =
       (effectiveFrame as any)?.topo_gate01 ??
       (effectiveFrame as any)?.topology?.gate ??
       1;
+
     return clamp01(Number(g));
   }, [effectiveFrame]);
 
   const demoFrame: QFCFrame | null = useMemo(() => {
     if (!effectiveFrame) return null;
+
     return {
       ...effectiveFrame,
       mode: effectiveMode,
@@ -409,8 +424,31 @@ export default function QFCViewport(props: QFCViewportProps) {
   const ch: 1 | -1 = (demoFrame?.flags?.chirality ?? 1) === -1 ? -1 : 1;
   const chLabel = `CH:${ch > 0 ? "+1" : "-1"}`;
 
-  // Hard remount on mode change so the scene swaps cleanly
-  const canvasKey = useMemo(() => `qfc:${domain}:${effectiveMode}`, [domain, effectiveMode]);
+  const canvasKey = useMemo(
+    () => `qfc:${domain}:${effectiveMode}`,
+    [domain, effectiveMode],
+  );
+
+  const isBoardroomMode =
+    domain === "business" || effectiveMode === "boardroom";
+
+  const cameraProps = isBoardroomMode
+    ? {
+        position: [0, 2.4, 4.6] as [number, number, number],
+        fov: 30,
+        near: 0.1,
+        far: 100,
+      }
+    : {
+        position: [0, 7, 16] as [number, number, number],
+        fov: 45,
+        near: 0.1,
+        far: 250,
+      };
+
+  const orbitTarget = isBoardroomMode
+    ? ([0, 0.22, 0] as [number, number, number])
+    : ([0, -0.2, 0] as [number, number, number]);
 
   const shell: CSSProperties = {
     height: "100%",
@@ -420,9 +458,11 @@ export default function QFCViewport(props: QFCViewportProps) {
     overflow: "hidden",
     border: "1px solid rgba(148,163,184,0.35)",
     background:
-      "radial-gradient(1200px 600px at 20% 10%, rgba(99,102,241,0.14), transparent 55%)," +
-      "radial-gradient(1000px 500px at 80% 20%, rgba(34,197,94,0.07), transparent 55%)," +
-      "linear-gradient(180deg, rgba(2,6,23,0.92), rgba(15,23,42,0.85))",
+      isBoardroomMode
+        ? "linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.92))"
+        : "radial-gradient(1200px 600px at 20% 10%, rgba(99,102,241,0.14), transparent 55%)," +
+          "radial-gradient(1000px 500px at 80% 20%, rgba(34,197,94,0.07), transparent 55%)," +
+          "linear-gradient(180deg, rgba(2,6,23,0.92), rgba(15,23,42,0.85))",
     position: "relative",
     display: "flex",
     flexDirection: "column",
@@ -470,8 +510,9 @@ export default function QFCViewport(props: QFCViewportProps) {
     whiteSpace: "nowrap",
   };
 
-  const badgeText =
-    rightBadge && rightBadge.trim().length
+  const badgeText = isBoardroomMode
+    ? `${domainLabel} · BOARDROOM`
+    : rightBadge && rightBadge.trim().length
       ? `${rightBadge} · ${domainLabel} · ${chLabel} · gate:${topoGate01.toFixed(2)}`
       : `${domainLabel} · ${chLabel} · gate:${topoGate01.toFixed(2)}`;
 
@@ -517,10 +558,26 @@ export default function QFCViewport(props: QFCViewportProps) {
   const updatedAt = telemetry?.updatedAt;
   const staleMs = updatedAt ? Math.max(0, Date.now() - updatedAt) : null;
   const staleLabel =
-    staleMs == null ? "telemetry:—" : staleMs < 1500 ? "telemetry:live" : `telemetry:${Math.round(staleMs)}ms`;
+    staleMs == null
+      ? "telemetry:—"
+      : staleMs < 1500
+        ? "telemetry:live"
+        : `telemetry:${Math.round(staleMs)}ms`;
 
-  // Pick scene component from registry (always defined)
-  const Scene = DEMO_REGISTRY[effectiveMode] ?? QFCDemoGravity;
+  const Scene =
+    effectiveMode === "boardroom"
+      ? QFCDemoBoardroom
+      : DEMO_REGISTRY[effectiveMode] ?? QFCDemoGravity;
+
+  const boardroomSeatCount = Array.isArray(demoFrame?.boardroom?.seats)
+    ? demoFrame.boardroom.seats.length
+    : 0;
+
+  const workspaceId =
+    demoFrame?.workspaceId ??
+    demoFrame?.boardroom?.workspace_id ??
+    demoFrame?.boardroom?.workspaceId ??
+    undefined;
 
   return (
     <div style={shell}>
@@ -528,32 +585,43 @@ export default function QFCViewport(props: QFCViewportProps) {
         <Canvas
           key={canvasKey}
           style={{ position: "absolute", inset: 0 }}
-          camera={{ position: [0, 7, 16], fov: 45, near: 0.1, far: 250 }}
+          camera={cameraProps}
           gl={{ antialias: true, alpha: true }}
         >
           <color attach="background" args={["#050816"]} />
-          <fog attach="fog" args={["#050816", 18, 70]} />
+          {!isBoardroomMode ? (
+            <fog attach="fog" args={["#050816", 18, 70]} />
+          ) : null}
 
-          <ambientLight intensity={0.65} />
-          <directionalLight position={[8, 14, 10]} intensity={1.0} />
-          <directionalLight position={[-8, 6, -10]} intensity={0.35} />
-
-          <gridHelper
-            args={[
-              90,
-              90,
-              new THREE.Color("#1d4ed8"),
-              new THREE.Color("#0ea5e9"),
-            ]}
-            position={[0, -2.0, 0]}
+          <ambientLight intensity={isBoardroomMode ? 1.15 : 0.65} />
+          <directionalLight
+            position={[6, 8, 6]}
+            intensity={isBoardroomMode ? 1.2 : 1.0}
+          />
+          <directionalLight
+            position={[-5, 4, -6]}
+            intensity={isBoardroomMode ? 0.35 : 0.35}
           />
 
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.02, 0]}>
-            <planeGeometry args={[120, 120]} />
-            <meshBasicMaterial color={"#030712"} transparent opacity={0.35} />
-          </mesh>
+          {!isBoardroomMode ? (
+            <gridHelper
+              args={[
+                90,
+                90,
+                new THREE.Color("#1d4ed8"),
+                new THREE.Color("#0ea5e9"),
+              ]}
+              position={[0, -2.0, 0]}
+            />
+          ) : null}
 
-          {/* ✅ Scene switch (registry-driven) */}
+          {!isBoardroomMode ? (
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.02, 0]}>
+              <planeGeometry args={[120, 120]} />
+              <meshBasicMaterial color="#030712" transparent opacity={0.35} />
+            </mesh>
+          ) : null}
+
           <group key={`${domain}:${effectiveMode}`}>
             <Scene frame={demoFrame} />
           </group>
@@ -562,12 +630,14 @@ export default function QFCViewport(props: QFCViewportProps) {
             makeDefault
             enableDamping
             dampingFactor={0.08}
-            rotateSpeed={0.65}
+            rotateSpeed={isBoardroomMode ? 0.38 : 0.65}
             zoomSpeed={0.9}
             panSpeed={0.7}
-            minDistance={6}
-            maxDistance={60}
-            target={[0, -0.2, 0]}
+            minDistance={isBoardroomMode ? 3.2 : 6}
+            maxDistance={isBoardroomMode ? 8 : 60}
+            minPolarAngle={isBoardroomMode ? 0.7 : 0}
+            maxPolarAngle={isBoardroomMode ? 1.32 : Math.PI / 1.8}
+            target={orbitTarget}
           />
         </Canvas>
 
@@ -586,6 +656,10 @@ export default function QFCViewport(props: QFCViewportProps) {
           <span style={chip}>{`mode:${effectiveMode}`}</span>
           <span style={chip}>{staleLabel}</span>
 
+          {workspaceId ? (
+            <span style={chip}>{`workspace:${workspaceId}`}</span>
+          ) : null}
+
           <span style={chip}>{`kappa:${fmt(kappa, 5)}`}</span>
           <span style={chip}>{`chi:${fmt(chi, 5)}`}</span>
           <span style={chip}>{`sigma:${fmt(sigma, 5)}`}</span>
@@ -595,6 +669,10 @@ export default function QFCViewport(props: QFCViewportProps) {
           <span style={chip}>{`epoch:${topoEpoch ?? "—"}`}</span>
           <span style={chip}>{`topo:n=${topoNodes} e=${topoEdges}`}</span>
           <span style={chip}>{chLabel}</span>
+
+          {isBoardroomMode ? (
+            <span style={chip}>{`seats:${boardroomSeatCount}`}</span>
+          ) : null}
         </div>
       </div>
     </div>

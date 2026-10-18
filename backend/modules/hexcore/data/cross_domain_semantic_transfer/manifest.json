@@ -1,0 +1,30 @@
+{
+  "schema_version": "aion.hexcore.cross_domain_sources.v1",
+  "captured_at": "2026-07-31",
+  "sources": [
+    {
+      "domain": "technical",
+      "publisher": "Python Software Foundation",
+      "title": "Design and History FAQ",
+      "url": "https://docs.python.org/3/faq/design.html",
+      "path": "python_design_faq.html",
+      "sha256": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f"
+    },
+    {
+      "domain": "scientific",
+      "publisher": "NASA",
+      "title": "Climate Change Questions (FAQ)",
+      "url": "https://science.nasa.gov/climate-change/faq/",
+      "path": "nasa_climate_faq.html",
+      "sha256": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d"
+    },
+    {
+      "domain": "historical",
+      "publisher": "U.S. National Archives",
+      "title": "Constitution Questions and Answers",
+      "url": "https://www.archives.gov/founding-docs/constitution-q-and-a",
+      "path": "constitution_questions_answers.html",
+      "sha256": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273"
+    }
+  ]
+}

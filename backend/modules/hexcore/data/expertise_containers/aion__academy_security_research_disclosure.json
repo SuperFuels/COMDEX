@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_adversary_emulation_penetration_testing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_language_research_communication",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:language_research_communication",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:security_research_disclosure:research_ethics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_research_disclosure:authorization",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_research_disclosure:reproducibility",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_research_disclosure:severity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_research_disclosure:minimal_proof",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_research_disclosure:vendor_coordination",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_research_disclosure:embargo",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_research_disclosure:public_disclosure",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:security_research_disclosure",
+      "label": "Security research and responsible vulnerability disclosure",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_research_disclosure:research_ethics",
+      "label": "research ethics",
+      "subject_id": "security_research_disclosure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_research_disclosure:authorization",
+      "label": "authorization",
+      "subject_id": "security_research_disclosure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_research_disclosure:reproducibility",
+      "label": "reproducibility",
+      "subject_id": "security_research_disclosure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_research_disclosure:severity",
+      "label": "severity",
+      "subject_id": "security_research_disclosure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_research_disclosure:minimal_proof",
+      "label": "minimal proof",
+      "subject_id": "security_research_disclosure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_research_disclosure:vendor_coordination",
+      "label": "vendor coordination",
+      "subject_id": "security_research_disclosure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_research_disclosure:embargo",
+      "label": "embargo",
+      "subject_id": "security_research_disclosure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_research_disclosure:public_disclosure",
+      "label": "public disclosure",
+      "subject_id": "security_research_disclosure",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_security_research_disclosure",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:security_research_disclosure:research_ethics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_research_disclosure:authorization",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_research_disclosure:reproducibility",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_research_disclosure:severity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_research_disclosure:minimal_proof",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_research_disclosure:vendor_coordination",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_research_disclosure:embargo",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_research_disclosure:public_disclosure",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:security_research_disclosure",
+        "label": "Security research and responsible vulnerability disclosure",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_research_disclosure:research_ethics",
+        "label": "research ethics",
+        "subject_id": "security_research_disclosure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_research_disclosure:authorization",
+        "label": "authorization",
+        "subject_id": "security_research_disclosure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_research_disclosure:reproducibility",
+        "label": "reproducibility",
+        "subject_id": "security_research_disclosure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_research_disclosure:severity",
+        "label": "severity",
+        "subject_id": "security_research_disclosure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_research_disclosure:minimal_proof",
+        "label": "minimal proof",
+        "subject_id": "security_research_disclosure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_research_disclosure:vendor_coordination",
+        "label": "vendor coordination",
+        "subject_id": "security_research_disclosure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_research_disclosure:embargo",
+        "label": "embargo",
+        "subject_id": "security_research_disclosure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_research_disclosure:public_disclosure",
+        "label": "public disclosure",
+        "subject_id": "security_research_disclosure",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "security_research_disclosure",
+    "title": "AION Academy \u00b7 Security research and responsible vulnerability disclosure"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

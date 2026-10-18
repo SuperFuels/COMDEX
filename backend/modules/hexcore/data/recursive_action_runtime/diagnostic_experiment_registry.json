@@ -1,0 +1,59 @@
+{
+  "experiments": {
+    "ADAPTIVE_CROSSOVER_AUTHORITY_TRIANGULATION": {
+      "authority": "procedure_delayed_diagnostic_experiment_runtime_promotion_v1",
+      "capability_class": "bounded_read_only_diagnostic",
+      "experiment": {
+        "ambient_authority": [],
+        "capability_class": "bounded_read_only_diagnostic",
+        "commit_before_outcomes": true,
+        "experiment_id": "ADAPTIVE_CROSSOVER_AUTHORITY_TRIANGULATION",
+        "hypotheses": [
+          "candidate_defect",
+          "evidence_defect",
+          "environment_change",
+          "critic_defect"
+        ],
+        "maximum_actions": 4,
+        "single_cause_assumption": true,
+        "tree": {
+          "action": "alternate_candidate_same_evidence",
+          "if_false": {
+            "action": "changed_rule_later_retest",
+            "if_false": {
+              "action": "independent_outcome_without_critic",
+              "if_false": {
+                "diagnosis": "evidence_defect"
+              },
+              "if_true": {
+                "diagnosis": "critic_defect"
+              }
+            },
+            "if_true": {
+              "diagnosis": "environment_change"
+            }
+          },
+          "if_true": {
+            "diagnosis": "candidate_defect"
+          }
+        },
+        "unknown_signature_policy": "ABSTAIN"
+      },
+      "experiment_sha256": "68d88cf15ea8b91ea4e8773f33a847204d2429540f74f73e88b7a8509ead4ae9",
+      "promoted_at": "2026-08-02T07:24:00.969320+00:00",
+      "verified_authorities": [
+        "World Bank GDP",
+        "FRED GDP",
+        "NOAA temperature",
+        "Treasury exchange rates"
+      ],
+      "verified_causes": [
+        "candidate_defect",
+        "evidence_defect",
+        "environment_change",
+        "critic_defect"
+      ]
+    }
+  },
+  "schema_version": "aion.diagnostic_experiment_registry.v1"
+}

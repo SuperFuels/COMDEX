@@ -1,0 +1,98 @@
+[
+  {
+    "title": "Evidence and Experimental Control",
+    "author": "Tessaris verified curriculum",
+    "subject": "science",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v1",
+    "text": "Mara tested two identical trays of seedlings to study how light affects growth. She placed one tray beside a bright window and kept the other tray in a dark cabinet. Both trays received the same soil, water, temperature, and number of seeds. After ten days, Mara measured every stem and recorded the results before comparing the groups. The window group grew taller on average, but Mara did not claim that every plant would behave identically. She concluded that the controlled comparison supported an effect of light while leaving room for further tests."
+  },
+  {
+    "title": "Feedback Control in a Heating System",
+    "author": "Tessaris verified curriculum",
+    "subject": "engineering",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v1",
+    "text": "Leona designed a heating controller for a small laboratory. A sensor measured the room temperature and sent that measurement to the controller. When the measured temperature fell below the target, the controller switched the heater on. When the room became warm enough, it switched the heater off to prevent unnecessary energy use. During a test, a loose sensor cable reported the wrong temperature, so the heater remained active for too long. Leona repaired the cable and added an alarm that detected implausible measurements before the next trial."
+  },
+  {
+    "title": "A Sequence of Historical Evidence",
+    "author": "Tessaris verified curriculum",
+    "subject": "history",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v1",
+    "text": "Tavian examined three records before writing his account of the harbour strike. The earliest newspaper described the public meeting but omitted the workers' private vote. A letter written the following day reported that the vote occurred after the meeting had ended. Years later, a participant recalled the same order of events, although she disagreed with the newspaper about the size of the crowd. Tavian treated the matching sequence as corroborated evidence and marked the disputed crowd estimate as uncertain. He revised his account when a dated photograph proved that one banner had appeared a day later than he first believed."
+  },
+  {
+    "title": "Scarcity, Choice, and Opportunity Cost",
+    "author": "Tessaris verified curriculum",
+    "subject": "economics",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v1",
+    "text": "Nora managed a fixed maintenance budget for two ageing machines. Replacing the first machine would reduce energy costs, while repairing the second would prevent an immediate production delay. The budget could not fund both projects in the same month. Nora chose the urgent repair because the expected delay was more costly than the short-term energy saving. Her choice did not make the replacement worthless; it made the postponed saving an opportunity cost of the repair. When next month's budget arrived, Nora reviewed the evidence again instead of assuming that the earlier decision must remain correct."
+  },
+  {
+    "title": "Clinical Evidence and a Revised Diagnosis",
+    "author": "Tessaris verified curriculum",
+    "subject": "medicine",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v2",
+    "text": "Amara examined a patient who reported fatigue and a persistent cough. She first considered a common infection, but the initial laboratory test did not support that diagnosis. A later scan revealed inflammation in a different part of the lung. Because the new evidence contradicted her first explanation, Amara revised the diagnosis instead of defending it. She explained the uncertainty to the patient and requested a specialist review. The specialist confirmed the revised diagnosis after comparing the scan with the laboratory results."
+  },
+  {
+    "title": "A Concurrent Software Failure",
+    "author": "Tessaris verified curriculum",
+    "subject": "computing",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v2",
+    "text": "Kellan investigated a service that occasionally lost completed transactions. Two worker processes were updating the same record without coordinating their writes. The faster worker saved its result first, but the slower worker then replaced that result with older data. Kellan reproduced the failure by delaying one worker during a controlled test. He added a transaction boundary and a version check so stale writes would be rejected. After the repair, repeated concurrent tests preserved every completed transaction."
+  },
+  {
+    "title": "Predators and an Island Food Web",
+    "author": "Tessaris verified curriculum",
+    "subject": "ecology",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v2",
+    "text": "Mireya counted seabirds on two neighbouring islands during the same breeding season. Rats were present on the first island but absent from the second island. The island without rats contained more nests and a higher proportion of surviving chicks. Mireya did not assume that rats were the only possible cause of the difference. She recorded vegetation, weather, food supply, and human disturbance before comparing the sites. The combined evidence supported predator control as a useful intervention while leaving other influences open to further study."
+  },
+  {
+    "title": "Evidence, Rules, and a Contract Dispute",
+    "author": "Tessaris verified curriculum",
+    "subject": "law",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v2",
+    "text": "Leona reviewed a contract after two companies disagreed about a delivery date. One clause required shipment in June, while a later amendment moved the deadline to July. Both companies had signed the amendment before any goods were shipped. Leona treated the signed amendment as stronger evidence than an unsigned draft email. She concluded that the July deadline governed the delivery because the parties had formally accepted that change. When a missing attachment was later produced, she checked it for contradictions before keeping her conclusion."
+  },
+  {
+    "title": "A Proof by Contradiction",
+    "author": "Tessaris verified curriculum",
+    "subject": "mathematics",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v2",
+    "text": "Tavian wanted to prove that no largest even integer exists. He temporarily assumed that a largest even integer named n did exist. Adding two to n produced another integer that was both even and larger than n. That result contradicted the original claim that n was the largest even integer. Tavian therefore rejected the temporary assumption and accepted the opposite conclusion. He recorded each step so another reader could inspect the reasoning rather than merely trust the answer."
+  },
+  {
+    "title": "Light from a Distant Star",
+    "author": "Tessaris verified curriculum",
+    "subject": "astronomy",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v2",
+    "text": "Nora observed a distant star through a spectroscope on three clear nights. Dark lines appeared at the same wavelengths in every recorded spectrum. She compared those lines with laboratory measurements from known elements. The strongest pattern matched hydrogen, while a weaker pattern matched helium. Because the telescope collected old light rather than a physical sample, Nora described the result as an inference from evidence. A second observatory later reported the same spectral pattern with a different instrument."
+  },
+  {
+    "title": "A Translation with Competing Meanings",
+    "author": "Tessaris verified curriculum",
+    "subject": "linguistics",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v2",
+    "text": "Amara translated a sentence whose final word could mean either bank or shore. The earlier paragraph described a boat crossing a river before sunset. No sentence mentioned money, accounts, or a financial institution. Amara therefore selected shore because the surrounding events supported the geographical meaning. She marked the alternative interpretation in a note instead of pretending that the word was never ambiguous. When the author supplied another paragraph about reeds and water, the added context strengthened her decision."
+  },
+  {
+    "title": "Testing a Security Alert",
+    "author": "Tessaris verified curriculum",
+    "subject": "cybersecurity",
+    "license": "curriculum-authored",
+    "source_ref": "native cross-subject curriculum v2",
+    "text": "Kellan received an alert claiming that an administrator account had opened an unusual file. He preserved the audit log before changing the affected machine. The log showed a valid account name, but it also showed a connection from an unfamiliar device. Kellan compared the event with the administrator's work schedule and confirmed that she was offline at that time. He disabled the stolen session because the combined evidence indicated unauthorized access. After containment, he documented which facts were observed directly and which conclusions were inferred."
+  }
+]

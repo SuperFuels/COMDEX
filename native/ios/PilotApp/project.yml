@@ -1,0 +1,28 @@
+name: Pilot
+options:
+  bundleIdPrefix: ai.tessaris
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: 17.0
+targets:
+  Pilot:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+      - ../PilotNativeCore/Sources/PilotNativeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ai.tessaris.pilot
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: S6DL63REVH
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: Pilot
+        UILaunchScreen: {}
+        NSFaceIDUsageDescription: Pilot uses Face ID to confirm that this trusted phone approves an exact action.
+        NSCameraUsageDescription: Tessaris uses the camera only when you choose to pair a Tessaris Node or start TV screen observation.
+        NSMicrophoneUsageDescription: Pilot uses the microphone only for visible voice or push-to-talk sessions.
+        UIBackgroundModes: [remote-notification, fetch]
+        BGTaskSchedulerPermittedIdentifiers: [ai.tessaris.pilot.inbox-refresh]

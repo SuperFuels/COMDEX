@@ -1,0 +1,98 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22D.1: Full Chess SQI Evaluation Bridge Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22D.1 connects AION's chess evaluator to an operational SQI bridge.
+
+\begin{quote}
+\textbf{Status: LOCKED --- chess SQI evaluation bridge implemented and tested.}
+\end{quote}
+
+\section{Purpose}
+
+The Phase 22C chess stack used a classical deterministic evaluator and depth-limited search.
+
+Phase 22D.1 introduces an SQI bridge between the evaluator and the selector.
+
+This means candidate chess moves now receive:
+
+\begin{itemize}
+  \item classical evaluation score;
+  \item coherence score;
+  \item resonance score;
+  \item decoherence penalty;
+  \item collapse weight;
+  \item SQI-adjusted score.
+\end{itemize}
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_sqi_evaluation_bridge_kernel.py
+\end{verbatim}
+
+\section{Bridge Contract}
+
+The kernel MUST:
+
+\begin{itemize}
+  \item receive candidate moves from AION's classical chess selector;
+  \item preserve the classical score;
+  \item compute SQI coherence telemetry;
+  \item compute SQI resonance telemetry;
+  \item compute decoherence penalties;
+  \item compute a collapse-weight proxy;
+  \item produce an SQI-adjusted score;
+  \item select a legal move using the SQI-adjusted ranking;
+  \item emit a deterministic SQI trace hash.
+\end{itemize}
+
+\section{Honest Boundary}
+
+This phase is an operational software SQI bridge.
+
+It does not yet invoke physical wave hardware.
+
+It does not claim that the chess move is physically wave-executed.
+
+It maps chess candidate states into SQI-style coherence, resonance, decoherence, and collapse-weight telemetry.
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_sqi_evaluation_bridge_memory.json
+\end{verbatim}
+
+This file is runtime SQI bridge telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Next Step}
+
+The next phase SHOULD replace the move selector ranking path with the SQI-adjusted score.
+
+\begin{verbatim}
+22D.2 -- SQI-Guided Chess Move Selection
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D1-FULL-CHESS-SQI-EVALUATION-BRIDGE-KERNEL-LOCK\\
+Status: LOCKED --- chess SQI evaluation bridge implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

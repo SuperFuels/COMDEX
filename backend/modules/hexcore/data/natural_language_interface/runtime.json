@@ -1,0 +1,946 @@
+{
+  "active_cycle": null,
+  "authorized_missions": {
+    "mission_natural_language_interface_v1": {
+      "action_budget": 16,
+      "actions_used": 10,
+      "allowed_authorities": [
+        "sealed_dialogue_intent_authority"
+      ],
+      "approval_policy": "autonomous_allowed",
+      "authorized_at": "2026-07-31T22:05:37.793641+00:00",
+      "capability_requirements": [
+        {
+          "capability": "persistent_natural_language_mission_interface",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 6,
+          "minimum_verified_outcomes": 10,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "transfer",
+              "task_id": "research_transfer"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "transfer",
+              "task_id": "compare_transfer"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "transfer",
+              "task_id": "build_transfer"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "transfer",
+              "task_id": "monitor_transfer"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "transfer",
+              "task_id": "repair_transfer"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "transfer",
+              "task_id": "explain_novice"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "development",
+              "task_id": "explain_expert"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "development",
+              "task_id": "correction"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "development",
+              "task_id": "ambiguous_then_resolved"
+            },
+            {
+              "authority": "sealed_dialogue_intent_authority",
+              "cohort": "development",
+              "task_id": "unsupported_ambiguous"
+            }
+          ]
+        }
+      ],
+      "mission_id": "mission_natural_language_interface_v1",
+      "objective": "Understand unfamiliar natural-language goals across discourse, clarify ambiguity, preserve corrections and compile only owner-authorized intent into governed goals.",
+      "objective_hash": "915d7c35831c7bba1359deed30c05dea34ba4d65a3c098872f099d76cfdd4ef3",
+      "priority": 8.0,
+      "status": "capability_complete"
+    }
+  },
+  "capability_map": {
+    "mission_natural_language_interface_v1:persistent_natural_language_mission_interface": {
+      "attempts": 10,
+      "authorities": [
+        "sealed_dialogue_intent_authority"
+      ],
+      "capability": "persistent_natural_language_mission_interface",
+      "lower_confidence_bound": 0.7224598312333834,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_natural_language_interface_v1",
+      "outcome_ids": [
+        "research_transfer",
+        "compare_transfer",
+        "build_transfer",
+        "monitor_transfer",
+        "repair_transfer",
+        "explain_novice",
+        "explain_expert",
+        "correction",
+        "ambiguous_then_resolved",
+        "unsupported_ambiguous"
+      ],
+      "transfer_successes": 6,
+      "verified_successes": 10
+    }
+  },
+  "completed_cycles": [
+    {
+      "completed_at": "2026-07-31T22:05:37.876075+00:00",
+      "cycle_id": "cycle_858bf798064e4e1b",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:research_transfer",
+      "mastery_receipt_id": "receipt_f923b69cdd8e0686",
+      "promotion": {
+        "champion_id": "procedure_dialogue_4310e31150a7",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_4310e31150a7",
+          "state_hash": "0808d80b022580398ac6671c5ffe0a8958a312e1a24360f51a9e7c1e241f39f4"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:37.931921+00:00",
+      "cycle_id": "cycle_61dc65bfd003469d",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:compare_transfer",
+      "mastery_receipt_id": "receipt_66dce97050443580",
+      "promotion": {
+        "champion_id": "procedure_dialogue_d88e76ec6d63",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_d88e76ec6d63",
+          "state_hash": "ac53b2a7903829570c58be7540ea8242c214b7620a1fcb859182fcf0336c48a3"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:38.007322+00:00",
+      "cycle_id": "cycle_944d9e9865714674",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:build_transfer",
+      "mastery_receipt_id": "receipt_eb1287efc281f7ba",
+      "promotion": {
+        "champion_id": "procedure_dialogue_262bda511ac0",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_262bda511ac0",
+          "state_hash": "070c1402c0dffa1d59295d512a4b71a7d9246abf44b3c3775410e19b384a49e7"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:38.071777+00:00",
+      "cycle_id": "cycle_591f66f6cad24a0d",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:monitor_transfer",
+      "mastery_receipt_id": "receipt_8f8421d8206061f8",
+      "promotion": {
+        "champion_id": "procedure_dialogue_50ea9e659b2e",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_50ea9e659b2e",
+          "state_hash": "cdfa5beb363e00b677d2cf560c6bd28c40dc61250628ccb07f87473cdee90671"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:38.122871+00:00",
+      "cycle_id": "cycle_1515c43ef4e543c3",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:repair_transfer",
+      "mastery_receipt_id": "receipt_28ecf329f84e15e7",
+      "promotion": {
+        "champion_id": "procedure_dialogue_de0e3812c49c",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_de0e3812c49c",
+          "state_hash": "63a3227c694b310604179e3bb796839442421ee6970013b27e29fd587db3620a"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:38.175347+00:00",
+      "cycle_id": "cycle_ef784fbed6934ecc",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:explain_novice",
+      "mastery_receipt_id": "receipt_78ffc692c41ea874",
+      "promotion": {
+        "champion_id": "procedure_dialogue_6dcbfc328af9",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_6dcbfc328af9",
+          "state_hash": "67147fa8fe0996d7ac3a2d17192098911e134dc38b35b1343593b4bda125d118"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:38.233275+00:00",
+      "cycle_id": "cycle_3353aa2345f74e79",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:explain_expert",
+      "mastery_receipt_id": "receipt_9fa01a6e983955a5",
+      "promotion": {
+        "champion_id": "procedure_dialogue_715826f1090d",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_715826f1090d",
+          "state_hash": "f4aa0a412a24619358799e648002c4651edd8583ef0d6e0540a959d777dd8840"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:38.307164+00:00",
+      "cycle_id": "cycle_d41a5d2c40ce486e",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:correction",
+      "mastery_receipt_id": "receipt_36d755601ad62e36",
+      "promotion": {
+        "champion_id": "procedure_dialogue_57ff9dd3ff31",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_57ff9dd3ff31",
+          "state_hash": "036496d2a594a03c4868ede3513b55d349fb908520d0c0aaad3e72dd65975cea"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:38.391139+00:00",
+      "cycle_id": "cycle_296f5ea6cde34faa",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:ambiguous_then_resolved",
+      "mastery_receipt_id": "receipt_716c255b45e9d2b3",
+      "promotion": {
+        "champion_id": "procedure_dialogue_3a4daadc32e6",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_3a4daadc32e6",
+          "state_hash": "7cba7cf3ae7f8287ba46e5d70cd594ca19842c867774eae6e91902b95f171403"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:05:38.446223+00:00",
+      "cycle_id": "cycle_6c0aaebae843444e",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:unsupported_ambiguous",
+      "mastery_receipt_id": "receipt_7930056862e2f812",
+      "promotion": {
+        "champion_id": "procedure_dialogue_44da1896c168",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "natural_language_interface_cau"
+          },
+          "reason": "procedure_promotion:procedure_dialogue_44da1896c168",
+          "state_hash": "63db123c6a75af42148bddb710034aa4e922004afe859f9d007778ada2a8edde"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    }
+  ],
+  "created_at": "2026-07-31T22:05:37.793568+00:00",
+  "curriculum_history": [
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:research_transfer",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "research_transfer",
+      "timestamp": "2026-07-31T22:05:37.795283+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:compare_transfer",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.20654329147389294,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "compare_transfer",
+      "timestamp": "2026-07-31T22:05:37.877716+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:build_transfer",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.3423719528896193,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "build_transfer",
+      "timestamp": "2026-07-31T22:05:37.933360+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:monitor_transfer",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.4384939195509822,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "monitor_transfer",
+      "timestamp": "2026-07-31T22:05:38.008961+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:repair_transfer",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.5100999795960008,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "repair_transfer",
+      "timestamp": "2026-07-31T22:05:38.073549+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:explain_novice",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.565508505247919,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "explain_novice",
+      "timestamp": "2026-07-31T22:05:38.124997+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:explain_expert",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6096569663469354,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "explain_expert",
+      "timestamp": "2026-07-31T22:05:38.177977+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:correction",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6456611570247934,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "correction",
+      "timestamp": "2026-07-31T22:05:38.235817+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:ambiguous_then_resolved",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6755843804891231,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "ambiguous_then_resolved",
+      "timestamp": "2026-07-31T22:05:38.309976+00:00"
+    },
+    {
+      "capability": "persistent_natural_language_mission_interface",
+      "goal_id": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:unsupported_ambiguous",
+      "mission_id": "mission_natural_language_interface_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.7008472464490406,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "unsupported_ambiguous",
+      "timestamp": "2026-07-31T22:05:38.393985+00:00"
+    }
+  ],
+  "failure_queues": {},
+  "goal_runtime": {},
+  "last_error": null,
+  "last_event": "mission_capability_complete:mission_natural_language_interface_v1",
+  "last_heartbeat_at": "2026-07-31T22:05:38.446220+00:00",
+  "mission_goals": [],
+  "next_wake_at": 1785535538.496256,
+  "outcome_receipts": [
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "transfer",
+      "cycle_id": "cycle_858bf798064e4e1b",
+      "evidence_hash": "de3c832de105d71f2c4032248ff46b5a92b19acedc8385af938f4acd35091dfc",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_f923b69cdd8e0686",
+      "received_at": "2026-07-31T22:05:37.876100+00:00",
+      "score": 1.0,
+      "task_id": "research_transfer",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "transfer",
+      "cycle_id": "cycle_61dc65bfd003469d",
+      "evidence_hash": "d77663b239d99a02aa6afc9dc2cd0319b32e5035a4c0e1c2ee6b1a2922135042",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_66dce97050443580",
+      "received_at": "2026-07-31T22:05:37.931941+00:00",
+      "score": 1.0,
+      "task_id": "compare_transfer",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "transfer",
+      "cycle_id": "cycle_944d9e9865714674",
+      "evidence_hash": "fbdd9dc5ba43485f69eab7c6b997cf370dbfece6aa7a6c7cfa01c98e3d0fb4db",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_eb1287efc281f7ba",
+      "received_at": "2026-07-31T22:05:38.007340+00:00",
+      "score": 1.0,
+      "task_id": "build_transfer",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "transfer",
+      "cycle_id": "cycle_591f66f6cad24a0d",
+      "evidence_hash": "01c5bce2252db009e277db3513e09ecf0c7d678f759cea4a131333e3663c65a4",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_8f8421d8206061f8",
+      "received_at": "2026-07-31T22:05:38.071796+00:00",
+      "score": 1.0,
+      "task_id": "monitor_transfer",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "transfer",
+      "cycle_id": "cycle_1515c43ef4e543c3",
+      "evidence_hash": "5a7d3ad4e88aa95fd4af23b5a66efc1114da36d34464023379f6fd7af2ad06bb",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_28ecf329f84e15e7",
+      "received_at": "2026-07-31T22:05:38.122891+00:00",
+      "score": 1.0,
+      "task_id": "repair_transfer",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "transfer",
+      "cycle_id": "cycle_ef784fbed6934ecc",
+      "evidence_hash": "eb39dc26bfc43827f133c7a88bcafec2a9e09bc98ff9e4200dd38aa4fe3e54a0",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_78ffc692c41ea874",
+      "received_at": "2026-07-31T22:05:38.175367+00:00",
+      "score": 1.0,
+      "task_id": "explain_novice",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "development",
+      "cycle_id": "cycle_3353aa2345f74e79",
+      "evidence_hash": "c76d1087a7369facc4843e56bcd55b70ce36f9720eee1455a24cbdbad2afbd55",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_9fa01a6e983955a5",
+      "received_at": "2026-07-31T22:05:38.233293+00:00",
+      "score": 1.0,
+      "task_id": "explain_expert",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "development",
+      "cycle_id": "cycle_d41a5d2c40ce486e",
+      "evidence_hash": "cbbab6346b5aee12e9afdbb8b5f9fa83d508d2774451fe76399de79a690420f1",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_36d755601ad62e36",
+      "received_at": "2026-07-31T22:05:38.307184+00:00",
+      "score": 1.0,
+      "task_id": "correction",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "development",
+      "cycle_id": "cycle_296f5ea6cde34faa",
+      "evidence_hash": "81c6441d79fb049e09b18b288b993c3abbd5a236553d9774dc921eeb81631791",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_716c255b45e9d2b3",
+      "received_at": "2026-07-31T22:05:38.391158+00:00",
+      "score": 1.0,
+      "task_id": "ambiguous_then_resolved",
+      "verified": true
+    },
+    {
+      "authority": "sealed_dialogue_intent_authority",
+      "authority_allowed": true,
+      "capability": "persistent_natural_language_mission_interface",
+      "cohort": "development",
+      "cycle_id": "cycle_6c0aaebae843444e",
+      "evidence_hash": "487bcee9935c3f8c22732d6f922247c57c790d443cd0dcf4cf9aa9fe0681dfec",
+      "mission_id": "mission_natural_language_interface_v1",
+      "receipt_id": "receipt_7930056862e2f812",
+      "received_at": "2026-07-31T22:05:38.446242+00:00",
+      "score": 1.0,
+      "task_id": "unsupported_ambiguous",
+      "verified": true
+    }
+  ],
+  "pending_outcomes": {},
+  "private_challengers": [
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "general",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.3935035839676857,
+          "explanation_contract": "concise_grounded",
+          "goal_id": "natural_goal_d67f43344367d2d3",
+          "intent": "research",
+          "objective": "research battery recycling",
+          "objective_hash": "3222cfb3f3a04f771fbb52c74b4c3404ae1018895334cfd9f3af6b2ca220da58",
+          "status": "compiled",
+          "target": "battery recycling"
+        },
+        "task_id": "research_transfer"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:research_transfer",
+      "procedure_id": "procedure_dialogue_4310e31150a7",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "general",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.32671234011650085,
+          "explanation_contract": "concise_grounded",
+          "goal_id": "natural_goal_a0b66bc23e488c0f",
+          "intent": "compare",
+          "objective": "compare Rust versus Python",
+          "objective_hash": "571979ff42af18a5df7abbc48e6b456bbd628abf750e97aa601f674c9758bf66",
+          "status": "compiled",
+          "target": "Rust versus Python"
+        },
+        "task_id": "compare_transfer"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:compare_transfer",
+      "procedure_id": "procedure_dialogue_d88e76ec6d63",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "general",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.12129741907119751,
+          "explanation_contract": "concise_grounded",
+          "goal_id": "natural_goal_67142817d2728457",
+          "intent": "build",
+          "objective": "build event parser",
+          "objective_hash": "0aef158017d5454886a5e13f8b153286d770b7a6d3925a6da21496412588df49",
+          "status": "compiled",
+          "target": "event parser"
+        },
+        "task_id": "build_transfer"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:build_transfer",
+      "procedure_id": "procedure_dialogue_262bda511ac0",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "general",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.2581130713224411,
+          "explanation_contract": "concise_grounded",
+          "goal_id": "natural_goal_dc8a02ea5f1112f1",
+          "intent": "monitor",
+          "objective": "monitor release feed",
+          "objective_hash": "4366b79d9e6b3982297eea23040c17f7a7459bf4d7204ec61ac72991737abe40",
+          "status": "compiled",
+          "target": "release feed"
+        },
+        "task_id": "monitor_transfer"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:monitor_transfer",
+      "procedure_id": "procedure_dialogue_50ea9e659b2e",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "general",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.13241493701934814,
+          "explanation_contract": "concise_grounded",
+          "goal_id": "natural_goal_8ccd5860d46b6e30",
+          "intent": "repair",
+          "objective": "repair checkpoint loader",
+          "objective_hash": "3778ae2db28327804e6108deccec1bb0e1a884d5c7b1bfa82baaf0fdbf9394d2",
+          "status": "compiled",
+          "target": "checkpoint loader"
+        },
+        "task_id": "repair_transfer"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:repair_transfer",
+      "procedure_id": "procedure_dialogue_de0e3812c49c",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "novice",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.2224193811416626,
+          "explanation_contract": "plain_language_with_example",
+          "goal_id": "natural_goal_936f2c234c157837",
+          "intent": "explain",
+          "objective": "explain causal inference",
+          "objective_hash": "d2a2ef72898a4db36961825b46f51ad0f5b2c284ca3500029d64051a846370ba",
+          "status": "compiled",
+          "target": "causal inference"
+        },
+        "task_id": "explain_novice"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:explain_novice",
+      "procedure_id": "procedure_dialogue_6dcbfc328af9",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "expert",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.10130167007446289,
+          "explanation_contract": "technical_detail_with_evidence",
+          "goal_id": "natural_goal_1f9f62500b9fbf11",
+          "intent": "explain",
+          "objective": "explain transaction isolation",
+          "objective_hash": "bc967c841b04ed86fc65acefeccc6fc62bc0136c61bef53a5afc95f95f4cacf6",
+          "status": "compiled",
+          "target": "transaction isolation"
+        },
+        "task_id": "explain_expert"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:explain_expert",
+      "procedure_id": "procedure_dialogue_715826f1090d",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "general",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.3102996349334717,
+          "explanation_contract": "concise_grounded",
+          "goal_id": "natural_goal_a6c9c6ba0c1683a0",
+          "intent": "monitor",
+          "objective": "monitor release feed",
+          "objective_hash": "4366b79d9e6b3982297eea23040c17f7a7459bf4d7204ec61ac72991737abe40",
+          "status": "compiled",
+          "target": "release feed"
+        },
+        "task_id": "correction"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:correction",
+      "procedure_id": "procedure_dialogue_57ff9dd3ff31",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "audience": "general",
+          "authority": "owner_dialogue",
+          "confidence_margin": 0.190149188041687,
+          "explanation_contract": "concise_grounded",
+          "goal_id": "natural_goal_b5f4d20a9ca7ce36",
+          "intent": "build",
+          "objective": "build event parser",
+          "objective_hash": "0aef158017d5454886a5e13f8b153286d770b7a6d3925a6da21496412588df49",
+          "status": "compiled",
+          "target": "event parser"
+        },
+        "task_id": "ambiguous_then_resolved"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:ambiguous_then_resolved",
+      "procedure_id": "procedure_dialogue_3a4daadc32e6",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "interpretation": {
+          "candidates": [
+            "alpha",
+            "beta"
+          ],
+          "question": "Which of the mentioned items do you mean?",
+          "reason": "multiple_referents",
+          "status": "clarification_required"
+        },
+        "task_id": "unsupported_ambiguous"
+      },
+      "goal": "learn:mission_natural_language_interface_v1:persistent_natural_language_mission_interface:unsupported_ambiguous",
+      "procedure_id": "procedure_dialogue_44da1896c168",
+      "score": 1.0,
+      "steps": [
+        "maintain_discourse_state",
+        "infer_semantic_intent",
+        "resolve_or_clarify_reference",
+        "preserve_user_correction",
+        "compile_authorized_goal",
+        "adapt_explanation_contract"
+      ],
+      "success": true,
+      "verified": true
+    }
+  ],
+  "revision": 152,
+  "schema_version": "aion.hexcore.canonical_cognitive_runtime.v1",
+  "status": "idle",
+  "updated_at": "2026-07-31T22:05:38.447708+00:00"
+}

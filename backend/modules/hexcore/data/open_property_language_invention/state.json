@@ -1,0 +1,304 @@
+{
+  "created_at": "2026-08-02T00:01:09.046370+00:00",
+  "critic_registry_path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/recursive_action_runtime/property_critic_registry.json",
+  "episodes": [
+    {
+      "evaluation": {
+        "candidates": [
+          {
+            "accepted": false,
+            "candidate": "endpoint_slope",
+            "inherited_critic_passed": true,
+            "invented_property": {
+              "challenged_output": 1089849253481.4675,
+              "normalized_delta": 15.276923076923076,
+              "original_output": 60451593448.521645,
+              "passed": true,
+              "property_satisfied": false,
+              "transformed_index": 65,
+              "transformed_input_sha256": "17026afa61ad302fc8acb9928176c823408402856f42cdac4b949ddff90439ac"
+            },
+            "source_sha256": "9170283a3f782b91f26c8c61d1d8687a61d993dc84f87fa37ddf17fea9199d70"
+          },
+          {
+            "accepted": false,
+            "candidate": "ordinary_least_squares",
+            "inherited_critic_passed": false,
+            "invented_property": {
+              "passed": false,
+              "reason": "candidate_execution_failed"
+            },
+            "source_sha256": "d5997812891f913200d1dc81be1750c12adc5be6e7fb9d94c5e50fe985a9ebd6"
+          },
+          {
+            "accepted": true,
+            "candidate": "ROBUST_MEDIAN_PAIRWISE_TREND",
+            "inherited_critic_passed": true,
+            "invented_property": {
+              "challenged_output": 59862578246.52631,
+              "normalized_delta": 6.0404080561078404e-05,
+              "original_output": 59858508067.0227,
+              "passed": true,
+              "property_satisfied": true,
+              "transformed_index": 65,
+              "transformed_input_sha256": "17026afa61ad302fc8acb9928176c823408402856f42cdac4b949ddff90439ac"
+            },
+            "source_sha256": "78efd13d0873be5aff46cf008afbb5728390d1478265a7cb58d47134a775cda3"
+          }
+        ],
+        "expected_winner": "ROBUST_MEDIAN_PAIRWISE_TREND",
+        "family": "trend",
+        "passed": true,
+        "winner": "ROBUST_MEDIAN_PAIRWISE_TREND"
+      },
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "value",
+          "passed": true,
+          "row_count": 66,
+          "time_field": "date"
+        },
+        "response_sha256": "f9e1b2101de1eba90831dde5081749d8669250ca66154ef978826ddd3bf5473c"
+      },
+      "family": "trend",
+      "later_challenge": {
+        "closed_at": "2026-08-02T00:06:22.432853+00:00",
+        "not_before_epoch": 1785629166.467366,
+        "outcome_sha256": "b1a7e06ab607888ca5080c100492f397f0cfc575ae8c3e36960cd0ef2f4b8b34",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the GDP time series",
+      "name": "World Bank GDP",
+      "role": "development",
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.CD?format=json&per_page=100",
+      "values": 66
+    },
+    {
+      "evaluation": {
+        "candidates": [
+          {
+            "accepted": false,
+            "candidate": "endpoint_slope",
+            "inherited_critic_passed": true,
+            "invented_property": {
+              "challenged_output": 304.4101356466879,
+              "normalized_delta": 3.1324921135646693,
+              "original_output": 101.67837854889589,
+              "passed": true,
+              "property_satisfied": false,
+              "transformed_index": 317,
+              "transformed_input_sha256": "63ff63f568ba6f04f226a5258c11c6371921be19a1213c6a4fe1b77bb196db98"
+            },
+            "source_sha256": "9170283a3f782b91f26c8c61d1d8687a61d993dc84f87fa37ddf17fea9199d70"
+          },
+          {
+            "accepted": false,
+            "candidate": "ordinary_least_squares",
+            "inherited_critic_passed": false,
+            "invented_property": {
+              "passed": false,
+              "reason": "candidate_execution_failed"
+            },
+            "source_sha256": "d5997812891f913200d1dc81be1750c12adc5be6e7fb9d94c5e50fe985a9ebd6"
+          },
+          {
+            "accepted": true,
+            "candidate": "ROBUST_MEDIAN_PAIRWISE_TREND",
+            "inherited_critic_passed": true,
+            "invented_property": {
+              "challenged_output": 78.19164285714285,
+              "normalized_delta": 0.0,
+              "original_output": 78.19164285714285,
+              "passed": true,
+              "property_satisfied": true,
+              "transformed_index": 317,
+              "transformed_input_sha256": "63ff63f568ba6f04f226a5258c11c6371921be19a1213c6a4fe1b77bb196db98"
+            },
+            "source_sha256": "78efd13d0873be5aff46cf008afbb5728390d1478265a7cb58d47134a775cda3"
+          }
+        ],
+        "expected_winner": "ROBUST_MEDIAN_PAIRWISE_TREND",
+        "family": "trend",
+        "passed": true,
+        "winner": "ROBUST_MEDIAN_PAIRWISE_TREND"
+      },
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "GDP",
+          "passed": true,
+          "row_count": 318,
+          "time_field": "observation_date"
+        },
+        "response_sha256": "cb0d9d0ffa4f83eeb53bcc04eaeca9cede6d266c550ec14bd8e825f0f88f8160"
+      },
+      "family": "trend",
+      "later_challenge": {
+        "closed_at": "2026-08-02T00:06:22.916875+00:00",
+        "not_before_epoch": 1785629166.9959161,
+        "outcome_sha256": "7b207ed8c26b46501ca88a8298c36fdd3b02ce0cfb814d54a9a31a5c98d0175d",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the GDP time series",
+      "name": "FRED GDP",
+      "role": "transfer",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDP",
+      "values": 318
+    },
+    {
+      "evaluation": {
+        "candidates": [
+          {
+            "accepted": false,
+            "candidate": "arithmetic_mean",
+            "inherited_critic_passed": true,
+            "invented_property": {
+              "challenged_output": 65.77203389830508,
+              "normalized_delta": 3.6548586929190114,
+              "original_output": 55.609745762711896,
+              "passed": true,
+              "property_satisfied": false,
+              "transformed_index": 235,
+              "transformed_input_sha256": "488c1b3312043f173317751d9b4ccc25aa3d616fee552616408294308eba9f04"
+            },
+            "source_sha256": "26fef87da79af95556ba87dc6183900c6591e8201599b48692ff76c716ebd79a"
+          },
+          {
+            "accepted": true,
+            "candidate": "robust_median_location",
+            "inherited_critic_passed": true,
+            "invented_property": {
+              "challenged_output": 55.8,
+              "normalized_delta": 0.0,
+              "original_output": 55.8,
+              "passed": true,
+              "property_satisfied": true,
+              "transformed_index": 235,
+              "transformed_input_sha256": "488c1b3312043f173317751d9b4ccc25aa3d616fee552616408294308eba9f04"
+            },
+            "source_sha256": "e27e10b989413d607fd1ff844a651ce53090a84a77c254f3a0c2d794f288a4d0"
+          }
+        ],
+        "expected_winner": "robust_median_location",
+        "family": "location",
+        "passed": true,
+        "winner": "robust_median_location"
+      },
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "TEMP",
+          "passed": true,
+          "row_count": 236,
+          "time_field": "DATE"
+        },
+        "response_sha256": "f468be743db41fb15189b75be817cca33ece3d12271f81f09287dd4f3f6fa412"
+      },
+      "family": "location",
+      "later_challenge": {
+        "closed_at": "2026-08-02T00:06:23.816223+00:00",
+        "not_before_epoch": 1785629167.894994,
+        "outcome_sha256": "ed9ecffd27c6df629a367d1eb2cd1837eb505aa22a667acf95791eb0e8555385",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the daily temperature time series",
+      "name": "NOAA temperature",
+      "role": "cross_family_transfer",
+      "url": "https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/2025/03772099999.csv",
+      "values": 236
+    },
+    {
+      "evaluation": {
+        "candidates": [
+          {
+            "accepted": false,
+            "candidate": "arithmetic_mean",
+            "inherited_critic_passed": true,
+            "invented_property": {
+              "challenged_output": 30898.109609999996,
+              "normalized_delta": 19.79681556602006,
+              "original_output": 15527.930649999997,
+              "passed": true,
+              "property_satisfied": false,
+              "transformed_index": 99,
+              "transformed_input_sha256": "218aa7c4c0ffa65fa28ca03929390317dbab28d431837202fe354a63cfd74886"
+            },
+            "source_sha256": "26fef87da79af95556ba87dc6183900c6591e8201599b48692ff76c716ebd79a"
+          },
+          {
+            "accepted": true,
+            "candidate": "robust_median_location",
+            "inherited_critic_passed": true,
+            "invented_property": {
+              "challenged_output": 68.545,
+              "normalized_delta": 0.03873688339707758,
+              "original_output": 62.225,
+              "passed": true,
+              "property_satisfied": true,
+              "transformed_index": 99,
+              "transformed_input_sha256": "218aa7c4c0ffa65fa28ca03929390317dbab28d431837202fe354a63cfd74886"
+            },
+            "source_sha256": "e27e10b989413d607fd1ff844a651ce53090a84a77c254f3a0c2d794f288a4d0"
+          }
+        ],
+        "expected_winner": "robust_median_location",
+        "family": "location",
+        "passed": true,
+        "winner": "robust_median_location"
+      },
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "exchange_rate",
+          "passed": true,
+          "row_count": 100,
+          "time_field": "record_date"
+        },
+        "response_sha256": "5474fcbd3b0cc4b624705dc497bc63530da501c87c88ffe883f169634cfd16f9"
+      },
+      "family": "location",
+      "later_challenge": {
+        "closed_at": "2026-08-02T00:06:24.804504+00:00",
+        "not_before_epoch": 1785629169.046278,
+        "outcome_sha256": "240a7cfee84bd8c948193b47af7946591b8f3f009db9396c7f731179f410c73f",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the exchange rate time series",
+      "name": "Treasury exchange rates",
+      "role": "cross_family_transfer",
+      "url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange?sort=-record_date&page%5Bsize%5D=100",
+      "values": 100
+    }
+  ],
+  "schema_version": "aion.hexcore.open_property_language_state.v1",
+  "spec": {
+    "ambient_authority": [],
+    "capability_class": "pure_metamorphic_critic",
+    "minimum_observations": 5,
+    "property_id": "SPARSE_BOUNDARY_CONTAMINATION_STABILITY",
+    "relation": {
+      "maximum_normalized_delta": 0.25,
+      "op": "normalized_output_stability"
+    },
+    "transformation": {
+      "direction": "last",
+      "magnitude_ratio": 993,
+      "op": "replace_one_observation",
+      "selector": "witnessed_boundary"
+    }
+  },
+  "spec_sha256": "bd108fd178547e9087146b53cea7c3d14e02ec9186ca17b5d9dbe8e9ec8cda30"
+}

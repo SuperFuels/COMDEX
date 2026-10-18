@@ -1,0 +1,71 @@
+\begingroup
+\sloppy
+\section{Unified Mobile Learning, Games and Entertainment Continuity}
+\label{sec:pilot-unified-mobile-experiences}
+
+The unified Pilot phone application now presents AION Learning, governed cloud gaming and
+private entertainment continuity as first-class Personal experiences.  The implementation reuses
+the existing Fabric education, gaming, entertainment-personalisation and verified-execution
+authorities.  It does not create a parallel curriculum, provider session store or viewing-history
+database.
+
+\subsection{Signed Private Boundary}
+
+The mother grants two explicit mobile scopes: \texttt{experiences.read} and
+\texttt{experiences.control}.  Every request is signed by the phone's non-exportable Ed25519 key,
+bound to its certificate, lease and private person, and carries a bounded idempotency identifier.
+Opening a game provider or executing an entertainment route additionally requires
+\texttt{tv.control} and a live exclusive shared-screen session.  Consequently, possession of a
+learning permission alone cannot control the television.
+
+\subsection{AION Learning}
+
+The Learning surface starts and continues the existing local fifty-question curriculum.  A
+guardian or learner can select the learner slot, subject, age band and difficulty, answer on the
+phone, repeat a prompt and advance after feedback.  The screen presents an original local visual,
+question number, correct count, stars and streak.  Correct and incorrect results combine text,
+symbols and colour.  The exposed session deliberately omits the hidden correct-answer index.
+
+Spanish, mathematics and science exercises remain deterministic and usable without a paid model.
+Open chat, advertising, purchases, external links and advertising profiles remain disabled for
+the child surface.  Independent pedagogy and child-safety review remain required before consumer
+claims are made.
+
+\subsection{Governed Cloud Gaming}
+
+The Games surface can request the allowlisted GeForce NOW origin on the active television and can
+prepare continuation of the person's most recently verified saved game.  Gaming sessions are now
+bound to a private person before storage; one person's latest game is not projected to another
+person.  Controller advertisements, observed input compatibility, provider opening, search
+results, stream readiness and playing are separate evidence states.
+
+The phone therefore reports ``provider surface attempted'' after launch.  It reports playing only
+after signed provider or device evidence confirms a selected title and active stream.  Provider
+credentials remain owned by NVIDIA and are not retained by Pilot or projected to a device node.
+
+\subsection{Verified Entertainment Continuation}
+
+Entertainment continuation is intentionally split into three operations.  Pilot first prepares
+the exact official route for the last verified title.  The person reviews and approves that route
+privately.  Only then may the phone attempt to open it on the television.  Provider opening,
+subscription entitlement and playback are shown independently; an opened application or web page
+is never called playback.
+
+The same surface exposes the person's private watchlist and remembered watched, liked, disliked or
+avoided titles.  These records remain persona-bound unless the person explicitly chooses a
+household-shared visibility in a separately governed flow.
+
+\subsection{Interfaces and Verification}
+
+The local mobile service publishes signed snapshot and control endpoints beneath
+\texttt{/v1/personal/experiences}.  The responsive phone client renders dedicated Learning, Games
+and Entertainment panels rather than mixing them into the remote control.  The implementation was
+verified by focused authority, privacy, gaming and mobile-surface tests and by the optimized Next.js
+production build.  No real provider login, game stream or television playback was changed during
+automated verification.
+
+Field qualification still requires a trusted phone, active shared-screen session, signed-in
+provider account, compatible controller and direct observation of provider and playback states.
+These external facts remain visible gates rather than simulated checkmarks.
+
+\endgroup

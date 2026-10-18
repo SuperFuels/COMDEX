@@ -1,0 +1,238 @@
+\section{Phase 12A --- Public Website Intent Gateway Preview v0}
+\label{sec:aion-public-intent-gateway-preview-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- public website intent gateway preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 12A starts the public website embed and human gateway surface.
+
+The purpose is to define a safe preview contract for website form, button, or chat submissions before any live public gateway is permitted to create a booking, live job, payment, escrow, or external message.
+
+This phase maps human website input into an internal preview of:
+
+\begin{itemize}
+  \item \texttt{NormalizedInboundIntent},
+  \item \texttt{MachineCartRequest},
+  \item human-friendly quote preview,
+  \item safety flags,
+  \item blocked reasons,
+  \item deterministic request and response hashes.
+\end{itemize}
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/public_intent_gateway.py
+\end{verbatim}
+
+The module exports:
+
+\begin{itemize}
+  \item \texttt{PUBLIC\_INTENT\_GATEWAY\_VERSION}
+  \item \texttt{PublicIntentGatewayRequest}
+  \item \texttt{PublicIntentGatewayPreview}
+  \item \texttt{build\_public\_intent\_gateway\_preview}
+  \item \texttt{build\_public\_intent\_gateway\_summary}
+\end{itemize}
+
+The contract version is:
+
+\begin{verbatim}
+aion.public_intent_gateway.v0.1
+\end{verbatim}
+
+\subsection{Preview Input}
+
+The preview request supports:
+
+\begin{itemize}
+  \item \texttt{business\_id}
+  \item \texttt{tenant\_key}
+  \item \texttt{source}
+  \item \texttt{customer\_name}
+  \item \texttt{customer\_contact}
+  \item \texttt{message}
+  \item \texttt{location}
+  \item \texttt{requested\_service}
+  \item \texttt{preferred\_window}
+  \item \texttt{max\_fiat\_price}
+  \item \texttt{currency}
+\end{itemize}
+
+The default test business remains:
+
+\begin{verbatim}
+business_id = home_fixed
+tenant_key = home_fixed_preview
+\end{verbatim}
+
+\subsection{Human Form Mapping}
+
+Website form, button, and chat inputs are mapped to a \texttt{NormalizedInboundIntent} preview.
+
+The normalized intent preview includes:
+
+\begin{itemize}
+  \item \texttt{intent\_type = public\_website\_service\_enquiry}
+  \item \texttt{normalization\_status = preview\_only}
+  \item \texttt{human\_review\_required = true}
+  \item \texttt{normalized\_intent\_hash}
+\end{itemize}
+
+\subsection{Machine Cart Mapping}
+
+The same input is mapped to a \texttt{MachineCartRequest} preview.
+
+The machine cart preview includes:
+
+\begin{itemize}
+  \item \texttt{status = machine\_cart\_request\_preview\_only}
+  \item \texttt{business\_id}
+  \item \texttt{service\_key}
+  \item \texttt{location}
+  \item \texttt{requested\_window}
+  \item \texttt{max\_fiat\_price}
+  \item \texttt{currency}
+  \item \texttt{human\_review\_required = true}
+  \item \texttt{would\_create\_quote = false}
+  \item \texttt{would\_create\_booking = false}
+  \item \texttt{would\_create\_live\_job = false}
+  \item \texttt{machine\_cart\_request\_hash}
+\end{itemize}
+
+\subsection{Human-Friendly Quote Preview}
+
+The preview returns a human-readable acknowledgement:
+
+\begin{verbatim}
+status = quote_preview_requires_human_review
+final_quote_created = false
+live_job_created = false
+payment_created = false
+escrow_created = false
+\end{verbatim}
+
+This allows the public website surface to acknowledge a customer request without implying that a final quote, booking, live job, payment, or escrow has been created.
+
+\subsection{Gateway Safety Requirements}
+
+The public gateway preview requires the following before any live route can be considered:
+
+\begin{itemize}
+  \item tenant/business key validation,
+  \item signed request validation,
+  \item rate limiting,
+  \item abuse protection,
+  \item human review.
+\end{itemize}
+
+The locked safety flags include:
+
+\begin{verbatim}
+preview_only = true
+public_gateway_preview = true
+tenant_validation_required = true
+signed_request_validation_required = true
+rate_limiting_required = true
+abuse_protection_required = true
+human_review_required = true
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_send_external_message = false
+\end{verbatim}
+
+\subsection{Blocked Reasons}
+
+The gateway preview emits the following blocked reasons:
+
+\begin{verbatim}
+preview_only
+tenant_validation_required
+signed_request_validation_required
+rate_limiting_required
+abuse_protection_required
+human_review_required
+no_live_job_creation
+no_booking_side_effect
+no_payment_side_effect
+no_escrow_side_effect
+no_external_message_side_effect
+\end{verbatim}
+
+\subsection{Hashing}
+
+The preview includes:
+
+\begin{itemize}
+  \item \texttt{request\_hash}
+  \item \texttt{normalized\_intent\_hash}
+  \item \texttt{machine\_cart\_request\_hash}
+  \item \texttt{response\_hash}
+  \item \texttt{summary\_hash}
+\end{itemize}
+
+The hashes are deterministic for identical input and change when the customer message or request content changes.
+
+\subsection{Safety Boundary}
+
+Phase 12A MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item expose an unauthenticated public write route.
+\end{itemize}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_public_intent_gateway_lock.py \
+  backend/tests/workflow_capsules/test_aion_public_intent_gateway_lock_doc.py
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PUBLIC-INTENT-GATEWAY-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

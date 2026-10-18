@@ -1,0 +1,101 @@
+\begingroup
+\sloppy
+\section{Unified Mobile Files, Saved Items and Continuation}
+\label{sec:pilot-unified-mobile-library}
+
+The unified Pilot mobile application now brings private files, items saved from the television,
+research results and subsequent action proposals into one Files surface.  The implementation
+reuses Pilot's encrypted Inbox, Private Programme Saves, AION research and Saved Item
+Follow-Through authorities.  It does not create another file store or a second saved-item ledger.
+
+\subsection{User Experience}
+
+The Personal space's Files shortcut presents three related collections:
+\begin{enumerate}
+  \item encrypted attachments that were shared with the active person through the unified Inbox;
+  \item products, recipes, destinations, music, learning material and ideas privately claimed
+        from shared-television context; and
+  \item evidence-backed research, local drafts and separately governed service proposals derived
+        from a saved item.
+\end{enumerate}
+
+An attachment is fetched only after a fresh signed authorization check, decrypted on the mother
+brain and verified against its stored content hash before download.  A television save initially
+appears as a short-lived \texttt{awaiting\_private\_claim} item.  The shared screen does not select a
+person.  The owner presses ``Save to me'' on a trusted phone, after which the item is isolated to
+that person's private library.
+
+For an owned saved item the phone can request research, a shortlist, a task or a learning outline.
+Category-appropriate continuations can also prepare shopping, trip or playlist proposals.  Public
+evidence links open on the phone so private review can continue without replacing television
+playback.
+
+\subsection{Identity and Capability Boundary}
+
+The mobile surface uses the production private identity selected during possession-bound phone
+pairing.  The existing household service persona is resolved only inside the mother brain and is
+never exposed to the client.  Multi-adult households receive independent saved-item collections;
+another adult cannot enumerate, continue or delete an item.  The bridge follows the same safe
+legacy-adoption rule as the service-action system: an earlier local-owner record may be adopted
+only when exactly one active adult identity exists.
+
+Three narrow signed lease scopes separate the operations:
+\begin{itemize}
+  \item \texttt{library.read} exposes only that person's saved items and continuation records;
+  \item \texttt{library.write} permits private claim and deletion; and
+  \item \texttt{library.continue} permits research or preparation from an owned item.
+\end{itemize}
+
+Every mobile request is signed by the phone's non-exportable key and checked against its mother-
+signed certificate, active identity and short-lived capability lease.  Claiming requires the
+current unexpired television-save identifier.  Continuing or deleting requires an already owned
+save.  Repeated continuation and deletion requests use content-bound idempotency keys: the exact
+retry returns the existing record, while an altered action under the same key fails closed.
+
+\subsection{Evidence and Network Safety}
+
+Research is routed through the provider-independent AION research authority.  Pilot retains a
+bounded answer, display label and at most five evidence records.  Only public HTTPS continuation
+targets are returned to the phone.  Plain HTTP, localhost, \texttt{.local}, private, loopback,
+link-local, multicast and reserved IP targets are removed.  Source photographs and raw audio are
+not exposed or retained by this projection.
+
+Research has \texttt{external\_effect=false}.  Opening an evidence page is a user navigation event,
+not consent to transact.  A saved item's original confidence describes source identification, not
+truth, price accuracy, availability or entitlement.
+
+\subsection{Separate Action Authority}
+
+Shortlist, task and learning continuations create inspectable local drafts only.  Shopping, trip
+and playlist continuations create a new Service Execution Hub proposal with its own exact scope,
+parameter hash and private approval lifecycle.  Authority is deliberately non-transitive:
+
+\begin{quote}
+Saving an item does not authorize research; research does not authorize an account action; and an
+account-action proposal does not authorize execution.
+\end{quote}
+
+The phone therefore labels a transactional continuation as a separate proposal.  Purchasing,
+booking, messaging, calendar changes and provider-account writes remain impossible until their
+specific adapter, unchanged approval and execution requirements are independently satisfied.
+
+\subsection{Deletion and Auditability}
+
+The owner can remove a saved item from the active private library.  Pilot records a minimal
+idempotent deletion tombstone so a repeated mobile request cannot produce conflicting results.
+Historical audit records and any independently approved service proposal remain intact; deleting
+the library shortcut cannot erase evidence of an action that was already proposed or executed.
+
+\subsection{Verification and Remaining Qualification}
+
+Automated tests cover private claim, persona isolation, deterministic retries, research
+continuation, private-network URL rejection, separate service proposal creation and idempotent
+deletion.  Mobile-surface tests cover encrypted file opening, saved-item actions, explicit approval
+language and the signed library routes.  At coded closure of \texttt{MOB-0508}, all 464 AION Fabric
+tests passed and the optimized Next.js build generated \texttt{/pilot/mobile} successfully.
+
+No purchase, booking, message, calendar change or provider-account write was performed during
+verification.  Real-phone qualification must still confirm attachment download, television claim
+expiry and reconnection on representative iPhone and Android devices.  Provider execution remains
+subject to its own explicit account authorization and verified receipt.
+\endgroup

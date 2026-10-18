@@ -1,0 +1,2038 @@
+{
+  "competence_awarded": false,
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:capability:communication",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:communication:explain_at_multiple_levels"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:communication",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:communication:write_precisely"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:communication",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:communication:ask_good_questions"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:communication",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:communication:negotiate_meaning"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:communication",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:communication:teach_and_assess_others"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:creativity_invention",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:creativity_invention:generate_alternatives"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:creativity_invention",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:creativity_invention:combine_distant_concepts"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:creativity_invention",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:creativity_invention:measure_novelty"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:creativity_invention",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:creativity_invention:prototype"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:creativity_invention",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:creativity_invention:discard_attractive_failures"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:critical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:critical_reasoning:test_assumptions"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:critical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:critical_reasoning:generate_counterexamples"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:critical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:critical_reasoning:detect_circularity"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:critical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:critical_reasoning:compare_explanations"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:critical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:critical_reasoning:steelman_and_attack_candidates"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:discover_bridge_variables"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:transfer_methods"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:join_constraints"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:build_multi_domain_models"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:derive_new_testable_designs"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:debugging_repair",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:debugging_repair:localise_failure"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:debugging_repair",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:debugging_repair:produce_minimal_repair"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:debugging_repair",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:debugging_repair:test_regression"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:debugging_repair",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:debugging_repair:retain_repair"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:debugging_repair",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:debugging_repair:avoid_repeat_failure"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:decomposition",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:decomposition:identify_subproblems"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:decomposition",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:decomposition:map_dependencies"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:decomposition",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:decomposition:find_bottlenecks"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:decomposition",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:decomposition:separate_known_from_unknown"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:decomposition",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:decomposition:compose_verified_parts"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:execution",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:execution:turn_goals_into_actions"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:execution",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:execution:use_tools"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:execution",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:execution:manage_dependencies"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:execution",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:execution:verify_outputs"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:execution",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:execution:complete_real_projects"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:formalisation",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:formalisation:define_terms"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:formalisation",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:formalisation:convert_prose_to_structures"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:formalisation",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:formalisation:write_equations_and_schemas"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:formalisation",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:formalisation:represent_constraints"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:formalisation",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:formalisation:produce_machine_checkable_claims"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:information_ingestion",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:information_ingestion:read_text_tables_diagrams_code"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:information_ingestion",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:information_ingestion:extract_claims"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:information_ingestion",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:information_ingestion:preserve_provenance"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:information_ingestion",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:information_ingestion:deduplicate_sources"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:information_ingestion",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:information_ingestion:detect_missing_context"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:learning_strategy",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:learning_strategy:diagnose_missing_knowledge"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:learning_strategy",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:learning_strategy:choose_learning_depth"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:learning_strategy",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:learning_strategy:plan_prerequisites"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:learning_strategy",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:learning_strategy:monitor_comprehension"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:learning_strategy",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:learning_strategy:change_strategy_after_failure"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:mathematical_reasoning:quantify"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:mathematical_reasoning:derive"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:mathematical_reasoning:estimate"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:mathematical_reasoning:prove_or_bound"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:mathematical_reasoning:check_dimensions"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:real_world_grounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:real_world_grounding:connect_models_to_measurements"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:real_world_grounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:real_world_grounding:respect_physical_constraints"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:real_world_grounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:real_world_grounding:cost_and_resource_actions"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:real_world_grounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:real_world_grounding:observe_outcomes"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:real_world_grounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:real_world_grounding:revise_from_reality"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:research_frontier",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:research_frontier:map_known_frontier"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:research_frontier",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:research_frontier:find_open_questions"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:research_frontier",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:research_frontier:search_literature"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:research_frontier",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:research_frontier:propose_falsifiable_novelty"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:research_frontier",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:research_frontier:seek_specialist_review"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:retention_compounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:retention_compounding:compress_functional_memory"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:retention_compounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:retention_compounding:retrieve_without_source"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:retention_compounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:retention_compounding:retest_over_time"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:retention_compounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:retention_compounding:prevent_interference"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:retention_compounding",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:retention_compounding:extend_existing_knowledge_graph"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:safety_governance",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:safety_governance:classify_risk"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:safety_governance",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:safety_governance:respect_law_consent_and_authority"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:safety_governance",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:safety_governance:control_dual_use"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:safety_governance",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:safety_governance:preserve_auditability"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:safety_governance",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:safety_governance:stop_when_authority_is_missing"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:scientific_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:scientific_reasoning:form_hypotheses"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:scientific_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:scientific_reasoning:design_experiments"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:scientific_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:scientific_reasoning:control_confounding"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:scientific_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:scientific_reasoning:measure_uncertainty"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:scientific_reasoning",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:scientific_reasoning:replicate"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:source_criticism",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:source_criticism:rank_authority"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:source_criticism",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:source_criticism:separate_fact_inference_opinion"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:source_criticism",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:source_criticism:detect_conflict"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:source_criticism",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:source_criticism:calibrate_confidence"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:source_criticism",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:source_criticism:abstain_when_evidence_is_inadequate"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:systems_thinking",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:systems_thinking:model_feedback"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:systems_thinking",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:systems_thinking:trace_second_order_effects"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:systems_thinking",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:systems_thinking:find_emergent_failure"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:systems_thinking",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:systems_thinking:analyse_tradeoffs"
+    },
+    {
+      "from": "work:aion@wave.tp:capability:systems_thinking",
+      "kind": "REQUIRES_OUTCOME",
+      "to": "work:aion@wave.tp:outcome:systems_thinking:maintain_system_boundaries"
+    }
+  ],
+  "glyphs": [
+    {
+      "id": "work:aion@wave.tp:capability:communication",
+      "label": "Communication and teaching",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:communication:explain_at_multiple_levels",
+      "label": "explain_at_multiple_levels",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:communication:write_precisely",
+      "label": "write_precisely",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:communication:ask_good_questions",
+      "label": "ask_good_questions",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:communication:negotiate_meaning",
+      "label": "negotiate_meaning",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:communication:teach_and_assess_others",
+      "label": "teach_and_assess_others",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:creativity_invention",
+      "label": "Creativity and invention",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:creativity_invention:generate_alternatives",
+      "label": "generate_alternatives",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:creativity_invention:combine_distant_concepts",
+      "label": "combine_distant_concepts",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:creativity_invention:measure_novelty",
+      "label": "measure_novelty",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:creativity_invention:prototype",
+      "label": "prototype",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:creativity_invention:discard_attractive_failures",
+      "label": "discard_attractive_failures",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:critical_reasoning",
+      "label": "Critical thinking and adversarial reasoning",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:critical_reasoning:test_assumptions",
+      "label": "test_assumptions",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:critical_reasoning:generate_counterexamples",
+      "label": "generate_counterexamples",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:critical_reasoning:detect_circularity",
+      "label": "detect_circularity",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:critical_reasoning:compare_explanations",
+      "label": "compare_explanations",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:critical_reasoning:steelman_and_attack_candidates",
+      "label": "steelman_and_attack_candidates",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:cross_domain_synthesis",
+      "label": "Cross-domain synthesis",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:discover_bridge_variables",
+      "label": "discover_bridge_variables",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:transfer_methods",
+      "label": "transfer_methods",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:join_constraints",
+      "label": "join_constraints",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:build_multi_domain_models",
+      "label": "build_multi_domain_models",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:derive_new_testable_designs",
+      "label": "derive_new_testable_designs",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:debugging_repair",
+      "label": "Debugging, repair and improvement",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:debugging_repair:localise_failure",
+      "label": "localise_failure",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:debugging_repair:produce_minimal_repair",
+      "label": "produce_minimal_repair",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:debugging_repair:test_regression",
+      "label": "test_regression",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:debugging_repair:retain_repair",
+      "label": "retain_repair",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:debugging_repair:avoid_repeat_failure",
+      "label": "avoid_repeat_failure",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:decomposition",
+      "label": "Problem decomposition",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:decomposition:identify_subproblems",
+      "label": "identify_subproblems",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:decomposition:map_dependencies",
+      "label": "map_dependencies",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:decomposition:find_bottlenecks",
+      "label": "find_bottlenecks",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:decomposition:separate_known_from_unknown",
+      "label": "separate_known_from_unknown",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:decomposition:compose_verified_parts",
+      "label": "compose_verified_parts",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:execution",
+      "label": "Execution and delivery",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:execution:turn_goals_into_actions",
+      "label": "turn_goals_into_actions",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:execution:use_tools",
+      "label": "use_tools",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:execution:manage_dependencies",
+      "label": "manage_dependencies",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:execution:verify_outputs",
+      "label": "verify_outputs",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:execution:complete_real_projects",
+      "label": "complete_real_projects",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:formalisation",
+      "label": "Formalisation and knowledge markup",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:formalisation:define_terms",
+      "label": "define_terms",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:formalisation:convert_prose_to_structures",
+      "label": "convert_prose_to_structures",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:formalisation:write_equations_and_schemas",
+      "label": "write_equations_and_schemas",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:formalisation:represent_constraints",
+      "label": "represent_constraints",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:formalisation:produce_machine_checkable_claims",
+      "label": "produce_machine_checkable_claims",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:information_ingestion",
+      "label": "Information ingestion",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:information_ingestion:read_text_tables_diagrams_code",
+      "label": "read_text_tables_diagrams_code",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:information_ingestion:extract_claims",
+      "label": "extract_claims",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:information_ingestion:preserve_provenance",
+      "label": "preserve_provenance",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:information_ingestion:deduplicate_sources",
+      "label": "deduplicate_sources",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:information_ingestion:detect_missing_context",
+      "label": "detect_missing_context",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:learning_strategy",
+      "label": "Learning strategy and metacognition",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:learning_strategy:diagnose_missing_knowledge",
+      "label": "diagnose_missing_knowledge",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:learning_strategy:choose_learning_depth",
+      "label": "choose_learning_depth",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:learning_strategy:plan_prerequisites",
+      "label": "plan_prerequisites",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:learning_strategy:monitor_comprehension",
+      "label": "monitor_comprehension",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:learning_strategy:change_strategy_after_failure",
+      "label": "change_strategy_after_failure",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:mathematical_reasoning",
+      "label": "Mathematical reasoning",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:mathematical_reasoning:quantify",
+      "label": "quantify",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:mathematical_reasoning:derive",
+      "label": "derive",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:mathematical_reasoning:estimate",
+      "label": "estimate",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:mathematical_reasoning:prove_or_bound",
+      "label": "prove_or_bound",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:mathematical_reasoning:check_dimensions",
+      "label": "check_dimensions",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:real_world_grounding",
+      "label": "Real-world grounding",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:real_world_grounding:connect_models_to_measurements",
+      "label": "connect_models_to_measurements",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:real_world_grounding:respect_physical_constraints",
+      "label": "respect_physical_constraints",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:real_world_grounding:cost_and_resource_actions",
+      "label": "cost_and_resource_actions",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:real_world_grounding:observe_outcomes",
+      "label": "observe_outcomes",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:real_world_grounding:revise_from_reality",
+      "label": "revise_from_reality",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:research_frontier",
+      "label": "Research and frontier discovery",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:research_frontier:map_known_frontier",
+      "label": "map_known_frontier",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:research_frontier:find_open_questions",
+      "label": "find_open_questions",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:research_frontier:search_literature",
+      "label": "search_literature",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:research_frontier:propose_falsifiable_novelty",
+      "label": "propose_falsifiable_novelty",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:research_frontier:seek_specialist_review",
+      "label": "seek_specialist_review",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:retention_compounding",
+      "label": "Retention and compounding",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:retention_compounding:compress_functional_memory",
+      "label": "compress_functional_memory",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:retention_compounding:retrieve_without_source",
+      "label": "retrieve_without_source",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:retention_compounding:retest_over_time",
+      "label": "retest_over_time",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:retention_compounding:prevent_interference",
+      "label": "prevent_interference",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:retention_compounding:extend_existing_knowledge_graph",
+      "label": "extend_existing_knowledge_graph",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:safety_governance",
+      "label": "Safety, ethics and governance",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:safety_governance:classify_risk",
+      "label": "classify_risk",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:safety_governance:respect_law_consent_and_authority",
+      "label": "respect_law_consent_and_authority",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:safety_governance:control_dual_use",
+      "label": "control_dual_use",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:safety_governance:preserve_auditability",
+      "label": "preserve_auditability",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:safety_governance:stop_when_authority_is_missing",
+      "label": "stop_when_authority_is_missing",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:scientific_reasoning",
+      "label": "Scientific and causal reasoning",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:scientific_reasoning:form_hypotheses",
+      "label": "form_hypotheses",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:scientific_reasoning:design_experiments",
+      "label": "design_experiments",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:scientific_reasoning:control_confounding",
+      "label": "control_confounding",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:scientific_reasoning:measure_uncertainty",
+      "label": "measure_uncertainty",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:scientific_reasoning:replicate",
+      "label": "replicate",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:source_criticism",
+      "label": "Source evaluation and epistemics",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:source_criticism:rank_authority",
+      "label": "rank_authority",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:source_criticism:separate_fact_inference_opinion",
+      "label": "separate_fact_inference_opinion",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:source_criticism:detect_conflict",
+      "label": "detect_conflict",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:source_criticism:calibrate_confidence",
+      "label": "calibrate_confidence",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:source_criticism:abstain_when_evidence_is_inadequate",
+      "label": "abstain_when_evidence_is_inadequate",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:capability:systems_thinking",
+      "label": "Systems and consequence thinking",
+      "status": "curriculum_declared_unassessed",
+      "type": "learning_capability"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:systems_thinking:model_feedback",
+      "label": "model_feedback",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:systems_thinking:trace_second_order_effects",
+      "label": "trace_second_order_effects",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:systems_thinking:find_emergent_failure",
+      "label": "find_emergent_failure",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:systems_thinking:analyse_tradeoffs",
+      "label": "analyse_tradeoffs",
+      "type": "outcome"
+    },
+    {
+      "id": "work:aion@wave.tp:outcome:systems_thinking:maintain_system_boundaries",
+      "label": "maintain_system_boundaries",
+      "type": "outcome"
+    }
+  ],
+  "id": "aion__learning_capabilities",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:capability:communication",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:communication:explain_at_multiple_levels"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:communication",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:communication:write_precisely"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:communication",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:communication:ask_good_questions"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:communication",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:communication:negotiate_meaning"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:communication",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:communication:teach_and_assess_others"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:creativity_invention",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:creativity_invention:generate_alternatives"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:creativity_invention",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:creativity_invention:combine_distant_concepts"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:creativity_invention",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:creativity_invention:measure_novelty"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:creativity_invention",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:creativity_invention:prototype"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:creativity_invention",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:creativity_invention:discard_attractive_failures"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:critical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:critical_reasoning:test_assumptions"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:critical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:critical_reasoning:generate_counterexamples"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:critical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:critical_reasoning:detect_circularity"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:critical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:critical_reasoning:compare_explanations"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:critical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:critical_reasoning:steelman_and_attack_candidates"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:discover_bridge_variables"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:transfer_methods"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:join_constraints"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:build_multi_domain_models"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:cross_domain_synthesis",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:cross_domain_synthesis:derive_new_testable_designs"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:debugging_repair",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:debugging_repair:localise_failure"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:debugging_repair",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:debugging_repair:produce_minimal_repair"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:debugging_repair",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:debugging_repair:test_regression"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:debugging_repair",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:debugging_repair:retain_repair"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:debugging_repair",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:debugging_repair:avoid_repeat_failure"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:decomposition",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:decomposition:identify_subproblems"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:decomposition",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:decomposition:map_dependencies"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:decomposition",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:decomposition:find_bottlenecks"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:decomposition",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:decomposition:separate_known_from_unknown"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:decomposition",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:decomposition:compose_verified_parts"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:execution",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:execution:turn_goals_into_actions"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:execution",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:execution:use_tools"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:execution",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:execution:manage_dependencies"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:execution",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:execution:verify_outputs"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:execution",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:execution:complete_real_projects"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:formalisation",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:formalisation:define_terms"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:formalisation",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:formalisation:convert_prose_to_structures"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:formalisation",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:formalisation:write_equations_and_schemas"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:formalisation",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:formalisation:represent_constraints"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:formalisation",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:formalisation:produce_machine_checkable_claims"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:information_ingestion",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:information_ingestion:read_text_tables_diagrams_code"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:information_ingestion",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:information_ingestion:extract_claims"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:information_ingestion",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:information_ingestion:preserve_provenance"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:information_ingestion",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:information_ingestion:deduplicate_sources"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:information_ingestion",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:information_ingestion:detect_missing_context"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:learning_strategy",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:learning_strategy:diagnose_missing_knowledge"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:learning_strategy",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:learning_strategy:choose_learning_depth"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:learning_strategy",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:learning_strategy:plan_prerequisites"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:learning_strategy",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:learning_strategy:monitor_comprehension"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:learning_strategy",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:learning_strategy:change_strategy_after_failure"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:mathematical_reasoning:quantify"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:mathematical_reasoning:derive"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:mathematical_reasoning:estimate"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:mathematical_reasoning:prove_or_bound"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:mathematical_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:mathematical_reasoning:check_dimensions"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:real_world_grounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:real_world_grounding:connect_models_to_measurements"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:real_world_grounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:real_world_grounding:respect_physical_constraints"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:real_world_grounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:real_world_grounding:cost_and_resource_actions"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:real_world_grounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:real_world_grounding:observe_outcomes"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:real_world_grounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:real_world_grounding:revise_from_reality"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:research_frontier",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:research_frontier:map_known_frontier"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:research_frontier",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:research_frontier:find_open_questions"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:research_frontier",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:research_frontier:search_literature"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:research_frontier",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:research_frontier:propose_falsifiable_novelty"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:research_frontier",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:research_frontier:seek_specialist_review"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:retention_compounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:retention_compounding:compress_functional_memory"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:retention_compounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:retention_compounding:retrieve_without_source"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:retention_compounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:retention_compounding:retest_over_time"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:retention_compounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:retention_compounding:prevent_interference"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:retention_compounding",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:retention_compounding:extend_existing_knowledge_graph"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:safety_governance",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:safety_governance:classify_risk"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:safety_governance",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:safety_governance:respect_law_consent_and_authority"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:safety_governance",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:safety_governance:control_dual_use"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:safety_governance",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:safety_governance:preserve_auditability"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:safety_governance",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:safety_governance:stop_when_authority_is_missing"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:scientific_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:scientific_reasoning:form_hypotheses"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:scientific_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:scientific_reasoning:design_experiments"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:scientific_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:scientific_reasoning:control_confounding"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:scientific_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:scientific_reasoning:measure_uncertainty"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:scientific_reasoning",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:scientific_reasoning:replicate"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:source_criticism",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:source_criticism:rank_authority"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:source_criticism",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:source_criticism:separate_fact_inference_opinion"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:source_criticism",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:source_criticism:detect_conflict"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:source_criticism",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:source_criticism:calibrate_confidence"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:source_criticism",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:source_criticism:abstain_when_evidence_is_inadequate"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:systems_thinking",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:systems_thinking:model_feedback"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:systems_thinking",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:systems_thinking:trace_second_order_effects"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:systems_thinking",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:systems_thinking:find_emergent_failure"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:systems_thinking",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:systems_thinking:analyse_tradeoffs"
+      },
+      {
+        "from": "work:aion@wave.tp:capability:systems_thinking",
+        "kind": "REQUIRES_OUTCOME",
+        "to": "work:aion@wave.tp:outcome:systems_thinking:maintain_system_boundaries"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "work:aion@wave.tp:capability:communication",
+        "label": "Communication and teaching",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:communication:explain_at_multiple_levels",
+        "label": "explain_at_multiple_levels",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:communication:write_precisely",
+        "label": "write_precisely",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:communication:ask_good_questions",
+        "label": "ask_good_questions",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:communication:negotiate_meaning",
+        "label": "negotiate_meaning",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:communication:teach_and_assess_others",
+        "label": "teach_and_assess_others",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:creativity_invention",
+        "label": "Creativity and invention",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:creativity_invention:generate_alternatives",
+        "label": "generate_alternatives",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:creativity_invention:combine_distant_concepts",
+        "label": "combine_distant_concepts",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:creativity_invention:measure_novelty",
+        "label": "measure_novelty",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:creativity_invention:prototype",
+        "label": "prototype",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:creativity_invention:discard_attractive_failures",
+        "label": "discard_attractive_failures",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:critical_reasoning",
+        "label": "Critical thinking and adversarial reasoning",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:critical_reasoning:test_assumptions",
+        "label": "test_assumptions",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:critical_reasoning:generate_counterexamples",
+        "label": "generate_counterexamples",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:critical_reasoning:detect_circularity",
+        "label": "detect_circularity",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:critical_reasoning:compare_explanations",
+        "label": "compare_explanations",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:critical_reasoning:steelman_and_attack_candidates",
+        "label": "steelman_and_attack_candidates",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:cross_domain_synthesis",
+        "label": "Cross-domain synthesis",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:discover_bridge_variables",
+        "label": "discover_bridge_variables",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:transfer_methods",
+        "label": "transfer_methods",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:join_constraints",
+        "label": "join_constraints",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:build_multi_domain_models",
+        "label": "build_multi_domain_models",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:cross_domain_synthesis:derive_new_testable_designs",
+        "label": "derive_new_testable_designs",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:debugging_repair",
+        "label": "Debugging, repair and improvement",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:debugging_repair:localise_failure",
+        "label": "localise_failure",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:debugging_repair:produce_minimal_repair",
+        "label": "produce_minimal_repair",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:debugging_repair:test_regression",
+        "label": "test_regression",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:debugging_repair:retain_repair",
+        "label": "retain_repair",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:debugging_repair:avoid_repeat_failure",
+        "label": "avoid_repeat_failure",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:decomposition",
+        "label": "Problem decomposition",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:decomposition:identify_subproblems",
+        "label": "identify_subproblems",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:decomposition:map_dependencies",
+        "label": "map_dependencies",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:decomposition:find_bottlenecks",
+        "label": "find_bottlenecks",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:decomposition:separate_known_from_unknown",
+        "label": "separate_known_from_unknown",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:decomposition:compose_verified_parts",
+        "label": "compose_verified_parts",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:execution",
+        "label": "Execution and delivery",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:execution:turn_goals_into_actions",
+        "label": "turn_goals_into_actions",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:execution:use_tools",
+        "label": "use_tools",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:execution:manage_dependencies",
+        "label": "manage_dependencies",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:execution:verify_outputs",
+        "label": "verify_outputs",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:execution:complete_real_projects",
+        "label": "complete_real_projects",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:formalisation",
+        "label": "Formalisation and knowledge markup",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:formalisation:define_terms",
+        "label": "define_terms",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:formalisation:convert_prose_to_structures",
+        "label": "convert_prose_to_structures",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:formalisation:write_equations_and_schemas",
+        "label": "write_equations_and_schemas",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:formalisation:represent_constraints",
+        "label": "represent_constraints",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:formalisation:produce_machine_checkable_claims",
+        "label": "produce_machine_checkable_claims",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:information_ingestion",
+        "label": "Information ingestion",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:information_ingestion:read_text_tables_diagrams_code",
+        "label": "read_text_tables_diagrams_code",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:information_ingestion:extract_claims",
+        "label": "extract_claims",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:information_ingestion:preserve_provenance",
+        "label": "preserve_provenance",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:information_ingestion:deduplicate_sources",
+        "label": "deduplicate_sources",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:information_ingestion:detect_missing_context",
+        "label": "detect_missing_context",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:learning_strategy",
+        "label": "Learning strategy and metacognition",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:learning_strategy:diagnose_missing_knowledge",
+        "label": "diagnose_missing_knowledge",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:learning_strategy:choose_learning_depth",
+        "label": "choose_learning_depth",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:learning_strategy:plan_prerequisites",
+        "label": "plan_prerequisites",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:learning_strategy:monitor_comprehension",
+        "label": "monitor_comprehension",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:learning_strategy:change_strategy_after_failure",
+        "label": "change_strategy_after_failure",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:mathematical_reasoning",
+        "label": "Mathematical reasoning",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:mathematical_reasoning:quantify",
+        "label": "quantify",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:mathematical_reasoning:derive",
+        "label": "derive",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:mathematical_reasoning:estimate",
+        "label": "estimate",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:mathematical_reasoning:prove_or_bound",
+        "label": "prove_or_bound",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:mathematical_reasoning:check_dimensions",
+        "label": "check_dimensions",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:real_world_grounding",
+        "label": "Real-world grounding",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:real_world_grounding:connect_models_to_measurements",
+        "label": "connect_models_to_measurements",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:real_world_grounding:respect_physical_constraints",
+        "label": "respect_physical_constraints",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:real_world_grounding:cost_and_resource_actions",
+        "label": "cost_and_resource_actions",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:real_world_grounding:observe_outcomes",
+        "label": "observe_outcomes",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:real_world_grounding:revise_from_reality",
+        "label": "revise_from_reality",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:research_frontier",
+        "label": "Research and frontier discovery",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:research_frontier:map_known_frontier",
+        "label": "map_known_frontier",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:research_frontier:find_open_questions",
+        "label": "find_open_questions",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:research_frontier:search_literature",
+        "label": "search_literature",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:research_frontier:propose_falsifiable_novelty",
+        "label": "propose_falsifiable_novelty",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:research_frontier:seek_specialist_review",
+        "label": "seek_specialist_review",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:retention_compounding",
+        "label": "Retention and compounding",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:retention_compounding:compress_functional_memory",
+        "label": "compress_functional_memory",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:retention_compounding:retrieve_without_source",
+        "label": "retrieve_without_source",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:retention_compounding:retest_over_time",
+        "label": "retest_over_time",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:retention_compounding:prevent_interference",
+        "label": "prevent_interference",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:retention_compounding:extend_existing_knowledge_graph",
+        "label": "extend_existing_knowledge_graph",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:safety_governance",
+        "label": "Safety, ethics and governance",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:safety_governance:classify_risk",
+        "label": "classify_risk",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:safety_governance:respect_law_consent_and_authority",
+        "label": "respect_law_consent_and_authority",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:safety_governance:control_dual_use",
+        "label": "control_dual_use",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:safety_governance:preserve_auditability",
+        "label": "preserve_auditability",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:safety_governance:stop_when_authority_is_missing",
+        "label": "stop_when_authority_is_missing",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:scientific_reasoning",
+        "label": "Scientific and causal reasoning",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:scientific_reasoning:form_hypotheses",
+        "label": "form_hypotheses",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:scientific_reasoning:design_experiments",
+        "label": "design_experiments",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:scientific_reasoning:control_confounding",
+        "label": "control_confounding",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:scientific_reasoning:measure_uncertainty",
+        "label": "measure_uncertainty",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:scientific_reasoning:replicate",
+        "label": "replicate",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:source_criticism",
+        "label": "Source evaluation and epistemics",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:source_criticism:rank_authority",
+        "label": "rank_authority",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:source_criticism:separate_fact_inference_opinion",
+        "label": "separate_fact_inference_opinion",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:source_criticism:detect_conflict",
+        "label": "detect_conflict",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:source_criticism:calibrate_confidence",
+        "label": "calibrate_confidence",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:source_criticism:abstain_when_evidence_is_inadequate",
+        "label": "abstain_when_evidence_is_inadequate",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:capability:systems_thinking",
+        "label": "Systems and consequence thinking",
+        "status": "curriculum_declared_unassessed",
+        "type": "learning_capability"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:systems_thinking:model_feedback",
+        "label": "model_feedback",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:systems_thinking:trace_second_order_effects",
+        "label": "trace_second_order_effects",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:systems_thinking:find_emergent_failure",
+        "label": "find_emergent_failure",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:systems_thinking:analyse_tradeoffs",
+        "label": "analyse_tradeoffs",
+        "type": "outcome"
+      },
+      {
+        "id": "work:aion@wave.tp:outcome:systems_thinking:maintain_system_boundaries",
+        "label": "maintain_system_boundaries",
+        "type": "outcome"
+      }
+    ]
+  },
+  "meta": {
+    "graph": "work",
+    "kind": "learning_capabilities",
+    "ownerWA": "aion@wave.tp",
+    "title": "AION \u00b7 Learning Abilities"
+  },
+  "schema_version": "aion.container.learning_capabilities.v1",
+  "type": "container"
+}

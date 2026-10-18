@@ -1,0 +1,17 @@
+{
+  "micro_ops": {
+    "ROBUST_MEDIAN_PAIRWISE_TREND": {
+      "authority": "procedure_delayed_micro_operation_compiler_promotion_v1",
+      "capability_class": "pure_numeric_transform",
+      "promoted_at": "2026-08-01T23:54:52.081443+00:00",
+      "source": "def run(values):\n    if len(values) < 3:\n        return None\n    slopes = []\n    for i in range(len(values)):\n        for j in range(i+1, len(values)):\n            slopes.append((values[j]-values[i])/(j-i))\n    slopes = sorted(slopes)\n    n = len(slopes)\n    if n % 2 == 1:\n        return slopes[n//2]\n    return (slopes[n//2-1]+slopes[n//2])/2\n",
+      "source_sha256": "78efd13d0873be5aff46cf008afbb5728390d1478265a7cb58d47134a775cda3",
+      "verified_authorities": [
+        "World Bank GDP",
+        "FRED GDP",
+        "NOAA temperature"
+      ]
+    }
+  },
+  "schema_version": "aion.micro_op_registry.v1"
+}

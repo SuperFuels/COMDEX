@@ -1,0 +1,508 @@
+{
+  "phi_test": {
+    "tested_rows": 45,
+    "skipped_unstable_rows": 0,
+    "skipped_short_rows": 0,
+    "target": 1.618033988749895,
+    "pass_tolerance_percent": 3.0,
+    "passed": true,
+    "best_matches": [
+      {
+        "source_name": "cand_017_phi_3.141595_harm_1_a_0.080_n_0.020",
+        "phi": 3.141595,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 5,
+        "peak_hi": 8,
+        "ratio": 1.6,
+        "phi_error": 0.018033988749894814,
+        "drift": 0.014071822874660399,
+        "phase_error_mean": 0.012614392196871355
+      },
+      {
+        "source_name": "cand_015_phi_3.141595_harm_1_a_0.060_n_0.030",
+        "phi": 3.141595,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 6,
+        "peak_hi": 10,
+        "ratio": 1.6666666666666667,
+        "phi_error": 0.04863267791677184,
+        "drift": 0.014044023812266838,
+        "phase_error_mean": 0.012587978683618654
+      },
+      {
+        "source_name": "cand_042_phi_3.141598_harm_1_a_0.060_n_0.030",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 3,
+        "peak_hi": 5,
+        "ratio": 1.6666666666666667,
+        "phi_error": 0.04863267791677184,
+        "drift": 0.0140601910418156,
+        "phase_error_mean": 0.012604198650817657
+      },
+      {
+        "source_name": "cand_023_phi_3.141596_harm_1_a_0.060_n_0.020",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 2,
+        "peak_hi": 3,
+        "ratio": 1.5,
+        "phi_error": 0.1180339887498949,
+        "drift": 0.014173254289795881,
+        "phase_error_mean": 0.01274210880822432
+      },
+      {
+        "source_name": "cand_024_phi_3.141596_harm_1_a_0.060_n_0.030",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 2,
+        "peak_hi": 3,
+        "ratio": 1.5,
+        "phi_error": 0.1180339887498949,
+        "drift": 0.014047759583306134,
+        "phase_error_mean": 0.012592906369918753
+      },
+      {
+        "source_name": "cand_025_phi_3.141596_harm_1_a_0.080_n_0.010",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 2,
+        "peak_hi": 3,
+        "ratio": 1.5,
+        "phi_error": 0.1180339887498949,
+        "drift": 0.014153759995944228,
+        "phase_error_mean": 0.01270545356940141
+      },
+      {
+        "source_name": "cand_027_phi_3.141596_harm_1_a_0.080_n_0.030",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 2,
+        "peak_hi": 3,
+        "ratio": 1.5,
+        "phi_error": 0.1180339887498949,
+        "drift": 0.01411043276313199,
+        "phase_error_mean": 0.01264423826581173
+      },
+      {
+        "source_name": "cand_036_phi_3.141597_harm_1_a_0.080_n_0.030",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 2,
+        "peak_hi": 3,
+        "ratio": 1.5,
+        "phi_error": 0.1180339887498949,
+        "drift": 0.014099360126476808,
+        "phase_error_mean": 0.012631420757268601
+      },
+      {
+        "source_name": "cand_037_phi_3.141598_harm_1_a_0.040_n_0.010",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 2,
+        "peak_hi": 3,
+        "ratio": 1.5,
+        "phi_error": 0.1180339887498949,
+        "drift": 0.014139007006174811,
+        "phase_error_mean": 0.01269277643925893
+      },
+      {
+        "source_name": "cand_039_phi_3.141598_harm_1_a_0.040_n_0.030",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "peak_lo": 2,
+        "peak_hi": 3,
+        "ratio": 1.5,
+        "phi_error": 0.1180339887498949,
+        "drift": 0.014169633137882613,
+        "phase_error_mean": 0.012739055250958399
+      }
+    ]
+  },
+  "e_test": {
+    "tested_rows": 45,
+    "target_tau": 2.718281828459045,
+    "pass_tolerance_percent": 10.0,
+    "min_r2": 0.95,
+    "passed": false,
+    "best_matches": [
+      {
+        "source_name": "cand_004_phi_3.141594_harm_1_a_0.060_n_0.010",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "tau": Infinity,
+        "r2": 0.07409646176738827,
+        "slope": 0.0016999420141205882
+      },
+      {
+        "source_name": "cand_007_phi_3.141594_harm_1_a_0.080_n_0.010",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "tau": 823.3630716247231,
+        "r2": 0.050333806311828266,
+        "slope": -0.0012145310306748678
+      },
+      {
+        "source_name": "cand_008_phi_3.141594_harm_1_a_0.080_n_0.020",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "tau": Infinity,
+        "r2": 0.048093026884364565,
+        "slope": 0.0011563506419215047
+      },
+      {
+        "source_name": "cand_006_phi_3.141594_harm_1_a_0.060_n_0.030",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "tau": 815.200601223132,
+        "r2": 0.046896814367489825,
+        "slope": -0.001226691931408777
+      },
+      {
+        "source_name": "cand_012_phi_3.141595_harm_1_a_0.040_n_0.030",
+        "phi": 3.141595,
+        "harmonics": [
+          1
+        ],
+        "tau": 1133.5570158082567,
+        "r2": 0.035579589624257224,
+        "slope": -0.0008821788282850273
+      },
+      {
+        "source_name": "cand_002_phi_3.141594_harm_1_a_0.040_n_0.020",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "tau": 995.1801089742045,
+        "r2": 0.026334521235869435,
+        "slope": -0.0010048432348901785
+      },
+      {
+        "source_name": "cand_009_phi_3.141594_harm_1_a_0.080_n_0.030",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "tau": 1313.7500645742957,
+        "r2": 0.014900361847153487,
+        "slope": -0.0007611797913205337
+      },
+      {
+        "source_name": "cand_024_phi_3.141596_harm_1_a_0.060_n_0.030",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "tau": 1600.9665771453442,
+        "r2": 0.014011293343373477,
+        "slope": -0.0006246226587584875
+      },
+      {
+        "source_name": "cand_039_phi_3.141598_harm_1_a_0.040_n_0.030",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "tau": Infinity,
+        "r2": 0.01177818468193259,
+        "slope": 0.0006030328037789038
+      },
+      {
+        "source_name": "cand_001_phi_3.141594_harm_1_a_0.040_n_0.010",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "tau": Infinity,
+        "r2": 0.011548098088092984,
+        "slope": 0.0008360882555800888
+      }
+    ]
+  },
+  "h_test": {
+    "tested_rows": 45,
+    "energy_min": 0.384034385909018,
+    "energy_max": 0.4387921361982293,
+    "mean_adjacent_gap": 0.0012444943247548025,
+    "smallest_energies": [
+      {
+        "source_name": "cand_007_phi_3.141594_harm_1_a_0.080_n_0.010",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.384034385909018
+      },
+      {
+        "source_name": "cand_030_phi_3.141597_harm_1_a_0.040_n_0.030",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.39162548988108836
+      },
+      {
+        "source_name": "cand_006_phi_3.141594_harm_1_a_0.060_n_0.030",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.39347042892979434
+      },
+      {
+        "source_name": "cand_031_phi_3.141597_harm_1_a_0.060_n_0.010",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.39906185035825065
+      },
+      {
+        "source_name": "cand_008_phi_3.141594_harm_1_a_0.080_n_0.020",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4028869822197121
+      },
+      {
+        "source_name": "cand_005_phi_3.141594_harm_1_a_0.060_n_0.020",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4061582208655029
+      },
+      {
+        "source_name": "cand_029_phi_3.141597_harm_1_a_0.040_n_0.020",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4130110163169908
+      },
+      {
+        "source_name": "cand_034_phi_3.141597_harm_1_a_0.080_n_0.010",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.41316831694311706
+      },
+      {
+        "source_name": "cand_042_phi_3.141598_harm_1_a_0.060_n_0.030",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.41357831332141026
+      },
+      {
+        "source_name": "cand_022_phi_3.141596_harm_1_a_0.060_n_0.010",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4138707647252239
+      },
+      {
+        "source_name": "cand_011_phi_3.141595_harm_1_a_0.040_n_0.020",
+        "phi": 3.141595,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4141821486328365
+      },
+      {
+        "source_name": "cand_004_phi_3.141594_harm_1_a_0.060_n_0.010",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.41426955943862137
+      },
+      {
+        "source_name": "cand_019_phi_3.141596_harm_1_a_0.040_n_0.010",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.41459188876808967
+      },
+      {
+        "source_name": "cand_024_phi_3.141596_harm_1_a_0.060_n_0.030",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.41551072629496766
+      },
+      {
+        "source_name": "cand_010_phi_3.141595_harm_1_a_0.040_n_0.010",
+        "phi": 3.141595,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.41565248790773524
+      }
+    ],
+    "largest_energies": [
+      {
+        "source_name": "cand_040_phi_3.141598_harm_1_a_0.060_n_0.010",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.41817348815116245
+      },
+      {
+        "source_name": "cand_027_phi_3.141596_harm_1_a_0.080_n_0.030",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4182792100068371
+      },
+      {
+        "source_name": "cand_015_phi_3.141595_harm_1_a_0.060_n_0.030",
+        "phi": 3.141595,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4184523463446113
+      },
+      {
+        "source_name": "cand_017_phi_3.141595_harm_1_a_0.080_n_0.020",
+        "phi": 3.141595,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.41866035706348326
+      },
+      {
+        "source_name": "cand_038_phi_3.141598_harm_1_a_0.040_n_0.020",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4187785217798908
+      },
+      {
+        "source_name": "cand_045_phi_3.141598_harm_1_a_0.080_n_0.030",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4196130131959089
+      },
+      {
+        "source_name": "cand_028_phi_3.141597_harm_1_a_0.040_n_0.010",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.420413526107834
+      },
+      {
+        "source_name": "cand_044_phi_3.141598_harm_1_a_0.080_n_0.020",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.42073708701501467
+      },
+      {
+        "source_name": "cand_026_phi_3.141596_harm_1_a_0.080_n_0.020",
+        "phi": 3.141596,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4212677999422143
+      },
+      {
+        "source_name": "cand_037_phi_3.141598_harm_1_a_0.040_n_0.010",
+        "phi": 3.141598,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4218952582239229
+      },
+      {
+        "source_name": "cand_009_phi_3.141594_harm_1_a_0.080_n_0.030",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4219264277777551
+      },
+      {
+        "source_name": "cand_001_phi_3.141594_harm_1_a_0.040_n_0.010",
+        "phi": 3.141594,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4242153046864351
+      },
+      {
+        "source_name": "cand_035_phi_3.141597_harm_1_a_0.080_n_0.020",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4250975909474912
+      },
+      {
+        "source_name": "cand_033_phi_3.141597_harm_1_a_0.060_n_0.030",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4256322206757499
+      },
+      {
+        "source_name": "cand_032_phi_3.141597_harm_1_a_0.060_n_0.020",
+        "phi": 3.141597,
+        "harmonics": [
+          1
+        ],
+        "energy_proxy": 0.4387921361982293
+      }
+    ],
+    "passed": false
+  },
+  "filters": {
+    "max_drift": 0.02,
+    "max_phase_error": 0.02,
+    "max_frequency_std": 5.0,
+    "max_amplitude_std": 0.25
+  }
+}

@@ -24,6 +24,7 @@ from __future__ import annotations
 import os
 import json
 import hashlib
+import base64
 import asyncio
 import threading
 import time
@@ -33,6 +34,8 @@ from typing import Any, Dict, Optional
 
 # ⚛ Resonance Heartbeat Integration
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+from backend.modules.consciousness.state_guardian_store import ConsciousnessStateStore
 
 # ✅ Lean container support
 from backend.modules.lean.lean_utils import (
@@ -87,7 +90,7 @@ STATE_RMC_PUSH_MIN_INTERVAL_S = float(os.getenv("AION_STATE_RMC_PUSH_MIN_INTERVA
 STATE_WS_HEARTBEAT_MIN_INTERVAL_S = float(os.getenv("AION_STATE_WS_HEARTBEAT_MIN_INTERVAL_S", "1"))
 
 # Gate heartbeat entirely if you want (useful in dev)
-ENABLE_STATE_HEARTBEAT = os.getenv("AION_ENABLE_STATE_HEARTBEAT", "1") != "0"
+ENABLE_STATE_HEARTBEAT = os.getenv("AION_ENABLE_STATE_HEARTBEAT", "0") == "1"
 
 
 def _ensure_loop() -> Optional[asyncio.AbstractEventLoop]:
@@ -137,7 +140,14 @@ def _schedule_ws_broadcast(payload: Dict[str, Any]) -> None:
 
 
 class StateManager:
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        state_store: ConsciousnessStateStore | None = None,
+        learning_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
+        allow_legacy_files: bool | None = None,
+    ):
         self.identity = {
             "name": "AION",
             "version": "1.0",
@@ -152,6 +162,12 @@ class StateManager:
         }
         self.memory_snapshot: Dict[str, Any] = {}
         self.state: Dict[str, Any] = {}
+        self._state_store = state_store or ConsciousnessStateStore(
+            vault_store=learning_store,
+            workspace_id=workspace_id,
+            allow_legacy_files=allow_legacy_files,
+            legacy_agent_state_path=STATE_FILE,
+        )
         self.agent_states = self.load_agent_states()
         self.current_container: Optional[Dict[str, Any]] = None
         self.loaded_containers: Dict[str, Dict[str, Any]] = {}
@@ -167,9 +183,8 @@ class StateManager:
         self.pause_lock = threading.Lock()
 
         # 🧠 Initialize ResonantMemoryCache + live log path
-        self.RMC = ResonantMemoryCache()
-        self.resonance_log = Path("data/analysis/state_resonance_log.jsonl")
-        self.resonance_log.parent.mkdir(parents=True, exist_ok=True)
+        self.RMC = ResonantMemoryCache(vault_store=self._state_store.vault_store)
+        self.resonance_log = self._state_store.legacy_resonance_log_path
 
         # Throttle timers
         self._last_rmc_push_ts = 0.0
@@ -177,7 +192,11 @@ class StateManager:
         self._last_ws_heartbeat_ts = 0.0
 
         # ⚛ Initialize Resonance Heartbeat (optionally)
-        self.heartbeat = ResonanceHeartbeat(namespace="state_manager", base_interval=1.5)
+        self.heartbeat = ResonanceHeartbeat(
+            namespace="state_manager",
+            base_interval=1.5,
+            vault_store=self._state_store.vault_store,
+        )
         self.heartbeat.register_listener(self._on_heartbeat_pulse)
 
         if ENABLE_STATE_HEARTBEAT:
@@ -270,19 +289,19 @@ class StateManager:
                 except Exception as log_err:
                     print(f"[⚛] RMC feedback error: {log_err}")
 
-            # Local JSONL resonance log (throttled)
+            # Guardian resonance evidence (throttled). Legacy JSONL output is
+            # available only through the explicit compatibility switch.
             if (now - self._last_resonance_log_ts) >= STATE_RESONANCE_LOG_MIN_INTERVAL_S:
                 self._last_resonance_log_ts = now
                 try:
                     log_entry = {
-                        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "timestamp": now,
                         "Φ_coherence": coherence,
                         "Φ_entropy": entropy,
                         "SQI": sqi,
                         "Θ_frequency": freq,
                     }
-                    with open(self.resonance_log, "a", encoding="utf-8") as f:
-                        f.write(json.dumps(log_entry) + "\n")
+                    self._state_store.append_resonance_sample(log_entry)
                 except Exception:
                     pass
 
@@ -325,14 +344,10 @@ class StateManager:
     # ✅ Agent State Persistence
     # ──────────────────────────────
     def load_agent_states(self):
-        if os.path.exists(STATE_FILE):
-            with open(STATE_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        return {}
+        return self._state_store.load_agent_states()
 
     def save_agent_states(self):
-        with open(STATE_FILE, "w", encoding="utf-8") as f:
-            json.dump(self.agent_states, f, indent=2)
+        return self._state_store.save_agent_states(self.agent_states)
 
     def get_agent_state(self, agent_id):
         return self.agent_states.get(
@@ -355,6 +370,19 @@ class StateManager:
     def update_context(self, key, value):
         self.context[key] = value
         print(f"[STATE] Context updated: {key} = {value}")
+
+    def record_cognitive_state(self, record: Dict[str, Any]) -> Dict[str, Any]:
+        """Persist a bounded canonical snapshot, not an execution claim."""
+        snapshot = {
+            "record_hash": record.get("record_hash"),
+            "deliberation_id": record.get("deliberation_id"),
+            "objective": record.get("objective"),
+            "disposition": record.get("disposition"),
+            "proposal_only": bool(record.get("proposal_only", True)),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        self.state["canonical_cognition"] = snapshot
+        return snapshot
 
     # ──────────────────────────────
     # ✅ Secure Container Load + Gates
@@ -455,6 +483,7 @@ class StateManager:
     # ✅ Activate Loaded Container
     # ──────────────────────────────
     def set_current_container(self, container: dict):
+        container = self._state_store.load_container_state(container)
         self.current_container = container
         print(f"[STATE] Current container set to: {container.get('id', 'unknown')}")
 
@@ -588,7 +617,8 @@ class StateManager:
     def get_current_container_path(self):
         if not self.current_container:
             return None
-        return get_dc_path(self.current_container)
+        container_id = str(self.current_container.get("id") or "").strip()
+        return get_dc_path(container_id) if container_id else None
 
     def get_context(self):
         if self.current_container:
@@ -664,6 +694,14 @@ class StateManager:
                 self.current_container["cubes"] = {}
 
             cubes = self.current_container["cubes"]
+            had_encrypted_glyph_data = "encrypted_glyph_data" in self.current_container
+            previous_encrypted_glyph_data = self.current_container.get("encrypted_glyph_data")
+            had_encrypted_glyph_encoding = (
+                "encrypted_glyph_data_encoding" in self.current_container
+            )
+            previous_encrypted_glyph_encoding = self.current_container.get(
+                "encrypted_glyph_data_encoding"
+            )
             max_x = max([int(str(c).split(",")[0]) for c in cubes.keys()] + [0])
             base_yzt = "0,0,0"
 
@@ -689,7 +727,10 @@ class StateManager:
             # Encrypt and store glyph data vault before saving container
             try:
                 encrypted_blob = self.vault_manager.save_container_glyph_data(cubes)
-                self.current_container["encrypted_glyph_data"] = encrypted_blob
+                self.current_container["encrypted_glyph_data"] = base64.b64encode(
+                    encrypted_blob
+                ).decode("ascii")
+                self.current_container["encrypted_glyph_data_encoding"] = "base64"
             except Exception as vault_err:
                 print(f"[ERROR] Vault save failed: {vault_err}. Rolling back glyph injection.")
                 for coord in injected_coords:
@@ -697,10 +738,28 @@ class StateManager:
                 return False
 
             path = self.get_current_container_path()
-            if path:
-                with open(path, "w", encoding="utf-8") as f:
-                    json.dump(self.current_container, f, indent=2)
-                print(f"[💾] Injected {len(glyphs)} glyph(s) into container at path {path}")
+            if not self._state_store.save_container_state(
+                self.current_container,
+                legacy_path=path,
+            ):
+                for coord in injected_coords:
+                    cubes.pop(coord, None)
+                if had_encrypted_glyph_data:
+                    self.current_container["encrypted_glyph_data"] = previous_encrypted_glyph_data
+                else:
+                    self.current_container.pop("encrypted_glyph_data", None)
+                if had_encrypted_glyph_encoding:
+                    self.current_container[
+                        "encrypted_glyph_data_encoding"
+                    ] = previous_encrypted_glyph_encoding
+                else:
+                    self.current_container.pop("encrypted_glyph_data_encoding", None)
+                print("[ERROR] Guardian is required to retain container mutations.")
+                return False
+            print(
+                f"[💾] Retained {len(glyphs)} glyph(s) through "
+                f"{self._state_store.storage_boundary}."
+            )
 
             if WS:
                 payload = {
@@ -782,5 +841,5 @@ class DummyStateManager:
         self._current_container_id = container_id
 
 
-# ✅ Global instance for compatibility
-state_manager = StateManager()
+# ✅ Compatibility alias: one process-wide manager, not a second import-time instance.
+state_manager = STATE

@@ -1,0 +1,80 @@
+% Standalone append-only section for the AION GPT-OSS 120B technical record.
+\section{Fused Metal Route Under Production Memory Pressure}
+\label{sec:gptoss120b-metal-pressure-20260911}
+
+The earlier fused four-expert Metal microgate was measured with a hot repeated
+route and little surrounding memory pressure.  Because the promoted exact
+runtime retains an 8~GiB request-specific expert core, the candidate was
+retested while the parent process held a real 8~GiB protected pool reconstructed
+from the GPT-OSS 120B SD warehouse.  The frozen extraction activation, original
+four expert identifiers, original normalized gates, and original MXFP4 weights
+were used.  This remains a changed-arithmetic quality-track experiment because
+the Metal result is numerically close, but not bitwise identical, to the CPU
+reference.
+
+The pressure gate materialised 8,588,436,480 bytes across 648 protected expert
+entries.  Pool construction took 91.886 seconds and the recorded warehouse
+receipt reports 8,248,768,440 compressed bytes read.  Under this pressure, the
+CPU route median was 1.38742~ms and p95 was 1.52171~ms.  Metal warm compute was
+1.87546~ms median and 2.06663~ms p95 after a 3.46379~ms route upload.  Even when
+upload was excluded, Metal delivered only 0.7398 times CPU throughput: it was
+approximately 26.0\% slower.  Relative $L_2$ output error was 0.0058435, maximum
+absolute error was 0.040543, and the output argmax agreed.
+
+A second diagnostic tested whether CPU cache warmth had unfairly favoured the
+control.  Before each timed CPU calculation, a separate 256~MiB buffer was
+touched to disturb cache residency; the disturbance time itself was excluded.
+This is explicitly a synthetic cold-cache proxy, not a generated-token
+benchmark.  Metal was conservatively charged both route upload and warm
+calculation because a changing unrestricted route requires new weights.  CPU
+still completed in 0.80375~ms median (2.31038~ms p95), whereas Metal required
+5.20004~ms upload plus 1.17754~ms median compute.  The resulting charged speed
+ratio was 0.1260 times CPU.  Numerical error was unchanged.
+
+Decision: \texttt{STOP\_FUSED\_METAL\_ROUTE\_UNDER\_PRESSURE}.  A conventional
+per-route GGML Metal graph does not remove the exact 120B bottleneck on this M3
+Pro: GPU dispatch is slower than the packed CPU route even after realistic
+memory pressure, and changing routes add a much larger upload charge.  This
+result closes the tempting but incorrect inference that the hot microbenchmark
+alone justified moving expert arithmetic to Metal.  Future Metal work must
+first eliminate per-route allocation and copying by binding the existing
+resident expert buffers directly into a persistent multi-route arena; otherwise
+it must not enter the full generation loop.
+
+The production-pressure and synthetic cold-cache receipts have canonical
+SHA-256 values
+\texttt{667fb8b4fef78bd2128aebabc6cec167af9fc61004429d517e21092fe7d9ad77}
+and
+\texttt{9ff415bb76a86eee7842146f72694f553ef7454ed986319f7f213d422a61ee38},
+respectively.  Neither result changes the promoted exact frontier of 1.725
+tokens/s on arithmetic and 1.829 tokens/s on extraction.
+
+\subsection{Direct host-buffer binding follow-up}
+
+The final permitted Metal question was tested directly rather than left as a
+hypothesis.  GGML reports that the M3 Pro Metal device supports buffers created
+from host pointers.  A page-aligned 53,100,544-byte arena was therefore built,
+the real four-expert route was bound into that arena, and Metal consumed the
+host-resident weights without a backend tensor upload.  Measured upload time
+fell to approximately 0.00004~ms, proving that the extra copy can be removed.
+Host-arena packing was measured separately and excluded from the candidate
+compute comparison; a production implementation would need decompression to
+land directly in those slots.
+
+The mechanism did not pass the speed gate.  In the hot screen, CPU median was
+0.70054~ms and zero-copy Metal median was 0.90877~ms, so Metal achieved only
+0.7709 times CPU throughput.  Under the actual 8~GiB protected-pool pressure,
+CPU median was 1.15854~ms and zero-copy Metal median was 1.85440~ms, or only
+0.6248 times CPU throughput.  Relative $L_2$ error remained 0.0058435 and
+argmax agreement remained true, but output was not bitwise identical.
+
+Decision: \texttt{STOP\_ZERO\_COPY\_METAL_ROUTE}.  Direct binding successfully
+eliminates route upload, but the M3 Pro Metal MXFP4 graph remains slower than
+the packed CPU kernel for this batch-one four-expert workload.  The result
+closes the current Metal branch: neither copying nor per-route allocation is
+the decisive cause of its loss.  A custom kernel would require new evidence and
+must first beat the packed CPU microgate before any full-runtime integration.
+The hot and pressure receipt hashes are
+\texttt{178dd3f85b777fa2af85cac369d422c71c9c48e1bf9bc0c70e87539578262842}
+and
+\texttt{55ac3ca806db84a6e2ae5e571626f43f723c508b0e885bf0ce5a9bf2fee17389}.

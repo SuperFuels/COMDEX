@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.30 --- Passed Pawn Conversion Policy}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.30 introduces a passed pawn conversion policy for AION full chess.
+
+The policy detects passed pawns, scores promotion distance, and emits conversion guidance.
+
+\section{Contract}
+
+The literal policy names include \texttt{promote\_now} / promote_now and \texttt{push\_passed\_pawn} / push_passed_pawn for runtime and test trace compatibility.
+
+
+The kernel MUST detect:
+
+\begin{itemize}[leftmargin=*]
+  \item own passed pawns;
+  \item enemy passed pawns;
+  \item promotion distance;
+  \item protected passed pawns;
+  \item blocked passed pawns;
+  \item legal push moves;
+  \item legal promotion moves;
+  \item enemy immediate promotion threats.
+\end{itemize}
+
+The kernel MUST emit one of:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{promote\_now};
+  \item \texttt{push\_passed\_pawn};
+  \item \texttt{support\_passed\_pawn};
+  \item \texttt{stop\_enemy\_promotion};
+  \item \texttt{continue\_normal\_play}.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e30_full_chess_passed_pawn_conversion_policy_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e30_full_chess_passed_pawn_conversion_policy_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E30-FULL-CHESS-PASSED-PAWN-CONVERSION-POLICY\\
+Status: LOCKED --- passed pawn conversion policy implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

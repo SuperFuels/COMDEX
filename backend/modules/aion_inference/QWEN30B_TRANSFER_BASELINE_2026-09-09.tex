@@ -1,0 +1,370 @@
+% Append-only section for the AION technical record.
+% Requires: amsmath, booktabs, url.
+\section{Transfer to Qwen3-30B-A3B on an 18~GB Commodity Mac}
+\label{sec:qwen30b-transfer-2026-09-09}
+
+\subsection{Objective and claim boundary}
+
+This stage tests whether the storage-addressing and bounded-execution principles
+developed on Granite transfer to a substantially larger sparse mixture-of-experts
+(MoE) model.  The target is the official Qwen3-30B-A3B Q4\_K\_M GGUF checkpoint,
+stored on the removable SD evidence volume and executed on the existing Apple M3
+Pro Mac with 18~GB unified memory.  The aspirational performance target is
+50 generated tokens per second, but it is neither assumed nor used to move an
+acceptance threshold.  At the end of this stage, feasibility and the storage
+addressing mechanism are established; a high-speed Qwen result is not yet
+claimed.
+
+\subsection{Storage preparation and provenance}
+
+Six historical Granite layer-pack directories, occupying approximately 31~GiB,
+were moved intact from the SD card to the reversible internal archive
+\texttt{/Users/kevinrobinson/AION-Artifact-Archive/2026-09-09-granite-layer-packs}.
+The relocation manifest records the six source and destination hashes, all of
+which matched after relocation.  The original Granite model, promoted expert
+banks, expert blocks, experiment evidence, runtime evidence and technical records
+were retained on the SD volume.  This increased available SD capacity from
+approximately 5.4~GiB to 36~GiB before the Qwen checkpoint was installed.
+
+The installed checkpoint has the following immutable identity:
+\begin{align*}
+  B_{\mathrm{model}} &= 18{,}556{,}685{,}824\ \mathrm{bytes},\\
+  H_{\mathrm{model}} &= \texttt{0d003f6662faee786ed5da3e31b29c97}\ldots
+                       \texttt{c606a7f3c01aa8f5}.
+\end{align*}
+The digest matched the upstream linked-file identity.  A complete sequential
+SHA-256 pass required 194.14~s, corresponding to 95.58~MB/s decimal sustained
+read throughput from the SD card.  This provides a directly measured cold
+storage floor rather than an advertised device rate.  The runtime was
+\texttt{llama.cpp 0.4.0}, build 10809, commit \texttt{5266f24da}.
+
+\subsection{Failed stock Metal control}
+
+The first completed stock placement used all eligible GPU layers, kept MoE
+weights on CPU, enabled memory mapping and retained the runtime's default weight
+repacking.  It generated no token and ended after 574.07~s with repeated Metal
+\texttt{Insufficient Memory} command-buffer failures.  This run is preserved
+with an \texttt{INVALID} sidecar and supplies no tokens-per-second value.  It
+demonstrates that storing the checkpoint is possible but conventional
+whole-checkpoint materialisation is not a viable execution path on this machine.
+
+Several measurement-harness defects were also caught and preserved: one rejected
+argument, one pseudo-terminal job-control stop, one chat frontend that wrote
+approximately 90~MB of spinner characters to the SD result stream, and one
+unsupported benchmark argument.  None is used as performance evidence.  The
+accepted control uses the non-interactive batched benchmark and compact JSONL
+output.
+
+\subsection{Valid CPU/no-repack feasibility baseline}
+
+The accepted control disabled repacking, assigned zero layers to Metal, retained
+all MoE tensors on CPU/SD, used memory mapping, and fixed context 1024,
+batch/physical batch 64, eight CPU threads, 32 prompt tokens, eight generated
+tokens and one sequence.  It completed without an out-of-memory failure.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lr}
+\toprule
+Metric & Measured value \\
+\midrule
+Cold wall time & 358.55~s \\
+Prompt time (32 tokens) & 44.878975~s \\
+Prompt throughput & 0.713029 tokens/s \\
+Generation time (8 tokens) & 14.593630~s \\
+Generation throughput & 0.548184 tokens/s \\
+Combined throughput (40 tokens) & 0.672579 tokens/s \\
+\bottomrule
+\end{tabular}
+\caption{First valid Qwen3-30B-A3B execution baseline on the SD-backed 18~GB M3 Pro.}
+\end{table}
+
+The result artifact SHA-256 is
+\texttt{e2bdc67c7df654c1d079f4f997f95a14e4bae8de11a49287d7c425c26b002e06};
+the runtime-log SHA-256 is
+\texttt{bfe862576d22a0a1578d6a6eff90140bf6257b86eb37174fa5fdf70543fe60af}.
+The benchmark establishes computational feasibility, not answer quality, because
+the batched harness measures token identifiers rather than a semantic response.
+
+\subsection{Whole-GGUF Metal placement is falsified}
+
+Disabling repacking did not make conventional Metal placement safe.  Placing all
+eligible layers on Metal crossed Apple's reported 12{,}884.92~MB recommended
+working set and terminated abnormally after 287.46~s.  A 24-layer bound crossed
+the same limit and terminated after 286.29~s.  An eight-layer bound also crossed
+the limit, reported Metal out-of-memory during decode at approximately 8~min
+29~s, and failed the fixed 600-second wall gate.  None emitted valid benchmark
+timing.
+
+This falsifies the idea that a small adjustment to the number of offloaded layers
+is sufficient.  On Apple silicon, CPU mappings and Metal allocations compete for
+one unified-memory pool.  The complete GGUF mapping must therefore be prevented
+from becoming the effective Metal residency unit.  Future execution must expose
+only bounded, currently required layer/expert buffers.
+
+\subsection{Zero-copy Glyph expert address map}
+
+GGUF inspection found 579 tensors.  Each of the 48 MoE layers stores its 128
+experts in three combined tensors: gate, up and down projections.  Each combined
+tensor divides evenly into 128 physically contiguous expert slices.  AION now
+parses the GGUF header and constructs a source-bound address for every slice
+without reading or copying the tensor payload.
+
+For layer $\ell$, expert $e$ and projection $p$, the address is
+\begin{equation}
+  G(\ell,e,p) = (H_{\mathrm{model}}, o_{\ell,p} + e s_{\ell,p},
+                 s_{\ell,p}, \tau_{\ell,p}),
+\end{equation}
+where $o$ is the absolute tensor offset, $s$ is its per-expert byte stride and
+$\tau$ records the GGML type and tensor dimensions.  The human-readable Glyph is
+\texttt{qwen3moe/layer/LL/expert/EEE}.
+
+The generated map contains 6{,}144 layer/expert instances and has these measured
+properties:
+\begin{align*}
+  B_{\mathrm{expert}} &= 17{,}553{,}162{,}240\ \mathrm{bytes},\\
+  \frac{B_{\mathrm{expert}}}{B_{\mathrm{model}}} &= 94.5921\%,\\
+  B_{\mathrm{one\ layer/expert}} &= 2{,}856{,}960\ \mathrm{bytes},\\
+  B_{\mathrm{eight\ active,48\ layers}} &= 1{,}097{,}072{,}640\ \mathrm{bytes/token}.
+\end{align*}
+The last quantity is the logical uncached expert demand, not necessarily physical
+SD traffic after reuse.  It proves why naive streaming cannot approach the target:
+at the measured 95.58~MB/s SD rate, reading 1.097~GB for every token would itself
+take more than eleven seconds before computation.  Large gains require reuse,
+bounded residency and direct packed computation, not merely more reader threads.
+
+The 6.6~MB address-map file SHA-256 is
+\texttt{70e3ca7f0db99a9f357a5d3789a56b4df878b667b1d0b2978439f4b317bf6ddc};
+its internal canonical digest is
+\texttt{f9518b63658231ccad3d07d48a445aa7303cf1fc29148bf4bb13f8aabda4e82e}.
+The parser and synthetic coverage test were committed in isolated commit
+\texttt{0ac48511}; focused result: 1/1 passed.
+
+\subsection{Bounded real-SD expert-store mechanism gate}
+
+A strict 256~MiB least-recently-used store was then connected to the address map.
+It reads the three exact packed ranges for a requested layer/expert pair using
+positional reads, rejects short reads, retains no more than its declared byte
+ceiling and never copies or rewrites the source model.  The first report was
+invalidated because it estimated logical demand using a model-wide mean expert
+size; quantized expert sizes vary slightly by layer.  The corrected report sums
+the exact declared byte ranges for every access.
+
+The narrow mechanism trace comprised four synthetic token routes over layers
+0--7, with eight unique experts per layer and controlled partial overlap.  It is
+not a model-observed Qwen route, so it cannot establish production cache hit rate
+or tokens per second.  The corrected measured result was:
+\begin{align*}
+ B_{\mathrm{logical,no\ cache}} &= 757{,}334{,}016\ \mathrm{bytes},\\
+ B_{\mathrm{physical}} &= 568{,}000{,}512\ \mathrm{bytes},\\
+ \Delta B &= 25.00\%,\\
+ h &= 64/256 = 25.00\%,\\
+ B_{\mathrm{peak,resident}} &= 268{,}296{,}192\ \mathrm{bytes}
+ < 256\ \mathrm{MiB}.
+\end{align*}
+All 757{,}334{,}016 logical returned bytes matched the declared demand.  The store
+recorded 192 faults and 101 evictions.  Descriptive median route time was
+1.06744~s and nearest-rank p95 was 2.13648~s, but timing is not promoted because
+operating-system page-cache state was not controlled.  The report file SHA-256 is
+\texttt{7046ec0d6c1f61a499cd4c1aea7f07440fac8479b3fbc8872f74167d88e8cce7};
+its canonical digest is
+\texttt{7bd35f13fca7ccbaeb1d264c547d53cd4817d86658b2a3026d96fca3fec4d3a3}.
+Focused tests passed 3/3.  The bounded store was committed as
+\texttt{bc088100}.
+
+\subsection{Complete real Qwen route capture}
+
+The generic debug frontend was first filtered to the internal
+\texttt{ffn\_moe\_topk} tensors.  It confirmed that all 48 layer routers execute,
+but its human-readable formatter replaced the middle two of every eight-expert
+route with an ellipsis.  That diagnostic was preserved and invalidated for cache
+use.  A small local callback was then compiled against the installed llama/ggml
+interfaces.  It observes only the top-$k$ tensors, copies all eight \texttt{i32}
+identifiers after evaluation, and rejects incomplete, duplicated or out-of-range
+routes.
+
+For the fixed minimal prompt \texttt{Hello}, the corrected diagnostic captured
+all eight experts in all 48 layers.  It reported 48/48 complete layers, 384 valid
+identifiers, eight distinct identifiers per layer, and no identifier outside
+$[0,127]$.  The JSON route artifact SHA-256 is
+\texttt{f9a0c6ee2ae269547dba62f4c9cc133c89988d52559ba0a82896d0a1492e66de}.
+Its 242.26~s wall time is diagnostic and is not throughput evidence.  The native
+capture mechanism is isolated in commit \texttt{03e3abee}.  This closes the gap
+between the model's learned router and AION's exact expert byte addresses; the
+next cache trace can use model-selected IDs rather than invented routes.
+
+\subsection{Stride-correct prompt corpus and measured reuse}
+
+Extending the callback to a 22-token business prompt exposed a further integrity
+defect.  The first multi-token capture passed its range and uniqueness checks but
+selected nearly every expert with almost no adjacent reuse.  A distribution audit
+revealed that \texttt{ffn\_moe\_topk} is a strided eight-row view of a 128-row
+argsort tensor.  Reading it as contiguous memory silently included non-top-$k$
+rows.  That artifact was invalidated.  The corrected callback performs one
+stride-aware eight-integer copy per token position.
+
+The new corpus captured 22 routes in layers 0--46 and one route in layer 47.
+The final-layer count is intentional: llama.cpp requests logits only for the last
+prompt position and prunes the other final-layer positions.  Every route contained
+eight unique IDs in $[0,127]$.  Across 987 adjacent route pairs, mean overlap was
+3.1925 of eight experts and median overlap was three.  The histogram contained
+61 zero-overlap pairs and 926 pairs with at least one reused expert.  The corpus
+made 8{,}280 expert accesses but touched only 2{,}656 unique layer/expert
+instances.  Corpus SHA-256:
+\texttt{9468395059a85391c02080a631f92b999185b04202644a648df7d08cad082004}.
+
+Replaying this genuine route in actual prompt layer-major order through the
+256~MiB store produced:
+\begin{align*}
+ B_{\mathrm{logical,no\ cache}} &= 23{,}621{,}566{,}464\ \mathrm{bytes},\\
+ B_{\mathrm{physical}} &= 7{,}576{,}731{,}648\ \mathrm{bytes},\\
+ \Delta B &= 67.9245\%,\\
+ h &= 5{,}624/8{,}280 = 67.9227\%,\\
+ B_{\mathrm{peak,resident}} &= 268{,}406{,}784\ \mathrm{bytes}
+ < 256\ \mathrm{MiB}.
+\end{align*}
+The store recorded 2{,}656 faults and 2{,}569 evictions.  Descriptive store time
+was 61.64~s, with per-layer p50 1.70353~s and nearest-rank p95 2.17476~s.
+These times are not promoted because page-cache state was uncontrolled and this
+reader is not integrated with matrix computation.  In particular, the logical
+no-cache denominator describes repeated addressed reads; it is not asserted to
+equal stock llama.cpp's physical I/O.  The result proves substantial real-route
+reuse and strict bounded residency, not end-to-end acceleration.  Report file
+SHA-256:
+\texttt{b3d186af4732e2adf91a20cb1424bbfb29782b7c27bc37084ecdb5889de9b6d6};
+canonical digest:
+\texttt{7b3e61ade808ca103d55dea77baa57fe8d6bbacc2e70f5302f42235074a0ffe9}.
+Focused tests passed 3/3; implementation commit \texttt{acced8fd}.
+
+\subsection{Direct packed CPU expert-compute boundary}
+
+The next narrow gate tested whether the Mac CPU could compute directly on Qwen's
+existing packed representation, avoiding FP16 expansion and Metal residency.
+Layer~0 expert~21, selected by the real route, was read as 884{,}736 bytes of
+Q4\_K gate weights, 884{,}736 bytes of Q4\_K up weights and 1{,}290{,}240 bytes
+of Q6\_K down weights.  A native ggml graph executed the complete
+$2048\rightarrow768\rightarrow2048$ SwiGLU expert.  Across 100 repetitions its
+p50 was 0.058125~ms and p95 was 0.107084~ms, with finite output.  Artifact
+SHA-256:
+\texttt{7d1fd174e3652f203ce75bed639c406b86e1647894bb1737fd60633d0b03f263}.
+
+The exact layer-0 route $[21,29,50,22,75,6,33,116]$ was then executed as eight
+complete packed experts with summed outputs.  It consumed exactly 24{,}477{,}696
+packed weight bytes.  Two independent 100-repetition runs produced the identical
+checksum $-36.9675$:
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Run & p50 (ms) & p95 (ms) & Expert-only 48-layer p50 projection \\
+\midrule
+v1 & 0.427917 & 0.806666 & 48.6855 tokens/s \\
+v2 & 0.416334 & 0.793791 & 50.0400 tokens/s \\
+\bottomrule
+\end{tabular}
+\caption{Direct packed CPU timing for one real eight-expert Qwen layer route.}
+\end{table}
+Both runs passed the predeclared 0.694445~ms p50 boundary corresponding to an
+expert-only 30-token/s projection.  V2 narrowly crossed the aspirational
+0.416667~ms expert-only 50-token/s boundary; V1 did not.  The correct claim is a
+replicated 48.69--50.04 token/s \emph{expert-compute ceiling at p50}, not
+end-to-end model speed.  P95 implies only approximately 25.8--26.2 expert-only
+tokens/s.  Attention, dense computation, router work, SD faults, transfers,
+cache management and orchestration remain excluded.  V1 and V2 file hashes are
+respectively
+\texttt{32f9aeb40f579dcdc3b826cd0e9144764db35f6aa3be1962b3f535e278ea117d}
+and
+\texttt{e5fd56263fd0283c362aaef810d52752ad3b76a16d602266fd8eb9e3affaaf42}.
+The native mechanism is isolated in commit \texttt{3617063a}.
+
+\subsection{Representative-layer packed-compute audit}
+
+The initial layer-0 timing was not assumed to generalise.  A follow-up
+exploratory audit executed real token-0 routes at layers
+$\{0,8,16,24,32,40,47\}$, with 200 repetitions per layer.  This audit also
+caught and corrected an implementation assumption: Qwen's down projection is
+not uniformly Q6\_K.  Exactly 24 layers use Q6\_K down weights and 24 use Q4\_K
+down weights.  A first exploratory layer-16 attempt made with the incorrect
+fixed-Q6 assumption produced a non-finite result and was rejected; the
+manifest-driven tensor type restored finite results for every sampled layer.
+
+The observed p50 range was 0.368709--0.430375~ms for eight experts in one
+layer; p95 ranged from 0.682000 to 0.855583~ms.  The median sampled Q4\_K-down
+layer cost was 0.369792~ms, while the median sampled Q6\_K-down cost was
+0.423833~ms.  Applying those two descriptive medians to the actual 24/24 layer
+split gives a 19.047~ms expert-only token projection, or 52.5017 tokens/s.
+This crosses the aspirational 50-token/s boundary only as a stratified narrow
+compute projection.
+
+The result remains \texttt{EXPLORATORY\_NOT\_PROMOTED}.  The input activation
+was synthetic; selected-expert gate coefficients were not applied; numerical
+equivalence to llama.cpp was not tested; and routing, attention, dense work,
+SD faults, cache control and orchestration were excluded.  It therefore does
+not establish 52.5 end-to-end tokens/s.  It does strengthen the engineering
+hypothesis that direct packed CPU expert arithmetic is not the limiting
+physical barrier once the correct expert bytes are resident.  The SD-backed
+report SHA-256 is
+\texttt{f9c885d73c4f35741f7422ba1bb042fcd424ae545c398c1cc42acac13bdc3867}.
+
+\subsection{First exact direct-packed reconstruction}
+
+The correctness gate was then exercised on a real layer-0 token.  The stock
+llama.cpp graph supplied the normalized 2{,}048-element layer input, selected
+route $[62,21,75,87,36,34,126,47]$, eight normalized router coefficients and
+the 2{,}048-element stock MoE output.  An independent graph read only those
+eight packed expert slices from the SD-resident GGUF, evaluated the native
+Q4\_K/Q6\_K matrix operations directly on the CPU, applied the captured router
+coefficients and reduced the expert outputs.
+
+All 2{,}048 reconstructed output values equalled the stock graph bit for bit:
+maximum absolute error, mean absolute error and relative $L_2$ error were all
+exactly zero.  This is the first proof that the direct-packed path is not merely
+fast in a synthetic benchmark: for this real layer and token it reproduces the
+reference MoE calculation exactly without expanding the expert weights to
+FP16 or placing the complete expert bank in Metal memory.  The SD-backed report
+SHA-256 is
+\texttt{a9189f7d99dd0aa8cdad4b0057e9c10a38b62748f57abc44ecefe412756ab2bd}.
+
+The acceptance boundary remains narrow.  One layer and one prompt token do not
+establish all-layer, multi-token, step-logit or generated-token equivalence.
+No end-to-end throughput claim is derived from this exactness result.  The next
+gate must repeat the reconstruction over representative Q4\_K- and Q6\_K-down
+layers and multiple real tokens before the mechanism is integrated into a
+bounded decoder.
+
+The representative-layer expansion then repeated the comparison at layers 16
+and 32 on the same prompt, and at layer 8 on a distinct seven-word business
+prompt.  This covered both Q4\_K and Q6\_K down projections.  Every one of the
+8{,}192 compared floating-point values was bit-for-bit equal to the stock graph;
+all four cases had zero maximum, mean and relative $L_2$ error.  The cohort
+therefore passed the representative-layer exactness gate.  Its SD-backed report
+SHA-256 is
+\texttt{df3f57fb5419a621f96eb944dc597f5fa78e84cabf07cc287a25c823bd79d0a8}.
+This broader result still does not substitute for every-layer, multi-token and
+step-logit equivalence in an integrated decoder.
+
+The gate was next expanded to the complete 48-layer stack in one stock capture
+followed by independent reconstruction.  For every layer, AION read only the
+selected eight packed expert slices, used the layer's actual Q4\_K or Q6\_K down
+type, applied the captured normalized gates and compared the 2{,}048-value
+result.  All 98{,}304 values were bit-for-bit equal: no layer had a nonzero
+error, and aggregate maximum absolute, mean absolute and relative $L_2$ error
+were zero.  The all-layer single-token exactness gate therefore passed.  The
+SD-backed report SHA-256 is
+\texttt{bbb85daf40b24f142ff1a89e5fac479914972bd2c5069e1f1d783deb4484fff4}.
+This removes layer coverage as an immediate correctness uncertainty, but does
+not yet prove multiple token positions, step logits, generated tokens or
+end-to-end decoder speed.
+
+\subsection{Next measured gates}
+
+The next implementation stage is to combine the already bounded Qwen expert
+reader with the now exact direct-packed calculation, without registering the
+complete GGUF in Metal residency.  The immediate correctness gate is multi-token
+reconstruction across token positions, followed by step-logit and generated-token
+equivalence in the bounded decoder.  Only after those gates may persistent
+buffers, decode/read/compute overlap and route-aware retention be judged by
+end-to-end timing.  Exact-output candidates must preserve token
+and step-logit equivalence; changed kernels or representations remain separately
+quality-gated.  No claim of 50 tokens/s, production usability, or general larger-
+model acceleration is made by the present results.

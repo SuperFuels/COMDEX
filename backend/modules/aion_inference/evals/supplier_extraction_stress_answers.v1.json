@@ -1,0 +1,29 @@
+{
+  "schema_version": "aion.supplier_extraction_stress_answers.v1",
+  "answers": {
+    "ses-w-01":{"supplier_name":"Atlas Components SL","invoice_reference":"AC-204","payment_amount":"EUR 910.40"},
+    "ses-w-02":{"supplier_name":"Blue North Ltd","invoice_reference":"BN-771","payment_amount":"GBP 81.22"},
+    "ses-w-03":{"supplier_name":"Cobalt Works BV","invoice_reference":"CW-62","payment_amount":"USD 440.00"},
+    "ses-w-04":{"supplier_name":"Duna Paper SA","invoice_reference":"DP-515","payment_amount":"EUR 1200.50"},
+    "ses-w-05":{"supplier_name":"East Field AB","invoice_reference":"EF-92","payment_amount":"SEK 775.10"},
+    "ses-w-06":{"supplier_name":"Forest Line LLC","invoice_reference":"FL-804","payment_amount":"USD 304.19"},
+    "ses-w-07":{"supplier_name":"Green Mesa PLC","invoice_reference":"GM-77","payment_amount":"GBP 630.00"},
+    "ses-w-08":{"supplier_name":"Harbor Glass GmbH","invoice_reference":"HG-311","payment_amount":"EUR 95.75"},
+    "ses-p-01":{"supplier_name":"Atlas Components SL","invoice_reference":"AC-204","payment_amount":"EUR 910.40"},
+    "ses-p-02":{"supplier_name":"Blue North Ltd","invoice_reference":"BN-771","payment_amount":"GBP 81.22"},
+    "ses-p-03":{"supplier_name":"Cobalt Works BV","invoice_reference":"CW-62","payment_amount":"USD 440.00"},
+    "ses-p-04":{"supplier_name":"Duna Paper SA","invoice_reference":"DP-515","payment_amount":"EUR 1200.50"},
+    "ses-p-05":{"supplier_name":"East Field AB","invoice_reference":"EF-92","payment_amount":"SEK 775.10"},
+    "ses-p-06":{"supplier_name":"Forest Line LLC","invoice_reference":"FL-804","payment_amount":"USD 304.19"},
+    "ses-p-07":{"supplier_name":"Green Mesa PLC","invoice_reference":"GM-77","payment_amount":"GBP 630.00"},
+    "ses-p-08":{"supplier_name":"Harbor Glass GmbH","invoice_reference":"HG-311","payment_amount":"EUR 95.75"},
+    "ses-n-01":{"supplier_name":"Isla Tools SL","invoice_reference":"IT-408","payment_amount":"EUR 320.90"},
+    "ses-n-02":{"supplier_name":"Juniper Kitchens Ltd","invoice_reference":"JK-71","payment_amount":"GBP 515.00"},
+    "ses-n-03":{"supplier_name":"Kilo Freight BV","invoice_reference":"KF-820","payment_amount":"USD 77.45"},
+    "ses-n-04":{"supplier_name":"Lago Verde SA","invoice_reference":"LV-93","payment_amount":"EUR 840.10"},
+    "ses-n-05":{"supplier_name":"Metro Data AB","invoice_reference":"MD-507","payment_amount":"SEK 1600.00"},
+    "ses-n-06":{"supplier_name":"North Pine LLC","invoice_reference":"NP-611","payment_amount":"USD 249.99"},
+    "ses-n-07":{"supplier_name":"Ocean Ridge PLC","invoice_reference":"OR-80","payment_amount":"GBP 101.20"},
+    "ses-n-08":{"supplier_name":"Prado Glass GmbH","invoice_reference":"PG-319","payment_amount":"EUR 95.75"}
+  }
+}

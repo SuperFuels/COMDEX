@@ -1,0 +1,126 @@
+% Append-only LaTeX section for the AION GPT-OSS 120B technical record.
+% Required packages in the parent document: booktabs, amsmath.
+
+\section{Exact Response-Reuse Frontier and the Sub-GiB Memory Cliff}
+\label{sec:gptoss120b-exact-reuse-frontier}
+
+\subsection{Purpose and method}
+
+After exact read/compute overlap reached 1.72455~t/s on arithmetic and
+1.82858~t/s on extraction, the remaining settled runs still delivered
+approximately 42--45~GB from the internal L2 tier.  A hash-bound offline
+analyzer therefore measured response-only expert reuse after removing each
+family's existing protected RAM pool.  It calculated weighted reuse distance,
+the immutable first-touch floor, capacity-versus-avoided-delivery curves, and
+both whole-expert and six-component retention frontiers.
+
+The analysis assumes that an admitted immutable entry remains resident.  It
+does not predict wall-time benefit or account for memory-pressure cost.
+Component-granularity results describe a hypothetical mixed-residency kernel;
+they are not runtime evidence.
+
+\subsection{Physical reuse limits}
+
+Arithmetic's 33 continuation positions made 2,930 L2 expert accesses to 1,186
+unique layer-experts.  Their decoded delivery was 36.1665~GiB, of which the
+first-touch floor alone was 14.6394~GiB.  Thus at most 59.52\% could be removed
+by perfect response-local retention.  Eliminating 50\% would require 381
+additional complete experts occupying 4.7029~GiB.  The median weighted reuse
+distance was 3.2215~GiB; p90 was 8.3652~GiB and p95 was 10.8139~GiB.
+
+Extraction's 22 continuation positions made 1,885 L2 accesses to 1,028 unique
+layer-experts.  Delivery was 23.2675~GiB and the first-touch floor was
+12.6891~GiB.  Consequently, even unlimited retention within that response can
+remove only 45.46\%; a 50\% reduction is physically impossible without reuse
+across requests or changing the model.  Median weighted reuse distance was
+2.0614~GiB, p90 6.8136~GiB and p95 8.6050~GiB.
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+Extra capacity & Arithmetic reduction & Extraction reduction & Arithmetic entries & Extraction entries \\
+\midrule
+0.5~GiB & 11.47\% & 13.90\% & 40 & 40 \\
+1.0~GiB & 19.49\% & 20.58\% & 81 & 81 \\
+1.5~GiB & 26.14\% & 25.15\% & 121 & 121 \\
+2.0~GiB & 31.74\% & 29.50\% & 162 & 162 \\
+4.0~GiB & 46.11\% & 39.68\% & 324 & 324 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Six-component selection did not open a meaningful finer-grained frontier.  At
+0.5~GiB it improved predicted reduction by only 0.1004 percentage points for
+arithmetic and 0.0959 points for extraction.  At 4~GiB the advantage was below
+0.004 percentage points.  All six components of a selected expert are consumed
+by its packed calculation and inherit the same reuse frequency; splitting them
+therefore adds complexity without material capacity benefit.  Decision:
+\texttt{STOP\_COMPONENT\_GRANULARITY\_AS\_A\_CACHE\_STRATEGY}.
+
+\subsection{Live 0.5 GiB boundary test}
+
+The smallest plausible whole-expert candidate combined the promoted adaptive
+overlap path with only 0.5~GiB of additional demand-admitted hot experts.  The
+40-entry allowlist was hash-bound by a new cartridge plan.  The total declared
+expert pool was 8.4~GiB; observed residency was 8.393~GiB.  The original
+unrestricted four-expert router and all weights remained unchanged.
+
+The mechanism behaved correctly.  All 40 experts were admitted, settled SD
+fallbacks were zero, and settled L2 delivery fell from 45,129,243,480 to
+39,483,117,864 bytes, a 12.51\% reduction.  Routes, generated tokens, final
+hidden states and step logits remained bit-for-bit identical.
+
+Nevertheless, settled continuation rates were 1.58565 and 1.41689~t/s, median
+1.50127~t/s.  This is 12.95\% below the promoted overlap-only median of
+1.72455~t/s.  Expert-finish time rose to 14.87 and 16.24~s, and attention time
+also rose on the slower pass.  Even the sub-GiB resident extension therefore
+crossed the useful memory/cache-pressure boundary on this 18~GB host.
+
+Decision:
+\texttt{NOT\_PROMOTED\_STOP\_ALL\_ADDITIONAL\_RAM\_EXPERT\_HOTSETS}.  The
+planned 1.0~GiB test was cancelled rather than repeating the same physical
+failure.  The promoted exact configuration remains the existing 7.9--8~GiB
+family pool plus adaptive L2-read/compute overlap.
+
+\subsection{Consequence for the next architecture}
+
+The remaining order-of-magnitude target cannot be reached by retaining more
+original expert bytes in unified memory, and component-level caching offers no
+capacity escape.  Exact-track work must now reduce transient delivery or
+consume packed data without enlarging the durable resident set.  Candidates
+include a genuinely direct packed L2 kernel with bounded scratch space or a
+different lossless physical representation whose decode cost is lower than the
+bytes it removes.  Reduced experts, mixed precision and transformed weights
+remain separate quality-track experiments.
+
+The offline frontier canonical/stored SHA-256 values are
+\texttt{8c2821c48a7acd28c5327eefdbd0832923ee8daa3f941479ec2e6cbf90046401}
+and
+\texttt{5f4f404074a9735cbae82b4345ca44a96295f4870f71d071f4ac8dcf30719045}.
+The live 0.5~GiB report canonical/stored values are
+\texttt{b476d87e10a10f35c2f7591ea3a3c126fb0a9ece24071d01fb896967cfcb553d}
+and
+\texttt{f89a2936c38998359ededd0534aae4adc39a3bcf4abb4f581cdc522389f22a2d}.
+
+\subsection{Stopped dependency-staged L2 pipeline}
+
+A final bounded-scratch exact probe split each expert at its true dependency
+boundary.  Gate and up components were read and evaluated first while the down
+projection was fetched concurrently; the resulting F32 SwiGLU activation was
+then consumed by the original packed MXFP4 down calculation.  A resident-only
+gate over eight captured experts first established bitwise equivalence and
+measured only 4.55\% splitting overhead, permitting an L2 microgate.
+
+The real process-verified L2 gate used eight captured four-expert routes and six
+balanced rounds, producing 48 observations per mode.  All outputs remained
+bit-for-bit identical.  Nevertheless, whole-expert overlap required a median
+4.9073~ms per route while staged projection required 7.3853~ms.  The
+candidate/control speed ratio was 0.6645.  The extra file operation, graph call
+and synchronization boundary cost substantially more than the short gate/up
+compute interval could hide.  Decision:
+\texttt{STOP\_STAGED\_PROJECTION\_IO}; do not integrate it into full generation.
+
+The stopped runtime's canonical/stored SHA-256 values are
+\texttt{f10a46617ed6ef1129b4f3919837981836d34d040b34bcca6c3981447bc9559d}
+and
+\texttt{33fe30fe9bb7fb54f9ab29d503dad0d36b4a2772656a51053fba929de55e3c4b}.

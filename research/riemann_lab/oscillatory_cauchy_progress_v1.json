@@ -1,0 +1,50 @@
+{
+  "schema": "aion.riemann_oscillatory_cauchy_progress.v1",
+  "date": "2026-08-15",
+  "status": "completed_by_fourier_inversion",
+  "claim_boundary": "Lean verifies sharp symmetric convergence and the exact piecewise value through Fourier inversion of a continuous one-sided exponential moment. This closes the scalar analytic gate but does not prove the infinite Chebyshev Perron formula or RH.",
+  "pinned_environment": {
+    "lean": "4.24.0",
+    "mathlib": "v4.32.1"
+  },
+  "formal_module": {
+    "path": "RiemannLab/Tasks/OscillatoryCauchy.lean",
+    "sha256": "a4ae0478e4a571c0e152fded1815d703eae1c2360d1b1eecf550447df468c56d",
+    "definitions": 5,
+    "kernel_checked_theorems": 25,
+    "sorry": 0,
+    "admit": 0,
+    "axiom": 0,
+    "unsafe": 0
+  },
+  "verified_units": [
+    "derivative of the reciprocal vertical-line parameter",
+    "normalized primitive of exp(i*a*t)",
+    "exact finite-interval integration by parts",
+    "constant norm of the oscillatory primitive",
+    "1/|t| endpoint bound",
+    "exact norm and absolute integrability of the squared-denominator remainder",
+    "vanishing of the endpoint term at positive infinity",
+    "existence and explicit remainder formula for the one-sided sharp limit",
+    "reflection/conjugation identity for negative heights",
+    "existence of the normalized symmetric sharp limit",
+    "equivalence of the original oscillatory target to one explicit value identity",
+    "Laplace representation of the reciprocal vertical-line denominator",
+    "absolute integrability of the squared-denominator Fourier kernel",
+    "symmetric integration-by-parts reduction to the squared kernel",
+    "exact equality between the sharp limit and the normalized whole-line squared-kernel integral",
+    "sufficiency of the named squared-kernel Fourier value target for the original oscillatory limit"
+  ],
+  "completed_gate": {
+    "id": "squared_cauchy_fourier_value",
+    "target": "integral_R exp(i*a*t)/(c+i*t)^2 dt = if 0 < a then 2*pi*a*exp(-a*c) else 0",
+    "status": "lean_verified",
+    "proof_route": "Fourier inversion for the continuous one-sided function u*exp(-c*u) on u>0, including integrability, transform computation, primitive evaluation, and scaling."
+  },
+  "verification": {
+    "command": "lake build",
+    "result": "PASS",
+    "jobs": 3588,
+    "api_calls": 0
+  }
+}

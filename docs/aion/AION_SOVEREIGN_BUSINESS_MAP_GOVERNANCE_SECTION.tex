@@ -1,0 +1,176 @@
+\section{Sovereign Business Map Governance, Entity Linking and Source Lifecycle}
+\label{sec:sovereign-business-map-governance}
+
+This increment completes four connected items in Phase~2 of the Sovereign
+Business Brain roadmap: \texttt{SBB-0203}, \texttt{SBB-0204},
+\texttt{SBB-0206}, and \texttt{SBB-0209}.  It does not create a second business
+map.  The existing Boardroom \texttt{BusinessMapContainer} remains the sole
+business-map authority, stored inside the customer's Business Container
+repository and bound to Boardroom decisions by its exact revision and content
+hash.
+
+\subsection{Purpose}
+
+The downloaded ``empty brain'' must be able to learn a company without silently
+turning guesses, stale imports, or model-generated associations into company
+truth.  The completed layer therefore governs four related objects:
+
+\begin{enumerate}
+  \item facts about the business;
+  \item relationships between explicit business entities;
+  \item approved source passages linked to those entities; and
+  \item the retention, legal-hold, and revocation state of each source.
+\end{enumerate}
+
+Every material mutation is revision checked.  A stale browser cannot overwrite
+a newer map: its request fails with a revision conflict and must reload the
+authoritative mother-brain state.  Successful changes produce local hash-bound
+governance receipts.
+
+\subsection{Canonical map relationship contract}
+
+The existing \texttt{BusinessMapContainer} now carries a first-class
+\texttt{relationships} collection alongside facts, assumptions, unknowns,
+conflicts, unanswered fields, and department-discovery gaps.  A governed
+relationship records at least:
+
+\begin{itemize}
+  \item a stable relationship identifier;
+  \item explicit source and destination entity identifiers;
+  \item a relationship type;
+  \item a source reference and confidence value;
+  \item a proposed, approved, or rejected review state;
+  \item a verification status and review owner; and
+  \item creation and review timestamps.
+\end{itemize}
+
+New relationships cannot be proposed without both provenance and confidence.
+The owner can approve, correct, reject, or explicitly delete a relationship.
+Correction may change an endpoint or the relationship type, but it does not
+erase the before-state hash from the receipt ledger.  Deletion requires a
+separate positive confirmation.
+
+\subsection{Legacy relationship normalization}
+
+Older Boardroom records may contain useful explicit relationships without the
+new governance fields.  A deterministic normalizer upgrades these records in
+place.  Missing provenance is labelled as the legacy storage location rather
+than misrepresented as an independently verified source.  Its default
+confidence is deliberately limited to \(0.5\), and the relationship returns to
+the proposed queue for owner review.
+
+The normalizer also reads the existing \texttt{BusinessStructureContainer}.
+Where that container already supplies a stable entity identifier, it may create
+an explicit structural relationship such as \emph{offers}, \emph{has team},
+\emph{uses channel}, or \emph{fulfils through}.  Items without identifiers are
+skipped.  No model is asked to infer a missing relationship, and duplicate
+source--type--destination triples are not added.
+
+\subsection{Owner-facing map editor}
+
+The management interface is embedded in the existing Boardroom Business Map
+panel.  It is not a new dashboard or a browser-local map.  The founder or an
+authorised operator can open \emph{Review and edit map} and see plain-language
+cards for facts and relationships.  Each card exposes its value, source,
+confidence, and review state.
+
+The available controls are:
+
+\begin{itemize}
+  \item approve a proposed record;
+  \item correct its value or relationship type;
+  \item reject it without pretending it disappeared;
+  \item delete it after a separate confirmation; and
+  \item merge facts with the same field while retaining the duplicate's source
+        reference and content hash.
+\end{itemize}
+
+The interface also shows the combined review and discovery queue and provides a
+bounded \emph{Recover existing relationships} operation.  After every action it
+reloads the map from the mother brain.  An owner confirmation used by a Board
+meeting becomes stale automatically when the map revision or receipt hash
+changes.
+
+\subsection{Deterministic entity linking}
+
+The Business Knowledge index can now link approved document claims to explicit
+Boardroom entities.  The entity catalogue is assembled only from Business
+Identity and Business Structure records that have stable identifiers and
+names.  Supported entity families include the business, services, channels,
+revenue streams, costs, payment terms, fulfilment processes, functions, teams,
+human agents, and AI agents.
+
+Linking uses case-insensitive exact-name boundaries.  It does not use face
+recognition, semantic guessing, or a language model.  A link is created only
+when:
+
+\begin{enumerate}
+  \item the source claim has already been approved by the owner;
+  \item the Boardroom entity has an explicit identifier and name; and
+  \item that exact name occurs in the approved claim.
+\end{enumerate}
+
+Each link retains the claim identifier, source identifier, source hash, entity
+identifier, entity type, deterministic match method, confidence, actor, and
+timestamp.  Rebuilding the same links is idempotent.  Pending or revoked claims
+cannot become linked business knowledge.
+
+\subsection{Retention, legal hold and source revocation}
+
+Each ingested business source may receive a retention deadline and an explicit
+legal-hold flag.  The owner can change that policy through the mother-brain API,
+and the change produces a governance receipt.
+
+A source revocation requires exact confirmation.  When authorised, the system:
+
+\begin{enumerate}
+  \item marks the source as revoked;
+  \item marks every derived claim as revoked and removes it from retrieval;
+  \item removes entity links derived from those claims;
+  \item deletes the local raw source material only when its resolved path is
+        inside that business's bounded raw-source directory; and
+  \item retains a non-secret, hash-bound governance receipt.
+\end{enumerate}
+
+A legal hold blocks both manual revocation and automatic retention expiry.
+The retention worker processes only expired, non-held, non-revoked sources.
+Repeated revocation is idempotent.  This separates withdrawal of knowledge from
+rewriting historical proof that the governance action occurred.
+
+\subsection{Mother-brain API surface}
+
+The existing Business Twin Data API now exposes bounded operations for fact
+merge, relationship proposal and review, legacy normalization, entity-link
+rebuild, source-policy updates, confirmed source revocation, and retention
+application.  Credentials and provider tokens are not accepted by these
+contracts.  The canonical map status also reports its relationship count.
+
+\subsection{Safety and sovereignty properties}
+
+The implementation enforces the following properties:
+
+\begin{itemize}
+  \item no parallel business map is introduced;
+  \item no legacy relationship is silently promoted to verified truth;
+  \item no unapproved document passage participates in entity linking;
+  \item no unidentified structure item receives an invented identifier;
+  \item no deletion or source revocation occurs without exact confirmation;
+  \item no held source is removed by the retention worker;
+  \item no raw file path outside the bounded business source directory is
+        deleted; and
+  \item no browser mutation bypasses optimistic revision control.
+\end{itemize}
+
+\subsection{Release and verification status}
+
+This capability is included in AION Sovereign Brain Bootstrap~0.4.0 and Pilot
+Fabric~0.56.0.  Automated verification covers legacy normalization, explicit
+structure projection, relationship review, duplicate-fact merge, deterministic
+entity linking, exclusion of pending claims, source revocation, raw-material
+removal, retrieval withdrawal, legal-hold protection, retention expiry, and the
+existing Boardroom editor contract.
+
+The next open item in this phase is \texttt{SBB-0207}: one onboarding connector
+screen for the already implemented Files, Gmail, Calendar, CRM/Sales, and Xero
+read routes, including explicit proof of each connector's map projection.  It is
+not claimed complete by this section.

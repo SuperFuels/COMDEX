@@ -61,12 +61,7 @@ export default function WalletPanel() {
   async function refreshWalletBalances(waOverride?: string | null) {
     if (typeof window === "undefined") return;
 
-    const headerWa =
-      waOverride ??
-      ownerWa ??
-      localStorage.getItem("gnet:ownerWa") ??
-      localStorage.getItem("gnet:wa") ??
-      null;
+    const headerWa = waOverride ?? ownerWa ?? null;
 
     setLoading(true);
 
@@ -154,14 +149,7 @@ export default function WalletPanel() {
   // initial bootstrap
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    const wa =
-      localStorage.getItem("gnet:ownerWa") ??
-      localStorage.getItem("gnet:wa") ??
-      null;
-
-    setOwnerWa(wa);
-    void refreshWalletBalances(wa);
+    void refreshWalletBalances(null);
   }, []);
 
   async function handleMeshDebugLookup() {
@@ -1503,4 +1491,3 @@ function SmallBalanceCard({
     </div>
   );
 }
-

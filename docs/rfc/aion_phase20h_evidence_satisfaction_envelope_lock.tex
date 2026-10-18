@@ -1,0 +1,138 @@
+\section{Phase 20H --- Evidence Intake / Evidence Satisfaction Envelope v0}
+\label{sec:phase20h-evidence-satisfaction-envelope-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- evidence intake and evidence satisfaction envelope added for AION-LRM evidence gaps.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20H handles the moment when missing evidence is supplied after a Phase 20G evidence gap.
+
+The Evidence Intake / Evidence Satisfaction Envelope records:
+
+\begin{itemize}
+  \item what evidence was received;
+  \item which evidence hashes were attached;
+  \item which evidence gap it satisfies;
+  \item which recommendation card it unblocks;
+  \item which proof hashes and context hashes it links to;
+  \item whether the request may return to human review.
+\end{itemize}
+
+The envelope does not approve live execution.
+
+It only determines whether the evidence gap is satisfied enough to return the case to human review.
+
+\subsection{Implemented Module}
+
+\begin{verbatim}
+backend/modules/aion_lrm/evidence_satisfaction_envelope.py
+\end{verbatim}
+
+The module exposes:
+
+\begin{verbatim}
+EVIDENCE_SATISFACTION_ENVELOPE_VERSION
+build_evidence_satisfaction_envelope
+build_default_home_fixed_evidence_satisfaction_envelope
+\end{verbatim}
+
+\subsection{Satisfaction Contract}
+
+The envelope records:
+
+\begin{itemize}
+  \item source evidence gap hash;
+  \item source evidence gap summary hash;
+  \item received evidence;
+  \item evidence hashes;
+  \item required evidence;
+  \item remaining missing evidence;
+  \item evidence gap satisfied flag;
+  \item unblocked recommendation card hash;
+  \item proof hashes;
+  \item context hashes;
+  \item next review state;
+  \item deterministic satisfaction hash;
+  \item deterministic summary hash.
+\end{itemize}
+
+\subsection{Review State}
+
+If all required evidence has been received, the next review state is:
+
+\begin{verbatim}
+return_to_human_review
+\end{verbatim}
+
+If evidence is still missing, the next review state remains:
+
+\begin{verbatim}
+request_more_evidence
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+Phase 20H is preview-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute a workflow;
+  \item grant live permission.
+\end{itemize}
+
+\subsection{Private Reasoning Boundary}
+
+The evidence satisfaction envelope MUST NOT expose private chain-of-thought, hidden reasoning, credentials, access tokens, API keys, passwords, or secrets.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20h_evidence_satisfaction_envelope_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h_evidence_satisfaction_envelope_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 20H
+Evidence Intake
+Evidence Satisfaction Envelope
+evidence gap
+missing evidence
+return_to_human_review
+recommendation card
+proof hashes
+context hashes
+preview-only
+human review
+private chain-of-thought
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H-EVIDENCE-SATISFACTION-ENVELOPE-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

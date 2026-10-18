@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.55 --- Monte Carlo Search Skeleton and Self-Play Policy-Value Seed}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.55 introduces the first Monte Carlo search skeleton for AION full chess.
+
+The goal is not yet full AlphaZero-style training. The goal is to create the missing search architecture: candidate nodes, rollout estimates, policy priors, value estimates and self-play memory.
+
+\section{Implemented Capabilities}
+
+This phase adds:
+
+\begin{itemize}
+  \item deterministic Monte Carlo rollouts;
+  \item MCTS-style node scoring;
+  \item candidate move beam selection;
+  \item policy prior from local AION memory;
+  \item lightweight value estimate;
+  \item self-play policy memory update;
+  \item catastrophic reply penalty;
+  \item deterministic trace hash.
+\end{itemize}
+
+\section{Boundary}
+
+This kernel does not call Stockfish.
+
+It does not use LLM move judgement.
+
+It does not use Lichess analysis.
+
+It uses only legal move generation, deterministic rollout selection, local policy memory and local value scoring.
+
+\section{Reason}
+
+Phase 22E.54 added opponent reply probability and tactical exposure filtering.
+
+Phase 22E.55 adds the next layer: search over candidate futures, not only a single opponent reply check.
+
+\section{Validation}
+
+Expected validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e55_full_chess_monte_carlo_policy_value_seed_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e55_full_chess_monte_carlo_policy_value_seed_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E55-MONTE-CARLO-POLICY-VALUE-SEED\\
+Status: LOCKED --- deterministic Monte Carlo search skeleton and self-play policy-value seed added\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

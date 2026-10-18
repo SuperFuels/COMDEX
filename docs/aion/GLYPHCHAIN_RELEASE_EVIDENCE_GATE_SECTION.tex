@@ -1,0 +1,194 @@
+\section{GlyphChain and Legal production-release evidence gate}
+\label{sec:glyphchain-legal-release-evidence-gate}
+
+The production decision is now protected by a fail-closed evidence evaluator
+covering every unfinished GlyphChain and Legal release task.  The evaluator does
+not manufacture evidence, appoint reviewers or approve a release merely because
+the software is installed.  It verifies that independently configured
+authorities signed production evidence for the exact release under review and
+keeps the release blocked until all thirty-four gates are satisfied.
+
+\subsection{Canonical task register}
+
+The register contains exactly thirty-four identifiers divided into the six
+remaining workstreams:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+\textbf{Prefix} & \textbf{Workstream} & \textbf{Task count} \\
+\hline
+\texttt{LD} & Live signing delivery & 5 \\
+\texttt{TR} & Independent quorum assurance publication & 3 \\
+\texttt{NET} & Distributed-network production validation & 5 \\
+\texttt{SEC} & Production security and recovery & 4 \\
+\texttt{LEGAL} & Qualified Legal content & 7 \\
+\texttt{REL} & Controlled deployment and release & 10 \\
+\hline
+& \textbf{Total} & \textbf{34} \\
+\hline
+\end{tabular}
+\end{center}
+
+Each identifier has a fixed description, required authority roles and an
+independence requirement where appropriate.  Unknown identifiers do not extend
+the register.  Duplicate entries are reported and block approval.
+
+\subsection{Exact-release binding}
+
+Every evidence body contains the SHA-256 digest of the exact release manifest.
+For release bytes $M$, the binding is
+
+\begin{equation}
+  h_M = \operatorname{SHA256}(M).
+\end{equation}
+
+An entry for another build, branch, package or earlier candidate cannot satisfy
+a task, even when its underlying exercise passed.  Human-readable release names
+are not accepted as substitutes for $h_M$.
+
+The signed evidence body includes:
+
+\begin{itemize}
+  \item schema and task identifier;
+  \item exact release-manifest digest;
+  \item the literal \texttt{production} environment;
+  \item a \texttt{PASS} result;
+  \item observation time and retained statement;
+  \item one or more uniquely identified, task-specific artifact SHA-256 digests;
+        and
+  \item the attestations required by the task's authority policy.
+\end{itemize}
+
+Each task declares the artifact classes it requires.  An unrelated report with a
+valid digest cannot satisfy the gate; all required classes must be present and
+artifact identifiers must be unique inside the evidence body.  Local, test or
+staging evidence is rejected by the production gate.  A task
+also remains open when its result is incomplete, its retained artifact list is
+empty or malformed, or its statement and observation time are absent.
+
+\subsection{Role-scoped Ed25519 attestations}
+
+An authority signs a domain-separated canonical body:
+
+\begin{equation}
+  \sigma_i = \operatorname{Ed25519.Sign}_{sk_i}\!\left(
+    \operatorname{canon}(D,E)
+  \right),
+\end{equation}
+
+where $D$ is
+\texttt{TESSARIS\_GLYPHCHAIN\_LEGAL\_RELEASE\_EVIDENCE\_V1} and $E$ is the
+complete evidence body.  The configured trust-root inventory supplies the
+matching public key, permitted roles and whether the authority is independent
+of the development team.  A non-empty inventory is accepted only when its
+governance signature verifies against a separately supplied Ed25519 authority
+key and its exact file digest matches the independently supplied current pin.
+
+The role set distinguishes delivery operators, security reviewers, independent
+trust publishers and verifiers, network and security operators, application
+and consensus security reviewers, qualified Legal reviewers, Legal product
+owners, deployment operators, pilot owners, metrics reviewers, release
+publishers and final release approvers.
+
+A valid signature from the wrong role is insufficient.  For gates requiring
+multiple roles, each role must be represented by a distinct signer.  One person
+or key holding several labels cannot satisfy separation of duties for that
+task.  When independence is required, at least one of the signers actually
+satisfying a required role must be marked independent in the separately
+controlled trust-root inventory.
+
+\subsection{Release-decision semantics}
+
+For task $t$, define $G_t=1$ only when its body, release binding, artifacts,
+required roles, signatures, independence and separation-of-duties checks all
+pass.  Production authorization is computed as
+
+\begin{equation}
+  G_{\mathrm{release}} =
+  \left(\bigwedge_{t \in T} G_t\right)
+  \land (U=\varnothing)
+  \land (D=\varnothing),
+\end{equation}
+
+where $T$ is the fixed thirty-four-task register, $U$ is the set of unknown task
+identifiers and $D$ is the set of duplicates.  There is no percentage threshold,
+majority override or silent waiver.
+
+If the conjunction is false, the result is
+\texttt{BLOCKED\_EXTERNAL\_GATES} and
+\texttt{production\_release\_authorized=false}.  Only a complete evidence set
+can yield \texttt{ALL\_RELEASE\_GATES\_EVIDENCED}.  The evaluator verifies the
+configured evidence; it does not independently determine whether a person is a
+qualified lawyer, reproduce an external provider event or replace the signed
+human approval.
+
+\subsection{Evidence inventory and trust administration}
+
+The repository includes deliberately empty inventory templates.  The evidence
+inventory contains no self-declared passing records, and the trust-root
+inventory authorises no keys.  Production operators must populate them only
+through the approved external governance process.  Private signing keys must
+never be stored in either file or in the tracked source tree.
+
+Trust roots and evidence are deployment records rather than source-code proof.
+They are mutable only through controlled operations and are intentionally not
+folded into the source manifest that they are intended to approve.  This avoids
+a circular construction in which changing the approval evidence changes the
+release digest it signs.
+
+\subsection{Integrity-checksummed readiness report}
+
+The evaluator produces an owner-only, exclusive-create JSON report.  It records
+the release digest, passed and unmet identifiers, unknowns, duplicates,
+verified role-to-signer mappings, artifact counts and per-task errors.  It does
+not store private keys or private Legal content.
+
+The report also binds canonical SHA-256 digests of the complete evidence-entry
+sequence and trust-root map.  Each task records the exact evidence-body digest,
+artifact-manifest digest and attesting signer identifiers.  This makes the
+decision reproducible against the signed source evidence and exposes inventory
+substitution.  The report's own hash is an integrity checksum, not an independent
+signature; authenticity derives from re-evaluating the retained Ed25519 evidence
+against the separately administered trust roots.
+
+For report body $R$, integrity is bound by
+
+\begin{equation}
+  h_R = \operatorname{SHA256}\!\left(
+    \operatorname{canon}(R \setminus \{\texttt{report\_sha256}\})
+  \right).
+\end{equation}
+
+The report writer refuses symbolic-link destinations and existing files.  A
+change to any task result, signer mapping, error, release digest or claim
+boundary invalidates $h_R$.
+
+\subsection{Implemented components and verification}
+
+The release policy and verifier are implemented in
+\texttt{backend/modules/aion\_business/runtime/glyphchain\_release\_readiness.py}.
+The command-line evaluator is
+\texttt{backend/scripts/evaluate\_glyphchain\_legal\_release\_readiness.py}.
+The regression set is
+\texttt{backend/tests/workflow\_capsules/test\_aion\_legal\_glyphchain\_release\_readiness.py}.
+
+Direct regressions prove: a blank inventory leaves all thirty-four tasks
+open; valid evidence closes only its exact task; wrong release digests,
+signatures and roles fail closed; independent gates reject non-independent
+authority, including a textual \texttt{"false"} flag; multi-role gates use a
+complete distinct-signer assignment rather than a greedy role selection;
+malformed, timezone-free and future observation times fail closed; a complete
+correctly signed synthetic inventory can satisfy the conjunction; exact evidence
+and trust inventories are digest-bound; and unknown, duplicate, malformed or
+altered evidence blocks the release.  The command-line evaluator also validates
+both inventory schemas and imports without initialising unrelated application
+runtimes.
+
+The current retained readiness run uses the empty external-evidence and
+trust-root inventories.  It correctly reports zero passed tasks, thirty-four
+unmet tasks, \texttt{BLOCKED\_EXTERNAL\_GATES} and
+\texttt{production\_release\_authorized=false}.  This is the accurate release
+state until live providers, independent publication, representative networks,
+security reviews, qualified Legal review and the controlled pilot produce real
+signed evidence.

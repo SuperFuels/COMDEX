@@ -1,1 +1,0 @@
-- Repo tests: P19_run_contract_smoke, P19_run_smoke

@@ -1,0 +1,88 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22C.2: Full Chess Evaluation-Guided Move Selection Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22C.2 connects the real chess evaluation function to legal move selection.
+
+\begin{quote}
+\textbf{Status: LOCKED --- evaluation-guided legal move selection implemented and tested.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22C.1 gave AION a deterministic local position evaluator.
+
+Phase 22C.2 uses that evaluator to score every legal candidate move and select the highest-scoring legal move.
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_evaluation_guided_move_selection_kernel.py
+\end{verbatim}
+
+\section{Selection Contract}
+
+The kernel MUST:
+
+\begin{itemize}
+  \item generate legal chess moves;
+  \item score each candidate using the Phase 22C.1 evaluator;
+  \item select the highest-scoring legal move;
+  \item prioritise terminal mate moves when detected;
+  \item avoid emitting moves from terminal positions;
+  \item emit a deterministic trace hash;
+  \item avoid Stockfish, cloud engines, and LLM move judgement.
+\end{itemize}
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_evaluation_guided_move_selection_memory.json
+\end{verbatim}
+
+This file is runtime selector telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Boundary}
+
+This phase does not use:
+
+\begin{itemize}
+  \item Stockfish;
+  \item external chess engines;
+  \item cloud evaluation;
+  \item Lichess analysis;
+  \item LLM move judgement;
+  \item human move scoring.
+\end{itemize}
+
+\section{Next Step}
+
+The next phase SHOULD add lookahead search.
+
+\begin{verbatim}
+22C.3 -- Depth-Limited Lookahead Search
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22C2-FULL-CHESS-EVALUATION-GUIDED-MOVE-SELECTION-KERNEL-LOCK\\
+Status: LOCKED --- evaluation-guided legal move selection implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

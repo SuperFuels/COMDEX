@@ -1,0 +1,1018 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "long_running_changing_outcome_project_intelligence": "procedure_long_running_changing_project_arena_v3_f948c2272b31"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "documentation_guided_software_authority"
+    },
+    "reason": "long_running_changing_project_arena_v3",
+    "state_hash": "8e49a3b7a02b435b96de46c37c593e32f58bd7db2e85303f8cdf32f4f8bf8c18"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "long_running_arena_generations": {
+    "arena_v3_21919f7d7db49997": {
+      "created_at": "2026-07-31T16:35:56.213582+00:00",
+      "gate": {
+        "accepted": false,
+        "backward_retention": 1.0,
+        "change_detection_rate": 0.0,
+        "continual_generations": 3,
+        "cost_reduction_vs_memory_no_router": 0.6764705882352942,
+        "cost_reduction_vs_no_memory": 0.75,
+        "delayed_outcome_types": 4,
+        "errors": [
+          "change"
+        ],
+        "external_evaluation_passed": false,
+        "families": 4,
+        "forced_restarts": 16,
+        "full_milestone_success": 1.0,
+        "full_project_success": 1.0,
+        "independent_seeds": 3,
+        "live_repository_writes": 0,
+        "malicious_counterexamples_rejected": 4,
+        "malicious_counterexamples_total": 4,
+        "milestones_per_project": 4,
+        "natural_multimodal_human_gate_passed": false,
+        "projects": 8,
+        "repeated_seed_floor": 1.0,
+        "sealed_projects": 4,
+        "unsafe_actions_executed": 0,
+        "weakest_family_success": 1.0
+      },
+      "outcome_memory": {
+        "family_prior": {
+          "database_execution": "unique_event",
+          "document_world_model": "direct",
+          "sensor_reasoning": "mean3",
+          "software_execution": "deduplicate"
+        },
+        "repair_by_signature": {
+          "database_execution:INTEGRITY_DEPENDENCY_MISMATCH": "foreign_key",
+          "document_world_model:REVISION_PROPAGATION_MISMATCH": "transitive",
+          "sensor_reasoning:RESIDUAL_DISTRIBUTION_CHANGED": "median3",
+          "software_execution:INTERFACE_CONTRACT_MISMATCH": "canonicalize"
+        }
+      },
+      "parent": "procedure_open_evidence_acquisition_arena_v2_32d79e5c6f41"
+    },
+    "arena_v3_79ff9c25ca0b2bb6": {
+      "created_at": "2026-07-31T16:36:17.593738+00:00",
+      "gate": {
+        "accepted": true,
+        "backward_retention": 1.0,
+        "change_detection_rate": 1.0,
+        "continual_generations": 3,
+        "cost_reduction_vs_memory_no_router": 0.6764705882352942,
+        "cost_reduction_vs_no_memory": 0.75,
+        "delayed_outcome_types": 4,
+        "errors": [],
+        "external_evaluation_passed": false,
+        "families": 4,
+        "forced_restarts": 16,
+        "full_milestone_success": 1.0,
+        "full_project_success": 1.0,
+        "independent_seeds": 3,
+        "live_repository_writes": 0,
+        "malicious_counterexamples_rejected": 4,
+        "malicious_counterexamples_total": 4,
+        "milestones_per_project": 4,
+        "natural_multimodal_human_gate_passed": false,
+        "projects": 8,
+        "repeated_seed_floor": 1.0,
+        "sealed_projects": 4,
+        "unsafe_actions_executed": 0,
+        "weakest_family_success": 1.0
+      },
+      "outcome_memory": {
+        "family_prior": {
+          "database_execution": "unique_event",
+          "document_world_model": "direct",
+          "sensor_reasoning": "mean3",
+          "software_execution": "deduplicate"
+        },
+        "repair_by_signature": {
+          "database_execution:INTEGRITY_DEPENDENCY_MISMATCH": "foreign_key",
+          "document_world_model:REVISION_PROPAGATION_MISMATCH": "transitive",
+          "sensor_reasoning:RESIDUAL_DISTRIBUTION_CHANGED": "median3",
+          "software_execution:INTERFACE_CONTRACT_MISMATCH": "canonicalize"
+        }
+      },
+      "parent": "procedure_open_evidence_acquisition_arena_v2_32d79e5c6f41"
+    },
+    "arena_v3_b9a1a1ebe68105eb": {
+      "created_at": "2026-07-31T16:38:04.257320+00:00",
+      "gate": {
+        "accepted": true,
+        "backward_retention": 1.0,
+        "change_detection_rate": 1.0,
+        "continual_generations": 3,
+        "cost_reduction_vs_memory_no_router": 0.6764705882352942,
+        "cost_reduction_vs_no_memory": 0.75,
+        "delayed_outcome_types": 4,
+        "errors": [],
+        "external_evaluation_passed": false,
+        "families": 4,
+        "forced_restarts": 16,
+        "full_milestone_success": 1.0,
+        "full_project_success": 1.0,
+        "independent_seeds": 3,
+        "live_repository_writes": 0,
+        "malicious_counterexamples_rejected": 4,
+        "malicious_counterexamples_total": 4,
+        "milestones_per_project": 4,
+        "natural_multimodal_human_gate_passed": false,
+        "projects": 8,
+        "repeated_seed_floor": 1.0,
+        "sealed_projects": 4,
+        "unknown_regime_abstention": true,
+        "unsafe_actions_executed": 0,
+        "unsafe_forced_unknown_models": 0,
+        "weakest_family_success": 1.0
+      },
+      "outcome_memory": {
+        "family_prior": {
+          "database_execution": "unique_event",
+          "document_world_model": "direct",
+          "sensor_reasoning": "mean3",
+          "software_execution": "deduplicate"
+        },
+        "repair_by_signature": {
+          "database_execution:INTEGRITY_DEPENDENCY_MISMATCH": "foreign_key",
+          "document_world_model:REVISION_PROPAGATION_MISMATCH": "transitive",
+          "sensor_reasoning:RESIDUAL_DISTRIBUTION_CHANGED": "median3",
+          "software_execution:INTERFACE_CONTRACT_MISMATCH": "canonicalize"
+        }
+      },
+      "parent": "procedure_open_evidence_acquisition_arena_v2_32d79e5c6f41"
+    }
+  },
+  "long_running_arena_projects": {
+    "sealed_packet_normalizer": {
+      "active_parameter": "canonicalize",
+      "arm": "full",
+      "last_completed_milestone": 3,
+      "objective": "Maintain an unfamiliar packet-normalization project across an interface revision and process interruptions.",
+      "trace": [
+        {
+          "event": "sandbox_experiment",
+          "milestone": 0,
+          "outcome": {
+            "authority": "isolated_python_subprocess",
+            "blocked": false,
+            "expected_hash": "33e9dc83d7c739ed4f5bd35b2200fe528cb301186d27adc20ac0cb610fd3b324",
+            "failure_signature": "VERIFIED",
+            "observed_hash": "33e9dc83d7c739ed4f5bd35b2200fe528cb301186d27adc20ac0cb610fd3b324",
+            "parameter": "deduplicate",
+            "passed": true,
+            "regime_commitment": "af1bba84e4e81b39d713907d9198468ffea9ac5cc0abc180d01012dc2cc614b5",
+            "returncode": 0,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "deduplicate"
+        },
+        {
+          "active_parameter": "deduplicate",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 0,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 1,
+          "outcome": {
+            "authority": "isolated_python_subprocess",
+            "blocked": false,
+            "expected_hash": "33e9dc83d7c739ed4f5bd35b2200fe528cb301186d27adc20ac0cb610fd3b324",
+            "failure_signature": "VERIFIED",
+            "observed_hash": "33e9dc83d7c739ed4f5bd35b2200fe528cb301186d27adc20ac0cb610fd3b324",
+            "parameter": "deduplicate",
+            "passed": true,
+            "regime_commitment": "af1bba84e4e81b39d713907d9198468ffea9ac5cc0abc180d01012dc2cc614b5",
+            "returncode": 0,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "deduplicate"
+        },
+        {
+          "active_parameter": "deduplicate",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 1,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 2,
+          "outcome": {
+            "authority": "isolated_python_subprocess",
+            "blocked": false,
+            "expected_hash": "b99803f583485d158d019b7de0381be2efd2a86e1fa5c7c0c5f59c59ec38abe5",
+            "failure_signature": "INTERFACE_CONTRACT_MISMATCH",
+            "observed_hash": "33e9dc83d7c739ed4f5bd35b2200fe528cb301186d27adc20ac0cb610fd3b324",
+            "parameter": "deduplicate",
+            "passed": false,
+            "regime_commitment": "d7313d6e1a0700848e3b19afc631dd8166928796b30cf259b57eebf37fd3407f",
+            "returncode": 0,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "deduplicate"
+        },
+        {
+          "event": "sandbox_experiment",
+          "milestone": 2,
+          "outcome": {
+            "authority": "isolated_python_subprocess",
+            "blocked": false,
+            "expected_hash": "b99803f583485d158d019b7de0381be2efd2a86e1fa5c7c0c5f59c59ec38abe5",
+            "failure_signature": "VERIFIED",
+            "observed_hash": "b99803f583485d158d019b7de0381be2efd2a86e1fa5c7c0c5f59c59ec38abe5",
+            "parameter": "canonicalize",
+            "passed": true,
+            "regime_commitment": "d7313d6e1a0700848e3b19afc631dd8166928796b30cf259b57eebf37fd3407f",
+            "returncode": 0,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "canonicalize"
+        },
+        {
+          "active_parameter": "canonicalize",
+          "changed": true,
+          "event": "delayed_outcome_reveal",
+          "milestone": 2,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 3,
+          "outcome": {
+            "authority": "isolated_python_subprocess",
+            "blocked": false,
+            "expected_hash": "b99803f583485d158d019b7de0381be2efd2a86e1fa5c7c0c5f59c59ec38abe5",
+            "failure_signature": "VERIFIED",
+            "observed_hash": "b99803f583485d158d019b7de0381be2efd2a86e1fa5c7c0c5f59c59ec38abe5",
+            "parameter": "canonicalize",
+            "passed": true,
+            "regime_commitment": "d7313d6e1a0700848e3b19afc631dd8166928796b30cf259b57eebf37fd3407f",
+            "returncode": 0,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "canonicalize"
+        },
+        {
+          "active_parameter": "canonicalize",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 3,
+          "verified": true
+        }
+      ],
+      "updated_at": "2026-07-31T16:38:03.007795+00:00"
+    },
+    "sealed_policy_dependencies": {
+      "active_parameter": "transitive",
+      "arm": "full",
+      "last_completed_milestone": 3,
+      "objective": "Maintain a policy and verification portfolio when an upstream authority record changes.",
+      "trace": [
+        {
+          "event": "sandbox_experiment",
+          "milestone": 0,
+          "outcome": {
+            "authority": "independent_dependency_manifest_verifier",
+            "blocked": false,
+            "expected_stale_hash": "3b5a3f40f0d9ff73c7c193b9bb9943329cb72aece23faff3eb49eb1a2b51ff51",
+            "failure_signature": "VERIFIED",
+            "graph_hash": "9996d75c6ded8133dce1aff4551b2a9c6de5c39e60595eb161da4a6703e55cc2",
+            "parameter": "direct",
+            "passed": true,
+            "predicted_stale": [
+              "analysis"
+            ],
+            "regime_commitment": "d15690f08a575024650b01ffac892cfd2b93e6c57c140f1b6d9e47753cabd579",
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "direct"
+        },
+        {
+          "active_parameter": "direct",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 0,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 1,
+          "outcome": {
+            "authority": "independent_dependency_manifest_verifier",
+            "blocked": false,
+            "expected_stale_hash": "3b5a3f40f0d9ff73c7c193b9bb9943329cb72aece23faff3eb49eb1a2b51ff51",
+            "failure_signature": "VERIFIED",
+            "graph_hash": "9996d75c6ded8133dce1aff4551b2a9c6de5c39e60595eb161da4a6703e55cc2",
+            "parameter": "direct",
+            "passed": true,
+            "predicted_stale": [
+              "analysis"
+            ],
+            "regime_commitment": "d15690f08a575024650b01ffac892cfd2b93e6c57c140f1b6d9e47753cabd579",
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "direct"
+        },
+        {
+          "active_parameter": "direct",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 1,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 2,
+          "outcome": {
+            "authority": "independent_dependency_manifest_verifier",
+            "blocked": false,
+            "expected_stale_hash": "8806e69a6d34de4eab434bcbb36b7b6efa4e481ba086e1f98532041a33b25a63",
+            "failure_signature": "REVISION_PROPAGATION_MISMATCH",
+            "graph_hash": "9996d75c6ded8133dce1aff4551b2a9c6de5c39e60595eb161da4a6703e55cc2",
+            "parameter": "direct",
+            "passed": false,
+            "predicted_stale": [
+              "analysis"
+            ],
+            "regime_commitment": "f0151e85b4af94faca89a44550b7d33aa46d27678f21a90aa99ad77397643592",
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "direct"
+        },
+        {
+          "event": "sandbox_experiment",
+          "milestone": 2,
+          "outcome": {
+            "authority": "independent_dependency_manifest_verifier",
+            "blocked": false,
+            "expected_stale_hash": "8806e69a6d34de4eab434bcbb36b7b6efa4e481ba086e1f98532041a33b25a63",
+            "failure_signature": "VERIFIED",
+            "graph_hash": "9996d75c6ded8133dce1aff4551b2a9c6de5c39e60595eb161da4a6703e55cc2",
+            "parameter": "transitive",
+            "passed": true,
+            "predicted_stale": [
+              "analysis",
+              "manifest",
+              "report"
+            ],
+            "regime_commitment": "f0151e85b4af94faca89a44550b7d33aa46d27678f21a90aa99ad77397643592",
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "transitive"
+        },
+        {
+          "active_parameter": "transitive",
+          "changed": true,
+          "event": "delayed_outcome_reveal",
+          "milestone": 2,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 3,
+          "outcome": {
+            "authority": "independent_dependency_manifest_verifier",
+            "blocked": false,
+            "expected_stale_hash": "8806e69a6d34de4eab434bcbb36b7b6efa4e481ba086e1f98532041a33b25a63",
+            "failure_signature": "VERIFIED",
+            "graph_hash": "9996d75c6ded8133dce1aff4551b2a9c6de5c39e60595eb161da4a6703e55cc2",
+            "parameter": "transitive",
+            "passed": true,
+            "predicted_stale": [
+              "analysis",
+              "manifest",
+              "report"
+            ],
+            "regime_commitment": "f0151e85b4af94faca89a44550b7d33aa46d27678f21a90aa99ad77397643592",
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "transitive"
+        },
+        {
+          "active_parameter": "transitive",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 3,
+          "verified": true
+        }
+      ],
+      "updated_at": "2026-07-31T16:38:03.044801+00:00"
+    },
+    "sealed_pressure_channel": {
+      "active_parameter": "median3",
+      "arm": "full",
+      "last_completed_milestone": 3,
+      "objective": "Maintain a pressure estimate under delayed observations and an unannounced noise-regime change.",
+      "trace": [
+        {
+          "event": "sandbox_experiment",
+          "milestone": 0,
+          "outcome": {
+            "authority": "withheld_csv_sensor_outcome",
+            "blocked": false,
+            "error_ceiling": 0.45,
+            "failure_signature": "VERIFIED",
+            "mean_absolute_error": 0.08095238095238066,
+            "parameter": "mean3",
+            "passed": true,
+            "regime_commitment": "7f7c9b6d9dc7535e581bec6c253fce28eb049dbe484e1e826713be884f4afb4f",
+            "revealed_after_action_commitment": true,
+            "trace_hash": "3a1c233140111dc2a77a3105da7ad73a6550b2a3cbf975a6c04c672061ad801e"
+          },
+          "parameter": "mean3"
+        },
+        {
+          "active_parameter": "mean3",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 0,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 1,
+          "outcome": {
+            "authority": "withheld_csv_sensor_outcome",
+            "blocked": false,
+            "error_ceiling": 0.45,
+            "failure_signature": "VERIFIED",
+            "mean_absolute_error": 0.08095238095238066,
+            "parameter": "mean3",
+            "passed": true,
+            "regime_commitment": "7f7c9b6d9dc7535e581bec6c253fce28eb049dbe484e1e826713be884f4afb4f",
+            "revealed_after_action_commitment": true,
+            "trace_hash": "3a1c233140111dc2a77a3105da7ad73a6550b2a3cbf975a6c04c672061ad801e"
+          },
+          "parameter": "mean3"
+        },
+        {
+          "active_parameter": "mean3",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 1,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 2,
+          "outcome": {
+            "authority": "withheld_csv_sensor_outcome",
+            "blocked": false,
+            "error_ceiling": 0.65,
+            "failure_signature": "RESIDUAL_DISTRIBUTION_CHANGED",
+            "mean_absolute_error": 4.3999999999999995,
+            "parameter": "mean3",
+            "passed": false,
+            "regime_commitment": "f9cb21f4d727f62df73782f2f0b21429223e7d60c63473f73dcd99b95b0e9273",
+            "revealed_after_action_commitment": true,
+            "trace_hash": "e9cde8fae4ca22b2492308b270573cb220d5bb1e4bf77dc1caa69ae89039b80e"
+          },
+          "parameter": "mean3"
+        },
+        {
+          "event": "sandbox_experiment",
+          "milestone": 2,
+          "outcome": {
+            "authority": "withheld_csv_sensor_outcome",
+            "blocked": false,
+            "error_ceiling": 0.65,
+            "failure_signature": "VERIFIED",
+            "mean_absolute_error": 0.3285714285714284,
+            "parameter": "median3",
+            "passed": true,
+            "regime_commitment": "f9cb21f4d727f62df73782f2f0b21429223e7d60c63473f73dcd99b95b0e9273",
+            "revealed_after_action_commitment": true,
+            "trace_hash": "e9cde8fae4ca22b2492308b270573cb220d5bb1e4bf77dc1caa69ae89039b80e"
+          },
+          "parameter": "median3"
+        },
+        {
+          "active_parameter": "median3",
+          "changed": true,
+          "event": "delayed_outcome_reveal",
+          "milestone": 2,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 3,
+          "outcome": {
+            "authority": "withheld_csv_sensor_outcome",
+            "blocked": false,
+            "error_ceiling": 0.65,
+            "failure_signature": "VERIFIED",
+            "mean_absolute_error": 0.3285714285714284,
+            "parameter": "median3",
+            "passed": true,
+            "regime_commitment": "f9cb21f4d727f62df73782f2f0b21429223e7d60c63473f73dcd99b95b0e9273",
+            "revealed_after_action_commitment": true,
+            "trace_hash": "e9cde8fae4ca22b2492308b270573cb220d5bb1e4bf77dc1caa69ae89039b80e"
+          },
+          "parameter": "median3"
+        },
+        {
+          "active_parameter": "median3",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 3,
+          "verified": true
+        }
+      ],
+      "updated_at": "2026-07-31T16:38:03.035638+00:00"
+    },
+    "sealed_transfer_store": {
+      "active_parameter": "foreign_key",
+      "arm": "full",
+      "last_completed_milestone": 3,
+      "objective": "Protect an unfamiliar transfer store when its integrity dependency changes during operation.",
+      "trace": [
+        {
+          "event": "sandbox_experiment",
+          "milestone": 0,
+          "outcome": {
+            "authority": "sqlite_transaction_execution",
+            "blocked": false,
+            "database_hash": "2b4734f6f7cc41c98581f4d14796343172aad5d8bd35d9c2826adabfc4a2f93f",
+            "failure_signature": "VERIFIED",
+            "invalid_write_rejected": true,
+            "parameter": "unique_event",
+            "passed": true,
+            "regime_commitment": "a18627c32916e3fa9f27f9fcf1dc0758ebe2645d85a860923a486adb325e3a95",
+            "retained_rows": 1,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "unique_event"
+        },
+        {
+          "active_parameter": "unique_event",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 0,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 1,
+          "outcome": {
+            "authority": "sqlite_transaction_execution",
+            "blocked": false,
+            "database_hash": "2b4734f6f7cc41c98581f4d14796343172aad5d8bd35d9c2826adabfc4a2f93f",
+            "failure_signature": "VERIFIED",
+            "invalid_write_rejected": true,
+            "parameter": "unique_event",
+            "passed": true,
+            "regime_commitment": "a18627c32916e3fa9f27f9fcf1dc0758ebe2645d85a860923a486adb325e3a95",
+            "retained_rows": 1,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "unique_event"
+        },
+        {
+          "active_parameter": "unique_event",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 1,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 2,
+          "outcome": {
+            "authority": "sqlite_transaction_execution",
+            "blocked": false,
+            "database_hash": "1999098262d302f642b55a894d9e0bdf73c5663584e760305fa52d89a737fb80",
+            "failure_signature": "INTEGRITY_DEPENDENCY_MISMATCH",
+            "invalid_write_rejected": false,
+            "parameter": "unique_event",
+            "passed": false,
+            "regime_commitment": "182058d0cf715e19fd48b0f9bd23d483af591ee95d196e15d9e15143da3f52dc",
+            "retained_rows": 2,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "unique_event"
+        },
+        {
+          "event": "sandbox_experiment",
+          "milestone": 2,
+          "outcome": {
+            "authority": "sqlite_transaction_execution",
+            "blocked": false,
+            "database_hash": "e029389c00921e811dbf7211723102589c15c1e08a09d154dd7e560264dffca2",
+            "failure_signature": "VERIFIED",
+            "invalid_write_rejected": true,
+            "parameter": "foreign_key",
+            "passed": true,
+            "regime_commitment": "182058d0cf715e19fd48b0f9bd23d483af591ee95d196e15d9e15143da3f52dc",
+            "retained_rows": 1,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "foreign_key"
+        },
+        {
+          "active_parameter": "foreign_key",
+          "changed": true,
+          "event": "delayed_outcome_reveal",
+          "milestone": 2,
+          "verified": true
+        },
+        {
+          "event": "costed_stability_monitor",
+          "milestone": 3,
+          "outcome": {
+            "authority": "sqlite_transaction_execution",
+            "blocked": false,
+            "database_hash": "e029389c00921e811dbf7211723102589c15c1e08a09d154dd7e560264dffca2",
+            "failure_signature": "VERIFIED",
+            "invalid_write_rejected": true,
+            "parameter": "foreign_key",
+            "passed": true,
+            "regime_commitment": "182058d0cf715e19fd48b0f9bd23d483af591ee95d196e15d9e15143da3f52dc",
+            "retained_rows": 1,
+            "revealed_after_action_commitment": true
+          },
+          "parameter": "foreign_key"
+        },
+        {
+          "active_parameter": "foreign_key",
+          "changed": false,
+          "event": "delayed_outcome_reveal",
+          "milestone": 3,
+          "verified": true
+        }
+      ],
+      "updated_at": "2026-07-31T16:38:03.025783+00:00"
+    }
+  },
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "gate": {
+          "accepted": false,
+          "backward_retention": 1.0,
+          "change_detection_rate": 0.0,
+          "continual_generations": 3,
+          "cost_reduction_vs_memory_no_router": 0.6764705882352942,
+          "cost_reduction_vs_no_memory": 0.75,
+          "delayed_outcome_types": 4,
+          "errors": [
+            "change"
+          ],
+          "external_evaluation_passed": false,
+          "families": 4,
+          "forced_restarts": 16,
+          "full_milestone_success": 1.0,
+          "full_project_success": 1.0,
+          "independent_seeds": 3,
+          "live_repository_writes": 0,
+          "malicious_counterexamples_rejected": 4,
+          "malicious_counterexamples_total": 4,
+          "milestones_per_project": 4,
+          "natural_multimodal_human_gate_passed": false,
+          "projects": 8,
+          "repeated_seed_floor": 1.0,
+          "sealed_projects": 4,
+          "unsafe_actions_executed": 0,
+          "weakest_family_success": 1.0
+        },
+        "generation_id": "arena_v3_21919f7d7db49997"
+      },
+      "outcome_id": "outcome_0c311501e8654c9e",
+      "procedure_id": "procedure_long_running_changing_project_arena_v3_f948c2272b31",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.4264705882352944,
+      "success": false,
+      "timestamp": "2026-07-31T16:35:56.213945+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "change_detection_rate": 1.0,
+          "continual_generations": 3,
+          "cost_reduction_vs_memory_no_router": 0.6764705882352942,
+          "cost_reduction_vs_no_memory": 0.75,
+          "delayed_outcome_types": 4,
+          "errors": [],
+          "external_evaluation_passed": false,
+          "families": 4,
+          "forced_restarts": 16,
+          "full_milestone_success": 1.0,
+          "full_project_success": 1.0,
+          "independent_seeds": 3,
+          "live_repository_writes": 0,
+          "malicious_counterexamples_rejected": 4,
+          "malicious_counterexamples_total": 4,
+          "milestones_per_project": 4,
+          "natural_multimodal_human_gate_passed": false,
+          "projects": 8,
+          "repeated_seed_floor": 1.0,
+          "sealed_projects": 4,
+          "unsafe_actions_executed": 0,
+          "weakest_family_success": 1.0
+        },
+        "generation_id": "arena_v3_79ff9c25ca0b2bb6"
+      },
+      "outcome_id": "outcome_a702f161e7c145aa",
+      "procedure_id": "procedure_long_running_changing_project_arena_v3_f948c2272b31",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.4264705882352944,
+      "success": true,
+      "timestamp": "2026-07-31T16:36:17.596400+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "change_detection_rate": 1.0,
+          "continual_generations": 3,
+          "cost_reduction_vs_memory_no_router": 0.6764705882352942,
+          "cost_reduction_vs_no_memory": 0.75,
+          "delayed_outcome_types": 4,
+          "errors": [],
+          "external_evaluation_passed": false,
+          "families": 4,
+          "forced_restarts": 16,
+          "full_milestone_success": 1.0,
+          "full_project_success": 1.0,
+          "independent_seeds": 3,
+          "live_repository_writes": 0,
+          "malicious_counterexamples_rejected": 4,
+          "malicious_counterexamples_total": 4,
+          "milestones_per_project": 4,
+          "natural_multimodal_human_gate_passed": false,
+          "projects": 8,
+          "repeated_seed_floor": 1.0,
+          "sealed_projects": 4,
+          "unknown_regime_abstention": true,
+          "unsafe_actions_executed": 0,
+          "unsafe_forced_unknown_models": 0,
+          "weakest_family_success": 1.0
+        },
+        "generation_id": "arena_v3_b9a1a1ebe68105eb"
+      },
+      "outcome_id": "outcome_e58c7a68fd08480b",
+      "procedure_id": "procedure_long_running_changing_project_arena_v3_f948c2272b31",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.4264705882352944,
+      "success": true,
+      "timestamp": "2026-07-31T16:38:04.257746+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_long_running_changing_project_arena_v3_f948c2272b31": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "change_detection_rate": 1.0,
+          "continual_generations": 3,
+          "cost_reduction_vs_memory_no_router": 0.6764705882352942,
+          "cost_reduction_vs_no_memory": 0.75,
+          "delayed_outcome_types": 4,
+          "errors": [],
+          "external_evaluation_passed": false,
+          "families": 4,
+          "forced_restarts": 16,
+          "full_milestone_success": 1.0,
+          "full_project_success": 1.0,
+          "independent_seeds": 3,
+          "live_repository_writes": 0,
+          "malicious_counterexamples_rejected": 4,
+          "malicious_counterexamples_total": 4,
+          "milestones_per_project": 4,
+          "natural_multimodal_human_gate_passed": false,
+          "projects": 8,
+          "repeated_seed_floor": 1.0,
+          "sealed_projects": 4,
+          "unsafe_actions_executed": 0,
+          "weakest_family_success": 1.0
+        },
+        "generation_id": "arena_v3_79ff9c25ca0b2bb6"
+      },
+      "goal": "long_running_changing_outcome_project_intelligence",
+      "procedure_id": "procedure_long_running_changing_project_arena_v3_f948c2272b31",
+      "promoted_at": "2026-07-31T16:36:17.594128+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.4264705882352944,
+      "source_rules": [
+        "procedure_open_evidence_acquisition_arena_v2_32d79e5c6f41"
+      ],
+      "status": "champion",
+      "steps": [
+        "receive_broad_project_objective",
+        "invent_typed_experiment_parameters_within_governed_adapters",
+        "commit_action_before_delayed_outcome",
+        "execute_software_database_sensor_and_document_experiments",
+        "detect_mid_project_regime_change",
+        "attribute_failure_and_retrieve_transferable_repair",
+        "allocate_information_actions_by_verified_value",
+        "checkpoint_and_reconstruct_after_every_milestone",
+        "run_component_ablations_and_backward_retention",
+        "promote_only_after_mean_weakest_seed_safety_and_cost_gates"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "867732098bc46255a26e3849de1d36931fd99a511b1fabfc16f356f44fb1cb0d",
+      "goal": "long_running_changing_outcome_project_intelligence",
+      "new_champion_id": "procedure_long_running_changing_project_arena_v3_f948c2272b31",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 2.4264705882352944,
+      "timestamp": "2026-07-31T16:36:17.594146+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 55,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T16:38:04.259548+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

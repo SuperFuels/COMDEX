@@ -1,0 +1,185 @@
+\section{Boardroom at Medium-Business Scale}
+\label{sec:aion-medium-business-boardroom}
+
+The small-business Boardroom remains the operating foundation.  The medium-business
+extension does not create another Boardroom, another memory or another Business Map.
+Instead, it allows one customer-owned AION brain to describe a group of companies and to
+bind every legal entity back to its existing Boardroom workspace and canonical Business
+Map.  This preserves one source of business truth while supporting the organisational
+complexity that appears as a company grows.
+
+\subsection{Why a Medium Business Is Structurally Different}
+
+A larger organisation is not merely a small organisation with more users.  It may contain
+several legal entities, brands, operating companies, countries, physical locations and
+business units.  A food group, for example, may contain Fresh, Frozen, Produce, Biscuits
+and Restaurants divisions, with different currencies, managers and regulatory constraints.
+Its actual organisation may also bear little resemblance to a standard Sales--Marketing--
+Finance chart.  Positions such as Head of Experience, Programme Controller or Regional
+Transformation Lead may cross conventional departments and may have both a primary manager
+and dotted-line accountability to a project or regional director.
+
+The implemented model therefore treats job titles as descriptive facts, never as access
+authority.  Authority comes only from an authenticated person, assigned roles, explicit
+capabilities, bounded organisational scopes and the policy governing the proposed action.
+
+\subsection{Requirements-Based Onboarding}
+
+The onboarding flow does not ask the customer to declare that it is a small, medium or large
+business.  Those labels differ between countries and do not predict technical or governance
+needs.  It asks instead about legal entities, locations, countries, currencies, users, projects,
+external collaborators, approval levels, separation of duties, enterprise identity, regulated
+data and private compute.  A local requirements profiler recommends modules such as Core
+Boardroom, Project Operations, Multi-Location, Multi-Entity Group, Delegated Authority, Bounded
+External Workspaces, Enterprise Identity, Regulated Data Controls and Private Compute.
+
+The recommendation explicitly records that no business-size label was used and that commercial
+entitlement is decided separately.  A one-person regulated consultancy can therefore receive
+sovereign controls while a much larger but operationally simple organisation can retain a simpler
+interface.  Capabilities are progressively revealed from actual requirements rather than cluttering
+every customer's starting screen.
+
+\subsection{Canonical Group and Operating Model}
+
+The medium-business operating record contains the following linked structures:
+
+\begin{itemize}
+  \item a group identity and multiple legal entities;
+  \item nested divisions, business units, functions and teams;
+  \item countries, regions and operating locations;
+  \item people with arbitrary position titles, engagement types, primary managers and
+        optional dotted-line managers;
+  \item roles containing named capabilities and financial approval ceilings;
+  \item projects containing teams, allocations, objectives, metrics, work items,
+        milestones, risks and financial positions;
+  \item organisation-specific workflows and escalation routes; and
+  \item residency, retention, provider-region and separation-of-duty policies.
+\end{itemize}
+
+Identifiers are unique and references are validated before a revision can be committed.
+Cycles in business-unit or primary reporting hierarchies are rejected.  Unknown people,
+roles, projects, locations and escalation owners fail closed.  Concurrent edits use an
+expected revision so that a stale browser cannot overwrite a newer organisation model.
+
+Every entity must declare both a \texttt{boardroom\_workspace\_id} and a
+\texttt{business\_map\_ref}.  When a department task is routed, AION emits a bounded
+envelope containing the authenticated person, entity, unit, department, task class,
+Boardroom workspace and Business Map reference.  The existing Boardroom department router
+then performs the work.  The extension therefore composes with the already-built Boardroom
+rather than duplicating its company knowledge or department agents.
+
+\subsection{Projects, Teams and Financial Control}
+
+Projects are first-class operating objects rather than notes attached to a department.
+A project can draw a matrix team from several functions and can include employees,
+freelancers, advisers, accountants or directors.  Allocation percentages are bounded from
+zero to one hundred, and the project records the role each person performs on that project.
+
+For each project, AION calculates:
+
+\[
+R=B-C,\qquad V=B-F,\qquad O=(F>B).
+\]
+
+where $B$ is approved budget, $C$ is committed expenditure, $F$ is forecast cost at
+completion, $R$ is the remaining amount after commitments, $V$ is forecast variance and
+$O$ is the over-budget indicator.  Actual expenditure is retained separately from both
+commitments and forecast.
+
+Portfolio totals are grouped by currency.  A GBP project and a EUR project are never added
+together into a false group total.  If several currencies are present, the response explicitly
+states that its cross-currency total was suppressed.  Model and inference expenditure is also
+reported by currency.  Currency conversion may be added only through a dated, evidenced FX rate
+with the original amounts retained.
+
+The viewer-scoped portfolio includes authorised entities and projects, open risks, milestones,
+objectives, metrics, work items and model expenditure.  A regional manager can therefore see
+their own portfolio while the group director can see the wider group; neither view changes the
+underlying authority.
+
+\subsection{Identity, Matrix Work and Bounded Workspaces}
+
+An enterprise identity-provider record declares an approved directory or single-sign-on
+source.  An external provider subject resolves to exactly one active AION person.  Unknown,
+disabled or duplicated subjects are denied.  The resulting person receives a workspace
+projection containing only their allowed entities, units, locations and projects.
+
+This supports conventional employees and directors as well as temporary and specialist work:
+
+\begin{itemize}
+  \item a freelancer can be restricted to one project and no general company files;
+  \item an external accountant can receive the required finance scope without access to
+        marketing, people or unrelated Boardroom material;
+  \item a regional leader can span several locations without gaining group-wide authority;
+  \item a project specialist can work across departments through an explicit project scope;
+  \item a director can hold group scope while consequential actions remain approval gated.
+\end{itemize}
+
+The production deployment still requires the customer's chosen SAML, OIDC or directory
+provider to be connected and qualified.  The binding contract is implemented, but no vendor
+identity is silently trusted merely because an email address or job title matches.
+
+\subsection{Delegation, Approval and Separation of Duties}
+
+For every proposed action, AION evaluates the person, capability, entity, business unit,
+location, project and amount.  A role may grant a capability but still be denied because the
+requested project is outside the person's scope or the amount exceeds their limit.
+
+Organisation workflows bind a request capability to a distinct approval capability.  The
+requester is recorded in the action history; a configured separation-of-duty rule prevents
+that same person from supplying the corresponding approval.  Amounts above the workflow
+limit return a named escalation target instead of being treated as approved.  A model,
+department agent or senior-sounding title cannot override this decision.
+
+The operational sequence is:
+
+\begin{quote}
+authenticated person $\rightarrow$ scoped request $\rightarrow$ policy decision
+$\rightarrow$ distinct approval or escalation $\rightarrow$ authorised capability
+$\rightarrow$ verification $\rightarrow$ receipt.
+\end{quote}
+
+\subsection{Residency, Retention and Configurable Intelligence}
+
+The routing policy is evaluated before business context is supplied to local or remote
+compute.  Each data classification has an allowed residency set and a retention period;
+each customer-approved provider has an allowed region set.  Missing classification policy,
+an unknown provider, a disallowed residency or a disallowed provider region denies the route.
+This applies equally to a public model API and to a model running in the customer's own cloud.
+
+This policy connects directly to AION's configurable intelligence stack.  A group may permit
+one local model for ordinary work, an EU-hosted private model for confidential analysis and a
+separately approved specialist model for a bounded task.  Models remain replaceable compute:
+none owns the Business Map, organisational memory, user authority or execution rights.
+
+\subsection{Support, Audit and Privacy}
+
+Support access is itself a named capability.  A redacted support bundle contains schema and
+revision information, object counts, model and scope hashes, and a generation time.  It states
+that customer content and secrets are excluded.  Customer-readable audit export similarly
+requires explicit authority and redacts password, secret, token, private-key, payment-card,
+salary and medical fields.  These controls allow a medium business to obtain diagnostics
+without sending its operating model or confidential records to Tessaris.
+
+\subsection{Implemented Interfaces and Verification}
+
+The operating authority is available as a reusable Python service and through the local
+Boardroom API.  The API supports revisioned configuration, state inspection, access and
+workflow decisions, viewer-scoped portfolio and workspace views, and authorised support and
+audit exports.  The same service is included in both the Sovereign Brain bootstrap and Pilot
+Fabric distribution.
+
+Automated qualification covers multi-entity structures, nested units, reporting-cycle
+rejection, arbitrary job titles, project budgets and teams, currency separation, model spend,
+scope and amount denial, separation of duties, escalation, department routing, enterprise
+identity resolution, regional policy, redaction and revision conflicts.  Production release
+still requires field qualification with a real multi-unit organisation, its identity provider,
+regional infrastructure and retention/legal-hold procedures.
+
+\subsection{Result}
+
+Boardroom can now grow from an owner-operated company into a multi-entity operating system
+without surrendering the customer's brain or flattening the organisation into generic
+departments.  The medium-business advantage is not merely a larger dashboard: it is the ability
+to give every person and every replaceable intelligence component precisely the business
+context and authority required for their work, and no more.

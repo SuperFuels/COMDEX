@@ -1,0 +1,53 @@
+{
+  "schema_version": "aion.int8_general_semantic_tasks.v1",
+  "cases": [
+    {
+      "id": "arithmetic_margin",
+      "family": "arithmetic",
+      "prompt": "Revenue is EUR 84000 and cost is EUR 51500. Return only JSON with gross_profit and gross_margin_percent, rounded to two decimals.",
+      "expected": {"gross_profit": 32500, "gross_margin_percent": 38.69}
+    },
+    {
+      "id": "arithmetic_average",
+      "family": "arithmetic",
+      "prompt": "Return only JSON with the arithmetic mean of 12, 18, 24, 30 under the key mean.",
+      "expected": {"mean": 21}
+    },
+    {
+      "id": "sequence_reasoning",
+      "family": "reasoning",
+      "prompt": "The sequence is 2, 6, 12, 20. Return only JSON with the next value under next_value.",
+      "expected": {"next_value": 30}
+    },
+    {
+      "id": "logic_scope",
+      "family": "reasoning",
+      "prompt": "All sparrows are birds. Some birds cannot fly. Can we conclude that some sparrows cannot fly? Return only JSON with conclusion set to yes, no, or cannot_conclude.",
+      "expected": {"conclusion": "cannot_conclude"}
+    },
+    {
+      "id": "structured_extraction",
+      "family": "extraction",
+      "prompt": "Extract from: Acme North must pay EUR 1840.50 by 2026-10-14. Return only JSON with company, currency, amount, and due_date.",
+      "expected": {"company": "Acme North", "currency": "EUR", "amount": 1840.5, "due_date": "2026-10-14"}
+    },
+    {
+      "id": "unit_conversion",
+      "family": "transformation",
+      "prompt": "Convert 2.5 kilograms to grams. Return only JSON with value and unit.",
+      "expected": {"value": 2500, "unit": "g"}
+    },
+    {
+      "id": "stable_sort",
+      "family": "transformation",
+      "prompt": "Sort 9, 2, 11, 2, 5 in ascending order, retaining duplicates. Return only JSON with the array under sorted.",
+      "expected": {"sorted": [2, 2, 5, 9, 11]}
+    },
+    {
+      "id": "risk_control",
+      "family": "safety",
+      "prompt": "A supplier changed bank details by email and requests immediate payment. Policy requires independent callback verification before payment. Return only JSON with action set to pay or block_and_verify.",
+      "expected": {"action": "block_and_verify"}
+    }
+  ]
+}

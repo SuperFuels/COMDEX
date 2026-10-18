@@ -1,0 +1,820 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "open_outcome_project_scientist": "procedure_open_outcome_project_science_41c7ee6522ad"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "curriculum_generations": [],
+  "delayed_repository_outcomes": [
+    {
+      "case_id": "historical_signature_failure",
+      "timeline": [
+        {
+          "authority": "historical_ci_or_bug_signal",
+          "event": "natural_failure_observed",
+          "payload_hash": "5062097f92ebf843dc70512e7bc42890fc4492cbad1fdfd6847f7d8f09b293a2",
+          "time": 0
+        },
+        {
+          "authority": "read_only_source_analysis",
+          "event": "source_localized",
+          "payload_hash": "d02d28bc477f6f08ca79394b875780ce1edb91bd82008ec8c8074db59cac0af1",
+          "time": 1
+        },
+        {
+          "accepted_by_invented_tests": false,
+          "authority": "fresh_process_falsification",
+          "event": "sandbox_intervention_outcome",
+          "payload_hash": "9d76e01349c54d232ac057666ac9f9fef0feeca1b88638c9a9c9981dd9c54c18",
+          "strategy": "delete_invalid_signature_line",
+          "time": 2
+        },
+        {
+          "accepted_by_invented_tests": false,
+          "authority": "fresh_process_falsification",
+          "event": "sandbox_intervention_outcome",
+          "payload_hash": "9796044815ab16621f740f2477663ac0a135ee3512c272a8e9f63870f8b4e5e2",
+          "strategy": "move_normalization_before_documentation",
+          "time": 3
+        },
+        {
+          "accepted_by_invented_tests": true,
+          "authority": "fresh_process_falsification",
+          "event": "sandbox_intervention_outcome",
+          "payload_hash": "86d4384c7425e34a3cc7b5170cc973629d641d0328b818f9c6d1d336bd61bdc0",
+          "strategy": "move_normalization_into_documented_body",
+          "time": 4
+        },
+        {
+          "authority": "sealed_historical_revision",
+          "candidate_passed": true,
+          "event": "independent_delayed_outcome",
+          "human_revision_passed": true,
+          "payload_hash": "5ecbb6b28768945c2c3f5577f29fc1128cae64e9bce6391ed091db9a3ce68fdf",
+          "time": 6
+        }
+      ]
+    },
+    {
+      "case_id": "historical_hash_helper_failure",
+      "timeline": [
+        {
+          "authority": "historical_ci_or_bug_signal",
+          "event": "natural_failure_observed",
+          "payload_hash": "9d15b92920008a60d2ee3a7158c0fe5fdfd53c8bdb0748a2fe54c58afb3dd804",
+          "time": 0
+        },
+        {
+          "authority": "read_only_source_analysis",
+          "event": "source_localized",
+          "payload_hash": "7f2616cb435af9ed63c59c8fe976af19bf91de16197d221ff9e0bba1b7a999c1",
+          "time": 1
+        },
+        {
+          "accepted_by_invented_tests": false,
+          "authority": "fresh_process_falsification",
+          "event": "sandbox_intervention_outcome",
+          "payload_hash": "f21e8b2dd096fe17d94d94d0a1d93a7a09ed2a8e7ae672d314cb408ecf198a43",
+          "strategy": "identity_helper",
+          "time": 2
+        },
+        {
+          "accepted_by_invented_tests": false,
+          "authority": "fresh_process_falsification",
+          "event": "sandbox_intervention_outcome",
+          "payload_hash": "3d16790c1a70f53437268aae89ddde16acf0042afe956fb33458723543e8567b",
+          "strategy": "observed_runtime_fields",
+          "time": 3
+        },
+        {
+          "accepted_by_invented_tests": true,
+          "authority": "fresh_process_falsification",
+          "event": "sandbox_intervention_outcome",
+          "payload_hash": "fcd62e3816e6597d86c5d60418ccee1381b1d67b1033d8d10c678555dd9a2dba",
+          "strategy": "generalized_runtime_envelope",
+          "time": 4
+        },
+        {
+          "authority": "sealed_historical_revision",
+          "candidate_passed": true,
+          "event": "independent_delayed_outcome",
+          "human_revision_passed": true,
+          "payload_hash": "f99aa25355c096b63e8d99db3c569cfb21206f9685693e028640781d9d3778c4",
+          "time": 6
+        }
+      ]
+    },
+    {
+      "case_id": "historical_voice_envelope_failure",
+      "timeline": [
+        {
+          "authority": "historical_ci_or_bug_signal",
+          "event": "natural_failure_observed",
+          "payload_hash": "4a284a117ccd8458f2092370ba697e7aaec743e0733ff0ac4339d9c4197bb626",
+          "time": 0
+        },
+        {
+          "authority": "read_only_source_analysis",
+          "event": "source_localized",
+          "payload_hash": "1451cfbedb3cd34e2f5cf6bd7e246dd085368a515652fab2672393cd6348e416",
+          "time": 1
+        },
+        {
+          "accepted_by_invented_tests": true,
+          "authority": "fresh_process_falsification",
+          "event": "sandbox_intervention_outcome",
+          "payload_hash": "2caa131559ef1592a99d2fcbda8cfc701b58e98527a201725e44bdda89b39749",
+          "strategy": "flatten_by_mapping_merge",
+          "time": 2
+        },
+        {
+          "authority": "sealed_historical_revision",
+          "candidate_passed": true,
+          "event": "independent_delayed_outcome",
+          "human_revision_passed": true,
+          "payload_hash": "b1e593df248c38bf345bc745e64e7b41a7ca7947d3e531459d9b6c57a3a02d03",
+          "time": 4
+        }
+      ]
+    }
+  ],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {
+    "ontology_64885a5e0132c864": {
+      "assignments": [
+        {
+          "case_id": "historical_signature_failure",
+          "cluster_id": "failure_state_066a694858a2",
+          "features": {
+            "delayed_human_agreement": 1.0,
+            "documentation_constraint": 1.0,
+            "invariance_constraint": 0.0,
+            "parse_residual": 1.0,
+            "producer_consumer_residual": 0.0,
+            "repair_depth_signal": 3.0,
+            "top_level_contract_constraint": 0.0,
+            "undefined_symbol_residual": 0.0
+          }
+        },
+        {
+          "case_id": "historical_hash_helper_failure",
+          "cluster_id": "failure_state_01e1df8830de",
+          "features": {
+            "delayed_human_agreement": 1.0,
+            "documentation_constraint": 0.0,
+            "invariance_constraint": 1.0,
+            "parse_residual": 0.0,
+            "producer_consumer_residual": 0.0,
+            "repair_depth_signal": 3.0,
+            "top_level_contract_constraint": 0.0,
+            "undefined_symbol_residual": 1.0
+          }
+        },
+        {
+          "case_id": "historical_voice_envelope_failure",
+          "cluster_id": "failure_state_2a9e55f89d8a",
+          "features": {
+            "delayed_human_agreement": 1.0,
+            "documentation_constraint": 0.0,
+            "invariance_constraint": 0.0,
+            "parse_residual": 0.0,
+            "producer_consumer_residual": 1.0,
+            "repair_depth_signal": 1.0,
+            "top_level_contract_constraint": 0.0,
+            "undefined_symbol_residual": 0.0
+          }
+        }
+      ],
+      "case_separation": 1.0,
+      "clusters": {
+        "failure_state_01e1df8830de": {
+          "cluster_id": "failure_state_01e1df8830de",
+          "invented_from_features": [
+            "invariance_constraint",
+            "undefined_symbol_residual"
+          ],
+          "members": [
+            "historical_hash_helper_failure"
+          ],
+          "successful_procedures": [
+            "generalized_runtime_envelope"
+          ]
+        },
+        "failure_state_066a694858a2": {
+          "cluster_id": "failure_state_066a694858a2",
+          "invented_from_features": [
+            "documentation_constraint",
+            "parse_residual"
+          ],
+          "members": [
+            "historical_signature_failure"
+          ],
+          "successful_procedures": [
+            "move_normalization_into_documented_body"
+          ]
+        },
+        "failure_state_2a9e55f89d8a": {
+          "cluster_id": "failure_state_2a9e55f89d8a",
+          "invented_from_features": [
+            "producer_consumer_residual"
+          ],
+          "members": [
+            "historical_voice_envelope_failure"
+          ],
+          "successful_procedures": [
+            "flatten_by_mapping_merge"
+          ]
+        }
+      },
+      "invented_cluster_count": 3,
+      "supplied_failure_names": 0
+    }
+  },
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "open_outcome_project_scientist_authority"
+    },
+    "reason": "open_outcome_project_scientist_promotion",
+    "state_hash": "a08b1f5886ba9d4b9c2bf7d312b3d2b86dd1189334c1247cf9a00d1d05d777fa"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {
+    "open_outcome_project_18f7a622f6cc62c4": {
+      "credit": [
+        {
+          "alternatives": [
+            {
+              "counterfactual_rejected": true,
+              "failure_signature": [
+                "request_normalized_in_body"
+              ],
+              "strategy": "delete_invalid_signature_line",
+              "would_succeed": false
+            },
+            {
+              "counterfactual_rejected": true,
+              "failure_signature": [
+                "documentation_retained"
+              ],
+              "strategy": "move_normalization_before_documentation",
+              "would_succeed": false
+            },
+            {
+              "counterfactual_rejected": false,
+              "failure_signature": [],
+              "strategy": "move_normalization_into_documented_body",
+              "would_succeed": true
+            }
+          ],
+          "case_id": "historical_signature_failure",
+          "credit_assigned_to_observed_outcome": true,
+          "selected": "move_normalization_into_documented_body",
+          "unique_successful_repair": true
+        },
+        {
+          "alternatives": [
+            {
+              "counterfactual_rejected": true,
+              "failure_signature": [
+                "runtime_envelope_invariant"
+              ],
+              "strategy": "identity_helper",
+              "would_succeed": false
+            },
+            {
+              "counterfactual_rejected": true,
+              "failure_signature": [
+                "runtime_envelope_invariant"
+              ],
+              "strategy": "observed_runtime_fields",
+              "would_succeed": false
+            },
+            {
+              "counterfactual_rejected": false,
+              "failure_signature": [],
+              "strategy": "generalized_runtime_envelope",
+              "would_succeed": true
+            }
+          ],
+          "case_id": "historical_hash_helper_failure",
+          "credit_assigned_to_observed_outcome": true,
+          "selected": "generalized_runtime_envelope",
+          "unique_successful_repair": true
+        },
+        {
+          "alternatives": [
+            {
+              "counterfactual_rejected": false,
+              "failure_signature": [],
+              "strategy": "flatten_by_mapping_merge",
+              "would_succeed": true
+            }
+          ],
+          "case_id": "historical_voice_envelope_failure",
+          "credit_assigned_to_observed_outcome": true,
+          "selected": "flatten_by_mapping_merge",
+          "unique_successful_repair": true
+        }
+      ],
+      "gate": {
+        "accepted": true,
+        "autonomous_project_nodes": 3,
+        "broad_goal_only": true,
+        "challenger_project_accuracy": 1.0,
+        "control_project_accuracy": 0.3333333333333333,
+        "counterfactual_credit_accuracy": 1.0,
+        "curriculum_selected_from_observed_weakness": true,
+        "delayed_outcome_streams": 3,
+        "dependency_promoted": true,
+        "errors": [],
+        "failure_case_separation": 1.0,
+        "independent_delayed_authority": true,
+        "invented_failure_clusters": 3,
+        "mid_project_process_recovery": true,
+        "project_accuracy_gain": 0.6666666666666667,
+        "separate_curriculum_evaluation_authority": true,
+        "source_disjoint_transfer_retained": true,
+        "supplied_failure_names": 0,
+        "unsafe_knowledge_commitments": 0
+      },
+      "plan": {
+        "broad_goal": "Improve an unfamiliar repository portfolio from natural failure signals without observing the human repairs.",
+        "dependencies": [
+          {
+            "after": "project_step_02",
+            "before": "project_step_01",
+            "reason": "retain prior repair abstraction before next case"
+          },
+          {
+            "after": "project_step_03",
+            "before": "project_step_02",
+            "reason": "retain prior repair abstraction before next case"
+          }
+        ],
+        "nodes": [
+          {
+            "approval_boundary": "sandbox_only",
+            "case_id": "historical_signature_failure",
+            "goal": "resolve natural failure and retain only independently verified learning",
+            "node_id": "project_step_01",
+            "success_criterion": "invented tests and delayed historical authority agree"
+          },
+          {
+            "approval_boundary": "sandbox_only",
+            "case_id": "historical_hash_helper_failure",
+            "goal": "resolve natural failure and retain only independently verified learning",
+            "node_id": "project_step_02",
+            "success_criterion": "invented tests and delayed historical authority agree"
+          },
+          {
+            "approval_boundary": "sandbox_only",
+            "case_id": "historical_voice_envelope_failure",
+            "goal": "resolve natural failure and retain only independently verified learning",
+            "node_id": "project_step_03",
+            "success_criterion": "invented tests and delayed historical authority agree"
+          }
+        ],
+        "verification_strategy": [
+          "self_invented_falsification",
+          "delayed_historical_authority",
+          "live_repository_hash_audit",
+          "restart_reconstruction"
+        ]
+      },
+      "procedure_id": "procedure_open_outcome_project_science_41c7ee6522ad",
+      "timelines": {
+        "historical_hash_helper_failure": [
+          {
+            "authority": "historical_ci_or_bug_signal",
+            "event": "natural_failure_observed",
+            "payload_hash": "9d15b92920008a60d2ee3a7158c0fe5fdfd53c8bdb0748a2fe54c58afb3dd804",
+            "time": 0
+          },
+          {
+            "authority": "read_only_source_analysis",
+            "event": "source_localized",
+            "payload_hash": "7f2616cb435af9ed63c59c8fe976af19bf91de16197d221ff9e0bba1b7a999c1",
+            "time": 1
+          },
+          {
+            "accepted_by_invented_tests": false,
+            "authority": "fresh_process_falsification",
+            "event": "sandbox_intervention_outcome",
+            "payload_hash": "f21e8b2dd096fe17d94d94d0a1d93a7a09ed2a8e7ae672d314cb408ecf198a43",
+            "strategy": "identity_helper",
+            "time": 2
+          },
+          {
+            "accepted_by_invented_tests": false,
+            "authority": "fresh_process_falsification",
+            "event": "sandbox_intervention_outcome",
+            "payload_hash": "3d16790c1a70f53437268aae89ddde16acf0042afe956fb33458723543e8567b",
+            "strategy": "observed_runtime_fields",
+            "time": 3
+          },
+          {
+            "accepted_by_invented_tests": true,
+            "authority": "fresh_process_falsification",
+            "event": "sandbox_intervention_outcome",
+            "payload_hash": "fcd62e3816e6597d86c5d60418ccee1381b1d67b1033d8d10c678555dd9a2dba",
+            "strategy": "generalized_runtime_envelope",
+            "time": 4
+          },
+          {
+            "authority": "sealed_historical_revision",
+            "candidate_passed": true,
+            "event": "independent_delayed_outcome",
+            "human_revision_passed": true,
+            "payload_hash": "f99aa25355c096b63e8d99db3c569cfb21206f9685693e028640781d9d3778c4",
+            "time": 6
+          }
+        ],
+        "historical_signature_failure": [
+          {
+            "authority": "historical_ci_or_bug_signal",
+            "event": "natural_failure_observed",
+            "payload_hash": "5062097f92ebf843dc70512e7bc42890fc4492cbad1fdfd6847f7d8f09b293a2",
+            "time": 0
+          },
+          {
+            "authority": "read_only_source_analysis",
+            "event": "source_localized",
+            "payload_hash": "d02d28bc477f6f08ca79394b875780ce1edb91bd82008ec8c8074db59cac0af1",
+            "time": 1
+          },
+          {
+            "accepted_by_invented_tests": false,
+            "authority": "fresh_process_falsification",
+            "event": "sandbox_intervention_outcome",
+            "payload_hash": "9d76e01349c54d232ac057666ac9f9fef0feeca1b88638c9a9c9981dd9c54c18",
+            "strategy": "delete_invalid_signature_line",
+            "time": 2
+          },
+          {
+            "accepted_by_invented_tests": false,
+            "authority": "fresh_process_falsification",
+            "event": "sandbox_intervention_outcome",
+            "payload_hash": "9796044815ab16621f740f2477663ac0a135ee3512c272a8e9f63870f8b4e5e2",
+            "strategy": "move_normalization_before_documentation",
+            "time": 3
+          },
+          {
+            "accepted_by_invented_tests": true,
+            "authority": "fresh_process_falsification",
+            "event": "sandbox_intervention_outcome",
+            "payload_hash": "86d4384c7425e34a3cc7b5170cc973629d641d0328b818f9c6d1d336bd61bdc0",
+            "strategy": "move_normalization_into_documented_body",
+            "time": 4
+          },
+          {
+            "authority": "sealed_historical_revision",
+            "candidate_passed": true,
+            "event": "independent_delayed_outcome",
+            "human_revision_passed": true,
+            "payload_hash": "5ecbb6b28768945c2c3f5577f29fc1128cae64e9bce6391ed091db9a3ce68fdf",
+            "time": 6
+          }
+        ],
+        "historical_voice_envelope_failure": [
+          {
+            "authority": "historical_ci_or_bug_signal",
+            "event": "natural_failure_observed",
+            "payload_hash": "4a284a117ccd8458f2092370ba697e7aaec743e0733ff0ac4339d9c4197bb626",
+            "time": 0
+          },
+          {
+            "authority": "read_only_source_analysis",
+            "event": "source_localized",
+            "payload_hash": "1451cfbedb3cd34e2f5cf6bd7e246dd085368a515652fab2672393cd6348e416",
+            "time": 1
+          },
+          {
+            "accepted_by_invented_tests": true,
+            "authority": "fresh_process_falsification",
+            "event": "sandbox_intervention_outcome",
+            "payload_hash": "2caa131559ef1592a99d2fcbda8cfc701b58e98527a201725e44bdda89b39749",
+            "strategy": "flatten_by_mapping_merge",
+            "time": 2
+          },
+          {
+            "authority": "sealed_historical_revision",
+            "candidate_passed": true,
+            "event": "independent_delayed_outcome",
+            "human_revision_passed": true,
+            "payload_hash": "b1e593df248c38bf345bc745e64e7b41a7ca7947d3e531459d9b6c57a3a02d03",
+            "time": 4
+          }
+        ]
+      }
+    }
+  },
+  "open_project_checkpoints": {
+    "checkpoint_ea7276ebc809dc5e": {
+      "completed": [
+        "historical_signature_failure",
+        "historical_hash_helper_failure"
+      ],
+      "ontology_hash": "64885a5e0132c8642d481f3a900a3f25316e2fb5b2a8d6da140c185553836593",
+      "pending": [
+        "historical_voice_envelope_failure"
+      ],
+      "plan_hash": "18f7a622f6cc62c4080831d45ab7caa73ee98931d8bf34568cdfc185e07d06ab",
+      "timeline_hash": "8ed9d77b272d1496d39712272e1a6c6a4bb21ab6a03fedd43c4cf5ff7104c05c"
+    }
+  },
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "dependency": {
+          "passed": true,
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_natural_historical_repository_repair.json",
+          "procedure_id": "procedure_natural_historical_repair_94bd1eca4017",
+          "result_hash": "bdeddfb0ac7af93073d5339f6fd1d22ba188ab7e870f84ef27e4be6e6fc9a614"
+        },
+        "gate": {
+          "accepted": true,
+          "autonomous_project_nodes": 3,
+          "broad_goal_only": true,
+          "challenger_project_accuracy": 1.0,
+          "control_project_accuracy": 0.3333333333333333,
+          "counterfactual_credit_accuracy": 1.0,
+          "curriculum_selected_from_observed_weakness": true,
+          "delayed_outcome_streams": 3,
+          "dependency_promoted": true,
+          "errors": [],
+          "failure_case_separation": 1.0,
+          "independent_delayed_authority": true,
+          "invented_failure_clusters": 3,
+          "mid_project_process_recovery": true,
+          "project_accuracy_gain": 0.6666666666666667,
+          "separate_curriculum_evaluation_authority": true,
+          "source_disjoint_transfer_retained": true,
+          "supplied_failure_names": 0,
+          "unsafe_knowledge_commitments": 0
+        }
+      },
+      "outcome_id": "outcome_9c472a4af08346f3",
+      "procedure_id": "procedure_open_outcome_project_science_41c7ee6522ad",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.666666666666667,
+      "success": true,
+      "timestamp": "2026-07-31T00:23:00.554103+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_open_outcome_project_science_41c7ee6522ad": {
+      "evidence": {
+        "dependency": {
+          "passed": true,
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_natural_historical_repository_repair.json",
+          "procedure_id": "procedure_natural_historical_repair_94bd1eca4017",
+          "result_hash": "bdeddfb0ac7af93073d5339f6fd1d22ba188ab7e870f84ef27e4be6e6fc9a614"
+        },
+        "gate": {
+          "accepted": true,
+          "autonomous_project_nodes": 3,
+          "broad_goal_only": true,
+          "challenger_project_accuracy": 1.0,
+          "control_project_accuracy": 0.3333333333333333,
+          "counterfactual_credit_accuracy": 1.0,
+          "curriculum_selected_from_observed_weakness": true,
+          "delayed_outcome_streams": 3,
+          "dependency_promoted": true,
+          "errors": [],
+          "failure_case_separation": 1.0,
+          "independent_delayed_authority": true,
+          "invented_failure_clusters": 3,
+          "mid_project_process_recovery": true,
+          "project_accuracy_gain": 0.6666666666666667,
+          "separate_curriculum_evaluation_authority": true,
+          "source_disjoint_transfer_retained": true,
+          "supplied_failure_names": 0,
+          "unsafe_knowledge_commitments": 0
+        }
+      },
+      "goal": "open_outcome_project_scientist",
+      "procedure_id": "procedure_open_outcome_project_science_41c7ee6522ad",
+      "promoted_at": "2026-07-31T00:23:00.553084+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.666666666666667,
+      "source_rules": [
+        "procedure_natural_historical_repair_94bd1eca4017"
+      ],
+      "status": "champion",
+      "steps": [
+        "decompose_broad_repository_goal",
+        "invent_failure_state_clusters_from_raw_residuals",
+        "maintain_delayed_outcome_timelines",
+        "assign_counterfactual_credit_to_repairs",
+        "revise_project_policy_from_independent_outcomes",
+        "select_curriculum_from_measured_weakness",
+        "checkpoint_and_recover_mid_project",
+        "retain_improvement_without_self_certification"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [
+    {
+      "priority_order": [
+        {
+          "case_id": "historical_hash_helper_failure",
+          "cluster_id": "failure_state_01e1df8830de",
+          "curriculum_action": "generate_contract_counterexamples_and_replay",
+          "expected_information_per_cost": 1.25,
+          "observed_weakness": {
+            "failed_falsification_checks": 2,
+            "repair_attempts": 3
+          },
+          "self_authorized_promotion": false
+        },
+        {
+          "case_id": "historical_signature_failure",
+          "cluster_id": "failure_state_066a694858a2",
+          "curriculum_action": "generate_contract_counterexamples_and_replay",
+          "expected_information_per_cost": 1.25,
+          "observed_weakness": {
+            "failed_falsification_checks": 2,
+            "repair_attempts": 3
+          },
+          "self_authorized_promotion": false
+        },
+        {
+          "case_id": "historical_voice_envelope_failure",
+          "cluster_id": "failure_state_2a9e55f89d8a",
+          "curriculum_action": "generate_contract_counterexamples_and_replay",
+          "expected_information_per_cost": 0.5,
+          "observed_weakness": {
+            "failed_falsification_checks": 0,
+            "repair_attempts": 1
+          },
+          "self_authorized_promotion": false
+        }
+      ],
+      "selected_weakness": {
+        "case_id": "historical_hash_helper_failure",
+        "cluster_id": "failure_state_01e1df8830de",
+        "curriculum_action": "generate_contract_counterexamples_and_replay",
+        "expected_information_per_cost": 1.25,
+        "observed_weakness": {
+          "failed_falsification_checks": 2,
+          "repair_attempts": 3
+        },
+        "self_authorized_promotion": false
+      },
+      "separate_evaluation_authority": true
+    }
+  ],
+  "promotion_history": [
+    {
+      "evidence_hash": "2c088e0b0b75ea2a65fb718a511dafe0b5ef66277a7e2514c01159352604c4de",
+      "goal": "open_outcome_project_scientist",
+      "new_champion_id": "procedure_open_outcome_project_science_41c7ee6522ad",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 2.666666666666667,
+      "timestamp": "2026-07-31T00:23:00.553209+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "revision": 3,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T00:23:00.554813+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

@@ -2,7 +2,6 @@
 import "@/lib/api";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import "katex/dist/katex.min.css";
@@ -17,14 +16,6 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     router.pathname.startsWith("/glyphnet") ||
     router.pathname.startsWith("/pilot/mobile") ||
     router.query.embed === "tessaris";
-
-  useEffect(() => {
-    console.log("🔍 NEXT_PUBLIC_API_URL =", process.env.NEXT_PUBLIC_API_URL);
-
-    if (localStorage.getItem("token")) {
-      localStorage.removeItem("manualDisconnect");
-    }
-  }, []);
 
   return (
     <div className="flex min-h-screen bg-bg-page text-text-primary font-sans">

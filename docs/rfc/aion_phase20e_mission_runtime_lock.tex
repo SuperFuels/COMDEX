@@ -1,0 +1,109 @@
+\section{AION Phase 20E --- Mission Runtime State Machine v0}
+\label{sec:aion-phase20e-mission-runtime}
+
+\subsection{Status}
+
+Phase 20E introduces the first Mission Runtime state machine for AION Pilot.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Runtime mounts only classifier and Kernel Guard approved safe autonomous batches.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Mission Runtime is the first execution layer after the Mission Contract, Template, Planner, Classifier, Payload Hardening, JIT Verification, and Kernel Guard.
+
+The runtime MUST NOT trust planner output directly. Runtime mount is allowed only after the queue has passed deterministic classifier verification and Kernel Guard inspection.
+
+\subsection{Runtime States}
+
+The runtime supports the following states:
+
+\begin{itemize}
+  \item \texttt{created}
+  \item \texttt{planning}
+  \item \texttt{waiting\_mission\_approval}
+  \item \texttt{ready\_for\_runtime}
+  \item \texttt{running\_autonomous\_steps}
+  \item \texttt{paused\_at\_checkpoint}
+  \item \texttt{waiting\_human\_review}
+  \item \texttt{blocked}
+  \item \texttt{completed}
+  \item \texttt{failed}
+  \item \texttt{expired}
+  \item \texttt{cancelled}
+\end{itemize}
+
+\subsection{Mount Rule}
+
+A runtime queue may mount only when:
+
+\begin{itemize}
+  \item the classifier batch is valid;
+  \item the runtime queue hash matches the classifier run hash;
+  \item the Kernel Guard allows every step to mount;
+  \item no step requires checkpoint approval;
+  \item no step is blocked or forbidden.
+\end{itemize}
+
+\subsection{Safety Boundaries}
+
+Phase 20E remains preview/internal only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item send email;
+  \item send WhatsApp messages;
+  \item publish adverts;
+  \item create bookings;
+  \item take payments;
+  \item create escrow;
+  \item deploy live pages;
+  \item dispatch workers;
+  \item mutate live reputation;
+  \item write to chain.
+\end{itemize}
+
+\subsection{Runtime Limits}
+
+The runtime enforces:
+
+\begin{itemize}
+  \item maximum runtime seconds;
+  \item maximum tool calls;
+  \item maximum cost.
+\end{itemize}
+
+If a limit is exceeded, the runtime MUST transition to \texttt{blocked} and preserve trace state.
+
+\subsection{Trace and State Hash}
+
+Every runtime mount, safe step completion, checkpoint pause, block, and preview completion MUST emit a trace event.
+
+The runtime state MUST include a deterministic state hash:
+
+\begin{verbatim}
+state_hash: sha256:<digest>
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20E-MISSION-RUNTIME-STATE-MACHINE-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

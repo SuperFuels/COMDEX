@@ -1,0 +1,183 @@
+{
+  "competence_awarded": false,
+  "container_refs": [],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:logic_proof:propositional_logic",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:logic_proof",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:logic_proof:predicate_logic",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:logic_proof",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:logic_proof:proof_methods",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:logic_proof",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:logic_proof:formal_proof",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:logic_proof",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:logic_proof:counterexamples",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:logic_proof",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "mathematics",
+      "id": "work:aion@wave.tp:subject:logic_proof",
+      "label": "Logic and proof",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:logic_proof:propositional_logic",
+      "label": "propositional logic",
+      "subject_id": "logic_proof",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:logic_proof:predicate_logic",
+      "label": "predicate logic",
+      "subject_id": "logic_proof",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:logic_proof:proof_methods",
+      "label": "proof methods",
+      "subject_id": "logic_proof",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:logic_proof:formal_proof",
+      "label": "formal proof",
+      "subject_id": "logic_proof",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:logic_proof:counterexamples",
+      "label": "counterexamples",
+      "subject_id": "logic_proof",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_logic_proof",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:logic_proof:propositional_logic",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:logic_proof",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:logic_proof:predicate_logic",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:logic_proof",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:logic_proof:proof_methods",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:logic_proof",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:logic_proof:formal_proof",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:logic_proof",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:logic_proof:counterexamples",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:logic_proof",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "mathematics",
+        "id": "work:aion@wave.tp:subject:logic_proof",
+        "label": "Logic and proof",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:logic_proof:propositional_logic",
+        "label": "propositional logic",
+        "subject_id": "logic_proof",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:logic_proof:predicate_logic",
+        "label": "predicate logic",
+        "subject_id": "logic_proof",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:logic_proof:proof_methods",
+        "label": "proof methods",
+        "subject_id": "logic_proof",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:logic_proof:formal_proof",
+        "label": "formal proof",
+        "subject_id": "logic_proof",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:logic_proof:counterexamples",
+        "label": "counterexamples",
+        "subject_id": "logic_proof",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "mathematics",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "logic_proof",
+    "title": "AION Academy \u00b7 Logic and proof"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

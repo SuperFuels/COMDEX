@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_prediction_market_microstructure",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_event_evidence_resolution_research",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_financial_regulation_compliance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:objective_question_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:resolution_authority",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:market_demand",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:manipulation_resistance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:insider_information",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:jurisdiction",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:proposal_governance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:post_settlement_review",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "business",
+      "id": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "label": "Prediction-market design, integrity and compliance",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:objective_question_design",
+      "label": "objective question design",
+      "subject_id": "prediction_market_design_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:resolution_authority",
+      "label": "resolution authority",
+      "subject_id": "prediction_market_design_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:market_demand",
+      "label": "market demand",
+      "subject_id": "prediction_market_design_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:manipulation_resistance",
+      "label": "manipulation resistance",
+      "subject_id": "prediction_market_design_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:insider_information",
+      "label": "insider information",
+      "subject_id": "prediction_market_design_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:jurisdiction",
+      "label": "jurisdiction",
+      "subject_id": "prediction_market_design_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:proposal_governance",
+      "label": "proposal governance",
+      "subject_id": "prediction_market_design_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:post_settlement_review",
+      "label": "post settlement review",
+      "subject_id": "prediction_market_design_compliance",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_prediction_market_design_compliance",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:objective_question_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:resolution_authority",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:market_demand",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:manipulation_resistance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:insider_information",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:jurisdiction",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:proposal_governance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:prediction_market_design_compliance:post_settlement_review",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "business",
+        "id": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "label": "Prediction-market design, integrity and compliance",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:objective_question_design",
+        "label": "objective question design",
+        "subject_id": "prediction_market_design_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:resolution_authority",
+        "label": "resolution authority",
+        "subject_id": "prediction_market_design_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:market_demand",
+        "label": "market demand",
+        "subject_id": "prediction_market_design_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:manipulation_resistance",
+        "label": "manipulation resistance",
+        "subject_id": "prediction_market_design_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:insider_information",
+        "label": "insider information",
+        "subject_id": "prediction_market_design_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:jurisdiction",
+        "label": "jurisdiction",
+        "subject_id": "prediction_market_design_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:proposal_governance",
+        "label": "proposal governance",
+        "subject_id": "prediction_market_design_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:prediction_market_design_compliance:post_settlement_review",
+        "label": "post settlement review",
+        "subject_id": "prediction_market_design_compliance",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "business",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "prediction_market_design_compliance",
+    "title": "AION Academy \u00b7 Prediction-market design, integrity and compliance"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

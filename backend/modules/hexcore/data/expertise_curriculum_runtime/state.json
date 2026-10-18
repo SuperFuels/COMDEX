@@ -1,0 +1,48 @@
+{
+  "competence_awarded_by_activation": false,
+  "competency_state": "backend/modules/hexcore/data/progressive_competency/state.json",
+  "container_index": "backend/modules/hexcore/data/expertise_containers/index.json",
+  "current_phase": 0,
+  "current_phase_name": "learn_to_learn",
+  "current_subject_id": "capability_learning_strategy",
+  "curriculum_digest": "a2c93e4206814c03ecb93d7276be299e68df420c98b01da82597f1ef39014a90",
+  "evidence_records_after": 28359,
+  "evidence_records_before": 28359,
+  "installation": {
+    "active_subject_id": "capability_learning_strategy",
+    "awards_competence": false,
+    "bridges_registered": 68,
+    "capabilities_installed": 18,
+    "capstones_registered": 10,
+    "curriculum_digest": "a2c93e4206814c03ecb93d7276be299e68df420c98b01da82597f1ef39014a90",
+    "domains_installed": 12,
+    "evidence_records_added": 0,
+    "subjects_installed": 90
+  },
+  "mission_demand": {
+    "created_at": "2026-08-21T22:46:50.829571+00:00",
+    "demand_id": "mission_demand_529223b5e2a7973459",
+    "evidence": "owner_authorized_comprehensive_curriculum_activation",
+    "mission": "Begin the comprehensive expertise programme by learning how to diagnose gaps, choose depth, map prerequisites and change strategy after failure.",
+    "status": "active_until_target",
+    "subject_id": "capability_learning_strategy"
+  },
+  "scheduler_action": {
+    "age_seconds": 1064.8657848834991,
+    "contract_id": "competency_contract_f07e5b5dc35f2511ed9b",
+    "no_progress_cycles": 1,
+    "requirement": {
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "kind": "lesson",
+      "subskills": [
+        "standards_strategy"
+      ]
+    },
+    "status": "executor_required",
+    "subject_id": "technology_industry_platforms"
+  },
+  "schema_version": "aion.hexcore.expertise_container_curriculum_runtime.v1",
+  "started_at": "2026-08-21T22:46:53.018333+00:00",
+  "state_digest": "73990ea002bfc91fbd5c70d3ff460d18df0e31ea1cf47261a4002123c05eba68",
+  "status": "active"
+}

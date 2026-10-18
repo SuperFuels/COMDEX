@@ -1,0 +1,807 @@
+{
+  "schema_version": "aion.hexcore.recursive_photon.v1",
+  "phase": 55,
+  "passed": true,
+  "gate": {
+    "recursive_tools_invented": 8,
+    "arities": [
+      3,
+      4
+    ],
+    "mean_internal_accuracy": 1.0,
+    "mean_external_accuracy": 1.0,
+    "weakest_tool_accuracy": 1.0,
+    "property_counterexamples_generated": 12,
+    "out_of_grammar_abstention": true,
+    "unsafe_side_effects": 0,
+    "provenance_completeness": 1.0,
+    "errors": [],
+    "accepted": true
+  },
+  "tools": [
+    {
+      "schema_version": "aion.photon.recursive_tool.v1",
+      "tool_id": "recursive_tool_21402c81640d",
+      "program": [
+        "if",
+        [
+          "ge",
+          [
+            "var",
+            2
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              0
+            ],
+            [
+              "var",
+              1
+            ]
+          ],
+          1
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              0
+            ],
+            [
+              "var",
+              1
+            ]
+          ],
+          2
+        ]
+      ],
+      "arity": 3,
+      "complexity": 11,
+      "manual": {
+        "manual_id": "unfamiliar_manual_00",
+        "input_contract": [
+          "channel_0",
+          "channel_1",
+          "channel_2"
+        ],
+        "input_domain": [
+          0,
+          1,
+          2
+        ],
+        "output_type": "boolean",
+        "natural_requirement": "Construct a deterministic decision operation from the permitted typed arithmetic, comparison, conjunction and conditional primitives. The supplied observations and property checks are authoritative; no named solution or variable mapping is supplied.",
+        "maximum_complexity": 11,
+        "forbidden_effects": [
+          "filesystem",
+          "network",
+          "dynamic_execution",
+          "authority_write"
+        ]
+      },
+      "internal_accuracy": 1.0,
+      "external_accuracy": 1.0,
+      "development_points": 13,
+      "candidates_evaluated": 251,
+      "survivors_before_properties": 4,
+      "property_evaluations": 69,
+      "counterexamples_generated": 3,
+      "counterexamples": [
+        {
+          "candidate": "dsl_program_83e20ac04565",
+          "point": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "candidate": "dsl_program_433b4f2668de",
+          "point": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "candidate": "dsl_program_649fbf3dbd40",
+          "point": [
+            0,
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "schema_version": "aion.photon.recursive_tool.v1",
+      "tool_id": "recursive_tool_74200f184e91",
+      "program": [
+        "if",
+        [
+          "ge",
+          [
+            "var",
+            0
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              1
+            ],
+            [
+              "var",
+              2
+            ]
+          ],
+          4
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              1
+            ],
+            [
+              "var",
+              2
+            ]
+          ],
+          3
+        ]
+      ],
+      "arity": 3,
+      "complexity": 11,
+      "manual": {
+        "manual_id": "unfamiliar_manual_01",
+        "input_contract": [
+          "channel_0",
+          "channel_1",
+          "channel_2"
+        ],
+        "input_domain": [
+          0,
+          1,
+          2
+        ],
+        "output_type": "boolean",
+        "natural_requirement": "Construct a deterministic decision operation from the permitted typed arithmetic, comparison, conjunction and conditional primitives. The supplied observations and property checks are authoritative; no named solution or variable mapping is supplied.",
+        "maximum_complexity": 11,
+        "forbidden_effects": [
+          "filesystem",
+          "network",
+          "dynamic_execution",
+          "authority_write"
+        ]
+      },
+      "internal_accuracy": 1.0,
+      "external_accuracy": 1.0,
+      "development_points": 13,
+      "candidates_evaluated": 251,
+      "survivors_before_properties": 1,
+      "property_evaluations": 27,
+      "counterexamples_generated": 0,
+      "counterexamples": []
+    },
+    {
+      "schema_version": "aion.photon.recursive_tool.v1",
+      "tool_id": "recursive_tool_6736cb113327",
+      "program": [
+        "if",
+        [
+          "ge",
+          [
+            "var",
+            1
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              0
+            ],
+            [
+              "var",
+              2
+            ]
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              0
+            ],
+            [
+              "var",
+              2
+            ]
+          ],
+          3
+        ]
+      ],
+      "arity": 3,
+      "complexity": 11,
+      "manual": {
+        "manual_id": "unfamiliar_manual_02",
+        "input_contract": [
+          "channel_0",
+          "channel_1",
+          "channel_2"
+        ],
+        "input_domain": [
+          0,
+          1,
+          2
+        ],
+        "output_type": "boolean",
+        "natural_requirement": "Construct a deterministic decision operation from the permitted typed arithmetic, comparison, conjunction and conditional primitives. The supplied observations and property checks are authoritative; no named solution or variable mapping is supplied.",
+        "maximum_complexity": 11,
+        "forbidden_effects": [
+          "filesystem",
+          "network",
+          "dynamic_execution",
+          "authority_write"
+        ]
+      },
+      "internal_accuracy": 1.0,
+      "external_accuracy": 1.0,
+      "development_points": 13,
+      "candidates_evaluated": 251,
+      "survivors_before_properties": 4,
+      "property_evaluations": 75,
+      "counterexamples_generated": 3,
+      "counterexamples": [
+        {
+          "candidate": "dsl_program_1ad0da22498d",
+          "point": [
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "candidate": "dsl_program_723570593c88",
+          "point": [
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "candidate": "dsl_program_a99bd904f25c",
+          "point": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "schema_version": "aion.photon.recursive_tool.v1",
+      "tool_id": "recursive_tool_9e3fea5eb8a8",
+      "program": [
+        "if",
+        [
+          "ge",
+          [
+            "var",
+            0
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              1
+            ],
+            [
+              "var",
+              2
+            ]
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              1
+            ],
+            [
+              "var",
+              2
+            ]
+          ],
+          3
+        ]
+      ],
+      "arity": 3,
+      "complexity": 11,
+      "manual": {
+        "manual_id": "unfamiliar_manual_03",
+        "input_contract": [
+          "channel_0",
+          "channel_1",
+          "channel_2"
+        ],
+        "input_domain": [
+          0,
+          1,
+          2
+        ],
+        "output_type": "boolean",
+        "natural_requirement": "Construct a deterministic decision operation from the permitted typed arithmetic, comparison, conjunction and conditional primitives. The supplied observations and property checks are authoritative; no named solution or variable mapping is supplied.",
+        "maximum_complexity": 11,
+        "forbidden_effects": [
+          "filesystem",
+          "network",
+          "dynamic_execution",
+          "authority_write"
+        ]
+      },
+      "internal_accuracy": 1.0,
+      "external_accuracy": 1.0,
+      "development_points": 13,
+      "candidates_evaluated": 251,
+      "survivors_before_properties": 2,
+      "property_evaluations": 43,
+      "counterexamples_generated": 1,
+      "counterexamples": [
+        {
+          "candidate": "dsl_program_c3ffe1f09923",
+          "point": [
+            2,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "schema_version": "aion.photon.recursive_tool.v1",
+      "tool_id": "recursive_tool_3d867fec3251",
+      "program": [
+        "if",
+        [
+          "ge",
+          [
+            "var",
+            1
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              2
+            ],
+            [
+              "var",
+              3
+            ]
+          ],
+          4
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              2
+            ],
+            [
+              "var",
+              3
+            ]
+          ],
+          1
+        ]
+      ],
+      "arity": 4,
+      "complexity": 11,
+      "manual": {
+        "manual_id": "unfamiliar_manual_04",
+        "input_contract": [
+          "channel_0",
+          "channel_1",
+          "channel_2",
+          "channel_3"
+        ],
+        "input_domain": [
+          0,
+          1,
+          2
+        ],
+        "output_type": "boolean",
+        "natural_requirement": "Construct a deterministic decision operation from the permitted typed arithmetic, comparison, conjunction and conditional primitives. The supplied observations and property checks are authoritative; no named solution or variable mapping is supplied.",
+        "maximum_complexity": 11,
+        "forbidden_effects": [
+          "filesystem",
+          "network",
+          "dynamic_execution",
+          "authority_write"
+        ]
+      },
+      "internal_accuracy": 1.0,
+      "external_accuracy": 1.0,
+      "development_points": 18,
+      "candidates_evaluated": 998,
+      "survivors_before_properties": 1,
+      "property_evaluations": 81,
+      "counterexamples_generated": 0,
+      "counterexamples": []
+    },
+    {
+      "schema_version": "aion.photon.recursive_tool.v1",
+      "tool_id": "recursive_tool_3db52776b78a",
+      "program": [
+        "if",
+        [
+          "ge",
+          [
+            "var",
+            2
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              1
+            ],
+            [
+              "var",
+              3
+            ]
+          ],
+          4
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              1
+            ],
+            [
+              "var",
+              3
+            ]
+          ],
+          1
+        ]
+      ],
+      "arity": 4,
+      "complexity": 11,
+      "manual": {
+        "manual_id": "unfamiliar_manual_05",
+        "input_contract": [
+          "channel_0",
+          "channel_1",
+          "channel_2",
+          "channel_3"
+        ],
+        "input_domain": [
+          0,
+          1,
+          2
+        ],
+        "output_type": "boolean",
+        "natural_requirement": "Construct a deterministic decision operation from the permitted typed arithmetic, comparison, conjunction and conditional primitives. The supplied observations and property checks are authoritative; no named solution or variable mapping is supplied.",
+        "maximum_complexity": 11,
+        "forbidden_effects": [
+          "filesystem",
+          "network",
+          "dynamic_execution",
+          "authority_write"
+        ]
+      },
+      "internal_accuracy": 1.0,
+      "external_accuracy": 1.0,
+      "development_points": 18,
+      "candidates_evaluated": 998,
+      "survivors_before_properties": 1,
+      "property_evaluations": 81,
+      "counterexamples_generated": 0,
+      "counterexamples": []
+    },
+    {
+      "schema_version": "aion.photon.recursive_tool.v1",
+      "tool_id": "recursive_tool_037e9bc32d23",
+      "program": [
+        "if",
+        [
+          "ge",
+          [
+            "var",
+            0
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              1
+            ],
+            [
+              "var",
+              2
+            ]
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              1
+            ],
+            [
+              "var",
+              2
+            ]
+          ],
+          3
+        ]
+      ],
+      "arity": 4,
+      "complexity": 11,
+      "manual": {
+        "manual_id": "unfamiliar_manual_06",
+        "input_contract": [
+          "channel_0",
+          "channel_1",
+          "channel_2",
+          "channel_3"
+        ],
+        "input_domain": [
+          0,
+          1,
+          2
+        ],
+        "output_type": "boolean",
+        "natural_requirement": "Construct a deterministic decision operation from the permitted typed arithmetic, comparison, conjunction and conditional primitives. The supplied observations and property checks are authoritative; no named solution or variable mapping is supplied.",
+        "maximum_complexity": 11,
+        "forbidden_effects": [
+          "filesystem",
+          "network",
+          "dynamic_execution",
+          "authority_write"
+        ]
+      },
+      "internal_accuracy": 1.0,
+      "external_accuracy": 1.0,
+      "development_points": 18,
+      "candidates_evaluated": 998,
+      "survivors_before_properties": 6,
+      "property_evaluations": 189,
+      "counterexamples_generated": 5,
+      "counterexamples": [
+        {
+          "candidate": "dsl_program_1bc55cf36279",
+          "point": [
+            0,
+            0,
+            2,
+            2
+          ]
+        },
+        {
+          "candidate": "dsl_program_91cc527f74ef",
+          "point": [
+            0,
+            0,
+            2,
+            2
+          ]
+        },
+        {
+          "candidate": "dsl_program_3bdec156424a",
+          "point": [
+            0,
+            0,
+            2,
+            2
+          ]
+        },
+        {
+          "candidate": "dsl_program_b45dcf18ce2d",
+          "point": [
+            0,
+            0,
+            2,
+            2
+          ]
+        },
+        {
+          "candidate": "dsl_program_70a1a9ad5ab6",
+          "point": [
+            0,
+            2,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "schema_version": "aion.photon.recursive_tool.v1",
+      "tool_id": "recursive_tool_c5d77bf3b001",
+      "program": [
+        "if",
+        [
+          "ge",
+          [
+            "var",
+            0
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              2
+            ],
+            [
+              "var",
+              3
+            ]
+          ],
+          2
+        ],
+        [
+          "ge",
+          [
+            "add",
+            [
+              "var",
+              2
+            ],
+            [
+              "var",
+              3
+            ]
+          ],
+          1
+        ]
+      ],
+      "arity": 4,
+      "complexity": 11,
+      "manual": {
+        "manual_id": "unfamiliar_manual_07",
+        "input_contract": [
+          "channel_0",
+          "channel_1",
+          "channel_2",
+          "channel_3"
+        ],
+        "input_domain": [
+          0,
+          1,
+          2
+        ],
+        "output_type": "boolean",
+        "natural_requirement": "Construct a deterministic decision operation from the permitted typed arithmetic, comparison, conjunction and conditional primitives. The supplied observations and property checks are authoritative; no named solution or variable mapping is supplied.",
+        "maximum_complexity": 11,
+        "forbidden_effects": [
+          "filesystem",
+          "network",
+          "dynamic_execution",
+          "authority_write"
+        ]
+      },
+      "internal_accuracy": 1.0,
+      "external_accuracy": 1.0,
+      "development_points": 18,
+      "candidates_evaluated": 998,
+      "survivors_before_properties": 1,
+      "property_evaluations": 81,
+      "counterexamples_generated": 0,
+      "counterexamples": []
+    }
+  ],
+  "promotion": {
+    "candidate": {
+      "procedure_id": "procedure_recursive_photon_b69e4f4c0a74",
+      "goal": "recursive_photon_tool_synthesis",
+      "steps": [
+        "read_unfamiliar_typed_manual",
+        "construct_recursive_candidates",
+        "execute_demonstration_tests",
+        "generate_property_counterexamples",
+        "verify_with_independent_interpreter",
+        "abstain_outside_grammar"
+      ],
+      "score": 1.0,
+      "success": true,
+      "evidence": {
+        "gate": {
+          "recursive_tools_invented": 8,
+          "arities": [
+            3,
+            4
+          ],
+          "mean_internal_accuracy": 1.0,
+          "mean_external_accuracy": 1.0,
+          "weakest_tool_accuracy": 1.0,
+          "property_counterexamples_generated": 12,
+          "out_of_grammar_abstention": true,
+          "unsafe_side_effects": 0,
+          "provenance_completeness": 1.0,
+          "errors": [],
+          "accepted": true
+        }
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "decision": {
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT",
+      "champion_id": "procedure_recursive_photon_b69e4f4c0a74",
+      "commit": {
+        "reason": "procedure_promotion:procedure_recursive_photon_b69e4f4c0a74",
+        "authority": {
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase55_recursive_photon_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "a828364e494b5a2ab46cab5bcd81cccb3e085469fe9439fc1e6443eed1188718"
+      }
+    }
+  },
+  "restart": {
+    "tools_retained": true,
+    "champion_retained": true,
+    "relearning_tools": 0
+  },
+  "boundary": "Phase 55 synthesises recursive programs inside an engineered typed DSL. It does not generate unrestricted Python, discover arbitrary APIs, or deploy tools without sandbox and CAU verification."
+}

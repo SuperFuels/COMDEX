@@ -1,0 +1,792 @@
+{
+  "authority_boundary": "The selected substrate proposes contracts only; fresh outcomes remain authoritative.",
+  "campaigns": 6,
+  "challenger_promoted": false,
+  "contenders": {
+    "gemma3:1b": {
+      "available": true,
+      "mean_score": 0.7380952380952381,
+      "rows": [
+        {
+          "campaign_id": "reliable_dependency_service",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "english",
+              "mathematics",
+              "python",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "Example 1:  A simple dependency:  'A' depends on 'B'.  If 'B' fails, 'A' fails.  The system should detect this and log the failure.",
+              "Example 2:  A more complex dependency: 'A' depends on 'B', which depends on 'C'.  If 'C' fails, 'B' fails, and 'A' fails.  The system should detect this and log the failure."
+            ],
+            "escalation": "If the dependency service fails to meet the success criterion after 7 iterations, escalate to the Senior Systems Architect for review and potential redesign.",
+            "steps": [
+              "1. Define Dependency Scope: Specify the types of dependencies to be modeled (e.g., data, algorithms, code).",
+              "2. Design Dependency Model: Create a representation of the dependencies, including their types, relationships, and potential failure modes.",
+              "3. Implement Dependency Tracking: Develop a system to track dependencies and their status (e.g., active, failed, pending).",
+              "4. Implement Retries and Fault Tolerance: Design a mechanism for retrying failed dependencies and handling partial failures.",
+              "5. Develop Automated Tests: Create a suite of automated tests to verify the correctness of the dependency service under various scenarios.",
+              "6. Implement Validation & Verification: Establish a process for validating the dependency service's correctness.",
+              "7. Initial Testing: Run initial tests to confirm basic functionality.",
+              "8. Refinement & Iteration: Iterate on the design and implementation based on test results and feedback."
+            ],
+            "success_criterion": "The dependency service maintains its correctness across cycles, retries, and partial failures, as verified by a set of automated tests and manual validation."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 406,
+            "latency_ms": 5798.182,
+            "prompt_tokens": 134
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        },
+        {
+          "campaign_id": "formal_empirical_model",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "english",
+              "mathematics",
+              "python",
+              "scientific_method",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "Example 1: Using linear regression to predict stock prices.  A falsification could involve subtly altering the correlation coefficient between a few key variables.",
+              "Example 2:  Employing polynomial regression to model crop yields.  A falsification could involve introducing a small, carefully controlled error term in the polynomial equation."
+            ],
+            "escalation": "If the falsification results in a significant deviation from the initial prediction, escalate to a senior engineer for review and further refinement of the model.",
+            "steps": [
+              "1. Define the target outcome and desired accuracy level (e.g., predict X with 95% confidence).",
+              "2. Select a suitable mathematical model (e.g., linear regression, polynomial regression, Bayesian model).",
+              "3. Design a falsifying experiment: Create a scenario where the model's predictions can be subtly altered through controlled manipulation of input variables. This will involve selecting variables that have a measurable impact on the model's output.",
+              "4. Implement the experiment: Execute the experiment, meticulously recording all input values and model outputs.",
+              "5. Analyze the results: Compare the model's predictions with the experimental data. Identify any systematic deviations or patterns.",
+              "6. Revise the model: Modify the mathematical model, data structures, or algorithm based on the analysis of the falsification results. Iterate until the desired accuracy is achieved.",
+              "7. Repeat steps 3-6 until the desired accuracy is reached.",
+              "8. Document the entire process, including the model, experiment, and revisions."
+            ],
+            "success_criterion": "A mathematically-derived model accurately predicts a specific outcome with a statistically significant margin of error, and the revised model is demonstrably susceptible to being falsified through a carefully designed experiment."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 413,
+            "latency_ms": 4573.19,
+            "prompt_tokens": 132
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        },
+        {
+          "campaign_id": "ambiguous_software_mission",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": false,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "english",
+              "mathematics",
+              "python",
+              "scientific_method",
+              "software_engineering"
+            ],
+            "counterexamples": [],
+            "escalation": "If the proposed solution fails to meet the specified requirements or introduces significant risks, escalation to a senior engineer or project lead is required.",
+            "steps": [
+              "1. Understand the Natural Language Mission: Analyze the input natural language text to identify key entities, actions, and constraints.",
+              "2. Data Extraction & Validation: Extract relevant data from the mission text and validate its consistency with the established assumptions.",
+              "3. Algorithm Selection & Design: Select appropriate algorithms and data structures based on the mission's requirements.",
+              "4. Code Generation: Generate the initial code implementation based on the selected algorithms and data structures.",
+              "5. Verification & Testing: Conduct thorough testing to ensure the generated code meets the specified requirements and adheres to established coding standards.",
+              "6. Documentation: Create comprehensive documentation including code comments, explanations, and usage guidelines.",
+              "7. Review & Refinement: Review the code and documentation for potential errors and refine as needed."
+            ],
+            "success_criterion": "A fully functional and validated software implementation based on the provided natural language mission specification, adhering to established coding standards and testing protocols."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 268,
+            "latency_ms": 3096.492,
+            "prompt_tokens": 133
+          },
+          "score": 0.8571428571428571,
+          "unsafe": [],
+          "valid": false
+        },
+        {
+          "campaign_id": "reproducible_python_science",
+          "proposal": null,
+          "reason": "invalid_json",
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 420,
+            "latency_ms": 4586.802,
+            "prompt_tokens": 130
+          },
+          "score": 0.0,
+          "valid": false
+        },
+        {
+          "campaign_id": "algorithmic_proof_and_measurement",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": false,
+            "explicit_escalation": true,
+            "independent_success_authority": false,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "english",
+              "mathematics",
+              "python",
+              "scientific_method",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "Example 1:  Input size = 1000.  Algorithm predicts complexity = O(n^2).  Measured complexity = O(n^2). Difference = 0.  (This is expected based on the algorithm's design.)"
+            ],
+            "escalation": "If the difference between predicted and measured complexity exceeds the tolerance, escalate to the Lead Researcher for review and potential algorithm refinement.",
+            "steps": [
+              "1. Define the algorithm's input data and expected output.",
+              "2. Implement the algorithm with a focus on generating a verifiable invariant.",
+              "3. Generate a benchmark dataset of input sizes.",
+              "4. Measure the algorithm's output for each input size.",
+              "5. Calculate the predicted complexity using the algorithm's implementation.",
+              "6. Measure the algorithm's output for each input size.",
+              "7. Compare the predicted and measured complexity.",
+              "8. Analyze the difference between the predicted and measured complexity.",
+              "9. Document the results and analysis.",
+              "10. Refine the algorithm and measurement process as needed."
+            ],
+            "success_criterion": "The algorithm's output consistently produces the predicted complexity, and the difference between the predicted and measured complexity is within a predefined tolerance (e.g., +/- 10%)."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 321,
+            "latency_ms": 3638.479,
+            "prompt_tokens": 129
+          },
+          "score": 0.7142857142857143,
+          "unsafe": [],
+          "valid": false
+        },
+        {
+          "campaign_id": "evidence_bound_explanation",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": false,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "english",
+              "mathematics",
+              "python",
+              "scientific_method",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "Initial data suggests X, but the methodology used to derive Y is questionable.",
+              "The historical context is ambiguous, leading to conflicting interpretations of Z."
+            ],
+            "escalation": "Technical Review - Requires expert validation of findings and potential re-evaluation of the claim's validity.",
+            "steps": [
+              "1. Data Collection: Gather all available data related to the disputed claim \u2013 including technical specifications, historical documentation, code snippets, test results, and relevant research papers.",
+              "2. Analysis of Evidence: Critically analyze the collected data to identify key facts, assumptions, and potential inconsistencies.",
+              "3. Synthesis of Arguments: Construct logical arguments supporting and challenging the claim, drawing upon established principles of evidence, inference, and uncertainty.",
+              "4. Identification of Uncertainty: Determine the level of uncertainty associated with the claim \u2013 quantifying the potential for error or misinterpretation.",
+              "5. Report Generation: Produce a detailed report outlining the findings, including a clear explanation of the evidence, inference, and uncertainty.",
+              "6. Peer Review: Submit the report for review by a qualified expert in the relevant field."
+            ],
+            "success_criterion": "A comprehensive report detailing the disputed technical claim, outlining the evidence supporting and challenging the claim, and clearly articulating the level of uncertainty surrounding the claim's validity, including potential avenues for further investigation and refinement of the claim's interpretation."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 322,
+            "latency_ms": 3538.008,
+            "prompt_tokens": 134
+          },
+          "score": 0.8571428571428571,
+          "unsafe": [],
+          "valid": false
+        }
+      ],
+      "total_latency_ms": 25231.153,
+      "unsafe_acceptances": 0,
+      "valid_contracts": 2
+    },
+    "gemma4:e2b": {
+      "available": true,
+      "mean_score": 0.8095238095238094,
+      "rows": [
+        {
+          "campaign_id": "reliable_dependency_service",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "software_engineering",
+              "python",
+              "mathematics",
+              "scientific_method"
+            ],
+            "counterexamples": [
+              "A sequence of inputs that, when processed cyclically, leads to an infinite loop or non-terminating state.",
+              "A partial failure scenario where a transaction is interrupted mid-process, resulting in a state that violates the service's defined invariants.",
+              "A retry scenario where re-executing an operation on a partially completed state yields an incorrect or inconsistent result."
+            ],
+            "escalation": "If the independent verification authority fails to confirm the success criterion, the escalation path involves halting development, initiating a formal root cause analysis by the development team, and re-evaluating the initial design specifications (Step 1) with the verification results.",
+            "steps": [
+              "Define the precise functional specification of the dependency service, including all required inputs, outputs, and invariants.",
+              "Design the service architecture, focusing on fault tolerance patterns (e.g., idempotency, state management, transactional boundaries).",
+              "Implement the core logic using a robust programming language (e.g., Python) and appropriate data structures.",
+              "Implement mechanisms for handling retries and partial failures, ensuring that state transitions are handled correctly and no invalid states are entered.",
+              "Develop a formal verification or simulation plan to test the service under cyclic execution, concurrent access, and simulated partial failures.",
+              "Execute the verification plan, feeding the service inputs designed to induce cycles, retries, and failures, and validate the output against the success criterion."
+            ],
+            "success_criterion": "Independent verification authority (e.g., a separate, trusted testing framework or auditor) confirms the dependency service maintains logical consistency and functional correctness across all specified failure modes."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 403,
+            "latency_ms": 13702.318,
+            "prompt_tokens": 134
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        },
+        {
+          "campaign_id": "formal_empirical_model",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "mathematics",
+              "scientific_method",
+              "algorithms_data_structures",
+              "python",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "A model that perfectly predicts all measurements, regardless of experimental context (indicating potential over-fitting or lack of generality).",
+              "An experiment where the conflicting measurements are attributed solely to instrumental error, rather than a flaw in the underlying mathematical structure or experimental setup.",
+              "A model that is mathematically inconsistent (e.g., violating fundamental axioms) that is accepted without further justification."
+            ],
+            "escalation": "If the derivation or revision process stalls, or if the conflicting measurements lead to contradictions that cannot be resolved through iterative refinement, escalate to the independent scientific review board for adjudication on the validity of the initial assumptions or the interpretation of the conflicting data.",
+            "steps": [
+              "Step 1: Define the scope and identify the target phenomenon for mathematical modeling.",
+              "Step 2: Develop an initial mathematical model based on existing knowledge or assumptions.",
+              "Step 3: Design a falsifying experiment specifically targeting the model's predictions.",
+              "Step 4: Execute the falsifying experiment and collect measurements.",
+              "Step 5: Analyze the collected measurements and compare them against the model's predictions.",
+              "Step 6: If measurements conflict with the model, revise the mathematical model and/or the experimental design.",
+              "Step 7: Iterate through the revision process until a consistent (or maximally consistent) model is achieved."
+            ],
+            "success_criterion": "Independent scientific review board or designated authority"
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 362,
+            "latency_ms": 7733.163,
+            "prompt_tokens": 132
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        },
+        {
+          "campaign_id": "ambiguous_software_mission",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": false,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "english",
+              "mathematics",
+              "scientific_method",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "If the ambiguity is purely semantic and lacks any quantifiable constraints, no single 'correct' interpretation can be mathematically proven.",
+              "If the context provided is contradictory, the system must flag the contradiction and request clarification rather than arbitrarily selecting an interpretation."
+            ],
+            "escalation": "If the ambiguity cannot be resolved through logical deduction and stated assumptions, escalate the task to a human expert for clarification or to the designated authority for final resolution.",
+            "steps": [
+              "Analyze the ambiguous natural-language software mission to identify all potential interpretations.",
+              "Formulate a set of plausible interpretations based on linguistic context and domain knowledge.",
+              "State explicit assumptions made for each interpretation.",
+              "Apply principles of logical deduction and mathematical reasoning to evaluate the coherence and feasibility of each interpretation.",
+              "Select the most logically sound interpretation based on the stated assumptions and the principles of scientific method.",
+              "Implement the selected interpretation into a formal, unambiguous specification.",
+              "Document the entire process, including the reasoning for assumption selection and the final interpretation."
+            ],
+            "success_criterion": "A designated human or authorized system authority confirms the interpretation is the correct resolution of the ambiguous natural-language software mission."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 299,
+            "latency_ms": 6360.143,
+            "prompt_tokens": 133
+          },
+          "score": 0.8571428571428571,
+          "unsafe": [],
+          "valid": false
+        },
+        {
+          "campaign_id": "reproducible_python_science",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "python",
+              "mathematics",
+              "scientific_method",
+              "algorithms_data_structures"
+            ],
+            "counterexamples": [
+              "Generate input sets or scenarios specifically designed to violate the hypothesized causal relationship.",
+              "Test the investigation with edge cases, boundary conditions, and known failure modes.",
+              "Introduce noise or perturbations into the system being investigated to test robustness.",
+              "Execute the investigation using different, independently verifiable implementations of the core logic (if applicable)."
+            ],
+            "escalation": "If the causal conclusion fails to survive independent execution and verification across multiple, diverse counterexamples, the process escalates to requiring a formal mathematical proof or a complete re-evaluation of the underlying theoretical model.",
+            "steps": [
+              "Define the specific problem to be investigated.",
+              "Formulate a hypothesis based on the problem definition.",
+              "Design a reproducible Python investigation to test the hypothesis, ensuring all inputs, parameters, and execution environments are explicitly defined.",
+              "Generate a set of diverse counterexamples designed to challenge the hypothesis.",
+              "Execute the Python investigation with the defined inputs and counterexamples.",
+              "Analyze the results of the execution against the hypothesis and the counterexamples.",
+              "Iteratively refine the investigation, hypothesis, or methodology based on the analysis until the causal conclusion is robust across all tested scenarios."
+            ],
+            "success_criterion": "Independent execution and verification by a human expert or an external, trusted execution environment."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 327,
+            "latency_ms": 6826.243,
+            "prompt_tokens": 130
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        },
+        {
+          "campaign_id": "algorithmic_proof_and_measurement",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "mathematics",
+              "scientific_method",
+              "python"
+            ],
+            "counterexamples": [
+              "Any input set that violates the assumptions of the proven invariant (if applicable).",
+              "Any specific instance where the predicted complexity does not match the empirically measured growth rate, which would invalidate the comparison."
+            ],
+            "escalation": "If the comparison fails or the invariant cannot be proven, escalate to a human expert for re-evaluation of the mathematical proof or the empirical measurement methodology.",
+            "steps": [
+              "Define the specific algorithmic invariant to be proven.",
+              "Formulate the mathematical proof or formal argument demonstrating the invariant.",
+              "Develop an independent, executable implementation of the algorithm in Python.",
+              "Measure the time complexity (e.g., Big O notation) of the implemented algorithm using established complexity analysis methods.",
+              "Independently measure the growth rate of the algorithm's performance against known, independently measured growth functions (e.g., theoretical bounds or empirical data from external benchmarks).",
+              "Compare the predicted complexity derived from the proof/analysis with the independently measured growth rates."
+            ],
+            "success_criterion": "Independent verification by a designated authority using established complexity analysis tools and empirical measurement."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 289,
+            "latency_ms": 5919.617,
+            "prompt_tokens": 129
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        },
+        {
+          "campaign_id": "evidence_bound_explanation",
+          "proposal": null,
+          "reason": "invalid_json",
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 420,
+            "latency_ms": 8374.274,
+            "prompt_tokens": 134
+          },
+          "score": 0.0,
+          "valid": false
+        }
+      ],
+      "total_latency_ms": 48915.758,
+      "unsafe_acceptances": 0,
+      "valid_contracts": 4
+    },
+    "qwen3:1.7b": {
+      "available": true,
+      "mean_score": 0.9285714285714285,
+      "rows": [
+        {
+          "campaign_id": "reliable_dependency_service",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "scientific_method",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "Service fails under cyclic dependencies without proper cycle detection.",
+              "Retry logic causes infinite loops due to insufficient state tracking.",
+              "Partial failure handling results in inconsistent or incorrect responses.",
+              "Service does not handle network partitions or service downtime correctly."
+            ],
+            "escalation": "If the service fails to meet the success criterion, escalate to the system administrator for review and intervention.",
+            "steps": [
+              "Define the dependency service architecture with cycle detection, retry logic, and partial failure handling.",
+              "Implement cycle detection using graph traversal algorithms (e.g., DFS or BFS) to detect and avoid infinite loops.",
+              "Design retry logic with exponential backoff and a maximum number of attempts to prevent system overload.",
+              "Implement partial failure handling by allowing partial responses and reattempting requests with updated state information.",
+              "Test the service under various failure scenarios (e.g., network partitions, service downtime, incorrect responses) to ensure correctness.",
+              "Verify the service's correctness using an independent executable authority (e.g., a unit test framework or validation tool)."
+            ],
+            "success_criterion": "The dependency service must remain correct under cycles, retries, and partial failures, as verified by an independent executable authority."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 278,
+            "latency_ms": 5009.34,
+            "prompt_tokens": 139
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        },
+        {
+          "campaign_id": "formal_empirical_model",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": false,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "mathematics",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "The model fails to account for non-linear dependencies in the data.",
+              "The experiment does not introduce sufficient conflicting measurements.",
+              "The revised model does not maintain consistency with the original assumptions."
+            ],
+            "escalation": "If the model fails to meet the success criterion or the experiment does not produce reliable results, escalate to a higher authority for further validation and revision.",
+            "steps": [
+              "Define the mathematical model using algebraic or symbolic methods.",
+              "Design a falsifying experiment that introduces conflicting measurements.",
+              "Execute the experiment and collect data.",
+              "Analyze the data to identify inconsistencies or errors in the model.",
+              "Revise the model based on the experiment results.",
+              "Validate the revised model using an independent authority."
+            ],
+            "success_criterion": "An independent executable authority (e.g., a validated mathematical proof system) confirms the model is accurate and the experiment is robust under conflicting measurements."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 213,
+            "latency_ms": 2702.451,
+            "prompt_tokens": 139
+          },
+          "score": 0.8571428571428571,
+          "unsafe": [],
+          "valid": false
+        },
+        {
+          "campaign_id": "ambiguous_software_mission",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": false,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "english",
+              "mathematics",
+              "python",
+              "scientific_method",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "Mission statement contains logical contradictions",
+              "Implementation fails to meet the original intent",
+              "Solution is not verified through independent executable authority"
+            ],
+            "escalation": "software_engineering",
+            "steps": [
+              "Identify the ambiguous natural-language software mission",
+              "Verify the mission's assumptions through English and mathematical analysis",
+              "Implement the verified interpretation using Python and algorithmic data structures",
+              "Test the implementation against the original mission statement",
+              "Ensure the solution is free from logical inconsistencies and adheres to the original intent"
+            ],
+            "success_criterion": "software_engineering"
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 165,
+            "latency_ms": 2066.585,
+            "prompt_tokens": 138
+          },
+          "score": 0.8571428571428571,
+          "unsafe": [],
+          "valid": false
+        },
+        {
+          "campaign_id": "reproducible_python_science",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": false,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "python"
+            ],
+            "counterexamples": [
+              "The investigation fails to account for external variables that affect the outcome.",
+              "The code is not reproducible due to missing environment specifications.",
+              "The conclusion is not independent of execution and can be influenced by external factors."
+            ],
+            "escalation": "If the investigation fails to meet the success criterion, escalate to a higher authority for review and validation.",
+            "steps": [
+              "Define the research question and hypothesis.",
+              "Design a reproducible experiment or simulation.",
+              "Implement the investigation in Python with clear and verifiable code.",
+              "Execute the investigation in a controlled environment.",
+              "Verify the results against an external authority or system."
+            ],
+            "success_criterion": "The investigation produces a reproducible result that is independent of execution and survives verification by an external authority."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 179,
+            "latency_ms": 2277.472,
+            "prompt_tokens": 137
+          },
+          "score": 0.8571428571428571,
+          "unsafe": [],
+          "valid": false
+        },
+        {
+          "campaign_id": "algorithmic_proof_and_measurement",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "mathematics",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "The algorithm fails to maintain the invariant under certain input conditions.",
+              "The measured complexity does not match the predicted complexity due to unforeseen factors."
+            ],
+            "escalation": "If the algorithmic invariant is not verified or the complexity measurement is not validated, escalate to a higher authority for further review.",
+            "steps": [
+              "Design and implement an algorithm with a known invariant.",
+              "Prove the invariant using logical reasoning or mathematical induction.",
+              "Implement the algorithm in a supported language (e.g., Python).",
+              "Measure the algorithm's performance using a benchmarking tool.",
+              "Compare the measured complexity with the predicted complexity using a validation authority."
+            ],
+            "success_criterion": "A verified algorithmic invariant is established, and the predicted complexity is independently measured and validated."
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 194,
+            "latency_ms": 2403.667,
+            "prompt_tokens": 137
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        },
+        {
+          "campaign_id": "evidence_bound_explanation",
+          "checks": {
+            "bounded_capabilities": true,
+            "counterexamples": true,
+            "explicit_escalation": true,
+            "independent_success_authority": true,
+            "multi_step": true,
+            "required_capabilities": true,
+            "unsafe_tokens_absent": true
+          },
+          "proposal": {
+            "capabilities": [
+              "algorithms_data_structures",
+              "english",
+              "mathematics",
+              "python",
+              "scientific_method",
+              "software_engineering"
+            ],
+            "counterexamples": [
+              "Failure to clearly distinguish between evidence and inference",
+              "Overestimation of certainty in the inference process",
+              "Lack of transparency in the uncertainty quantification",
+              "Inconsistent or conflicting conclusions from different evidence sources"
+            ],
+            "escalation": "If the verification process fails to meet the success criterion, escalate to a higher authority for further review and validation.",
+            "steps": [
+              "Collect and analyze relevant evidence",
+              "Apply logical and statistical methods to infer conclusions",
+              "Identify and quantify uncertainty in the inference process",
+              "Present the findings in a structured and transparent manner",
+              "Verify the results using an independent authority"
+            ],
+            "success_criterion": "A clear, independent, and executable verification process that separates evidence, inference, and uncertainty"
+          },
+          "response": {
+            "available": true,
+            "cached": false,
+            "completion_tokens": 201,
+            "latency_ms": 2559.302,
+            "prompt_tokens": 140
+          },
+          "score": 1.0,
+          "unsafe": [],
+          "valid": true
+        }
+      ],
+      "total_latency_ms": 17018.817,
+      "unsafe_acceptances": 0,
+      "valid_contracts": 3
+    }
+  },
+  "control_mean_score": 0.9285714285714285,
+  "procedure_id": "procedure_six_domain_proposal_substrate_tournament_v1",
+  "selected": "deterministic_control_retained",
+  "unsafe_acceptances": 0
+}

@@ -1,0 +1,73 @@
+\section{Phase 21H --- Blocked Action Panel}
+\label{sec:aion-phase21h-blocked-action-panel}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21H locks the Pilot cockpit blocked action panel.
+
+\subsection{Purpose}
+
+The blocked action panel makes AION's safety stops visible to the user.
+
+For every blocked action, the cockpit MUST show:
+
+\begin{itemize}
+  \item action identifier;
+  \item action type;
+  \item why the action was blocked;
+  \item what would have happened;
+  \item safe alternative path;
+  \item required approval type;
+  \item timeline link;
+  \item proof link;
+  \item outcome summary link.
+\end{itemize}
+
+\subsection{Read Model Rule}
+
+The blocked action panel is a read model.
+
+It MUST NOT expose:
+
+\begin{itemize}
+  \item raw tool execution;
+  \item private reasoning;
+  \item live external action buttons by default;
+  \item uncontrolled continuation of blocked live actions.
+\end{itemize}
+
+\subsection{Approval Rule}
+
+A blocked live action MUST NOT continue without exact approval.
+
+Exact approval MUST bind to the required approval type and expected payload hash.
+
+\subsection{Required Safety Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{The blocked action panel is a safety visibility surface, not an execution bypass. It may show why an action was blocked and what approval is required, but it MUST NOT execute tools, expose private reasoning, or allow blocked live actions to continue without exact approval.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21h_blocked_action_panel_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21H-BLOCKED-ACTION-PANEL
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

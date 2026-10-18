@@ -1,0 +1,526 @@
+from __future__ import annotations
+
+from backend.api import boardroom_provider_router as router
+
+
+def test_provider_registry_exposes_main_suite_and_task_capabilities(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_ollama_status", lambda: {
+        "id": "gemma", "label": "Gemma", "connected": False, "reason": "not_loaded",
+    })
+    monkeypatch.setattr(router, "get_ai_provider_public_record", lambda provider: {
+        "id": provider, "label": provider.title(), "connected": False, "reason": "missing_api_key",
+    })
+    records = {item["id"]: item for item in router._provider_status()}
+    assert set(records) == {"gemma", "openai", "claude", "gemini", "grok", "kimi", "meta", "mistral", "deepseek"}
+    assert records["deepseek"]["capabilities"] == {"boardroom": True, "receipt_vision": False}
+    assert records["mistral"]["capabilities"]["receipt_vision"] is True
+
+
+def test_all_connected_mainstream_providers_can_be_board_members(monkeypatch) -> None:
+    providers = ["gemma", "openai", "claude", "gemini", "grok", "kimi", "meta", "mistral", "deepseek"]
+    valid_content = (
+        '{"position":"Ready","recommendations":["Continue"],"risks":["None observed"],'
+        '"missing_inputs":["None"],"plan_changes":["No change"],"confidence":0.9}'
+    )
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": item, "label": item.title(), "connected": True, "mode": "test", "model": f"{item}-model"}
+        for item in providers
+    ])
+    monkeypatch.setattr(router, "_call_ollama", lambda prompt: {"content": valid_content, "model": "gemma-model", "latency_ms": 1})
+    monkeypatch.setattr(router, "_call_gemini", lambda prompt: {"content": valid_content, "model": "gemini-model", "latency_ms": 1})
+    monkeypatch.setattr(router, "_call_claude", lambda prompt: {"content": valid_content, "model": "claude-model", "latency_ms": 1})
+    monkeypatch.setattr(router, "_call_meta", lambda prompt: {"content": valid_content, "model": "meta-model", "latency_ms": 1})
+    monkeypatch.setattr(router, "_call_openai_compatible", lambda provider, prompt: {"content": valid_content, "model": f"{provider}-model", "latency_ms": 1})
+    result = router.boardroom_ask(router.BoardroomAskRequest(requested_providers=providers))
+    assert result["succeeded_count"] == 9
+    assert not result["missing_or_unavailable"]
+
+
+def test_selected_local_model_is_exposed_without_private_runtime_details(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [])
+    monkeypatch.setattr(router, "_selected_local_provider", lambda workspace_id, **kwargs: {
+        "id": "local_model",
+        "label": "Qwen 3 8B Fast Local",
+        "model": "qwen3-8b-fast-local-q4",
+        "connected": True,
+        "source": "local_model_vault",
+        "runtime": {"endpoint": "http://127.0.0.1:8897"},
+        "model_sha256": "a" * 64,
+        "model_path": "/private/model.gguf",
+    })
+
+    result = router.boardroom_provider_status("home-fixed")
+
+    assert result["connected_count"] == 1
+    assert result["providers"][0]["model"] == "qwen3-8b-fast-local-q4"
+    assert "runtime" not in result["providers"][0]
+    assert "model_sha256" not in result["providers"][0]
+    assert "model_path" not in result["providers"][0]
+
+
+def test_installed_local_model_is_visible_before_workspace_selection(monkeypatch) -> None:
+    from backend.modules.aion_inference import local_model_selection_store, local_model_vault
+
+    monkeypatch.setattr(local_model_selection_store, "load_local_model_selection", lambda workspace_id: {})
+    monkeypatch.setattr(local_model_vault.LocalModelVault, "snapshot", lambda self: {
+        "models": [{
+            "model_id": "qwen3-8b-fast-local-q4",
+            "selection_status": "selectable",
+            "runtime_profile": {},
+            "installations": [{
+                "model_path": "/Volumes/Models/qwen.gguf",
+                "display_name": "Qwen 3 8B Fast Local",
+                "warehouse": {"verified": True},
+                "runtime_profile": {},
+            }],
+        }],
+    })
+
+    result = router._selected_local_provider("new-workspace")
+
+    assert result["installed"] is True
+    assert result["connected"] is False
+    assert result["workspace_selected"] is False
+    assert result["reason"] == "local_model_available_not_selected"
+
+
+def test_selected_local_lead_is_available_to_board_without_blocking_status_probe(monkeypatch) -> None:
+    from backend.modules.aion_inference import local_model_selection_store, local_model_vault
+
+    monkeypatch.setattr(local_model_selection_store, "load_local_model_selection", lambda workspace_id: {
+        "source": "local_model_vault",
+        "model_id": "qwen3-8b-fast-local-q4",
+    })
+    monkeypatch.setattr(local_model_vault.LocalModelVault, "snapshot", lambda self: {
+        "models": [{
+            "model_id": "qwen3-8b-fast-local-q4",
+            "selection_status": "selectable",
+            "runtime_profile": {},
+            "installations": [{
+                "model_path": "/Volumes/Models/qwen.gguf",
+                "display_name": "Qwen 3 8B Fast Local",
+                "warehouse": {"verified": True},
+                "runtime_profile": {},
+            }],
+        }],
+    })
+
+    result = router._selected_local_provider("home-fixed", verify_live=False)
+
+    assert result["connected"] is True
+    assert result["workspace_selected"] is True
+    assert result["live_verified"] is False
+    assert result["reason"] == "selected_local_model_runtime_verified_on_use"
+
+
+def test_provider_status_does_not_invent_a_default_model(monkeypatch) -> None:
+    from backend.modules.aion_inference import lead_model_selection_store
+
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "openai", "label": "OpenAI", "model": "premium-model", "connected": True},
+    ])
+    monkeypatch.setattr(router, "_selected_local_provider", lambda workspace_id, **kwargs: None)
+    monkeypatch.setattr(lead_model_selection_store, "load_lead_model_selection", lambda workspace_id: {})
+
+    result = router.boardroom_provider_status("new-workspace")
+
+    assert result["lead_model"] is None
+    assert result["providers"][0]["is_lead"] is False
+
+
+def test_selected_local_model_can_answer_as_a_board_member(monkeypatch) -> None:
+    valid_content = (
+        '{"position":"Ready","recommendations":["Continue"],"risks":["None observed"],'
+        '"missing_inputs":["None"],"plan_changes":["No change"],"confidence":0.9}'
+    )
+    local_provider = {
+        "id": "local_model", "label": "Qwen 3 8B Fast Local",
+        "model": "qwen3-8b-fast-local-q4", "connected": True,
+    }
+    monkeypatch.setattr(router, "_provider_status", lambda: [])
+    local_provider_calls = []
+    monkeypatch.setattr(
+        router,
+        "_selected_local_provider",
+        lambda workspace_id, **kwargs: local_provider_calls.append((workspace_id, kwargs)) or local_provider,
+    )
+    monkeypatch.setattr(router, "_call_selected_local_provider", lambda provider, prompt: {
+        "content": valid_content, "model": provider["model"], "latency_ms": 2,
+    })
+
+    result = router.boardroom_ask(router.BoardroomAskRequest(
+        business_id="home-fixed", requested_providers=["local_model"],
+    ))
+
+    assert result["succeeded_count"] == 1
+    assert result["responses"][0]["provider_id"] == "local_model"
+    assert result["responses"][0]["model"] == "qwen3-8b-fast-local-q4"
+    assert local_provider_calls == [("home-fixed", {"verify_live": False})]
+
+
+def test_boardroom_retries_a_transient_provider_failure_once(monkeypatch) -> None:
+    valid_content = (
+        '{"position":"Provisional plan ready","recommendations":["Start with known evidence"],'
+        '"risks":["Evidence is incomplete"],"missing_inputs":["Current cash position"],'
+        '"plan_changes":["Label assumptions"],"confidence":0.6}'
+    )
+    calls = []
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "gemini", "label": "Gemini", "connected": True, "mode": "test", "model": "test-model"},
+    ])
+    monkeypatch.setattr(router, "_selected_local_provider", lambda workspace_id, **kwargs: None)
+    monkeypatch.setattr(router.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(router, "_persist_board_meeting", lambda business_id, result: None)
+
+    def flaky_call(prompt):
+        calls.append(prompt)
+        if len(calls) == 1:
+            raise RuntimeError("temporary_provider_failure")
+        return {"content": valid_content, "model": "test-model", "latency_ms": 2}
+
+    monkeypatch.setattr(router, "_call_gemini", flaky_call)
+    result = router.boardroom_ask(router.BoardroomAskRequest(requested_providers=["gemini"]))
+
+    assert len(calls) == 2
+    assert result["succeeded_count"] == 1
+    assert result["responses"][0]["attempt_count"] == 2
+    assert result["evidence_fallback_required"] is False
+
+
+def test_failed_boardroom_round_is_persisted_with_diagnostics(monkeypatch) -> None:
+    persisted = []
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "gemini", "label": "Gemini", "connected": True, "mode": "test", "model": "test-model"},
+    ])
+    monkeypatch.setattr(router, "_selected_local_provider", lambda workspace_id, **kwargs: None)
+    monkeypatch.setattr(router.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(router, "_call_gemini", lambda prompt: (_ for _ in ()).throw(RuntimeError("temporary_provider_failure")))
+    monkeypatch.setattr(router, "_persist_board_meeting", lambda business_id, result: persisted.append((business_id, result)))
+
+    result = router.boardroom_ask(router.BoardroomAskRequest(
+        business_id="home-fixed", requested_providers=["gemini"],
+    ))
+
+    assert result["succeeded_count"] == 0
+    assert result["evidence_fallback_required"] is True
+    assert result["responses"][0]["reason"] == "temporary_provider_failure"
+    assert result["responses"][0]["attempt_count"] == 2
+    assert persisted == [("home-fixed", result)]
+
+
+def test_openai_compatible_board_member_uses_provider_specific_endpoint(monkeypatch) -> None:
+    captured = {}
+    monkeypatch.setattr(router, "get_ai_provider_secret", lambda provider: "key")
+    monkeypatch.setattr(router, "get_ai_provider_model", lambda provider: f"{provider}-model")
+
+    def fake_http(url, payload=None, headers=None, timeout=60):
+        captured.update(url=url, payload=payload, headers=headers)
+        return {"choices": [{"message": {"content": '{"position":"ok"}'}}]}
+
+    monkeypatch.setattr(router, "_http_json", fake_http)
+    result = router._call_openai_compatible("deepseek", "Board prompt")
+    assert captured["url"] == "https://api.deepseek.com/chat/completions"
+    assert captured["payload"]["response_format"] == {"type": "json_object"}
+    assert result["model"] == "deepseek-model"
+
+
+def test_meta_and_claude_use_their_native_structured_routes(monkeypatch) -> None:
+    calls = []
+    monkeypatch.setattr(router, "get_ai_provider_secret", lambda provider: "key")
+    monkeypatch.setattr(router, "get_ai_provider_model", lambda provider: f"{provider}-model")
+
+    def fake_http(url, payload=None, headers=None, timeout=60):
+        calls.append((url, payload))
+        if "anthropic" in url:
+            return {"content": [{"type": "text", "text": "{}"}]}
+        return {"output": [{"type": "message", "content": [{"type": "output_text", "text": "{}"}]}]}
+
+    monkeypatch.setattr(router, "_http_json", fake_http)
+    assert router._call_claude("Board prompt")["model"] == "claude-model"
+    assert router._call_meta("Board prompt")["model"] == "meta-model"
+    assert calls[0][0] == "https://api.anthropic.com/v1/messages"
+    assert calls[1][0] == "https://api.meta.ai/v1/responses"
+
+
+def test_board_prompt_compacts_canonical_context_without_dropping_late_authority_evidence() -> None:
+    huge_facts = [
+        {"field": f"external_data.row_{index}", "value": index, "verification_status": "source_backed"}
+        for index in range(500)
+    ]
+    canonical = {
+        "business_id": "home-fixed",
+        "persistent_truth_source": "business_containers",
+        "business_identity": {"trading_name": "Home Fixed", "business_type": "service_business"},
+        "business_map_projection": {"revision": 15, "facts": huge_facts},
+        "function_models": {
+            "finance": {
+                "model_status": "complete",
+                "authoritative_metrics": {"operating_expenses": {"value": 82670, "verification": "source_backed"}},
+                "financial_statements": {
+                    "profit_and_loss": {"lines": [{"key": "overheads", "value": 82670, "verification": "source_backed"}]}
+                },
+            }
+        },
+        "department_intelligence": {
+            "finance": {"status": "complete", "boardroom_summary": "Finance discovery 5/5; status complete."},
+            "operations": {"status": "ready_to_activate"},
+            "hr": {"status": "authority_ready"},
+        },
+        "source_revisions": {"business_map": 15, "finance": 377},
+    }
+    request = router.BoardroomAskRequest(
+        requested_providers=["gemini"],
+        context_packet={"canonical_context_envelope": canonical},
+    )
+
+    prompt = router._board_prompt(request, "Gemini")
+
+    assert '"operating_expenses"' in prompt
+    assert "82670" in prompt
+    assert '"ready_to_activate"' in prompt
+    assert '"authority_ready"' in prompt
+    assert "external_data.row_499" not in prompt
+
+
+def test_local_board_prompt_fits_bounded_context_and_keeps_board_facts() -> None:
+    request = router.BoardroomAskRequest(
+        business_id="home-fixed",
+        requested_providers=["local_model"],
+        objective="Assess the business.",
+        context_packet={
+            "journey_stage": "baseline_first_meeting",
+            "business_context_lines": ["Revenue: 100", *[f"Fact {index}: value" for index in range(200)]],
+            "department_context_lines": ["Marketing: needs activation", *[f"Department fact {index}" for index in range(200)]],
+            "current_round_state": {"oversized": "x" * 30_000},
+        },
+        founder_feedback={"note": "y" * 10_000},
+    )
+
+    prompt = router._board_prompt(request, "Qwen local", local_model=True)
+
+    assert len(prompt) < 14_000
+    assert "Revenue: 100" in prompt
+    assert "Marketing: needs activation" in prompt
+    assert "current_round_state" not in prompt
+
+
+def test_board_prompt_respects_saved_plain_or_professional_language_style() -> None:
+    plain_prompt = router._board_prompt(
+        router.BoardroomAskRequest(communication_style="plain"),
+        "Qwen local",
+        local_model=True,
+    )
+    professional_prompt = router._board_prompt(
+        router.BoardroomAskRequest(communication_style="professional"),
+        "Gemini",
+    )
+
+    assert "Use very clear everyday English" in plain_prompt
+    assert "Avoid corporate jargon" in plain_prompt
+    assert "Use concise professional business language" in professional_prompt
+
+
+def test_department_task_build_prompt_requests_task_drafts_without_breaking_standard_schema() -> None:
+    request = router.BoardroomAskRequest(
+        business_id="home-fixed",
+        session_type="build_department_tasks",
+        requested_providers=["gemini"],
+        objective="Build one task package per business function.",
+        context_packet={"round": 3},
+    )
+
+    prompt = router._board_prompt(request, "Gemini")
+
+    assert '"position":"string"' in prompt
+    assert '"task_drafts"' in prompt
+    assert '"board_brief"' in prompt
+    assert '"decision_refs"' in prompt
+    assert "task_drafts is mandatory" in prompt
+    assert "do not put task objects inside those arrays" in prompt
+
+
+def test_debate_prompt_requires_board_owned_strategy_and_six_execution_briefs() -> None:
+    request = router.BoardroomAskRequest(
+        business_id="home-fixed",
+        session_type="debate_plan",
+        requested_providers=["gemini"],
+        objective="Produce the Board report.",
+        context_packet={"round": 2},
+    )
+
+    prompt = router._board_prompt(request, "Gemini")
+
+    assert '"board_strategy"' in prompt
+    assert '"business_diagnosis"' in prompt
+    assert '"target_audiences"' in prompt
+    assert '"assessment"' in prompt
+    assert '"rationale"' in prompt
+    assert "The Board owns the whole-business diagnosis" in prompt
+    assert "Marketing, Sales, Finance, Operations, Support, and HR" in prompt
+    assert "not requests for a Pilot to invent or rediscover business strategy" in prompt
+
+
+def test_department_task_build_accepts_live_provider_task_drafts(monkeypatch) -> None:
+    content = (
+        '{"position":"Six internal task packages are ready.",'
+        '"recommendations":["Route the packages after founder review"],'
+        '"risks":["Publishing remains approval gated"],'
+        '"missing_inputs":["Target gross margin"],'
+        '"plan_changes":["Missing decisions become owned discovery tasks"],'
+        '"confidence":0.88,'
+        '"task_drafts":[{"department":"marketing","owner":"Marketing Pilot",'
+        '"title":"Prepare strategy","objective":"Draft the first organic plan",'
+        '"inputs_needed":["priority services"],"blockers":["target towns"],'
+        '"output_required":"Founder-reviewable strategy",'
+        '"success_metric":"Draft returned without publishing"}]}'
+    )
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "gemini", "label": "Gemini", "connected": True, "mode": "test", "model": "test-model"},
+    ])
+    monkeypatch.setattr(router, "_selected_local_provider", lambda workspace_id, **kwargs: None)
+    monkeypatch.setattr(router, "_call_gemini", lambda prompt: {
+        "content": content, "model": "test-model", "latency_ms": 2,
+    })
+
+    result = router.boardroom_ask(router.BoardroomAskRequest(
+        business_id="home-fixed",
+        session_type="build_department_tasks",
+        requested_providers=["gemini"],
+    ))
+
+    assert result["succeeded_count"] == 1
+    assert result["responses"][0]["structured"]["task_drafts"][0]["department"] == "marketing"
+
+
+def test_pilot_draft_uses_one_connected_provider_and_never_executes(monkeypatch) -> None:
+    valid_content = (
+        '{"position":"Subject: A lighter, modular carport for your project\\n\\nHello,\\n\\nCarbonCore combines a clean architectural finish with low-mass handling and modular repairability. This can make installation more practical for smaller crews while retaining reinforcement at selected high-load points. Would you like us to prepare a quotation for your site?\\n\\nKind regards,\\n[Name]",'
+        '"recommendations":[],"risks":["Confirm final specification"],'
+        '"missing_inputs":[],"plan_changes":["safe draft only; not sent"],"confidence":0.91}'
+    )
+    calls = []
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "openai", "label": "OpenAI", "connected": True, "mode": "test", "model": "test-model"},
+        {"id": "gemini", "label": "Gemini", "connected": True, "mode": "test", "model": "test-model"},
+    ])
+
+    def fake_call(provider_id, prompt):
+        calls.append((provider_id, prompt))
+        return {"content": valid_content, "model": "test-model", "latency_ms": 2}
+
+    monkeypatch.setattr(router, "_call_connected_provider", fake_call)
+    result = router.pilot_draft(router.PilotDraftRequest(
+        business_id="home-fixed",
+        request="write me a client email explaining the benefits",
+        approved_facts=[{"claim_id": "fact-1", "text": "CarbonCore uses a hybrid aluminium and carbon composite frame."}],
+        business_context={
+            "business_name": "Home Fixed",
+            "website_url": "www.homefixed.com",
+            "sender_name": "Kevin Robinson",
+            "sender_title": "Founder / Director",
+            "ignored_secret": "must not enter the prompt",
+        },
+        requested_providers=["openai", "gemini"],
+    ))
+    assert result["status"] == "draft_ready"
+    assert result["external_action_performed"] is False
+    assert result["boundary"] == "draft_only_not_sent"
+    assert result["approved_fact_count"] == 1
+    assert result["business_context_fields_used"] == [
+        "business_name",
+        "sender_name",
+        "sender_title",
+        "website_url",
+    ]
+    assert result["receipt_hash"].startswith("sha256:")
+    assert len(calls) == 1
+    assert calls[0][0] == "openai"
+    assert "hybrid aluminium and carbon composite frame" in calls[0][1]
+    assert "Home Fixed" in calls[0][1]
+    assert "Kevin Robinson" in calls[0][1]
+    assert "Founder / Director" in calls[0][1]
+    assert "ignored_secret" not in calls[0][1]
+    assert "Do not replace a known identity value with a placeholder" in calls[0][1]
+    assert "complete artifact" in calls[0][1]
+
+
+def test_pilot_draft_rejects_schema_placeholder_as_a_finished_artifact(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "openai", "label": "OpenAI", "connected": True, "mode": "test", "model": "test-model"},
+    ])
+    monkeypatch.setattr(router, "_call_connected_provider", lambda *_: {
+        "content": '{"position":"complete finished draft","recommendations":[],"risks":[],"missing_inputs":[],"plan_changes":[],"confidence":0.5}',
+        "model": "test-model",
+        "latency_ms": 1,
+    })
+
+    result = router.pilot_draft(router.PilotDraftRequest(request="write a client email"))
+
+    assert result["status"] == "failed"
+    assert result["reason"] == "incomplete_pilot_draft_response"
+    assert result["external_action_performed"] is False
+
+
+def test_pilot_draft_fails_closed_without_a_connected_provider(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "openai", "label": "OpenAI", "connected": False, "reason": "missing_api_key"},
+    ])
+    result = router.pilot_draft(router.PilotDraftRequest(request="write a client email"))
+    assert result == {
+        "schema_version": "aion.pilot_draft_result.v1",
+        "status": "unavailable",
+        "reason": "no_connected_drafting_provider",
+        "external_action_performed": False,
+    }
+
+
+def test_quote_interview_extracts_only_validated_quote_fields_and_fails_over(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "gemini", "label": "Gemini", "connected": True, "model": "test-gemini"},
+        {"id": "openai", "label": "OpenAI", "connected": True, "model": "test-openai"},
+    ])
+    calls = []
+
+    def fake_call(provider_id, prompt):
+        calls.append(provider_id)
+        if provider_id == "gemini":
+            raise RuntimeError("temporary_provider_failure")
+        assert "original customer enquiry is not supplied" in prompt
+        return {
+            "content": '{"scope_summary":"We propose to renew the flat roof.","scope_items":["Remove the existing roof covering","Supply and install a new felt roof system"],"exclusions":["Customer provides parking"],"duration":"2 days","charge_lines":[{"category":"labour","description":"Installation labour","quantity":2,"internal_unit_cost":150,"customer_unit_price":350,"person_name":"Kevin"}],"terms":"","next_stage":"evidence","quote_complete_requested":false}',
+            "model": "test-openai", "latency_ms": 4,
+        }
+
+    monkeypatch.setattr(router, "_call_connected_provider", fake_call)
+    result = router.quote_interview(router.QuoteInterviewRequest(
+        business_id="home-fixed", stage="customer_charges", currency="GBP",
+        user_turn="erm charge 350 per day for two days",
+        current_draft={"scope": "Supply and install a felt flat roof."},
+        requested_providers=["gemini", "openai"],
+    ))
+
+    assert calls == ["gemini", "openai"]
+    assert result["status"] == "extracted"
+    assert result["provider_id"] == "openai"
+    assert result["external_action_performed"] is False
+    assert result["extraction"]["charge_lines"][0] == {
+        "category": "labour", "description": "Installation labour", "quantity": 2.0,
+        "internal_unit_cost": 150.0, "customer_unit_price": 350.0, "person_name": "Kevin",
+    }
+    assert result["extraction"]["scope_items"] == [
+        "Remove the existing roof covering", "Supply and install a new felt roof system",
+    ]
+    assert len(result["receipt_hash"]) == 64
+
+
+def test_quote_interview_rejects_invalid_or_negative_financial_output(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "gemini", "label": "Gemini", "connected": True, "model": "test"},
+    ])
+    monkeypatch.setattr(router, "_call_connected_provider", lambda *_: {
+        "content": '{"scope_summary":"","scope_items":[],"exclusions":[],"duration":"","charge_lines":[{"category":"labour","description":"Labour","quantity":1,"internal_unit_cost":-50,"customer_unit_price":100,"person_name":""}],"terms":"","next_stage":"review","quote_complete_requested":false}',
+    })
+    result = router.quote_interview(router.QuoteInterviewRequest(user_turn="labour costs minus fifty"))
+    assert result["status"] == "unavailable"
+    assert result["external_action_performed"] is False
+    assert result["attempts"][0]["reason"] == "invalid_quote_interview_internal_unit_cost"

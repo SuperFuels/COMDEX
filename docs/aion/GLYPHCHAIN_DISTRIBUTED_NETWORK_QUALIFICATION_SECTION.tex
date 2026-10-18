@@ -1,0 +1,170 @@
+\section{GlyphChain distributed-network qualification foundation}
+\label{sec:glyphchain-distributed-network-qualification}
+
+This stage adds a repeatable, content-free pre-production exercise for the
+GlyphChain transport, partition-recovery and protocol-upgrade controls.  Its
+purpose is to make the later physical-device and public-relay trial precise and
+reproducible.  A successful local report is evidence that the control paths
+execute as designed; it is not evidence that a production network has already
+been deployed.
+
+\subsection{Qualification scope and assurance boundary}
+
+The exercise creates four isolated logical profiles representing a home node,
+an office node, a virtual-machine node and an intermittently connected node.
+Each profile has its own durable state directory.  The exercise covers relay
+restart, delayed redelivery, recipient acknowledgement, partition conflict,
+explicit recovery, quorum readiness, activation-height enforcement and restart
+after a protocol upgrade.
+
+The generated report always sets \texttt{production\_ready=false}.  In
+particular, one computer running four isolated profiles does not establish any
+of the following:
+
+\begin{itemize}
+  \item operation across four independent physical or virtual hosts;
+  \item traversal of a residential, carrier-grade or enterprise NAT;
+  \item behaviour under a real internet partition or relay-provider outage;
+  \item availability of an independently operated public relay;
+  \item approval of the malicious-validator response procedure; or
+  \item production decentralisation, capacity or latency.
+\end{itemize}
+
+These claims remain release gates.  The same exercise and evidence format must
+be used again in the representative multi-device environment.
+
+\subsection{Outbound relay and intermittent-node recovery}
+
+The relay exercise uses the bounded \texttt{NATRelayStore}.  An office profile
+places a signed-protocol envelope into a queue addressed to an intermittent
+profile.  The relay process is reconstructed before the recipient returns,
+proving that the queue survives restart.  The recipient pulls the message twice
+before acknowledging it.  This models an interrupted client that receives a
+message but loses connectivity before acknowledgement.
+
+The relay identifier is content-derived:
+
+\begin{equation}
+  r = \operatorname{SHA256}\!\left(
+    \operatorname{canon}(c, n_s, n_t, e)
+  \right),
+\end{equation}
+
+where $c$ is the chain identifier, $n_s$ and $n_t$ are the sender and target
+node identifiers, and $e$ is the original protocol envelope.  Repeating the
+same put operation produces the same $r$ and does not add a second queue item.
+The queue item is removed only after an acknowledgement naming $r$ is received
+from the target node.
+
+The exercise checks that the relay envelope contains only bounded network
+protocol metadata.  Document bodies, signer email addresses, Legal matter
+records and delivery attachments are not relay payloads.  The public relay is
+therefore a transport convenience and never a Legal document repository,
+validator, finality authority or trust anchor.
+
+\subsection{Partition detection, safety halt and recovery}
+
+Two already validated finality views are introduced for the same height with
+different block identifiers.  The classification must be
+\texttt{SAFETY\_HALT}.  The durable partition journal binds the transition,
+local height, target height and previous event hash.  Restarting the store does
+not clear the halt.
+
+Recovery requires all of the following:
+
+\begin{enumerate}
+  \item the exact halt identifier;
+  \item an identified administrator;
+  \item a retained reason for the clearance; and
+  \item the exact confirmation phrase
+  \texttt{CLEAR GLYPHCHAIN PARTITION SAFETY HALT}.
+\end{enumerate}
+
+Clearance moves the node to \texttt{REJOIN\_ASSESSING}, not directly to normal
+consensus.  A higher trusted finality view then moves it through
+\texttt{BLOCK\_CATCHUP}.  It returns to \texttt{HEALTHY} only after the exact
+missing blocks have been materialised and the trusted finality tip has been
+reached.  The local qualification report retains only a one-way commitment to
+the halt identifier and the number of journal events.
+
+\subsection{Manifest-bound multi-node protocol activation}
+
+Every logical profile independently schedules the same upgrade plan.  The plan
+binds the source version, target version, activation height, exact release
+manifest digest, validator checkpoint identifier and governance approval
+identifier:
+
+\begin{equation}
+  p = \operatorname{SHA256}\!\left(
+    \operatorname{canon}(c,v_0,v_1,h_a,m,q,g)
+  \right).
+\end{equation}
+
+Here $m$ is the SHA-256 digest of the exact signed release manifest, $q$ is the
+validator-checkpoint identifier and $g$ is the governance-approval identifier.
+The exercise fails unless all four profiles derive the same $p$.
+
+Before height $h_a$, each validator advertises its active and supported protocol
+range plus $p$ through its signed peer identity exchange.  At activation, the
+ready voting power must satisfy
+
+\begin{equation}
+  P_{\mathrm{ready}} \ge
+  \left\lceil\frac{2P_{\mathrm{total}}}{3}\right\rceil.
+\end{equation}
+
+Consensus fails closed as \texttt{UPGRADE\_HALT} if the local release cannot
+execute the target protocol or the matching ready power is below quorum.  The
+bounded exercise reaches matching quorum, activates version two at the exact
+height, completes the plan on each node, reconstructs all four stores and
+verifies that the target version remains durable after restart.
+
+\subsection{Evidence report}
+
+The command-line runner hashes the exact release-manifest file rather than
+accepting a descriptive release name.  It writes an owner-only JSON report with
+exclusive-create semantics.  Existing reports cannot be overwritten, and
+symbolic-link destinations are rejected.  The report contains:
+
+\begin{itemize}
+  \item the four logical profile names and one-way node commitments;
+  \item booleans for each relay, partition and upgrade assertion;
+  \item a commitment to the relay and halt identifiers;
+  \item the exact release-manifest digest and activation height;
+  \item commitments to the checkpoint and governance identifiers;
+  \item the explicit local-simulation claim boundary;
+  \item the five external production gates; and
+  \item a SHA-256 digest over the canonical report body.
+\end{itemize}
+
+The report contains no private Legal document, signer identity, message body,
+attachment or Legal matter.  Any change to a check, boundary or identifier
+invalidates the report digest.
+
+\subsection{Implemented components and verification}
+
+The implementation consists of the reusable qualification engine
+\texttt{backend/modules/consensus/network\_qualification.py}, the operator
+runner \texttt{backend/scripts/run\_glyphchain\_network\_qualification.py},
+the focused regression
+\texttt{backend/tests/glyphchain/test\_network\_qualification.py}, and the
+content-free evidence file
+\texttt{docs/aion/GLYPHCHAIN\_NETWORK\_QUALIFICATION\_REPORT.json}.
+
+The focused network set contains twenty-four passing tests.  Six directly test
+the qualification engine and report controls; the remaining eighteen retest the
+underlying NAT relay, partition recovery and protocol-upgrade implementations.
+The generated evidence reports
+\texttt{LOCAL\_PREPRODUCTION\_EXERCISE\_PASSED}, while deliberately retaining
+\texttt{production\_ready=false}.
+
+\subsection{Remaining production qualification}
+
+Before distributed-network approval, Tessaris must still run this procedure on
+independent representative home, office, VM and intermittent devices; exercise
+real NAT, reconnection, delay, relay outage and network partition conditions;
+activate an exact signed release across those devices; validate an
+independently operated production-like public relay; and obtain operational and
+security approval for malicious-validator and emergency-removal handling.  A
+local report must never be relabelled as live deployment evidence.
+

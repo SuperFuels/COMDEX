@@ -1,0 +1,246 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_human_computer_interaction",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:human_computer_interaction",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:design_creative_practice:ideation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:design_creative_practice",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:design_creative_practice:visual_thinking",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:design_creative_practice",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:design_creative_practice:industrial_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:design_creative_practice",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:design_creative_practice:prototyping",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:design_creative_practice",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:design_creative_practice:critique",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:design_creative_practice",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:design_creative_practice:aesthetics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:design_creative_practice",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:design_creative_practice:communication",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:design_creative_practice",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "creative",
+      "id": "work:aion@wave.tp:subject:design_creative_practice",
+      "label": "Design and creative practice",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:design_creative_practice:ideation",
+      "label": "ideation",
+      "subject_id": "design_creative_practice",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:design_creative_practice:visual_thinking",
+      "label": "visual thinking",
+      "subject_id": "design_creative_practice",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:design_creative_practice:industrial_design",
+      "label": "industrial design",
+      "subject_id": "design_creative_practice",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:design_creative_practice:prototyping",
+      "label": "prototyping",
+      "subject_id": "design_creative_practice",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:design_creative_practice:critique",
+      "label": "critique",
+      "subject_id": "design_creative_practice",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:design_creative_practice:aesthetics",
+      "label": "aesthetics",
+      "subject_id": "design_creative_practice",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:design_creative_practice:communication",
+      "label": "communication",
+      "subject_id": "design_creative_practice",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_design_creative_practice",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:design_creative_practice:ideation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:design_creative_practice",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:design_creative_practice:visual_thinking",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:design_creative_practice",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:design_creative_practice:industrial_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:design_creative_practice",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:design_creative_practice:prototyping",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:design_creative_practice",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:design_creative_practice:critique",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:design_creative_practice",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:design_creative_practice:aesthetics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:design_creative_practice",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:design_creative_practice:communication",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:design_creative_practice",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "creative",
+        "id": "work:aion@wave.tp:subject:design_creative_practice",
+        "label": "Design and creative practice",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:design_creative_practice:ideation",
+        "label": "ideation",
+        "subject_id": "design_creative_practice",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:design_creative_practice:visual_thinking",
+        "label": "visual thinking",
+        "subject_id": "design_creative_practice",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:design_creative_practice:industrial_design",
+        "label": "industrial design",
+        "subject_id": "design_creative_practice",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:design_creative_practice:prototyping",
+        "label": "prototyping",
+        "subject_id": "design_creative_practice",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:design_creative_practice:critique",
+        "label": "critique",
+        "subject_id": "design_creative_practice",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:design_creative_practice:aesthetics",
+        "label": "aesthetics",
+        "subject_id": "design_creative_practice",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:design_creative_practice:communication",
+        "label": "communication",
+        "subject_id": "design_creative_practice",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "creative",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "design_creative_practice",
+    "title": "AION Academy \u00b7 Design and creative practice"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

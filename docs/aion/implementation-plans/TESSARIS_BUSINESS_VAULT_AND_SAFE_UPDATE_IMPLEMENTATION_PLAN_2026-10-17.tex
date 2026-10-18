@@ -1,0 +1,822 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.82in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{microtype}
+\usepackage{pifont}
+
+\definecolor{TessarisBlue}{HTML}{2F66E9}
+\definecolor{TessarisNavy}{HTML}{111827}
+\definecolor{TessarisGreen}{HTML}{14804A}
+\definecolor{TessarisRed}{HTML}{B42318}
+\definecolor{TessarisGrey}{HTML}{64748B}
+\definecolor{TessarisPale}{HTML}{EEF4FF}
+\definecolor{TessarisGreenPale}{HTML}{ECFDF3}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=TessarisBlue,
+  urlcolor=TessarisBlue,
+  pdftitle={Tessaris Business Vault and Safe Update Implementation Plan},
+  pdfauthor={Tessaris AI Limited}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{TessarisBlue}{TESSARIS}}
+\rhead{Business Vault and Safe Updates}
+\cfoot{\thepage}
+\setlength{\headheight}{14pt}
+
+\titleformat{\section}{\Large\bfseries\color{TessarisNavy}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{TessarisNavy}}{\thesubsection}{0.65em}{}
+\setlist[itemize]{leftmargin=1.45em,itemsep=3pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=1.55em,itemsep=3pt,topsep=4pt}
+\renewcommand{\arraystretch}{1.22}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\Vault}{\textbf{Business Vault}}
+\newcommand{\Guardian}{\textbf{Vault Guardian}}
+\newcommand{\yes}{\textcolor{TessarisGreen}{\ding{51}}}
+\newcommand{\no}{\textcolor{TessarisRed}{\ding{55}}}
+
+\begin{document}
+
+\begin{center}
+  {\small\bfseries\color{TessarisBlue} TESSARIS DATA SOVEREIGNTY ARCHITECTURE}\par
+  \vspace{8pt}
+  {\LARGE\bfseries Business Vault and Safe Update Implementation Plan}\par
+  \vspace{7pt}
+  {\large Replaceable software; permanent, customer-owned business memory}\par
+  \vspace{12pt}
+  {\color{TessarisGrey}Decision baseline \textbullet{} 17 October 2026 \textbullet{} Version 1.0}
+\end{center}
+
+\vspace{8pt}
+\noindent\colorbox{TessarisPale}{\parbox{0.96\linewidth}{
+\textbf{Non-negotiable product decision.} Tessaris and AION application code must be disposable and replaceable. Every authoritative business record, uploaded file, generated document, decision, note, business map, message, receipt and item of institutional memory must live in a customer-owned Business Vault outside the application installation and update boundary. The updater must not have permission to read, write or delete the vault. New application code must reach it only through a narrow, versioned Vault Guardian interface with history, validation, snapshots and recovery.
+}}
+
+\tableofcontents
+\newpage
+
+\section{Purpose and required outcome}
+
+Tessaris will run businesses and will therefore hold records whose loss or corruption could interrupt trading, remove legal evidence, misstate accounts or erase institutional knowledge. A faulty release, migration, integration, automation or AION action must not be able to destroy the only valid copy of that information.
+
+The required outcome is not merely ``put the database in another folder''. It is a protected data plane with five independent safeguards:
+
+\begin{enumerate}
+  \item physical separation between application packages and business vaults;
+  \item operating-system separation between the updater, application and vault writer;
+  \item versioned and validated writes through Vault Guardian rather than raw file access;
+  \item immutable history, snapshots, verified backup and tested restoration; and
+  \item a complete, evidence-backed inventory of every place where the product captures, creates, copies, transmits, stores, exports or deletes business data.
+\end{enumerate}
+
+No credible engineering process can promise that software will never fail. Tessaris can, however, prevent one release from being the only control standing between a business and catastrophic data loss. This plan builds defence in depth and makes recovery a tested product capability.
+
+\section{Existing direction and the gap to close}
+
+The existing Tessaris Node architecture already states that each business has an encrypted vault, that updates are signed, that backups remain customer-controlled and that Tessaris should not centralise private business content by default. The release checklist also requires rollback, encrypted backup, verified restoration and complete export.
+
+The remaining gap is enforcement. A separate directory is insufficient if:
+
+\begin{itemize}
+  \item the updater can recursively modify it;
+  \item the new AION runtime can write directly to every file;
+  \item the only backup is live synchronisation that also copies corruption;
+  \item schema migrations run against the only live database;
+  \item uploaded originals are overwritten in place;
+  \item hidden browser storage, temporary files or integration caches contain the only copy of a record; or
+  \item the team does not know every current storage touchpoint.
+\end{itemize}
+
+This implementation closes that gap by introducing a stable vault boundary, a compulsory discovery programme and release gates that reject unknown storage.
+
+\section{Architecture invariants}
+
+The following rules apply across macOS, Windows, Linux, the Tessaris Hub and customer-owned or managed private cloud Nodes.
+
+\begin{enumerate}
+  \item \textbf{The application is never the data directory.} No customer record may be stored inside an application bundle, repository, container image, installation directory or update staging area.
+  \item \textbf{The updater cannot access business content.} Its operating-system identity may replace signed application packages only.
+  \item \textbf{The application has no unrestricted vault filesystem access.} It uses authenticated Guardian operations.
+  \item \textbf{Every authoritative write is journalled.} It has a business, actor, device, operation, timestamp, idempotency key, prior version and resulting version.
+  \item \textbf{Uploaded originals are immutable.} Corrections, annotations and replacements create new versions.
+  \item \textbf{Deletion is recoverable by default.} Normal delete creates a tombstone and retention record; permanent destruction requires an explicit governed process.
+  \item \textbf{Derived data is disposable.} Embeddings, indexes, thumbnails, caches and model working files can be rebuilt without changing authoritative records.
+  \item \textbf{An update never migrates the sole live copy.} Migrations are rehearsed against a clone and protected by a restorable snapshot.
+  \item \textbf{Backups are encrypted before leaving the Node and are regularly restored in a test environment.}
+  \item \textbf{The customer can export and leave.} Data ownership does not depend on an active Tessaris subscription.
+  \item \textbf{Unknown writes block release.} A feature without a declared storage and retention contract is incomplete.
+  \item \textbf{Business maps and departments are vault domains.} The business map, every department map, department intelligence, Pilot work and departmental audit history are authoritative customer data for every current and future department.
+  \item \textbf{Onboarding and automation state are not application preferences.} Founder onboarding/Pilot details and Train Agent definitions, schedules, runs, memory and evidence must survive replacement of the complete application installation.
+  \item \textbf{The whole File Cabinet belongs to the business.} Folder structure, pointers, uploaded originals, generated finals and governance evidence are vault-authoritative; a browser or desktop cache may never be the sole or durable record.
+  \item \textbf{Every update declares its data effect.} Each new feature states whether it captures business data. A data-bearing feature inventories every new record/file type, binds it to an exact registered vault domain and storage class, names its vault namespace and lists any legacy sources. A newly added department is rejected unless its release provisions maps, intelligence, operating records and audit, Pilot tasks and audit, Train Agent definitions and runs, and File Cabinet tree, originals and governance.
+\end{enumerate}
+
+\section{Target system separation}
+
+\subsection{Four storage classes}
+
+\begin{longtable}{>{\raggedright\arraybackslash\bfseries}p{0.18\linewidth} p{0.27\linewidth} p{0.45\linewidth}}
+\toprule
+Class & Examples & Required treatment \\
+\midrule
+\endhead
+Authoritative business data & Customers, work, quotes, invoices, messages, minutes, maps, notes, policies, approvals, audit evidence & Stored in the encrypted Business Vault; versioned, backed up, exportable and never silently discarded. \\
+Secrets and keys & Vault master keys, OAuth refresh tokens, API keys, signing keys, device credentials & Held in platform key storage or a dedicated secret store; referred to from the vault by opaque identifier; included only in a separately governed encrypted recovery process. \\
+Derived and rebuildable data & Search indexes, embeddings, thumbnails, OCR output when reproducible, caches, temporary summaries, model downloads & Kept outside authoritative storage or clearly marked derived; safe to delete and rebuild; never the only copy of business meaning. \\
+Application and runtime & Tessaris UI, AION, Pilots, provider adapters, model harnesses, static assets, update packages & Signed, replaceable and rollback-capable; contains no customer business data. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Components and permissions}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.20\linewidth} X X}
+\toprule
+Component & May do & Must not do \\
+\midrule
+Signed updater & Download, verify, stage and atomically switch application releases & Open the Business Vault, run arbitrary vault queries, alter business records or delete backups \\
+Tessaris/AION runtime & Authenticate and request declared Guardian operations; read only data within current user authority & Open raw databases, enumerate the vault filesystem, replace originals or bypass retention policy \\
+Vault Guardian & Validate, transact, version, journal, encrypt, snapshot, export and restore business records & Execute model-generated code, browse the internet, install application updates or reveal unrestricted data to clients \\
+Backup agent & Read consistent encrypted snapshots and send encrypted archives to approved destinations & Receive plaintext recovery keys, rewrite the live vault or treat synchronisation as verified backup \\
+Customer export tool & Produce portable, documented exports under founder authority & Remove or mutate the source vault \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Reference locations}
+
+The exact root may be selected during onboarding. Defaults should follow platform conventions and be outside the application package:
+
+\begin{itemize}
+  \item macOS: customer vault root under Application Support or an approved customer-selected encrypted volume;
+  \item Windows: a protected per-machine or per-business data root outside Program Files;
+  \item Linux/Hub: a dedicated encrypted data volume such as \code{/var/lib/tessaris-vaults};
+  \item private cloud: an isolated encrypted tenant volume, separately snapshotted from application containers.
+\end{itemize}
+
+The UI presents a friendly cabinet such as ``Home Fixed Ltd --- Business Vault'' and can create a Finder or Explorer shortcut. Users should not manually edit the live database files. Human-readable exports remain available at all times.
+
+\subsection{Reference vault layout}
+
+\begin{verbatim}
+Home-Fixed-Ltd.business-vault/
+  vault.manifest                 signed format and compatibility metadata
+  authoritative/
+    records/                     transactional business database
+    events/                      append-only change journal
+    objects/                     content-addressed immutable source files
+    versions/                    document and record version manifests
+    audit/                       approvals, receipts and access evidence
+  policy/
+    retention/
+    legal-holds/
+    memberships/
+  snapshots/                     local recovery points and manifests
+  export-manifests/              history of customer exports
+  integrity/                     hashes, checkpoints and verification state
+\end{verbatim}
+
+Search indexes, model caches, preview images, update files and other rebuildable material must not be stored as authoritative children of this structure. If colocated for performance, they must be in an explicitly disposable partition excluded from recovery claims.
+
+\section{Vault Guardian design}
+
+\subsection{Stable data-plane service}
+
+Vault Guardian is a small, separately versioned service with a much narrower change rate than Tessaris/AION. It owns the only writable handle to authoritative stores. The desktop interface, Node, Pilots and integrations act as clients.
+
+Guardian operations should be business-semantic rather than raw filesystem primitives, for example:
+
+\begin{itemize}
+  \item \code{customer.create}, \code{customer.update}, \code{customer.merge};
+  \item \code{work.create}, \code{work.status.change}, \code{visit.schedule};
+  \item \code{document.ingest}, \code{document.new\_version}, \code{artifact.render};
+  \item \code{board.minute.record}, \code{business\_map.revise}, \code{note.save};
+  \item \code{approval.record}, \code{receipt.append}; and
+  \item \code{record.tombstone}, \code{record.restore}, \code{retention.destroy}.
+\end{itemize}
+
+Every call must carry the business identity, member/device identity, authority scope, operation schema version, idempotency key and expected prior version. Guardian rejects unauthorised, stale, malformed or duplicate writes.
+
+\subsection{Write and history model}
+
+Each accepted operation is one transaction:
+
+\begin{enumerate}
+  \item validate authority and schema;
+  \item verify the expected current version;
+  \item persist immutable input objects by content hash;
+  \item append the canonical event;
+  \item update the materialised business view;
+  \item append the audit receipt and integrity checkpoint; and
+  \item acknowledge only after durable commit.
+\end{enumerate}
+
+Large files use streaming ingestion, malware/content checks where appropriate, cryptographic hashes and atomic finalisation. An interrupted upload never appears as a valid complete object.
+
+\subsection{Deletion and retention}
+
+Ordinary users and automations receive no physical-delete primitive. A normal deletion:
+
+\begin{itemize}
+  \item records who requested it and why;
+  \item hides the record from ordinary views;
+  \item preserves the previous versions for the configured recovery window; and
+  \item respects legal holds, accounting rules and linked-record dependencies.
+\end{itemize}
+
+Permanent destruction is a separate founder or designated-data-controller workflow with an impact preview, re-authentication, retention validation, signed receipt and backup-expiry policy. AION cannot invoke bulk destruction autonomously.
+
+\subsection{Key management}
+
+The vault uses a per-business data-encryption key. That key is wrapped by device or founder recovery keys and stored through platform-protected facilities. Recovery design must cover device loss without placing an unencrypted master key in Tessaris cloud services.
+
+The onboarding journey must make the consequence clear: customer sovereignty includes responsibility for the selected recovery method. Recovery must be tested before setup is marked complete.
+
+\section{Mandatory whole-product data discovery programme}
+
+\subsection{Objective}
+
+The team does not currently know every place where the complete application stores business data. Therefore implementation begins with discovery, not migration. The result must identify 100\% of known business-data touchpoints from onboarding through a fully functioning multi-department business.
+
+``Known'' is established by evidence from code, runtime observation, filesystem/database change tracing, browser storage inspection, provider traffic and restore exercises. A workshop alone is not sufficient.
+
+\subsection{Definition of a touchpoint}
+
+A touchpoint is any screen, API, form, import, webhook, integration, automation, model process, background task or file operation that does one or more of the following:
+
+\begin{itemize}
+  \item captures information from a person or external system;
+  \item creates or edits business meaning;
+  \item stores an uploaded or generated file;
+  \item copies, indexes, caches or transforms a record;
+  \item transmits data to another device or provider;
+  \item logs, exports, backs up, restores, archives or deletes information; or
+  \item stores a credential or identifier that provides access to business data.
+\end{itemize}
+
+\subsection{Discovery record required for every touchpoint}
+
+Each touchpoint receives a unique identifier and a completed record containing:
+
+\begin{longtable}{>{\raggedright\arraybackslash\bfseries}p{0.25\linewidth} p{0.65\linewidth}}
+\toprule
+Field & Evidence required \\
+\midrule
+\endhead
+Feature and route & Screen, endpoint, worker, command or provider callback that handles the data \\
+Business purpose and owner & Why it exists and which function is accountable \\
+Capture source & Human input, file upload, model output, API, webhook, email, mobile device or import \\
+Data classification & Personal, financial, legal, employment, health/special category, confidential, public, credential or operational \\
+Canonical record & Exact entity, fields, schema and authoritative owner \\
+Files and formats & Names, MIME types, generated artifacts, attachments, previews and original/derived status \\
+Current physical storage & Database/table, filesystem path, browser storage key, queue, object store, log, temporary directory or provider \\
+Copies and transformations & Indexes, embeddings, thumbnails, exports, email attachments, caches and analytics copies \\
+External destinations & Provider, region, fields sent, purpose, authority and return path \\
+Lifecycle & Create, read, update, version, archive, restore, retention and destruction behaviour \\
+Backup and export & Included objects, consistency method, encryption and portable representation \\
+Migration decision & Vault destination, secret-store destination, derived-store destination or prohibited data \\
+Verification & Tests, runtime trace, sample hash, restore result and accountable sign-off \\
+\bottomrule
+\end{longtable}
+
+\subsection{Discovery methods}
+
+Each product area must pass all applicable methods:
+
+\begin{enumerate}
+  \item \textbf{Route and UI inventory:} enumerate every navigation route, form, modal, file picker, editable field and local/mobile surface.
+  \item \textbf{Static storage scan:} find database clients, filesystem writes, browser storage, cookies, cache APIs, upload paths, temporary files, log payloads, exports and secret access.
+  \item \textbf{Runtime write tracing:} start from a clean test business, exercise the feature, and record every changed file, database row, object, queue entry and browser key.
+  \item \textbf{Network and integration tracing:} capture the declared outbound provider, request purpose, data categories, webhook return and retry/dead-letter storage without collecting production secrets.
+  \item \textbf{AION transformation tracing:} follow prompt assembly, retrieved context, model input, output, tool call, memory write, receipt and temporary material.
+  \item \textbf{Lifecycle exercise:} edit, version, merge, delete, restore, export, backup and recover the same representative record.
+  \item \textbf{Failure exercise:} interrupt the operation during write, kill the process, lose the network, duplicate a callback and apply an incompatible version.
+  \item \textbf{Owner sign-off:} product, engineering, security/privacy and the relevant business function confirm the record.
+\end{enumerate}
+
+\subsection{Required discovery sessions across the app}
+
+The following sessions are mandatory. Sessions may be subdivided as implementation reveals additional surfaces; they may not be silently omitted.
+
+\begin{longtable}{>{\raggedright\arraybackslash\bfseries}p{0.19\linewidth} p{0.31\linewidth} p{0.40\linewidth}}
+\toprule
+Session & Touchpoints to exercise & Data that must be traced \\
+\midrule
+\endhead
+Business onboarding & Create business, company profile, branding, addresses, tax/currency, founder account, recovery, onboarding Pilot and initial plan & Business identity, brand assets, legal/financial settings, founder identity, Pilot answers/state, consent, vault keys and setup receipts \\
+Identity and access & Sign-in, passkeys, invitations, employees, roles, devices, revocation, support access & Public keys, device credentials, roles, sessions, recovery material, access and break-glass logs \\
+Settings and configuration & Business, templates, terms, numbering, departments, department creation, notifications, retention and preferences & Configuration versions, templates, business/department maps, policies, feature state and change history \\
+CRM and customers & Create/edit/merge customer, contacts, addresses, notes, history, customer imports and portal input & Personal/contact data, provenance, duplicate resolution, linked jobs/messages/files and consent \\
+Lead and booking intake & Website forms, email intake, booking inbox, calls, referrals, imports and spam/rejection & Raw submission, attachments, source attribution, classification, conversion and discarded-input policy \\
+Work and schedule & Jobs, quotes/estimates, appointments, visits, assignments, instructions, checklist and status & Work records, dates, locations, personnel, internal notes, resources, status events and history \\
+Field workspace and mobile & Offline work, photos, videos, signatures, location, time, materials, evidence and synchronisation & Device-local copies, media originals, metadata, offline queue, merge/conflict rules and upload completion \\
+Quotes and costing & Description, AI rewrite, public lines, hidden costs, margin, tax, payment schedule, PDF and acceptance & Commercial calculations, private workings, rate versions, generated artifacts, acceptance link/token and signed acceptance evidence \\
+Invoices and payments & Invoice generation, payment request, card/bank routes, reconciliation, refunds and accounting export & Invoice records/files, payment status, references, bank details, provider identifiers, evidence and ledger links \\
+Files and documents & Build and navigate the complete File Cabinet; upload, preview, edit, generate PDF/report/certificate, download, share, archive and delete & Cabinet tree, department folders, original bytes, versions, hashes, MIME metadata, derivative previews, sharing authority, governance and retention \\
+Email and communications & Templates, drafts, sends, replies, attachments, Gmail/other providers, SMS/chat and future calls & Message bodies, recipients, provider IDs, delivery states, attachments, threading, opt-out and provider copies \\
+Notes and knowledge & Founder notes, notebooks, business policies, manuals, imported knowledge and links & Note versions, attachments, tags, cross-links, source/provenance, embeddings and export format \\
+Boardroom and business maps & Board packs, agendas, minutes, decisions, mandates, goals, the whole-business map, every department map and departmental instructions & Evidence sources, participants, drafts/finals, map versions, department intelligence, approvals, superseded decisions, dependencies and audit receipts \\
+AION and Pilot conversations & Chat, department agents, tool use, memory, retrieved context, proposed and completed actions & User input, context selection, model output, tool arguments/results, memory writes, approvals, receipts and temporary prompts \\
+Automations and schedules & Train Agent capsules, skills, routines, missions, worker assignments, rules, recurring work, triggers, queues, retries, failures, pause/cancel and history & Automation definitions, memory, next-run state, run/audit history, input references, output records, idempotency, dead letters and execution receipts across every department \\
+Sales and marketing & Pipeline, proposals, campaigns, leads, attribution, media and analytics & Contact/prospect data, communication consent, creative assets, campaign history, provider audiences and results \\
+Finance and accounting & Accounts, transactions, budgets, expenses, bank feeds, Xero/Sage/Revolut and reports & Financial records, source statements, matches, adjustments, exports, tax evidence and reconciliation history \\
+People and HR & Employees, contractors, availability, performance, leave, documents and restricted notes & Employment and potentially sensitive data, access restrictions, retention, legal holds and subject export \\
+Operations, stock and suppliers & Inventory, purchasing, suppliers, vehicles/equipment, locations and service records & Stock movements, supplier terms, purchase evidence, assets, maintenance and responsible person \\
+Support, legal and compliance & Cases, complaints, incidents, contracts, T\&Cs, data requests and legal holds & Correspondence, evidence, deadlines, decisions, signatures, restricted records and destruction holds \\
+Provider connections & OAuth, API keys, scopes, webhooks, disconnection, credential rotation and provider imports & Secret locations, public metadata, scopes, external tenant/account IDs, imported content and revoked-access behaviour \\
+Search and local intelligence & Full-text search, OCR, embeddings, retrieval, model cache and local model selection & Source-to-index mapping, derived status, deletion propagation, rebuild proof and absence from billing telemetry \\
+Notifications and remote access & Desktop/mobile alerts, Secure Link, relay, device sync and reconnect & Minimal notification payload, routing identifiers, encrypted sessions, sync cursor and duplicate/replay handling \\
+Billing and Photon & Plans, wallet, grants, usage receipts, price books, Revolut checkout and invoices & Commercial account data, content-free usage evidence, fiat-provider state, customer receipts and separation from business content \\
+Import, export and migration & CSV/data imports, legacy migration, full business export, transfer to new Node and provider exports & Mapping, rejected rows, provenance, completeness manifest, checksums, secrets exclusion and portability \\
+Backup and recovery & Snapshot, off-site copy, restore, key recovery, device loss and disaster mode & Consistent snapshot set, encryption, recovery key use, verification results, recovery point and recovery time \\
+Logs, diagnostics and support & Application logs, crash reports, metrics, support bundle, telemetry and update health & Accidental content leakage, redaction, retention, consent, destinations and founder-approved support access \\
+Retention and closure & Individual delete, customer request, employee departure, business closure and subscription ending & Tombstones, dependencies, legal holds, export-before-close, cryptographic erasure and signed destruction evidence \\
+\bottomrule
+\end{longtable}
+
+\subsection{Discovery deliverables}
+
+Discovery is complete only when it produces all of the following:
+
+\begin{itemize}
+  \item a machine-readable \code{business-data-manifest.v1} listing every entity, artifact, storage owner and lifecycle policy;
+  \item a touchpoint register linking every UI route/API/worker to manifest entries;
+  \item a current-state data-flow map, including external processors and device-local copies;
+  \item a current file/path/database/browser-storage inventory generated from a clean full-product run;
+  \item a secret and key inventory that records location and recovery without copying secret values;
+  \item a migration map classifying every current store as authoritative vault, secret store, derived store, application state or prohibited;
+  \item backup and portable-export manifests with record/file counts and hashes;
+  \item unresolved-item register with owner and blocking severity; and
+  \item signed discovery approval from product, engineering, security/privacy and representative business-domain owners.
+\end{itemize}
+
+The manifest becomes a maintained engineering contract. Each pull request that adds storage must update it. Runtime tests compare observed writes with the declared manifest and fail on an unknown destination.
+
+\section{Safe update and migration pipeline}
+
+\subsection{Application A/B release slots}
+
+The Node keeps the active signed release and one known-good rollback release. An update is downloaded into an inactive slot, verified and started in a constrained preflight environment before the active pointer changes.
+
+\subsection{Pre-update gate}
+
+Before activation Tessaris must:
+
+\begin{enumerate}
+  \item verify release signature, provenance and platform compatibility;
+  \item verify Vault Guardian protocol compatibility;
+  \item confirm a recent successful backup and restoration test;
+  \item pause or drain writes to a consistent boundary;
+  \item create and verify an encrypted pre-update snapshot;
+  \item clone the required database and manifests;
+  \item run migrations against the clone;
+  \item check record counts, foreign-key integrity, object hashes, audit continuity and critical financial totals; and
+  \item start the new release against a disposable test projection before switching live traffic.
+\end{enumerate}
+
+If any check fails, the update is not activated and live business work resumes on the existing release.
+
+\subsection{Migration rules}
+
+Migrations must be versioned, deterministic, idempotent where possible and accompanied by invariants. Use expand-and-contract changes: add the new representation, write compatibly, backfill, verify, then retire the old representation only after the rollback window.
+
+Destructive schema operations require a separate later release, explicit recovery evidence and a retained portable export. A rollback must never start old code against a schema it cannot understand.
+
+\subsection{Post-activation observation}
+
+After atomic activation, health gates compare the new release with the pre-update baseline. They include Guardian errors, rejected writes, record-count drift, queue backlog, integration failures, audit-chain discontinuity and customer-critical workflows. A severe failure automatically returns application traffic to the known-good release. The vault snapshot remains available until the release has passed its defined observation period.
+
+\subsection{Customer update controls}
+
+Settings should provide Stable and Preview channels, a maintenance window, defer controls within security limits, release notes, vault compatibility, last snapshot, rollback status and recovery instructions. High-risk data migrations should require explicit founder approval or a managed maintenance window rather than silent background activation.
+
+\section{Backup, restore and portability}
+
+\subsection{3-2-1-1-0 policy}
+
+The recommended protection target is:
+
+\begin{itemize}
+  \item at least three copies of the authoritative business data;
+  \item on at least two storage types;
+  \item with at least one off-site copy;
+  \item with at least one immutable or offline recovery point; and
+  \item with zero unverified backup errors, established by automated integrity and restore tests.
+\end{itemize}
+
+Live cloud synchronisation is not a backup because it can propagate deletion, corruption or ransomware. Private Git hosting may be offered for human-readable text exports, policies or code-like business maps, but not as the primary live database/file backup. Complete backups should use encrypted, versioned archives or snapshots sent to a customer-selected external disk, NAS or supported object/cloud storage.
+
+\subsection{Backup consistency and contents}
+
+A recovery point must bind the database transaction boundary, immutable object manifest, versions, audit history, policy and required encrypted secret-recovery references. The backup agent records counts and hashes and never labels a copy successful merely because bytes were uploaded.
+
+\subsection{Restoration testing}
+
+Tessaris should restore automatically into an isolated temporary Node on a schedule, open the vault read-only, verify manifests and critical invariants, and destroy the temporary plaintext environment after the test. The UI distinguishes:
+
+\begin{itemize}
+  \item backup completed;
+  \item integrity verified;
+  \item restoration verified; and
+  \item founder recovery method verified.
+\end{itemize}
+
+\subsection{Portable business export}
+
+The founder can export the entire business in documented, non-proprietary forms: structured JSON/CSV for records, original file formats, PDF where appropriate, message exports, audit/receipt JSON and a signed manifest with hashes. Exports must not require an active paid plan and must be readable without a running Tessaris licence service.
+
+\section{Customer experience}
+
+\subsection{Onboarding}
+
+The onboarding flow includes a required ``Create your Business Vault'' step:
+
+\begin{quote}
+\textbf{Your Business Vault contains your company's permanent records. It is separate from the Tessaris application, remains under your control and is protected before software updates are installed.}
+\end{quote}
+
+The founder names the business, selects or accepts the primary location, configures a second and off-site recovery destination, creates the recovery method and completes a small test restore. Setup is not shown as fully protected until the restore succeeds.
+
+\subsection{Business Vault and Recovery settings}
+
+Add a dedicated Settings page showing:
+
+\begin{itemize}
+  \item vault name, stable business identifier, location, encryption and health;
+  \item authoritative record and file counts;
+  \item current Guardian and format versions;
+  \item last backup, last verified restore and available recovery points;
+  \item backup destinations and retention;
+  \item move vault, replace computer, reconnect vault and emergency read-only actions;
+  \item export entire business;
+  \item update history, pre-update snapshots and rollback status; and
+  \item warnings for unknown, unprotected or unhealthy storage.
+\end{itemize}
+
+The page must use plain language. Database administration, container paths and encryption internals remain in an advanced diagnostic export.
+
+\section{Implementation programme}
+
+\subsection{Phase 0 --- authority, freeze and discovery tooling}
+
+\textbf{Outcome:} no new undocumented business-data stores are introduced.
+
+\begin{itemize}
+  \item appoint the Business Vault owner and domain representatives;
+  \item adopt the invariants and storage declaration template;
+  \item add a temporary review gate for every new database, file, browser-storage or logging write;
+  \item build static scans and clean-business runtime write tracing;
+  \item define \code{business-data-manifest.v1}; and
+  \item prepare representative end-to-end business scenarios and non-production provider accounts.
+\end{itemize}
+
+\subsubsection*{Implementation evidence --- 17 October 2026}
+
+Phase 0 has commenced in the COMDEX repository with additive, isolated components so that existing in-progress runtime work is not overwritten.
+
+\begin{itemize}
+  \item A machine-readable \code{business-data-manifest.v1} now records all 28 compulsory discovery sessions, the permitted storage classes and the rule that unknown writes prohibit a vault-safe release.
+  \item A privacy-preserving static scanner now inventories likely Python, browser, Node and SQLite persistence operations. It records source location and operation type but never copies literals or business values into the audit result.
+  \item The current conservative full-repository baseline scans 4,602 authored source files after excluding generated Next.js bundles and identifies 4,568 likely persistence operations. The scanner recognises both ordinary and optional-chained browser-storage calls. All 4,568 findings match an explicit touchpoint declaration: 416 findings remain on narrowly reviewed approved boundaries, while 4,152 findings across 130 declared touchpoints remain release-blocking. No static finding is unclassified. Bootstrap status, deprecation diagnostics and synthetic resonance fixtures have moved out of the application tree into the validated cross-platform Node state root; they use owner-only files, atomic replacement and bounded event rotation, diagnostics retain only content-free statuses and one-way fingerprints, and the synthetic generator is import-side-effect-free and deterministically reproducible when seeded. The audit, rewrite-plan, reflection, trajectory, governance, harmonic-memory and integration stages now perform no import-time heartbeat construction or application-tree writes: they fail closed without Guardian, read registered encrypted learning inputs or explicit in-memory values, store bounded customer-derived state in \code{learning.customer\_state}, and expose only explicit authorised runtime/proposal/action handoffs. Ethics, mutation and DNA execution handlers are explicit rather than imported from side-effecting legacy engines. The shared heartbeat/event subsystem remains blocking pending its wider caller migration. The remaining declarations include sensitive GX1 genomic uploads, Photon specification and runtime-journal output, that remaining resonance boundary and the frontend symbolic-container spawn route, alongside the previously enumerated business, departmental, model, research, device and provider surfaces. The content-free v2 closure register therefore retains 4,152 actionable findings. This is static inventory closure and a completed diagnostic/fixture/resonance-stage-output migration, not a Vault-safety claim: declaration is not approval, all 28 live discovery journeys remain open and \code{vault\_boundary\_ready=false} is correct. The production desktop renderer has zero direct browser-storage write findings: business-bearing records route through encrypted Guardian working state, while two primitives are isolated inside an exact-key, value-validated helper for disposable content-free interface preferences.
+  \item A deterministic, content-free baseline report ranks the unresolved work by operation, subsystem and file. The first priority surfaces are Hexcore, AION Business, the desktop application, AION Fabric and current runtime path/backup/storage services; the report contains no source literals or customer values.
+  \item The first legacy store is classified: \code{AIONBusinessPaths} currently places mixed business records under \code{.runtime/AION\_BUSINESS} within the working-tree boundary. It is marked for migration behind Guardian into the external vault; writer tracing, retention, backup/export and record-count proof remain pending.
+  \item The existing Legal/GlyphChain full-state service is classified as a restricted encrypted recovery touchpoint rather than assumed to be the final whole-business backup. Its authenticated package, wrapped recovery material and SQLite backup are reusable, but Guardian control, whole-business coverage, cross-machine restoration, interruption safety and temporary-plaintext erasure still require evidence.
+  \item Reconciliation now produces a fail-closed readiness decision: unknown findings or incomplete sessions keep \code{vault\_boundary\_ready} false. A strict command mode is available for the future release gate.
+  \item Cross-platform default vault locations and customer-selected overrides are implemented for macOS, Windows and Linux. A boundary check rejects any vault that contains, or is contained by, the application or updater roots.
+  \item The external vault bootstrap creates a stable manifest plus records, original files, derived indexes, receipts, snapshots and portable-export areas. Existing vaults cannot be silently rebound to another business identity, and encryption key material is prohibited from the manifest.
+  \item The first Vault Guardian semantic-record store now keeps versioned payloads under AES-256-GCM with business, collection, record and version bound as authenticated data. Its 256-bit key is supplied externally and is never written to the vault database or manifest.
+  \item Guardian provides optimistic concurrency, exact idempotent replay, immutable version history, tombstones instead of physical deletion, plaintext-hash verification after decryption and a content-free tamper-evident audit chain. SQLite triggers reject updates or deletions to versions, audit entries and idempotency evidence.
+  \item Guardian-controlled original-file storage now seals each document with AES-256-GCM before it reaches the external vault. Authenticated metadata binds the business, object, content type, byte length and plaintext digest; no plaintext temporary file is created. Immutable encrypted blobs are replay-safe, path-contained, tamper-checked and hidden by a governed metadata tombstone without premature physical destruction.
+  \item A Guardian-backed business-container repository now provides the existing save/load interface for business identity, maps, structures, financial and operating models, Boardroom snapshots and department intelligence without opening raw application-owned JSON files. Version history, exact replay and stale-write rejection are inherited from Guardian; runtime services can be migrated by dependency injection rather than a destructive whole-product rewrite.
+  \item One unified Business Vault runtime now supplies Guardian semantic records and encrypted original-file storage. Guardian mode requires a complete external-vault path, business identity, external 256-bit key, application root and updater root; missing or overlapping configuration fails closed and never silently falls back to legacy storage.
+  \item The default business-container compatibility boundary now returns the Guardian repository whenever Guardian mode is active. This closes older default-constructor paths across departments while retaining explicit legacy paths only for tests and copy--verify migration sources.
+  \item The business map, business structure and complete department-intelligence ledger are covered by Guardian business containers. Department IDs are no longer constrained to the original fixed set, so a department introduced by a later update uses the same encrypted map, Pilot and audit contracts.
+  \item Founder onboarding/Pilot sessions and receipts now use encrypted Guardian domain records in Guardian mode. Every Department Pilot task and audit event is stored under all-current-and-future-department domains rather than an application-owned runtime directory.
+  \item Generic current-and-future department operations now have explicit \texttt{departments.operational\_records} and append-only \texttt{departments.operational\_audit} domains. Workspace definitions, container bindings, business topology, agents, roles, tasks, learning records, external specialist/work-order configuration and the medium-business operating model---group structure, entities, units, locations, people, roles, projects, workflows, identity bindings and policies---restart from encrypted Guardian records. The corresponding legacy records and audit events are included in source-retaining copy--verify migration. This is the reusable boundary that later update-added departments and features must use or explicitly extend before release.
+  \item External work orders and the central AION Business event, trace, provider-call and memory-access audit streams now use the same protected department domains. Their Guardian-mode stores are restartable and plaintext-negative; their legacy JSON/JSONL records are included in source-retaining copy--verify migration.
+  \item AION Flow evaluation history, signed execution policy, customer template-installation state, signed harnesses/routes and capability-package qualification/lifecycle state now use the encrypted Train Agent domains and have source-retaining copy--verify migration coverage. Built-in product templates and package artefacts remain replaceable application content. The remaining model-binding/secret-custody, session/replay-authority and customer-private-template stores are explicitly classified by data class rather than silently accepted as safe. Customer-owned records must move into \texttt{train\_agent.automations} or \texttt{train\_agent.runs\_and\_audit}; device secrets and short-lived replay controls require platform-protected custody rather than blind business-data migration. The legacy desktop hydration cache is separately classified for per-key Guardian import/removal, while macOS icon generation is correctly excluded as rebuildable non-business application artwork.
+  \item The Finance Pilot terminal conversation now restarts from the encrypted \texttt{finance.operations\_records} domain, with copy--verify migration of its former department runtime file and a negative plaintext test against Guardian's underlying database bytes.
+  \item Train Agent operating-team state now stores capsules, skills, routines, routine runs, missions, memory, templates, worker nodes, assignments and the tamper-evident audit chain in Guardian. Restart and custom-department tests demonstrate that this state is not tied to the installed application tree.
+  \item Train Agent no longer applies the original fixed department list when a founder teaches a skill, creates a routine, delegates a mission or requests action preflight. Each of those paths now accepts a current or future department only after validating the same isolated Vault namespace contract used by update preflight; a traversal-capable or cross-business identity is rejected. The whole-surface migration also discovers department identities from Department Pilot directories and structured Train Agent/scheduled-work records, not only the aggregate department map. This prevents an automation-created department from being absent from the encrypted migration receipt or from its eleven mandatory map, intelligence, operating, Pilot, Train Agent and File Cabinet namespaces.
+  \item Train Agent's live workflow-tab workspace is now a Guardian-backed workspace-state record within the same protected automation domain. A compatibility boundary captures the later canvas patches that still call the old browser API, keeps their working copy in memory, queues encrypted Vault saves and removes the legacy browser key. Restart/read-back tests include complete workflow graphs and confirm that node contents do not appear in the database bytes.
+  \item Finance discovery, calculated financial-model and Boardroom-handoff state are no longer durably duplicated in browser storage. Active state is memory-backed and is restored from the canonical Finance model; legacy browser state is imported once and purged. Business-map assembly now unions the canonical department ledgers rather than relying only on an original fixed list, so future departments introduced by an update are automatically included.
+  \item Products \& Services drafts now debounce into the canonical operating-model Vault. Founder Notes has been added as an explicit \texttt{business.notes} protected domain with Guardian-only API persistence, memory-only desktop working state, encrypted round-trip tests and one-time import/removal of legacy browser notes. This implements the policy that introducing a data-bearing feature also expands the mandatory domain registry and complete-registry release declaration.
+  \item Business-bearing desktop working state now has an explicit encrypted \texttt{business.working\_state} domain rather than being misclassified as an interface preference. Its allow-list covers chat sessions, workflow and automation drafts, executive coordination, Boardroom discovery, meeting and context records, Finance facts and payment settings, goal replay history, live onboarding transcripts and progress, Business Map confirmation and ratification, Department Pilot package state and current/future department conversation terminals. Confirmed Foundation sessions and operating-model drafts continue through their stronger canonical Vault records rather than being duplicated here. New writes stay in session memory while Guardian is unavailable; legacy browser values are copied into the versioned Vault record, read back successfully and only then purged. The renderer contains no direct browser-storage write primitive. Navigation, view, theme, loopback endpoint and accessibility preferences pass through a separate exact-key and value-shape helper that rejects customer text and unregistered keys. The API applies safe state identities, a five-mebibyte bound, optimistic concurrency, encrypted history and governed tombstones.
+  \item Work \& Schedule is now covered by explicit \texttt{work\_schedule.records} and \texttt{work\_schedule.files} domains. In Guardian mode the customer CRM, jobs, scheduling, quotes, invoices, payment state, reminders and portal access use an encrypted authoritative record, while evidence and generated PDFs are immutable encrypted Vault objects. Downloads and email attachments obtain decrypted bytes through Guardian without creating an application-owned plaintext path, and customer portal tokens resolve from Guardian records rather than scanning legacy JSON directories.
+  \item The whole-surface migration now discovers the legacy Work \& Schedule record and every referenced evidence or generated-document file, copy/verifies each file into the encrypted object store, rewrites the copied document metadata to Vault object identifiers and copy/verifies the resulting schedule record. Legacy sources remain untouched until a separately governed retirement step.
+  \item Support now has explicit \texttt{support.records} and \texttt{support.files} domains. Guardian mode stores Support configuration, cases, conversations, approved knowledge, response drafts, handoffs, intake records, governed voice deployment, signed call-event/transcript evidence and attachment metadata as encrypted records, while captured customer media becomes encrypted Vault objects rather than application-owned blobs. The migration enumerates those legacy records and attachments, copy/verifies them and removes plaintext paths from the copied metadata.
+  \item The Sales revenue spine now has explicit \texttt{sales.records}, \texttt{sales.files} and \texttt{sales.audit} domains. In Guardian mode its legacy-shaped paths are identifiers rather than directories: contacts, companies, opportunities, work-feed events, intake endpoints, playbooks, call drafts, telephony evidence, sales agents and contracts resolve through encrypted records. Customer attachments are encrypted Vault objects, downloads read object bytes without a plaintext application path, and opportunity activity is append-only Guardian evidence. The migration covers Sales JSON, attachments and audit history while retaining every source.
+  \item Sales Completion now uses \texttt{sales.completion\_records} for availability, bookings, quotations, acceptance evidence, Operations/Finance handoffs, messages, campaigns, outcomes and experiments. Finance customers, invoices, reminders, balanced bookkeeping drafts and posted journal evidence use \texttt{finance.sales\_records}, \texttt{finance.bookkeeping\_records} and \texttt{finance.bookkeeping\_journal}. Recurring Finance schedules/runs and transaction reconciliation reviews use \texttt{finance.recurring\_records} and \texttt{finance.reconciliation\_records}. Provider connection metadata, connector receipts and raw evidence use \texttt{finance.integration\_records}; bank activity, counterparty mappings, Finance Director models, month-end state and Finance Inbox audit use \texttt{finance.operations\_records}. Finance Inbox originals are encrypted Vault objects. Guardian-mode File Cabinet entries carry Vault identities rather than application paths.
+  \item Train Agent scheduled-work definitions now use \texttt{train\_agent.automations}; their run history and generated artefacts use \texttt{train\_agent.runs\_and\_audit}. Shared owner-approved business knowledge uses \texttt{business.knowledge}, uploaded source documents use encrypted \texttt{business.knowledge\_files} objects and policy/revocation evidence uses \texttt{business.knowledge\_audit}. This closes the adjacent knowledge source used by automation recall rather than protecting only the schedule that invokes it.
+  \item AION Flow now stores prepared automations and production workflow revision history in \texttt{train\_agent.automations}, with completed runs and execution evidence in \texttt{train\_agent.runs\_and\_audit}. Production revisions are isolated by workspace and survive restart from Guardian. The legacy revision file is split by canonical workspace during copy--verify migration so another business's graph cannot enter the target Vault.
+  \item AION Flow evaluation experiments, evidence packs, challenger outcomes, promotion decisions and rollback state now restart from encrypted \texttt{train\_agent.runs\_and\_audit} records. Signed per-workspace execution policy now restarts from \texttt{train\_agent.automations}. Both boundaries retain legacy sources during copy--verify migration, and focused tests include negative plaintext inspection of Guardian's underlying database bytes.
+  \item Customer-installed AION Flow templates now keep each organisation's opaque connector bindings, selected version and lifecycle state in that organisation's encrypted \texttt{train\_agent.automations} records. Tessaris-supplied built-ins remain regenerable product content. Migration filters the former shared installation file by organisation before copy and read-back verification.
+  \item Signed AION Flow harness definitions, business-context rules and selected routes now use one workspace-isolated encrypted automation record. Capability-package qualification evidence, accountable-owner approval, permission usage, active component versions, revocation and removal state use the same protected domain. Package artefacts remain integrity-addressed application payloads and are not mistaken for customer data.
+  \item Finance forecast assumptions and hash-bound expected/upside/downside scenarios now use encrypted \texttt{finance.operations\_records}. Finance Pilot management reports and Boardroom handback artefacts use the same domain. File Cabinet and department-intelligence projections carry Vault domain/entity references instead of plaintext scenario/report paths, and legacy scenario/report files are included in source-retaining copy--verify migration.
+  \item Exact-approved Xero reconciliation handoffs and immutable blocked-provider receipts now use encrypted \texttt{finance.reconciliation\_records}. Repeated execution reads the original protected receipt, File Cabinet entries use Vault identities, and legacy handoff/receipt pairs migrate without deletion.
+  \item Exact-approved Xero supplier-bill and customer-invoice export histories now use encrypted \texttt{finance.integration\_records}. Frozen payloads, accountable approval, provider responses and read-back verification survive restart without application-tree JSON, and the legacy export directories are included in source-retaining copy--verify migration.
+  \item Customer Marketing connection metadata, selected social/advertising accounts, read-only analytics snapshots and single-use OAuth state now use \texttt{departments.operational\_records}. OAuth tokens and platform credentials remain in operating-system key custody. Consumed callback state is retained as non-replayable evidence, and legacy Marketing files migrate separately rather than being misclassified as Finance records.
+  \item The shared Projects portfolio now protects projects, tasks, costs, milestones, risks, decisions, linked-file metadata, activity and Project Pilot working drafts in \texttt{departments.operational\_records}. It restarts without application-tree JSON, and the former \texttt{project\_management.json} is included in source-retaining copy--verify migration. Explicit task assignments now accept a safely namespaced department introduced by a later update instead of silently erasing the assignment because it is absent from the original built-in department list.
+  \item Founder Review trigger cadence, recipients, enablement, private metadata and last-run state now use \texttt{train\_agent.automations}. Governed-improvement corrections, verified outcomes and customer-visible change history use \texttt{train\_agent.runs\_and\_audit}; route preferences, automation proposals, curated-dataset declarations and reviewed model-release state use \texttt{train\_agent.automations}. Each former file has source-retaining copy--verify migration coverage.
+  \item Customer model qualification and routing state---signed manifests, public benchmarks, lifecycle events, canary routing and rollback---now use the encrypted Train Agent automation domain. Customer-private benchmark outcomes use the audit domain and are not stored beside replaceable application catalogue files.
+  \item Sales telephony connection and routing metadata for Twilio and Retell now use \texttt{departments.operational\_records}; provider credentials remain in operating-system key custody. The former \texttt{sales\_telephony.json} record migrates into the Sales integration entity without deletion.
+  \item Cybersecurity assets, findings, incidents, proposals, scans and the signed vulnerability feed now use encrypted \texttt{security.records}; content-free security events use \texttt{security.audit}. Existing state, feed and event files are covered by source-retaining migration. The obsolete desktop-root renderer is separately classified as unshipped, and a release-boundary test proves Electron loads and packages only \texttt{desktop/mac/src} so the historical browser stores cannot silently return in a later bundle.
+  \item Signed update packages, staged application binaries, the current/previous version pointer and activation receipts are explicitly classified as updater state, not customer business data. They remain under a dedicated updater root that may not overlap the application or any Business Vault. Signed manifests must declare that neither customer data nor credentials are present before staging is allowed.
+  \item Application-account recovery is separately classified as restricted identity authority rather than business content. The production private root belongs in the platform credential store, the root-signed public descriptor and monotonic independent registry provide anti-rollback authority, and the encrypted recovery kit remains at a founder-selected off-device location. These materials are excluded from ordinary business-data exports and update packages.
+  \item The A2A commerce store is now classified as a mixed multi-tenant transition surface because it combines business profiles, customer messages/contact details, original images, tasks, offers and approvals with shared agent-identity and replay state. Migration must partition ownership: business-owned records and originals enter the relevant customer Vault, while shared marketplace identity/routing evidence remains in a separately governed platform service. Image-generation outputs are included in the declared mixed local-asset transition surface rather than remaining undiscovered. Production construction of the legacy mixed store is now disabled by default and returns a controlled unavailable response until that partition exists. Explicit external roots remain only for tests and controlled migration; a configured legacy root inside the application tree is rejected.
+  \item The File Cabinet tree is Guardian-authoritative and every uploaded/generated original can be stored as an encrypted vault object. Boardroom session payloads use this object boundary in Guardian mode. The desktop now keeps only an in-memory working tree: a legacy browser copy is imported only into an empty Guardian cabinet and is then purged.
+  \item Desktop department intelligence, Marketing Pilot transcripts and voice-onboarding sessions now use memory only while active and save through the canonical Guardian-backed Business Container or Foundation Session APIs. Legacy browser copies are read only as one-time migration sources and are purged after import; the shared Department Pilot runtime reads the canonical in-memory/Vault projection rather than treating browser storage as authority.
+  \item Business-context onboarding writeback now updates the in-memory Foundation packet, commits the canonical Foundation containers and saves draft/approved sections through the versioned Foundation Session endpoint. The development-session bridge likewise treats the old full Foundation packet browser key only as a one-time import source, removes it after a successful Guardian read/write and reports Vault-unavailable state as memory-only rather than claiming a durable offline cache. The older duplicated business-context browser keys are removed so an application update or browser reset cannot silently become the lifecycle owner of founder onboarding data.
+  \item The Business Twin API now obtains its semantic-record repository through the same selector for identity, structure, map, financial, operating-model and department-intelligence records. Its 17 direct upload, analysis, receipt, cabinet and non-destructive alias-migration writes are separately classified as a transitional legacy touchpoint; they remain in the application working-tree boundary until Guardian object-store migration and runtime proof are complete.
+  \item Sales revenue projections into department intelligence and Boardroom records honour the selector. The former direct Sales revenue-spine and completion writes are now Guardian record/object operations in Guardian mode; legacy directories remain copy--verify migration sources only.
+  \item The Legal matter, document, template, signing, delivery and GlyphChain-proof services are now classified with the Legal authenticated store rather than leaving their writes undiscovered. Record payloads use contextual AES-256-GCM, production keys use the platform keychain, historic key versions are retained and encrypted recovery is available. Their caller-selected root and current verify-then-delete plaintext migration path still require external-vault placement, signed migration receipts and governed source-retirement approval.
+  \item The general local asset tree is classified as mixed business material rather than a vault. Although paths are contained beneath an explicit root or \code{\textasciitilde/Tessaris}, the tree may mix originals, drafts, generated media, audits, exports and temporary data without encryption or record-class retention; it must be split into Guardian originals/records, declared rebuildable derivatives, bounded temporary storage and export staging.
+  \item Finance-provider metadata is now distinguished from OAuth secrets. Production provider tokens are routed to platform key custody, while connection identity, scopes, connector receipts and provider-neutral raw evidence for Xero, Sage, QuickBooks, Zoho Books, FreeAgent and FreshBooks use encrypted Guardian records. Legacy integration directories are included in copy--verify migration; token revocation and restore re-authorisation remain separate operational controls.
+  \item GlyphChain administration writes are classified as bounded owner-only snapshot staging plus independently governed network identity, health, protocol-upgrade, validator and public-checkpoint state. Operational chain state stays outside the Business Vault; only business-linked proofs and receipts should enter Guardian.
+  \item Sovereign Brain setup, ownership, operating profile, encrypted provider-secret vault and signed migration export are now declared. The encrypted vault currently relies on an owner-only device key stored beside its ciphertext; this is explicitly not accepted as production key custody and must be replaced by the platform secret-store abstraction with independently recoverable wrapped-key material.
+  \item A chunked AES-256-GCM external snapshot service now takes a consistent SQLite backup plus the immutable encrypted file store, encrypts its index and every chunk, and requires a destination outside the live vault. Restore accepts only an empty destination, contains every output path, verifies every chunk and complete file, and has recovered both semantic records and original attachments in an end-to-end test.
+  \item The cross-surface migration controller is deliberately copy--verify--receipt rather than move-and-delete. It enumerates business containers (including business and department maps), onboarding sessions/receipts, every discovered Department Pilot directory, Train Agent operating-team state, both historical AION Agent repository layouts (agent, trigger and workflow definitions plus approvals and workflow runs), the separate Local Node workflow canvas/approval/dry-run/resume stores, customer Workflow Capsule workspace definitions, business-specific bindings, approvals/events, traces, feedback, learned habits and promotion evidence, AION teaching memory, skill-run evidence, weakness signals, decision-influence state/audits, resonance state/vectors, LLM accuracy evidence, temporal-prediction memory/models and transition/evaluation evidence, Founder Review, governed-improvement and model-catalogue state, scheduled-work and AION Flow prepared/run/production-revision records, shared business knowledge/index/originals/governance, Work \& Schedule, Sales including telephony metadata, Support, Finance and Cybersecurity records/evidence/originals, Xero export histories, Marketing connection/metrics/pending state, and the complete File Cabinet tree and every referenced original. Its encrypted receipt now contains a machine-readable protected-surface matrix for the business map, department maps, onboarding/Pilot, Train Agent and the whole File Cabinet; it also records every department discovered in Department Intelligence, Department Pilot, scheduled-work, legacy-agent or workflow records and the eleven isolated Vault namespaces that department owns. A missing legacy source is reported honestly as ``no legacy source detected'', not as a successful migration. The controller refuses conflicting targets, verifies readback and file hashes, and always leaves legacy sources intact until every candidate verifies and a separate authority-switch decision is approved.
+  \item Guardian-configured Local Nodes now route legacy AION Agent workflow, agent and trigger definitions to \code{train\_agent.automations}; workflow runs and approval requests use \code{train\_agent.runs\_and\_audit}. All five compatibility repositories avoid plaintext \code{aion\_agents} files in Guardian mode, and delete operations create immutable audited tombstones. Source-retaining migration uses the same entity namespace for both former directory layouts. Restart, list, update, deletion, audit-chain and negative-plaintext tests cover this boundary.
+  \item The separate AION Workflow canvas now follows the same protected boundary. Workflow glyphs use \code{train\_agent.automations}; approval decisions, dry-run evidence and resume evidence use \code{train\_agent.runs\_and\_audit}. Default runtime construction is fail-closed through Guardian, while explicit local roots remain only for tests and retained migration sources. Restart, approval, dry-run, resume, audit-chain and negative-plaintext tests pass. The cross-surface fixture includes the former workflow JSON and JSONL layouts without deleting any source. Idempotent consequential execution, approval-authority journeys and complete export/restore evidence remain blocking.
+  \item The older Master Glyph Library is now partitioned by ownership. Customer-authored ``my'' glyphs use encrypted \code{train\_agent.automations} records; signed ``universal'' glyphs remain replaceable application content. Guardian mode refuses to read retained plaintext customer glyphs as authority and keeps the rebuildable combined index in memory. Copy--verify migration imports only customer glyphs into the exact runtime entity namespace and excludes universal templates and the derived index.
+  \item AION Flow model-binding metadata now follows the same boundary. Workspace-scoped labels, provider selections, stable references, rotation state and opaque secret locators restart from encrypted \code{train\_agent.automations}; raw provider credentials remain solely in the separately permissioned encrypted credential store outside the application and update trees and are excluded from ordinary business export. Legacy metadata is copy-verified into Guardian and retained. The signed-session replay database is separately classified as a bounded, expiring hash-only security cache containing no request body, raw nonce, business content, file path or credential; it is intentionally excluded from the Business Vault.
+  \item Application-account recovery is explicitly separate from business content. The founder's encrypted recovery kit must be placed off-device, production private roots fail closed into native credential custody, and only root-signed public descriptors enter the independently operated monotonic registry. The local descriptor cache is anti-rollback memory rather than an offline authorization fallback. Recovery, prior-device revocation, descriptor continuity, TLS and publication authority, rollback and equivocation rejection, capacity and cache safety pass all 14 boundary tests.
+  \item The Node control plane is independently hardened as a content-free channel. Certificate verification enforces the exact health, release and entitlement scopes plus explicit remote-control prohibitions. The hosted registry independently revalidates the heartbeat field and value allowlist, identity, capability, signature, freshness and monotonic sequence rather than trusting the Node-side signer. Its private replay database is bounded, refuses symbolic-link targets and stores only tenant and Node identifiers, sequence and issue time. All six contract tests pass, including hand-signed prohibited content, stale health, replay, tampering, capacity and private-permission cases.
+  \item The hosted Photon ledger is independently hardened as content-free commercial authority rather than customer Vault data. Concurrent retries resolve to one immutable transaction; transaction identifiers and tenant idempotency keys cannot be repurposed; non-negative balances are checked against each account's aggregate movement; completed entry sets are sealed; and owner-private storage refuses symbolic-link database targets. Reads and whole-store integrity checks verify expected entry counts, conservation and canonical transaction hashes before trusting financial history. Existing v1 databases are upgraded in place only after validating their historical entry cardinality, without rewriting transaction meaning. The adjacent Revolut boundary now bounds raw webhook size, verifies the provider signature and timestamp, accepts only exact order/refund/dispute event classes, re-reads authoritative provider state and uses the same private symlink-safe storage rule. Founder rate-card publication remains preview-bound, re-authenticated, exactly confirmed, future-dated, signed and immutable; policy and audit stores are private and symlink-safe, and every stored payload is hash- and identity-checked before use. Wallet snapshots and control-plane tokens independently enforce one-hour ceilings, strict tenant identity, replay resistance and private audit storage. Offline leases independently enforce seven-day and Photon ceilings; local work receipts are bounded, signed, hash-chained and revalidated from private storage; and hosted reconciliation atomically reserves non-negative balance and rejects work outside the signed lease period. Thirteen focused ledger tests, 43 wider ledger, wallet, access, API, offline-reconciliation and Revolut-fulfilment checks, 12 founder-pricing checks, and 34 focused snapshot/access/offline/outbox/reconciliation checks pass.
+  \item The adjacent Workflow Capsule runtime now uses the same ownership boundary. Customer workspace capsules, business-specific connector/vault bindings and CAU-approved learned habits use encrypted \code{train\_agent.automations}; approvals and approval events, execution traces, feedback and habit-promotion evidence use encrypted \code{train\_agent.runs\_and\_audit}. Signed core capsules, universal glyphs and global industry packs remain replaceable application content. Derived capsule, glyph and habit registries are memory-only in Guardian mode, retained plaintext customer files are ignored as authority, and approved feedback persistence creates a customer workspace override rather than altering an installed core capsule. The expanded whole-surface fixture verifies 137 records while retaining every source and excluding product templates and rebuildable registries. A focused 55-test ownership, registry, materialisation, approval, trace, feedback, habit and migration run passes.
+  \item AION customer learning now has explicit encrypted \code{learning.customer\_state} and append-only \code{learning.audit} domains. Guardian mode places teaching corrections, skill-run evidence, weakness signals, decision-influence weights and audit, resonance state and correction vectors, and LLM accuracy evidence outside the application/update tree. Default runtimes select Guardian; explicit paths remain only for tests and retained migration sources. Restart, decision replay, teaching and weighting query recovery, audit-chain and negative-plaintext tests pass, and the copy--verify fixture imports every mapped historical JSON/JSONL source without deletion. Public/base algorithms and models remain replaceable product content. Consent/purpose lineage, source-deletion propagation, remaining learning callers, complete export/restore and clean-update journeys remain release-blocking.
+  \item The shared \code{ResonanceHeartbeat} boundary is now inert on default construction rather than starting background work during import. Its default is memory-only; with Guardian configured, retained pulses use encrypted \code{learning.customer\_state} and customer-bearing runtime events use immutable encrypted \code{learning.audit}. Cross-engine synchronisation and drift correction operate over a weak in-process registry rather than scanning and rewriting heartbeat files. Repository-relative heartbeat, drift and dashboard files now require the explicit \code{TESSARIS\_ALLOW\_LEGACY\_RESONANCE\_FILES=1} development override. Snapshot persistence is throttled to a configurable minimum interval, while events are bounded to 256 KiB and cannot override their authoritative namespace, event name, timestamp or record type. Four focused tests prove no default \code{data/} or \code{.runtime/} creation, encrypted restart/event retrieval with negative plaintext checks, file-free synchronisation, snapshot throttling and protected event metadata. The boundary remains release-blocking until the opt-in legacy branch is retired and all 41 constructor journeys are exercised.
+  \item The adjacent \code{StateManager} no longer creates two process-wide instances during import. Its compatibility name aliases the single canonical instance and heartbeat activation requires \code{AION\_ENABLE\_STATE\_HEARTBEAT=1}. Customer-derived agent state now persists through the independently testable \code{ConsciousnessStateStore} into encrypted \code{learning.customer\_state}, while throttled resonance evidence enters immutable \code{learning.audit}; without Guardian the boundary is memory-only and creates no files. Mutable glyph/container state is now a Guardian overlay keyed by a one-way container identifier: signed/base \code{.dc.json} application content is not rewritten, the overlay is re-applied on load and mutation fails closed without Guardian. Historical \code{agent\_state.json}, \code{state\_resonance\_log.jsonl} and direct container output requires the explicit \code{TESSARIS\_ALLOW\_LEGACY\_CONSCIOUSNESS\_FILES=1} compatibility switch. Six focused tests prove encrypted agent/container restart, immutable evidence, base-container immutability, fail-closed mutation, protected metadata, negative plaintext-at-rest checks, file-free default operation and explicit legacy opt-in. The compatibility branch, all caller journeys and remaining consciousness writers remain release-blocking.
+  \item \code{ResonantMemoryCache}, used by more than 50 legacy cognition, language, planning and simulation constructors, no longer creates or rewrites \code{data/memory/resonant\_memory\_cache.json} by default. Durable customer-derived cache state uses encrypted \code{learning.customer\_state/resonant\_memory\_cache}; without Guardian it stays process-local, and the historical JSON, backup and lock route requires \code{TESSARIS\_ALLOW\_LEGACY\_RESONANT\_MEMORY\_FILES=1}. StateManager shares its Guardian store with this cache. Three focused tests prove encrypted restart, negative plaintext-at-rest, default no-file operation and explicit legacy compatibility. The touchpoint remains blocking until historical sources are copy-verified, the legacy branch is retired and all constructor journeys are exercised.
+  \item The desktop hydration cache no longer writes approvals, audit history, schedules, Boardroom, live-agent or operations projections, marketing and brand state, attachments, recovery payloads or other business JSON into renderer \code{localStorage}; \code{persistCache} is process-memory-only. Binding persistence can write only exact-key, token-validated view preferences through \code{AionDesktopPreferences}, excluding workspace, Node, agent, run and inspector identifiers. Foundation completion is derived from the Guardian-returned packet, its device identity derives from the Node or is process-ephemeral, and route restoration uses the same preference gate. Three source-contract tests and JavaScript syntax checks prove these two files contain no direct browser write primitives. Fifteen critical browser-write findings were removed; legacy reads remain blocking until per-key import/purge and packaged-renderer restart tests are complete.
+  \item The older web frontend no longer treats command history and favourites, SQS goals or science workspace tabs as browser-authoritative records; they remain process-local until their Guardian workspace APIs exist. Password and SIWE login now establish an HttpOnly, SameSite cookie. The shared API client, role guards, contracts, deals and wallet binding no longer retain JWTs in browser storage, log signed SIWE payloads or relay bearer tokens to the loopback radio node. The legacy GlyphNet top bars keep display identity only in process memory and fail closed on radio attachment until a dedicated short-lived signed ticket exists. Four source-custody tests and three executable cookie tests cover this boundary. Nineteen additional critical browser-write findings were removed. Remaining GlyphNet chat, address-book, editor, device and pairing stores are still declared and release-blocking, so this is not a global web-frontend clearance.
+  \item Pilot phone private keys and connection records, genomic adapter input, Photon editor code, chat/inbox/PTT working history, address books and aliases, bridge credentials, device choices, ICE overrides, identity keys and calibration preferences are no longer written to browser storage or IndexedDB. They are deliberately renderer-process-local until an operating-system secure-store bridge or exact Guardian workspace API exists; reopening or reconnecting is safer than silently persisting customer data or extractable keys. Private identity bytes are zeroed after import into a non-extractable signing-only \code{CryptoKey} and are never returned as base64. The remaining radio-health override, wallet owner identity, Multiverse user slug and transport-mode storage listener have also been retired: deployment configuration controls routing, the authenticated backend supplies wallet identity and the backend container index supplies ownership. This removes another 19 critical and 16 high findings. TypeScript compilation and the expanded frontend custody contract pass. The remaining critical findings are now all explicitly declared SQLite boundaries; the broader GlyphNet data plane still requires Guardian APIs and live journey evidence before it is durable.
+  \item AION Prediction now uses that business-scoped learning boundary for the mapped runtime paths. Temporal triplets, transition observations and prediction evaluations are immutable \code{learning.audit} events; temporal coherence models and predictive-bias state use encrypted \code{learning.customer\_state}. PAL longitudinal snapshots now use immutable encrypted \code{learning.audit} records, Guardian mode refuses implicit application-local exemplar and knowledge inputs, and existing snapshot JSONL is copy-verified without deletion. The central AION customer knowledge graph now stores deterministic workspace-scoped triplets in encrypted \code{business.knowledge}; concept decay updates those records and writes immutable evolution evidence to \code{learning.audit}. Direct SQL is forbidden in Guardian mode, while explicit SQLite, log and JSONL sources remain available for copy migration. Guardian restart, workspace isolation, negative-plaintext and explicit legacy-path compatibility tests pass. The 137-record copy--verify fixture imports the former model-binding metadata, temporal buffer, model, bias state, transition/evaluation log, PAL snapshot, AION graph and concept reinforcement/evolution history without deleting its sources. Upstream PAL provenance, remaining public-versus-customer knowledge provenance, deletion propagation, deterministic cache classification, export/restore and clean-update journeys remain blocking.
+  \item The live AION $\Phi$-state used by command, stream, cognitive-loop and resonance callers now defaults to encrypted \code{learning.customer\_state/aion\_phi\_state} in Guardian mode. Explicit file paths remain only for tests and retained-source migration. Restart, reset, negative-plaintext and legacy compatibility pass. The operator migration command now exposes explicit learning/prediction and $\Phi$-state source roots so the implemented copy coverage is reachable outside the test fixture. Remaining resonance stores and signal/calibration provenance stay release-blocking.
+  \item AION conversation memory used by the command, memory, brain and Thought Stream routes now defaults to encrypted \code{learning.customer\_state/conversation\_memory} in Guardian mode. Symbolic reflections and Symatic equations use immutable \code{learning.audit} records; their Guardian paths do not import or instantiate the legacy HexCore persistence fan-out or duplicate plaintext Symatic log. Explicit paths remain only for isolated tests and retained copy-migration sources; default construction no longer creates application-tree directories, restart/load/query and negative-plaintext behavior are covered, and the operator migration command exposes the historical resonance data root. Calibration, telemetry and derived-cache surfaces remain release-blocking until classified and proven.
+  \item An explicit operator command exposes this migration in non-mutating dry-run mode by default. Copying requires \code{--execute}, a complete configured external Guardian runtime and successful verification of every discovered candidate; no startup or updater path may invoke destructive source retirement.
+  \item A mandatory 44-domain business-data registry now names the maps, encrypted business working state, onboarding, departments, generic current/future department operating records and audit, Train Agent, customer learning state/evidence, shared business knowledge, File Cabinet, Work \& Schedule, Support, Sales, Finance, Cybersecurity and migration evidence. Every release must declare the complete protected registry; omitting even one existing domain fails preflight. The Node release contract additionally requires a per-feature data-change declaration and a separately generated release-change inventory. The inventory's exact feature and department sets must equal the classified changes, and its SHA-256 must equal the canonical digest of those sorted lists; a changed list or omitted classification therefore fails preflight. Every data-bearing feature must inventory its new record/file artefacts, bind each artefact to a registered domain and matching storage class, name its Vault namespace and list its legacy sources. Namespaces containing traversal, absolute paths, URI schemes, empty segments, backslashes or duplicates are rejected. Copy--verify releases cannot omit their source inventory; new-empty-domain releases cannot claim legacy sources. Every introduced department must carry exactly one canonical artefact for each of the eleven required map, intelligence, operations, Pilot, Train Agent and File Cabinet domains. Each artefact must use the exact namespace generated below \code{departments/<department-id>/}; a cross-department path or an arbitrary noncanonical subdirectory fails the release. Features that store no business data must say so explicitly. Signed discovery evidence is also mandatory: its manifest/report digests must be present, its unknown-write and incomplete-session counts must both be zero, and it must name the runtime trace scenarios exercised for that release.
+  \item Seven continuity journeys are immutable minimum release gates even if a later discovery manifest is edited: business onboarding, business and department maps, AION/Department Pilot conversations, Train Agent automations and schedules, files/documents including the complete File Cabinet, import/export/migration, and backup/recovery. Removing any one of their canonical aggregate traces blocks installation.
+  \item Boardroom seat conversations now use encrypted department operational records. The shipped desktop keeps only a memory working copy, imports each older browser conversation once and removes that key only after a successful Vault save. Sovereign Brain identity, business-map/customer-store state and migration journals now use Guardian domains with source-retaining copy--verify receipts. Uploaded brand logos, guidelines and templates are encrypted Vault objects; Browser Skills and Chains use the Train Agent automation domain; and the HR organisation-authority summary is no longer copied into durable browser storage. Retell deployment metadata now uses the department operational domain, while its provider credential remains in operating-system secret custody; the old repository file is retained only as a verified import source.
+  \item The release-evidence builder now emits a fail-closed v3 contract binding the discovery-manifest digest, scenario-catalogue digest, complete static-audit digest, every canonical aggregate-trace digest, the exact session set and each journey's surface count. It requires zero unknown writes, zero incomplete journeys and zero declared-but-unapproved touchpoints. It selects only canonical \texttt{\{session\}.json} aggregates and independently verifies that required and included surfaces exactly match the catalogue, no surface is missing and every constituent fragment digest is present. Older v1/v2 evidence, backend-only fragments, unresolved declarations, unknown writes, incomplete sessions, duplicate/missing sessions, unsafe destinations, dropped events and hand-labelled passing traces are rejected. Adding a discovery session, surface or declared boundary therefore increases the signed evidence required to ship.
+  \item A process runtime-write tracer now corroborates static findings during named discovery scenarios. It records application source locations, operation classes, boundary classes and keyed path fingerprints only; it excludes raw destination paths and business values. Empty or truncated traces fail closed, and any application, update or unknown-boundary write prevents that scenario from passing its release gate.
+  \item A machine-readable 28-journey discovery catalogue now gives that gate an exact operating contract. It explicitly covers the business map, every current department map, departments introduced by later releases, Foundation/onboarding Pilot data, Department Pilot data, Train Agent definitions and run history, the complete File Cabinet tree and every original, plus CRM, work, finance, communications, Boardroom, knowledge, mobile/offline, provider, backup, migration, diagnostics and retention journeys. Every scenario declares its execution surfaces, expected Vault domains, external-provider classes and completion assertions. The catalogue fails validation if it omits or duplicates a required release-manifest session, or if it names an unregistered Vault domain.
+  \item The current conservative whole-repository persistence scan examined 4,602 authored source files after excluding generated Next.js \code{\_next} bundles and detected 4,568 likely write operations. All 4,568 match an explicit touchpoint declaration: 416 findings remain on narrowly reviewed approved boundaries and 4,152 findings across 130 declared touchpoints remain release-blocking. No static finding remains unclassified. Bootstrap and deprecation diagnostics plus synthetic resonance fixtures now use the cross-platform external Node state root; diagnostics retain no raw source paths or warning messages and the fixture generator performs no import-time write. The audit, rewrite-plan, reflection, trajectory, governance, harmonic-memory and integration stages now perform no import-time heartbeat construction and no direct filesystem persistence: they fail closed without Guardian, read registered encrypted learning inputs or explicit in-memory values, write bounded durable results to \code{learning.customer\_state}, and accept only explicit authorised runtime/proposal/action handoffs. Ethics, mutation and DNA execution handlers must be injected explicitly. The shared heartbeat/event subsystem remains an unresolved declared boundary pending its wider caller migration. The declarations cover the full detected surface, including sensitive genomic upload, Photon runtime and replay, the remaining resonance boundary and symbolic-container routes as well as the business, departmental, model, research, device and provider families enumerated above. The production desktop renderer has zero direct \texttt{localStorage.setItem} or \texttt{sessionStorage.setItem} findings: business-bearing records route through Guardian, while content-free interface preferences pass through an exact-key and value-shape allowlist. Declaration does not approve an unresolved subsystem. All 28 real discovery journeys remain incomplete, every blocking touchpoint retains its partition, migration and verification gate, and the result is therefore correctly \code{vault\_boundary\_ready=false}.
+  \item The v2 deterministic content-free register is preserved as \code{docs/aion/business-data-triage-current.v2.json}. It retains every unresolved static finding exactly once: zero are \code{unclassified}, all 4,152 are \code{declared\_blocking}, and all 4,152 remain actionable. Its ordering contains 46 critical, 2,303 high and 1,803 medium entries. The register records source locations, operation classes, touchpoint identifiers and required review fields, but never source text or business values. Canonical SHA-256 digests bind it to the complete scan, manifest and finding-id set. Zero unknown findings means static inventory closure only; risk and declaration are not approval, and only explicit reviewed approval plus completed runtime discovery can remove a finding from this queue.
+  \item A content-free discovery campaign runner now records passed, failed and missing journeys without storing customer values. It can emit separately labelled \texttt{desktop\_backend}, \texttt{filesystem\_import} and \texttt{update\_runner} fragments only when the selected surface is required by the catalogue. An exception, wrong surface or incomplete scenario always produces failed evidence and cannot be promoted to a release pass. The current baseline is deliberately honest: zero journeys passed, zero failed and all 28 missing until the real end-to-end runs are executed. A disabled-by-default, secret-authenticated controller can trace the live desktop backend in-process when all secure evidence settings are present; it does not claim coverage of Electron, mobile or external-provider processes, which require their own instrumented traces before aggregation.
+  \item Electron discovery now has an independent disabled-by-default Node tracer and secret-authenticated controller. It instruments native main-process filesystem writes and, only in discovery mode, observes renderer \texttt{localStorage}/\texttt{sessionStorage} mutations through the isolated preload bridge. It emits only source/operation classes and keyed destination or key fingerprints---never browser values or raw keys---writes owner-only evidence, rejects an evidence root overlapping the application, updater or any Vault, and refuses sessions whose catalogue does not require the Electron surface. Its fingerprint key and control token stay in the main process. Every renderer browser-storage mutation is conservatively unsafe until removed or replaced by an explicit non-authoritative-state contract.
+  \item A separate content-free evidence recorder now exists for \texttt{provider\_sandbox} and \texttt{mobile\_companion} runs. It accepts only the external classes declared for the selected journey, HMACs transient identifiers, never stores customer payloads, credentials or raw identifiers, writes owner-only evidence and refuses to pass until every declared external class has been observed through an approved boundary. A discovery-mode-only, secret-authenticated controller/API manages start, event and stop lifecycles. Its event schema accepts only a pre-HMACed 64-character identifier fingerprint, operation, declared class and approval result; raw identifiers and extra payload fields are rejected before recording. The real provider adapters and mobile companion must still create those fingerprints on their own instrumented surface, call the intake and be exercised; the controller's existence alone is not runtime evidence.
+  \item The cross-surface aggregator requires the exact backend, Electron, renderer, mobile, import, update and provider fragments declared by each journey. It enforces the correct evidence kind for every surface and exact agreement between expected and observed external classes for provider/mobile evidence. A missing, unexpected, mismatched, truncated, incomplete or unsafe fragment makes the canonical journey fail. No single process trace can be mistaken for whole-product proof.
+  \item Runtime fragments now declare the Vault domains and external boundary classes actually exercised. Aggregation and signed release evidence require exact set equality with each journey's catalogue declaration and bind per-trace domain and external-class counts into the Node release contract. A missing domain, an unobserved secret/provider boundary or an unexpected class fails closed.
+  \item The signed updater now closes two additional bypasses. Any updater bound to one or more Business Vaults requires eligible release preflight even if a caller attempts to disable the flag. Successful staging retains the trusted signed package manifest and creates a Mother-signed authorization bound to its hash and the preflight result. Immediately before activation, the updater re-verifies the trusted manifest and every staged file's identity, size and digest, rejecting extra, missing, symlinked or post-staging-modified content as well as manually inserted staging directories. The update receipt history is hash-chain- and Mother-signature-verified whenever state is loaded, so altered staging, activation or rollback history fails closed. Eight focused updater tests and ten Node release-contract tests pass; independent operating-system identity separation still requires clean-machine proof.
+  \item Two hundred and nineteen combined Vault, Business Twin/Sales, Node/update and Photon tests pass in the isolated project environment, followed by 12 focused Legal encryption/recovery and local creative-asset checks; all 231 checks pass. Controlled CI, real scenario traces, Guardian migration for the remaining direct files and clean-machine evidence are still required before release evidence is accepted.
+  \item A separate 68-test finance-integration, signed GlyphChain administration and Sovereign Brain setup/export/restore run also passes. It overlaps the finance-artifact regression already present above, so it is retained as supporting domain evidence rather than added to a misleading unique-test total.
+  \item The latest complete combined AION Business and Retell suite passes all 267 checks. Twelve native desktop checks also pass: six for the Photon broker/session/commercial-hold boundary and six for Electron/renderer runtime discovery. This includes the earlier protected-domain coverage plus v2 catalogue/aggregate/fragment-bound release evidence, the machine-readable 28-journey catalogue, honest discovery-campaign state, failed-scenario enforcement, separately labelled import/update execution, content-free provider/mobile evidence and its authenticated fingerprint-only intake, evidence-kind and external-class aggregation enforcement, and the disabled-by-default authenticated backend/Electron trace controllers, alongside Boardroom conversation isolation, Sovereign Brain and migration-journal Guardian persistence, encrypted brand assets, Browser Skills and Chains, the stricter new-feature/new-department artefact inventory and department-namespace isolation, encrypted Retell deployment metadata, tenant-bound Photon billing-record and dispute/hold exports, the signed local work-receipt outbox and the isolated desktop broker/receipt-export boundary. The integrated Vault/Node/update/Photon foundation smoke check, Python compilation checks and JavaScript syntax checks also pass.
+  \item The Usage \& Billing desktop surface now receives Photon balances and billing evidence only through an Electron main-process broker. The renderer never receives the bearer or authority key. The broker requires a separately pinned Ed25519 public key, enforces tenant and TLS binding, verifies current signed wallet snapshots and hash-addressed payment receipts, rejects rollback or tampering and exports only the reduced verified receipt fields through a native save dialog. Its default session store encrypts the bearer through Electron's operating-system-backed secure storage, writes only an owner-readable ciphertext wrapper and rejects unavailable encryption or Linux's insecure \texttt{basic\_text} fallback. A plaintext session path is an explicit non-default development override only. Production session provisioning, revocation and key rotation remain release gates.
+  \item The desktop now has a create-once operating-system-encrypted Business Vault bootstrap outside the application and updater roots. It provisions a random stable business identity and 256-bit Vault key, stores only an encrypted owner-private wrapper, rejects Electron's insecure \code{basic\_text} backend, refuses overwrite and supplies plaintext authority only to the spawned Guardian backend process. The backend health response exposes only a one-way stable-identity fingerprint, and Electron rejects an already-running process unless it attests both Guardian mode and the exact encrypted bootstrap identity. Discovery mode requires a separate secure-config path and actively proves the declared \code{secret\_store} boundary. Unit evidence passes; the live macOS onboarding journey remains open until the currently locked desktop can execute the complete renderer/backend restart scenario.
+  \item The expanded coverage slice passes 24 focused Guardian, domain-registry, whole-surface migration, release-gate and desktop File Cabinet authority tests plus 62 broader Business Vault, map-governance, onboarding, sovereign-update, Department Pilot, Train Agent, Boardroom and business-map regressions. Python compilation and JavaScript syntax checks pass for the changed boundaries.
+  \item A further 44-test authority slice passes after the browser-state retirement and complete-registry release gate. It covers Foundation onboarding, future-department Pilot records, Train Agent persistence, whole File Cabinet authority, whole-surface migration and the new desktop no-browser-authority locks. Fourteen older UI-lock assertions in the initial exploratory run are stale or refer to removed surfaces; one explicitly requires the browser persistence now prohibited by this plan. Additional retired voice-surface UI locks are likewise not current release evidence. These tests require contract updates and are not counted as passing evidence.
+  \item The current expanded cross-surface authority/release run passes all 54 tests. It covers the complete domain registry and release evidence, maps, onboarding, arbitrary future departments, Train Agent workspace graphs, the complete File Cabinet, Founder Notes, Finance/browser-authority retirement and encrypted Guardian read-back. Syntax checks for every changed desktop boundary and the integrated Vault/Node/Photon foundation smoke check also pass. The Train Agent and Notes tests include negative plaintext checks against Guardian's underlying database bytes.
+  \item The current custody and Node-state slices pass 40 tests across the combined boundary suite and 24 tests across the direct local-node/Fabric regression slice. They cover HttpOnly cookie authentication, browser-authority retirement, desktop-cache custody, static discovery and triage integrity, external owner-only Node roots, protected-root overlap rejection, private SQLite permissions and the AION Fabric regression suite. The changed web frontend also passes TypeScript compilation. Centralising the five local-node database open paths behind the owner-only connector removes four duplicated critical connect findings; the subsequent Fabric connector and Local Node legacy-audit bypass removal remove two further duplicates. The refreshed whole-repository evidence remains deliberately fail-closed at 4,152 declared-blocking findings, 28 incomplete live journeys and \code{vault\_boundary\_ready=false}.
+  \item The live local-node router and AION Fabric no longer default their SQLite and runtime files into checkout-relative \code{.runtime} directories. They resolve through the operating system's Tessaris Node state root, isolate local-node data by canonical workspace, create owner-only directories and reject a configured Node root that contains or is contained by the application, updater or Business Vault. Local Node queue items, approvals and audit events now use encrypted \code{departments.operational\_records} and append-only \code{departments.operational\_audit} records in Guardian mode. Train Agent workflow definitions, runs, deduplication receipts and approvals use \code{train\_agent.automations} and \code{train\_agent.runs\_and\_audit}. Production refuses to start either store group without Guardian. Explicit development/test mode retains legacy SQLite and JSON solely for compatibility and copy--verify migration; both migration paths verify read-back and cannot delete their source.
+  \item The remaining Local Node SQLite control boundary is content-free by construction. Node snapshots, flags, heartbeats, sync state and counters pass through exact field allowlists. Free-form errors, pause/stop reasons and requester identities become bounded operational codes plus one-way SHA-256 correlation fingerprints; arbitrary metadata and unknown state keys are rejected. Startup rewrites legacy rows through the same contract and compacts the database so superseded plaintext is not retained in SQLite free pages. The sync-cursor store accepts only five named protocol records and applies the same diagnostic reduction. Opaque acknowledgement cursors remain operational Node state because the sync protocol must replay them exactly; they are neither customer records nor authentication credentials. The primary AION Fabric topology, capability, state, discovery, schema, proposal and device-receipt store now uses encrypted workspace-scoped Guardian records and tamper-evident Guardian audit when Guardian is enabled; production refuses the SQLite compatibility store. Existing Fabric SQLite is copied and verified once at startup, its receipt is retained and the source is never deleted. Fabric conversation memory, private identity, Pilot Inbox, calendar, household personas, universal-node trust, communications, Guardian incidents, Google OAuth workflow metadata, private programme saves, private entertainment-personalisation state and explicit-request live context now use encrypted workspace-scoped Guardian domains with source-retaining verified migration and production fail-closed selection. This includes pending private claims, saved products and ideas, watchlists, viewing outcomes, reminders, recent local transcripts and playback/app context; migration evidence is retained in \code{learning.audit}. Raw OAuth tokens remain behind opaque key-custody references. Companion, CSRF, pairing-code, canvas and education bearer values now use the cross-platform operating-system credential store in Guardian or production mode; legacy JSON is copied and verified without deletion and no bearer value is copied into Guardian. LG webOS client keys now use the same operating-system custody, while encrypted Guardian retains only workspace-scoped device and host metadata. Existing pairing JSON is source-retaining copy--verified and production refuses plaintext pairing. Other auxiliary file stores remain release-blocking pending classification, migration and live journey evidence.
+  \item A further 16-test Local Node storage regression proves encrypted queue/approval/audit and Train Agent restart, negative plaintext assertions, source-retaining copy--verify migration, production fail-closed selection, owner-private SQLite permissions, free-text diagnostic reduction, unknown cursor-key rejection and physical removal of injected legacy plaintext after startup compaction. The current combined Local Node/Fabric boundary run passes 296 tests. Forty-five focused Fabric Guardian tests prove encrypted negative-plaintext round-trip, signed delta/compact-stream state, encrypted conversation, private identity, Pilot Inbox, calendar, household personas, universal-node trust, communications, Guardian incidents, Google OAuth workflow metadata, webOS pairing metadata/key separation, private programme saves, persona-isolated entertainment state and explicit-request live context; they also prove source-retaining verified migration, workspace isolation, production fail-closed selection, runtime use without creating \code{fabric.sqlite3}, one-time startup migration and preservation of post-migration Guardian audit history. Five service-state tests additionally prove development compatibility, production operating-system credential-store restart, source-retaining migration, negative Guardian plaintext and fail-closed missing custody. The original Fabric, conversation, identity, mobile-pairing, Inbox, communication, Guardian, calendar, household/service, OAuth, provider-adapter, unified-personal, private-saves, entertainment-personalisation, live-context and complete webOS gateway regressions pass in the same run. This does not approve other Fabric auxiliary file stores or the wider mixed Node surface. The refreshed scan covers 4,602 authored files with 4,568 declared writes, 416 reviewed approved findings, 4,152 declared-blocking findings, zero unknown findings, 28 incomplete journeys and \code{vault\_boundary\_ready=false}; risk remains 46 critical, 2,303 high and 1,803 medium.
+  \item A current 59-test Python discovery, business-working-state, domain, release and UI slice, five executable native desktop tests and the complete foundation smoke battery pass. They prove optional-chained-write discovery, encrypted versioned restart, conflict rejection, state-identity and size bounds, governed deletion, complete release-registry and discovery-scenario coverage, no direct renderer browser-write authority, legacy copy--verify--purge and strict separation of disposable interface preferences from business records. The changed desktop client and preference boundary also pass JavaScript syntax validation.
+  \item A further 26-test Work \& Schedule, protected-domain and release-contract run passes. It covers encrypted restart/read-back, negative plaintext checks, encrypted evidence and generated-document retrieval, Guardian portal-token resolution, existing CRM/quote/payment behaviour and mandatory inclusion of the new domains. The extended copy--verify migration test also passes with the legacy source retained.
+  \item A further 27-test Support, protected-domain and release-contract run passes. It retains the existing Support case, legal-safety, approval, provider-draft, polling and WhatsApp behaviours and adds encrypted restart/read-back plus a negative plaintext assertion. The migration regression also copy/verifies captured Support media and rewrites the copied metadata to a Vault object identifier.
+  \item A further 40-test Sales, migration, protected-domain and release-contract run passes. It includes all existing revenue-spine behaviours plus encrypted contact, opportunity and audit restart, negative plaintext assertions, encrypted attachment retrieval and source-retaining copy--verify migration of Sales records, files and audit evidence.
+  \item A further 30-test Sales Completion and Finance protected-domain run passes, including encrypted customer, invoice, bookkeeping draft, posted journal, acceptance and handoff restart with negative plaintext assertions. A 25-test recurring Finance/reconciliation run and five-test Support voice/migration run also pass, covering encrypted schedules, run history, reconciliation reviews and signed call events.
+  \item The latest consolidated protected-data regression passes 127 tests in one run across Work \& Schedule, Support and voice, Sales and Sales Completion, Finance sales/bookkeeping/recurring/reconciliation/provider/operations/inbox records, Train Agent scheduled work, shared business knowledge, migration and release enforcement. Python compilation, JSON validation and the integrated Vault/Node/Photon smoke check also pass.
+  \item The packaged Resonance \code{boot\_config.json} is now read-only Tessaris application content. Customer-learned terms and drift refinements use encrypted \code{learning.customer\_state/resonance\_lexicon\_overrides}; runtime readers merge base plus business overrides without rewriting the application tree. Historical mixed lexicons are copied without deletion and marked for baseline review because their old representation cannot prove which entries began as product defaults.
+  \item Cognitive-loop and reinforcement callers now read conversation history through the protected Conversation Memory adapter. Their evolving reinforcement baseline and belief vector use encrypted \code{learning.customer\_state/phi\_reinforce\_state}; the former plaintext state is included in the source-retaining migration.
+  \item Customer-derived $\Phi$ learning traces and drift history now use immutable \code{learning.audit} evidence, while the evolving concept and entanglement graph uses encrypted \code{learning.customer\_state/phi\_relationship\_graph}. The Brain graph route reads that protected repository directly. Per-engine reinforcement outcomes and operator notes now use immutable \code{learning.audit} evidence as well; historical \code{*\_resonance\_history.json} sources are copy-verified and retained. Raw heartbeat telemetry and rebuildable stability summaries remain separately classified diagnostics rather than permanent customer records. These historical surfaces are included in the 137-record source-retaining migration.
+  \item GlyphNet thread history no longer writes complete customer text/voice payloads and participant identities to application-relative SQLite in Guardian mode. Its compatibility API derives the workspace from the configured Business Vault, stores immutable encrypted \code{business.knowledge\_audit} records, filters reads by workspace, topic and graph, and keeps SQLite only behind an explicit legacy/test path. The cross-surface migration copies historical rows, including older schemas without \code{user\_id}, verifies readback and retains the source database.
+  \item The latest complete combined AION Business, AION Workflow, Workflow Capsule, Master Glyph Library, Retell, Support Voice, telephony, GlyphNet thread history, PAL snapshot evidence, AION knowledge graph and concept evolution, AION customer-learning, mapped AION Prediction, live $\Phi$-state, AION conversation-memory, reinforcement state and history, Resonance lexicon, symbolic-reflection and Symatic-equation run passes all 414 tests. It includes the Business Vault authority and migration boundaries, Guardian-backed compatibility for all five legacy AION Agent repositories, the separate workflow glyph/approval/dry-run/resume stores, customer/universal Master Glyph separation, encrypted customer capsule, approval, trace, feedback and learned-habit storage, encrypted GlyphNet text/voice history, encrypted PAL learning snapshots with fail-closed inputs, encrypted deterministic customer graph triplets and concept-evolution evidence, encrypted customer-specific AION teaching, skills, weaknesses, decision influence, resonance/correction, LLM-accuracy, prediction, live $\Phi$-state, conversation history, reinforcement/belief recovery, immutable per-engine reinforcement evidence, product/customer lexicon separation, symbolic reflection and Symatic equation evidence, every covered historical migration layout, the complete domain registry, mandatory continuity journeys, fail-closed v3 declared-boundary approval, the v2 unknown-plus-blocked finding register, generated-bundle exclusion lock, canonical digest-bound release-change inventory, exact canonical future-department namespaces, File Cabinet originals, onboarding/Pilot, full future-department Train Agent operations and migration discovery, Node/update protections, exact signed clean-machine qualification gating, the portable target-machine evidence collector and the separately authorised Photon pricing control.
+  \item The earlier 194-test through 298-test figures are retained as historical evidence only and are superseded by the complete 300-test combined AION Business and Retell run reported above; separate supporting runs are not added to it as though they were a unique-test total.
+  \item The explicit migration command passes a clean temporary-vault dry-run smoke check and fails closed when the supplied external key material is invalid.
+  \item The richer File Cabinet document-workspace suite remains unexecuted in the isolated verifier because its spreadsheet dependency is absent. This is an explicit evidence gap, not a pass, and must run in the controlled project environment.
+\end{itemize}
+
+\noindent\textbf{Current release status:} \textcolor{TessarisRed}{not vault-safe}. The scanner and external layout establish the measurement and boundary foundations; runtime tracing, classification, Guardian-only access, migration, backup/restore proof and operating-system permission separation remain mandatory.
+
+\subsection{18 October execution checkpoint: first onboarding journey}
+
+The first live Business Onboarding journey remains incomplete and is not release evidence. Its failed traces have been retained. Blocker reduction completed the following work before a fresh visible rerun:
+
+\begin{itemize}
+  \item replaced the onboarding Boardroom compatibility crash and isolated delayed Foundation responses to their originating business;
+  \item isolated working-state revisions and queued saves per business, with a single read--refresh--retry on stale revisions and fail-closed handling of a repeated conflict;
+  \item removed the historical \code{costa-conexion} and \code{home-fixed} identities from clean desktop startup. Before onboarding creates a valid business identity, Foundation state is memory-only and makes no backend request;
+  \item bound renderer discovery to the same content-free desktop-preference policy used at runtime. Exact allow-listed interface preferences and verified removal of legacy browser copies are approved non-authoritative state; an unknown browser write, broad clear, dropped event or policy mismatch still fails the release gate;
+  \item strengthened discovery evidence so every Guardian domain access emits only its registered domain identifier and operation class. Aggregation now requires an exact match with the scenario's expected domains; missing or unexpected domains, a failed fragment gate, or absent per-session domain counts in the signed release contract fail closed, while workspace identifiers, entity identifiers and payloads remain excluded;
+  \item moved lead-model and local-model selections into encrypted \code{provider.model\_selections} Guardian records and removed directory creation from read paths;
+  \item prevented the legacy plaintext creative poller and Pilot filesystem scanner from running in Guardian mode. Support and Cybersecurity background discovery now enumerate encrypted Guardian records; and
+  \item held an instrumented backend smoke trace open for more than one complete scheduler cycle. It produced 42 Vault-bound events, zero dropped events and zero unsafe writes. The trace remains marked incomplete because the locked Mac prevented the required renderer journey.
+\end{itemize}
+
+The focused regression passed 66 backend tests and five native desktop tests. The immediate next action is to unlock the Mac, rerun Business Onboarding from a new isolated business and evidence root, complete the required \code{desktop\_backend} and \code{desktop\_renderer} fragments, aggregate them and only then advance to journey 2. This checkpoint does not change the red release status.
+
+\subsection{18 October later checkpoint: complete discovery campaign and current blocker baseline}
+
+The earlier first-journey checkpoint above is retained as historical evidence and has now been superseded operationally. All 28 mandatory discovery journeys have completed with their required surfaces present, zero incomplete sessions and zero unknown writes. This closes the journey-execution milestone only; it does not approve the remaining declared storage boundaries.
+
+\begin{itemize}
+  \item The current authoritative whole-repository inventory covers 4,624 authored files and 4,591 likely persistence operations. Every operation is declared and the discovery campaign is complete.
+  \item The unused legacy frontend symbolic-container API has been retired after confirming that it had no source caller. It can no longer place customer node identity or memory below the application's public directory; existing customer files were deliberately left untouched. Any future replacement must be a new authenticated, tenant-authorised Guardian command with only a bounded runtime projection. Thirty-three focused discovery and release-evidence tests plus the optimized frontend build pass after removal.
+  \item The legacy backend bootstrap no longer creates or repairs a repository \texttt{data} symlink or seeds personality, memory, goals, field, knowledge, graph and telemetry folders beside replaceable code. Transitional writers now use an explicit data root or the platform-specific Tessaris Node state root, with application, updater and Business Vault overlap rejected. Existing sources remain untouched for governed copy--verify migration. Sixteen focused runtime-root and installation-layout tests pass.
+  \item The proof-of-life demonstration router no longer searches repository-relative \texttt{data} or \texttt{.runtime} fallbacks. Its compatibility state resolves only through the separated transitional Node runtime root, and all reset, entropy, drift-repair and mirror mutations require explicit enablement in a non-production runtime. Production remains fail closed even if the flag is set. Five focused boundary tests pass; customer-derived inputs still require Guardian migration before this touchpoint can be approved.
+  \item The sealed repository-execution battery now requires an explicit external engineering-evidence root and rejects application, updater, Business Vault, transitional-data and declared customer-source overlap. Path-safe run identifiers prevent destination escape, and provider credentials are accepted only through process-secret injection rather than repository environment files. Eleven focused isolation tests pass; signed retention and output-taint evidence remain open.
+  \item The O24G local voice-worker materialiser is now correctly classified as replaceable application build content plus a content-free probe manifest, not as a live customer voice store. Five packaging-lock tests prove app-local execution, offline/no-hidden-download controls, no repository fallback and no hard-coded business context. Its specific evidence is no longer masked by the broad unresolved root-script glob.
+  \item The AION Fabric preview builder now requires an explicit external build root, rejects application/updater/Vault/runtime overlap and packages only its fixed application, packaging and pinned-model allowlist. The extracted CLI imports independently; runtime, Vault, key, database and unrelated Hexcore content are excluded. Normalized ZIP metadata plus a per-file SHA-256 manifest make two independent builds byte-identical. Five tests pass. This rebuildable storage boundary is approved, while external signing and native clean-machine qualification remain separate release gates.
+  \item The refreshed scan covers 4,627 source files and 4,583 likely persistence operations. The unresolved release queue now contains 3,941 declared-blocking operations across 100 touchpoints. The risk register contains 2,235 high and 1,706 medium findings and zero critical findings. Every operation is declared and every required discovery session is complete, but these boundaries must still be migrated, retired or explicitly qualified; declaration and journey coverage do not make them safe.
+  \item The protected-domain contract covers the whole business map, every present and future department map, department intelligence and operating records, Foundation onboarding, Department Pilot, Train Agent definitions/automations/runs, the complete File Cabinet tree and originals, shared knowledge, Work \& Schedule, Support, Sales, Finance, Cybersecurity and migration evidence. A new data-bearing feature or department cannot pass preflight until its record/file types, canonical Vault namespaces, storage classes and migration sources are declared.
+  \item Backup qualification now seeds and semantically reads back every mandatory continuity surface plus the complete registered-domain catalogue. A clean-root encrypted restore, negative plaintext probe and corruption drill pass locally. Clean Windows, Linux, Hub/private-Node and signed macOS restore evidence remains an external release gate.
+  \item The historical A2A store is now fail closed in production because it mixes platform authentication/replay state, pre-business intake and several businesses' records. The API returns a controlled unavailable response until shared platform state and per-business Guardian storage are separated. Twelve focused A2A tests, 25 discovery/campaign/triage tests and 22 Node release-contract tests pass after this safeguard.
+  \item The release remains \textcolor{TessarisRed}{not vault-safe}. The next internal work is migration and blocker reduction across the 102 declared boundaries; the next platform proof is native clean-machine qualification. Unknown writes, missing domain coverage, unsigned evidence or an incomplete new-feature migration continue to fail closed.
+\end{itemize}
+
+\subsection{Phase 1 --- execute the whole-product discovery sessions}
+
+\textbf{Outcome:} current storage is known, evidenced and classified.
+
+\begin{itemize}
+  \item run every session in the discovery matrix;
+  \item trace macOS, Windows, Node/server, browser and mobile stores;
+  \item run filesystem-import and update-runner variants as independent evidence surfaces rather than relabelling a desktop-backend trace;
+  \item wire each real provider sandbox adapter and the mobile companion into the content-free external evidence recorder and exercise every catalogue-declared external class;
+  \item exercise a business from onboarding through CRM, work, finance, Boardroom and closure;
+  \item aggregate only complete evidence-kind-correct multi-surface journeys, then reconcile static findings with runtime writes and external provider flows;
+  \item publish the touchpoint register, current-state map and unresolved risks; and
+  \item block migration design until every critical unknown has an owner and disposition.
+\end{itemize}
+
+\subsection{Phase 2 --- build Vault Guardian and the external vault format}
+
+\textbf{Outcome:} one protected business can be created and operated through Guardian APIs.
+
+\begin{itemize}
+  \item implement per-business encryption, manifest, journal, objects, versions and audit stores;
+  \item implement semantic operations, authority checks, optimistic versioning and idempotency;
+  \item place updater, application and Guardian under distinct operating-system permissions;
+  \item create the Settings health surface and diagnostic manifest;
+  \item add tombstone/restore and governed-destruction workflows; and
+  \item prove application uninstall/reinstall leaves the vault intact.
+\end{itemize}
+
+\subsection{Phase 3 --- migrate every touchpoint}
+
+\textbf{Outcome:} the existing app has no undeclared authoritative writes outside Guardian.
+
+Migrate vertical product journeys rather than isolated tables: onboarding and identity first, then customers/work/documents, communications, quotes/invoices/payments, Boardroom/knowledge, department modules, integrations, mobile/offline and automations. For each journey:
+
+\begin{enumerate}
+  \item create Guardian schemas and operations;
+  \item import the old store with counts and hashes;
+  \item run dual-read comparison where safe;
+  \item switch authoritative writes to Guardian;
+  \item rebuild derived stores;
+  \item test backup, export, deletion propagation and restoration; and
+  \item remove or permanently disable the old write path only after verification.
+\end{enumerate}
+
+\subsection{Phase 4 --- safe signed updater and migration rehearsal}
+
+\textbf{Outcome:} application releases stage, preflight, activate and roll back without risking the only live data.
+
+\begin{itemize}
+  \item implement signed A/B application slots;
+  \item restrict updater permissions to installation locations;
+  \item add Guardian compatibility negotiation;
+  \item build snapshot, clone migration, invariant validation and atomic activation;
+  \item implement automatic application rollback and emergency read-only vault mode; and
+  \item run forced power loss, disk-full, corrupted package and failed migration tests.
+\end{itemize}
+
+\subsection{Phase 5 --- backup, recovery and customer portability}
+
+\textbf{Outcome:} recovery is proven rather than promised.
+
+\begin{itemize}
+  \item implement encrypted versioned backup destinations;
+  \item deliver scheduled isolated restoration tests;
+  \item implement founder recovery and device replacement;
+  \item deliver full portable export plus verification tool;
+  \item add recovery-point objectives appropriate to each plan/deployment; and
+  \item prove restoration onto a clean Mac, Windows machine, Hub and supported private Node.
+\end{itemize}
+
+\subsection{Phase 6 --- pilot and independent assurance}
+
+\textbf{Outcome:} real businesses can survive update, device loss and provider interruption.
+
+\begin{itemize}
+  \item run internal and founder pilots with representative business records;
+  \item inject update and storage failures without using production customer data;
+  \item compare pre/post record counts, hashes, financial totals and sampled business views;
+  \item conduct privacy, security and data-portability review;
+  \item perform an independent restore exercise; and
+  \item publish truthful recovery and data-ownership claims only after evidence passes.
+\end{itemize}
+
+\section{Testing and release gates}
+
+The complete AION Flow boundary regression passes 114 tests across Guardian policy, executions, evaluation, harness routing, model bindings, production revisions, release evidence, templates, Vault API behaviour, persistent signed-session replay protection and the source-retaining whole-surface migration. A separate 20-test manifest, discovery, domain and release-evidence run also passes after the refreshed audit.
+
+No release handling real business data is vault-safe until all of the following pass:
+
+\begin{itemize}
+  \item clean install, application removal and reinstall leave every vault byte and record recoverable;
+  \item updater process has no operating-system permission to open a vault;
+  \item application code cannot directly open authoritative databases or object paths;
+  \item runtime tracing observes no undeclared business-data writes;
+  \item every navigation route, API, worker and integration maps to the data manifest or explicitly handles no business data;
+  \item every release feature declares whether it captures business data and every data-bearing feature names registered vault domains plus a tested migration strategy;
+  \item the business map, every current and newly introduced department map/intelligence record, onboarding/Pilot state, Train Agent automation state and the complete File Cabinet pass Guardian authority and restart tests;
+  \item uploaded originals and generated finals have hashes, versions and provenance;
+  \item duplicate/retried operations cannot create duplicate records or charges;
+  \item interrupted writes cannot expose partial valid records or files;
+  \item deletion is recoverable until the declared retention boundary;
+  \item pre-update clone migration preserves counts, relationships, hashes, audit continuity and critical financial totals;
+  \item failed migration never activates the new release;
+  \item automatic application rollback succeeds without opening an incompatible schema;
+  \item backup corruption, missing objects and lost keys are detected rather than reported as success;
+  \item a clean-machine restore reproduces the declared recovery point;
+  \item full export can be verified without Tessaris cloud access or a paid entitlement;
+  \item secrets do not appear in portable exports, logs, crash reports or update telemetry; and
+  \item independent review confirms the updater/vault permission boundary.
+\end{itemize}
+
+\section{Key risks and controls}
+
+\begin{longtable}{p{0.31\linewidth} p{0.59\linewidth}}
+\toprule
+Risk & Required control \\
+\midrule
+An update deletes a business folder & Updater identity has no vault permission; application and vault roots cannot overlap; destructive path tests run on every platform. \\
+New runtime corrupts valid records & Guardian validation, immutable event history, pre-update snapshot, version conflict checks and automatic read-only safe mode. \\
+Migration makes rollback impossible & Clone rehearsal, expand-and-contract schema, compatibility declaration and old-release validation before activation. \\
+Live synchronisation copies corruption & Versioned snapshots plus immutable/offline recovery point; synchronisation is never labelled backup. \\
+Unknown browser/mobile cache contains the only copy & Whole-product runtime discovery, offline queue contract and server acknowledgement before local eviction. \\
+Generated AI output silently replaces evidence & Preserve original, proposal, approval and final as linked versions with actor and receipt. \\
+Private Git repository treated as full backup & Restrict Git to suitable text exports; use encrypted snapshot/object backup for complete vault recovery. \\
+Founder loses device and encryption key & Multiple approved recovery methods, onboarding test, periodic recovery check and clear sovereignty warning. \\
+Support or diagnostics leaks content & Redacted schema, local preview, founder approval, time-limited access and no business payload by default. \\
+AION performs bulk deletion & No direct filesystem access; no autonomous physical-delete scope; governed tombstone and destruction operations. \\
+Manifest becomes outdated & Storage declaration in development workflow, static/running unknown-write tests and release-blocking ownership. \\
+Backup succeeds but cannot restore & Scheduled isolated restoration and UI that reports restoration separately from upload completion. \\
+\bottomrule
+\end{longtable}
+
+\section{Definition of done}
+
+The first complete release meets this plan when a founder can:
+
+\begin{enumerate}
+  \item install Tessaris on a clean Mac or Windows machine and create a named external Business Vault;
+  \item complete recovery setup and a verified test restoration during onboarding;
+  \item operate customers, work, documents, communications, quotes, invoices, notes, onboarding, the business map, every department, Train Agent automations, the complete File Cabinet and Boardroom records through Guardian-backed storage;
+  \item inspect vault health, backups, recovery points and update compatibility in Settings;
+  \item install a signed Tessaris/AION update without the updater gaining access to business content;
+  \item recover automatically from a failed update or failed migration;
+  \item uninstall and reinstall Tessaris without losing the business;
+  \item move the vault to a replacement authorised Node;
+  \item export the entire business in documented portable formats; and
+  \item prove through the discovery register and runtime trace that no known authoritative business-data store sits outside the vault boundary.
+\end{enumerate}
+
+Engineering completion additionally requires every touchpoint session to be signed off, every observed write to match \code{business-data-manifest.v1}, and a successful independent clean-machine restore from the same release candidate offered to customers.
+
+\section{Immediate next actions}
+
+\begin{enumerate}
+  \item Approve the architecture invariants and name \Guardian{} as the stable data-plane boundary.
+  \item Assign an accountable owner for whole-product data discovery and one representative for each business domain.
+  \item Enforce the new domain and per-feature release declaration on every update branch; do not permit a waiver for ``small'' features or newly introduced departments.
+  \item Complete the route inventory and run the existing static scanner plus clean-business runtime write tracer through every required session.
+  \item Run the onboarding, identity, CRM, work, file, quote/invoice, Boardroom, AION and integration sessions first because they span the largest number of downstream records.
+  \item Publish the first machine-readable current-state manifest and unresolved-store register.
+  \item Use that evidence to freeze the Business Vault format and Guardian operation set.
+  \item Implement one complete vertical proof: create business, create customer, create quote, attach file, record Board decision, back up, update, roll back and restore on a clean machine.
+  \item Rehearse the whole-surface migration for a representative business and compare map, onboarding, department, Train Agent and File Cabinet record counts and file hashes before any authority switch.
+  \item Expand migration only after that proof passes with record counts and file hashes unchanged.
+\end{enumerate}
+
+\vfill
+\noindent\colorbox{TessarisGreenPale}{\parbox{0.96\linewidth}{
+\textbf{Release rule.} If Tessaris cannot state where a piece of business information is stored, how it is versioned, how it is backed up, how it is exported and how it is restored, that feature is not ready to hold customer data.
+}}
+
+\end{document}

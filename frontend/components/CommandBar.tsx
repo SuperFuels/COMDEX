@@ -28,8 +28,6 @@ interface CommandBarProps {
   setInputFromPreset: (value: string) => void;
 }
 
-const HISTORY_KEY = 'aion_history';
-const FAVORITES_KEY = 'aion_favorites';
 const MAX_HISTORY = 10;
 
 type Suggestion = {
@@ -52,13 +50,6 @@ export default function CommandBar({
   const [favorites, setFavorites] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [filter, setFilter] = useState<'all' | 'system' | 'boot' | 'glyph' | 'data'>('all');
-
-  useEffect(() => {
-    const storedHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-    const storedFavorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
-    setHistory(storedHistory);
-    setFavorites(storedFavorites);
-  }, []);
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -119,7 +110,6 @@ export default function CommandBar({
 
     const newHistory = [input, ...history.filter((h) => h !== input)].slice(0, MAX_HISTORY);
     setHistory(newHistory);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
     setSuggestions([]);
     setStatus('loading');
 
@@ -138,7 +128,6 @@ export default function CommandBar({
       ? favorites.filter((f) => f !== cmd)
       : [...favorites, cmd];
     setFavorites(updated);
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
   };
 
   const handleSuggestionClick = (value: string) => {

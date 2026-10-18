@@ -1,0 +1,91 @@
+% Append-only technical-record section. Requires amsmath, booktabs and hyperref.
+\section{Residual Compiler Second Gate: Real Teacher Captures and Nonlinear Falsification}
+\label{sec:gptoss120b-residual-second-gate}
+
+\subsection{Exact real-prompt teacher collection}
+
+Two training families from the previously frozen cohort were executed through
+the unrestricted original four-expert GPT-OSS 120B teacher.  The model weights
+remained in the verified SD warehouse.  The run used the bounded 8~GiB memory
+cache and existing 20~GiB demand-admitted disk cartridge.  Twelve layers
+spanning the 36-layer stack were captured.  Each record contains the
+post-attention input, router input, exact layer output and combined MoE
+contribution, together with independently calculated expert counterfactuals.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+Family & Continuation positions & Captured layer states & Integrity result \\
+\midrule
+Arithmetic & 33 & 396 & exact routes, hidden state and logits \\
+Extraction & 22 & 264 & exact routes, hidden state and logits \\
+\bottomrule
+\end{tabular}
+\caption{Real-prompt teacher data admitted to the authorized training split.}
+\end{table}
+
+The arithmetic and extraction evidence passed two complete transformer passes
+with canonical hashes
+\texttt{0d1679b594009f0424a2e82beb00f0547ff6d86783423b587092d0ff983fc049}
+and
+\texttt{10e3fb92434dab58a6d34bd4769c7f8e88976ca8d33561e1eacdcafd32170211}.
+Capture instrumentation time is excluded from inference-performance claims.
+
+The combined hash-verified manifest contains 696 records, including the 660 new
+real-prompt states and 36 legacy numerical controls.  Its canonical hash is
+\texttt{8b16bbb634e1efe3bd3a643e9e32f8ce8561fac11046a9c539b7314f56086523}.
+The derived top-1 residual dataset is 37,091,540 bytes with 696 rows and canonical
+manifest hash
+\texttt{e019e769dd34f77d6e87d523f527ff5740e0330b5870ab2864dfa115caf4b49e}.
+
+\subsection{Compact nonlinear activation-conditioned cartridge}
+
+A nonlinear candidate was then trained under the explicit authorization.  Its
+inputs were fixed signed-bin projections of the live post-attention, router and
+top-1 contribution vectors, plus layer identity, routed expert identities, gate
+masses and entropy.  Candidate hidden widths and regularization were selected by
+holding out an entire training family.  The frozen business and writing blind
+families were not opened.
+
+The selected 128-unit model occupied 4,130,965 bytes and evaluated in 0.05325~ms
+median.  It nevertheless failed strongly: family-held-out layer-output
+relative-$L_2$ error was 0.5344 at median and 1.1083 at p95.  The legacy
+calibration/numerical/semantic probes also failed.  The result is labelled
+\texttt{STOP\_NONLINEAR\_RESIDUAL}; canonical hash
+\texttt{06f93f1823ac451123da26d180211da130e54156519f17a426da4ccb56050a85}.
+
+\subsection{Top-3 bridge}
+
+To determine whether the top-1 target was simply too difficult, the same method
+was repeated while retaining the original first three experts and predicting
+only the fourth expert's gated contribution.  On the real captures, omitting
+expert four alone caused layer-output relative-$L_2$ p95 of 0.10046 for
+arithmetic and 0.10442 for extraction.  The derived top-3 dataset contains 696
+rows, is 36,921,408 bytes, and has canonical manifest hash
+\texttt{ac1176f289065ac6c76496d28c6d4f639bc202cb16719aa15b49fcaab842929e}.
+
+The selected top-3 correction occupied 2,079,893 bytes and evaluated in
+0.03900~ms median.  Its whole-family-held-out p95 error was 0.09993.  It therefore
+did not materially improve over simply dropping the fourth expert and is also
+labelled \texttt{STOP\_NONLINEAR\_RESIDUAL}; canonical hash
+\texttt{001b53613ca1d21fb0af7e93867c30630e58b0fda501142ddf7c74acc8c41c53}.
+
+\subsection{Technical conclusion}
+
+The experiments falsify generic activation-only residual prediction at both the
+aggressive top-1 boundary and the conservative top-3 boundary.  The cartridges
+were easily small and fast enough; their failure was informational, not
+computational.  The omitted result depends on the identity-specific nonlinear
+function stored in the selected expert weights.  A network that receives only
+the activation, route label and a small number of examples cannot reconstruct
+an expert it has not learned densely.
+
+The next viable residual compiler must therefore derive its compact correction
+from the expert weights themselves---for example, an activation-aware compact
+factorization or shared expert basis with small expert-specific coefficients.
+It must begin with a single-layer, single-omitted-expert gate, compare against
+the exact expert contribution on unseen activations, and advance only when it
+reduces both error and physical traffic.  The exact four-expert path remains the
+fallback.  No full-generation speed or quality improvement is claimed from this
+second gate.

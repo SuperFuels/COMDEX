@@ -1,0 +1,71 @@
+{
+  "commitment": {
+    "commitment_sha256": "7195091ac8d5ddba167bf8cfc512a818823bddcf3b25c9d8ad10c3c9c2c9ece0",
+    "contract_sha256": "df829c3be9f9e1213fd3085c034a911ebb3cfd9dc6b212124be0b853089042db",
+    "created_at": "2026-08-01T22:20:34.591529+00:00",
+    "forecast": {
+      "magnitude_range": [
+        -2.0,
+        10.0
+      ],
+      "reachable": true,
+      "schema_preserved": true
+    },
+    "mission": "Create an evidence-grounded assessment of significant recent earthquakes that may affect technical operations, using a continuously updated authoritative source.",
+    "query_sha256": "3afba269e4f34bc8184331d4832663ac749e5b760a3a8c501f87fb49ea6743d7",
+    "transfer_url_sha256": "64e171b1e76a0faf9cb3ef47090f7d3d23659419fcdcaba1f61b3b1057393d5c"
+  },
+  "contract": {
+    "authority_domain": "earthquake.usgs.gov",
+    "contract_sha256": "df829c3be9f9e1213fd3085c034a911ebb3cfd9dc6b212124be0b853089042db",
+    "credentials": false,
+    "documentation_sha256": "0192039a022130b78a60f6e985c1923b5a2f7b55d02e94a1c39fe73c6a1d111c",
+    "documentation_url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php",
+    "method": "GET",
+    "observable": {
+      "count": "features.length",
+      "latest": "features[].properties.time",
+      "maximum": "features[].properties.mag"
+    },
+    "required_top_level_fields": [
+      "bbox",
+      "features",
+      "metadata",
+      "type"
+    ],
+    "side_effect_class": "read_only"
+  },
+  "first_outcome": {
+    "content_type": "application/json; charset=utf-8",
+    "observable": {
+      "feature_count": 221,
+      "latest_event_time": 1785622236670,
+      "magnitude_field": "features[].properties.mag",
+      "maximum_magnitude": 5.6,
+      "time_field": "features[].properties.time",
+      "top_level_fields": [
+        "bbox",
+        "features",
+        "metadata",
+        "type"
+      ],
+      "valid": true
+    },
+    "passed": true,
+    "response_sha256": "f6cd7f14f238b5255dffe4ce6c868eca6240d0dda39d762924b1ab1489c6460c",
+    "status": 200,
+    "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
+  },
+  "later_challenge": {
+    "closed_at": "2026-08-01T22:25:44.668176+00:00",
+    "commitment_sha256": "7195091ac8d5ddba167bf8cfc512a818823bddcf3b25c9d8ad10c3c9c2c9ece0",
+    "endpoint": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson",
+    "not_before_epoch": 1785623134.7157052,
+    "outcome_sha256": "827d3b3b684ca9fbeab6e7377c6aa21d815a1167423e79071d601eab7bd4600e",
+    "passed": true,
+    "response_changed": true,
+    "status": "CONSEQUENCE_CONFIRMED"
+  },
+  "mission": "Create an evidence-grounded assessment of significant recent earthquakes that may affect technical operations, using a continuously updated authoritative source.",
+  "schema_version": "aion.hexcore.remote_authority_acquisition_state.v1"
+}

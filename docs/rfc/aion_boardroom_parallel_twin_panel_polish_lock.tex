@@ -1,0 +1,136 @@
+\section{Boardroom Parallel Twin Panel Polish v0}
+\label{sec:aion-boardroom-parallel-twin-panel-polish-v0}
+
+\subsection{Status}
+
+This lock polishes the visible Boardroom Parallel Twin panel for the Home Fixed vertical.
+
+\begin{quote}
+\textbf{Status: LOCKED --- pending validation, focused suite membership, commit, and push.}
+\end{quote}
+
+\subsection{Purpose}
+
+The previous Boardroom locks made the Parallel Twin visible. This lock improves readability.
+
+The panel now presents compact summary cards above the raw payload sections so the founder can quickly inspect the current Home Fixed machine-readable business state.
+
+\subsection{Implemented Surface}
+
+The implementation lives in:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The installer is:
+
+\begin{verbatim}
+installBoardroomParallelTwinPanelPolishV0
+\end{verbatim}
+
+The renderer is:
+
+\begin{verbatim}
+renderBoardroomParallelTwinPanelPolishV0
+\end{verbatim}
+
+The browser export is:
+
+\begin{verbatim}
+window.renderBoardroomParallelTwinPanelPolishV0
+\end{verbatim}
+
+\subsection{Summary Cards}
+
+The polished panel exposes compact summary cards for:
+
+\begin{itemize}
+  \item Business ID,
+  \item Job ID,
+  \item Vertical,
+  \item Payload Hash,
+  \item Human Review,
+  \item Proof Status,
+  \item Exception State,
+  \item current status.
+\end{itemize}
+
+\subsection{Readable Payload Sections}
+
+The panel preserves readable sections for:
+
+\begin{itemize}
+  \item Machine Catalog,
+  \item Machine Cart,
+  \item Quote Preview,
+  \item Fulfilment Job,
+  \item Settlement Readiness,
+  \item Proof Receipt,
+  \item Exception Recovery,
+  \item Machine Trace.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The panel remains read-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item expose a public A2A route.
+\end{itemize}
+
+The panel MUST NOT expose a live execute button.
+
+\subsection{Safety Flags}
+
+The panel preserves:
+
+\begin{verbatim}
+visibility_only
+human_review_required
+autonomous_execution_allowed
+would_execute_workflow
+would_create_booking
+would_move_money
+would_move_pho
+would_require_wallet
+would_create_payment
+would_create_escrow
+would_send_external_message
+public_a2a_route_exposed
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_panel_polish_ui_lock.py
+\end{verbatim}
+
+Desktop JavaScript syntax validation:
+
+\begin{verbatim}
+node -c desktop/mac/src/app.js
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-BOARDROOM-PARALLEL-TWIN-PANEL-POLISH-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

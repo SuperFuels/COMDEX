@@ -1,0 +1,2901 @@
+{
+  "advancing_fractions": [
+    "router_0.77_down_0.75",
+    "router_0.8_down_0.75"
+  ],
+  "canonical_sha256": "24589ce245553534114e9808352bedb7adaa1d309ed6b200d545308dcdb6a88d",
+  "capture_roots": [
+    "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+    "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_public_business_alllayer_capture_20260912",
+    "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+    "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_public_writing_invoice_capture_20260912"
+  ],
+  "claim_boundary": "Changed-arithmetic activation-column oracle. The current kernel still reads every original weight; traffic reduction is projected for a future hash-bound column-addressed warehouse. This is not a token-speed or semantic-quality result. Any advancing fraction requires multi-layer generation and exact fallback gates before deployment.",
+  "created_at": "2026-09-12T12:34:23.268989+00:00",
+  "down_fractions": [
+    0.125,
+    0.25,
+    0.5,
+    0.75
+  ],
+  "fractions": [
+    0.77,
+    0.8,
+    0.85
+  ],
+  "layer": 12,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "observations": {
+    "router_0.77_down_0.125": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.19443000051179754,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8816718282428085,
+        "output_relative_l2": 0.11209333757000163,
+        "router_energy_retained": 0.9937982127059996
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.20243992793224963,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8648894379964884,
+        "output_relative_l2": 0.0869475000181476,
+        "router_energy_retained": 0.9940963469743936
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.18299346953083043,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8799110047113845,
+        "output_relative_l2": 0.06611411515341081,
+        "router_energy_retained": 0.9947973349710698
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.19959889561101507,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8397838430095821,
+        "output_relative_l2": 0.07482714561939037,
+        "router_energy_retained": 0.9940078097637778
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.15121761164117878,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8340905106442209,
+        "output_relative_l2": 0.07114192751204108,
+        "router_energy_retained": 0.9939280681238855
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.1706251819013708,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.851731860097984,
+        "output_relative_l2": 0.08886365470472643,
+        "router_energy_retained": 0.9941936077722896
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.18488264702781704,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8814502993806527,
+        "output_relative_l2": 0.08863277540753545,
+        "router_energy_retained": 0.9937156451852143
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.1511179825660295,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8660370340472364,
+        "output_relative_l2": 0.06931611133314919,
+        "router_energy_retained": 0.9938739283714237
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.18558460134139007,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.847517320148107,
+        "output_relative_l2": 0.06025256142844599,
+        "router_energy_retained": 0.9931607588426159
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.19160474182669401,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8482769419523079,
+        "output_relative_l2": 0.08539233183960349,
+        "router_energy_retained": 0.9932985296914283
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.14808287099994405,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8894698339507463,
+        "output_relative_l2": 0.07137464005110541,
+        "router_energy_retained": 0.9944510008101678
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.17699210457679518,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8459657372944772,
+        "output_relative_l2": 0.08093056074888796,
+        "router_energy_retained": 0.9941601693568558
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.17664557020539454,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8921223620759167,
+        "output_relative_l2": 0.09712057520738478,
+        "router_energy_retained": 0.9935760526824664
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.2231561094497093,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8639642963569565,
+        "output_relative_l2": 0.10362027146856925,
+        "router_energy_retained": 0.9929932653603823
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.21379048787296107,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8713256589283368,
+        "output_relative_l2": 0.09857102186682533,
+        "router_energy_retained": 0.993882934545803
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.18108320833286068,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8491836258391041,
+        "output_relative_l2": 0.07100283079895882,
+        "router_energy_retained": 0.9941914287990486
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.23846561884311449,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8530547791552265,
+        "output_relative_l2": 0.0812195783659067,
+        "router_energy_retained": 0.9939521189946647
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.2379963946313901,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8569145796086264,
+        "output_relative_l2": 0.08246125103928166,
+        "router_energy_retained": 0.9936135474854394
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.23294370897080488,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8593101374996658,
+        "output_relative_l2": 0.08005124969216192,
+        "router_energy_retained": 0.9930461849604323
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.12381701643361392,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8558455983753496,
+        "output_relative_l2": 0.07487039449691074,
+        "router_energy_retained": 0.9926832972504731
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.2021221242044235,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8572991287913883,
+        "output_relative_l2": 0.08599294209374331,
+        "router_energy_retained": 0.9938093372445466
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.18694133117569087,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8530957710590097,
+        "output_relative_l2": 0.0808691563461463,
+        "router_energy_retained": 0.9936342316116101
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.22956812618919747,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8973307757994968,
+        "output_relative_l2": 0.09000032152596571,
+        "router_energy_retained": 0.9928132782079353
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.20360063075754475,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.862842171936402,
+        "output_relative_l2": 0.08502375559350679,
+        "router_energy_retained": 0.994049710738923
+      }
+    ],
+    "router_0.77_down_0.25": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.11433459746956502,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9488409431003764,
+        "output_relative_l2": 0.06591650772180373,
+        "router_energy_retained": 0.9937982127059996
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.11279349577352088,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9420478015738274,
+        "output_relative_l2": 0.04844455624928535,
+        "router_energy_retained": 0.9940963469743936
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.10272123393102804,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9486518733546678,
+        "output_relative_l2": 0.037112381694431165,
+        "router_energy_retained": 0.9947973349710698
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.11928470123795598,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9319674175599347,
+        "output_relative_l2": 0.0447183521851382,
+        "router_energy_retained": 0.9940078097637778
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.08496690869009337,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9275853551617197,
+        "output_relative_l2": 0.03997358239790353,
+        "router_energy_retained": 0.9939280681238855
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.09945058278786999,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9385166482535175,
+        "output_relative_l2": 0.051795064190194355,
+        "router_energy_retained": 0.9941936077722896
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.09877862168013299,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9505178740368289,
+        "output_relative_l2": 0.047354489624566426,
+        "router_energy_retained": 0.9937156451852143
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.08360209956479699,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9440993632712926,
+        "output_relative_l2": 0.038347338567641574,
+        "router_energy_retained": 0.9938739283714237
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.12423645987149752,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9346768816916379,
+        "output_relative_l2": 0.04033505407213222,
+        "router_energy_retained": 0.9931607588426159
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.12253603047667784,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9341915383264933,
+        "output_relative_l2": 0.05461053456723202,
+        "router_energy_retained": 0.9932985296914283
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.08378349996956412,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9527631017510862,
+        "output_relative_l2": 0.040382909327519055,
+        "router_energy_retained": 0.9944510008101678
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.08913484465643258,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9372576056808998,
+        "output_relative_l2": 0.040757371508513475,
+        "router_energy_retained": 0.9941601693568558
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.10247704562762273,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.95511637015039,
+        "output_relative_l2": 0.05634236740460415,
+        "router_energy_retained": 0.9935760526824664
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.12795828004848905,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9446531631693088,
+        "output_relative_l2": 0.059416126889699716,
+        "router_energy_retained": 0.9929932653603823
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.12458576801555996,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.946186951731603,
+        "output_relative_l2": 0.057441968468935595,
+        "router_energy_retained": 0.993882934545803
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.1115133863851425,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9376030653488748,
+        "output_relative_l2": 0.04372446334598311,
+        "router_energy_retained": 0.9941914287990486
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.14708617091581663,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9400566200560634,
+        "output_relative_l2": 0.05009643253058513,
+        "router_energy_retained": 0.9939521189946647
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.14708171761633623,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9404560218417857,
+        "output_relative_l2": 0.050961034340180573,
+        "router_energy_retained": 0.9936135474854394
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.1501357979317057,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9397396733351127,
+        "output_relative_l2": 0.05159425983669403,
+        "router_energy_retained": 0.9930461849604323
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.07865117489362286,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9363906326862874,
+        "output_relative_l2": 0.047559250428945175,
+        "router_energy_retained": 0.9926832972504731
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.1097567440860153,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9399830648292616,
+        "output_relative_l2": 0.04669605257582167,
+        "router_energy_retained": 0.9938093372445466
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.10775917056208376,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9371228378339458,
+        "output_relative_l2": 0.046615658276907494,
+        "router_energy_retained": 0.9936342316116101
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.14708601792636314,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9554434756551398,
+        "output_relative_l2": 0.05766388010867318,
+        "router_energy_retained": 0.9928132782079353
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.13198518716238067,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9431456783754617,
+        "output_relative_l2": 0.05511709985133069,
+        "router_energy_retained": 0.994049710738923
+      }
+    ],
+    "router_0.77_down_0.5": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.05286249600519992,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.991099214251001,
+        "output_relative_l2": 0.030476436732530844,
+        "router_energy_retained": 0.9937982127059996
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.05136936115920038,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9900741893772507,
+        "output_relative_l2": 0.0220630266763214,
+        "router_energy_retained": 0.9940963469743936
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.054063849984301304,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.991409913952342,
+        "output_relative_l2": 0.01953284788065411,
+        "router_energy_retained": 0.9947973349710698
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.06031015470886253,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9887275207916744,
+        "output_relative_l2": 0.02260952754730058,
+        "router_energy_retained": 0.9940078097637778
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.03513043700780421,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9875012631038553,
+        "output_relative_l2": 0.016527486289136386,
+        "router_energy_retained": 0.9939280681238855
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.0431044608354814,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9899391671012167,
+        "output_relative_l2": 0.022449323606475516,
+        "router_energy_retained": 0.9941936077722896
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.04654686275769469,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9916932342205519,
+        "output_relative_l2": 0.022314574672372602,
+        "router_energy_retained": 0.9937156451852143
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.0430345544412291,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9909400355409707,
+        "output_relative_l2": 0.019739463935189303,
+        "router_energy_retained": 0.9938739283714237
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.06013264602905628,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9892379963148721,
+        "output_relative_l2": 0.01952288025263365,
+        "router_energy_retained": 0.9931607588426159
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.06099675310305117,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9888450756129801,
+        "output_relative_l2": 0.027184374105027755,
+        "router_energy_retained": 0.9932985296914283
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.033756454547737756,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9922852743555772,
+        "output_relative_l2": 0.01627031388895204,
+        "router_energy_retained": 0.9944510008101678
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.03719359774446343,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9903216147977145,
+        "output_relative_l2": 0.017006966095608787,
+        "router_energy_retained": 0.9941601693568558
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.04805426386454091,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9923342452922481,
+        "output_relative_l2": 0.026420462977164043,
+        "router_energy_retained": 0.9935760526824664
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.06218860587088934,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9909450214709039,
+        "output_relative_l2": 0.028876647108089327,
+        "router_energy_retained": 0.9929932653603823
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.06001331686010167,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9910685178097254,
+        "output_relative_l2": 0.02766995869354562,
+        "router_energy_retained": 0.993882934545803
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.052356564500429185,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9901587500908358,
+        "output_relative_l2": 0.02052903924479534,
+        "router_energy_retained": 0.9941914287990486
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.07620237582313204,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.990287653242919,
+        "output_relative_l2": 0.02595395036341463,
+        "router_energy_retained": 0.9939521189946647
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.07583898982412886,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9901371530130996,
+        "output_relative_l2": 0.02627677611729748,
+        "router_energy_retained": 0.9936135474854394
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.07449523541966066,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9898254800071002,
+        "output_relative_l2": 0.025600333736435207,
+        "router_energy_retained": 0.9930461849604323
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.03841491319903663,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.988906457995613,
+        "output_relative_l2": 0.023228953407373812,
+        "router_energy_retained": 0.9926832972504731
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.04578532603778261,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9900701680809816,
+        "output_relative_l2": 0.01947938607021641,
+        "router_energy_retained": 0.9938093372445466
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.04260926825382607,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9898563017244242,
+        "output_relative_l2": 0.01843239028278421,
+        "router_energy_retained": 0.9936342316116101
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.07387840428612454,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9920860067490824,
+        "output_relative_l2": 0.028963429069838224,
+        "router_energy_retained": 0.9928132782079353
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.06586094544993332,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9903967800020669,
+        "output_relative_l2": 0.02750357358057893,
+        "router_energy_retained": 0.994049710738923
+      }
+    ],
+    "router_0.77_down_0.75": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.038194874519145494,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993418265461297,
+        "output_relative_l2": 0.02202021782465945,
+        "router_energy_retained": 0.9937982127059996
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.038046386753719685,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992961132168087,
+        "output_relative_l2": 0.01634083872064305,
+        "router_energy_retained": 0.9940963469743936
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.03510186475990455,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993723523913093,
+        "output_relative_l2": 0.012682030319364976,
+        "router_energy_retained": 0.9947973349710698
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.04311089103285587,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991636668112802,
+        "output_relative_l2": 0.01616173732435799,
+        "router_energy_retained": 0.9940078097637778
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.02238892508158894,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991195455699746,
+        "output_relative_l2": 0.010533107010091003,
+        "router_energy_retained": 0.9939280681238855
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.026999761218128266,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993372872097968,
+        "output_relative_l2": 0.014061801612523517,
+        "router_energy_retained": 0.9941936077722896
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.033117176272962304,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994051224108997,
+        "output_relative_l2": 0.01587638047118395,
+        "router_energy_retained": 0.9937156451852143
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.027086832236276476,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993962699838994,
+        "output_relative_l2": 0.0124244239306973,
+        "router_energy_retained": 0.9938739283714237
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.04485159509495223,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992219282401402,
+        "output_relative_l2": 0.014561679520226913,
+        "router_energy_retained": 0.9931607588426159
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.0415030613143369,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992261829796198,
+        "output_relative_l2": 0.018496636097445042,
+        "router_energy_retained": 0.9932985296914283
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.02188711828482139,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994432423697446,
+        "output_relative_l2": 0.01054939831181207,
+        "router_energy_retained": 0.9944510008101678
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.023602940803231588,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993696145042217,
+        "output_relative_l2": 0.010792567493876673,
+        "router_energy_retained": 0.9941601693568558
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.03526063765641649,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994971133353523,
+        "output_relative_l2": 0.01938646639929021,
+        "router_energy_retained": 0.9935760526824664
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.03992388280842558,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.999377666018977,
+        "output_relative_l2": 0.018538249232296754,
+        "router_energy_retained": 0.9929932653603823
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.042740679255351986,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993950498193533,
+        "output_relative_l2": 0.01970617341958506,
+        "router_energy_retained": 0.993882934545803
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.03555375766295462,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993613909480035,
+        "output_relative_l2": 0.013940648958293575,
+        "router_energy_retained": 0.9941914287990486
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.04984882578941328,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993706544792179,
+        "output_relative_l2": 0.01697813140650395,
+        "router_energy_retained": 0.9939521189946647
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.052393019919978294,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993151866664206,
+        "output_relative_l2": 0.018153190828873105,
+        "router_energy_retained": 0.9936135474854394
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.054311835619027755,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992172972520347,
+        "output_relative_l2": 0.018664295909031615,
+        "router_energy_retained": 0.9930461849604323
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.027770020654841434,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991787092724302,
+        "output_relative_l2": 0.016792137797393154,
+        "router_energy_retained": 0.9926832972504731
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.02871123579693474,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.999321286723291,
+        "output_relative_l2": 0.012215207251772912,
+        "router_energy_retained": 0.9938093372445466
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.02762715076594701,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993108160197568,
+        "output_relative_l2": 0.011951259577745264,
+        "router_energy_retained": 0.9936342316116101
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.04815973836504679,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994050244335589,
+        "output_relative_l2": 0.018880634735365786,
+        "router_energy_retained": 0.9928132782079353
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.051476426797527904,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993497437633798,
+        "output_relative_l2": 0.021496589252083493,
+        "router_energy_retained": 0.994049710738923
+      }
+    ],
+    "router_0.85_down_0.125": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.19375004380667793,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.881748426804621,
+        "output_relative_l2": 0.11170132699406515,
+        "router_energy_retained": 0.9983006984708296
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.20019687680359272,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8634919661294996,
+        "output_relative_l2": 0.08598411453366515,
+        "router_energy_retained": 0.9984659766589189
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.17875559658075482,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8810220638152013,
+        "output_relative_l2": 0.06458300466654385,
+        "router_energy_retained": 0.9987857177176468
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.19199838188343327,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8399073705616609,
+        "output_relative_l2": 0.07197780747182722,
+        "router_energy_retained": 0.9983227889118109
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.14517566315522168,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8337391216295166,
+        "output_relative_l2": 0.06829942883378266,
+        "router_energy_retained": 0.9984505873902609
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.1707099825522711,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8518816894354179,
+        "output_relative_l2": 0.08890781990751986,
+        "router_energy_retained": 0.9984767766508152
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.18305037115477651,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8822738225241522,
+        "output_relative_l2": 0.08775438201285729,
+        "router_energy_retained": 0.9983008898292328
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.15193119761333257,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8670522245190665,
+        "output_relative_l2": 0.06968912388797217,
+        "router_energy_retained": 0.9983765485521016
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.17777032220263797,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8487693606648181,
+        "output_relative_l2": 0.057715549572809464,
+        "router_energy_retained": 0.9980185579690126
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.19085461978274207,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8483397567977816,
+        "output_relative_l2": 0.08505802554902492,
+        "router_energy_retained": 0.9980952135310238
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.1492176734974067,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.889513231528048,
+        "output_relative_l2": 0.07192160486370365,
+        "router_energy_retained": 0.9985018177106877
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.1763065573995514,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8466521548188614,
+        "output_relative_l2": 0.0806170907350316,
+        "router_energy_retained": 0.9984058269409583
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.1718072147232055,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8923517872346185,
+        "output_relative_l2": 0.09446042433611401,
+        "router_energy_retained": 0.998289782654244
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.21433528526501697,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8625586583062557,
+        "output_relative_l2": 0.09952441140518917,
+        "router_energy_retained": 0.9981340287221239
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.2045258090701763,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8717723378270567,
+        "output_relative_l2": 0.09429941527691442,
+        "router_energy_retained": 0.9983923392158975
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.17387943841289843,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8478315219769429,
+        "output_relative_l2": 0.06817822844377242,
+        "router_energy_retained": 0.998430139136156
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.23907846617690837,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8539059937275515,
+        "output_relative_l2": 0.08142830951253859,
+        "router_energy_retained": 0.9983804738211931
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.2560825874215834,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8567469599163948,
+        "output_relative_l2": 0.08872777489283364,
+        "router_energy_retained": 0.9982239694471998
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.22817435922882934,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8604408428687385,
+        "output_relative_l2": 0.0784122597029024,
+        "router_energy_retained": 0.9981741271041777
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.11730179296056466,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8573976698946928,
+        "output_relative_l2": 0.07093073122837874,
+        "router_energy_retained": 0.9977727597290815
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.20094503285948717,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.858791533288622,
+        "output_relative_l2": 0.08549214808980844,
+        "router_energy_retained": 0.9982727609398928
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.18644876095178137,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8499554900609081,
+        "output_relative_l2": 0.08065607485047986,
+        "router_energy_retained": 0.99839936658925
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.22520994302965022,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8973405873737876,
+        "output_relative_l2": 0.08829173117355311,
+        "router_energy_retained": 0.9979336333506853
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.19289927621801747,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8636225415256459,
+        "output_relative_l2": 0.08055486298986975,
+        "router_energy_retained": 0.9982553966807592
+      }
+    ],
+    "router_0.85_down_0.25": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.10732288755642698,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.94899750306716,
+        "output_relative_l2": 0.06187409675555669,
+        "router_energy_retained": 0.9983006984708296
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.10532970196074581,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9412700426029158,
+        "output_relative_l2": 0.04523887336201967,
+        "router_energy_retained": 0.9984659766589189
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.09925266821375313,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9488618963861535,
+        "output_relative_l2": 0.035859215918422685,
+        "router_energy_retained": 0.9987857177176468
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.11444141354855698,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9323724670152642,
+        "output_relative_l2": 0.042902663816212876,
+        "router_energy_retained": 0.9983227889118109
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.08157186022146344,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9269354561928644,
+        "output_relative_l2": 0.03837634587608715,
+        "router_energy_retained": 0.9984505873902609
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.09869759358282587,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9382609495016621,
+        "output_relative_l2": 0.051402898321312784,
+        "router_energy_retained": 0.9984767766508152
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.10081532352897463,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9507877815060264,
+        "output_relative_l2": 0.04833088487010471,
+        "router_energy_retained": 0.9983008898292328
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.0801424950093703,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9445248359287592,
+        "output_relative_l2": 0.036760457043281326,
+        "router_energy_retained": 0.9983765485521016
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.11203729725271767,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9350899119110522,
+        "output_relative_l2": 0.03637443023938482,
+        "router_energy_retained": 0.9980185579690126
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.1163885632611188,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9341252921421049,
+        "output_relative_l2": 0.05187079777658978,
+        "router_energy_retained": 0.9980952135310238
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.08462562456463539,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9528362688429484,
+        "output_relative_l2": 0.04078880596799827,
+        "router_energy_retained": 0.9985018177106877
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.08973245937473458,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9374795451992683,
+        "output_relative_l2": 0.041030633947985645,
+        "router_energy_retained": 0.9984058269409583
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.09731661100891834,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9551011352385015,
+        "output_relative_l2": 0.053505135891207464,
+        "router_energy_retained": 0.998289782654244
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.1224003041000118,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9442935589624113,
+        "output_relative_l2": 0.05683533724420368,
+        "router_energy_retained": 0.9981340287221239
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.12017564245609719,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9464040787058046,
+        "output_relative_l2": 0.055408619898181764,
+        "router_energy_retained": 0.9983923392158975
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.10558296884228661,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9368990834028927,
+        "output_relative_l2": 0.04139914319488127,
+        "router_energy_retained": 0.998430139136156
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.14973455024174026,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9407565900444825,
+        "output_relative_l2": 0.05099845041160308,
+        "router_energy_retained": 0.9983804738211931
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.1416278752690072,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9404991967388493,
+        "output_relative_l2": 0.049071381080397755,
+        "router_energy_retained": 0.9982239694471998
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.140370282438256,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9406558175526942,
+        "output_relative_l2": 0.04823833439619718,
+        "router_energy_retained": 0.9981741271041777
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.07090560015823391,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9372371517593384,
+        "output_relative_l2": 0.0428756111946336,
+        "router_energy_retained": 0.9977727597290815
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.10527169049741576,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9403134750153539,
+        "output_relative_l2": 0.044787884654819116,
+        "router_energy_retained": 0.9982727609398928
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.10281831788589843,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9354626116151452,
+        "output_relative_l2": 0.044478289375975734,
+        "router_energy_retained": 0.99839936658925
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.13841597804668465,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9555719248846185,
+        "output_relative_l2": 0.054264861308602814,
+        "router_energy_retained": 0.9979336333506853
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.1222121855326066,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9435272362370335,
+        "output_relative_l2": 0.051035888025546296,
+        "router_energy_retained": 0.9982553966807592
+      }
+    ],
+    "router_0.85_down_0.5": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.04260724010534219,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9911352425546148,
+        "output_relative_l2": 0.024564047397430518,
+        "router_energy_retained": 0.9983006984708296
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.043538941281993926,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9899450134212116,
+        "output_relative_l2": 0.01869987870758983,
+        "router_energy_retained": 0.9984659766589189
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.043952663382123565,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9913685619553981,
+        "output_relative_l2": 0.01587975492018987,
+        "router_energy_retained": 0.9987857177176468
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.04837470669339565,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9888324083019122,
+        "output_relative_l2": 0.018135076403911,
+        "router_energy_retained": 0.9983227889118109
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.02963898247101741,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9874969581709154,
+        "output_relative_l2": 0.01394397332162057,
+        "router_energy_retained": 0.9984505873902609
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.03731370165102428,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.989843926791327,
+        "output_relative_l2": 0.019433426310944565,
+        "router_energy_retained": 0.9984767766508152
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.03995597814160854,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9918178649002334,
+        "output_relative_l2": 0.01915490336029618,
+        "router_energy_retained": 0.9983008898292328
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.034890076311598274,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9909262012436364,
+        "output_relative_l2": 0.01600368383014974,
+        "router_energy_retained": 0.9983765485521016
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.04822357249226267,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.989240774706559,
+        "output_relative_l2": 0.015656437780331905,
+        "router_energy_retained": 0.9980185579690126
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.050980646544388386,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9888723944543324,
+        "output_relative_l2": 0.022720503916617823,
+        "router_energy_retained": 0.9980952135310238
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.029699668762816545,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9923859417716242,
+        "output_relative_l2": 0.014314978857911873,
+        "router_energy_retained": 0.9985018177106877
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.03240862315283653,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9903602310646357,
+        "output_relative_l2": 0.014819011566249981,
+        "router_energy_retained": 0.9984058269409583
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.039064909955609836,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9923323377458102,
+        "output_relative_l2": 0.021478073415042567,
+        "router_energy_retained": 0.998289782654244
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.0474310497549433,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9907646269319023,
+        "output_relative_l2": 0.022024125907940013,
+        "router_energy_retained": 0.9981340287221239
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.05087199122270678,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9910307436159793,
+        "output_relative_l2": 0.023455225763842697,
+        "router_energy_retained": 0.9983923392158975
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.04415397673124439,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9900574695712107,
+        "output_relative_l2": 0.017312799832809235,
+        "router_energy_retained": 0.998430139136156
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.06512297684772395,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9904654681864677,
+        "output_relative_l2": 0.022180391232769804,
+        "router_energy_retained": 0.9983804738211931
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.06445468383024208,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9901424831865067,
+        "output_relative_l2": 0.022332329328833063,
+        "router_energy_retained": 0.9982239694471998
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.060354621968996255,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9899179620324718,
+        "output_relative_l2": 0.020740903176405135,
+        "router_energy_retained": 0.9981741271041777
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.028904980051833676,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9890377997975861,
+        "output_relative_l2": 0.01747843165455733,
+        "router_energy_retained": 0.9977727597290815
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.04025721082394121,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9901822605538777,
+        "output_relative_l2": 0.01712744714545717,
+        "router_energy_retained": 0.9982727609398928
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.037486734783023286,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9895751998405014,
+        "output_relative_l2": 0.016216427886809864,
+        "router_energy_retained": 0.99839936658925
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.06063872287698764,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9921144085183597,
+        "output_relative_l2": 0.02377291937886466,
+        "router_energy_retained": 0.9979336333506853
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.0521327421549039,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9903725359646443,
+        "output_relative_l2": 0.021770666971441116,
+        "router_energy_retained": 0.9982553966807592
+      }
+    ],
+    "router_0.85_down_0.75": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.02168506101942841,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993313498801139,
+        "output_relative_l2": 0.01250193313109301,
+        "router_energy_retained": 0.9983006984708296
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.020316806348009742,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992780830407063,
+        "output_relative_l2": 0.008726023262088246,
+        "router_energy_retained": 0.9984659766589189
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.020980535044144082,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993604876164401,
+        "output_relative_l2": 0.007580103888106318,
+        "router_energy_retained": 0.9987857177176468
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.025377192468949233,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991659199349393,
+        "output_relative_l2": 0.00951359410317583,
+        "router_energy_retained": 0.9983227889118109
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.013345508023474954,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991419562080115,
+        "output_relative_l2": 0.006278535642199466,
+        "router_energy_retained": 0.9984505873902609
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.015188985005612788,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993349884917991,
+        "output_relative_l2": 0.007910606768667117,
+        "router_energy_retained": 0.9984767766508152
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.019764332138948397,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994402150138217,
+        "output_relative_l2": 0.009475024507236642,
+        "router_energy_retained": 0.9983008898292328
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.015235278810075177,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993870614239538,
+        "output_relative_l2": 0.006988250268159243,
+        "router_energy_retained": 0.9983765485521016
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.024023391464821877,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992306065271599,
+        "output_relative_l2": 0.0077995203238392955,
+        "router_energy_retained": 0.9980185579690126
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.025697938829334736,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992179683330789,
+        "output_relative_l2": 0.011452779817386871,
+        "router_energy_retained": 0.9980952135310238
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.013896761260771825,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994520250599883,
+        "output_relative_l2": 0.006698116575982037,
+        "router_energy_retained": 0.9985018177106877
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.014401911064287946,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993598180709118,
+        "output_relative_l2": 0.006585348770643688,
+        "router_energy_retained": 0.9984058269409583
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.020449767156181044,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994814425808278,
+        "output_relative_l2": 0.011243379308952155,
+        "router_energy_retained": 0.998289782654244
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.023191534218572923,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993852863648984,
+        "output_relative_l2": 0.010768753216871742,
+        "router_energy_retained": 0.9981340287221239
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.024904320629512436,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993915865510321,
+        "output_relative_l2": 0.011482476876187406,
+        "router_energy_retained": 0.9983923392158975
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.021819500640428403,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993552397314036,
+        "output_relative_l2": 0.008555438830321265,
+        "router_energy_retained": 0.998430139136156
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.028606874162017383,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993533725469737,
+        "output_relative_l2": 0.009743284038501929,
+        "router_energy_retained": 0.9983804738211931
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.0317219538731225,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993193429696188,
+        "output_relative_l2": 0.010991057263029048,
+        "router_energy_retained": 0.9982239694471998
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.02952522650884239,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992243321326229,
+        "output_relative_l2": 0.010146362354748995,
+        "router_energy_retained": 0.9981741271041777
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.014487592974944867,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991740842938928,
+        "output_relative_l2": 0.008760442082905188,
+        "router_energy_retained": 0.9977727597290815
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.01749838489720709,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993206971548624,
+        "output_relative_l2": 0.007444695157061041,
+        "router_energy_retained": 0.9982727609398928
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.01869993351395835,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.999274271670622,
+        "output_relative_l2": 0.008089424834477084,
+        "router_energy_retained": 0.99839936658925
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.028321091229413373,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994330053818101,
+        "output_relative_l2": 0.011103054064712544,
+        "router_energy_retained": 0.9979336333506853
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.02368639464841056,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993507186364021,
+        "output_relative_l2": 0.00989145378373627,
+        "router_energy_retained": 0.9982553966807592
+      }
+    ],
+    "router_0.8_down_0.125": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.19285616899130692,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8813443214397059,
+        "output_relative_l2": 0.11118598774003566,
+        "router_energy_retained": 0.9959535468187389
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.2017884329000452,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8641893003342034,
+        "output_relative_l2": 0.08666768434688647,
+        "router_energy_retained": 0.9961894128683869
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.17879070736659422,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8798470408107315,
+        "output_relative_l2": 0.06459568991997976,
+        "router_energy_retained": 0.9967360676423507
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.19156698219086057,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8396404596094924,
+        "output_relative_l2": 0.07181608108793378,
+        "router_energy_retained": 0.9960334923376667
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.15793896941803742,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8339693305859266,
+        "output_relative_l2": 0.07430406148938767,
+        "router_energy_retained": 0.9960607200972695
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.16823206440026728,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8524097180691119,
+        "output_relative_l2": 0.08761729021786639,
+        "router_energy_retained": 0.9962125054709221
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.18318057725674913,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8815675555293226,
+        "output_relative_l2": 0.08781680284238541,
+        "router_energy_retained": 0.9959315521381953
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.15367703665403323,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8667754660344575,
+        "output_relative_l2": 0.07048992053215772,
+        "router_energy_retained": 0.9959821915664547
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.1815282515339389,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8481822320662652,
+        "output_relative_l2": 0.05893561237026889,
+        "router_energy_retained": 0.9954087475091383
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.18802476788783798,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8478973360689572,
+        "output_relative_l2": 0.0837968477213637,
+        "router_energy_retained": 0.9955699984463334
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.14957521877810578,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8897600617180442,
+        "output_relative_l2": 0.07209393854105299,
+        "router_energy_retained": 0.9964173932061863
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.1777632981507435,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.8458148283732749,
+        "output_relative_l2": 0.08128319302327562,
+        "router_energy_retained": 0.9961773885944577
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.17381570290146542,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8927437065174285,
+        "output_relative_l2": 0.09556470069550996,
+        "router_energy_retained": 0.9958394115181557
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.2191917683914439,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8638775326338666,
+        "output_relative_l2": 0.10177946998809699,
+        "router_energy_retained": 0.9954392579467551
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.2020754261363595,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8717155335411424,
+        "output_relative_l2": 0.09316963278680251,
+        "router_energy_retained": 0.996005756230641
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.17496309012842268,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8484040019865008,
+        "output_relative_l2": 0.06860312890865117,
+        "router_energy_retained": 0.9962204095027603
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.2312103108290006,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8537358247941123,
+        "output_relative_l2": 0.07874847556844726,
+        "router_energy_retained": 0.9961011755433093
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.23587954609242417,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.8572980847613973,
+        "output_relative_l2": 0.08172780304291953,
+        "router_energy_retained": 0.9957937561624324
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.22933490206256646,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.858611885732959,
+        "output_relative_l2": 0.07881108096565469,
+        "router_energy_retained": 0.9955175782549985
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.12457306416347402,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8561658888821969,
+        "output_relative_l2": 0.07532756584074997,
+        "router_energy_retained": 0.99508579857599
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.19664049374270354,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8580103006848391,
+        "output_relative_l2": 0.08366078012617348,
+        "router_energy_retained": 0.9959688028301542
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.18559738852455157,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.851409143043688,
+        "output_relative_l2": 0.08028777871450264,
+        "router_energy_retained": 0.9959379514802801
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.22541292375019115,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8973127908277192,
+        "output_relative_l2": 0.08837130811838212,
+        "router_energy_retained": 0.9952042842850638
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.1970734936750313,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.8632664671104608,
+        "output_relative_l2": 0.08229801891005906,
+        "router_energy_retained": 0.9960454661181541
+      }
+    ],
+    "router_0.8_down_0.25": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.10823104084465886,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9488345597551607,
+        "output_relative_l2": 0.0623976678754205,
+        "router_energy_retained": 0.9959535468187389
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.10674594648720974,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9417842951920611,
+        "output_relative_l2": 0.04584714724478668,
+        "router_energy_retained": 0.9961894128683869
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.10024035238834417,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9484598198420013,
+        "output_relative_l2": 0.036216058517350026,
+        "router_energy_retained": 0.9967360676423507
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.11905384577245427,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9321201082129009,
+        "output_relative_l2": 0.044631807339881174,
+        "router_energy_retained": 0.9960334923376667
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.08455696732084082,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9270970737045263,
+        "output_relative_l2": 0.03978072113750515,
+        "router_energy_retained": 0.9960607200972695
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.09769009629865588,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.938903671972125,
+        "output_relative_l2": 0.050878181572127514,
+        "router_energy_retained": 0.9962125054709221
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.1030359483504947,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9505908669942392,
+        "output_relative_l2": 0.04939545282298876,
+        "router_energy_retained": 0.9959315521381953
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.08028552668174599,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9444738878263705,
+        "output_relative_l2": 0.03682606405548603,
+        "router_energy_retained": 0.9959821915664547
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.11684900635360142,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9347561643435183,
+        "output_relative_l2": 0.03793661695143586,
+        "router_energy_retained": 0.9954087475091383
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.12103879155245148,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9338463409742941,
+        "output_relative_l2": 0.05394326129496431,
+        "router_energy_retained": 0.9955699984463334
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.08211756388696478,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9529217200522162,
+        "output_relative_l2": 0.039579942803161745,
+        "router_energy_retained": 0.9964173932061863
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.08910966555029887,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9372221317334646,
+        "output_relative_l2": 0.04074585823122107,
+        "router_energy_retained": 0.9961773885944577
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.09806543438250237,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9552768975313987,
+        "output_relative_l2": 0.05391684254587564,
+        "router_energy_retained": 0.9958394115181557
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.12208213900391518,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.944425602546053,
+        "output_relative_l2": 0.05668760051536997,
+        "router_energy_retained": 0.9954392579467551
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.12174632617552178,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9462729318224283,
+        "output_relative_l2": 0.056132805060925155,
+        "router_energy_retained": 0.996005756230641
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.10847101567557442,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9371358789644995,
+        "output_relative_l2": 0.042531548029825825,
+        "router_energy_retained": 0.9962204095027603
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.14771149872646475,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9406399314357254,
+        "output_relative_l2": 0.050309414432830456,
+        "router_energy_retained": 0.9961011755433093
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.1447810229815065,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9408205927163064,
+        "output_relative_l2": 0.05016388714750457,
+        "router_energy_retained": 0.9957937561624324
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.1464480350096097,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.939786590703245,
+        "output_relative_l2": 0.050326957827180635,
+        "router_energy_retained": 0.9955175782549985
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.07531646864404999,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9367002849756196,
+        "output_relative_l2": 0.045542800835599515,
+        "router_energy_retained": 0.99508579857599
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.10788838182502929,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9402452712620124,
+        "output_relative_l2": 0.0459011570721676,
+        "router_energy_retained": 0.9959688028301542
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.10664926222609715,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9363144766360364,
+        "output_relative_l2": 0.046135521807415696,
+        "router_energy_retained": 0.9959379514802801
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.1431318256957603,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9555531142797689,
+        "output_relative_l2": 0.056113671122620674,
+        "router_energy_retained": 0.9952042842850638
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.12470699584116321,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9433179835510985,
+        "output_relative_l2": 0.052077722430172856,
+        "router_energy_retained": 0.9960454661181541
+      }
+    ],
+    "router_0.8_down_0.5": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.04693406417307642,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9910686019838155,
+        "output_relative_l2": 0.0270585603303825,
+        "router_energy_retained": 0.9959535468187389
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.04700737332262074,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9900791108923892,
+        "output_relative_l2": 0.02018956257576563,
+        "router_energy_retained": 0.9961894128683869
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.04942837629281762,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9913375467638326,
+        "output_relative_l2": 0.01785808734294145,
+        "router_energy_retained": 0.9967360676423507
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.052848362954224924,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.988789854070866,
+        "output_relative_l2": 0.019812194543545113,
+        "router_energy_retained": 0.9960334923376667
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.03346516768942543,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9875217689650837,
+        "output_relative_l2": 0.01574404269516371,
+        "router_energy_retained": 0.9960607200972695
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.03898078946328845,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9899514715218863,
+        "output_relative_l2": 0.020301665770446713,
+        "router_energy_retained": 0.9962125054709221
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.04397098523105058,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9917568164079011,
+        "output_relative_l2": 0.021079698506509315,
+        "router_energy_retained": 0.9959315521381953
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.040594653843097,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9908669169841946,
+        "output_relative_l2": 0.01862030909583692,
+        "router_energy_retained": 0.9959821915664547
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.05413637416869166,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9893764066768954,
+        "output_relative_l2": 0.017576109152031002,
+        "router_energy_retained": 0.9954087475091383
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.056542295837341515,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9888419195605566,
+        "output_relative_l2": 0.0251991597028557,
+        "router_energy_retained": 0.9955699984463334
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.030021952171895898,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.992368844990251,
+        "output_relative_l2": 0.014470316623597754,
+        "router_energy_retained": 0.9964173932061863
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.03596149858357661,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.990273325451386,
+        "output_relative_l2": 0.01644358234339435,
+        "router_energy_retained": 0.9961773885944577
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.0440449056731775,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9923702223362041,
+        "output_relative_l2": 0.024216098761832235,
+        "router_energy_retained": 0.9958394115181557
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.05263287913180068,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9909576392369024,
+        "output_relative_l2": 0.024439542512452086,
+        "router_energy_retained": 0.9954392579467551
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.05635959447007976,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9910401271062385,
+        "output_relative_l2": 0.02598536012610997,
+        "router_energy_retained": 0.996005756230641
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.050393054620641815,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9900644004652879,
+        "output_relative_l2": 0.019759145884443784,
+        "router_energy_retained": 0.9962204095027603
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.0734277860235024,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.990412959876374,
+        "output_relative_l2": 0.025008946153761577,
+        "router_energy_retained": 0.9961011755433093
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.07185457183027659,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9901289918470728,
+        "output_relative_l2": 0.02489625061418909,
+        "router_energy_retained": 0.9957937561624324
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.06622452043238083,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9898077245211425,
+        "output_relative_l2": 0.022758097414601663,
+        "router_energy_retained": 0.9955175782549985
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.033851996827371944,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9889633826797519,
+        "output_relative_l2": 0.020469822565401738,
+        "router_energy_retained": 0.99508579857599
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.04348189178413446,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.99018540726637,
+        "output_relative_l2": 0.01849938900571705,
+        "router_energy_retained": 0.9959688028301542
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.04077886778744461,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9897521204245975,
+        "output_relative_l2": 0.017640575329071557,
+        "router_energy_retained": 0.9959379514802801
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.06757607021276389,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9921163787952298,
+        "output_relative_l2": 0.026492650123378376,
+        "router_energy_retained": 0.9952042842850638
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.0567873660696877,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9903606328987192,
+        "output_relative_l2": 0.02371444094030248,
+        "router_energy_retained": 0.9960454661181541
+      }
+    ],
+    "router_0.8_down_0.75": [
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.029670594457825477,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993382447770016,
+        "output_relative_l2": 0.01710577560926275,
+        "router_energy_retained": 0.9959535468187389
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.028960617463309923,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992860897744025,
+        "output_relative_l2": 0.012438520963411031,
+        "router_energy_retained": 0.9961894128683869
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.029288860845578357,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993612790765471,
+        "output_relative_l2": 0.010581837284256474,
+        "router_energy_retained": 0.9967360676423507
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.033360944030276576,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991691786416315,
+        "output_relative_l2": 0.01250660335224859,
+        "router_energy_retained": 0.9960334923376667
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.018572158067924602,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991203678342744,
+        "output_relative_l2": 0.008737468530753217,
+        "router_energy_retained": 0.9960607200972695
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.022247587162952744,
+        "family": "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993320556909258,
+        "output_relative_l2": 0.011586811991237816,
+        "router_energy_retained": 0.9962125054709221
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.027751385620046077,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994200953844541,
+        "output_relative_l2": 0.013304019433145471,
+        "router_energy_retained": 0.9959315521381953
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-5-layer-12.json",
+        "contribution_relative_l2": 0.022319783807935138,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993845690087144,
+        "output_relative_l2": 0.010237832672803539,
+        "router_energy_retained": 0.9959821915664547
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-6-layer-12.json",
+        "contribution_relative_l2": 0.035544816590501536,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992261991383721,
+        "output_relative_l2": 0.011540107474446988,
+        "router_energy_retained": 0.9954087475091383
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-7-layer-12.json",
+        "contribution_relative_l2": 0.034566494313776126,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992191314906258,
+        "output_relative_l2": 0.015405221837586644,
+        "router_energy_retained": 0.9955699984463334
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-8-layer-12.json",
+        "contribution_relative_l2": 0.017497760514839995,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994511587077654,
+        "output_relative_l2": 0.008433766512047308,
+        "router_energy_retained": 0.9964173932061863
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-9-layer-12.json",
+        "contribution_relative_l2": 0.02085743376436391,
+        "family": "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993644545069365,
+        "output_relative_l2": 0.00953717011484177,
+        "router_energy_retained": 0.9961773885944577
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.028096902083522893,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994862051108713,
+        "output_relative_l2": 0.015447810486979184,
+        "router_energy_retained": 0.9958394115181557
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.030940880222008464,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993913751638448,
+        "output_relative_l2": 0.014367083276308566,
+        "router_energy_retained": 0.9954392579467551
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.03645193954155956,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993882445237741,
+        "output_relative_l2": 0.016806664156987013,
+        "router_energy_retained": 0.996005756230641
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.03240747166231275,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993574660908413,
+        "output_relative_l2": 0.012706988396359689,
+        "router_energy_retained": 0.9962204095027603
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.04414993710518113,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993562078924906,
+        "output_relative_l2": 0.01503713321006337,
+        "router_energy_retained": 0.9961011755433093
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-15-layer-12.json",
+        "contribution_relative_l2": 0.04397732254258358,
+        "family": "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993228960585299,
+        "output_relative_l2": 0.015237310799754211,
+        "router_energy_retained": 0.9957937561624324
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-10-layer-12.json",
+        "contribution_relative_l2": 0.042536945188176294,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9992179834354546,
+        "output_relative_l2": 0.014617847528251024,
+        "router_energy_retained": 0.9955175782549985
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-11-layer-12.json",
+        "contribution_relative_l2": 0.02262589919235299,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9991843507793041,
+        "output_relative_l2": 0.013681560476681873,
+        "router_energy_retained": 0.99508579857599
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-12-layer-12.json",
+        "contribution_relative_l2": 0.023379909046527793,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993261924519163,
+        "output_relative_l2": 0.009946992060906955,
+        "router_energy_retained": 0.9959688028301542
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-13-layer-12.json",
+        "contribution_relative_l2": 0.024439475047156777,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993050402723782,
+        "output_relative_l2": 0.010572299427721558,
+        "router_energy_retained": 0.9959379514802801
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-14-layer-12.json",
+        "contribution_relative_l2": 0.03823559872813353,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9994211960067536,
+        "output_relative_l2": 0.014989956299219698,
+        "router_energy_retained": 0.9952042842850638
+      },
+      {
+        "argmax_equal": true,
+        "capture": "position-3-layer-12.json",
+        "contribution_relative_l2": 0.03612664197299414,
+        "family": "aion_gptoss_120b_public_writing_invoice_capture_20260912",
+        "hidden_energy_retained_mean": 0.9993348872928869,
+        "output_relative_l2": 0.015086509143401334,
+        "router_energy_retained": 0.9960454661181541
+      }
+    ]
+  },
+  "oracle_bound": true,
+  "promotion_gate": {
+    "all_argmax_equal": true,
+    "maximum_contribution_relative_l2_p95": 0.15,
+    "maximum_output_relative_l2_max": 0.025,
+    "maximum_output_relative_l2_p95": 0.02,
+    "minimum_projected_weight_traffic_reduction": 1.25
+  },
+  "quality_track": true,
+  "schema": "aion.gptoss-120b-activation-column-sparsity.v1",
+  "status": "ADVANCE_COLUMN_ADDRESSED_WAREHOUSE",
+  "summaries": {
+    "router_0.77_down_0.125": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.23294370897080488,
+      "down_retained_column_fraction": 0.125,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.8583046331455271,
+      "output_relative_l2_max": 0.11209333757000163,
+      "output_relative_l2_p50": 0.08184041470259418,
+      "output_relative_l2_p95": 0.09857102186682533,
+      "projected_weight_traffic_reduction": 1.8018018018018018,
+      "router_energy_retained_p50": 0.9938416328079851,
+      "router_retained_column_fraction": 0.77,
+      "samples": 24
+    },
+    "router_0.77_down_0.25": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.14708601792636314,
+      "down_retained_column_fraction": 0.25,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.9402563209489245,
+      "output_relative_l2_max": 0.06591650772180373,
+      "output_relative_l2_p50": 0.04800190333911526,
+      "output_relative_l2_p95": 0.05766388010867318,
+      "projected_weight_traffic_reduction": 1.675977653631285,
+      "router_energy_retained_p50": 0.9938416328079851,
+      "router_retained_column_fraction": 0.77,
+      "samples": 24
+    },
+    "router_0.77_down_0.5": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.07449523541966066,
+      "down_retained_column_fraction": 0.5,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.9902232016668774,
+      "output_relative_l2_max": 0.030476436732530844,
+      "output_relative_l2_p50": 0.02252942557688805,
+      "output_relative_l2_p95": 0.028876647108089327,
+      "projected_weight_traffic_reduction": 1.4705882352941175,
+      "router_energy_retained_p50": 0.9938416328079851,
+      "router_retained_column_fraction": 0.77,
+      "samples": 24
+    },
+    "router_0.77_down_0.75": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.051476426797527904,
+      "down_retained_column_fraction": 0.75,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.9993457851547547,
+      "output_relative_l2_max": 0.02202021782465945,
+      "output_relative_l2_p50": 0.016251288022500518,
+      "output_relative_l2_p95": 0.01970617341958506,
+      "projected_weight_traffic_reduction": 1.3100436681222707,
+      "router_energy_retained_p50": 0.9938416328079851,
+      "router_retained_column_fraction": 0.77,
+      "samples": 24
+    },
+    "router_0.85_down_0.125": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.22817435922882934,
+      "down_retained_column_fraction": 0.125,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.8596161880786802,
+      "output_relative_l2_max": 0.11170132699406515,
+      "output_relative_l2_p50": 0.08104219218150922,
+      "output_relative_l2_p95": 0.09446042433611401,
+      "projected_weight_traffic_reduction": 1.6438356164383563,
+      "router_energy_retained_p50": 0.9983118393705219,
+      "router_retained_column_fraction": 0.85,
+      "samples": 24
+    },
+    "router_0.85_down_0.25": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.140370282438256,
+      "down_retained_column_fraction": 0.25,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.9407062037985884,
+      "output_relative_l2_max": 0.06187409675555669,
+      "output_relative_l2_p50": 0.04673860387910843,
+      "output_relative_l2_p95": 0.055408619898181764,
+      "projected_weight_traffic_reduction": 1.5384615384615385,
+      "router_energy_retained_p50": 0.9983118393705219,
+      "router_retained_column_fraction": 0.85,
+      "samples": 24
+    },
+    "router_0.85_down_0.5": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.06063872287698764,
+      "down_retained_column_fraction": 0.5,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.9902712458092566,
+      "output_relative_l2_max": 0.024564047397430518,
+      "output_relative_l2_p50": 0.018927391033943003,
+      "output_relative_l2_p95": 0.023455225763842697,
+      "projected_weight_traffic_reduction": 1.3636363636363635,
+      "router_energy_retained_p50": 0.9983118393705219,
+      "router_retained_column_fraction": 0.85,
+      "samples": 24
+    },
+    "router_0.85_down_0.75": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.028606874162017383,
+      "down_retained_column_fraction": 0.75,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.9993428535641007,
+      "output_relative_l2_max": 0.01250193313109301,
+      "output_relative_l2_p50": 0.009117733295070915,
+      "output_relative_l2_p95": 0.011452779817386871,
+      "projected_weight_traffic_reduction": 1.2244897959183672,
+      "router_energy_retained_p50": 0.9983118393705219,
+      "router_retained_column_fraction": 0.85,
+      "samples": 24
+    },
+    "router_0.8_down_0.125": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.22933490206256646,
+      "down_retained_column_fraction": 0.125,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.8583110932088991,
+      "output_relative_l2_max": 0.11118598774003566,
+      "output_relative_l2_p50": 0.08150549803309758,
+      "output_relative_l2_p95": 0.09556470069550996,
+      "projected_weight_traffic_reduction": 1.7391304347826086,
+      "router_energy_retained_p50": 0.9959754971983045,
+      "router_retained_column_fraction": 0.8,
+      "samples": 24
+    },
+    "router_0.8_down_0.25": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.1447810229815065,
+      "down_retained_column_fraction": 0.25,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.9407302620760158,
+      "output_relative_l2_max": 0.0623976678754205,
+      "output_relative_l2_p50": 0.04776548731520223,
+      "output_relative_l2_p95": 0.056132805060925155,
+      "projected_weight_traffic_reduction": 1.6216216216216215,
+      "router_energy_retained_p50": 0.9959754971983045,
+      "router_retained_column_fraction": 0.8,
+      "samples": 24
+    },
+    "router_0.8_down_0.5": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.06757607021276389,
+      "down_retained_column_fraction": 0.5,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.990229366358878,
+      "output_relative_l2_max": 0.0270585603303825,
+      "output_relative_l2_p50": 0.020385744167924227,
+      "output_relative_l2_p95": 0.02598536012610997,
+      "projected_weight_traffic_reduction": 1.4285714285714286,
+      "router_energy_retained_p50": 0.9959754971983045,
+      "router_retained_column_fraction": 0.8,
+      "samples": 24
+    },
+    "router_0.8_down_0.75": {
+      "all_argmax_equal": true,
+      "contribution_relative_l2_p95": 0.042536945188176294,
+      "down_retained_column_fraction": 0.75,
+      "families": [
+        "aion_gptoss_120b_public_business_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_explanation_alllayer_capture_20260912",
+        "aion_gptoss_120b_public_reasoning_boxes_capture_20260912",
+        "aion_gptoss_120b_public_writing_invoice_capture_20260912"
+      ],
+      "hidden_energy_retained_p50": 0.9993365660349443,
+      "output_relative_l2_max": 0.01710577560926275,
+      "output_relative_l2_p50": 0.01300550391475258,
+      "output_relative_l2_p95": 0.015447810486979184,
+      "projected_weight_traffic_reduction": 1.276595744680851,
+      "router_energy_retained_p50": 0.9959754971983045,
+      "router_retained_column_fraction": 0.8,
+      "samples": 24
+    }
+  },
+  "warehouse_metrics": {
+    "admission_allowlist_entries": 0,
+    "admission_bypasses": 0,
+    "capacity_bytes": 536870912,
+    "compressed_bytes_read": 457619691,
+    "evictions": 0,
+    "faults": 36,
+    "hit_rate": 0.625,
+    "hits": 60,
+    "peak_resident_bytes": 477135360,
+    "protected_entries": 0,
+    "raw_bytes_materialized": 477135360,
+    "resident_bytes": 477135360
+  }
+}

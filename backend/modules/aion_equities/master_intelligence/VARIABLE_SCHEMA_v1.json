@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion.equities.variable_schema.v1",
+  "title": "AION Equities Variable (v1)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "variable_id",
+    "name",
+    "feed_id",
+    "category",
+    "why_it_matters",
+    "data_source",
+    "unit",
+    "update_frequency",
+    "lag_weeks",
+    "is_leading",
+    "is_zero_lag",
+    "direction",
+    "impact_weight",
+    "current_value",
+    "current_value_unit",
+    "current_value_as_of",
+    "current_state",
+    "threshold_early",
+    "threshold_confirm",
+    "threshold_break",
+    "thesis_action_on_confirm",
+    "thesis_action_on_break"
+  ],
+  "properties": {
+    "variable_id": {
+      "type": "string",
+      "minLength": 8,
+      "description": "Canonical id: company/{TICKER}/var/{feed_id}"
+    },
+    "name": { "type": "string", "minLength": 2 },
+    "feed_id": {
+      "type": "string",
+      "minLength": 2,
+      "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$",
+      "description": "snake_case unique within a company"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "fx",
+        "commodity",
+        "macro_leading",
+        "company_reported",
+        "subsidiary_leading",
+        "language_sentiment",
+        "capital_allocation",
+        "sector_data"
+      ]
+    },
+    "why_it_matters": { "type": "string", "minLength": 8 },
+    "data_source": { "type": "string", "minLength": 3 },
+    "data_source_url": { "type": ["string", "null"], "minLength": 5 },
+    "feed_adapter": { "type": ["string", "null"], "minLength": 2 },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "%",
+        "rate",
+        "€bn",
+        "€m",
+        "£bn",
+        "£m",
+        "USD/tonne",
+        "index",
+        "bps",
+        "ratio",
+        "count",
+        "other"
+      ]
+    },
+    "update_frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "semi_annual",
+        "annual",
+        "event_driven"
+      ]
+    },
+    "lag_weeks": {
+      "type": "integer",
+      "minimum": -104,
+      "maximum": 260,
+      "description": "Negative = leads company reporting"
+    },
+    "is_leading": { "type": "boolean" },
+    "is_zero_lag": { "type": "boolean" },
+    "direction": {
+      "type": "string",
+      "enum": ["positive", "negative"]
+    },
+    "impact_weight": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Per-variable weight; company total should sum ~0.85–1.15"
+    },
+    "sensitivity_coefficient": { "type": ["string", "null"] },
+
+    "current_value": {
+      "type": ["number", "string", "null"],
+      "description": "Allow string for early onboarding; prefer number when known"
+    },
+    "current_value_unit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "current_value_as_of": {
+      "type": ["string", "null"],
+      "description": "ISO-8601 timestamp or null",
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2}.*)?$"
+    },
+    "prior_period_value": { "type": ["number", "string", "null"] },
+    "prior_period_label": { "type": ["string", "null"] },
+
+    "current_state": {
+      "type": "string",
+      "enum": ["inactive", "early_watch", "building", "confirmed", "broken"]
+    },
+    "state_entered_at": {
+      "type": ["string", "null"],
+      "description": "ISO-8601 timestamp or null"
+    },
+
+    "threshold_early": { "type": "string", "minLength": 3 },
+    "threshold_confirm": { "type": "string", "minLength": 3 },
+    "threshold_break": { "type": "string", "minLength": 3 },
+
+    "thesis_action_on_confirm": { "type": "string", "minLength": 3 },
+    "thesis_action_on_break": { "type": "string", "minLength": 3 },
+
+    "notes": { "type": ["string", "null"] },
+    "first_observed_period": { "type": ["string", "null"], "pattern": "^\\d{4}-Q[1-4]$" },
+    "last_validated_period": { "type": ["string", "null"], "pattern": "^\\d{4}-Q[1-4]$" },
+    "source_document_ref": { "type": ["string", "null"] }
+  }
+}

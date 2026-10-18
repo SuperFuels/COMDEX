@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_psychology_organisations",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:psychology_organisations",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_negotiation_governance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:negotiation_governance",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_business_strategy_operations",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:business_strategy_operations",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:networks_talent_coordination:alliances",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:networks_talent_coordination:talent_systems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:networks_talent_coordination:organisation_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:networks_talent_coordination:incentive_alignment",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:networks_talent_coordination:negotiation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:networks_talent_coordination:coordination",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:networks_talent_coordination:culture",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:networks_talent_coordination:succession",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "business",
+      "id": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "label": "Networks, talent and organisational coordination",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:networks_talent_coordination:alliances",
+      "label": "alliances",
+      "subject_id": "networks_talent_coordination",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:networks_talent_coordination:talent_systems",
+      "label": "talent systems",
+      "subject_id": "networks_talent_coordination",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:networks_talent_coordination:organisation_design",
+      "label": "organisation design",
+      "subject_id": "networks_talent_coordination",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:networks_talent_coordination:incentive_alignment",
+      "label": "incentive alignment",
+      "subject_id": "networks_talent_coordination",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:networks_talent_coordination:negotiation",
+      "label": "negotiation",
+      "subject_id": "networks_talent_coordination",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:networks_talent_coordination:coordination",
+      "label": "coordination",
+      "subject_id": "networks_talent_coordination",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:networks_talent_coordination:culture",
+      "label": "culture",
+      "subject_id": "networks_talent_coordination",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:networks_talent_coordination:succession",
+      "label": "succession",
+      "subject_id": "networks_talent_coordination",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_networks_talent_coordination",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:networks_talent_coordination:alliances",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:networks_talent_coordination:talent_systems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:networks_talent_coordination:organisation_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:networks_talent_coordination:incentive_alignment",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:networks_talent_coordination:negotiation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:networks_talent_coordination:coordination",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:networks_talent_coordination:culture",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:networks_talent_coordination:succession",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "business",
+        "id": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "label": "Networks, talent and organisational coordination",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:networks_talent_coordination:alliances",
+        "label": "alliances",
+        "subject_id": "networks_talent_coordination",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:networks_talent_coordination:talent_systems",
+        "label": "talent systems",
+        "subject_id": "networks_talent_coordination",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:networks_talent_coordination:organisation_design",
+        "label": "organisation design",
+        "subject_id": "networks_talent_coordination",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:networks_talent_coordination:incentive_alignment",
+        "label": "incentive alignment",
+        "subject_id": "networks_talent_coordination",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:networks_talent_coordination:negotiation",
+        "label": "negotiation",
+        "subject_id": "networks_talent_coordination",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:networks_talent_coordination:coordination",
+        "label": "coordination",
+        "subject_id": "networks_talent_coordination",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:networks_talent_coordination:culture",
+        "label": "culture",
+        "subject_id": "networks_talent_coordination",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:networks_talent_coordination:succession",
+        "label": "succession",
+        "subject_id": "networks_talent_coordination",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "business",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "networks_talent_coordination",
+    "title": "AION Academy \u00b7 Networks, talent and organisational coordination"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

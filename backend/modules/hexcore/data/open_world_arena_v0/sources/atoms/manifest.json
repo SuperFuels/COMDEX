@@ -1,0 +1,27 @@
+{
+  "schema_version": "aion.open_world_arena.source_manifest.v1",
+  "retrieved_at": "2026-07-31",
+  "sources": [
+    {
+      "file": "doe_isotopes.html",
+      "publisher": "U.S. Department of Energy",
+      "title": "DOE Explains...Isotopes",
+      "url": "https://www.energy.gov/science/doe-explainsisotopes",
+      "sha256": "da98a19b37fb390065c0e4d3d6a83cfd3bd94dc879f9fcf034099cee22712f32"
+    },
+    {
+      "file": "nist_isotopic_compositions.html",
+      "publisher": "National Institute of Standards and Technology",
+      "title": "Atomic Weights and Isotopic Compositions",
+      "url": "https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl",
+      "sha256": "e60e42e788b698fca8ebeb1f3a003fb1327d69446439a7c5aef44f1cff9955bd"
+    },
+    {
+      "file": "iaea_isotopes_infographic.pdf",
+      "publisher": "International Atomic Energy Agency",
+      "title": "What Are Isotopes?",
+      "url": "https://www.iaea.org/sites/default/files/20/05/what-are-isotopes.pdf",
+      "sha256": "c5bbd74fb2d81a571d7b8288cb0ab244b423013885e12522aa682f76e75989c0"
+    }
+  ]
+}

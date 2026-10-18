@@ -1,0 +1,111 @@
+\section{Phase 16B --- Boardroom Front Page Simplification}
+\label{sec:phase16b-boardroom-front-page-simplification}
+
+\subsection{Status}
+
+Phase 16B locks the Boardroom front page as a business-facing control surface rather
+than a runtime debugging dump.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Boardroom front page simplified, runtime internals moved behind the Advanced Runtime Drawer.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Boardroom front page MUST make sense to a business operator and to the founder
+demo path. It MUST show the active business pulse, the operator state, the website
+to A2A setup path, workflow-to-widget generation, human-review queues, and replay
+or proof receipts.
+
+The front page MUST NOT expose every Goal Engine, provider, evidence, memory, AXO,
+ETS, orchestration, experiment, or container-binding panel as top-level clutter.
+Those panels remain available behind the Advanced Runtime Drawer.
+
+\subsection{Locked Front Page Surfaces}
+
+The simplified Boardroom front page keeps the following top-level surfaces:
+
+\begin{itemize}
+  \item business pulse cards;
+  \item operator presence;
+  \item Home Fixed founder demo loop;
+  \item AgentMap and website install setup;
+  \item workflow-to-website-form/widget setup;
+  \item human review queue;
+  \item recent replay and proof receipt access;
+  \item Advanced Runtime Drawer entry point.
+\end{itemize}
+
+\subsection{Founder Demo Loop}
+
+The visible founder demo loop records the decisive proof path:
+
+\begin{quote}
+Home Fixed website or widget request
+$\rightarrow$ Public Intent Gateway
+$\rightarrow$ Guard Envelope
+$\rightarrow$ AgentMap or capability route
+$\rightarrow$ Machine Cart quote preview
+$\rightarrow$ Human Review handoff
+$\rightarrow$ Founder decision preview
+$\rightarrow$ FulfilmentJob preview
+$\rightarrow$ Evidence preview
+$\rightarrow$ Proof receipt preview
+$\rightarrow$ ETS preview
+$\rightarrow$ Boardroom replay.
+\end{quote}
+
+The front page MUST visibly preserve the safety boundary:
+
+\begin{itemize}
+  \item no booking created;
+  \item no payment created;
+  \item no escrow created;
+  \item no external message sent;
+  \item no live chain write;
+  \item human review required;
+  \item replay/hash proof available.
+\end{itemize}
+
+\subsection{Workflow to A2A Bridge}
+
+The Boardroom now includes a business-facing workflow-to-widget panel. This panel
+states the required bridge between normal workflow creation and A2A exposure:
+a workflow can become a website form or widget, the widget can route into the
+Public Intent Gateway, and the resulting quote or job decision remains guarded
+behind operator approval.
+
+\subsection{Advanced Runtime Drawer Boundary}
+
+The following surfaces are no longer front-page primary content:
+
+\begin{itemize}
+  \item Goal Engine debug panels;
+  \item provider metrics and provider audit feeds;
+  \item evidence source internals;
+  \item memory runtime internals;
+  \item AXO and ETS technical panels;
+  \item parent/child orchestration;
+  \item experiment runtime summaries;
+  \item container bindings.
+\end{itemize}
+
+These surfaces MAY remain visible inside the Advanced Runtime Drawer.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase16_boardroom_front_page_simplification_lock.py
+
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: PHASE16B-BOARDROOM-FRONT-PAGE-SIMPLIFICATION-LOCK
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

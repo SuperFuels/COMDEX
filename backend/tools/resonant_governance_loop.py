@@ -1,39 +1,51 @@
 #!/usr/bin/env python3
-"""
-⚖️  Resonant Governance Loop - Phase 61 Tessaris Self-Regulation Layer
-────────────────────────────────────────────────────────────────────────
-Transforms predictive risk metrics into adaptive policy updates.
+"""Guardian-backed resonant governance policy derivation."""
 
-Inputs :
-    * data/analysis/trajectory_predictions.json
-Outputs:
-    * data/analysis/governance_state.jsonl
-    * "governance_update" telemetry events
-"""
+from __future__ import annotations
 
-import json, time
-from pathlib import Path
-from statistics import fmean
-from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
-from backend.modules.consciousness.ethics_engine import evaluate_ethics_score
+from collections.abc import Callable, Mapping, Sequence
+import math
+import time
+from typing import Any
 
-Theta = ResonanceHeartbeat(namespace="global_theta")
-PRED_PATH = Path("data/analysis/trajectory_predictions.json")
-LOG_PATH = Path("data/analysis/governance_state.jsonl")
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
-def load_predictions():
+
+PREDICTIONS_ENTITY_ID = "trajectory_predictions"
+POLICY_ENTITY_ID = "resonance_governance_policy"
+POLICY_SCHEMA = "tessaris.resonance-governance-policy.v1"
+
+
+def _number(value: Any, default: float = 0.0) -> float:
     try:
-        return json.loads(PRED_PATH.read_text()).get("predictions", [])
-    except Exception:
+        result = float(value)
+    except (TypeError, ValueError):
+        return default
+    return result if math.isfinite(result) else default
+
+
+def load_predictions(store: AionLearningVaultStore) -> list[Mapping[str, Any]]:
+    payload = store.get_state(PREDICTIONS_ENTITY_ID, {})
+    values = payload.get("predictions", []) if isinstance(payload, Mapping) else []
+    if not isinstance(values, list):
         return []
+    return [row for row in values if isinstance(row, Mapping)]
 
-def derive_policy(predictions):
+
+def derive_policy(
+    predictions: Sequence[Mapping[str, Any]],
+    *,
+    now: Callable[[], float] = time.time,
+) -> dict[str, Any]:
     """Compute new governance thresholds."""
-    if not predictions:
-        return {"rewrite_rate": 0.0, "ethics_confidence": 0.7, "gain_mod": 1.0}
+    risks = [
+        max(0.0, min(1.0, _number(row.get("predicted_risk"))))
+        for row in predictions
+    ]
+    if not risks:
+        risks = [0.0]
 
-    risks = [p["predicted_risk"] for p in predictions]
-    avg_risk = fmean(risks)
+    avg_risk = sum(risks) / len(risks)
     max_risk = max(risks)
 
     # Dynamic thresholds
@@ -42,7 +54,8 @@ def derive_policy(predictions):
     gain_mod = max(0.5, 1.2 - (max_risk * 0.5))
 
     return {
-        "timestamp": time.time(),
+        "schema": POLICY_SCHEMA,
+        "timestamp": _number(now()),
         "avg_risk": round(avg_risk, 3),
         "max_risk": round(max_risk, 3),
         "rewrite_rate": round(rewrite_rate, 3),
@@ -50,27 +63,56 @@ def derive_policy(predictions):
         "gain_mod": round(gain_mod, 3),
     }
 
-def apply_policy(policy):
-    """Apply new modulation weights to Θ and ethics layer."""
-    Theta.push_sample(rho=policy["gain_mod"], entropy=1 - policy["ethics_confidence"])
-    ethics_test = evaluate_ethics_score("auto governance modulation")
-    Theta.event("governance_update",
-                avg_risk=policy["avg_risk"],
-                gain_mod=policy["gain_mod"],
-                ethics_score=ethics_test)
-    print(f"[Θ] Governance updated -> risk={policy['avg_risk']:.2f}, gain={policy['gain_mod']:.2f}")
+def apply_policy(
+    policy: Mapping[str, Any],
+    *,
+    runtime_handoff: Callable[[Mapping[str, Any]], None] | None = None,
+    ethics_evaluator: Callable[[str], Any] | None = None,
+) -> dict[str, Any]:
+    """Evaluate and explicitly hand an authorised policy to the live runtime."""
 
-def log_policy(policy):
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(LOG_PATH, "a") as f:
-        f.write(json.dumps(policy) + "\n")
+    applied = dict(policy)
+    if ethics_evaluator is None:
+        applied["ethics_score"] = None
+        applied["ethics_evaluation"] = "not_run"
+    else:
+        applied["ethics_score"] = _number(
+            ethics_evaluator("auto governance modulation")
+        )
+        applied["ethics_evaluation"] = "completed"
+    if runtime_handoff is not None:
+        runtime_handoff(dict(applied))
+    return applied
 
-def main():
-    preds = load_predictions()
-    policy = derive_policy(preds)
-    apply_policy(policy)
-    log_policy(policy)
-    print(f"📘 Governance policy applied -> {LOG_PATH}")
+
+def run_governance(
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    workspace_id: str | None = None,
+    predictions: Sequence[Mapping[str, Any]] | None = None,
+    runtime_handoff: Callable[[Mapping[str, Any]], None] | None = None,
+    ethics_evaluator: Callable[[str], Any] | None = None,
+    now: Callable[[], float] = time.time,
+) -> dict[str, Any]:
+    store = vault_store or AionLearningVaultStore(workspace_id=workspace_id)
+    if not store.enabled:
+        raise RuntimeError("resonant_governance_guardian_store_not_configured")
+    source = list(predictions) if predictions is not None else load_predictions(store)
+    applied = apply_policy(
+        derive_policy(source, now=now),
+        runtime_handoff=runtime_handoff,
+        ethics_evaluator=ethics_evaluator,
+    )
+    store.put_state(POLICY_ENTITY_ID, applied)
+    return applied
+
+
+def main() -> None:
+    policy = run_governance()
+    print(
+        "Governance policy applied "
+        f"risk={policy['avg_risk']:.2f}, gain={policy['gain_mod']:.2f}"
+    )
 
 if __name__ == "__main__":
     main()

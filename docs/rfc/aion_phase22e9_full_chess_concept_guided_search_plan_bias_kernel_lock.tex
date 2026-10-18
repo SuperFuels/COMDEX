@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.9 --- Concept-Guided Search and Plan Bias}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.9 introduces deterministic concept-guided search and plan bias.
+
+This phase consumes Phase 22E.8 strategic concept memory and applies concept policy weights as a bias layer over strategic search and long-term plan generation.
+
+\section{Bias Contract}
+
+For each applied concept, the kernel emits:
+
+\begin{itemize}[leftmargin=*]
+  \item concept identifier;
+  \item concept name;
+  \item primary goal;
+  \item policy weight;
+  \item success rate;
+  \item average risk reduction;
+  \item reinforcement score;
+  \item matched plan stage flag;
+  \item matched search goal flag;
+  \item bias score;
+  \item bias trace hash.
+\end{itemize}
+
+\section{Technical Position}
+
+This phase does not replace legal search output and does not send live moves.
+
+It creates a deterministic bridge between strategic concept memory and search/planning. Deep move replacement and live-play integration are reserved for later phases.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, human move scoring, or live Lichess move sending.
+
+It is deterministic local concept-guided search and plan bias over AION chess telemetry.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e9_full_chess_concept_guided_search_plan_bias_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e9_full_chess_concept_guided_search_plan_bias_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E9-FULL-CHESS-CONCEPT-GUIDED-SEARCH-PLAN-BIAS\\
+Status: LOCKED --- deterministic concept-guided search and plan bias implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

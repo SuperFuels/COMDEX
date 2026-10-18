@@ -12,19 +12,21 @@ OP_GLYPHS = {
     "symatics:⊕": "⊕",
     "photon:⊕": "⊕",
     "photon:⊗": "⊗",
+    "photon:⊗_M": "⊗_M",
     "photon:⊖": "⊖",
     "photon:¬": "¬",
     "photon:↔": "↔",
     "photon:★": "★",
+    "photon:Φ_B": "Φ_B",
     "photon:∅": "∅",
     "photon:⊤": "⊤",
     "photon:⊥": "⊥",
 }
 
 # Define sets for special rendering rules
-INFIX_OPS = {"⊕", "⊗", "↔", "⊖", "≈", "⊂"}
+INFIX_OPS = {"⊕", "⊗", "⊗_M", "↔", "⊖", "≈", "⊂"}
 NULLARY_OPS = {"∅", "⊤", "⊥"}
-UNARY_OPS = {"¬", "★"}
+UNARY_OPS = {"¬", "★", "Φ_B"}
 
 
 def render_photon(expr) -> str:
@@ -44,7 +46,6 @@ def render_photon(expr) -> str:
             # Unary ops
             if op in UNARY_OPS and rendered_args:
                 inner = rendered_args[0]
-                # parenthesize compound
                 if isinstance(args[0], dict) and ("states" in args[0] or "state" in args[0]):
                     inner = f"({inner})"
                 return f"{op}{inner}"

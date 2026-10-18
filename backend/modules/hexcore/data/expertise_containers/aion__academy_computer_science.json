@@ -1,0 +1,224 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_logic_proof",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:logic_proof",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_discrete_optimization",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:discrete_optimization",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:computer_science:data_structures",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:computer_science",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:computer_science:algorithms",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:computer_science",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:computer_science:complexity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:computer_science",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:computer_science:automata",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:computer_science",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:computer_science:compilers",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:computer_science",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:computer_science:computability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:computer_science",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:computer_science",
+      "label": "Computer science and algorithms",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:computer_science:data_structures",
+      "label": "data structures",
+      "subject_id": "computer_science",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:computer_science:algorithms",
+      "label": "algorithms",
+      "subject_id": "computer_science",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:computer_science:complexity",
+      "label": "complexity",
+      "subject_id": "computer_science",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:computer_science:automata",
+      "label": "automata",
+      "subject_id": "computer_science",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:computer_science:compilers",
+      "label": "compilers",
+      "subject_id": "computer_science",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:computer_science:computability",
+      "label": "computability",
+      "subject_id": "computer_science",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_computer_science",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:computer_science:data_structures",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:computer_science",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:computer_science:algorithms",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:computer_science",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:computer_science:complexity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:computer_science",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:computer_science:automata",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:computer_science",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:computer_science:compilers",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:computer_science",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:computer_science:computability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:computer_science",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:computer_science",
+        "label": "Computer science and algorithms",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:computer_science:data_structures",
+        "label": "data structures",
+        "subject_id": "computer_science",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:computer_science:algorithms",
+        "label": "algorithms",
+        "subject_id": "computer_science",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:computer_science:complexity",
+        "label": "complexity",
+        "subject_id": "computer_science",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:computer_science:automata",
+        "label": "automata",
+        "subject_id": "computer_science",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:computer_science:compilers",
+        "label": "compilers",
+        "subject_id": "computer_science",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:computer_science:computability",
+        "label": "computability",
+        "subject_id": "computer_science",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "computer_science",
+    "title": "AION Academy \u00b7 Computer science and algorithms"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

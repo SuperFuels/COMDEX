@@ -1,0 +1,108 @@
+\section{AION Phase 20S --- Cross-Mission Memory Boundary}
+\label{sec:aion-phase20s-cross-mission-memory-boundary}
+
+\subsection{Status}
+
+Phase 20S locks the cross-mission memory boundary.
+
+\begin{quote}
+\textbf{Status: LOCKED --- mission data cannot leak into later missions unless explicitly approved.}
+\end{quote}
+
+\subsection{Purpose}
+
+Mission-local data MUST NOT silently become global memory or future mission context.
+
+Phase 20S prevents accidental and malicious cross-mission leakage.
+
+\begin{quote}
+\textbf{Mission B MUST NOT inherit Mission A data unless explicitly allowed.}
+\end{quote}
+
+\subsection{Mission Memory Scopes}
+
+Mission memory records MUST declare one of:
+
+\begin{itemize}
+  \item \texttt{session}
+  \item \texttt{mission}
+  \item \texttt{business\_proposal}
+  \item \texttt{forbidden}
+\end{itemize}
+
+\subsection{Default Boundary}
+
+Cross-mission access is blocked by default.
+
+Mission-scoped data MAY be read by the same mission, but MUST NOT be read by a later mission without explicit approval.
+
+\subsection{Data Retention Policy}
+
+The memory boundary MUST respect \texttt{data\_retention\_policy}.
+
+For \texttt{mission\_scoped} data, access outside the source mission is rejected unless an approved transfer hash exists.
+
+\subsection{Business Memory Proposal}
+
+AION Pilot MUST NOT silently promote mission data to business memory.
+
+Reusable learning must be converted into a memory promotion proposal containing:
+
+\begin{itemize}
+  \item source mission ID;
+  \item target business ID;
+  \item key;
+  \item proposed value hash;
+  \item reason;
+  \item proposed by;
+  \item approval state;
+  \item proposal hash.
+\end{itemize}
+
+\subsection{Human Approval}
+
+A business memory promotion becomes valid only after human approval.
+
+The approval MUST emit:
+
+\begin{verbatim}
+approval_hash: sha256:<digest>
+\end{verbatim}
+
+\subsection{Accidental Leakage Guard}
+
+The memory boundary MUST test realistic accidental leakage, not only malicious leakage.
+
+If a later mission context contains source mission identifiers or mission-scoped data without an approved transfer, the context MUST be blocked.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20S-CROSS-MISSION-MEMORY-BOUNDARY
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

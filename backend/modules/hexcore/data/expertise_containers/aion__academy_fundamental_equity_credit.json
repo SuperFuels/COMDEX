@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_accounting_corporate_finance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_economics_core",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:economics_core",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_asset_pricing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:asset_pricing",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:fundamental_equity_credit:financial_statement_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:fundamental_equity_credit:industry_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:fundamental_equity_credit:competitive_advantage",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:fundamental_equity_credit:earnings_quality",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:fundamental_equity_credit:cash_flow_forecasting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:fundamental_equity_credit:capital_structure",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:fundamental_equity_credit:default_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:fundamental_equity_credit:investment_memo",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "label": "Fundamental equity and credit analysis",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:fundamental_equity_credit:financial_statement_analysis",
+      "label": "financial statement analysis",
+      "subject_id": "fundamental_equity_credit",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:fundamental_equity_credit:industry_analysis",
+      "label": "industry analysis",
+      "subject_id": "fundamental_equity_credit",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:fundamental_equity_credit:competitive_advantage",
+      "label": "competitive advantage",
+      "subject_id": "fundamental_equity_credit",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:fundamental_equity_credit:earnings_quality",
+      "label": "earnings quality",
+      "subject_id": "fundamental_equity_credit",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:fundamental_equity_credit:cash_flow_forecasting",
+      "label": "cash flow forecasting",
+      "subject_id": "fundamental_equity_credit",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:fundamental_equity_credit:capital_structure",
+      "label": "capital structure",
+      "subject_id": "fundamental_equity_credit",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:fundamental_equity_credit:default_risk",
+      "label": "default risk",
+      "subject_id": "fundamental_equity_credit",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:fundamental_equity_credit:investment_memo",
+      "label": "investment memo",
+      "subject_id": "fundamental_equity_credit",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_fundamental_equity_credit",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:fundamental_equity_credit:financial_statement_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:fundamental_equity_credit:industry_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:fundamental_equity_credit:competitive_advantage",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:fundamental_equity_credit:earnings_quality",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:fundamental_equity_credit:cash_flow_forecasting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:fundamental_equity_credit:capital_structure",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:fundamental_equity_credit:default_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:fundamental_equity_credit:investment_memo",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "label": "Fundamental equity and credit analysis",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:fundamental_equity_credit:financial_statement_analysis",
+        "label": "financial statement analysis",
+        "subject_id": "fundamental_equity_credit",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:fundamental_equity_credit:industry_analysis",
+        "label": "industry analysis",
+        "subject_id": "fundamental_equity_credit",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:fundamental_equity_credit:competitive_advantage",
+        "label": "competitive advantage",
+        "subject_id": "fundamental_equity_credit",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:fundamental_equity_credit:earnings_quality",
+        "label": "earnings quality",
+        "subject_id": "fundamental_equity_credit",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:fundamental_equity_credit:cash_flow_forecasting",
+        "label": "cash flow forecasting",
+        "subject_id": "fundamental_equity_credit",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:fundamental_equity_credit:capital_structure",
+        "label": "capital structure",
+        "subject_id": "fundamental_equity_credit",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:fundamental_equity_credit:default_risk",
+        "label": "default risk",
+        "subject_id": "fundamental_equity_credit",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:fundamental_equity_credit:investment_memo",
+        "label": "investment memo",
+        "subject_id": "fundamental_equity_credit",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "fundamental_equity_credit",
+    "title": "AION Academy \u00b7 Fundamental equity and credit analysis"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

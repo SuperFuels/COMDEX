@@ -1,0 +1,155 @@
+\section{AION Phase 20M --- Multi-Agent Mission Orchestration Prep}
+\label{sec:aion-phase20m-multi-agent-orchestration}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- multi-agent mission orchestration preparation layer for parent mission scope, coordinator control, sub-agent assignment, handoff policy, conflict handling and final receipt aggregation.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20M prepares AION Mission Mode for multi-agent execution.
+
+The purpose is not to let sub-agents act independently. The purpose is to allow a Mission Coordinator to decompose work while enforcing the parent mission scope.
+
+\begin{quote}
+\textbf{Sub-agents inherit authority. They do not create authority.}
+\end{quote}
+
+\subsection{Mission Coordinator}
+
+Every multi-agent mission MUST define a Mission Coordinator.
+
+The coordinator is responsible for:
+
+\begin{itemize}
+  \item decomposing the mission goal;
+  \item assigning sub-agents;
+  \item enforcing parent scope;
+  \item monitoring handoffs;
+  \item aggregating final receipts;
+  \item failing closed on scope violations.
+\end{itemize}
+
+The coordinator MUST NOT directly bypass the existing Mission Mode controls.
+
+\subsection{Parent Scope}
+
+The parent mission scope defines the maximum authority available to any sub-agent.
+
+The scope MUST include:
+
+\begin{itemize}
+  \item \texttt{mission\_id}
+  \item \texttt{mission\_run\_id}
+  \item \texttt{business\_id}
+  \item \texttt{allowed\_lanes}
+  \item \texttt{allowed\_capabilities}
+  \item \texttt{max\_sub\_agents}
+  \item \texttt{max\_handoff\_depth}
+  \item \texttt{default\_control\_decision}
+\end{itemize}
+
+The parent scope MUST emit:
+
+\begin{verbatim}
+parent_scope_hash
+\end{verbatim}
+
+\subsection{Sub-Agent Assignment}
+
+Each sub-agent assignment MUST bind:
+
+\begin{itemize}
+  \item parent scope hash;
+  \item agent ID;
+  \item agent role;
+  \item assigned goal;
+  \item inherited lanes;
+  \item inherited capabilities;
+  \item effective control decision;
+  \item assignment hash.
+\end{itemize}
+
+If a sub-agent requests a lane or capability outside the parent scope, the assignment MUST be blocked.
+
+\subsection{Control Decision Inheritance}
+
+Sub-agent control decisions MUST be at least as strict as the parent default decision.
+
+The strictness order is:
+
+\begin{verbatim}
+autonomous < human_approval_required < human_task_required < blocked
+\end{verbatim}
+
+A sub-agent MUST NOT weaken the parent mission decision.
+
+\subsection{Handoff Policy}
+
+Agent-to-agent handoffs MUST be explicit records.
+
+A handoff MUST include:
+
+\begin{itemize}
+  \item source agent;
+  \item target agent;
+  \item payload hash;
+  \item handoff policy;
+  \item handoff hash;
+  \item requirement for parent scope validation;
+  \item requirement for receipt binding.
+\end{itemize}
+
+\subsection{Conflict Resolution}
+
+If sub-agents produce conflicting payloads, provider choices, plans, or hashes, the mission MUST resolve the conflict using one of:
+
+\begin{verbatim}
+fail_closed
+coordinator_decides_with_review
+human_review_required
+\end{verbatim}
+
+The default is:
+
+\begin{verbatim}
+fail_closed
+\end{verbatim}
+
+\subsection{Boardroom Agent Hierarchy}
+
+The Boardroom MUST be able to display:
+
+\begin{itemize}
+  \item Mission Coordinator;
+  \item active sub-agents;
+  \item blocked sub-agent assignments;
+  \item handoff records;
+  \item assignment hashes;
+  \item handoff hashes;
+  \item final coordinator receipt hash.
+\end{itemize}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{Multi-agent execution must not expand mission authority. Every sub-agent is a scoped worker under the parent mission contract, and any scope breach must be visible, hashed and blocked.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20m_multi_agent_orchestration_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20M-MULTI-AGENT-MISSION-ORCHESTRATION-PREP
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

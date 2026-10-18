@@ -1,0 +1,102 @@
+\section{Phase 13C --- No-Booking and No-Live-Job Side-Effect Regression v0}
+\label{sec:aion-phase13c-no-booking-side-effect-regression-v0}
+
+\subsection{Status}
+
+Phase 13C locks the no-booking and no-live-job side-effect regression boundary across the AION Gateway and public embed stack.
+
+\begin{quote}
+\textbf{Status: LOCKED --- no-booking and no-live-job side-effect regression tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 13C proves that the gateway and public embed preview modules cannot create bookings, create live jobs, execute the Goal Engine, dispatch providers, or bypass human review.
+
+This is a regression lock. It does not add a live route, does not add a new frontend visual surface, and does not change product behaviour.
+
+\subsection{Scope}
+
+The regression covers the current gateway modules that participate in public website intake, widget mapping, guard envelopes, human review handoff, machine cart previews, fulfilment previews, A2A traces, exceptions, and the Home Fixed vertical dry-run.
+
+The checked modules include:
+
+\begin{verbatim}
+backend/modules/aion_gateway/public_intent_gateway.py
+backend/modules/aion_gateway/public_widget_request_mapping.py
+backend/modules/aion_gateway/public_embed_guard_envelope.py
+backend/modules/aion_gateway/public_embed_human_review_handoff.py
+backend/modules/aion_gateway/fulfilment_job.py
+backend/modules/aion_gateway/fulfilment_job_core.py
+backend/modules/aion_gateway/machine_cart.py
+backend/modules/aion_gateway/a2a_job_trace.py
+backend/modules/aion_gateway/a2a_job_evidence_settlement.py
+backend/modules/aion_gateway/a2a_handshake_preview.py
+backend/modules/aion_gateway/agent_channels.py
+backend/modules/aion_gateway/exceptions.py
+backend/modules/aion_gateway/home_fixed_vertical.py
+\end{verbatim}
+
+\subsection{Locked Boundary}
+
+The following behaviour remains forbidden:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item dispatch a provider,
+  \item start a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item expose an unauthenticated public write route,
+  \item convert a preview widget request into live execution.
+\end{itemize}
+
+\subsection{Required Preview Flags}
+
+The regression checks that preview modules continue to expose or preserve the following safety flags:
+
+\begin{verbatim}
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+human_review_required = true
+approval_can_create_booking = false
+approval_can_create_live_job = false
+approval_can_execute_goal_engine = false
+\end{verbatim}
+
+\subsection{Frontend Impact}
+
+This phase does not create a new frontend visual surface.
+
+No new manual frontend smoke test is required.
+
+\subsection{Validation Commands}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_no_booking_side_effect_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_no_booking_side_effect_regression_lock_doc.py
+\end{verbatim}
+
+Focused suite:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Gateway compile sweep:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13C-NO-BOOKING-SIDE-EFFECT-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

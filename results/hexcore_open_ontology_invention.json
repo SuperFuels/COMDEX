@@ -1,0 +1,644 @@
+{
+  "benchmark": "cross_domain_relational_predicate_invention",
+  "boundary_statement": "AION selected a new relational predicate from a bounded candidate grammar and transferred it across renamed numeric domains. It did not invent unrestricted mathematics, language, code, or its own authority rules.",
+  "candidate_deduplication": {
+    "merged": [
+      {
+        "reason": "EQUIVALENT_TRUTH_SIGNATURE",
+        "rejected": "ordered_margin_alias",
+        "retained": "ordered_margin"
+      },
+      {
+        "reason": "EQUIVALENT_TRUTH_SIGNATURE",
+        "rejected": "reverse_margin",
+        "retained": "field_equality"
+      },
+      {
+        "reason": "EQUIVALENT_TRUTH_SIGNATURE",
+        "rejected": "additive_mass",
+        "retained": "field_equality"
+      }
+    ],
+    "templates": [
+      {
+        "complexity": 1,
+        "operator": "unary_ge",
+        "template_id": "left_threshold"
+      },
+      {
+        "complexity": 1,
+        "operator": "unary_le",
+        "template_id": "right_threshold"
+      },
+      {
+        "complexity": 1,
+        "operator": "equality",
+        "template_id": "field_equality"
+      },
+      {
+        "complexity": 2,
+        "operator": "difference_ge",
+        "template_id": "ordered_margin"
+      }
+    ]
+  },
+  "development_candidates": [
+    {
+      "domains": [
+        {
+          "accuracy": 0.7291666666666666,
+          "domain_id": "cinder_balance",
+          "evaluation_examples": 240,
+          "fields": [
+            "cinder",
+            "ash"
+          ],
+          "threshold": 10.0,
+          "training_examples": 160
+        },
+        {
+          "accuracy": 0.7541666666666667,
+          "domain_id": "harbor_pressure",
+          "evaluation_examples": 240,
+          "fields": [
+            "crest",
+            "keel"
+          ],
+          "threshold": 14.0,
+          "training_examples": 160
+        }
+      ],
+      "mean_accuracy": 0.7416666666666667,
+      "template": {
+        "complexity": 1,
+        "operator": "unary_ge",
+        "template_id": "left_threshold"
+      },
+      "worst_accuracy": 0.7291666666666666
+    },
+    {
+      "domains": [
+        {
+          "accuracy": 0.75,
+          "domain_id": "cinder_balance",
+          "evaluation_examples": 240,
+          "fields": [
+            "cinder",
+            "ash"
+          ],
+          "threshold": -7.0,
+          "training_examples": 160
+        },
+        {
+          "accuracy": 0.7833333333333333,
+          "domain_id": "harbor_pressure",
+          "evaluation_examples": 240,
+          "fields": [
+            "crest",
+            "keel"
+          ],
+          "threshold": -4.0,
+          "training_examples": 160
+        }
+      ],
+      "mean_accuracy": 0.7666666666666666,
+      "template": {
+        "complexity": 1,
+        "operator": "unary_le",
+        "template_id": "right_threshold"
+      },
+      "worst_accuracy": 0.75
+    },
+    {
+      "domains": [
+        {
+          "accuracy": 0.5666666666666667,
+          "domain_id": "cinder_balance",
+          "evaluation_examples": 240,
+          "fields": [
+            "cinder",
+            "ash"
+          ],
+          "threshold": 1.0,
+          "training_examples": 160
+        },
+        {
+          "accuracy": 0.6958333333333333,
+          "domain_id": "harbor_pressure",
+          "evaluation_examples": 240,
+          "fields": [
+            "crest",
+            "keel"
+          ],
+          "threshold": 1.0,
+          "training_examples": 160
+        }
+      ],
+      "mean_accuracy": 0.63125,
+      "template": {
+        "complexity": 1,
+        "operator": "equality",
+        "template_id": "field_equality"
+      },
+      "worst_accuracy": 0.5666666666666667
+    },
+    {
+      "domains": [
+        {
+          "accuracy": 0.9708333333333333,
+          "domain_id": "cinder_balance",
+          "evaluation_examples": 240,
+          "fields": [
+            "cinder",
+            "ash"
+          ],
+          "threshold": 3.0,
+          "training_examples": 160
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "harbor_pressure",
+          "evaluation_examples": 240,
+          "fields": [
+            "crest",
+            "keel"
+          ],
+          "threshold": 5.0,
+          "training_examples": 160
+        }
+      ],
+      "mean_accuracy": 0.9854166666666666,
+      "template": {
+        "complexity": 2,
+        "operator": "difference_ge",
+        "template_id": "ordered_margin"
+      },
+      "worst_accuracy": 0.9708333333333333
+    }
+  ],
+  "existing_ontology": {
+    "domains": [
+      {
+        "accuracy": 0.75,
+        "domain_id": "cinder_balance",
+        "evaluation_examples": 240,
+        "fields": [
+          "cinder",
+          "ash"
+        ],
+        "threshold": -7.0,
+        "training_examples": 160
+      },
+      {
+        "accuracy": 0.7833333333333333,
+        "domain_id": "harbor_pressure",
+        "evaluation_examples": 240,
+        "fields": [
+          "crest",
+          "keel"
+        ],
+        "threshold": -4.0,
+        "training_examples": 160
+      }
+    ],
+    "mean_accuracy": 0.7666666666666666,
+    "template": {
+      "complexity": 1,
+      "operator": "unary_le",
+      "template_id": "right_threshold"
+    },
+    "worst_accuracy": 0.75
+  },
+  "gate": {
+    "accepted": true,
+    "cold_examples_per_domain": 200,
+    "cold_mean_accuracy": 0.9908333333333333,
+    "development_mean_accuracy": 0.9854166666666666,
+    "errors": [],
+    "example_reduction": 0.8,
+    "existing_ontology_mean_accuracy": 0.7680555555555556,
+    "gain_over_existing": 0.22277777777777774,
+    "sealed_transfer_mean_accuracy": 0.9908333333333333,
+    "sealed_transfer_worst_accuracy": 0.9825,
+    "selected_template": {
+      "complexity": 2,
+      "operator": "difference_ge",
+      "template_id": "ordered_margin"
+    },
+    "transfer_examples_per_domain": 40
+  },
+  "gates": {
+    "cau_promotion": true,
+    "cross_domain_transfer": true,
+    "duplicates_merged": true,
+    "inadequacy_recognised": true,
+    "new_relational_predicate_invented": true,
+    "restart_retention": true,
+    "unnecessary_inventions_rejected": true
+  },
+  "language_provider_used": false,
+  "model_criticism": {
+    "invention_required": true,
+    "mean_accuracy": 0.7666666666666666,
+    "reason": "NO_EXISTING_PREDICATE_GENERALISES",
+    "status": "ONTOLOGY_INADEQUATE",
+    "worst_accuracy": 0.75
+  },
+  "negative_controls": [
+    {
+      "criticism": {
+        "invention_required": false,
+        "mean_accuracy": 0.9833333333333333,
+        "reason": "EXISTING_PREDICATE_SUFFICIENT",
+        "status": "ONTOLOGY_ADEQUATE",
+        "worst_accuracy": 0.9833333333333333
+      },
+      "domain_id": "simple_voltage",
+      "existing": {
+        "domains": [
+          {
+            "accuracy": 0.9833333333333333,
+            "domain_id": "simple_voltage",
+            "evaluation_examples": 240,
+            "fields": [
+              "voltage",
+              "shadow"
+            ],
+            "threshold": 11.0,
+            "training_examples": 160
+          }
+        ],
+        "mean_accuracy": 0.9833333333333333,
+        "template": {
+          "complexity": 1,
+          "operator": "unary_ge",
+          "template_id": "left_threshold"
+        },
+        "worst_accuracy": 0.9833333333333333
+      },
+      "unnecessary_invention_rejected": true
+    },
+    {
+      "criticism": {
+        "invention_required": false,
+        "mean_accuracy": 0.9875,
+        "reason": "EXISTING_PREDICATE_SUFFICIENT",
+        "status": "ONTOLOGY_ADEQUATE",
+        "worst_accuracy": 0.9875
+      },
+      "domain_id": "simple_depth",
+      "existing": {
+        "domains": [
+          {
+            "accuracy": 0.9875,
+            "domain_id": "simple_depth",
+            "evaluation_examples": 240,
+            "fields": [
+              "depth",
+              "echo"
+            ],
+            "threshold": 9.0,
+            "training_examples": 160
+          }
+        ],
+        "mean_accuracy": 0.9875,
+        "template": {
+          "complexity": 1,
+          "operator": "unary_ge",
+          "template_id": "left_threshold"
+        },
+        "worst_accuracy": 0.9875
+      },
+      "unnecessary_invention_rejected": true
+    }
+  ],
+  "passed": true,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "concept_id": "concept_ordered_margin_2d5a04f6994e",
+        "evaluation": "phase22_open_ontology_sealed",
+        "gate": {
+          "accepted": true,
+          "cold_examples_per_domain": 200,
+          "cold_mean_accuracy": 0.9908333333333333,
+          "development_mean_accuracy": 0.9854166666666666,
+          "errors": [],
+          "example_reduction": 0.8,
+          "existing_ontology_mean_accuracy": 0.7680555555555556,
+          "gain_over_existing": 0.22277777777777774,
+          "sealed_transfer_mean_accuracy": 0.9908333333333333,
+          "sealed_transfer_worst_accuracy": 0.9825,
+          "selected_template": {
+            "complexity": 2,
+            "operator": "difference_ge",
+            "template_id": "ordered_margin"
+          },
+          "transfer_examples_per_domain": 40
+        }
+      },
+      "goal": "cross_domain_ontology_invention",
+      "procedure_id": "procedure_ontology_invention_0e9d9c5eafb8",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 0.9908333333333333,
+      "source_rules": [],
+      "steps": [
+        "measure_existing_ontology_residual_error",
+        "declare_current_predicates_inadequate",
+        "generate_bounded_relational_predicate_candidates",
+        "fit_parameters_on_development_observations",
+        "merge_equivalent_truth_signatures",
+        "reject_unnecessary_concepts",
+        "verify_cross_domain_transfer",
+        "retain_concept_with_provenance_and_complexity"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_ontology_invention_0e9d9c5eafb8",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "open_ontology_invention_authority"
+        },
+        "reason": "procedure_promotion:procedure_ontology_invention_0e9d9c5eafb8",
+        "state_hash": "c6ad2b4cf3530b57f9e655216dc8348b09e02f6282cfad7fa8e2a8e1d7bb3452"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "invented_concept_retained": true,
+    "invention_history_retained": true,
+    "relearning_examples": 0
+  },
+  "schema_version": "aion.hexcore.open_ontology_invention.v1",
+  "sealed_cold_search": {
+    "domains": [
+      {
+        "accuracy": 0.9825,
+        "domain_id": "orchid_tension",
+        "evaluation_examples": 400,
+        "fields": [
+          "petal",
+          "stem"
+        ],
+        "threshold": 2.0,
+        "training_examples": 200
+      },
+      {
+        "accuracy": 0.995,
+        "domain_id": "signal_reserve",
+        "evaluation_examples": 400,
+        "fields": [
+          "carrier",
+          "drain"
+        ],
+        "threshold": 4.0,
+        "training_examples": 200
+      },
+      {
+        "accuracy": 0.995,
+        "domain_id": "mineral_bias",
+        "evaluation_examples": 400,
+        "fields": [
+          "vein",
+          "tailing"
+        ],
+        "threshold": 6.0,
+        "training_examples": 200
+      }
+    ],
+    "mean_accuracy": 0.9908333333333333,
+    "template": {
+      "complexity": 2,
+      "operator": "difference_ge",
+      "template_id": "ordered_margin"
+    },
+    "worst_accuracy": 0.9825
+  },
+  "sealed_existing_control": {
+    "domains": [
+      {
+        "accuracy": 0.7708333333333334,
+        "domain_id": "orchid_tension",
+        "evaluation_examples": 240,
+        "fields": [
+          "petal",
+          "stem"
+        ],
+        "threshold": -11.0,
+        "training_examples": 160
+      },
+      {
+        "accuracy": 0.7958333333333333,
+        "domain_id": "signal_reserve",
+        "evaluation_examples": 240,
+        "fields": [
+          "carrier",
+          "drain"
+        ],
+        "threshold": -7.0,
+        "training_examples": 160
+      },
+      {
+        "accuracy": 0.7375,
+        "domain_id": "mineral_bias",
+        "evaluation_examples": 240,
+        "fields": [
+          "vein",
+          "tailing"
+        ],
+        "threshold": -0.0,
+        "training_examples": 160
+      }
+    ],
+    "mean_accuracy": 0.7680555555555556,
+    "template": {
+      "complexity": 1,
+      "operator": "unary_le",
+      "template_id": "right_threshold"
+    },
+    "worst_accuracy": 0.7375
+  },
+  "sealed_transfer": {
+    "domains": [
+      {
+        "accuracy": 0.9825,
+        "domain_id": "orchid_tension",
+        "evaluation_examples": 400,
+        "fields": [
+          "petal",
+          "stem"
+        ],
+        "threshold": 2.0,
+        "training_examples": 40
+      },
+      {
+        "accuracy": 0.995,
+        "domain_id": "signal_reserve",
+        "evaluation_examples": 400,
+        "fields": [
+          "carrier",
+          "drain"
+        ],
+        "threshold": 4.0,
+        "training_examples": 40
+      },
+      {
+        "accuracy": 0.995,
+        "domain_id": "mineral_bias",
+        "evaluation_examples": 400,
+        "fields": [
+          "vein",
+          "tailing"
+        ],
+        "threshold": 6.0,
+        "training_examples": 40
+      }
+    ],
+    "mean_accuracy": 0.9908333333333333,
+    "template": {
+      "complexity": 2,
+      "operator": "difference_ge",
+      "template_id": "ordered_margin"
+    },
+    "worst_accuracy": 0.9825
+  },
+  "selected_invention": {
+    "arity": 2,
+    "complexity": 2,
+    "concept_id": "concept_ordered_margin_2d5a04f6994e",
+    "created_at": "2026-07-28T23:02:41.525759+00:00",
+    "deduplication": [
+      {
+        "reason": "EQUIVALENT_TRUTH_SIGNATURE",
+        "rejected": "ordered_margin_alias",
+        "retained": "ordered_margin"
+      },
+      {
+        "reason": "EQUIVALENT_TRUTH_SIGNATURE",
+        "rejected": "reverse_margin",
+        "retained": "field_equality"
+      },
+      {
+        "reason": "EQUIVALENT_TRUTH_SIGNATURE",
+        "rejected": "additive_mass",
+        "retained": "field_equality"
+      }
+    ],
+    "development": {
+      "domains": [
+        {
+          "accuracy": 0.9708333333333333,
+          "domain_id": "cinder_balance",
+          "evaluation_examples": 240,
+          "fields": [
+            "cinder",
+            "ash"
+          ],
+          "threshold": 3.0,
+          "training_examples": 160
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "harbor_pressure",
+          "evaluation_examples": 240,
+          "fields": [
+            "crest",
+            "keel"
+          ],
+          "threshold": 5.0,
+          "training_examples": 160
+        }
+      ],
+      "mean_accuracy": 0.9854166666666666,
+      "template": {
+        "complexity": 2,
+        "operator": "difference_ge",
+        "template_id": "ordered_margin"
+      },
+      "worst_accuracy": 0.9708333333333333
+    },
+    "gate": {
+      "accepted": true,
+      "cold_examples_per_domain": 200,
+      "cold_mean_accuracy": 0.9908333333333333,
+      "development_mean_accuracy": 0.9854166666666666,
+      "errors": [],
+      "example_reduction": 0.8,
+      "existing_ontology_mean_accuracy": 0.7680555555555556,
+      "gain_over_existing": 0.22277777777777774,
+      "sealed_transfer_mean_accuracy": 0.9908333333333333,
+      "sealed_transfer_worst_accuracy": 0.9825,
+      "selected_template": {
+        "complexity": 2,
+        "operator": "difference_ge",
+        "template_id": "ordered_margin"
+      },
+      "transfer_examples_per_domain": 40
+    },
+    "model_criticism": {
+      "invention_required": true,
+      "mean_accuracy": 0.7666666666666666,
+      "reason": "NO_EXISTING_PREDICATE_GENERALISES",
+      "status": "ONTOLOGY_INADEQUATE",
+      "worst_accuracy": 0.75
+    },
+    "name": "ordered_margin",
+    "operator": "difference_ge",
+    "parameterisation": "domain_calibrated_threshold",
+    "schema_version": "aion.hexcore.invented_concept.v1",
+    "sealed": {
+      "domains": [
+        {
+          "accuracy": 0.9825,
+          "domain_id": "orchid_tension",
+          "evaluation_examples": 400,
+          "fields": [
+            "petal",
+            "stem"
+          ],
+          "threshold": 2.0,
+          "training_examples": 40
+        },
+        {
+          "accuracy": 0.995,
+          "domain_id": "signal_reserve",
+          "evaluation_examples": 400,
+          "fields": [
+            "carrier",
+            "drain"
+          ],
+          "threshold": 4.0,
+          "training_examples": 40
+        },
+        {
+          "accuracy": 0.995,
+          "domain_id": "mineral_bias",
+          "evaluation_examples": 400,
+          "fields": [
+            "vein",
+            "tailing"
+          ],
+          "threshold": 6.0,
+          "training_examples": 40
+        }
+      ],
+      "mean_accuracy": 0.9908333333333333,
+      "template": {
+        "complexity": 2,
+        "operator": "difference_ge",
+        "template_id": "ordered_margin"
+      },
+      "worst_accuracy": 0.9825
+    },
+    "source": "phase22_outcome_grounded_relational_search"
+  }
+}

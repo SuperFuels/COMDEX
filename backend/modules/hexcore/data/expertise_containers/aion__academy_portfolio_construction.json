@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_asset_pricing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:asset_pricing",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_discrete_optimization",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:discrete_optimization",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_markets_investing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:markets_investing",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:portfolio_construction:mean_variance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:portfolio_construction:factor_exposures",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:portfolio_construction:risk_budgeting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:portfolio_construction:robust_optimisation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:portfolio_construction:constraints",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:portfolio_construction:rebalancing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:portfolio_construction:performance_attribution",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:portfolio_construction:capacity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:portfolio_construction",
+      "label": "Portfolio construction and allocation",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:portfolio_construction:mean_variance",
+      "label": "mean variance",
+      "subject_id": "portfolio_construction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:portfolio_construction:factor_exposures",
+      "label": "factor exposures",
+      "subject_id": "portfolio_construction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:portfolio_construction:risk_budgeting",
+      "label": "risk budgeting",
+      "subject_id": "portfolio_construction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:portfolio_construction:robust_optimisation",
+      "label": "robust optimisation",
+      "subject_id": "portfolio_construction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:portfolio_construction:constraints",
+      "label": "constraints",
+      "subject_id": "portfolio_construction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:portfolio_construction:rebalancing",
+      "label": "rebalancing",
+      "subject_id": "portfolio_construction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:portfolio_construction:performance_attribution",
+      "label": "performance attribution",
+      "subject_id": "portfolio_construction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:portfolio_construction:capacity",
+      "label": "capacity",
+      "subject_id": "portfolio_construction",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_portfolio_construction",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:portfolio_construction:mean_variance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:portfolio_construction:factor_exposures",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:portfolio_construction:risk_budgeting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:portfolio_construction:robust_optimisation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:portfolio_construction:constraints",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:portfolio_construction:rebalancing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:portfolio_construction:performance_attribution",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:portfolio_construction:capacity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:portfolio_construction",
+        "label": "Portfolio construction and allocation",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:portfolio_construction:mean_variance",
+        "label": "mean variance",
+        "subject_id": "portfolio_construction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:portfolio_construction:factor_exposures",
+        "label": "factor exposures",
+        "subject_id": "portfolio_construction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:portfolio_construction:risk_budgeting",
+        "label": "risk budgeting",
+        "subject_id": "portfolio_construction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:portfolio_construction:robust_optimisation",
+        "label": "robust optimisation",
+        "subject_id": "portfolio_construction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:portfolio_construction:constraints",
+        "label": "constraints",
+        "subject_id": "portfolio_construction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:portfolio_construction:rebalancing",
+        "label": "rebalancing",
+        "subject_id": "portfolio_construction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:portfolio_construction:performance_attribution",
+        "label": "performance attribution",
+        "subject_id": "portfolio_construction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:portfolio_construction:capacity",
+        "label": "capacity",
+        "subject_id": "portfolio_construction",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "portfolio_construction",
+    "title": "AION Academy \u00b7 Portfolio construction and allocation"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

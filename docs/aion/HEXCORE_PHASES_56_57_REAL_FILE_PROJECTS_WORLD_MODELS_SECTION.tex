@@ -1,0 +1,418 @@
+\section{HexCore Phases 56--57: Real-File Projects and Relational World Models}
+\label{sec:hexcore-phases-56-57}
+
+\subsection{Programme objective}
+
+Phases 56 and 57 connect AION's open-world ingestion system to persistent
+project execution and learned models of change.  Phase 56 establishes that
+AION can execute a checksum-bound project across interruptions and revise its
+work when a real source file changes.  Phase 57 then replaces a fixed
+revision rule with a learned relational theory that predicts which project
+artifacts will become stale.
+
+The combined governed chain is:
+\[
+\begin{aligned}
+\text{real files}
+&\rightarrow \text{persistent project graph}
+\rightarrow \text{checkpointed conclusions}\\
+&\rightarrow \text{observed source revision}
+\rightarrow \text{learned transition model}\\
+&\rightarrow \text{selective invalidation or abstention}
+\rightarrow \text{independent verification}
+\rightarrow \text{CAU retention}.
+\end{aligned}
+\]
+
+Neural or symbolic proposals do not become authoritative merely because they
+are plausible.  Current source hashes, exact evidence recovery, independent
+execution and Cognitive Authority Unification (CAU) remain the acceptance
+boundary.
+
+\subsection{Phase 56: real-file long-horizon project execution}
+\label{subsec:phase56-real-file-projects}
+
+\subsubsection{Capability contract}
+
+Phase 56 strengthens the earlier synthetic long-horizon benchmark by
+operating on real repository result files and technical reports.  Each
+project must:
+\begin{enumerate}
+    \item bind its objective to checksum-addressed source files;
+    \item construct and persist an explicit task-dependency graph;
+    \item preserve exact evidence locations and knowledge status;
+    \item checkpoint after every milestone;
+    \item recover after forced process reconstruction;
+    \item detect a source revision after producing a draft;
+    \item invalidate only work that depends on the changed source;
+    \item reconcile the revision or abstain on unresolved contradiction; and
+    \item pass a verifier that independently rereads the current files.
+\end{enumerate}
+
+\subsubsection{Development and sealed cohorts}
+
+The development cohort used real outputs and reports from Phases 48--52:
+external evaluation, document intelligence, project decomposition, tool
+invention and continual self-improvement.  The source-disjoint sealed cohort
+used Phases 53--55:
+\begin{itemize}
+    \item blind external evaluation;
+    \item open-world ingestion; and
+    \item recursive Photon synthesis.
+\end{itemize}
+
+Each sealed project contained an authoritative JSON result and its Markdown
+technical report.  The repository sources were read-only.  All revision
+tests used checksum-bound isolated copies.
+
+\subsubsection{Persistent project representation}
+
+Each entry in \texttt{real\_file\_projects} contains:
+\begin{itemize}
+    \item project identifier, cohort, family and objective;
+    \item milestone plan and explicit dependencies;
+    \item source paths, roles and SHA-256 snapshots;
+    \item exact report evidence and character offsets;
+    \item unresolved questions;
+    \item invalidated and repeated tasks;
+    \item draft and final manifests;
+    \item restart count;
+    \item independent-verification record; and
+    \item an append-only decision trace.
+\end{itemize}
+
+The seven-task project graph is:
+\[
+\begin{aligned}
+\text{result source}
+&\rightarrow \text{status extraction},\\
+\text{report source}+\text{status}
+&\rightarrow \text{evidence binding},\\
+\text{status}+\text{evidence}
+&\rightarrow \text{manifest},\\
+\text{manifest}
+&\rightarrow \text{independent verification}
+\rightarrow \text{closure}.
+\end{aligned}
+\]
+
+Every milestone is atomically committed through the persistent HexCore store.
+The benchmark reconstructs the runtime after every milestone, forcing six
+restart recoveries per sealed project.
+
+\subsubsection{Revision protocol and selective invalidation}
+
+After AION creates and persists its draft manifest, the sealed file controller
+amends a copied result file.  The amendment is absent when the draft is
+created.  AION must discover the new checksum, supersede stale conclusions
+and rebuild the affected artifacts.
+
+A result revision invalidates five downstream tasks:
+\begin{enumerate}
+    \item status extraction;
+    \item evidence binding;
+    \item manifest synthesis;
+    \item independent verification; and
+    \item project closure.
+\end{enumerate}
+
+Registration and independent report-ingestion work remain valid.  Relative
+to replaying all seven tasks, the bounded saving is:
+\[
+R_{\mathrm{Phase\,56}}
+=
+1-\frac{5}{7}
+=
+0.2857
+=
+28.57\%.
+\]
+
+This measurement establishes dependency-aware revision.  It is not presented
+as a general estimate of savings on arbitrary projects.
+
+\subsubsection{Independent disk-rereading verifier}
+
+The final verifier does not trust the saved manifest.  It rereads the current
+files and independently checks:
+\begin{itemize}
+    \item phase identity;
+    \item current projected status;
+    \item current result and report hashes;
+    \item exact recovery of the cited report substring;
+    \item recorded source-change detection; and
+    \item closure of every required question.
+\end{itemize}
+
+The Phase 55 project is an unresolved-conflict negative control.  Correct
+behaviour is explicit abstention rather than forced finalization.
+
+\subsubsection{Phase 56 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Sealed projects & 3\\
+Real sealed source files & 6\\
+Project outcome accuracy & 100\%\\
+Weakest-family accuracy & 100\%\\
+Source-change detection & 100\%\\
+Restart recovery & 100\%\\
+Provenance completeness & 100\%\\
+Conflict-control abstention & Passed\\
+Re-execution reduction & 28.57\%\\
+Original repository files modified & 0\\
+\hline
+\end{tabular}
+\caption{Phase 56 sealed real-file project results.}
+\label{tab:phase56-results}
+\end{table}
+
+CAU promoted:
+\[
+\texttt{procedure\_real\_file\_projects\_3aff718b5c0d}.
+\]
+
+The complete HexCore history passed \(61/61\) tests.  The implementation was
+committed as Git revision \texttt{a3c33469} and synchronized with the remote
+\texttt{main} branch.
+
+\subsubsection{Phase 56 boundary}
+
+Phase 56 demonstrates persistent real-file project execution, source-change
+detection, dependency-aware revision, restart recovery and verified
+abstention.  The objective, seven-stage task schema, controlled revision and
+final verifier remain engineered.  The result does not establish unrestricted
+autonomous project management, arbitrary application control or external
+certification.
+
+\subsection{Phase 57: richer learned relational world models}
+\label{subsec:phase57-world-models}
+
+\subsubsection{Research objective}
+
+Phase 57 asks whether AION can learn how changes propagate rather than rely
+on a hard-coded invalidation rule.  It attaches observed event streams to
+real-file projects and requires the learner to:
+\begin{itemize}
+    \item represent typed source and artifact entities;
+    \item compare competing transition explanations;
+    \item preserve posterior uncertainty;
+    \item predict withheld revision and reconciliation outcomes;
+    \item transfer its theory to unseen dependency topologies;
+    \item recognise events outside the current model family; and
+    \item persist models, criticisms and outcomes across restart.
+\end{itemize}
+
+\subsubsection{Relational project state}
+
+The real-file substrate contains JSON results, Markdown reports and YAML
+governance policy.  A representative dependency graph is:
+\[
+\begin{aligned}
+\text{result}
+&\rightarrow \text{status},\\
+\text{report}+\text{status}
+&\rightarrow \text{evidence},\\
+\text{policy}+\text{status}
+&\rightarrow \text{authority check},\\
+\text{status}+\text{evidence}+\text{authority}
+&\rightarrow \text{manifest},\\
+\text{manifest}
+&\rightarrow \text{verification}
+\rightarrow \text{closure}.
+\end{aligned}
+\]
+
+Two sealed projects include an additional publication-receipt entity, giving
+the learner topologies absent from development.
+
+\subsubsection{Competing model family}
+
+AION compares twelve inspectable world models formed from the Cartesian
+product of four invalidation operators and three conflict policies:
+\[
+\mathcal{M}
+=
+\{
+\text{none},\text{direct},\text{transitive},\text{blanket}
+\}
+\times
+\{
+\text{ignore},\text{rebuild},\text{abstain}
+\}.
+\]
+
+For model \(m\), development scoring combines field accuracy, exact transition
+accuracy and a complexity penalty:
+\[
+\ell(m)
+=
+8A_{\mathrm{field}}(m)
++4A_{\mathrm{exact}}(m)
+-0.03C(m).
+\]
+
+Posterior weights are obtained by normalized exponentiation:
+\[
+p(m\mid D)
+=
+\frac{\exp(\ell(m)-\ell_{\max})}
+{\sum_{m'\in\mathcal{M}}\exp(\ell(m')-\ell_{\max})}.
+\]
+
+The selected theory is:
+\[
+\boxed{
+\text{transitive dependency propagation}
++\text{conflict abstention}
+}
+\]
+with posterior probability \(71.28\%\).  AION also retains:
+\begin{itemize}
+    \item transitive propagation plus rebuild: \(17.37\%\); and
+    \item transitive propagation plus ignore: \(6.98\%\).
+\end{itemize}
+
+Retaining alternatives prevents the strongest current explanation from being
+misrepresented as certainty.
+
+\subsubsection{Withheld-event evaluation}
+
+For each sealed project:
+\begin{enumerate}
+    \item a copied real source is revised;
+    \item before and after SHA-256 values are recorded;
+    \item AION predicts the affected artifacts before the transition is
+    revealed;
+    \item a confirmed or conflicted reconciliation event is withheld;
+    \item the predicted state is compared with independent graph traversal;
+    and
+    \item a novel authority-revocation event tests model criticism.
+\end{enumerate}
+
+For a changed source \(s\) and dependency relation \(E\), the promoted model
+predicts the transitive closure:
+\[
+I(s)
+=
+\left\{
+v\;\middle|\;
+\exists\text{ a directed path }s\xrightarrow{*}v\text{ in }E
+\right\}.
+\]
+
+The cold control receives the same files and source-change signal but has no
+learned relational model.  It invalidates every derived artifact.
+
+\subsubsection{Novel-event criticism}
+
+The sealed control event
+\texttt{authority\_revoked\_without\_replacement} is outside the learned
+event grammar.  AION returns:
+\[
+\texttt{EVENT\_OUTSIDE\_LEARNED\_MODEL\_FAMILY}
+\]
+and abstains.  It does not force the event into the nearest known transition.
+
+\subsubsection{Phase 57 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Development projects & 5\\
+Sealed projects & 4\\
+Candidate models compared & 12\\
+Competing explanations retained & 3\\
+Withheld-event accuracy & 100\%\\
+Weakest-family accuracy & 100\%\\
+Novel-event criticism & 100\%\\
+Unsafe novel-event forcing & 0\\
+Unseen dependency topologies & 2\\
+Provenance completeness & 100\%\\
+Learned re-execution cost & 20\\
+Cold re-execution cost & 26\\
+Cost reduction versus cold & 23.08\%\\
+Restart relearning & 0\\
+\hline
+\end{tabular}
+\caption{Phase 57 sealed relational world-model results.}
+\label{tab:phase57-results}
+\end{table}
+
+CAU promoted:
+\[
+\texttt{procedure\_richer\_world\_model\_0d316f0f69ad}.
+\]
+
+The complete HexCore history passed \(62/62\) tests.  The milestone was
+committed as Git revision \texttt{c6e22199} and synchronized with remote
+\texttt{main}.
+
+\subsubsection{Persistent architecture}
+
+The HexCore store now additionally contains:
+\begin{itemize}
+    \item \texttt{relational\_world\_models};
+    \item \texttt{world\_model\_sessions};
+    \item the selected theory and retained alternatives;
+    \item posterior weights and development scores;
+    \item dependency graphs;
+    \item withheld predictions and revealed outcomes;
+    \item model criticisms; and
+    \item checksum-grounded event provenance.
+\end{itemize}
+
+Restart checks confirm that the learned model, every sealed session and the
+promoted champion survive reconstruction with zero event relearning.
+
+\subsubsection{Phase 57 boundary}
+
+Phase 57 demonstrates transferable relational consequence learning over real
+project files.  Source roles, dependency graphs, candidate operators,
+revision injection and the correctness oracle remain engineered.  It is not
+unrestricted world modelling, inference of arbitrary software semantics, or
+causal discovery from raw physical reality.
+
+\subsection{Combined interpretation}
+
+The combined capability can be summarized as:
+\[
+\begin{aligned}
+\text{begin a real-file project}
+&\rightarrow \text{persist progress}\\
+&\rightarrow \text{observe changed evidence}\\
+&\rightarrow \text{predict affected consequences}\\
+&\rightarrow \text{revise only dependent work}\\
+&\rightarrow \text{abstain if explanation is inadequate}\\
+&\rightarrow \text{verify against current sources}.
+\end{aligned}
+\]
+
+Phase 56 establishes the operational control loop.  Phase 57 adds a learned,
+transferable theory of project-state transitions.  Together they connect
+knowledge ingestion, persistent project intelligence, world modelling,
+metacognitive criticism and governed retention.
+
+\subsection{Next stage: Phase 58 natural multimodal grounding}
+
+Phase 58 should replace typed or synthetic modality contracts with natural
+multimodal evidence:
+\begin{itemize}
+    \item real photographs and technical diagrams;
+    \item charts, tables and spreadsheet regions;
+    \item PDF page layout and visual annotations;
+    \item software state and structured files;
+    \item contradictory evidence across modalities; and
+    \item temporal observations whose content changes.
+\end{itemize}
+
+The Phase 57 world model should predict cross-modal consequences, while exact
+source evidence, independent execution, conflict handling and CAU remain the
+final authority.

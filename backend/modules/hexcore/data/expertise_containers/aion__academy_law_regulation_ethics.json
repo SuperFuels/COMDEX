@@ -1,0 +1,274 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_language_research_communication",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:language_research_communication",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:law_regulation_ethics:legal_research",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:law_regulation_ethics:contracts",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:law_regulation_ethics:privacy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:law_regulation_ethics:intellectual_property",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:law_regulation_ethics:employment",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:law_regulation_ethics:sector_regulation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:law_regulation_ethics:ethics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:law_regulation_ethics:jurisdiction",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "label": "Law, regulation and applied ethics",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:law_regulation_ethics:legal_research",
+      "label": "legal research",
+      "subject_id": "law_regulation_ethics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:law_regulation_ethics:contracts",
+      "label": "contracts",
+      "subject_id": "law_regulation_ethics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:law_regulation_ethics:privacy",
+      "label": "privacy",
+      "subject_id": "law_regulation_ethics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:law_regulation_ethics:intellectual_property",
+      "label": "intellectual property",
+      "subject_id": "law_regulation_ethics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:law_regulation_ethics:employment",
+      "label": "employment",
+      "subject_id": "law_regulation_ethics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:law_regulation_ethics:sector_regulation",
+      "label": "sector regulation",
+      "subject_id": "law_regulation_ethics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:law_regulation_ethics:ethics",
+      "label": "ethics",
+      "subject_id": "law_regulation_ethics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:law_regulation_ethics:jurisdiction",
+      "label": "jurisdiction",
+      "subject_id": "law_regulation_ethics",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_law_regulation_ethics",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:law_regulation_ethics:legal_research",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:law_regulation_ethics:contracts",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:law_regulation_ethics:privacy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:law_regulation_ethics:intellectual_property",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:law_regulation_ethics:employment",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:law_regulation_ethics:sector_regulation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:law_regulation_ethics:ethics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:law_regulation_ethics:jurisdiction",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "label": "Law, regulation and applied ethics",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:law_regulation_ethics:legal_research",
+        "label": "legal research",
+        "subject_id": "law_regulation_ethics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:law_regulation_ethics:contracts",
+        "label": "contracts",
+        "subject_id": "law_regulation_ethics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:law_regulation_ethics:privacy",
+        "label": "privacy",
+        "subject_id": "law_regulation_ethics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:law_regulation_ethics:intellectual_property",
+        "label": "intellectual property",
+        "subject_id": "law_regulation_ethics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:law_regulation_ethics:employment",
+        "label": "employment",
+        "subject_id": "law_regulation_ethics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:law_regulation_ethics:sector_regulation",
+        "label": "sector regulation",
+        "subject_id": "law_regulation_ethics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:law_regulation_ethics:ethics",
+        "label": "ethics",
+        "subject_id": "law_regulation_ethics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:law_regulation_ethics:jurisdiction",
+        "label": "jurisdiction",
+        "subject_id": "law_regulation_ethics",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "law_regulation_ethics",
+    "title": "AION Academy \u00b7 Law, regulation and applied ethics"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

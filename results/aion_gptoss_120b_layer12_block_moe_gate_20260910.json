@@ -1,0 +1,142 @@
+{
+  "acceptance": {
+    "all_outputs_bitwise_exact": true,
+    "peak_live_experts_below_512MiB": true,
+    "traffic_reduction_above_1_10x": true
+  },
+  "all_outputs_bitwise_exact": true,
+  "canonical_sha256": "e22f692a633aa269a4d0280e4db004d95f6466fbc4fb2c26c8f7351558e963f1",
+  "cases": [
+    {
+      "capture_root": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_train_65001_8token_20260910",
+      "compressed_traffic_reduction": 2.4615884869150695,
+      "layer": 12,
+      "order": [
+        "sequential",
+        "union"
+      ],
+      "sequential": {
+        "all_outputs_bitwise_exact": true,
+        "compute_ms_total": 8.377335,
+        "exact_positions": 8,
+        "initial_union_load_seconds": null,
+        "mode": "sequential",
+        "peak_live_expert_bytes": 55590912,
+        "positions": 8,
+        "store_metrics": {
+          "admission_allowlist_entries": 0,
+          "admission_bypasses": 0,
+          "capacity_bytes": 0,
+          "compressed_bytes_read": 406652530,
+          "evictions": 0,
+          "faults": 32,
+          "hit_rate": 0.0,
+          "hits": 0,
+          "peak_resident_bytes": 0,
+          "protected_entries": 0,
+          "raw_bytes_materialized": 424120320,
+          "resident_bytes": 0
+        },
+        "wall_seconds": 0.36742366600083187
+      },
+      "trace_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_train_65001_8token_gate_20260910.json",
+      "trace_sha256": "378e0cf5fe52ab2b5c8e92c6864333710ad799b79ea95cc9e8b50faac7a32e61",
+      "union": {
+        "all_outputs_bitwise_exact": true,
+        "compute_ms_total": 7.190332,
+        "exact_positions": 8,
+        "initial_union_load_seconds": 0.13907741697039455,
+        "mode": "union",
+        "peak_live_expert_bytes": 172298880,
+        "positions": 8,
+        "store_metrics": {
+          "admission_allowlist_entries": 0,
+          "admission_bypasses": 0,
+          "capacity_bytes": 0,
+          "compressed_bytes_read": 165199233,
+          "evictions": 0,
+          "faults": 13,
+          "hit_rate": 0.0,
+          "hits": 0,
+          "peak_resident_bytes": 0,
+          "protected_entries": 0,
+          "raw_bytes_materialized": 172298880,
+          "resident_bytes": 0
+        },
+        "wall_seconds": 0.14824800001224503
+      },
+      "unique_experts": 13,
+      "wall_speedup": 2.4784392772279107
+    },
+    {
+      "capture_root": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_train_75001_8token_20260910",
+      "compressed_traffic_reduction": 2.0000507130043332,
+      "layer": 12,
+      "order": [
+        "union",
+        "sequential"
+      ],
+      "sequential": {
+        "all_outputs_bitwise_exact": true,
+        "compute_ms_total": 7.891792000000001,
+        "exact_positions": 8,
+        "initial_union_load_seconds": null,
+        "mode": "sequential",
+        "peak_live_expert_bytes": 55590912,
+        "positions": 8,
+        "store_metrics": {
+          "admission_allowlist_entries": 0,
+          "admission_bypasses": 0,
+          "capacity_bytes": 0,
+          "compressed_bytes_read": 406691010,
+          "evictions": 0,
+          "faults": 32,
+          "hit_rate": 0.0,
+          "hits": 0,
+          "peak_resident_bytes": 0,
+          "protected_entries": 0,
+          "raw_bytes_materialized": 424120320,
+          "resident_bytes": 0
+        },
+        "wall_seconds": 0.3593057499965653
+      },
+      "trace_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_train_75001_8token_gate_20260910.json",
+      "trace_sha256": "43bfdb21d37f67721e80fc4dd5c62536a852f7dd3fdd7a0a45339332b2bff722",
+      "union": {
+        "all_outputs_bitwise_exact": true,
+        "compute_ms_total": 6.905084,
+        "exact_positions": 8,
+        "initial_union_load_seconds": 0.15412308304803446,
+        "mode": "union",
+        "peak_live_expert_bytes": 212060160,
+        "positions": 8,
+        "store_metrics": {
+          "admission_allowlist_entries": 0,
+          "admission_bypasses": 0,
+          "capacity_bytes": 0,
+          "compressed_bytes_read": 203340349,
+          "evictions": 0,
+          "faults": 16,
+          "hit_rate": 0.0,
+          "hits": 0,
+          "peak_resident_bytes": 0,
+          "protected_entries": 0,
+          "raw_bytes_materialized": 212060160,
+          "resident_bytes": 0
+        },
+        "wall_seconds": 0.16230691701639444
+      },
+      "unique_experts": 16,
+      "wall_speedup": 2.213742683315661
+    }
+  ],
+  "claim_boundary": "Real SD-backed exact layer-12 MoE microgate only. It excludes batched attention, draft generation, rejection, remaining layers and full generated-token throughput.",
+  "compressed_traffic_reduction_p50": 2.2308195999597014,
+  "created_at": "2026-09-10T13:57:40.828691+00:00",
+  "layer": 12,
+  "peak_live_expert_bytes_max": 212060160,
+  "schema": "aion.gptoss-120b-layer-block-moe-gate.v1",
+  "status": "ADVANCE_EXACT_BLOCK_RUNTIME",
+  "track": "exact_120b_layer_microgate",
+  "wall_speedup_p50": 2.3460909802717858
+}

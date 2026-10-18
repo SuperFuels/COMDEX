@@ -1,0 +1,83 @@
+\section{Phase 13B --- No-Payment Coupling Regression v0}
+\label{sec:aion-phase13-no-payment-coupling-regression-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- no-payment coupling regression tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 13B locks a repository-level regression boundary for payment separation.
+
+The AION Agent Gateway, A2A contracts, public embed gateway, machine cart, settlement readiness, and GlyphChain proof flows must remain decoupled from live payment systems.
+
+This phase does not add a new runtime feature. It adds a regression guard.
+
+\subsection{No-Payment Boundary}
+
+The locked rule is:
+
+\begin{quote}
+\textbf{AION may preview settlement readiness, but it MUST NOT move money, create payments, create escrow, release funds, require a wallet, or treat GlyphChain as a payment rail.}
+\end{quote}
+
+The following operations remain forbidden:
+
+\begin{itemize}
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item couple Gateway contracts to Stripe, PayPal, Revolut, wallet, escrow, or payment-provider code.
+\end{itemize}
+
+\subsection{GlyphChain Boundary}
+
+GlyphChain remains a proof and receipt rail only.
+
+\begin{verbatim}
+glyphchain_is_payment_rail = false
+proof_only_not_payment = true
+settlement_mode = fiat_first
+\end{verbatim}
+
+Proof commitments and proof receipts may support evidence, trust, audit, and settlement readiness previews.
+
+They MUST NOT execute or authorize payments.
+
+\subsection{Implemented Regression Test}
+
+The regression test lives in:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_phase13_no_payment_coupling_regression_lock.py
+\end{verbatim}
+
+It verifies that Gateway modules do not import live payment providers and that the lock documents continue to state the no-payment boundary.
+
+\subsection{Frontend Impact}
+
+Phase 13B does not create a new frontend visual surface.
+
+No new manual frontend smoke test is required.
+
+\subsection{Repository Hygiene}
+
+The unrelated DNA switch index file remains outside this phase unless intentionally changed:
+
+\begin{verbatim}
+backend/modules/dna_chain/dna_switch_index.json
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13-NO-PAYMENT-COUPLING-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

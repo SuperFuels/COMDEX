@@ -1,0 +1,94 @@
+\section{Phase 40: Natural-Document Comprehension and Belief Revision}
+\label{sec:phase40-document-comprehension}
+
+\subsection{Objective}
+
+Phase 40 extends the Phase 39 document workspace from ingestion and
+cost-aware information routing into scored comprehension.  AION receives a
+broad objective and a set of natural-prose documents without receiving the
+expected claims, subgoal list, or recommendation.  It must extract claims,
+induce the decision dependencies, synthesize evidence across sources, revise
+obsolete beliefs, reject unverified conflicts, and retain a fully cited result.
+Gold claims and expected structures exist only inside the evaluator.
+
+\subsection{Architecture}
+
+Extracted claims are normalized into subject--value propositions while
+retaining document identity, sentence locator, revision, publication time,
+authority, verification status, and provenance hash.  The active policy is
+selected by verification, authority, revision, and time.  Its decision clause
+is decomposed into equality, lower-bound, and upper-bound subgoals without
+access to the evaluator's field list.
+
+For a subject \(s\), the accepted belief is the maximal candidate under the
+lexicographic ordering
+\[
+  b^*(s)=\arg\max_b
+  \bigl(
+  \mathrm{verified}(b),
+  \mathrm{authority}(b),
+  \mathrm{revision}(b),
+  \mathrm{time}(b)
+  \bigr).
+\]
+Rejected candidates remain attached as superseded claims with an explicit
+reason.  Consequently an anonymous revision-99 claim cannot defeat an older
+but verified authoritative claim merely because its revision number is
+larger.  The final recommendation is approved only when every induced policy
+condition is satisfied by the selected current beliefs.
+
+\subsection{Sealed Evaluation}
+
+The sealed cohort contained 60 projects across six source-disjoint domains:
+coastal restoration, materials laboratory, travelling exhibition, mountain
+observatory, regional supply, and digital preservation.  Each project included
+obsolete verified policies and facts, later authoritative revisions, an
+unverified revision-99 conflict, and irrelevant context.
+
+\begin{table}[htbp]
+\centering
+\caption{Phase 40 sealed comprehension results.}
+\label{tab:phase40-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Mean goal success & \(\mathbf{100\%}\) \\
+Weakest-domain success & \(\mathbf{100\%}\) \\
+Claim precision / recall / F1 & \(\mathbf{100\%}\) \\
+Exact autonomous decomposition & \(\mathbf{100\%}\) \\
+Contradiction/revision accuracy & \(\mathbf{100\%}\) \\
+Complete provenance & \(\mathbf{100\%}\) \\
+Unverified acceptances & \(\mathbf{0}\) \\
+Verified memories committed & \(\mathbf{60/60}\) \\
+First-record control success & \(43.33\%\) \\
+Restart relearning & \(\mathbf{0}\) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Real-Document Transfer}
+
+The same solver was tested against the Tessaris Engine technical PDF and the
+SQM/SQI public Markdown overview.  Four evaluator-only questions covered the
+Engine's role, public claim boundaries, the SQM/SQI distinction, and governed
+collapse.  The first line-level retrieval representation achieved only
+50.83\% mean anchor coverage and was rejected.  Section-aware chunking and
+diversity-aware retrieval raised mean coverage to \(\mathbf{93.75\%}\), with
+the weakest question at \(\mathbf{75\%}\) and citations present for all four
+questions.  Evaluator anchors were not available to retrieval.
+
+\subsection{Promotion and Boundary}
+
+All absolute, weakest-domain, provenance, contradiction, external-transfer,
+CAU, and restart gates passed.  The promoted procedure is
+\begin{center}
+\small\texttt{procedure\_natural\_document\_comprehension\_34693b852de2}
+\end{center}
+
+This remains bounded.  The sealed prose is procedurally generated, the
+extractor supports a controlled factual and policy grammar, and the external
+evaluation contains two documents and four curated questions.  Anchor coverage
+is a grounded retrieval proxy, not unrestricted semantic equivalence.  Phase
+40 does not establish arbitrary-document understanding, general commonsense,
+multimedia comprehension, or AGI.

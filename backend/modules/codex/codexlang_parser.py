@@ -9,7 +9,8 @@ import requests
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import util
+from backend.utils.sentence_transformer_runtime import get_sentence_transformer
 import torch
 
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -37,7 +38,7 @@ class MemoryEngine:
         self.container_id = container_id
         self.memory = []
         self.embeddings = []
-        self.model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
+        self.model = get_sentence_transformer("./models/all-MiniLM-L6-v2", local_files_only=True)
         self.agents = []
         self.duplicate_threshold = 0.95
 

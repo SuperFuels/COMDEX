@@ -1,0 +1,53 @@
+{
+  "schema_version": "aion.atomsheet.catalog.v1",
+  "sheets": [
+    {
+      "sheet_id": "aion.percentage.of.v1",
+      "intent": "CALCULATE_PERCENTAGE",
+      "required_inputs": ["percent", "base"],
+      "operation": "base * percent / 100",
+      "verification": "result / base * 100 == percent"
+    },
+    {
+      "sheet_id": "aion.rectangle.area.v1",
+      "intent": "CALCULATE_RECTANGLE_AREA",
+      "required_inputs": ["length", "width"],
+      "operation": "length * width",
+      "verification": "result / length == width"
+    },
+    {
+      "sheet_id": "aion.rectangular.volume.v1",
+      "intent": "CALCULATE_RECTANGULAR_VOLUME",
+      "required_inputs": ["length", "width", "height"],
+      "operation": "length * width * height",
+      "verification": "result / length / width == height"
+    },
+    {
+      "sheet_id": "aion.length.convert.v1",
+      "intent": "CONVERT_LENGTH",
+      "required_inputs": ["value", "source_unit", "target_unit"],
+      "operation": "value * source_factor / target_factor",
+      "verification": "result * target_factor / source_factor == value"
+    },
+    {
+      "sheet_id": "aion.mass.convert.v1",
+      "intent": "CONVERT_MASS",
+      "required_inputs": ["value", "source_unit", "target_unit"],
+      "operation": "value * source_factor / target_factor",
+      "verification": "result * target_factor / source_factor == value"
+    },
+    {
+      "sheet_id": "aion.gross.margin.v1",
+      "intent": "CALCULATE_GROSS_MARGIN",
+      "required_inputs": ["revenue", "cost"],
+      "operation": "gross_profit = revenue - cost; gross_margin_percent = gross_profit / revenue * 100",
+      "verification": "gross_profit + cost == revenue and gross_margin_percent derives from unrounded gross_profit / revenue"
+    }
+  ],
+  "shared_validity": {
+    "maximum_absolute_input": 1000000000000,
+    "physical_dimensions_must_be_positive": true,
+    "percentage_base_must_be_non_zero": true,
+    "decimal_arithmetic_only": true
+  }
+}

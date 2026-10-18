@@ -1,0 +1,292 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_classical_physics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:classical_physics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_control_robotics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:control_robotics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_embedded_systems",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:embedded_systems",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_energy_storage",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:energy_storage",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:aerodynamics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:propulsion",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:flight_control",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:navigation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:payloads",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:communications",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:airworthiness",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:operations",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "engineering",
+      "id": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "label": "Uncrewed aerial systems and drones",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:aerodynamics",
+      "label": "aerodynamics",
+      "subject_id": "uncrewed_aerial_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:propulsion",
+      "label": "propulsion",
+      "subject_id": "uncrewed_aerial_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:flight_control",
+      "label": "flight control",
+      "subject_id": "uncrewed_aerial_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:navigation",
+      "label": "navigation",
+      "subject_id": "uncrewed_aerial_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:payloads",
+      "label": "payloads",
+      "subject_id": "uncrewed_aerial_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:communications",
+      "label": "communications",
+      "subject_id": "uncrewed_aerial_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:airworthiness",
+      "label": "airworthiness",
+      "subject_id": "uncrewed_aerial_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:operations",
+      "label": "operations",
+      "subject_id": "uncrewed_aerial_systems",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_uncrewed_aerial_systems",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:aerodynamics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:propulsion",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:flight_control",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:navigation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:payloads",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:communications",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:airworthiness",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:uncrewed_aerial_systems:operations",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "engineering",
+        "id": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "label": "Uncrewed aerial systems and drones",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:aerodynamics",
+        "label": "aerodynamics",
+        "subject_id": "uncrewed_aerial_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:propulsion",
+        "label": "propulsion",
+        "subject_id": "uncrewed_aerial_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:flight_control",
+        "label": "flight control",
+        "subject_id": "uncrewed_aerial_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:navigation",
+        "label": "navigation",
+        "subject_id": "uncrewed_aerial_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:payloads",
+        "label": "payloads",
+        "subject_id": "uncrewed_aerial_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:communications",
+        "label": "communications",
+        "subject_id": "uncrewed_aerial_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:airworthiness",
+        "label": "airworthiness",
+        "subject_id": "uncrewed_aerial_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:uncrewed_aerial_systems:operations",
+        "label": "operations",
+        "subject_id": "uncrewed_aerial_systems",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "engineering",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "uncrewed_aerial_systems",
+    "title": "AION Academy \u00b7 Uncrewed aerial systems and drones"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

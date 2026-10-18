@@ -1,0 +1,91 @@
+\section{Pilot Contextual Companion and Wellbeing Boundary}
+\label{sec:pilot-contextual-companion}
+
+Pilot Fabric 0.44.0 introduces an opt-in contextual companion designed to make the
+room-scale intelligence useful between explicit commands without turning it into an
+engagement-maximizing or anthropomorphic system.  The feature is persona-bound, disabled
+by default and governed independently from television control, private service execution
+and Guardian escalation.
+
+\subsection{Private opt-in profile}
+
+Each private persona can enable or disable companion mode and select an off, low, balanced
+or active offer cadence.  The profile also contains quiet-start and quiet-end times, a
+reading level, a large-control accessibility preference and explicitly approved interests,
+humour preferences and conversation topics.  The system does not infer private interests
+from another household member's viewing history.
+
+A deterministic cadence gate runs before every proactive offer.  It rejects offers while
+the feature is disabled, during quiet hours, before the selected minimum interval has
+elapsed or after the daily proactive limit.  The saved policy explicitly sets engagement
+optimization, exclusivity language, covert persuasion and claims of human consciousness to
+false.  These are code-level product constraints rather than model suggestions.
+
+\subsection{Contextual activities without constant interruption}
+
+Pilot can prepare an advert-break quiz, a programme discussion or a gentle explanation
+offer.  An advert quiz requires explicit advert-break evidence.  Every activity is
+dismissible, preserves playback and records that it was not engagement optimized.  The
+programme title, observed summary and approved interest can shape a prompt, but no future
+plot event or unseen detail may be introduced.
+
+The private phone exposes the companion state, frequency, reading level, quiet times and
+large-control option.  Large-control mode increases typography and target size and reduces
+the controller grid to two columns.  It changes presentation only; it does not expand
+device authority.
+
+\subsection{Transparent loneliness and wellbeing support}
+
+When a user says that they feel lonely or asks Pilot to talk, Pilot states that it is an AI
+system rather than a person.  It may remain in a bounded conversation, discuss permitted
+programme context, suggest a small ordinary activity or offer to prepare contact with a
+trusted person.  It may not claim consciousness, demand exclusivity, discourage human
+contact or optimize the exchange to prolong dependency.
+
+A shared-television request does not select a household identity.  It produces a neutral
+support record in the \texttt{awaiting\_private\_claim} state.  The phone owner can claim it;
+the original sensitive statement is then cleared from the pending record.  Private memory
+and future follow-up belong only to that persona.
+
+\subsection{Guardian escalation boundary}
+
+Bounded urgent phrases concerning a fall, breathing, severe chest pain, immediate danger
+or self-harm cross from ordinary companion mode into the Guardian escalation-required
+state.  The response states that Pilot is not an emergency
+service and cannot confirm dispatch.  It advises use of the local emergency number and may
+prepare a large confirmation surface and trusted-contact alert.  The record explicitly
+states that no medical diagnosis was made, no emergency service was contacted and no
+trusted-contact alert was sent.
+
+Actual emergency execution belongs to Pilot Guardian and requires regional policy,
+authorized routes, verified receipts, connectivity fallback and dedicated safety review.
+The companion must never turn a language-model response into ambulance, entry, location or
+medical authority.
+
+\subsection{Trusted contact and cross-surface continuation}
+
+Call preparation accepts only a contact already marked trusted for the private persona.
+It stores a contact identifier and display label, never a raw address in the activity
+record, and stops while awaiting private confirmation.  A call is not represented as
+placed until a separately authorized phone or television adapter returns a provider
+receipt.
+
+Conversation continuation between shared television, private phone and car uses a typed
+persona-bound handoff.  It contains a bounded objective and summary rather than the raw
+transcript, starts while awaiting destination acceptance and can be accepted only by
+the same persona on the named destination.  A second acceptance is rejected as replay.
+Private detail is never projected back onto the shared television.
+
+\subsection{Persistence, audit and remaining qualification}
+
+Companion profiles, activities, support records, call preparations and handoffs are stored
+with canonical hashes and owner-only file permissions.  Audit events retain identifiers,
+categories and authority outcomes rather than raw private dialogue.  Automated verification
+covers quiet-time and cadence enforcement, opt-in behavior, advert evidence, transparent
+loneliness language, emergency non-dispatch, trusted-contact requirements, persona isolation,
+handoff acceptance and replay rejection.
+
+The locally enforceable Section 6A scope is complete.  Production call placement, car
+execution, multi-person identity qualification, wellbeing review, Guardian routes and
+representative accessibility testing remain external closure evidence.  They are retained
+in the Section 6A blocker register and cannot be replaced by simulation or model confidence.

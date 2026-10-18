@@ -40,20 +40,14 @@ export type Contact = {
 };
 
 const BOOK_KEY = "gnet:addrbook:v1";
+const processJson = new Map<string, unknown>();
 
 /* utils */
 function loadJSON<T>(k: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(k);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
+  return (processJson.has(k) ? processJson.get(k) : fallback) as T;
 }
 function saveJSON(k: string, v: any) {
-  try {
-    localStorage.setItem(k, JSON.stringify(v));
-  } catch {}
+  processJson.set(k, v);
 }
 
 function normalizeGraph(g: any): GraphKey {

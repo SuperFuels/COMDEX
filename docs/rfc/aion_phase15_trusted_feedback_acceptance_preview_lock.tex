@@ -1,0 +1,85 @@
+\section{Phase 15E --- AXO/ETS Trusted Feedback Acceptance Preview}
+\label{sec:phase15e-trusted-feedback-acceptance-preview}
+
+\subsection{Status}
+
+Phase 15E locks the AXO/ETS trusted feedback acceptance preview.
+
+\begin{quote}
+\textbf{Status: LOCKED --- signed external-agent feedback can be evaluated for human-review eligibility only.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock introduces a guarded accept/reject preview flow for external-agent ETS feedback packets.
+
+The flow can classify a packet as pending, rejected in preview, ready for human review, or eligible for human review. It cannot mutate live reputation, trust score, public trust state, bookings, payments, escrow, or external messages.
+
+\subsection{Locked Behaviour}
+
+The trusted feedback acceptance preview MUST preserve:
+
+\begin{itemize}
+  \item preview-only execution;
+  \item human review requirement;
+  \item signature verification checks;
+  \item proof receipt linkage;
+  \item job trace linkage;
+  \item evidence linkage;
+  \item customer outcome score separation from system execution score;
+  \item explicit blocking reasons;
+  \item deterministic acceptance hash generation;
+  \item no live side effects.
+\end{itemize}
+
+\subsection{Frontend Visibility}
+
+The Boardroom now exposes a visible AXO/ETS Trusted Feedback Acceptance Preview panel.
+
+The panel includes:
+
+\begin{itemize}
+  \item accept/reject/reset preview actions;
+  \item packet summary;
+  \item score separation summary;
+  \item blocking reasons;
+  \item side-effect boundary;
+  \item human-review-only status.
+\end{itemize}
+
+The frontend lock tests verify both visibility and action wiring.
+
+\subsection{Safety Boundary}
+
+This phase does not enable:
+
+\begin{itemize}
+  \item reputation mutation;
+  \item trust score mutation;
+  \item public trust state mutation;
+  \item booking creation;
+  \item payment creation;
+  \item escrow creation;
+  \item external message sending;
+  \item autonomous acceptance.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase15_trusted_feedback_acceptance_preview_lock.py
+\end{verbatim}
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE15E-TRUSTED-FEEDBACK-ACCEPTANCE-PREVIEW-LOCK
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

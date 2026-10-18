@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.42 --- Passed Pawn Intent Scope Guard}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.42 prevents \texttt{convert\_passed\_pawn} from hijacking moves that are not promotion or direct passed-pawn progress.
+
+The live draw exposed moves such as:
+
+\begin{verbatim}
+h1h4
+a1d1
+f3f4
+\end{verbatim}
+
+being selected while \texttt{convert\_passed\_pawn} remained active too broadly.
+
+\section{Rule}
+
+If active intent is \texttt{convert\_passed\_pawn}, the selected move SHOULD be:
+
+\begin{itemize}
+  \item a legal promotion; or
+  \item a pawn move directly progressing toward promotion.
+\end{itemize}
+
+Otherwise the intent MUST be scoped back to initiative pressure.
+
+
+\section{Latest Upgrade Summary}
+
+The latest live upgrade chain now contains the following locked improvements:
+
+\begin{itemize}
+  \item Phase 22E.39 proved the full live Level-2 Strategic Well rematch loop.
+  \item Phase 22E.40 converted the live draw into a deterministic post-game failure map.
+  \item Phase 22E.41 added queen-first promotion protection, preventing bad underpromotion such as \texttt{d7c8r} when \texttt{d7c8q} is legal.
+  \item Phase 22E.42 adds passed-pawn intent scope control so \texttt{convert\_passed\_pawn} cannot remain active for unrelated shuffling moves.
+\end{itemize}
+
+\begin{verbatim}
+convert_passed_pawn
+\end{verbatim}
+
+This means AION now keeps the proactive passed-pawn plan only when the selected move is a promotion or direct pawn progress toward promotion. If the move is not passed-pawn progress, the intent is scoped back to initiative pressure.
+
+\section{Boundary}
+
+This guard does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E42-FULL-CHESS-PASSED-PAWN-INTENT-SCOPE-GUARD\\
+Status: LOCKED --- passed-pawn intent scope guard implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,1077 @@
+{
+  "schema_version": "aion.hexcore.online_reliability_causal.v4",
+  "benchmark": "hidden_channel_reliability_and_voi_planning",
+  "language_provider_used": false,
+  "true_channel_reliability_supplied_to_aion": false,
+  "development": {
+    "control": {
+      "policy": {
+        "policy_id": "phase9_fixed_reliability_control",
+        "confidence_gate": 0.97,
+        "maximum_experiments": 7,
+        "cost_weight": 0.05,
+        "mutation": "immutable_phase9_under_unknown_reliability",
+        "parent_policy_id": null,
+        "goal_relevance_only": true,
+        "uncertain_factor_only": true,
+        "goal_retries": 1,
+        "adaptive_confidence": false,
+        "reliability_slope": 0.0,
+        "adaptive_experiment_budget": false,
+        "low_reliability_budget": 10,
+        "high_reliability_budget": 5,
+        "online_reliability_learning": false,
+        "reliability_prior": 0.8,
+        "value_of_information_ratio": false,
+        "three_factor_reserve": false,
+        "complexity": 10
+      },
+      "worlds": 18,
+      "episodes": 1080,
+      "mean_factor_accuracy": 0.47962962962962963,
+      "mean_relevant_factor_accuracy": 0.8435185185185186,
+      "mean_goal_success": 0.8425925925925926,
+      "average_confidence": 0.9033245326388889,
+      "calibration_error": 0.05980601412037034,
+      "average_experiments": 5.628703703703704,
+      "average_goal_attempts": 1.1796296296296296,
+      "average_total_actions": 7.768518518518518,
+      "average_total_action_cost": 2.254305555555556,
+      "mean_reliability_mae": 0.12300925925925925,
+      "worst_family_factor_accuracy": 0.2125,
+      "worst_family_goal_success": 0.6333333333333333,
+      "families": {
+        "unknown_channels_2:minimum_82": {
+          "episodes": 60,
+          "factor_accuracy": 0.95,
+          "goal_success": 0.95,
+          "average_experiments": 6.6,
+          "average_total_action_cost": 1.3321666666666667
+        },
+        "unknown_channels_2:minimum_72": {
+          "episodes": 120,
+          "factor_accuracy": 0.85,
+          "goal_success": 0.8333333333333334,
+          "average_experiments": 6.683333333333334,
+          "average_total_action_cost": 2.3049166666666667
+        },
+        "unknown_channels_2:minimum_62": {
+          "episodes": 60,
+          "factor_accuracy": 0.2833333333333333,
+          "goal_success": 0.6333333333333333,
+          "average_experiments": 5.233333333333333,
+          "average_total_action_cost": 1.6373333333333335
+        },
+        "unknown_channels_4:minimum_62": {
+          "episodes": 240,
+          "factor_accuracy": 0.2125,
+          "goal_success": 0.7208333333333333,
+          "average_experiments": 5.458333333333333,
+          "average_total_action_cost": 2.562708333333333
+        },
+        "unknown_channels_3:minimum_62": {
+          "episodes": 120,
+          "factor_accuracy": 0.49166666666666664,
+          "goal_success": 0.7083333333333334,
+          "average_experiments": 6.8,
+          "average_total_action_cost": 2.90575
+        },
+        "unknown_channels_2:minimum_92": {
+          "episodes": 180,
+          "factor_accuracy": 0.4388888888888889,
+          "goal_success": 1.0,
+          "average_experiments": 3.3555555555555556,
+          "average_total_action_cost": 1.438611111111111
+        },
+        "unknown_channels_3:minimum_72": {
+          "episodes": 120,
+          "factor_accuracy": 0.4666666666666667,
+          "goal_success": 0.8583333333333333,
+          "average_experiments": 5.1,
+          "average_total_action_cost": 2.3480833333333333
+        },
+        "unknown_channels_4:minimum_82": {
+          "episodes": 120,
+          "factor_accuracy": 0.30833333333333335,
+          "goal_success": 0.95,
+          "average_experiments": 6.708333333333333,
+          "average_total_action_cost": 2.44725
+        },
+        "unknown_channels_3:minimum_97": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 1.0,
+          "average_experiments": 7.0,
+          "average_total_action_cost": 3.0293333333333337
+        }
+      },
+      "failure_counts": {
+        "experiment_budget_exhausted": 592,
+        "belief_error": 169,
+        "planning_error": 169,
+        "calibration_error": 39,
+        "execution_noise": 1
+      },
+      "score": 0.8139832416203704,
+      "effective_intelligence_utility": 0.7677540749537037
+    },
+    "challengers": [
+      {
+        "policy": {
+          "policy_id": "online_reliability_prior_75",
+          "confidence_gate": 0.95,
+          "maximum_experiments": 9,
+          "cost_weight": 0.05,
+          "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+          "parent_policy_id": "phase9_fixed_reliability_control",
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": false,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 5,
+          "online_reliability_learning": true,
+          "reliability_prior": 0.75,
+          "value_of_information_ratio": true,
+          "three_factor_reserve": true,
+          "complexity": 13
+        },
+        "worlds": 18,
+        "episodes": 1080,
+        "mean_factor_accuracy": 0.49166666666666664,
+        "mean_relevant_factor_accuracy": 0.8712962962962963,
+        "mean_goal_success": 0.8685185185185185,
+        "average_confidence": 0.9010142609074074,
+        "calibration_error": 0.029717964611111092,
+        "average_experiments": 6.749074074074074,
+        "average_goal_attempts": 1.162962962962963,
+        "average_total_actions": 8.847222222222221,
+        "average_total_action_cost": 2.540277777777778,
+        "mean_reliability_mae": 0.13357331129475306,
+        "worst_family_factor_accuracy": 0.175,
+        "worst_family_goal_success": 0.7,
+        "families": {
+          "unknown_channels_2:minimum_82": {
+            "episodes": 60,
+            "factor_accuracy": 0.9666666666666667,
+            "goal_success": 0.9666666666666667,
+            "average_experiments": 7.516666666666667,
+            "average_total_action_cost": 1.4013333333333333
+          },
+          "unknown_channels_2:minimum_72": {
+            "episodes": 120,
+            "factor_accuracy": 0.8833333333333333,
+            "goal_success": 0.8833333333333333,
+            "average_experiments": 7.758333333333334,
+            "average_total_action_cost": 2.509916666666667
+          },
+          "unknown_channels_2:minimum_62": {
+            "episodes": 60,
+            "factor_accuracy": 0.3,
+            "goal_success": 0.7,
+            "average_experiments": 5.9,
+            "average_total_action_cost": 1.7273333333333334
+          },
+          "unknown_channels_4:minimum_62": {
+            "episodes": 240,
+            "factor_accuracy": 0.175,
+            "goal_success": 0.7291666666666666,
+            "average_experiments": 6.541666666666667,
+            "average_total_action_cost": 2.7999583333333335
+          },
+          "unknown_channels_3:minimum_62": {
+            "episodes": 120,
+            "factor_accuracy": 0.5083333333333333,
+            "goal_success": 0.7583333333333333,
+            "average_experiments": 8.883333333333333,
+            "average_total_action_cost": 3.5886666666666667
+          },
+          "unknown_channels_2:minimum_92": {
+            "episodes": 180,
+            "factor_accuracy": 0.42777777777777776,
+            "goal_success": 1.0,
+            "average_experiments": 3.388888888888889,
+            "average_total_action_cost": 1.4412777777777779
+          },
+          "unknown_channels_3:minimum_72": {
+            "episodes": 120,
+            "factor_accuracy": 0.5583333333333333,
+            "goal_success": 0.9416666666666667,
+            "average_experiments": 6.541666666666667,
+            "average_total_action_cost": 2.7915833333333335
+          },
+          "unknown_channels_4:minimum_82": {
+            "episodes": 120,
+            "factor_accuracy": 0.36666666666666664,
+            "goal_success": 0.9583333333333334,
+            "average_experiments": 8.1,
+            "average_total_action_cost": 2.762
+          },
+          "unknown_channels_3:minimum_97": {
+            "episodes": 60,
+            "factor_accuracy": 0.9666666666666667,
+            "goal_success": 0.9666666666666667,
+            "average_experiments": 9.166666666666666,
+            "average_total_action_cost": 3.768333333333333
+          }
+        },
+        "failure_counts": {
+          "experiment_budget_exhausted": 427,
+          "belief_error": 139,
+          "planning_error": 141,
+          "calibration_error": 33,
+          "execution_noise": 1
+        },
+        "score": 0.8259267774481481,
+        "effective_intelligence_utility": 0.7761277415130402
+      },
+      {
+        "policy": {
+          "policy_id": "online_reliability_prior_80",
+          "confidence_gate": 0.95,
+          "maximum_experiments": 9,
+          "cost_weight": 0.05,
+          "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+          "parent_policy_id": "phase9_fixed_reliability_control",
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": false,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 5,
+          "online_reliability_learning": true,
+          "reliability_prior": 0.8,
+          "value_of_information_ratio": true,
+          "three_factor_reserve": true,
+          "complexity": 13
+        },
+        "worlds": 18,
+        "episodes": 1080,
+        "mean_factor_accuracy": 0.48703703703703705,
+        "mean_relevant_factor_accuracy": 0.8731481481481481,
+        "mean_goal_success": 0.8712962962962963,
+        "average_confidence": 0.9198302854074073,
+        "calibration_error": 0.04668213725925918,
+        "average_experiments": 6.752777777777778,
+        "average_goal_attempts": 1.1574074074074074,
+        "average_total_actions": 8.850925925925926,
+        "average_total_action_cost": 2.5422962962962963,
+        "mean_reliability_mae": 0.11918382949382715,
+        "worst_family_factor_accuracy": 0.2125,
+        "worst_family_goal_success": 0.7,
+        "families": {
+          "unknown_channels_2:minimum_82": {
+            "episodes": 60,
+            "factor_accuracy": 0.9666666666666667,
+            "goal_success": 0.9666666666666667,
+            "average_experiments": 7.516666666666667,
+            "average_total_action_cost": 1.4013333333333333
+          },
+          "unknown_channels_2:minimum_72": {
+            "episodes": 120,
+            "factor_accuracy": 0.8833333333333333,
+            "goal_success": 0.8833333333333333,
+            "average_experiments": 7.758333333333334,
+            "average_total_action_cost": 2.509916666666667
+          },
+          "unknown_channels_2:minimum_62": {
+            "episodes": 60,
+            "factor_accuracy": 0.25,
+            "goal_success": 0.7,
+            "average_experiments": 5.9,
+            "average_total_action_cost": 1.7273333333333334
+          },
+          "unknown_channels_4:minimum_62": {
+            "episodes": 240,
+            "factor_accuracy": 0.2125,
+            "goal_success": 0.7458333333333333,
+            "average_experiments": 6.541666666666667,
+            "average_total_action_cost": 2.8150833333333334
+          },
+          "unknown_channels_3:minimum_62": {
+            "episodes": 120,
+            "factor_accuracy": 0.475,
+            "goal_success": 0.7333333333333333,
+            "average_experiments": 8.925,
+            "average_total_action_cost": 3.569083333333333
+          },
+          "unknown_channels_2:minimum_92": {
+            "episodes": 180,
+            "factor_accuracy": 0.42777777777777776,
+            "goal_success": 1.0,
+            "average_experiments": 3.388888888888889,
+            "average_total_action_cost": 1.4412777777777779
+          },
+          "unknown_channels_3:minimum_72": {
+            "episodes": 120,
+            "factor_accuracy": 0.55,
+            "goal_success": 0.9333333333333333,
+            "average_experiments": 6.533333333333333,
+            "average_total_action_cost": 2.7973333333333334
+          },
+          "unknown_channels_4:minimum_82": {
+            "episodes": 120,
+            "factor_accuracy": 0.3,
+            "goal_success": 0.9666666666666667,
+            "average_experiments": 8.1,
+            "average_total_action_cost": 2.774083333333333
+          },
+          "unknown_channels_3:minimum_97": {
+            "episodes": 60,
+            "factor_accuracy": 1.0,
+            "goal_success": 1.0,
+            "average_experiments": 9.166666666666666,
+            "average_total_action_cost": 3.7476666666666665
+          }
+        },
+        "failure_counts": {
+          "experiment_budget_exhausted": 431,
+          "belief_error": 137,
+          "planning_error": 138,
+          "calibration_error": 42,
+          "execution_noise": 1
+        },
+        "score": 0.8243117206962963,
+        "effective_intelligence_utility": 0.7764006773697532
+      },
+      {
+        "policy": {
+          "policy_id": "online_reliability_prior_85",
+          "confidence_gate": 0.95,
+          "maximum_experiments": 9,
+          "cost_weight": 0.05,
+          "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+          "parent_policy_id": "phase9_fixed_reliability_control",
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": false,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 5,
+          "online_reliability_learning": true,
+          "reliability_prior": 0.85,
+          "value_of_information_ratio": true,
+          "three_factor_reserve": true,
+          "complexity": 13
+        },
+        "worlds": 18,
+        "episodes": 1080,
+        "mean_factor_accuracy": 0.4981481481481482,
+        "mean_relevant_factor_accuracy": 0.8768518518518519,
+        "mean_goal_success": 0.8768518518518519,
+        "average_confidence": 0.9283996918981482,
+        "calibration_error": 0.05154784004629631,
+        "average_experiments": 5.139814814814815,
+        "average_goal_attempts": 1.1416666666666666,
+        "average_total_actions": 7.225925925925926,
+        "average_total_action_cost": 2.1620925925925927,
+        "mean_reliability_mae": 0.11317314050771607,
+        "worst_family_factor_accuracy": 0.22916666666666666,
+        "worst_family_goal_success": 0.7,
+        "families": {
+          "unknown_channels_2:minimum_82": {
+            "episodes": 60,
+            "factor_accuracy": 0.95,
+            "goal_success": 0.95,
+            "average_experiments": 5.55,
+            "average_total_action_cost": 1.2231666666666667
+          },
+          "unknown_channels_2:minimum_72": {
+            "episodes": 120,
+            "factor_accuracy": 0.8916666666666667,
+            "goal_success": 0.8916666666666667,
+            "average_experiments": 5.8,
+            "average_total_action_cost": 2.061166666666667
+          },
+          "unknown_channels_2:minimum_62": {
+            "episodes": 60,
+            "factor_accuracy": 0.3333333333333333,
+            "goal_success": 0.7,
+            "average_experiments": 4.083333333333333,
+            "average_total_action_cost": 1.4200000000000002
+          },
+          "unknown_channels_4:minimum_62": {
+            "episodes": 240,
+            "factor_accuracy": 0.22916666666666666,
+            "goal_success": 0.7958333333333333,
+            "average_experiments": 5.5125,
+            "average_total_action_cost": 2.542416666666667
+          },
+          "unknown_channels_3:minimum_62": {
+            "episodes": 120,
+            "factor_accuracy": 0.4666666666666667,
+            "goal_success": 0.7083333333333334,
+            "average_experiments": 7.083333333333333,
+            "average_total_action_cost": 3.1246666666666667
+          },
+          "unknown_channels_2:minimum_92": {
+            "episodes": 180,
+            "factor_accuracy": 0.43333333333333335,
+            "goal_success": 0.9833333333333333,
+            "average_experiments": 2.2111111111111112,
+            "average_total_action_cost": 1.1765555555555556
+          },
+          "unknown_channels_3:minimum_72": {
+            "episodes": 120,
+            "factor_accuracy": 0.55,
+            "goal_success": 0.9416666666666667,
+            "average_experiments": 5.1,
+            "average_total_action_cost": 2.3950833333333335
+          },
+          "unknown_channels_4:minimum_82": {
+            "episodes": 120,
+            "factor_accuracy": 0.325,
+            "goal_success": 0.9583333333333334,
+            "average_experiments": 5.908333333333333,
+            "average_total_action_cost": 2.266833333333333
+          },
+          "unknown_channels_3:minimum_97": {
+            "episodes": 60,
+            "factor_accuracy": 1.0,
+            "goal_success": 1.0,
+            "average_experiments": 6.416666666666667,
+            "average_total_action_cost": 2.8796666666666666
+          }
+        },
+        "failure_counts": {
+          "experiment_budget_exhausted": 203,
+          "belief_error": 133,
+          "calibration_error": 81,
+          "planning_error": 132,
+          "execution_noise": 1
+        },
+        "score": 0.8633756171759259,
+        "effective_intelligence_utility": 0.820044737928318
+      },
+      {
+        "policy": {
+          "policy_id": "online_reliability_prior_90",
+          "confidence_gate": 0.95,
+          "maximum_experiments": 9,
+          "cost_weight": 0.05,
+          "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+          "parent_policy_id": "phase9_fixed_reliability_control",
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": false,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 5,
+          "online_reliability_learning": true,
+          "reliability_prior": 0.9,
+          "value_of_information_ratio": true,
+          "three_factor_reserve": true,
+          "complexity": 13
+        },
+        "worlds": 18,
+        "episodes": 1080,
+        "mean_factor_accuracy": 0.5064814814814815,
+        "mean_relevant_factor_accuracy": 0.8722222222222222,
+        "mean_goal_success": 0.8712962962962963,
+        "average_confidence": 0.9396986046759259,
+        "calibration_error": 0.06747638245370369,
+        "average_experiments": 5.146296296296296,
+        "average_goal_attempts": 1.1490740740740741,
+        "average_total_actions": 7.249074074074074,
+        "average_total_action_cost": 2.1753333333333336,
+        "mean_reliability_mae": 0.10954279987654322,
+        "worst_family_factor_accuracy": 0.23333333333333334,
+        "worst_family_goal_success": 0.7,
+        "families": {
+          "unknown_channels_2:minimum_82": {
+            "episodes": 60,
+            "factor_accuracy": 0.95,
+            "goal_success": 0.95,
+            "average_experiments": 5.516666666666667,
+            "average_total_action_cost": 1.2205000000000001
+          },
+          "unknown_channels_2:minimum_72": {
+            "episodes": 120,
+            "factor_accuracy": 0.9,
+            "goal_success": 0.9,
+            "average_experiments": 5.75,
+            "average_total_action_cost": 2.041916666666667
+          },
+          "unknown_channels_2:minimum_62": {
+            "episodes": 60,
+            "factor_accuracy": 0.3,
+            "goal_success": 0.7,
+            "average_experiments": 4.066666666666666,
+            "average_total_action_cost": 1.4173333333333333
+          },
+          "unknown_channels_4:minimum_62": {
+            "episodes": 240,
+            "factor_accuracy": 0.23333333333333334,
+            "goal_success": 0.7625,
+            "average_experiments": 5.5,
+            "average_total_action_cost": 2.5648333333333335
+          },
+          "unknown_channels_3:minimum_62": {
+            "episodes": 120,
+            "factor_accuracy": 0.5166666666666667,
+            "goal_success": 0.7166666666666667,
+            "average_experiments": 7.091666666666667,
+            "average_total_action_cost": 3.1205833333333337
+          },
+          "unknown_channels_2:minimum_92": {
+            "episodes": 180,
+            "factor_accuracy": 0.43333333333333335,
+            "goal_success": 0.9833333333333333,
+            "average_experiments": 2.2055555555555557,
+            "average_total_action_cost": 1.176111111111111
+          },
+          "unknown_channels_3:minimum_72": {
+            "episodes": 120,
+            "factor_accuracy": 0.5416666666666666,
+            "goal_success": 0.925,
+            "average_experiments": 5.166666666666667,
+            "average_total_action_cost": 2.464583333333333
+          },
+          "unknown_channels_4:minimum_82": {
+            "episodes": 120,
+            "factor_accuracy": 0.35833333333333334,
+            "goal_success": 0.975,
+            "average_experiments": 6.0,
+            "average_total_action_cost": 2.2983333333333333
+          },
+          "unknown_channels_3:minimum_97": {
+            "episodes": 60,
+            "factor_accuracy": 1.0,
+            "goal_success": 1.0,
+            "average_experiments": 6.416666666666667,
+            "average_total_action_cost": 2.8796666666666666
+          }
+        },
+        "failure_counts": {
+          "experiment_budget_exhausted": 202,
+          "belief_error": 138,
+          "calibration_error": 83,
+          "planning_error": 138,
+          "execution_noise": 1
+        },
+        "score": 0.8561713901759259,
+        "effective_intelligence_utility": 0.8092349909228396
+      }
+    ],
+    "selected_policy": {
+      "policy_id": "online_reliability_prior_85",
+      "confidence_gate": 0.95,
+      "maximum_experiments": 9,
+      "cost_weight": 0.05,
+      "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+      "parent_policy_id": "phase9_fixed_reliability_control",
+      "goal_relevance_only": true,
+      "uncertain_factor_only": true,
+      "goal_retries": 1,
+      "adaptive_confidence": false,
+      "reliability_slope": 0.0,
+      "adaptive_experiment_budget": false,
+      "low_reliability_budget": 10,
+      "high_reliability_budget": 5,
+      "online_reliability_learning": true,
+      "reliability_prior": 0.85,
+      "value_of_information_ratio": true,
+      "three_factor_reserve": true,
+      "complexity": 13
+    },
+    "mutation": {
+      "cycle": {
+        "schema_version": "aion.hexcore.procedure_mutation_cycle.v1",
+        "cycle_id": "mutation_95c8baeb419f4870",
+        "parent_policy": {
+          "policy_id": "phase9_fixed_reliability_control",
+          "confidence_gate": 0.97,
+          "maximum_experiments": 7,
+          "cost_weight": 0.05,
+          "mutation": "immutable_phase9_under_unknown_reliability",
+          "parent_policy_id": null,
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": false,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 5,
+          "online_reliability_learning": false,
+          "reliability_prior": 0.8,
+          "value_of_information_ratio": false,
+          "three_factor_reserve": false,
+          "complexity": 10
+        },
+        "parent_failure_counts": {
+          "experiment_budget_exhausted": 592,
+          "belief_error": 169,
+          "planning_error": 169,
+          "calibration_error": 39,
+          "execution_noise": 1
+        },
+        "challengers": [
+          {
+            "policy": {
+              "policy_id": "online_reliability_prior_75",
+              "confidence_gate": 0.95,
+              "maximum_experiments": 9,
+              "cost_weight": 0.05,
+              "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+              "parent_policy_id": "phase9_fixed_reliability_control",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": false,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "online_reliability_learning": true,
+              "reliability_prior": 0.75,
+              "value_of_information_ratio": true,
+              "three_factor_reserve": true,
+              "complexity": 13
+            },
+            "score": 0.8259267774481481,
+            "mean_goal_success": 0.8685185185185185,
+            "worst_family_goal_success": 0.7
+          },
+          {
+            "policy": {
+              "policy_id": "online_reliability_prior_80",
+              "confidence_gate": 0.95,
+              "maximum_experiments": 9,
+              "cost_weight": 0.05,
+              "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+              "parent_policy_id": "phase9_fixed_reliability_control",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": false,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "online_reliability_learning": true,
+              "reliability_prior": 0.8,
+              "value_of_information_ratio": true,
+              "three_factor_reserve": true,
+              "complexity": 13
+            },
+            "score": 0.8243117206962963,
+            "mean_goal_success": 0.8712962962962963,
+            "worst_family_goal_success": 0.7
+          },
+          {
+            "policy": {
+              "policy_id": "online_reliability_prior_85",
+              "confidence_gate": 0.95,
+              "maximum_experiments": 9,
+              "cost_weight": 0.05,
+              "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+              "parent_policy_id": "phase9_fixed_reliability_control",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": false,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "online_reliability_learning": true,
+              "reliability_prior": 0.85,
+              "value_of_information_ratio": true,
+              "three_factor_reserve": true,
+              "complexity": 13
+            },
+            "score": 0.8633756171759259,
+            "mean_goal_success": 0.8768518518518519,
+            "worst_family_goal_success": 0.7
+          },
+          {
+            "policy": {
+              "policy_id": "online_reliability_prior_90",
+              "confidence_gate": 0.95,
+              "maximum_experiments": 9,
+              "cost_weight": 0.05,
+              "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+              "parent_policy_id": "phase9_fixed_reliability_control",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": false,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "online_reliability_learning": true,
+              "reliability_prior": 0.9,
+              "value_of_information_ratio": true,
+              "three_factor_reserve": true,
+              "complexity": 13
+            },
+            "score": 0.8561713901759259,
+            "mean_goal_success": 0.8712962962962963,
+            "worst_family_goal_success": 0.7
+          }
+        ],
+        "selected_development_policy": {
+          "policy_id": "online_reliability_prior_85",
+          "confidence_gate": 0.95,
+          "maximum_experiments": 9,
+          "cost_weight": 0.05,
+          "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+          "parent_policy_id": "phase9_fixed_reliability_control",
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": false,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 5,
+          "online_reliability_learning": true,
+          "reliability_prior": 0.85,
+          "value_of_information_ratio": true,
+          "three_factor_reserve": true,
+          "complexity": 13
+        },
+        "timestamp": "2026-07-28T20:36:13.542432+00:00"
+      },
+      "commit": {
+        "reason": "procedure_mutation_cycle:mutation_95c8baeb419f4870",
+        "authority": {
+          "allow_learn": true,
+          "goal": "maintain_coherence",
+          "source": "online_reliability_causal_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "bf1f8c5b0f70dc019d82a1b4688dd701eac459dd7fe333b52ce13a4743bddb90"
+      }
+    }
+  },
+  "sealed": {
+    "control": {
+      "policy": {
+        "policy_id": "phase9_fixed_reliability_control",
+        "confidence_gate": 0.97,
+        "maximum_experiments": 7,
+        "cost_weight": 0.05,
+        "mutation": "immutable_phase9_under_unknown_reliability",
+        "parent_policy_id": null,
+        "goal_relevance_only": true,
+        "uncertain_factor_only": true,
+        "goal_retries": 1,
+        "adaptive_confidence": false,
+        "reliability_slope": 0.0,
+        "adaptive_experiment_budget": false,
+        "low_reliability_budget": 10,
+        "high_reliability_budget": 5,
+        "online_reliability_learning": false,
+        "reliability_prior": 0.8,
+        "value_of_information_ratio": false,
+        "three_factor_reserve": false,
+        "complexity": 10
+      },
+      "worlds": 24,
+      "episodes": 1440,
+      "mean_factor_accuracy": 0.4222222222222222,
+      "mean_relevant_factor_accuracy": 0.7930555555555555,
+      "mean_goal_success": 0.7888888888888889,
+      "average_confidence": 0.8941289571666667,
+      "calibration_error": 0.10107340161111122,
+      "average_experiments": 5.95625,
+      "average_goal_attempts": 1.2409722222222221,
+      "average_total_actions": 8.129861111111111,
+      "average_total_action_cost": 2.1940902777777778,
+      "mean_reliability_mae": 0.1293402777777778,
+      "worst_family_factor_accuracy": 0.18333333333333332,
+      "worst_family_goal_success": 0.5466666666666666,
+      "families": {
+        "unknown_channels_2:minimum_62": {
+          "episodes": 360,
+          "factor_accuracy": 0.46944444444444444,
+          "goal_success": 0.8111111111111111,
+          "average_experiments": 5.108333333333333,
+          "average_total_action_cost": 1.3404166666666666
+        },
+        "unknown_channels_4:minimum_82": {
+          "episodes": 120,
+          "factor_accuracy": 0.2833333333333333,
+          "goal_success": 0.9166666666666666,
+          "average_experiments": 6.733333333333333,
+          "average_total_action_cost": 2.5051666666666668
+        },
+        "unknown_channels_3:minimum_72": {
+          "episodes": 60,
+          "factor_accuracy": 0.18333333333333332,
+          "goal_success": 0.8,
+          "average_experiments": 5.033333333333333,
+          "average_total_action_cost": 1.1443333333333332
+        },
+        "unknown_channels_3:minimum_62": {
+          "episodes": 300,
+          "factor_accuracy": 0.32,
+          "goal_success": 0.5466666666666666,
+          "average_experiments": 6.506666666666667,
+          "average_total_action_cost": 2.7863666666666664
+        },
+        "unknown_channels_3:minimum_82": {
+          "episodes": 120,
+          "factor_accuracy": 0.65,
+          "goal_success": 0.9,
+          "average_experiments": 6.875,
+          "average_total_action_cost": 2.7916666666666665
+        },
+        "unknown_channels_4:minimum_72": {
+          "episodes": 60,
+          "factor_accuracy": 0.2,
+          "goal_success": 0.95,
+          "average_experiments": 4.366666666666666,
+          "average_total_action_cost": 2.4174999999999995
+        },
+        "unknown_channels_4:minimum_62": {
+          "episodes": 180,
+          "factor_accuracy": 0.2,
+          "goal_success": 0.7277777777777777,
+          "average_experiments": 6.833333333333333,
+          "average_total_action_cost": 2.446111111111111
+        },
+        "unknown_channels_2:minimum_97": {
+          "episodes": 60,
+          "factor_accuracy": 0.4666666666666667,
+          "goal_success": 1.0,
+          "average_experiments": 3.2,
+          "average_total_action_cost": 1.1953333333333334
+        },
+        "unknown_channels_3:minimum_92": {
+          "episodes": 60,
+          "factor_accuracy": 0.5666666666666667,
+          "goal_success": 0.9833333333333333,
+          "average_experiments": 6.416666666666667,
+          "average_total_action_cost": 1.4721666666666666
+        },
+        "unknown_channels_2:minimum_72": {
+          "episodes": 60,
+          "factor_accuracy": 0.8333333333333334,
+          "goal_success": 0.7833333333333333,
+          "average_experiments": 6.716666666666667,
+          "average_total_action_cost": 3.5866666666666664
+        },
+        "unknown_channels_2:minimum_92": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 1.0,
+          "average_experiments": 6.316666666666666,
+          "average_total_action_cost": 2.9358333333333335
+        }
+      },
+      "failure_counts": {
+        "experiment_budget_exhausted": 869,
+        "belief_error": 298,
+        "calibration_error": 75,
+        "planning_error": 299,
+        "execution_noise": 5
+      },
+      "score": 0.733993653011111,
+      "effective_intelligence_utility": 0.701409278011111
+    },
+    "challenger": {
+      "policy": {
+        "policy_id": "online_reliability_prior_85",
+        "confidence_gate": 0.95,
+        "maximum_experiments": 9,
+        "cost_weight": 0.05,
+        "mutation": "estimate_channel_reliability_and_rank_by_information_cost",
+        "parent_policy_id": "phase9_fixed_reliability_control",
+        "goal_relevance_only": true,
+        "uncertain_factor_only": true,
+        "goal_retries": 1,
+        "adaptive_confidence": false,
+        "reliability_slope": 0.0,
+        "adaptive_experiment_budget": false,
+        "low_reliability_budget": 10,
+        "high_reliability_budget": 5,
+        "online_reliability_learning": true,
+        "reliability_prior": 0.85,
+        "value_of_information_ratio": true,
+        "three_factor_reserve": true,
+        "complexity": 13
+      },
+      "worlds": 24,
+      "episodes": 1440,
+      "mean_factor_accuracy": 0.4486111111111111,
+      "mean_relevant_factor_accuracy": 0.7951388888888888,
+      "mean_goal_success": 0.7944444444444444,
+      "average_confidence": 0.9190229946180556,
+      "calibration_error": 0.12388410572916675,
+      "average_experiments": 5.48125,
+      "average_goal_attempts": 1.225,
+      "average_total_actions": 7.635416666666667,
+      "average_total_action_cost": 2.138986111111111,
+      "mean_reliability_mae": 0.12437786867881945,
+      "worst_family_factor_accuracy": 0.15,
+      "worst_family_goal_success": 0.5866666666666667,
+      "families": {
+        "unknown_channels_2:minimum_62": {
+          "episodes": 360,
+          "factor_accuracy": 0.4444444444444444,
+          "goal_success": 0.7833333333333333,
+          "average_experiments": 4.088888888888889,
+          "average_total_action_cost": 1.2614166666666666
+        },
+        "unknown_channels_4:minimum_82": {
+          "episodes": 120,
+          "factor_accuracy": 0.38333333333333336,
+          "goal_success": 0.9583333333333334,
+          "average_experiments": 5.983333333333333,
+          "average_total_action_cost": 2.2724166666666665
+        },
+        "unknown_channels_3:minimum_72": {
+          "episodes": 60,
+          "factor_accuracy": 0.21666666666666667,
+          "goal_success": 0.85,
+          "average_experiments": 3.8333333333333335,
+          "average_total_action_cost": 0.9858333333333333
+        },
+        "unknown_channels_3:minimum_62": {
+          "episodes": 300,
+          "factor_accuracy": 0.36666666666666664,
+          "goal_success": 0.5866666666666667,
+          "average_experiments": 7.263333333333334,
+          "average_total_action_cost": 3.1176666666666666
+        },
+        "unknown_channels_3:minimum_82": {
+          "episodes": 120,
+          "factor_accuracy": 0.6833333333333333,
+          "goal_success": 0.925,
+          "average_experiments": 6.858333333333333,
+          "average_total_action_cost": 2.7954166666666667
+        },
+        "unknown_channels_4:minimum_72": {
+          "episodes": 60,
+          "factor_accuracy": 0.15,
+          "goal_success": 0.95,
+          "average_experiments": 3.1,
+          "average_total_action_cost": 1.9025
+        },
+        "unknown_channels_4:minimum_62": {
+          "episodes": 180,
+          "factor_accuracy": 0.2833333333333333,
+          "goal_success": 0.6888888888888889,
+          "average_experiments": 6.766666666666667,
+          "average_total_action_cost": 2.4105555555555553
+        },
+        "unknown_channels_2:minimum_97": {
+          "episodes": 60,
+          "factor_accuracy": 0.5,
+          "goal_success": 0.9833333333333333,
+          "average_experiments": 2.2666666666666666,
+          "average_total_action_cost": 1.0126666666666666
+        },
+        "unknown_channels_3:minimum_92": {
+          "episodes": 60,
+          "factor_accuracy": 0.5833333333333334,
+          "goal_success": 0.9833333333333333,
+          "average_experiments": 4.883333333333334,
+          "average_total_action_cost": 1.3175
+        },
+        "unknown_channels_2:minimum_72": {
+          "episodes": 60,
+          "factor_accuracy": 0.85,
+          "goal_success": 0.85,
+          "average_experiments": 6.033333333333333,
+          "average_total_action_cost": 3.255
+        },
+        "unknown_channels_2:minimum_92": {
+          "episodes": 60,
+          "factor_accuracy": 0.9833333333333333,
+          "goal_success": 0.9833333333333333,
+          "average_experiments": 4.6,
+          "average_total_action_cost": 2.338
+        }
+      },
+      "failure_counts": {
+        "experiment_budget_exhausted": 315,
+        "belief_error": 295,
+        "calibration_error": 200,
+        "planning_error": 293,
+        "execution_noise": 3
+      },
+      "score": 0.7497648455208333,
+      "effective_intelligence_utility": 0.7085778965313367
+    },
+    "gate": {
+      "accepted": false,
+      "errors": [
+        "MEAN_GOAL_GAIN_BELOW_ONE_POINT",
+        "CALIBRATION_REGRESSION_ABOVE_ONE_POINT",
+        "ABSOLUTE_GOAL_SUCCESS_BELOW_80_PERCENT"
+      ],
+      "mean_goal_change": 0.005555555555555536,
+      "worst_family_goal_change": 0.040000000000000036,
+      "calibration_change": 0.022810704118055525,
+      "total_action_cost_change": -0.05510416666666673,
+      "reliability_mae_change": -0.0049624090989583425,
+      "effective_intelligence_utility_change": 0.007168618520225767
+    }
+  },
+  "promotion": {
+    "candidate": {
+      "procedure_id": "procedure_online_reliability_25ed958978f5",
+      "goal": "causal_investigation_policy",
+      "steps": [
+        "start_with_uncertain_channel_reliability",
+        "estimate_reliability_from_repeated_observations",
+        "update_the_belief_model_online",
+        "rank_probes_by_information_per_cost",
+        "plan_execute_and_verify"
+      ],
+      "score": 0.7085778965313367,
+      "success": false,
+      "evidence": {
+        "evaluation": "phase11_sealed_unknown_reliability",
+        "gate": {
+          "accepted": false,
+          "errors": [
+            "MEAN_GOAL_GAIN_BELOW_ONE_POINT",
+            "CALIBRATION_REGRESSION_ABOVE_ONE_POINT",
+            "ABSOLUTE_GOAL_SUCCESS_BELOW_80_PERCENT"
+          ],
+          "mean_goal_change": 0.005555555555555536,
+          "worst_family_goal_change": 0.040000000000000036,
+          "calibration_change": 0.022810704118055525,
+          "total_action_cost_change": -0.05510416666666673,
+          "reliability_mae_change": -0.0049624090989583425,
+          "effective_intelligence_utility_change": 0.007168618520225767
+        }
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "decision": {
+      "promoted": false,
+      "reason": "CANDIDATE_FAILED"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "champion_id": "procedure_efficient_causal_34e0b23ffd0f",
+    "relearning_worlds": 0
+  },
+  "gates": {
+    "hidden_reliability": true,
+    "online_estimation_recorded": true,
+    "sealed_gate_passed": false,
+    "cau_promoted_if_safe": true,
+    "restart_retention": true
+  },
+  "boundary_statement": "The structural graph is supplied, but observation-channel reliability is hidden and estimated online. This is not open graph discovery or unrestricted procedure synthesis.",
+  "passed": false
+}

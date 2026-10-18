@@ -1,0 +1,55 @@
+{
+  "schema": "aion.riemann_critical_line_strategy.v1",
+  "date": "2026-08-15",
+  "claim_boundary": "This is a formalization strategy for established equivalences and open targets, not a proof or a claim of new RH mathematics.",
+  "completed_prerequisites": [
+    "formal definition of trivial and nontrivial zeta zeros",
+    "classification of every zero with Re(s) <= 0 as a negative-even trivial zero",
+    "critical-strip location 0 < Re(s) < 1 for every nontrivial zero",
+    "reflection symmetry s -> 1-s",
+    "conjugation symmetry s -> conjugate(s)",
+    "four-point symmetry orbit",
+    "equivalence of the local nontrivial-zero formulation with Mathlib.RiemannHypothesis"
+  ],
+  "candidate_routes": [
+    {
+      "id": "chebyshev_psi_error",
+      "status": "selected",
+      "criterion": "An RH-equivalent square-root-scale error bound for Chebyshev psi.",
+      "local_library_support": [
+        "Mathlib.NumberTheory.Chebyshev defines psi and classical bounds",
+        "ArithmeticFunction.vonMangoldt and its divisor-sum identities",
+        "LSeries_vonMangoldt_eq_deriv_riemannZeta_div on Re(s) > 1"
+      ],
+      "missing_bridge": "A formal explicit formula connecting psi minus its main term to the nontrivial zeta-zero multiset, followed by the established RH-equivalence estimates."
+    },
+    {
+      "id": "li_criterion",
+      "status": "deferred",
+      "criterion": "Nonnegativity of all Li coefficients.",
+      "local_library_support": [],
+      "missing_bridge": "No Riemann xi function or Li-coefficient framework was found in the pinned Mathlib tree."
+    },
+    {
+      "id": "weil_positivity",
+      "status": "deferred",
+      "criterion": "Positivity of Weil's explicit-formula quadratic form.",
+      "local_library_support": ["general Fourier and distribution infrastructure"],
+      "missing_bridge": "No zeta explicit-formula or Weil-criterion specialization was found."
+    },
+    {
+      "id": "nyman_beurling",
+      "status": "deferred",
+      "criterion": "Density of a fractional-part function span in L2(0,1).",
+      "local_library_support": ["general measure and Hilbert-space infrastructure"],
+      "missing_bridge": "No Nyman-Beurling definitions or RH equivalence were found."
+    }
+  ],
+  "next_formal_milestones": [
+    "Freeze a precise Chebyshev-psi remainder statement with all domains and constants explicit.",
+    "Inventory the exact Mathlib lemmas for psi, von Mangoldt, Perron-type transforms, contour integration, and zero multisets.",
+    "Formalize a source-closed explicit-formula dependency graph without adding axioms.",
+    "Reconstruct the easiest established direction of the RH-equivalent error criterion.",
+    "Only after the equivalence is kernel-checked, investigate a genuinely stronger bound."
+  ]
+}

@@ -1,0 +1,164 @@
+\section{AION Goal Engine Sprint 1 Completion Lock}
+\label{sec:aion-goal-engine-sprint-1-completion-lock}
+
+\subsection{Status}
+
+Sprint 1 of the AION Goal Engine is locked at the canonical dry-run and preview-bundle layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Goal Engine Sprint 1 canonical bundle suite passing with 72 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_goal_engine_sprint1_gate_lock.py \
+  backend/tests/workflow_capsules/test_aion_managed_agent_build_plan_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_contracts.py \
+  backend/tests/workflow_capsules/test_goal_engine_registry.py \
+  backend/tests/workflow_capsules/test_goal_engine_preview_builder_registry.py \
+  backend/tests/workflow_capsules/test_goal_engine_preview_bundle_canonical_contract.py \
+  backend/tests/workflow_capsules/test_goal_engine_workflow_dry_run_bridge.py \
+  backend/tests/workflow_capsules/test_goal_engine_dry_run_bridge_attachment_location.py \
+  backend/tests/workflow_capsules/test_goal_engine_dry_run_bridge_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_step_trace_single_attachment_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_manifest_trace_boardroom_drift_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_visible_preview_bundle_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_canvas_safety_badges_ui_lock.py \
+  backend/tests/workflow_capsules/test_master_glyph_canvas_consolidated_into_workflow_ui_lock.py
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+72 passed in 0.34s
+\end{verbatim}
+
+\subsection{Canonical Preview Bundle}
+
+The canonical Sprint 1 object is:
+
+\begin{verbatim}
+GoalEnginePreviewBundle
+\end{verbatim}
+
+This bundle is now the single source of truth for Goal Engine dry-run visibility.
+
+It owns the canonical shape for:
+
+\begin{itemize}
+  \item the Goal Engine manifest,
+  \item the Goal Engine step trace,
+  \item the Boardroom trace,
+  \item the safety contract,
+  \item the machine trace.
+\end{itemize}
+
+Legacy mirrors are preserved for existing UI and test consumers, but they are no longer independent sources of truth.
+
+The compatibility mirrors are:
+
+\begin{verbatim}
+goal_engine_manifest
+goal_engine
+goal_engine_step_trace
+goal_engine_boardroom_trace
+goal_engine_machine_trace
+\end{verbatim}
+
+\subsection{Dry-Run Bridge Lock}
+
+The Workflow Capsule dry-run bridge now attaches Goal Engine data to the final \texttt{WorkflowDryRunResult}, not to per-step permission dictionaries.
+
+This prevents permission evaluation from becoming polluted with Goal Engine manifest state.
+
+The bridge contract is:
+
+\begin{itemize}
+  \item attach the canonical preview bundle once,
+  \item expose legacy mirrors from the bundle,
+  \item preserve one step-trace attachment path,
+  \item prevent duplicate trace rows,
+  \item keep all Goal Engine output dry-run only,
+  \item grant no permission,
+  \item perform no external writes.
+\end{itemize}
+
+\subsection{Safety Lock}
+
+Sprint 1 remains non-executing.
+
+The locked safety contract is:
+
+\begin{itemize}
+  \item Goal nodes do not grant permission.
+  \item Experiment nodes do not grant permission.
+  \item Loop nodes do not grant permission.
+  \item Reflection and learning nodes do not grant permission.
+  \item External writes require explicit approval.
+  \item Unbounded loops are not allowed.
+  \item Resume requires environment revalidation.
+  \item A2A is deferred until the Goal Engine is stable.
+\end{itemize}
+
+\subsection{Workflow Canvas Lock}
+
+The Workflow Canvas is the single editing and composition surface.
+
+The separate Master Glyph Canvas mode is deprecated as a separate canvas mode. Reusable glyph workflows are managed through the Glyph Library modal and opened as tabs inside the main Workflow Canvas.
+
+Goal Engine capability is built on the Workflow Canvas.
+
+Boardroom is the trust and explanation layer.
+
+\subsection{Machine Trace Lock}
+
+The machine trace exists in Sprint 1 only as a preview shape.
+
+It is not yet an external Agent-to-Agent commercial interface.
+
+The locked machine trace state is:
+
+\begin{verbatim}
+agent_ready = false
+a2a_deferred = true
+commercial_interface_ready = false
+reason = "A2A is deferred until Goal Engine Sprint 1 is stable."
+\end{verbatim}
+
+This deliberately preserves the strategic direction while preventing premature A2A exposure.
+
+\subsection{Sprint 2 Gate}
+
+Sprint 2 may now begin.
+
+The next sprint is:
+
+\begin{quote}
+\textbf{Sprint 2 --- Goal-Aware Dry-Run Runtime}
+\end{quote}
+
+Sprint 2 should build on the canonical bundle and must not reintroduce parallel manifest, trace, or Boardroom serialization paths.
+
+The next implementation targets are:
+
+\begin{enumerate}
+  \item goal-aware dry-run step evaluation,
+  \item preview-builder registry consolidation,
+  \item typed outcome and metric previews,
+  \item bounded loop preview semantics,
+  \item experiment preview semantics,
+  \item checkpoint and resume preview scaffolding,
+  \item Boardroom consumption from the canonical preview bundle only.
+\end{enumerate}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-SPRINT-1-COMPLETION-LOCK-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

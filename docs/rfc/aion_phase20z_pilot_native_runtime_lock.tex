@@ -1,0 +1,280 @@
+\section{AION Phase 20Z --- AION Pilot Native Runtime and Process Isolation}
+\label{sec:aion-phase20z-pilot-native-runtime}
+
+\subsection{Status}
+
+Phase 20Z locks AION Pilot as a native AION runtime capability.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION Pilot is native to AION Core, not a separate app, not an OpenClaw clone, and not UI automation.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot is the user-facing executor for AION Mission Mode.
+
+Pilot is not an external agent operating AION like a user.
+
+Pilot is AION operating itself on a longer task, within a governed Mission Contract, visible through the Terminal, Boardroom, Workflow Canvas, proof, replay, and artifact layers.
+
+\begin{quote}
+\textbf{AION Pilot is not an agent operating AION. It is AION operating itself on a longer task.}
+\end{quote}
+
+\subsection{Native Runtime Rule}
+
+AION Pilot MUST:
+
+\begin{itemize}
+  \item be owned by \texttt{aion\_core};
+  \item use executor name \texttt{AION Pilot};
+  \item call internal AION services directly;
+  \item execute through Mission Contracts, lanes, checkpoints, Kernel Guard, runtime state, artifact persistence, proof, replay, and ETS preview;
+  \item expose mission intake through AION Terminal or Command Bar;
+  \item expose supervision through Boardroom Mission Control;
+  \item expose plans and workflows through Workflow Canvas preview surfaces.
+\end{itemize}
+
+\subsection{UI Automation Prohibition}
+
+AION Pilot MUST NOT:
+
+\begin{itemize}
+  \item click the UI;
+  \item type into the UI;
+  \item scrape the UI;
+  \item navigate the UI;
+  \item move the cursor;
+  \item drive a browser or desktop surface like a user;
+  \item operate as a hidden daemon outside Boardroom supervision.
+\end{itemize}
+
+Pilot executes through internal services, not UI simulation.
+
+\subsection{Allowed Native Services}
+
+Pilot may route only through governed AION internal services such as:
+
+\begin{itemize}
+  \item \texttt{mission\_contract}
+  \item \texttt{mission\_template}
+  \item \texttt{mission\_planner}
+  \item \texttt{autonomy\_lane\_classifier}
+  \item \texttt{kernel\_guard}
+  \item \texttt{mission\_runtime}
+  \item \texttt{business\_container\_artifacts}
+  \item \texttt{proof\_replay}
+  \item \texttt{ets\_preview}
+\end{itemize}
+
+\subsection{Process Isolation and Resource Bounding}
+
+MissionRuntime work MUST run asynchronously and outside the primary UI thread.
+
+The worker policy MUST include:
+
+\begin{itemize}
+  \item bounded CPU policy;
+  \item bounded memory policy;
+  \item mission-scoped throttled I/O;
+  \item kill-switch availability;
+  \item trace preservation on kill;
+  \item receipt preservation on kill;
+  \item partial-output preservation on kill.
+\end{itemize}
+
+\subsection{Kill-Switch Contract}
+
+The AION Terminal and Boardroom MUST expose a kill-switch for active Pilot runs.
+
+When triggered, the kill-switch MUST:
+
+\begin{itemize}
+  \item terminate the active worker state;
+  \item preserve trace events;
+  \item preserve receipt references;
+  \item preserve partial outputs;
+  \item produce a new worker state hash;
+  \item prevent corruption of persistent state.
+\end{itemize}
+
+\subsection{Boardroom State Synchronisation}
+
+The Boardroom view MUST be synchronised with runtime and worker state.
+
+The sync hash is:
+
+\begin{verbatim}
+sha256({
+  mission_id,
+  mission_run_id,
+  runtime_state_hash,
+  worker_state_hash
+})
+\end{verbatim}
+
+If the Boardroom sync hash does not match runtime state, Boardroom MUST refuse to present the mission as trustworthy.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Z-PILOT-NATIVE-RUNTIME-PROCESS-ISOLATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20Z.1 --- Pre-emptible Worker Interruption and Boardroom Divergence Freeze}
+\label{subsec:aion-phase20z1-preemptible-worker-boardroom-divergence}
+
+\subsubsection{Status}
+
+Phase 20Z.1 hardens AION Pilot's native runtime against orphaned worker execution and Boardroom state desynchronization.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot workers must pass atomic pre-emption checkpoints and Boardroom must freeze controls on sync divergence.}
+\end{quote}
+
+\subsubsection{Zombie Worker Threat Model}
+
+A background MissionRuntime worker may be asked to stop while an internal operation, subprocess, utility call, or step loop is active.
+
+If the parent supervisor marks the mission cancelled but the worker continues processing, the system can create a detached execution loop.
+
+This failure mode is called a zombie worker loop.
+
+A zombie worker loop may:
+
+\begin{itemize}
+  \item continue processing after user cancellation;
+  \item emit stale or untracked outputs;
+  \item consume CPU, memory, I/O, or cost budget;
+  \item corrupt state after Boardroom has stopped trusting the mission;
+  \item create partial outputs without current supervision.
+\end{itemize}
+
+\subsubsection{Pre-emptible Atomic Worker Interruption}
+
+Every Pilot worker loop MUST call an atomic pre-emption checkpoint before and after every internal micro-step.
+
+The worker MUST evaluate:
+
+\begin{equation}
+\texttt{kill\_switch\_armed} \equiv \texttt{false}
+\end{equation}
+
+before executing the next internal block.
+
+If \texttt{kill\_switch\_armed} is true, the worker MUST:
+
+\begin{itemize}
+  \item halt immediately;
+  \item prevent any further tool execution;
+  \item preserve trace events;
+  \item preserve receipt references;
+  \item preserve partial outputs;
+  \item emit \texttt{pilot\_worker\_preempted};
+  \item transition the worker state to \texttt{killed}.
+\end{itemize}
+
+\begin{quote}
+\textbf{A stopped Pilot worker must not run one more step.}
+\end{quote}
+
+\subsubsection{Stop Request Contract}
+
+A stop request MUST flip:
+
+\begin{verbatim}
+kill_switch_armed: true
+\end{verbatim}
+
+and emit:
+
+\begin{verbatim}
+event_type: pilot_worker_stop_requested
+next_preemption_checkpoint_must_halt: true
+\end{verbatim}
+
+The next pre-emption checkpoint MUST stop the worker before any new internal tool or service route executes.
+
+\subsubsection{Boardroom Synchronization Divergence Action}
+
+The Boardroom sync hash remains the trust boundary between native worker state and user-facing mission supervision.
+
+The sync hash is:
+
+\begin{equation}
+\mathcal{H}_{\mathrm{sync}}
+=
+\mathrm{SHA256}
+(
+\texttt{mission\_id}
+\parallel
+\texttt{mission\_run\_id}
+\parallel
+\mathcal{H}_{\mathrm{runtime\_state}}
+\parallel
+\mathcal{H}_{\mathrm{worker\_state}}
+)
+\end{equation}
+
+If:
+
+\begin{equation}
+\mathcal{H}_{\mathrm{sync,calculated}}
+\neq
+\mathcal{H}_{\mathrm{sync,read}}
+\end{equation}
+
+Boardroom MUST:
+
+\begin{itemize}
+  \item mark the mission view as untrustworthy;
+  \item freeze all command execution controls;
+  \item grey out status monitors;
+  \item emit \texttt{boardroom\_state\_desynchronization};
+  \item prevent the operator from approving, continuing, or dispatching based on stale state.
+\end{itemize}
+
+\subsubsection{Validation Coverage}
+
+Phase 20Z.1 tests prove:
+
+\begin{itemize}
+  \item pre-emption checkpoints pass while the kill-switch is not armed;
+  \item stop requests arm \texttt{kill\_switch\_armed} to true;
+  \item a stopped worker is interrupted at the next checkpoint;
+  \item zombie worker loops cannot continue to another tool block;
+  \item Boardroom divergence freezes controls;
+  \item valid Boardroom sync keeps controls available.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION Pilot background work is pre-emptible at every internal boundary. If the worker is stopped or Boardroom state diverges, execution control is removed before stale or orphaned work can continue.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Z1-PREEMPTIBLE-WORKER-BOARDROOM-DIVERGENCE
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

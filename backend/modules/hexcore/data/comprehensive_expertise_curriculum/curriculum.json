@@ -1,0 +1,5658 @@
+{
+  "assessment_protocol": {
+    "controls": [
+      "cold",
+      "no_memory",
+      "no_repair",
+      "subject_isolated"
+    ],
+    "exam_is_source_disjoint": true,
+    "expert_requires_real_outcomes": true,
+    "research_requires_replication_and_external_scrutiny": true,
+    "retention_days": [
+      1,
+      7,
+      30,
+      90
+    ],
+    "self_scoring_cannot_award_competence": true,
+    "teacher_is_proposal_only": true
+  },
+  "capstones": [
+    {
+      "authorities": [
+        "physics_simulation",
+        "energy_ledger",
+        "control_tests",
+        "cost_model",
+        "safety_and_regulatory_review"
+      ],
+      "objective": "Design and simulate a low-cost, lawful search-and-rescue drone under endurance, payload, weather, privacy, reliability and unit-cost constraints.",
+      "project_id": "safe_search_rescue_drone",
+      "subjects": [
+        "uncrewed_aerial_systems",
+        "energy_storage",
+        "control_robotics",
+        "embedded_systems",
+        "manufacturing_quality",
+        "discrete_optimization",
+        "law_regulation_ethics"
+      ]
+    },
+    {
+      "authorities": [
+        "withheld_field_data",
+        "agronomy_review",
+        "uncertainty_audit",
+        "cost_outcome"
+      ],
+      "objective": "Design a measured precision-farming system that improves resource use without overstating biological outcomes.",
+      "project_id": "precision_farm_system",
+      "subjects": [
+        "agronomy_soil",
+        "precision_agriculture",
+        "sensors_instrumentation",
+        "data_science_ml",
+        "uncrewed_aerial_systems",
+        "economics_core"
+      ]
+    },
+    {
+      "authorities": [
+        "power_flow_simulation",
+        "fault_tests",
+        "cost_model",
+        "policy_constraints"
+      ],
+      "objective": "Optimise a safe microgrid across generation, storage, demand, reliability, emissions and lifetime cost.",
+      "project_id": "resilient_microgrid",
+      "subjects": [
+        "generation_grids",
+        "energy_storage",
+        "discrete_optimization",
+        "energy_policy_sustainability",
+        "electronics_circuits",
+        "accounting_corporate_finance"
+      ]
+    },
+    {
+      "authorities": [
+        "process_simulation",
+        "quality_metrics",
+        "downtime_outcome",
+        "financial_ledger"
+      ],
+      "objective": "Improve a small factory using sensing, quality control, automation, maintenance and unit economics.",
+      "project_id": "adaptive_factory",
+      "subjects": [
+        "manufacturing_quality",
+        "control_robotics",
+        "sensors_instrumentation",
+        "data_science_ml",
+        "supply_chain_procurement",
+        "accounting_corporate_finance"
+      ]
+    },
+    {
+      "authorities": [
+        "real_user_outcomes",
+        "accounting_reconciliation",
+        "security_tests",
+        "human_approval"
+      ],
+      "objective": "Build a governed business operating system that converts verified evidence into useful, approval-gated departmental work.",
+      "project_id": "governed_business_automation",
+      "subjects": [
+        "business_strategy_operations",
+        "accounting_corporate_finance",
+        "software_engineering",
+        "data_databases",
+        "data_science_ml",
+        "human_computer_interaction",
+        "law_regulation_ethics",
+        "cybersecurity"
+      ]
+    },
+    {
+      "authorities": [
+        "hydrology_model",
+        "sensor_data",
+        "cost_envelope",
+        "stakeholder_review"
+      ],
+      "objective": "Design a monitored water-conservation and failure-response plan for a resource-constrained community.",
+      "project_id": "water_resilience",
+      "subjects": [
+        "water_waste_resilience",
+        "earth_climate",
+        "sensors_instrumentation",
+        "discrete_optimization",
+        "economics_core",
+        "negotiation_governance"
+      ]
+    },
+    {
+      "authorities": [
+        "frozen_market_data",
+        "delayed_paper_outcomes",
+        "independent_risk_recalculation",
+        "cost_and_slippage_ledger",
+        "compliance_review"
+      ],
+      "objective": "Research, paper-trade and govern a multi-strategy quantitative portfolio under realistic costs, capacity, liquidity, model-risk, compliance and drawdown constraints.",
+      "project_id": "governed_quantitative_fund",
+      "subjects": [
+        "probability_statistics",
+        "quantitative_research",
+        "systematic_trading",
+        "portfolio_construction",
+        "financial_risk_management",
+        "market_microstructure_execution",
+        "accounting_corporate_finance",
+        "software_engineering",
+        "data_science_ml",
+        "financial_regulation_compliance",
+        "psychology_organisations"
+      ]
+    },
+    {
+      "authorities": [
+        "public_filings_and_asset_registers",
+        "independent_valuation",
+        "legal_and_competition_review",
+        "stakeholder_harm_review",
+        "owner_approval",
+        "later_operating_outcomes"
+      ],
+      "objective": "Map an industry, identify lawful bottlenecks and dependencies, rank build-buy-partner options, and propose a resilient strategic-asset portfolio without moving capital or exercising external authority.",
+      "project_id": "governed_strategic_asset_portfolio",
+      "subjects": [
+        "strategic_assets_capital_allocation",
+        "power_institutions_legitimacy",
+        "information_intelligence_attention",
+        "technology_industry_platforms",
+        "networks_talent_coordination",
+        "resilience_geography_long_horizon",
+        "financial_risk_management",
+        "cybersecurity",
+        "energy_fundamentals"
+      ]
+    },
+    {
+      "authorities": [
+        "signed_scope_manifest",
+        "isolated_range_receipt",
+        "frozen_vulnerable_baseline",
+        "attack_and_detection_ledger",
+        "patched_regression_suite",
+        "independent_retest",
+        "zero_external_targets"
+      ],
+      "objective": "Assess an explicitly owned isolated network and application range, demonstrate bounded weaknesses, detect the activity, repair every validated defect and independently prove the repaired range resists the same and variant attacks.",
+      "project_id": "owned_purple_team_cyber_range",
+      "subjects": [
+        "application_web_api_security",
+        "network_wireless_security",
+        "cloud_identity_container_security",
+        "adversary_emulation_penetration_testing",
+        "exploit_analysis_reverse_engineering",
+        "detection_threat_hunting_incident_response",
+        "cryptography_protocol_security",
+        "hardware_embedded_ot_security",
+        "security_research_disclosure",
+        "security_architecture_operations",
+        "law_regulation_ethics",
+        "probability_statistics",
+        "business_strategy_operations"
+      ]
+    },
+    {
+      "authorities": [
+        "live_public_orderbooks",
+        "frozen_point_in_time_forecasts",
+        "later_platform_settlements",
+        "independent_brier_and_pnl_recalculation",
+        "jurisdiction_and_account_eligibility",
+        "owner_signed_loss_budget",
+        "human_approval_per_live_order",
+        "zero_live_capital_during_qualification"
+      ],
+      "objective": "Continuously ingest real public prediction markets, research resolvable events, commit calibrated probabilities before outcomes, paper-trade under realistic fees and liquidity, learn from delayed settlement, and only after independent evidence propose tightly bounded owner-approved live orders and compliant market suggestions.",
+      "project_id": "governed_prediction_market_fund",
+      "subjects": [
+        "probabilistic_forecasting_calibration",
+        "prediction_market_microstructure",
+        "event_evidence_resolution_research",
+        "elections_polling_public_opinion",
+        "prediction_market_design_compliance",
+        "financial_risk_management",
+        "financial_regulation_compliance",
+        "psychology_organisations",
+        "history_geography_geopolitics",
+        "data_science_ml",
+        "software_engineering"
+      ]
+    }
+  ],
+  "created_at": "2026-08-21T22:46:46.918581+00:00",
+  "cross_domain_bridges": [
+    {
+      "bridge_id": "bridge_245c8ce07eac11c8",
+      "bridge_variables": [
+        "vectors",
+        "matrices",
+        "eigenstructure"
+      ],
+      "relation": "enables",
+      "source": "linear_algebra",
+      "target": "data_science_ml",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_16b53a4e682ec91f",
+      "bridge_variables": [
+        "likelihood",
+        "calibration",
+        "generalisation"
+      ],
+      "relation": "measures_uncertainty_in",
+      "source": "probability_statistics",
+      "target": "data_science_ml",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_efbe986aa19acc32",
+      "bridge_variables": [
+        "route",
+        "inventory",
+        "capacity"
+      ],
+      "relation": "optimizes",
+      "source": "discrete_optimization",
+      "target": "supply_chain_procurement",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_9064f0f315aa6699",
+      "bridge_variables": [
+        "state",
+        "feedback",
+        "trajectory"
+      ],
+      "relation": "stabilizes_and_guides",
+      "source": "control_robotics",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_5f86eca593bad983",
+      "bridge_variables": [
+        "energy_density",
+        "mass",
+        "endurance",
+        "thermal_safety"
+      ],
+      "relation": "constrains",
+      "source": "energy_storage",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_608109d466eb1f78",
+      "bridge_variables": [
+        "flight_loop",
+        "sensors",
+        "communications",
+        "power"
+      ],
+      "relation": "implements",
+      "source": "embedded_systems",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_01f20ef5fe3c8d21",
+      "bridge_variables": [
+        "mass",
+        "drag",
+        "strength",
+        "payload"
+      ],
+      "relation": "shapes",
+      "source": "mechanical_cad",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_bce81fcda5070980",
+      "bridge_variables": [
+        "tolerance",
+        "yield",
+        "unit_cost",
+        "reliability"
+      ],
+      "relation": "makes_economically_real",
+      "source": "manufacturing_quality",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_bfcdd1a5dbf8c7b6",
+      "bridge_variables": [
+        "airspace",
+        "privacy",
+        "airworthiness",
+        "operator_duty"
+      ],
+      "relation": "governs",
+      "source": "law_regulation_ethics",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_31cbaa989270f7fd",
+      "bridge_variables": [
+        "command_link",
+        "firmware",
+        "identity",
+        "safety"
+      ],
+      "relation": "protects",
+      "source": "cybersecurity",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_386d62a82ee22888",
+      "bridge_variables": [
+        "design",
+        "testing",
+        "dependency",
+        "release"
+      ],
+      "relation": "secures",
+      "source": "software_engineering",
+      "target": "application_web_api_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_8aaba4576ac817df",
+      "bridge_variables": [
+        "protocol",
+        "boundary",
+        "routing",
+        "telemetry"
+      ],
+      "relation": "exposes_and_defends",
+      "source": "operating_distributed_networks",
+      "target": "network_wireless_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_aa4883b7ce991880",
+      "bridge_variables": [
+        "identity",
+        "secret",
+        "tenant",
+        "lineage"
+      ],
+      "relation": "protects",
+      "source": "data_databases",
+      "target": "cloud_identity_container_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_629a51bc94720a82",
+      "bridge_variables": [
+        "authorization",
+        "surface",
+        "proof",
+        "remediation"
+      ],
+      "relation": "validates",
+      "source": "application_web_api_security",
+      "target": "adversary_emulation_penetration_testing",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_9d6925b2995404fb",
+      "bridge_variables": [
+        "memory",
+        "binary",
+        "debug",
+        "mitigation"
+      ],
+      "relation": "explains",
+      "source": "programming_languages",
+      "target": "exploit_analysis_reverse_engineering",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_789b71568e42610d",
+      "bridge_variables": [
+        "telemetry",
+        "anomaly",
+        "triage",
+        "false_positive"
+      ],
+      "relation": "detects_with_limits",
+      "source": "data_science_ml",
+      "target": "detection_threat_hunting_incident_response",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_895d2dcffabe8e68",
+      "bridge_variables": [
+        "invariant",
+        "state",
+        "authentication",
+        "replay"
+      ],
+      "relation": "verifies",
+      "source": "logic_proof",
+      "target": "cryptography_protocol_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_99a4e3af6b3df108",
+      "bridge_variables": [
+        "firmware",
+        "interface",
+        "update",
+        "safety"
+      ],
+      "relation": "hardens",
+      "source": "embedded_systems",
+      "target": "hardware_embedded_ot_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_4588d83b1bcd469e",
+      "bridge_variables": [
+        "scope",
+        "minimal_proof",
+        "embargo",
+        "disclosure"
+      ],
+      "relation": "authorizes",
+      "source": "law_regulation_ethics",
+      "target": "security_research_disclosure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_1f5fc377245c8425",
+      "bridge_variables": [
+        "incident",
+        "control",
+        "metric",
+        "continuity"
+      ],
+      "relation": "improves",
+      "source": "detection_threat_hunting_incident_response",
+      "target": "security_architecture_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_dddbd68b00b431e8",
+      "bridge_variables": [
+        "wind",
+        "rain",
+        "terrain",
+        "visibility"
+      ],
+      "relation": "sets_environment",
+      "source": "earth_climate",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_f0d2f90c9f163297",
+      "bridge_variables": [
+        "remote_sensing",
+        "field_route",
+        "crop_action"
+      ],
+      "relation": "applies",
+      "source": "precision_agriculture",
+      "target": "uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_2f8b0c645e7bca20",
+      "bridge_variables": [
+        "soil",
+        "crop_stress",
+        "yield"
+      ],
+      "relation": "defines_biological_objective",
+      "source": "agronomy_soil",
+      "target": "precision_agriculture",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_56d2004750433313",
+      "bridge_variables": [
+        "spectra",
+        "moisture",
+        "position",
+        "calibration"
+      ],
+      "relation": "measures",
+      "source": "sensors_instrumentation",
+      "target": "precision_agriculture",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_67886afef24d1a85",
+      "bridge_variables": [
+        "state_of_charge",
+        "demand",
+        "resilience"
+      ],
+      "relation": "balances",
+      "source": "energy_storage",
+      "target": "generation_grids",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_ebc11022f6943b34",
+      "bridge_variables": [
+        "dispatch",
+        "capacity",
+        "constraints"
+      ],
+      "relation": "schedules",
+      "source": "discrete_optimization",
+      "target": "generation_grids",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_a15e10f94ce790d7",
+      "bridge_variables": [
+        "externality",
+        "incentive",
+        "market"
+      ],
+      "relation": "values_tradeoffs",
+      "source": "economics_core",
+      "target": "energy_policy_sustainability",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_d8ea805e955ff7b8",
+      "bridge_variables": [
+        "unit_cost",
+        "capital",
+        "scrap",
+        "warranty"
+      ],
+      "relation": "prices",
+      "source": "accounting_corporate_finance",
+      "target": "manufacturing_quality",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_b229380d07e44441",
+      "bridge_variables": [
+        "metrics",
+        "truth_source",
+        "forecast"
+      ],
+      "relation": "informs",
+      "source": "data_databases",
+      "target": "business_strategy_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_aab8bd0850b82d14",
+      "bridge_variables": [
+        "segment",
+        "attribution",
+        "retention",
+        "bias"
+      ],
+      "relation": "predicts_with_limits",
+      "source": "data_science_ml",
+      "target": "marketing_sales_customer",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_ae338dfcedd16b21",
+      "bridge_variables": [
+        "attention",
+        "mental_model",
+        "error"
+      ],
+      "relation": "grounds",
+      "source": "psychology_organisations",
+      "target": "human_computer_interaction",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_f1a47fee9cf6102d",
+      "bridge_variables": [
+        "hypothesis",
+        "experiment",
+        "causal_effect"
+      ],
+      "relation": "tests",
+      "source": "scientific_method",
+      "target": "business_strategy_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_8869b027a6fe287d",
+      "bridge_variables": [
+        "requirements",
+        "testing",
+        "reliability"
+      ],
+      "relation": "extends_into_hardware",
+      "source": "software_engineering",
+      "target": "embedded_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_2f949ddd0e8e2e72",
+      "bridge_variables": [
+        "requirement",
+        "risk",
+        "lifecycle_cost"
+      ],
+      "relation": "connects_delivery_to_value",
+      "source": "systems_engineering",
+      "target": "business_strategy_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_09bc597fcc80956b",
+      "bridge_variables": [
+        "ecosystem",
+        "contamination",
+        "recovery"
+      ],
+      "relation": "constrains",
+      "source": "ecology_microbiology",
+      "target": "water_waste_resilience",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_db895b7271b5c779",
+      "bridge_variables": [
+        "outcome",
+        "bias",
+        "uncertainty",
+        "safety"
+      ],
+      "relation": "uses_with_clinical_limits",
+      "source": "physiology_health",
+      "target": "data_science_ml",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_06ee3d01fe5fd664",
+      "bridge_variables": [
+        "time_series",
+        "risk",
+        "regime_change",
+        "uncertainty"
+      ],
+      "relation": "uses_with_financial_limits",
+      "source": "markets_investing",
+      "target": "data_science_ml",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_ec3fc7dbd48bcc55",
+      "bridge_variables": [
+        "conditional_expectation",
+        "distribution",
+        "uncertainty",
+        "tail"
+      ],
+      "relation": "grounds",
+      "source": "probability_statistics",
+      "target": "financial_mathematics",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_12c8bc403983f4ca",
+      "bridge_variables": [
+        "path",
+        "measure",
+        "volatility",
+        "sensitivity"
+      ],
+      "relation": "prices_and_hedges",
+      "source": "stochastic_processes_finance",
+      "target": "derivatives_structured_products",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_055aea76d80b1b68",
+      "bridge_variables": [
+        "stationarity",
+        "leakage",
+        "regime",
+        "out_of_sample_error"
+      ],
+      "relation": "tests",
+      "source": "financial_econometrics",
+      "target": "quantitative_research",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_77a0c6d1c998793c",
+      "bridge_variables": [
+        "features",
+        "validation",
+        "overfitting",
+        "interpretability"
+      ],
+      "relation": "supplies_models_with_limits",
+      "source": "data_science_ml",
+      "target": "quantitative_research",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_ec8ecb693afe4c10",
+      "bridge_variables": [
+        "objective",
+        "constraint",
+        "turnover",
+        "risk_budget"
+      ],
+      "relation": "allocates_under_constraints",
+      "source": "discrete_optimization",
+      "target": "portfolio_construction",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_c16ae2d5e1fdef33",
+      "bridge_variables": [
+        "impact",
+        "latency",
+        "liquidity",
+        "slippage"
+      ],
+      "relation": "turns_signal_into_realised_return",
+      "source": "market_microstructure_execution",
+      "target": "systematic_trading",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_974e33142af1c729",
+      "bridge_variables": [
+        "leverage",
+        "liquidity",
+        "counterparty",
+        "drawdown"
+      ],
+      "relation": "governs_survival",
+      "source": "financial_risk_management",
+      "target": "hedge_fund_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_a183a9143517db17",
+      "bridge_variables": [
+        "earnings",
+        "cash_flow",
+        "balance_sheet",
+        "capital_structure"
+      ],
+      "relation": "supplies_economic_evidence",
+      "source": "accounting_corporate_finance",
+      "target": "fundamental_equity_credit",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_067c0290111a3765",
+      "bridge_variables": [
+        "market_abuse",
+        "best_execution",
+        "audit",
+        "jurisdiction"
+      ],
+      "relation": "constrains",
+      "source": "financial_regulation_compliance",
+      "target": "systematic_trading",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_b84f894f7a035fe9",
+      "bridge_variables": [
+        "versioning",
+        "testing",
+        "data_lineage",
+        "deployment"
+      ],
+      "relation": "makes_reproducible",
+      "source": "software_engineering",
+      "target": "quantitative_research",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_9881f372b4bfa9ed",
+      "bridge_variables": [
+        "lineage",
+        "point_in_time",
+        "quality",
+        "reproducibility"
+      ],
+      "relation": "grounds",
+      "source": "data_databases",
+      "target": "financial_data_infrastructure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_c42ea42703333df8",
+      "bridge_variables": [
+        "base_rate",
+        "update",
+        "score",
+        "uncertainty"
+      ],
+      "relation": "calibrates",
+      "source": "probability_statistics",
+      "target": "probabilistic_forecasting_calibration",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_7ed86f50b19aa35b",
+      "bridge_variables": [
+        "probability",
+        "edge",
+        "fee",
+        "threshold"
+      ],
+      "relation": "turns_belief_into_price",
+      "source": "probabilistic_forecasting_calibration",
+      "target": "prediction_market_microstructure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_27bb7af3f9a6104c",
+      "bridge_variables": [
+        "quote",
+        "timestamp",
+        "liquidity",
+        "lineage"
+      ],
+      "relation": "supplies_point_in_time_books",
+      "source": "financial_data_infrastructure",
+      "target": "prediction_market_microstructure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_aa389cf8fc6f65a1",
+      "bridge_variables": [
+        "source",
+        "timeline",
+        "resolution",
+        "conflict"
+      ],
+      "relation": "supplies_verifiable_evidence",
+      "source": "event_evidence_resolution_research",
+      "target": "probabilistic_forecasting_calibration",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_e20030172cc3867b",
+      "bridge_variables": [
+        "poll",
+        "turnout",
+        "institution",
+        "scenario"
+      ],
+      "relation": "specialises",
+      "source": "elections_polling_public_opinion",
+      "target": "event_evidence_resolution_research",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_689415519684a0e4",
+      "bridge_variables": [
+        "crowd",
+        "herding",
+        "overconfidence",
+        "adversarial_test"
+      ],
+      "relation": "models_bias_without_assuming_it",
+      "source": "psychology_organisations",
+      "target": "prediction_market_microstructure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_19015106e82d8b78",
+      "bridge_variables": [
+        "jurisdiction",
+        "integrity",
+        "disclosure",
+        "approval"
+      ],
+      "relation": "authorizes",
+      "source": "law_regulation_ethics",
+      "target": "prediction_market_design_compliance",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_e2adbdc26dfa435a",
+      "bridge_variables": [
+        "liquidity",
+        "funding",
+        "stress",
+        "limits"
+      ],
+      "relation": "governs",
+      "source": "financial_risk_management",
+      "target": "institutional_banking_treasury",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_4fb5737c5fd069b6",
+      "bridge_variables": [
+        "illiquidity",
+        "capacity",
+        "valuation",
+        "due_diligence"
+      ],
+      "relation": "allocates",
+      "source": "portfolio_construction",
+      "target": "alternative_private_markets",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_25343a0246827527",
+      "bridge_variables": [
+        "jurisdiction",
+        "conduct",
+        "referral",
+        "documentation"
+      ],
+      "relation": "constrains",
+      "source": "law_regulation_ethics",
+      "target": "tax_wealth_structuring",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_ca9e3dd2d8eed6cb",
+      "bridge_variables": [
+        "authority",
+        "accountability",
+        "trust",
+        "legitimacy"
+      ],
+      "relation": "governs",
+      "source": "negotiation_governance",
+      "target": "power_institutions_legitimacy",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_703f2f507c831e5b",
+      "bridge_variables": [
+        "source",
+        "uncertainty",
+        "narrative",
+        "transparency"
+      ],
+      "relation": "interprets",
+      "source": "language_research_communication",
+      "target": "information_intelligence_attention",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_a25024b2e7fa9598",
+      "bridge_variables": [
+        "cash_flow",
+        "capital",
+        "control",
+        "exit"
+      ],
+      "relation": "values",
+      "source": "accounting_corporate_finance",
+      "target": "strategic_assets_capital_allocation",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_35c0f21fabf679c3",
+      "bridge_variables": [
+        "legitimacy",
+        "law",
+        "stakeholders",
+        "governance"
+      ],
+      "relation": "constrains",
+      "source": "power_institutions_legitimacy",
+      "target": "strategic_assets_capital_allocation",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_e44fbc71f5f135d9",
+      "bridge_variables": [
+        "architecture",
+        "standard",
+        "lifecycle",
+        "dependency"
+      ],
+      "relation": "scales",
+      "source": "systems_engineering",
+      "target": "technology_industry_platforms",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_9a23c794234f720c",
+      "bridge_variables": [
+        "incentive",
+        "culture",
+        "team",
+        "succession"
+      ],
+      "relation": "grounds",
+      "source": "psychology_organisations",
+      "target": "networks_talent_coordination",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_9c07c4bf7707cf05",
+      "bridge_variables": [
+        "geography",
+        "trade",
+        "resource",
+        "scenario"
+      ],
+      "relation": "contextualises",
+      "source": "history_geography_geopolitics",
+      "target": "resilience_geography_long_horizon",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_9374605cb170e588",
+      "bridge_variables": [
+        "concentration",
+        "liquidity",
+        "scenario",
+        "survival"
+      ],
+      "relation": "stress_tests",
+      "source": "financial_risk_management",
+      "target": "resilience_geography_long_horizon",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_5906edb69b0a3a27",
+      "bridge_variables": [
+        "trade",
+        "jurisdiction",
+        "disruption"
+      ],
+      "relation": "explains_risk_context",
+      "source": "history_geography_geopolitics",
+      "target": "supply_chain_procurement",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_id": "bridge_5f9c7b8503dc9850",
+      "bridge_variables": [
+        "form",
+        "material",
+        "process",
+        "cost"
+      ],
+      "relation": "converts_concept_to_product",
+      "source": "design_creative_practice",
+      "target": "manufacturing_quality",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    }
+  ],
+  "curriculum_digest": "a2c93e4206814c03ecb93d7276be299e68df420c98b01da82597f1ef39014a90",
+  "domains": {
+    "agriculture": [
+      "agronomy_soil",
+      "animal_food_systems",
+      "precision_agriculture"
+    ],
+    "business": [
+      "business_strategy_operations",
+      "entrepreneurship_innovation",
+      "marketing_sales_customer",
+      "networks_talent_coordination",
+      "prediction_market_design_compliance",
+      "resilience_geography_long_horizon",
+      "strategic_assets_capital_allocation",
+      "supply_chain_procurement",
+      "technology_industry_platforms"
+    ],
+    "computing": [
+      "adversary_emulation_penetration_testing",
+      "application_web_api_security",
+      "cloud_identity_container_security",
+      "computer_science",
+      "cryptography_protocol_security",
+      "cybersecurity",
+      "data_databases",
+      "data_science_ml",
+      "detection_threat_hunting_incident_response",
+      "exploit_analysis_reverse_engineering",
+      "hardware_embedded_ot_security",
+      "human_computer_interaction",
+      "network_wireless_security",
+      "operating_distributed_networks",
+      "programming_languages",
+      "security_architecture_operations",
+      "security_research_disclosure",
+      "software_engineering"
+    ],
+    "creative": [
+      "design_creative_practice"
+    ],
+    "economics_finance": [
+      "accounting_corporate_finance",
+      "alternative_private_markets",
+      "asset_pricing",
+      "derivatives_structured_products",
+      "economics_core",
+      "financial_data_infrastructure",
+      "financial_econometrics",
+      "financial_mathematics",
+      "financial_regulation_compliance",
+      "financial_risk_management",
+      "fundamental_equity_credit",
+      "hedge_fund_operations",
+      "institutional_banking_treasury",
+      "market_microstructure_execution",
+      "markets_investing",
+      "portfolio_construction",
+      "prediction_market_microstructure",
+      "probabilistic_forecasting_calibration",
+      "quantitative_research",
+      "stochastic_processes_finance",
+      "systematic_trading",
+      "tax_wealth_structuring"
+    ],
+    "energy": [
+      "energy_fundamentals",
+      "energy_policy_sustainability",
+      "energy_storage",
+      "generation_grids"
+    ],
+    "engineering": [
+      "control_robotics",
+      "electronics_circuits",
+      "embedded_systems",
+      "manufacturing_quality",
+      "mechanical_cad",
+      "sensors_instrumentation",
+      "systems_engineering",
+      "uncrewed_aerial_systems"
+    ],
+    "environment_resilience": [
+      "water_waste_resilience"
+    ],
+    "human_society": [
+      "elections_polling_public_opinion",
+      "event_evidence_resolution_research",
+      "history_geography_geopolitics",
+      "information_intelligence_attention",
+      "language_research_communication",
+      "law_regulation_ethics",
+      "negotiation_governance",
+      "power_institutions_legitimacy",
+      "psychology_organisations"
+    ],
+    "life_science": [
+      "cell_genetic_biology",
+      "ecology_microbiology",
+      "physiology_health"
+    ],
+    "mathematics": [
+      "algebra_geometry",
+      "calculus_analysis",
+      "discrete_optimization",
+      "linear_algebra",
+      "logic_proof",
+      "numerical_methods",
+      "probability_statistics"
+    ],
+    "physical_science": [
+      "chemistry_materials",
+      "classical_physics",
+      "earth_climate",
+      "electromagnetism",
+      "scientific_method"
+    ]
+  },
+  "expansion_protocol": {
+    "no_finite_syllabus_stop": true,
+    "steps": [
+      "diagnose_gap",
+      "map_prerequisites",
+      "acquire_sources",
+      "learn_and_practise",
+      "independent_exam",
+      "create_graph_nodes",
+      "discover_bridges",
+      "delayed_retest"
+    ],
+    "trigger": [
+      "new_problem",
+      "unmapped_term",
+      "failed_transfer",
+      "contradictory_evidence",
+      "new_discovery",
+      "stale_knowledge"
+    ]
+  },
+  "governance": {
+    "claim_boundary": "curriculum membership, reading and practice never constitute expertise",
+    "dual_use_restrictions": "permit benign, defensive, safety, resilience and compliance work; block weapon construction, targeting and harmful operational enablement",
+    "high_stakes_escalation": "medical, legal and financial actions require current authoritative sources and qualified human authority",
+    "physical_execution": "requires authorised hardware, sandbox, safety case and human approval"
+  },
+  "knowledge_graph": {
+    "edge_types": [
+      "prerequisite",
+      "part_of",
+      "causes",
+      "constrains",
+      "implements",
+      "measures",
+      "optimizes",
+      "analogous_to",
+      "contradicts",
+      "supports",
+      "regulated_by",
+      "manufactured_by",
+      "transfers_to"
+    ],
+    "node_types": [
+      "concept",
+      "claim",
+      "equation",
+      "procedure",
+      "model",
+      "component",
+      "constraint",
+      "measurement",
+      "failure",
+      "question",
+      "source",
+      "authority"
+    ],
+    "required_fields": [
+      "provenance",
+      "confidence",
+      "valid_scope",
+      "counterexamples",
+      "last_verified",
+      "retention_status"
+    ],
+    "unknown_policy": "unknowns and contradictions remain first-class nodes rather than being silently completed"
+  },
+  "learning_capabilities": {
+    "communication": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "communication",
+      "kind": "learning_capability",
+      "name": "Communication and teaching",
+      "outcomes": [
+        "explain_at_multiple_levels",
+        "write_precisely",
+        "ask_good_questions",
+        "negotiate_meaning",
+        "teach_and_assess_others"
+      ]
+    },
+    "creativity_invention": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "creativity_invention",
+      "kind": "learning_capability",
+      "name": "Creativity and invention",
+      "outcomes": [
+        "generate_alternatives",
+        "combine_distant_concepts",
+        "measure_novelty",
+        "prototype",
+        "discard_attractive_failures"
+      ]
+    },
+    "critical_reasoning": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "critical_reasoning",
+      "kind": "learning_capability",
+      "name": "Critical thinking and adversarial reasoning",
+      "outcomes": [
+        "test_assumptions",
+        "generate_counterexamples",
+        "detect_circularity",
+        "compare_explanations",
+        "steelman_and_attack_candidates"
+      ]
+    },
+    "cross_domain_synthesis": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "cross_domain_synthesis",
+      "kind": "learning_capability",
+      "name": "Cross-domain synthesis",
+      "outcomes": [
+        "discover_bridge_variables",
+        "transfer_methods",
+        "join_constraints",
+        "build_multi_domain_models",
+        "derive_new_testable_designs"
+      ]
+    },
+    "debugging_repair": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "debugging_repair",
+      "kind": "learning_capability",
+      "name": "Debugging, repair and improvement",
+      "outcomes": [
+        "localise_failure",
+        "produce_minimal_repair",
+        "test_regression",
+        "retain_repair",
+        "avoid_repeat_failure"
+      ]
+    },
+    "decomposition": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "decomposition",
+      "kind": "learning_capability",
+      "name": "Problem decomposition",
+      "outcomes": [
+        "identify_subproblems",
+        "map_dependencies",
+        "find_bottlenecks",
+        "separate_known_from_unknown",
+        "compose_verified_parts"
+      ]
+    },
+    "execution": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "execution",
+      "kind": "learning_capability",
+      "name": "Execution and delivery",
+      "outcomes": [
+        "turn_goals_into_actions",
+        "use_tools",
+        "manage_dependencies",
+        "verify_outputs",
+        "complete_real_projects"
+      ]
+    },
+    "formalisation": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "formalisation",
+      "kind": "learning_capability",
+      "name": "Formalisation and knowledge markup",
+      "outcomes": [
+        "define_terms",
+        "convert_prose_to_structures",
+        "write_equations_and_schemas",
+        "represent_constraints",
+        "produce_machine_checkable_claims"
+      ]
+    },
+    "information_ingestion": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "information_ingestion",
+      "kind": "learning_capability",
+      "name": "Information ingestion",
+      "outcomes": [
+        "read_text_tables_diagrams_code",
+        "extract_claims",
+        "preserve_provenance",
+        "deduplicate_sources",
+        "detect_missing_context"
+      ]
+    },
+    "learning_strategy": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "learning_strategy",
+      "kind": "learning_capability",
+      "name": "Learning strategy and metacognition",
+      "outcomes": [
+        "diagnose_missing_knowledge",
+        "choose_learning_depth",
+        "plan_prerequisites",
+        "monitor_comprehension",
+        "change_strategy_after_failure"
+      ]
+    },
+    "mathematical_reasoning": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "mathematical_reasoning",
+      "kind": "learning_capability",
+      "name": "Mathematical reasoning",
+      "outcomes": [
+        "quantify",
+        "derive",
+        "estimate",
+        "prove_or_bound",
+        "check_dimensions"
+      ]
+    },
+    "real_world_grounding": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "real_world_grounding",
+      "kind": "learning_capability",
+      "name": "Real-world grounding",
+      "outcomes": [
+        "connect_models_to_measurements",
+        "respect_physical_constraints",
+        "cost_and_resource_actions",
+        "observe_outcomes",
+        "revise_from_reality"
+      ]
+    },
+    "research_frontier": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "research_frontier",
+      "kind": "learning_capability",
+      "name": "Research and frontier discovery",
+      "outcomes": [
+        "map_known_frontier",
+        "find_open_questions",
+        "search_literature",
+        "propose_falsifiable_novelty",
+        "seek_specialist_review"
+      ]
+    },
+    "retention_compounding": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "retention_compounding",
+      "kind": "learning_capability",
+      "name": "Retention and compounding",
+      "outcomes": [
+        "compress_functional_memory",
+        "retrieve_without_source",
+        "retest_over_time",
+        "prevent_interference",
+        "extend_existing_knowledge_graph"
+      ]
+    },
+    "safety_governance": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "safety_governance",
+      "kind": "learning_capability",
+      "name": "Safety, ethics and governance",
+      "outcomes": [
+        "classify_risk",
+        "respect_law_consent_and_authority",
+        "control_dual_use",
+        "preserve_auditability",
+        "stop_when_authority_is_missing"
+      ]
+    },
+    "scientific_reasoning": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "scientific_reasoning",
+      "kind": "learning_capability",
+      "name": "Scientific and causal reasoning",
+      "outcomes": [
+        "form_hypotheses",
+        "design_experiments",
+        "control_confounding",
+        "measure_uncertainty",
+        "replicate"
+      ]
+    },
+    "source_criticism": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "source_criticism",
+      "kind": "learning_capability",
+      "name": "Source evaluation and epistemics",
+      "outcomes": [
+        "rank_authority",
+        "separate_fact_inference_opinion",
+        "detect_conflict",
+        "calibrate_confidence",
+        "abstain_when_evidence_is_inadequate"
+      ]
+    },
+    "systems_thinking": {
+      "assessment": [
+        "unfamiliar_problem",
+        "source_disjoint_transfer",
+        "error_diagnosis_and_repair",
+        "delayed_closed_book_reuse"
+      ],
+      "capability_id": "systems_thinking",
+      "kind": "learning_capability",
+      "name": "Systems and consequence thinking",
+      "outcomes": [
+        "model_feedback",
+        "trace_second_order_effects",
+        "find_emergent_failure",
+        "analyse_tradeoffs",
+        "maintain_system_boundaries"
+      ]
+    }
+  },
+  "mastery_levels": [
+    "unassessed",
+    "aware",
+    "functional",
+    "proficient",
+    "expert",
+    "research_capable"
+  ],
+  "phases": [
+    {
+      "exit": "all learning capabilities pass bounded source-disjoint tests",
+      "name": "learn_to_learn",
+      "phase": 0
+    },
+    {
+      "exit": "logic, mathematics, communication, scientific method, computing and safety are functional",
+      "name": "foundational_literacy",
+      "phase": 1
+    },
+    {
+      "exit": "every domain has assessed foundations and an explicit uncertainty map",
+      "name": "broad_domain_foundations",
+      "phase": 2
+    },
+    {
+      "exit": "selected subjects meet expert evidence gates; no claim from curriculum completion alone",
+      "name": "deep_subject_expertise",
+      "phase": 3
+    },
+    {
+      "exit": "multi-domain projects beat subject-isolated controls under independent outcomes",
+      "name": "cross_domain_capstones",
+      "phase": 4
+    },
+    {
+      "exit": "unfamiliar real projects, specialist review and 90-day retention pass",
+      "name": "professional_apprenticeship",
+      "phase": 5
+    },
+    {
+      "exit": "novel claims survive literature search, adversarial attack, replication and external scrutiny",
+      "name": "frontier_research",
+      "phase": 6
+    }
+  ],
+  "purpose": "Accumulate deep, evidence-backed subject expertise and verified cross-domain synthesis while preserving uncertainty, safety, human authority and real-world grounding.",
+  "scheduler": {
+    "bootstrapping_allocation": {
+      "cross_domain_projects": 10,
+      "foundations": 35,
+      "learning_capabilities": 30,
+      "retention_repair": 10,
+      "subject_depth": 15
+    },
+    "mature_allocation": {
+      "breadth_discovery": 10,
+      "cross_domain_projects": 25,
+      "frontier_research": 15,
+      "retention_repair": 20,
+      "subject_depth": 30
+    },
+    "parallel_lanes": [
+      "immediate_problem",
+      "broad_subject_academy",
+      "cross_domain_synthesis",
+      "retention",
+      "frontier_questions"
+    ],
+    "selection_score": [
+      "mission_relevance",
+      "knowledge_graph_centrality",
+      "weakness",
+      "expected_transfer_value",
+      "evidence_availability",
+      "risk",
+      "cost"
+    ]
+  },
+  "schema_version": "aion.hexcore.comprehensive_expertise_curriculum.v1",
+  "subjects": {
+    "accounting_corporate_finance": {
+      "competencies": [
+        "bookkeeping",
+        "statements",
+        "cost_accounting",
+        "valuation",
+        "capital_budgeting",
+        "cash",
+        "controls"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "accounting",
+        "corporate",
+        "cost",
+        "finance",
+        "profit"
+      ],
+      "name": "Accounting and corporate finance",
+      "prerequisites": [
+        "algebra_geometry"
+      ],
+      "risk": "ordinary",
+      "subject_id": "accounting_corporate_finance",
+      "target_level": "expert"
+    },
+    "adversary_emulation_penetration_testing": {
+      "competencies": [
+        "scope_authorization",
+        "reconnaissance",
+        "attack_surface_mapping",
+        "vulnerability_validation",
+        "controlled_exploitation",
+        "privilege_boundary_testing",
+        "evidence_preservation",
+        "remediation_verification"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "adversary",
+        "adversary emulation",
+        "emulation",
+        "penetration",
+        "penetration testing",
+        "red team",
+        "testing"
+      ],
+      "name": "Authorised adversary emulation and penetration testing",
+      "prerequisites": [
+        "application_web_api_security",
+        "network_wireless_security",
+        "law_regulation_ethics"
+      ],
+      "risk": "dual_use",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "target_level": "expert"
+    },
+    "agronomy_soil": {
+      "competencies": [
+        "soil",
+        "plant_nutrition",
+        "crop_cycles",
+        "irrigation",
+        "pest_management",
+        "yield_measurement"
+      ],
+      "domain": "agriculture",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "agriculture",
+        "agronomy",
+        "crop",
+        "farm",
+        "farming",
+        "soil"
+      ],
+      "name": "Agronomy and soil science",
+      "prerequisites": [
+        "ecology_microbiology",
+        "earth_climate"
+      ],
+      "risk": "ordinary",
+      "subject_id": "agronomy_soil",
+      "target_level": "expert"
+    },
+    "algebra_geometry": {
+      "competencies": [
+        "algebra",
+        "functions",
+        "geometry",
+        "trigonometry",
+        "coordinate_systems"
+      ],
+      "domain": "mathematics",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "algebra",
+        "geometry"
+      ],
+      "name": "Algebra, geometry and trigonometry",
+      "prerequisites": [],
+      "risk": "ordinary",
+      "subject_id": "algebra_geometry",
+      "target_level": "expert"
+    },
+    "alternative_private_markets": {
+      "competencies": [
+        "private_equity",
+        "venture_capital",
+        "private_credit",
+        "real_assets",
+        "commodities",
+        "hedge_fund_strategies",
+        "illiquidity",
+        "manager_due_diligence"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "alternative",
+        "alternatives",
+        "commodities",
+        "markets",
+        "private",
+        "private equity",
+        "venture"
+      ],
+      "name": "Alternative investments and private markets",
+      "prerequisites": [
+        "asset_pricing",
+        "fundamental_equity_credit",
+        "portfolio_construction"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "alternative_private_markets",
+      "target_level": "expert"
+    },
+    "animal_food_systems": {
+      "competencies": [
+        "animal_systems",
+        "food_safety",
+        "post_harvest",
+        "farm_economics",
+        "supply_chain",
+        "sustainability"
+      ],
+      "domain": "agriculture",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "animal",
+        "farming",
+        "food",
+        "systems"
+      ],
+      "name": "Animal, food and agricultural systems",
+      "prerequisites": [
+        "ecology_microbiology"
+      ],
+      "risk": "ordinary",
+      "subject_id": "animal_food_systems",
+      "target_level": "expert"
+    },
+    "application_web_api_security": {
+      "competencies": [
+        "secure_coding",
+        "authentication",
+        "authorization",
+        "session_security",
+        "injection_defence",
+        "browser_security",
+        "api_security",
+        "security_testing"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "api",
+        "application",
+        "appsec",
+        "owasp",
+        "security",
+        "web",
+        "web security"
+      ],
+      "name": "Application, web and API security",
+      "prerequisites": [
+        "cybersecurity",
+        "software_engineering",
+        "data_databases"
+      ],
+      "risk": "dual_use",
+      "subject_id": "application_web_api_security",
+      "target_level": "expert"
+    },
+    "asset_pricing": {
+      "competencies": [
+        "present_value",
+        "equilibrium_models",
+        "factor_pricing",
+        "term_structure",
+        "equity_valuation",
+        "credit_valuation",
+        "liquidity_premia",
+        "model_risk"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "asset",
+        "asset pricing",
+        "credit",
+        "factor",
+        "pricing",
+        "valuation"
+      ],
+      "name": "Asset pricing and valuation",
+      "prerequisites": [
+        "financial_mathematics",
+        "economics_core",
+        "accounting_corporate_finance"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "asset_pricing",
+      "target_level": "expert"
+    },
+    "business_strategy_operations": {
+      "competencies": [
+        "strategy",
+        "business_models",
+        "operations",
+        "unit_economics",
+        "metrics",
+        "risk",
+        "governance"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "business",
+        "company",
+        "operations",
+        "strategy"
+      ],
+      "name": "Business strategy and operations",
+      "prerequisites": [
+        "accounting_corporate_finance"
+      ],
+      "risk": "ordinary",
+      "subject_id": "business_strategy_operations",
+      "target_level": "expert"
+    },
+    "calculus_analysis": {
+      "competencies": [
+        "limits",
+        "derivatives",
+        "integrals",
+        "series",
+        "differential_equations"
+      ],
+      "domain": "mathematics",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "analysis",
+        "calculus"
+      ],
+      "name": "Calculus and mathematical analysis",
+      "prerequisites": [
+        "algebra_geometry"
+      ],
+      "risk": "ordinary",
+      "subject_id": "calculus_analysis",
+      "target_level": "expert"
+    },
+    "cell_genetic_biology": {
+      "competencies": [
+        "cells",
+        "biochemistry",
+        "genetics",
+        "gene_expression",
+        "evolution",
+        "experimental_biology"
+      ],
+      "domain": "life_science",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "biology",
+        "cell",
+        "genetic"
+      ],
+      "name": "Cell, molecular and genetic biology",
+      "prerequisites": [
+        "scientific_method",
+        "chemistry_materials"
+      ],
+      "risk": "ordinary",
+      "subject_id": "cell_genetic_biology",
+      "target_level": "expert"
+    },
+    "chemistry_materials": {
+      "competencies": [
+        "chemical_bonding",
+        "thermochemistry",
+        "electrochemistry",
+        "polymers",
+        "metals",
+        "composites",
+        "degradation"
+      ],
+      "domain": "physical_science",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "battery",
+        "chemistry",
+        "corrosion",
+        "material",
+        "materials"
+      ],
+      "name": "Chemistry and materials science",
+      "prerequisites": [
+        "algebra_geometry"
+      ],
+      "risk": "ordinary",
+      "subject_id": "chemistry_materials",
+      "target_level": "expert"
+    },
+    "classical_physics": {
+      "competencies": [
+        "mechanics",
+        "fluids",
+        "waves",
+        "heat",
+        "thermodynamics",
+        "dimensional_analysis"
+      ],
+      "domain": "physical_science",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "aerodynamics",
+        "classical",
+        "energy",
+        "flight",
+        "physics"
+      ],
+      "name": "Mechanics, waves and thermodynamics",
+      "prerequisites": [
+        "calculus_analysis"
+      ],
+      "risk": "ordinary",
+      "subject_id": "classical_physics",
+      "target_level": "expert"
+    },
+    "cloud_identity_container_security": {
+      "competencies": [
+        "identity_access_management",
+        "secrets",
+        "cloud_posture",
+        "container_security",
+        "kubernetes_security",
+        "serverless_security",
+        "tenant_isolation",
+        "continuous_assurance"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "cloud",
+        "cloud security",
+        "container",
+        "iam",
+        "identity",
+        "kubernetes",
+        "security"
+      ],
+      "name": "Cloud, identity and container security",
+      "prerequisites": [
+        "cybersecurity",
+        "operating_distributed_networks",
+        "software_engineering"
+      ],
+      "risk": "dual_use",
+      "subject_id": "cloud_identity_container_security",
+      "target_level": "expert"
+    },
+    "computer_science": {
+      "competencies": [
+        "data_structures",
+        "algorithms",
+        "complexity",
+        "automata",
+        "compilers",
+        "computability"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "computer",
+        "science"
+      ],
+      "name": "Computer science and algorithms",
+      "prerequisites": [
+        "logic_proof",
+        "discrete_optimization"
+      ],
+      "risk": "ordinary",
+      "subject_id": "computer_science",
+      "target_level": "expert"
+    },
+    "control_robotics": {
+      "competencies": [
+        "feedback",
+        "stability",
+        "state_estimation",
+        "motion_planning",
+        "robot_kinematics",
+        "autonomy",
+        "safety"
+      ],
+      "domain": "engineering",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "autonomous",
+        "control",
+        "flight",
+        "robot",
+        "robotics"
+      ],
+      "name": "Control theory and robotics",
+      "prerequisites": [
+        "linear_algebra",
+        "calculus_analysis",
+        "sensors_instrumentation"
+      ],
+      "risk": "ordinary",
+      "subject_id": "control_robotics",
+      "target_level": "expert"
+    },
+    "cryptography_protocol_security": {
+      "competencies": [
+        "cryptographic_primitives",
+        "key_management",
+        "tls",
+        "authentication_protocols",
+        "protocol_state_machines",
+        "nonce_replay_safety",
+        "side_channels",
+        "formal_protocol_review"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "cryptography",
+        "keys",
+        "protocol",
+        "security",
+        "tls"
+      ],
+      "name": "Applied cryptography and protocol security",
+      "prerequisites": [
+        "cybersecurity",
+        "logic_proof",
+        "probability_statistics"
+      ],
+      "risk": "dual_use",
+      "subject_id": "cryptography_protocol_security",
+      "target_level": "expert"
+    },
+    "cybersecurity": {
+      "competencies": [
+        "threat_models",
+        "secure_design",
+        "cryptography",
+        "network_security",
+        "identity",
+        "privacy",
+        "incident_response",
+        "supply_chain"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "cybersecurity"
+      ],
+      "name": "Cybersecurity and privacy",
+      "prerequisites": [
+        "operating_distributed_networks"
+      ],
+      "risk": "dual_use",
+      "subject_id": "cybersecurity",
+      "target_level": "expert"
+    },
+    "data_databases": {
+      "competencies": [
+        "data_models",
+        "sql",
+        "transactions",
+        "pipelines",
+        "data_quality",
+        "warehousing",
+        "governance"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "data",
+        "database",
+        "databases"
+      ],
+      "name": "Data engineering and databases",
+      "prerequisites": [
+        "programming_languages",
+        "probability_statistics"
+      ],
+      "risk": "ordinary",
+      "subject_id": "data_databases",
+      "target_level": "expert"
+    },
+    "data_science_ml": {
+      "competencies": [
+        "data_analysis",
+        "machine_learning",
+        "deep_learning",
+        "evaluation",
+        "causal_ml",
+        "interpretability",
+        "deployment"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "ai",
+        "data",
+        "intelligent",
+        "ml",
+        "prediction",
+        "science",
+        "vision"
+      ],
+      "name": "Data science, AI and machine learning",
+      "prerequisites": [
+        "linear_algebra",
+        "probability_statistics",
+        "programming_languages"
+      ],
+      "risk": "ordinary",
+      "subject_id": "data_science_ml",
+      "target_level": "expert"
+    },
+    "derivatives_structured_products": {
+      "competencies": [
+        "forwards_futures",
+        "options",
+        "greeks",
+        "volatility_surfaces",
+        "fixed_income_derivatives",
+        "credit_derivatives",
+        "structured_products",
+        "hedging"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "derivatives",
+        "hedging",
+        "options",
+        "products",
+        "structured",
+        "volatility"
+      ],
+      "name": "Derivatives and structured products",
+      "prerequisites": [
+        "stochastic_processes_finance",
+        "markets_investing"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "derivatives_structured_products",
+      "target_level": "expert"
+    },
+    "design_creative_practice": {
+      "competencies": [
+        "ideation",
+        "visual_thinking",
+        "industrial_design",
+        "prototyping",
+        "critique",
+        "aesthetics",
+        "communication"
+      ],
+      "domain": "creative",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "creative",
+        "design",
+        "invent",
+        "practice"
+      ],
+      "name": "Design and creative practice",
+      "prerequisites": [
+        "human_computer_interaction"
+      ],
+      "risk": "ordinary",
+      "subject_id": "design_creative_practice",
+      "target_level": "expert"
+    },
+    "detection_threat_hunting_incident_response": {
+      "competencies": [
+        "telemetry",
+        "detection_logic",
+        "threat_hunting",
+        "triage",
+        "containment",
+        "eradication",
+        "recovery",
+        "post_incident_learning"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "blue team",
+        "detection",
+        "hunting",
+        "incident",
+        "incident response",
+        "response",
+        "threat",
+        "threat hunting"
+      ],
+      "name": "Detection engineering, threat hunting and incident response",
+      "prerequisites": [
+        "cybersecurity",
+        "data_science_ml",
+        "operating_distributed_networks"
+      ],
+      "risk": "dual_use",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "target_level": "expert"
+    },
+    "discrete_optimization": {
+      "competencies": [
+        "combinatorics",
+        "graphs",
+        "algorithms",
+        "linear_programming",
+        "constraint_optimisation",
+        "operations_research"
+      ],
+      "domain": "mathematics",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "discrete",
+        "optimise",
+        "optimization",
+        "route",
+        "schedule"
+      ],
+      "name": "Discrete mathematics and optimisation",
+      "prerequisites": [
+        "logic_proof",
+        "algebra_geometry"
+      ],
+      "risk": "ordinary",
+      "subject_id": "discrete_optimization",
+      "target_level": "expert"
+    },
+    "earth_climate": {
+      "competencies": [
+        "geology",
+        "weather",
+        "climate",
+        "hydrology",
+        "remote_sensing",
+        "environmental_measurement"
+      ],
+      "domain": "physical_science",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "climate",
+        "earth",
+        "terrain",
+        "weather"
+      ],
+      "name": "Earth, climate and environmental science",
+      "prerequisites": [
+        "scientific_method"
+      ],
+      "risk": "ordinary",
+      "subject_id": "earth_climate",
+      "target_level": "expert"
+    },
+    "ecology_microbiology": {
+      "competencies": [
+        "microorganisms",
+        "ecosystems",
+        "population_dynamics",
+        "soil_biology",
+        "biodiversity",
+        "biosecurity"
+      ],
+      "domain": "life_science",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "ecology",
+        "microbiology"
+      ],
+      "name": "Ecology and microbiology",
+      "prerequisites": [
+        "cell_genetic_biology"
+      ],
+      "risk": "ordinary",
+      "subject_id": "ecology_microbiology",
+      "target_level": "expert"
+    },
+    "economics_core": {
+      "competencies": [
+        "microeconomics",
+        "macroeconomics",
+        "incentives",
+        "game_theory",
+        "econometrics",
+        "policy"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "core",
+        "economic",
+        "economics",
+        "economy"
+      ],
+      "name": "Microeconomics, macroeconomics and econometrics",
+      "prerequisites": [
+        "probability_statistics"
+      ],
+      "risk": "ordinary",
+      "subject_id": "economics_core",
+      "target_level": "expert"
+    },
+    "elections_polling_public_opinion": {
+      "competencies": [
+        "electoral_systems",
+        "poll_sampling",
+        "turnout_models",
+        "poll_aggregation",
+        "demographics",
+        "campaign_dynamics",
+        "forecast_error",
+        "institutional_scenarios"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "election",
+        "elections",
+        "opinion",
+        "politics",
+        "poll",
+        "polling",
+        "public",
+        "turnout"
+      ],
+      "name": "Elections, polling and public-opinion analysis",
+      "prerequisites": [
+        "history_geography_geopolitics",
+        "probability_statistics",
+        "psychology_organisations"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "elections_polling_public_opinion",
+      "target_level": "expert"
+    },
+    "electromagnetism": {
+      "competencies": [
+        "circuits",
+        "fields",
+        "electromagnetism",
+        "optics",
+        "electromagnetic_compatibility"
+      ],
+      "domain": "physical_science",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "electromagnetism"
+      ],
+      "name": "Electricity, magnetism and optics",
+      "prerequisites": [
+        "calculus_analysis"
+      ],
+      "risk": "ordinary",
+      "subject_id": "electromagnetism",
+      "target_level": "expert"
+    },
+    "electronics_circuits": {
+      "competencies": [
+        "analogue",
+        "digital",
+        "power_electronics",
+        "pcb_design",
+        "signal_integrity",
+        "test_and_debug"
+      ],
+      "domain": "engineering",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "circuit",
+        "circuits",
+        "electronics",
+        "hardware",
+        "schematic"
+      ],
+      "name": "Electronics and circuit design",
+      "prerequisites": [
+        "electromagnetism"
+      ],
+      "risk": "ordinary",
+      "subject_id": "electronics_circuits",
+      "target_level": "expert"
+    },
+    "embedded_systems": {
+      "competencies": [
+        "microcontrollers",
+        "real_time",
+        "firmware",
+        "buses",
+        "low_power",
+        "hardware_software_codesign",
+        "verification"
+      ],
+      "domain": "engineering",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "controller",
+        "embedded",
+        "firmware",
+        "systems"
+      ],
+      "name": "Embedded hardware and software",
+      "prerequisites": [
+        "electronics_circuits",
+        "programming_languages"
+      ],
+      "risk": "ordinary",
+      "subject_id": "embedded_systems",
+      "target_level": "expert"
+    },
+    "energy_fundamentals": {
+      "competencies": [
+        "energy_accounting",
+        "conversion",
+        "efficiency",
+        "heat_transfer",
+        "lifecycle_energy",
+        "technoeconomics"
+      ],
+      "domain": "energy",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "energy",
+        "fundamentals",
+        "power"
+      ],
+      "name": "Energy conversion and efficiency",
+      "prerequisites": [
+        "classical_physics"
+      ],
+      "risk": "ordinary",
+      "subject_id": "energy_fundamentals",
+      "target_level": "expert"
+    },
+    "energy_policy_sustainability": {
+      "competencies": [
+        "emissions",
+        "lifecycle_assessment",
+        "policy",
+        "regulation",
+        "energy_markets",
+        "environmental_justice"
+      ],
+      "domain": "energy",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "energy",
+        "policy",
+        "sustainability"
+      ],
+      "name": "Energy policy and sustainability",
+      "prerequisites": [
+        "energy_fundamentals",
+        "economics_core"
+      ],
+      "risk": "ordinary",
+      "subject_id": "energy_policy_sustainability",
+      "target_level": "expert"
+    },
+    "energy_storage": {
+      "competencies": [
+        "electrochemistry",
+        "cell_models",
+        "battery_management",
+        "thermal_safety",
+        "degradation",
+        "pack_design",
+        "economics"
+      ],
+      "domain": "energy",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "battery",
+        "endurance",
+        "energy",
+        "storage"
+      ],
+      "name": "Batteries and energy storage",
+      "prerequisites": [
+        "chemistry_materials",
+        "electronics_circuits",
+        "energy_fundamentals"
+      ],
+      "risk": "ordinary",
+      "subject_id": "energy_storage",
+      "target_level": "expert"
+    },
+    "entrepreneurship_innovation": {
+      "competencies": [
+        "problem_discovery",
+        "product",
+        "experimentation",
+        "business_model",
+        "funding",
+        "scaling",
+        "responsible_innovation"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "entrepreneurship",
+        "innovation",
+        "product",
+        "startup"
+      ],
+      "name": "Entrepreneurship and innovation",
+      "prerequisites": [
+        "business_strategy_operations",
+        "marketing_sales_customer"
+      ],
+      "risk": "ordinary",
+      "subject_id": "entrepreneurship_innovation",
+      "target_level": "expert"
+    },
+    "event_evidence_resolution_research": {
+      "competencies": [
+        "question_decomposition",
+        "source_hierarchy",
+        "resolution_rules",
+        "timeline_evidence",
+        "conflicting_sources",
+        "manipulation_risk",
+        "audit_trail",
+        "settlement_review"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "event",
+        "evidence",
+        "forecast",
+        "research",
+        "resolution"
+      ],
+      "name": "Event evidence and resolution research",
+      "prerequisites": [
+        "language_research_communication",
+        "law_regulation_ethics",
+        "probabilistic_forecasting_calibration"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "event_evidence_resolution_research",
+      "target_level": "expert"
+    },
+    "exploit_analysis_reverse_engineering": {
+      "competencies": [
+        "assembly_fundamentals",
+        "debugging",
+        "memory_safety",
+        "binary_formats",
+        "static_analysis",
+        "dynamic_analysis",
+        "exploit_mitigation",
+        "malware_triage"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "analysis",
+        "binary",
+        "engineering",
+        "exploit",
+        "exploit analysis",
+        "malware analysis",
+        "reverse",
+        "reverse engineering"
+      ],
+      "name": "Exploit analysis and defensive reverse engineering",
+      "prerequisites": [
+        "cybersecurity",
+        "operating_distributed_networks",
+        "programming_languages"
+      ],
+      "risk": "dual_use",
+      "subject_id": "exploit_analysis_reverse_engineering",
+      "target_level": "expert"
+    },
+    "financial_data_infrastructure": {
+      "competencies": [
+        "market_data",
+        "reference_data",
+        "corporate_actions",
+        "point_in_time_data",
+        "survivorship_bias",
+        "research_platforms",
+        "lineage",
+        "production_controls"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "data",
+        "financial",
+        "financial data",
+        "infrastructure",
+        "lineage",
+        "point in time",
+        "quant platform"
+      ],
+      "name": "Financial data and research infrastructure",
+      "prerequisites": [
+        "data_databases",
+        "software_engineering",
+        "markets_investing"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "financial_data_infrastructure",
+      "target_level": "expert"
+    },
+    "financial_econometrics": {
+      "competencies": [
+        "stationarity",
+        "arima",
+        "volatility_models",
+        "cointegration",
+        "factor_models",
+        "state_space",
+        "regime_change",
+        "forecast_validation"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "econometrics",
+        "financial",
+        "forecast",
+        "quant",
+        "time series"
+      ],
+      "name": "Financial econometrics and time series",
+      "prerequisites": [
+        "probability_statistics",
+        "linear_algebra",
+        "economics_core"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "financial_econometrics",
+      "target_level": "expert"
+    },
+    "financial_mathematics": {
+      "competencies": [
+        "discounting",
+        "returns",
+        "no_arbitrage",
+        "state_prices",
+        "martingales",
+        "change_of_measure",
+        "convexity",
+        "numerical_pricing"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "financial",
+        "financial mathematics",
+        "mathematics",
+        "pricing",
+        "quant"
+      ],
+      "name": "Financial mathematics",
+      "prerequisites": [
+        "calculus_analysis",
+        "linear_algebra",
+        "probability_statistics"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "financial_mathematics",
+      "target_level": "expert"
+    },
+    "financial_regulation_compliance": {
+      "competencies": [
+        "market_abuse",
+        "fiduciary_duty",
+        "client_suitability",
+        "aml_kyc",
+        "best_execution",
+        "reporting",
+        "model_governance",
+        "jurisdiction"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "compliance",
+        "conduct",
+        "financial",
+        "regulation"
+      ],
+      "name": "Financial regulation, compliance and conduct",
+      "prerequisites": [
+        "law_regulation_ethics",
+        "markets_investing",
+        "accounting_corporate_finance"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "financial_regulation_compliance",
+      "target_level": "expert"
+    },
+    "financial_risk_management": {
+      "competencies": [
+        "market_risk",
+        "credit_risk",
+        "liquidity_risk",
+        "counterparty_risk",
+        "var_expected_shortfall",
+        "stress_testing",
+        "scenario_analysis",
+        "model_governance"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "financial",
+        "management",
+        "risk",
+        "stress",
+        "var"
+      ],
+      "name": "Financial risk management",
+      "prerequisites": [
+        "probability_statistics",
+        "derivatives_structured_products",
+        "accounting_corporate_finance"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "financial_risk_management",
+      "target_level": "expert"
+    },
+    "fundamental_equity_credit": {
+      "competencies": [
+        "financial_statement_analysis",
+        "industry_analysis",
+        "competitive_advantage",
+        "earnings_quality",
+        "cash_flow_forecasting",
+        "capital_structure",
+        "default_risk",
+        "investment_memo"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "analyst",
+        "credit",
+        "equity",
+        "fundamental"
+      ],
+      "name": "Fundamental equity and credit analysis",
+      "prerequisites": [
+        "accounting_corporate_finance",
+        "economics_core",
+        "asset_pricing"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "fundamental_equity_credit",
+      "target_level": "expert"
+    },
+    "generation_grids": {
+      "competencies": [
+        "generation",
+        "renewables",
+        "grid_control",
+        "power_flow",
+        "microgrids",
+        "resilience",
+        "markets"
+      ],
+      "domain": "energy",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "generation",
+        "grid",
+        "grids",
+        "microgrid",
+        "renewable",
+        "solar"
+      ],
+      "name": "Energy generation, grids and microgrids",
+      "prerequisites": [
+        "energy_fundamentals",
+        "electronics_circuits"
+      ],
+      "risk": "ordinary",
+      "subject_id": "generation_grids",
+      "target_level": "expert"
+    },
+    "hardware_embedded_ot_security": {
+      "competencies": [
+        "firmware_analysis",
+        "hardware_roots_of_trust",
+        "debug_interfaces",
+        "embedded_networks",
+        "industrial_protocols",
+        "safety_boundaries",
+        "secure_updates",
+        "physical_cyber_incidents"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "embedded",
+        "firmware",
+        "hardware",
+        "hardware security",
+        "ics",
+        "ot",
+        "security"
+      ],
+      "name": "Hardware, embedded and operational-technology security",
+      "prerequisites": [
+        "cybersecurity",
+        "embedded_systems",
+        "electronics_circuits"
+      ],
+      "risk": "dual_use",
+      "subject_id": "hardware_embedded_ot_security",
+      "target_level": "expert"
+    },
+    "hedge_fund_operations": {
+      "competencies": [
+        "mandate_design",
+        "capital_allocation",
+        "prime_brokerage",
+        "fund_accounting",
+        "liquidity_terms",
+        "operational_due_diligence",
+        "investor_reporting",
+        "governance"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "fund",
+        "fund manager",
+        "hedge",
+        "hedge fund",
+        "operations",
+        "prime broker"
+      ],
+      "name": "Hedge-fund management and operations",
+      "prerequisites": [
+        "portfolio_construction",
+        "financial_risk_management",
+        "financial_regulation_compliance"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "hedge_fund_operations",
+      "target_level": "expert"
+    },
+    "history_geography_geopolitics": {
+      "competencies": [
+        "historical_method",
+        "physical_geography",
+        "institutions",
+        "trade",
+        "conflict_analysis",
+        "cultural_context"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "geography",
+        "geopolitics",
+        "history"
+      ],
+      "name": "History, geography and geopolitics",
+      "prerequisites": [],
+      "risk": "dual_use",
+      "subject_id": "history_geography_geopolitics",
+      "target_level": "expert"
+    },
+    "human_computer_interaction": {
+      "competencies": [
+        "user_research",
+        "interaction_design",
+        "accessibility",
+        "visualisation",
+        "human_factors",
+        "evaluation"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "computer",
+        "human",
+        "interaction",
+        "interface",
+        "product",
+        "user"
+      ],
+      "name": "Human-computer interaction",
+      "prerequisites": [
+        "software_engineering"
+      ],
+      "risk": "ordinary",
+      "subject_id": "human_computer_interaction",
+      "target_level": "expert"
+    },
+    "information_intelligence_attention": {
+      "competencies": [
+        "intelligence_collection",
+        "source_criticism",
+        "uncertainty",
+        "confidentiality",
+        "narrative_analysis",
+        "attention_systems",
+        "misinformation_defence",
+        "transparency"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "attention",
+        "information",
+        "intelligence",
+        "narrative"
+      ],
+      "name": "Information, intelligence and ethical attention systems",
+      "prerequisites": [
+        "language_research_communication",
+        "probability_statistics",
+        "law_regulation_ethics"
+      ],
+      "risk": "dual_use",
+      "subject_id": "information_intelligence_attention",
+      "target_level": "expert"
+    },
+    "institutional_banking_treasury": {
+      "competencies": [
+        "banking_models",
+        "asset_liability_management",
+        "liquidity_buffers",
+        "funding",
+        "interest_rate_risk",
+        "credit_creation",
+        "payments",
+        "treasury_controls"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "alm",
+        "banking",
+        "institutional",
+        "liquidity",
+        "treasury"
+      ],
+      "name": "Banking, treasury and balance-sheet management",
+      "prerequisites": [
+        "accounting_corporate_finance",
+        "financial_risk_management",
+        "markets_investing"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "institutional_banking_treasury",
+      "target_level": "expert"
+    },
+    "language_research_communication": {
+      "competencies": [
+        "reading",
+        "writing",
+        "argument",
+        "citation",
+        "presentation",
+        "teaching",
+        "multilingual_communication"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "communication",
+        "explain",
+        "language",
+        "research",
+        "write"
+      ],
+      "name": "Language, research and professional communication",
+      "prerequisites": [],
+      "risk": "ordinary",
+      "subject_id": "language_research_communication",
+      "target_level": "expert"
+    },
+    "law_regulation_ethics": {
+      "competencies": [
+        "legal_research",
+        "contracts",
+        "privacy",
+        "intellectual_property",
+        "employment",
+        "sector_regulation",
+        "ethics",
+        "jurisdiction"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "ethics",
+        "law",
+        "legal",
+        "regulation"
+      ],
+      "name": "Law, regulation and applied ethics",
+      "prerequisites": [
+        "language_research_communication"
+      ],
+      "risk": "ordinary",
+      "subject_id": "law_regulation_ethics",
+      "target_level": "expert"
+    },
+    "linear_algebra": {
+      "competencies": [
+        "vectors",
+        "matrices",
+        "linear_maps",
+        "eigenstructure",
+        "numerical_linear_algebra"
+      ],
+      "domain": "mathematics",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "algebra",
+        "linear"
+      ],
+      "name": "Linear algebra",
+      "prerequisites": [
+        "algebra_geometry"
+      ],
+      "risk": "ordinary",
+      "subject_id": "linear_algebra",
+      "target_level": "expert"
+    },
+    "logic_proof": {
+      "competencies": [
+        "propositional_logic",
+        "predicate_logic",
+        "proof_methods",
+        "formal_proof",
+        "counterexamples"
+      ],
+      "domain": "mathematics",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "logic",
+        "proof",
+        "reasoning",
+        "theorem"
+      ],
+      "name": "Logic and proof",
+      "prerequisites": [],
+      "risk": "ordinary",
+      "subject_id": "logic_proof",
+      "target_level": "expert"
+    },
+    "manufacturing_quality": {
+      "competencies": [
+        "process_selection",
+        "design_for_manufacture",
+        "tooling",
+        "quality_control",
+        "reliability",
+        "failure_analysis",
+        "costing"
+      ],
+      "domain": "engineering",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "cheap",
+        "cost",
+        "factory",
+        "manufacture",
+        "manufacturing",
+        "quality"
+      ],
+      "name": "Manufacturing, quality and reliability",
+      "prerequisites": [
+        "mechanical_cad",
+        "chemistry_materials"
+      ],
+      "risk": "ordinary",
+      "subject_id": "manufacturing_quality",
+      "target_level": "expert"
+    },
+    "market_microstructure_execution": {
+      "competencies": [
+        "order_books",
+        "price_formation",
+        "liquidity",
+        "impact",
+        "execution_algorithms",
+        "slippage",
+        "venue_selection",
+        "trade_cost_analysis"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "execution",
+        "market",
+        "microstructure",
+        "order book",
+        "trading"
+      ],
+      "name": "Market microstructure and execution",
+      "prerequisites": [
+        "markets_investing",
+        "financial_econometrics"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "market_microstructure_execution",
+      "target_level": "expert"
+    },
+    "marketing_sales_customer": {
+      "competencies": [
+        "research",
+        "positioning",
+        "channels",
+        "sales_process",
+        "pricing",
+        "service",
+        "retention"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "customer",
+        "marketing",
+        "sales"
+      ],
+      "name": "Marketing, sales and customer systems",
+      "prerequisites": [
+        "business_strategy_operations"
+      ],
+      "risk": "ordinary",
+      "subject_id": "marketing_sales_customer",
+      "target_level": "expert"
+    },
+    "markets_investing": {
+      "competencies": [
+        "market_structure",
+        "assets",
+        "portfolio_theory",
+        "risk",
+        "derivatives",
+        "behaviour",
+        "regulation"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "invest",
+        "investing",
+        "market",
+        "markets",
+        "stock",
+        "trading"
+      ],
+      "name": "Financial markets and investment",
+      "prerequisites": [
+        "probability_statistics",
+        "economics_core",
+        "accounting_corporate_finance"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "markets_investing",
+      "target_level": "expert"
+    },
+    "mechanical_cad": {
+      "competencies": [
+        "statics",
+        "dynamics",
+        "mechanisms",
+        "solid_mechanics",
+        "cad",
+        "thermal_design",
+        "tolerances"
+      ],
+      "domain": "engineering",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "cad",
+        "design",
+        "frame",
+        "mechanical",
+        "schematic"
+      ],
+      "name": "Mechanical engineering and CAD",
+      "prerequisites": [
+        "classical_physics"
+      ],
+      "risk": "ordinary",
+      "subject_id": "mechanical_cad",
+      "target_level": "expert"
+    },
+    "negotiation_governance": {
+      "competencies": [
+        "negotiation",
+        "stakeholders",
+        "institution_design",
+        "public_policy",
+        "conflict_resolution",
+        "accountability"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "governance",
+        "negotiation"
+      ],
+      "name": "Negotiation, governance and institutions",
+      "prerequisites": [
+        "psychology_organisations",
+        "law_regulation_ethics"
+      ],
+      "risk": "ordinary",
+      "subject_id": "negotiation_governance",
+      "target_level": "expert"
+    },
+    "network_wireless_security": {
+      "competencies": [
+        "network_reconnaissance",
+        "protocol_analysis",
+        "segmentation",
+        "firewalls",
+        "secure_routing",
+        "wireless_security",
+        "vpn_zero_trust",
+        "network_validation"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "firewall",
+        "network",
+        "network security",
+        "security",
+        "vpn",
+        "wireless"
+      ],
+      "name": "Network and wireless security",
+      "prerequisites": [
+        "cybersecurity",
+        "operating_distributed_networks"
+      ],
+      "risk": "dual_use",
+      "subject_id": "network_wireless_security",
+      "target_level": "expert"
+    },
+    "networks_talent_coordination": {
+      "competencies": [
+        "alliances",
+        "talent_systems",
+        "organisation_design",
+        "incentive_alignment",
+        "negotiation",
+        "coordination",
+        "culture",
+        "succession"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "coordination",
+        "network",
+        "networks",
+        "organisation",
+        "talent"
+      ],
+      "name": "Networks, talent and organisational coordination",
+      "prerequisites": [
+        "psychology_organisations",
+        "negotiation_governance",
+        "business_strategy_operations"
+      ],
+      "risk": "ordinary",
+      "subject_id": "networks_talent_coordination",
+      "target_level": "expert"
+    },
+    "numerical_methods": {
+      "competencies": [
+        "floating_point",
+        "approximation",
+        "solvers",
+        "error_bounds",
+        "monte_carlo",
+        "simulation"
+      ],
+      "domain": "mathematics",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "methods",
+        "numerical"
+      ],
+      "name": "Numerical methods and simulation",
+      "prerequisites": [
+        "calculus_analysis",
+        "linear_algebra",
+        "probability_statistics"
+      ],
+      "risk": "ordinary",
+      "subject_id": "numerical_methods",
+      "target_level": "expert"
+    },
+    "operating_distributed_networks": {
+      "competencies": [
+        "operating_systems",
+        "concurrency",
+        "networks",
+        "distributed_systems",
+        "cloud",
+        "reliability",
+        "observability"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "distributed",
+        "networks",
+        "operating"
+      ],
+      "name": "Operating, distributed and networked systems",
+      "prerequisites": [
+        "software_engineering"
+      ],
+      "risk": "ordinary",
+      "subject_id": "operating_distributed_networks",
+      "target_level": "expert"
+    },
+    "physiology_health": {
+      "competencies": [
+        "anatomy",
+        "physiology",
+        "pathology",
+        "pharmacology",
+        "epidemiology",
+        "clinical_evidence"
+      ],
+      "domain": "life_science",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "health",
+        "physiology"
+      ],
+      "name": "Physiology, health and clinical evidence",
+      "prerequisites": [
+        "cell_genetic_biology",
+        "probability_statistics"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "physiology_health",
+      "target_level": "expert"
+    },
+    "portfolio_construction": {
+      "competencies": [
+        "mean_variance",
+        "factor_exposures",
+        "risk_budgeting",
+        "robust_optimisation",
+        "constraints",
+        "rebalancing",
+        "performance_attribution",
+        "capacity"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "allocation",
+        "construction",
+        "fund manager",
+        "portfolio"
+      ],
+      "name": "Portfolio construction and allocation",
+      "prerequisites": [
+        "asset_pricing",
+        "discrete_optimization",
+        "markets_investing"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "portfolio_construction",
+      "target_level": "expert"
+    },
+    "power_institutions_legitimacy": {
+      "competencies": [
+        "institutional_power",
+        "law_and_rules",
+        "legitimacy",
+        "trust",
+        "accountability",
+        "state_capacity",
+        "governance",
+        "power_failure_modes"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "authority",
+        "institution",
+        "institutions",
+        "legitimacy",
+        "power"
+      ],
+      "name": "Power, institutions and legitimate authority",
+      "prerequisites": [
+        "history_geography_geopolitics",
+        "negotiation_governance",
+        "law_regulation_ethics"
+      ],
+      "risk": "dual_use",
+      "subject_id": "power_institutions_legitimacy",
+      "target_level": "expert"
+    },
+    "precision_agriculture": {
+      "competencies": [
+        "field_sensing",
+        "geospatial_mapping",
+        "variable_rate_control",
+        "farm_automation",
+        "yield_models",
+        "decision_support"
+      ],
+      "domain": "agriculture",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "agriculture",
+        "crop",
+        "drone",
+        "farm",
+        "precision"
+      ],
+      "name": "Precision and autonomous agriculture",
+      "prerequisites": [
+        "agronomy_soil",
+        "data_science_ml",
+        "sensors_instrumentation"
+      ],
+      "risk": "ordinary",
+      "subject_id": "precision_agriculture",
+      "target_level": "expert"
+    },
+    "prediction_market_design_compliance": {
+      "competencies": [
+        "objective_question_design",
+        "resolution_authority",
+        "market_demand",
+        "manipulation_resistance",
+        "insider_information",
+        "jurisdiction",
+        "proposal_governance",
+        "post_settlement_review"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "compliance",
+        "design",
+        "integrity",
+        "market",
+        "market design",
+        "prediction",
+        "prediction market"
+      ],
+      "name": "Prediction-market design, integrity and compliance",
+      "prerequisites": [
+        "prediction_market_microstructure",
+        "event_evidence_resolution_research",
+        "financial_regulation_compliance"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "prediction_market_design_compliance",
+      "target_level": "expert"
+    },
+    "prediction_market_microstructure": {
+      "competencies": [
+        "binary_contracts",
+        "order_books",
+        "implied_probability",
+        "fees_slippage",
+        "liquidity",
+        "position_sizing",
+        "cross_market_coherence",
+        "execution_controls"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "event contract",
+        "kalshi",
+        "market",
+        "microstructure",
+        "polymarket",
+        "prediction",
+        "prediction market"
+      ],
+      "name": "Prediction-market microstructure and execution",
+      "prerequisites": [
+        "probabilistic_forecasting_calibration",
+        "market_microstructure_execution",
+        "financial_risk_management"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "prediction_market_microstructure",
+      "target_level": "expert"
+    },
+    "probabilistic_forecasting_calibration": {
+      "competencies": [
+        "base_rates",
+        "reference_classes",
+        "bayesian_updates",
+        "forecast_decomposition",
+        "proper_scoring_rules",
+        "calibration",
+        "aggregation",
+        "decision_thresholds"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "brier",
+        "calibration",
+        "forecast",
+        "forecasting",
+        "probabilistic",
+        "probability"
+      ],
+      "name": "Probabilistic forecasting and calibration",
+      "prerequisites": [
+        "probability_statistics",
+        "scientific_method"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "target_level": "expert"
+    },
+    "probability_statistics": {
+      "competencies": [
+        "probability",
+        "distributions",
+        "estimation",
+        "hypothesis_testing",
+        "bayesian_reasoning",
+        "uncertainty"
+      ],
+      "domain": "mathematics",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "probability",
+        "statistics"
+      ],
+      "name": "Probability and statistics",
+      "prerequisites": [
+        "algebra_geometry"
+      ],
+      "risk": "ordinary",
+      "subject_id": "probability_statistics",
+      "target_level": "expert"
+    },
+    "programming_languages": {
+      "competencies": [
+        "python",
+        "javascript_typescript",
+        "rust",
+        "c_cpp",
+        "functional_programming",
+        "language_interoperation"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "code",
+        "languages",
+        "programming",
+        "software"
+      ],
+      "name": "Programming languages",
+      "prerequisites": [
+        "computer_science"
+      ],
+      "risk": "ordinary",
+      "subject_id": "programming_languages",
+      "target_level": "expert"
+    },
+    "psychology_organisations": {
+      "competencies": [
+        "cognition",
+        "motivation",
+        "decision_bias",
+        "teams",
+        "leadership",
+        "culture",
+        "change"
+      ],
+      "domain": "human_society",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "organisations",
+        "psychology"
+      ],
+      "name": "Psychology and organisational behaviour",
+      "prerequisites": [
+        "scientific_method"
+      ],
+      "risk": "ordinary",
+      "subject_id": "psychology_organisations",
+      "target_level": "expert"
+    },
+    "quantitative_research": {
+      "competencies": [
+        "hypothesis_design",
+        "data_provenance",
+        "feature_engineering",
+        "backtesting",
+        "cross_validation",
+        "multiple_testing",
+        "transaction_costs",
+        "reproducibility"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "alpha",
+        "backtest",
+        "quant",
+        "quantitative",
+        "research"
+      ],
+      "name": "Quantitative investment research",
+      "prerequisites": [
+        "financial_mathematics",
+        "financial_econometrics",
+        "programming_languages",
+        "data_science_ml"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "quantitative_research",
+      "target_level": "expert"
+    },
+    "resilience_geography_long_horizon": {
+      "competencies": [
+        "geographic_advantage",
+        "logistics",
+        "resource_security",
+        "supply_dependencies",
+        "defensive_security",
+        "scenario_planning",
+        "resilience",
+        "strategic_patience"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "geography",
+        "horizon",
+        "logistics",
+        "long",
+        "long term",
+        "resilience"
+      ],
+      "name": "Geography, logistics, resilience and long-horizon strategy",
+      "prerequisites": [
+        "history_geography_geopolitics",
+        "supply_chain_procurement",
+        "strategic_assets_capital_allocation"
+      ],
+      "risk": "dual_use",
+      "subject_id": "resilience_geography_long_horizon",
+      "target_level": "expert"
+    },
+    "scientific_method": {
+      "competencies": [
+        "hypotheses",
+        "experimental_design",
+        "measurement",
+        "causal_inference",
+        "replication",
+        "literature_review"
+      ],
+      "domain": "physical_science",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "evidence",
+        "experiment",
+        "method",
+        "research",
+        "scientific"
+      ],
+      "name": "Scientific method and measurement",
+      "prerequisites": [],
+      "risk": "ordinary",
+      "subject_id": "scientific_method",
+      "target_level": "expert"
+    },
+    "security_architecture_operations": {
+      "competencies": [
+        "zero_trust_architecture",
+        "security_controls",
+        "asset_inventory",
+        "vulnerability_management",
+        "supply_chain_assurance",
+        "business_continuity",
+        "metrics",
+        "security_governance"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "architecture",
+        "assurance",
+        "operations",
+        "security",
+        "security architecture",
+        "soc",
+        "vulnerability management"
+      ],
+      "name": "Security architecture and operational assurance",
+      "prerequisites": [
+        "cloud_identity_container_security",
+        "network_wireless_security",
+        "detection_threat_hunting_incident_response"
+      ],
+      "risk": "dual_use",
+      "subject_id": "security_architecture_operations",
+      "target_level": "expert"
+    },
+    "security_research_disclosure": {
+      "competencies": [
+        "research_ethics",
+        "authorization",
+        "reproducibility",
+        "severity",
+        "minimal_proof",
+        "vendor_coordination",
+        "embargo",
+        "public_disclosure"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "cve",
+        "disclosure",
+        "research",
+        "security",
+        "security research",
+        "vulnerability disclosure"
+      ],
+      "name": "Security research and responsible vulnerability disclosure",
+      "prerequisites": [
+        "adversary_emulation_penetration_testing",
+        "language_research_communication",
+        "law_regulation_ethics"
+      ],
+      "risk": "dual_use",
+      "subject_id": "security_research_disclosure",
+      "target_level": "expert"
+    },
+    "sensors_instrumentation": {
+      "competencies": [
+        "sensor_physics",
+        "signal_conditioning",
+        "sampling",
+        "calibration",
+        "sensor_fusion",
+        "measurement_uncertainty"
+      ],
+      "domain": "engineering",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "instrumentation",
+        "measurement",
+        "sensor",
+        "sensors"
+      ],
+      "name": "Sensors and instrumentation",
+      "prerequisites": [
+        "electronics_circuits",
+        "probability_statistics"
+      ],
+      "risk": "ordinary",
+      "subject_id": "sensors_instrumentation",
+      "target_level": "expert"
+    },
+    "software_engineering": {
+      "competencies": [
+        "requirements",
+        "architecture",
+        "testing",
+        "debugging",
+        "version_control",
+        "delivery",
+        "maintenance"
+      ],
+      "domain": "computing",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "application",
+        "engineering",
+        "software",
+        "system"
+      ],
+      "name": "Software engineering",
+      "prerequisites": [
+        "programming_languages"
+      ],
+      "risk": "ordinary",
+      "subject_id": "software_engineering",
+      "target_level": "expert"
+    },
+    "stochastic_processes_finance": {
+      "competencies": [
+        "random_walks",
+        "markov_processes",
+        "brownian_motion",
+        "ito_calculus",
+        "stochastic_differential_equations",
+        "jump_processes",
+        "filtering",
+        "simulation"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "finance",
+        "monte carlo",
+        "processes",
+        "quant",
+        "stochastic"
+      ],
+      "name": "Stochastic processes for finance",
+      "prerequisites": [
+        "financial_mathematics",
+        "numerical_methods"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "stochastic_processes_finance",
+      "target_level": "expert"
+    },
+    "strategic_assets_capital_allocation": {
+      "competencies": [
+        "asset_thesis",
+        "valuation",
+        "control_rights",
+        "optionality",
+        "dependency_reduction",
+        "build_buy_partner",
+        "portfolio_allocation",
+        "exit_discipline"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "acquisition",
+        "allocation",
+        "assets",
+        "capital",
+        "capital allocation",
+        "ownership",
+        "strategic",
+        "strategic asset"
+      ],
+      "name": "Strategic assets and capital allocation",
+      "prerequisites": [
+        "accounting_corporate_finance",
+        "business_strategy_operations",
+        "financial_risk_management"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "strategic_assets_capital_allocation",
+      "target_level": "expert"
+    },
+    "supply_chain_procurement": {
+      "competencies": [
+        "demand",
+        "inventory",
+        "sourcing",
+        "logistics",
+        "supplier_risk",
+        "quality",
+        "resilience"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "chain",
+        "inventory",
+        "logistics",
+        "procurement",
+        "supply"
+      ],
+      "name": "Supply chain and procurement",
+      "prerequisites": [
+        "business_strategy_operations",
+        "discrete_optimization"
+      ],
+      "risk": "ordinary",
+      "subject_id": "supply_chain_procurement",
+      "target_level": "expert"
+    },
+    "systematic_trading": {
+      "competencies": [
+        "signal_design",
+        "portfolio_signals",
+        "position_sizing",
+        "execution_integration",
+        "drawdown_control",
+        "regime_robustness",
+        "live_monitoring",
+        "strategy_retirement"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "algorithmic trading",
+        "alpha",
+        "quant",
+        "systematic",
+        "trading"
+      ],
+      "name": "Systematic trading and alpha engineering",
+      "prerequisites": [
+        "quantitative_research",
+        "market_microstructure_execution",
+        "financial_risk_management"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "systematic_trading",
+      "target_level": "expert"
+    },
+    "systems_engineering": {
+      "competencies": [
+        "requirements",
+        "interfaces",
+        "trade_studies",
+        "verification_validation",
+        "risk",
+        "lifecycle",
+        "configuration"
+      ],
+      "domain": "engineering",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "engineering",
+        "integrate",
+        "requirements",
+        "system",
+        "systems"
+      ],
+      "name": "Systems engineering",
+      "prerequisites": [
+        "software_engineering",
+        "mechanical_cad"
+      ],
+      "risk": "ordinary",
+      "subject_id": "systems_engineering",
+      "target_level": "expert"
+    },
+    "tax_wealth_structuring": {
+      "competencies": [
+        "tax_principles",
+        "corporate_tax",
+        "investment_tax",
+        "cross_border",
+        "pensions",
+        "estates",
+        "capital_structure",
+        "professional_referral"
+      ],
+      "domain": "economics_finance",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "pension",
+        "structuring",
+        "tax",
+        "wealth"
+      ],
+      "name": "Tax, wealth and capital structuring",
+      "prerequisites": [
+        "accounting_corporate_finance",
+        "law_regulation_ethics"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "tax_wealth_structuring",
+      "target_level": "expert"
+    },
+    "technology_industry_platforms": {
+      "competencies": [
+        "technology_forecasting",
+        "industry_structure",
+        "platform_economics",
+        "standards_strategy",
+        "intellectual_property",
+        "compute_data_energy",
+        "manufacturing_scale",
+        "distribution_power"
+      ],
+      "domain": "business",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "industry",
+        "platform",
+        "platforms",
+        "standard",
+        "technology"
+      ],
+      "name": "Technology, industry, platforms and standards",
+      "prerequisites": [
+        "strategic_assets_capital_allocation",
+        "systems_engineering",
+        "economics_core"
+      ],
+      "risk": "high_stakes",
+      "subject_id": "technology_industry_platforms",
+      "target_level": "expert"
+    },
+    "uncrewed_aerial_systems": {
+      "competencies": [
+        "aerodynamics",
+        "propulsion",
+        "flight_control",
+        "navigation",
+        "payloads",
+        "communications",
+        "airworthiness",
+        "operations"
+      ],
+      "domain": "engineering",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "aerial",
+        "drone",
+        "flight",
+        "payload",
+        "systems",
+        "uav",
+        "uncrewed"
+      ],
+      "name": "Uncrewed aerial systems and drones",
+      "prerequisites": [
+        "classical_physics",
+        "control_robotics",
+        "embedded_systems",
+        "energy_storage"
+      ],
+      "risk": "dual_use",
+      "subject_id": "uncrewed_aerial_systems",
+      "target_level": "expert"
+    },
+    "water_waste_resilience": {
+      "competencies": [
+        "water_systems",
+        "waste",
+        "circularity",
+        "infrastructure",
+        "hazards",
+        "resilience",
+        "disaster_response"
+      ],
+      "domain": "environment_resilience",
+      "expert_gate": {
+        "failure_repairs": 2,
+        "independent_authority_required": true,
+        "knowledge_exam": "source_disjoint",
+        "practical_projects": 3,
+        "retention_days": [
+          1,
+          7,
+          30,
+          90
+        ],
+        "teaching_demonstration_required": true,
+        "unfamiliar_transfer_projects": 2
+      },
+      "keywords": [
+        "disaster",
+        "resilience",
+        "waste",
+        "water"
+      ],
+      "name": "Water, waste and resilient infrastructure",
+      "prerequisites": [
+        "earth_climate",
+        "systems_engineering"
+      ],
+      "risk": "ordinary",
+      "subject_id": "water_waste_resilience",
+      "target_level": "expert"
+    }
+  },
+  "validation": {
+    "all_domains_bridged": true,
+    "bridges": 68,
+    "capstones": 10,
+    "domains": 12,
+    "errors": [],
+    "learning_capabilities": 18,
+    "prerequisite_graph_acyclic": true,
+    "subjects": 90,
+    "valid": true
+  }
+}

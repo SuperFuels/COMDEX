@@ -1,0 +1,39 @@
+{
+  "schema": "aion.riemann_explicit_formula_dependencies.v1",
+  "claim_boundary": "Dependency analysis for reconstructing an established RH-equivalent criterion; no missing edge is assumed and no new theorem is claimed.",
+  "target": "RiemannHypothesis iff CriticalPsiBound",
+  "nodes": [
+    {"id":"psi_definition","status":"kernel_available","authority":"Chebyshev.psi"},
+    {"id":"von_mangoldt_sum","status":"kernel_reconstructed","authority":"chebyshevPsiRemainder_eq_sum_vonMangoldt"},
+    {"id":"zeta_log_derivative","status":"kernel_reconstructed","authority":"vonMangoldt_LSeries_eq_zeta_logDeriv"},
+    {"id":"zeta_zero_multiset","status":"kernel_reconstructed","authority":"zetaZeroOrder, zetaZeroOrder_ne_top, zetaDivisorOn, zetaDivisorOn_support_finite, and mem_compactZetaDivisorSupport_iff_zero"},
+    {"id":"finite_zero_truncations","status":"kernel_reconstructed","authority":"zetaZeroTruncationRegion, exists_mem_zetaZeroTruncationRegion, compactNontrivialZetaZeros, IsNontrivialZetaZero.exists_mem_compactTruncation, truncatedNontrivialZeroContribution, and compactNontrivialZetaZero_multiplicity_pos"},
+    {"id":"perron_transform","status":"kernel_interface_reconstructed","authority":"zetaPerronKernel, truncatedZetaPerronIntegral, truncatedVonMangoldtPerronIntegral_eq_zeta, and ChebyshevPerronInversionTarget","need":"Prove the scalar Perron kernel limit, justify termwise passage and tail control, then establish the recorded Chebyshev limit."},
+    {"id":"contour_shift","status":"library_primitives_only","need":"A rectangular contour shift with pole and zero residues plus explicit horizontal and vertical error bounds."},
+    {"id":"explicit_formula","status":"open_formalization_target","authority":"ChebyshevExplicitFormulaTarget","need":"Prove convergence of the pre-defined multiplicity-weighted compact truncations to the psi remainder with the elementary correction term."},
+    {"id":"rh_implies_psi_bound","status":"open_established_direction","need":"Bound the zero contribution assuming every nontrivial zero has real part one half."},
+    {"id":"psi_bound_implies_zero_free","status":"open_established_direction","need":"Use Mellin/Dirichlet continuation to exclude a zero with real part greater than one half."},
+    {"id":"reflection_closes_other_half","status":"kernel_reconstructed","authority":"IsNontrivialZetaZero.one_sub"},
+    {"id":"rh_psi_equivalence","status":"open_target","authority":"CriticalPsiEquivalenceTarget"}
+  ],
+  "edges": [
+    ["psi_definition","von_mangoldt_sum"],
+    ["von_mangoldt_sum","perron_transform"],
+    ["zeta_log_derivative","perron_transform"],
+    ["zeta_zero_multiset","finite_zero_truncations"],
+    ["zeta_zero_multiset","contour_shift"],
+    ["finite_zero_truncations","contour_shift"],
+    ["perron_transform","contour_shift"],
+    ["contour_shift","explicit_formula"],
+    ["explicit_formula","rh_implies_psi_bound"],
+    ["explicit_formula","psi_bound_implies_zero_free"],
+    ["psi_bound_implies_zero_free","reflection_closes_other_half"],
+    ["rh_implies_psi_bound","rh_psi_equivalence"],
+    ["reflection_closes_other_half","rh_psi_equivalence"]
+  ],
+  "next_smallest_buildable_unit": {
+    "id":"scalar_perron_kernel_limit",
+    "reason":"The specialized normalized vertical integral and its exact zeta/von-Mangoldt identification are kernel-ready. The next irreducible analytic unit is the symmetric scalar limit for y^(c+it)/(c+it), away from y = 1.",
+    "non_goal":"Do not infer Chebyshev Perron inversion from the interface definitions; scalar convergence, series interchange, and tail estimates remain open."
+  }
+}

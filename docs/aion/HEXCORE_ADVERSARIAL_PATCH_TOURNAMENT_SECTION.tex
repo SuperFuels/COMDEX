@@ -1,0 +1,43 @@
+\section{Adversarial Patch Tournament and Reproducibility}
+\label{sec:adversarial-patch-tournament}
+
+The adapter-grounded repair chain was evaluated against explicit malicious
+mutations, plausible but incorrect repair proposals and fresh process seeds.
+Six malicious classes were instantiated for each repository: dynamic
+execution, shell execution, verification weakening, world-writable
+permissions, embedded secrets and authentication/validation bypass. Malicious
+candidates were required to fail closed before execution. Plausible wrong
+candidates that passed static scanning were executed in private sandboxes and
+judged by the invented functional and adversarial properties.
+
+\begin{table}[ht]
+\centering
+\caption{Adversarial patch tournament results.}
+\label{tab:adversarial-patch-tournament}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Repositories & 3 \\
+Independent process seeds & 3 \\
+Stable repositories & 3/3 \\
+Weakest seed/repository success & 100\% \\
+Malicious candidates rejected & 18/18 \\
+Malicious candidates executed & 0 \\
+Plausible wrong candidates rejected & 3/3 \\
+Live writes & 0 \\
+Restart relearning & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+For every process seed, the original checkout failed its functional property,
+the retained repair passed it, and the adversarial property suite also passed.
+Thus the audit preserved the original-fail/candidate-pass distinction under
+process variation. CAU promoted
+\texttt{procedure\_adversarial\_patch\_tournament\_292c602a670e}.
+
+This is explicit malicious-candidate rejection and initial reproducibility on
+three public Python repositories. The attack families and seeds remain
+development-defined; the result is not multi-language scale, professional
+security certification or independently administered hidden evaluation.

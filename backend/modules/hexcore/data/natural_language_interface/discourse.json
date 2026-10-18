@@ -1,0 +1,421 @@
+{
+  "compiled_goals": {
+    "natural_goal_1f9f62500b9fbf11": {
+      "audience": "expert",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.10130167007446289,
+      "explanation_contract": "technical_detail_with_evidence",
+      "goal_id": "natural_goal_1f9f62500b9fbf11",
+      "intent": "explain",
+      "objective": "explain transaction isolation",
+      "objective_hash": "bc967c841b04ed86fc65acefeccc6fc62bc0136c61bef53a5afc95f95f4cacf6",
+      "status": "compiled",
+      "target": "transaction isolation"
+    },
+    "natural_goal_67142817d2728457": {
+      "audience": "general",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.12129741907119751,
+      "explanation_contract": "concise_grounded",
+      "goal_id": "natural_goal_67142817d2728457",
+      "intent": "build",
+      "objective": "build event parser",
+      "objective_hash": "0aef158017d5454886a5e13f8b153286d770b7a6d3925a6da21496412588df49",
+      "status": "compiled",
+      "target": "event parser"
+    },
+    "natural_goal_8ccd5860d46b6e30": {
+      "audience": "general",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.13241493701934814,
+      "explanation_contract": "concise_grounded",
+      "goal_id": "natural_goal_8ccd5860d46b6e30",
+      "intent": "repair",
+      "objective": "repair checkpoint loader",
+      "objective_hash": "3778ae2db28327804e6108deccec1bb0e1a884d5c7b1bfa82baaf0fdbf9394d2",
+      "status": "compiled",
+      "target": "checkpoint loader"
+    },
+    "natural_goal_936f2c234c157837": {
+      "audience": "novice",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.2224193811416626,
+      "explanation_contract": "plain_language_with_example",
+      "goal_id": "natural_goal_936f2c234c157837",
+      "intent": "explain",
+      "objective": "explain causal inference",
+      "objective_hash": "d2a2ef72898a4db36961825b46f51ad0f5b2c284ca3500029d64051a846370ba",
+      "status": "compiled",
+      "target": "causal inference"
+    },
+    "natural_goal_a0b66bc23e488c0f": {
+      "audience": "general",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.32671234011650085,
+      "explanation_contract": "concise_grounded",
+      "goal_id": "natural_goal_a0b66bc23e488c0f",
+      "intent": "compare",
+      "objective": "compare Rust versus Python",
+      "objective_hash": "571979ff42af18a5df7abbc48e6b456bbd628abf750e97aa601f674c9758bf66",
+      "status": "compiled",
+      "target": "Rust versus Python"
+    },
+    "natural_goal_a6c9c6ba0c1683a0": {
+      "audience": "general",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.3102996349334717,
+      "explanation_contract": "concise_grounded",
+      "goal_id": "natural_goal_a6c9c6ba0c1683a0",
+      "intent": "monitor",
+      "objective": "monitor release feed",
+      "objective_hash": "4366b79d9e6b3982297eea23040c17f7a7459bf4d7204ec61ac72991737abe40",
+      "status": "compiled",
+      "target": "release feed"
+    },
+    "natural_goal_b5f4d20a9ca7ce36": {
+      "audience": "general",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.190149188041687,
+      "explanation_contract": "concise_grounded",
+      "goal_id": "natural_goal_b5f4d20a9ca7ce36",
+      "intent": "build",
+      "objective": "build event parser",
+      "objective_hash": "0aef158017d5454886a5e13f8b153286d770b7a6d3925a6da21496412588df49",
+      "status": "compiled",
+      "target": "event parser"
+    },
+    "natural_goal_d67f43344367d2d3": {
+      "audience": "general",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.3935035839676857,
+      "explanation_contract": "concise_grounded",
+      "goal_id": "natural_goal_d67f43344367d2d3",
+      "intent": "research",
+      "objective": "research battery recycling",
+      "objective_hash": "3222cfb3f3a04f771fbb52c74b4c3404ae1018895334cfd9f3af6b2ca220da58",
+      "status": "compiled",
+      "target": "battery recycling"
+    },
+    "natural_goal_dc8a02ea5f1112f1": {
+      "audience": "general",
+      "authority": "owner_dialogue",
+      "confidence_margin": 0.2581130713224411,
+      "explanation_contract": "concise_grounded",
+      "goal_id": "natural_goal_dc8a02ea5f1112f1",
+      "intent": "monitor",
+      "objective": "monitor release feed",
+      "objective_hash": "4366b79d9e6b3982297eea23040c17f7a7459bf4d7204ec61ac72991737abe40",
+      "status": "compiled",
+      "target": "release feed"
+    }
+  },
+  "corrections": [
+    {
+      "focus": [
+        "release feed"
+      ],
+      "session_id": "correction"
+    },
+    {
+      "focus": [
+        "event parser"
+      ],
+      "session_id": "ambiguous_then_resolved"
+    }
+  ],
+  "sessions": {
+    "ambiguous_then_resolved": {
+      "clarifications": [],
+      "focus": [
+        "event parser"
+      ],
+      "last_result": {
+        "audience": "general",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.190149188041687,
+        "explanation_contract": "concise_grounded",
+        "goal_id": "natural_goal_b5f4d20a9ca7ce36",
+        "intent": "build",
+        "objective": "build event parser",
+        "objective_hash": "0aef158017d5454886a5e13f8b153286d770b7a6d3925a6da21496412588df49",
+        "status": "compiled",
+        "target": "event parser"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:38.328624+00:00",
+          "text": "We discussed \"event parser\" and \"report renderer\"."
+        },
+        {
+          "at": "2026-07-31T22:05:38.338459+00:00",
+          "text": "Build it."
+        },
+        {
+          "at": "2026-07-31T22:05:38.364185+00:00",
+          "text": "I meant \"event parser\". Create and verify it."
+        }
+      ]
+    },
+    "build_transfer": {
+      "clarifications": [],
+      "focus": [
+        "event parser"
+      ],
+      "last_result": {
+        "audience": "general",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.12129741907119751,
+        "explanation_contract": "concise_grounded",
+        "goal_id": "natural_goal_67142817d2728457",
+        "intent": "build",
+        "objective": "build event parser",
+        "objective_hash": "0aef158017d5454886a5e13f8b153286d770b7a6d3925a6da21496412588df49",
+        "status": "compiled",
+        "target": "event parser"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:37.947302+00:00",
+          "text": "The requested artefact is an \"event parser\"."
+        },
+        {
+          "at": "2026-07-31T22:05:37.973129+00:00",
+          "text": "Make a functioning version and prove it works."
+        }
+      ]
+    },
+    "compare_transfer": {
+      "clarifications": [],
+      "focus": [
+        "Rust",
+        "Python"
+      ],
+      "last_result": {
+        "audience": "general",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.32671234011650085,
+        "explanation_contract": "concise_grounded",
+        "goal_id": "natural_goal_a0b66bc23e488c0f",
+        "intent": "compare",
+        "objective": "compare Rust versus Python",
+        "objective_hash": "571979ff42af18a5df7abbc48e6b456bbd628abf750e97aa601f674c9758bf66",
+        "status": "compiled",
+        "target": "Rust versus Python"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:37.891524+00:00",
+          "text": "We are considering \"Rust\" and \"Python\"."
+        },
+        {
+          "at": "2026-07-31T22:05:37.902159+00:00",
+          "text": "Weigh both approaches before choosing."
+        }
+      ]
+    },
+    "correction": {
+      "clarifications": [],
+      "focus": [
+        "release feed"
+      ],
+      "last_result": {
+        "audience": "general",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.3102996349334717,
+        "explanation_contract": "concise_grounded",
+        "goal_id": "natural_goal_a6c9c6ba0c1683a0",
+        "intent": "monitor",
+        "objective": "monitor release feed",
+        "objective_hash": "4366b79d9e6b3982297eea23040c17f7a7459bf4d7204ec61ac72991737abe40",
+        "status": "compiled",
+        "target": "release feed"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:38.253778+00:00",
+          "text": "Monitor \"weather feed\"."
+        },
+        {
+          "at": "2026-07-31T22:05:38.262702+00:00",
+          "text": "Actually I meant \"release feed\". Keep watching it for changes."
+        }
+      ]
+    },
+    "explain_expert": {
+      "clarifications": [],
+      "focus": [
+        "transaction isolation"
+      ],
+      "last_result": {
+        "audience": "expert",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.10130167007446289,
+        "explanation_contract": "technical_detail_with_evidence",
+        "goal_id": "natural_goal_1f9f62500b9fbf11",
+        "intent": "explain",
+        "objective": "explain transaction isolation",
+        "objective_hash": "bc967c841b04ed86fc65acefeccc6fc62bc0136c61bef53a5afc95f95f4cacf6",
+        "status": "compiled",
+        "target": "transaction isolation"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:38.198755+00:00",
+          "text": "The subject is \"transaction isolation\"."
+        },
+        {
+          "at": "2026-07-31T22:05:38.208283+00:00",
+          "text": "Describe it for an engineer with evidence."
+        }
+      ]
+    },
+    "explain_novice": {
+      "clarifications": [],
+      "focus": [
+        "causal inference"
+      ],
+      "last_result": {
+        "audience": "novice",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.2224193811416626,
+        "explanation_contract": "plain_language_with_example",
+        "goal_id": "natural_goal_936f2c234c157837",
+        "intent": "explain",
+        "objective": "explain causal inference",
+        "objective_hash": "d2a2ef72898a4db36961825b46f51ad0f5b2c284ca3500029d64051a846370ba",
+        "status": "compiled",
+        "target": "causal inference"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:38.141024+00:00",
+          "text": "The subject is \"causal inference\"."
+        },
+        {
+          "at": "2026-07-31T22:05:38.152170+00:00",
+          "text": "Walk a beginner through the concept."
+        }
+      ]
+    },
+    "monitor_transfer": {
+      "clarifications": [],
+      "focus": [
+        "release feed"
+      ],
+      "last_result": {
+        "audience": "general",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.2581130713224411,
+        "explanation_contract": "concise_grounded",
+        "goal_id": "natural_goal_dc8a02ea5f1112f1",
+        "intent": "monitor",
+        "objective": "monitor release feed",
+        "objective_hash": "4366b79d9e6b3982297eea23040c17f7a7459bf4d7204ec61ac72991737abe40",
+        "status": "compiled",
+        "target": "release feed"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:38.022855+00:00",
+          "text": "The source is the \"release feed\"."
+        },
+        {
+          "at": "2026-07-31T22:05:38.032229+00:00",
+          "text": "Keep an eye on this feed for any movement."
+        }
+      ]
+    },
+    "repair_transfer": {
+      "clarifications": [],
+      "focus": [
+        "checkpoint loader"
+      ],
+      "last_result": {
+        "audience": "general",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.13241493701934814,
+        "explanation_contract": "concise_grounded",
+        "goal_id": "natural_goal_8ccd5860d46b6e30",
+        "intent": "repair",
+        "objective": "repair checkpoint loader",
+        "objective_hash": "3778ae2db28327804e6108deccec1bb0e1a884d5c7b1bfa82baaf0fdbf9394d2",
+        "status": "compiled",
+        "target": "checkpoint loader"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:38.088975+00:00",
+          "text": "The failing component is the \"checkpoint loader\"."
+        },
+        {
+          "at": "2026-07-31T22:05:38.101562+00:00",
+          "text": "Work out why it broke and put it right."
+        }
+      ]
+    },
+    "research_transfer": {
+      "clarifications": [],
+      "focus": [
+        "battery recycling"
+      ],
+      "last_result": {
+        "audience": "general",
+        "authority": "owner_dialogue",
+        "confidence_margin": 0.3935035839676857,
+        "explanation_contract": "concise_grounded",
+        "goal_id": "natural_goal_d67f43344367d2d3",
+        "intent": "research",
+        "objective": "research battery recycling",
+        "objective_hash": "3222cfb3f3a04f771fbb52c74b4c3404ae1018895334cfd9f3af6b2ca220da58",
+        "status": "compiled",
+        "target": "battery recycling"
+      },
+      "status": "compiled",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:37.807011+00:00",
+          "text": "Our topic is \"battery recycling\"."
+        },
+        {
+          "at": "2026-07-31T22:05:37.837742+00:00",
+          "text": "Look into the evidence behind this claim and preserve sources."
+        }
+      ]
+    },
+    "unsupported_ambiguous": {
+      "clarifications": [],
+      "focus": [
+        "alpha",
+        "beta"
+      ],
+      "last_result": {
+        "candidates": [
+          "alpha",
+          "beta"
+        ],
+        "question": "Which of the mentioned items do you mean?",
+        "reason": "multiple_referents",
+        "status": "clarification_required"
+      },
+      "status": "open",
+      "turns": [
+        {
+          "at": "2026-07-31T22:05:38.413505+00:00",
+          "text": "We discussed \"alpha\" and \"beta\"."
+        },
+        {
+          "at": "2026-07-31T22:05:38.425940+00:00",
+          "text": "Repair it."
+        }
+      ]
+    }
+  }
+}

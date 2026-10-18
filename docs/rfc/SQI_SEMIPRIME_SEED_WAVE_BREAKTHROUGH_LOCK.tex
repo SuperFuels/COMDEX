@@ -1,0 +1,287 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=black
+}
+
+\setlist[itemize]{topsep=4pt,itemsep=2pt}
+\setlist[enumerate]{topsep=4pt,itemsep=2pt}
+
+\title{\textbf{SQI Semiprime Seed-Wave Breakthrough Lock}}
+\author{Kevin Robinson \\ Tessaris AI}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This lock records the first observed learning-feedback improvement in the SQI semiprime
+factor search harness. The system learned a successful Rho/Brent seed and constant pair
+from previous collapse traces, promoted it to a first-priority symbolic branch, and reduced
+hard spread semiprime factorisation times from hundreds/thousands of milliseconds to
+single-digit milliseconds on the repeated hard workload.
+\end{abstract}
+
+\section{Lock Status}
+
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\textbf{Lock ID} & SQI-SEED-WAVE-LEARNING-LOCK-0003 \\
+\textbf{Status} & LOCKED --- first learned seed-wave feedback improvement observed \\
+\textbf{Maintainer} & Tessaris AI \\
+\textbf{Author} & Kevin Robinson \\
+\end{tabularx}
+
+\section{Purpose}
+
+This document records the first meaningful SQI learning-feedback result in the prime factor
+search programme.
+
+The goal was not merely to factor a number once. The goal was to test whether SQI could:
+
+\begin{enumerate}
+  \item run semiprime stress tests;
+  \item detect successful factor-search branches;
+  \item extract seed and constant priors from successful collapse traces;
+  \item feed those priors back into future runs;
+  \item improve future factor-search performance.
+\end{enumerate}
+
+\section{Implemented Components}
+
+The current system includes:
+
+\begin{itemize}
+  \item \url{backend/modules/sqi/factor/sqi_prime_factorizer.py}
+  \item \url{backend/modules/sqi/factor/semiprime_lab.py}
+  \item \url{backend/modules/sqi/factor/seed_wave_learner.py}
+  \item \url{backend/modules/sqi/factor/seed_wave_profiler.py}
+  \item \url{backend/modules/sqi/factor/sqi_factor_cli.py}
+\end{itemize}
+
+Associated tests:
+
+\begin{itemize}
+  \item \url{backend/tests/test_sqi_prime_factorizer.py}
+  \item \url{backend/tests/test_sqi_prime_factor_benchmark_runner.py}
+  \item \url{backend/tests/test_sqi_factor_cli.py}
+  \item \url{backend/tests/test_sqi_semiprime_lab.py}
+  \item \url{backend/tests/test_sqi_seed_wave_learner.py}
+  \item \url{backend/tests/test_sqi_seed_wave_profiler.py}
+\end{itemize}
+
+\section{Validation}
+
+Current test command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/test_sqi_prime_factorizer.py \
+  backend/tests/test_sqi_prime_factor_benchmark_runner.py \
+  backend/tests/test_sqi_factor_cli.py \
+  backend/tests/test_sqi_semiprime_lab.py \
+  backend/tests/test_sqi_seed_wave_learner.py \
+  backend/tests/test_sqi_seed_wave_profiler.py
+\end{verbatim}
+
+Observed result:
+
+\begin{verbatim}
+28 passed, 1 warning
+\end{verbatim}
+
+The warning is an existing repository-wide container import deprecation warning. It is not
+a failure of the SQI factor-search harness.
+
+\section{Experimental Setup}
+
+The hard semiprime lab was run with:
+
+\begin{verbatim}
+PYTHONPATH=. python backend/modules/sqi/factor/semiprime_lab.py \
+  --per-tier 1 \
+  --close-bits 44,48 \
+  --spread-pairs 32x56,36x60 \
+  --json
+\end{verbatim}
+
+This generated four cases:
+
+\begin{itemize}
+  \item close \(44 \times 44\)-bit semiprime;
+  \item close \(48 \times 48\)-bit semiprime;
+  \item spread \(32 \times 56\)-bit semiprime;
+  \item spread \(36 \times 60\)-bit semiprime.
+\end{itemize}
+
+\section{Learned Seed Prior}
+
+The seed-wave learner extracted the following useful prior from the hard spread bucket:
+
+\begin{verbatim}
+seed = 15
+c    = 14
+branch = 13
+\end{verbatim}
+
+This was stored under the \texttt{spread\_64\_95} bucket in:
+
+\begin{verbatim}
+benchmarks/sqi_semiprime_lab/seed_wave_priors.json
+\end{verbatim}
+
+\section{Profiler Evidence}
+
+The profiler showed that the hard \(36 \times 60\)-bit spread semiprime could be factored
+quickly using the learned Brent seed branch:
+
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\textbf{Method} & Brent Rho seed-wave branch \\
+\textbf{Seed} & 15 \\
+\textbf{Constant \(c\)} & 14 \\
+\textbf{Checks} & 25,726 \\
+\textbf{Observed time} & approximately 5.8 ms \\
+\textbf{Factor} & 57,925,206,503 \\
+\end{tabularx}
+
+The same seed/constant pair was also the fastest observed Pollard branch by checks, though
+Brent was faster in wall-clock time for this case.
+
+\section{Before and After}
+
+Before learned-first feedback:
+
+\begin{tabularx}{\textwidth}{@{}l l r l@{}}
+\textbf{Case} & \textbf{Method} & \textbf{Approx. time} & \textbf{Verified} \\
+\hline
+spread \(32 \times 56\) & Pollard Rho & 216 ms & yes \\
+spread \(36 \times 60\) & Brent seed-wave fallback & 1112 ms & yes \\
+\end{tabularx}
+
+After learned-first seed-wave feedback:
+
+\begin{tabularx}{\textwidth}{@{}l l r l@{}}
+\textbf{Case} & \textbf{Method} & \textbf{Approx. time} & \textbf{Verified} \\
+\hline
+spread \(32 \times 56\) & learned-first Brent seed-wave & 9.0 ms & yes \\
+spread \(36 \times 60\) & learned-first Brent seed-wave & 6.0 ms & yes \\
+\end{tabularx}
+
+\section{Observed Hard-Run Summary}
+
+The final observed hard run produced:
+
+\begin{verbatim}
+route_correct_family_count: 4
+route_correct_family_rate: 1.0
+sqi_solved: 4
+sqi_solved_rate: 1.0
+total_cases: 4
+winner_counts:
+  fermat_only: 2
+  sqi: 2
+\end{verbatim}
+
+The final case-level result was:
+
+\begin{tabularx}{\textwidth}{@{}l l r l l@{}}
+\textbf{Case} & \textbf{Method} & \textbf{SQI ms} & \textbf{Verified} & \textbf{Winner} \\
+\hline
+close \(44 \times 44\) & Fermat & 0.055 & yes & Fermat-only \\
+close \(48 \times 48\) & Fermat & 0.049 & yes & Fermat-only \\
+spread \(32 \times 56\) & learned-first Brent seed-wave & 9.055 & yes & SQI \\
+spread \(36 \times 60\) & learned-first Brent seed-wave & 6.002 & yes & SQI \\
+\end{tabularx}
+
+\section{Scientific Claim}
+
+The safe scientific claim is:
+
+\begin{quote}
+SQI has demonstrated a closed symbolic factor-search learning loop: it can run semiprime
+stress tests, identify successful Rho/Brent seed branches, store those branches as priors,
+and reuse them as first-priority symbolic branches to materially improve repeated hard
+spread-semiprime factorisation performance.
+\end{quote}
+
+This is stronger than a fixed factorisation harness because the system now adapts using
+collapse history.
+
+\section{Important Caveat}
+
+This does not prove that SQI has cracked prime numbers in general.
+
+It does not prove:
+
+\begin{itemize}
+  \item RSA-breaking capability;
+  \item physical quantum speedup;
+  \item replacement of Shor's algorithm;
+  \item general prediction of prime factors without computation;
+  \item superiority on unseen arbitrary semiprimes.
+\end{itemize}
+
+The result is currently a learned-feedback improvement on a repeated hard workload family.
+
+\section{Next Scientific Test}
+
+The next required test is generalisation:
+
+\begin{quote}
+Can learned seed-wave priors improve performance on unseen semiprimes from the same
+bit-size bucket, rather than only on a repeated case?
+\end{quote}
+
+The next build should therefore add:
+
+\begin{itemize}
+  \item train/test split for semiprime labs;
+  \item prior training on one batch;
+  \item evaluation on unseen semiprimes;
+  \item statistical comparison against Brent-only and Pollard-only;
+  \item confidence table over multiple random seeds.
+\end{itemize}
+
+\section{Next Engineering Target}
+
+Create:
+
+\begin{verbatim}
+backend/modules/sqi/factor/semiprime_generalization_lab.py
+\end{verbatim}
+
+The lab should run:
+
+\begin{enumerate}
+  \item training semiprime batch;
+  \item profiler/learner extraction;
+  \item unseen evaluation batch;
+  \item baseline comparison;
+  \item final report.
+\end{enumerate}
+
+\bigskip
+
+\noindent\textbf{Lock ID:} SQI-SEED-WAVE-LEARNING-LOCK-0003
+
+\noindent\textbf{Status:} LOCKED --- first learned seed-wave feedback improvement observed
+
+\noindent\textbf{Maintainer:} Tessaris AI
+
+\noindent\textbf{Author:} Kevin Robinson
+
+\end{document}

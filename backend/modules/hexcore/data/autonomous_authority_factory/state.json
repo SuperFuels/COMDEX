@@ -1,0 +1,200 @@
+{
+  "authorities": [
+    {
+      "adapter_id": "IDEMPOTENT_PARTITION_FOLD",
+      "artifact_sha256": "46e7b2960c78794a0a52e5e38195e870d1b7c2fb98bdfebdeecd0c3887e0dd54",
+      "authority_sha256": "7a62e4a4627adbede6b91dbb7e2400cc6e28d202f412eb1fc6657ec1ca67b334",
+      "capabilities": [
+        "read_only",
+        "deterministic",
+        "typed"
+      ],
+      "implementation": "idempotent_event_fold",
+      "installed_at": "2026-08-02T13:31:14.056577+00:00",
+      "partner": "distributed_systems"
+    },
+    {
+      "adapter_id": "TRANSACTIONAL_CANARY_AUTHORITY",
+      "artifact_sha256": "530d277e67b725a4fd12208d9c714c920229620bfd50dda1a3313e96ce4d1528",
+      "authority_sha256": "9eaf6abbdfc8babd345fb5bef0c4a555ebb5269fac2fa16938fda1bb014aa373",
+      "capabilities": [
+        "read_only",
+        "deterministic",
+        "typed"
+      ],
+      "implementation": "transactional_canary",
+      "installed_at": "2026-08-02T13:31:14.106177+00:00",
+      "partner": "cloud_devops_sre"
+    },
+    {
+      "adapter_id": "ROBUST_CONTAMINATION_ENVELOPE",
+      "artifact_sha256": "5bb0686e9546a78b820c7a2c31217023c4b6843e47dbf17107b81eed73ae9118",
+      "authority_sha256": "b950138bdaa03f028b29ff4a201f02b0bb64db33cf15de10de79e816cb6535d9",
+      "capabilities": [
+        "read_only",
+        "deterministic",
+        "typed"
+      ],
+      "implementation": "median_mad_envelope",
+      "installed_at": "2026-08-02T13:32:03.761357+00:00",
+      "partner": "data_statistics"
+    },
+    {
+      "adapter_id": "AUTHENTICATED_EPOCH_QUORUM",
+      "artifact_sha256": "119c0a0c3634a175778517adc1f76ff89dd5746d3e01c5f21ed25b0b6ed6e68d",
+      "authority_sha256": "43352aa1463a8d94a6a0200e2cc5e6164f49375d3e12914dd34c23b8fea3919f",
+      "capabilities": [
+        "read_only",
+        "deterministic",
+        "typed"
+      ],
+      "implementation": "authenticated_epoch_quorum",
+      "installed_at": "2026-08-02T13:36:35.229489+00:00",
+      "partner": "distributed_systems"
+    }
+  ],
+  "precommitments": [
+    {
+      "adapter_id": "IDEMPOTENT_PARTITION_FOLD",
+      "ambient_authority": "pure_typed_local_execution_only",
+      "candidate_digests": [
+        "994f4f7afd91c76a897cfc73485f32b5edd7fe5698b406f45a37d80958d094a9",
+        "2398f900c82164a43f4bb49c5682facc290dcac744f83b73f43683ade34741cb",
+        "c736f99d09df79c8990e628f0c019fdedabe68a7485918364aafd7deb8b52f51"
+      ],
+      "committed_at": "2026-08-02T13:31:01.129288+00:00",
+      "goal_created_at": "2026-08-02T13:13:00.268503+00:00",
+      "goal_id": "autonomous_0170e53a33407e6775",
+      "partner": "distributed_systems",
+      "precommitment_sha256": "ad58eb391457761543783f609a67764af60593bf952d186bd8fc4935fd660248",
+      "sealed_transfer_sha256": "b5d3f72737f3f707444df1f5a52ccdc3187feff182624b09695d385f6e4e24ad",
+      "semantic_properties": [
+        "duplicate_invariance",
+        "partition_merge_invariance",
+        "conflict_rejection"
+      ]
+    },
+    {
+      "adapter_id": "TRANSACTIONAL_CANARY_AUTHORITY",
+      "ambient_authority": "pure_typed_local_execution_only",
+      "candidate_digests": [
+        "73b353d6c1d6d55cc5956c8d2ff3dacfc8bac4190613d1bf21c96c55b01ec98f",
+        "4750b0a94c29b0436366ec2832bebc5d2b216382a66b43eec33b786c5665cdaf",
+        "58518f43f8b76af54def23a879284f8ff5f447393fffdc0524c005b46ecf9912"
+      ],
+      "committed_at": "2026-08-02T13:31:01.129830+00:00",
+      "goal_created_at": "2026-08-02T13:31:01.015931+00:00",
+      "goal_id": "autonomous_04f2838dbd308d1352",
+      "partner": "cloud_devops_sre",
+      "precommitment_sha256": "7a381f1e852ecbddc94c8e1cf6a5012b512eb417a852710c8b18c527432d97ce",
+      "sealed_transfer_sha256": "88d3a8d3f14f8194e86d075684ac4eb1325af9042b757ff306bd8bf71dd5b6b0",
+      "semantic_properties": [
+        "health_gate",
+        "rollback_on_failure",
+        "event_idempotency"
+      ]
+    },
+    {
+      "adapter_id": "ROBUST_CONTAMINATION_ENVELOPE",
+      "ambient_authority": "pure_typed_local_execution_only",
+      "candidate_digests": [
+        "0546004da806021f6a1459ee33f487f9d4cb40eb8f6a68a832c2ec39e06055a7",
+        "cd6c03dab6a8d543bab2d1b140f3170c5992ef47985e180f1db0184a180bf3b2",
+        "1eebc14dcbe1392639488a9d1b3ad2a5210c7e098834d660551234394bcb92d1"
+      ],
+      "committed_at": "2026-08-02T13:31:01.129869+00:00",
+      "goal_created_at": "2026-08-02T13:31:01.015935+00:00",
+      "goal_id": "autonomous_066c85c3e548b6de43",
+      "partner": "data_statistics",
+      "precommitment_sha256": "8fadb43e5fb57dd6b2b1f8a2df5e4fe8cacf3f9382e8f80bbbd7ae013a3061f7",
+      "sealed_transfer_sha256": "077c6ce0b77c61d705f9f07a3270b16cb9d8af7cf61d45045e4b5a080e161c80",
+      "semantic_properties": [
+        "sparse_outlier_stability",
+        "permutation_invariance",
+        "bounded_uncertainty"
+      ]
+    },
+    {
+      "adapter_id": "AUTHENTICATED_EPOCH_QUORUM",
+      "ambient_authority": "pure_typed_local_execution_only",
+      "candidate_digests": [
+        "b1162bb7c00184df99d4cec7ecf41e110dc363a168fd15c9cb3dcecb09a240f4",
+        "fe779488dbcd19d9854d4b898e790ed4b6fb433ec414dc69ba24df04dc620ebc",
+        "bf450f79f9fbd5591ee75cc254ed96d091904c3ed5ac58fe910139acdbeaf18c"
+      ],
+      "committed_at": "2026-08-02T13:36:35.156322+00:00",
+      "goal_created_at": "2026-08-02T13:36:35.057139+00:00",
+      "goal_id": "autonomous_6c9068c1a13f61f528",
+      "partner": "distributed_systems",
+      "precommitment_sha256": "47e690d2f6cc83b0d3301bf0576fa5fd62ac00acea4f9e75fea412e5e8085600",
+      "sealed_transfer_sha256": "10ede35d60eece1d965838a08bde4c43275e5ebcfe5cb3126d4976aa996c41e5",
+      "semantic_properties": [
+        "unique_voter_invariance",
+        "latest_epoch_isolation",
+        "signature_requirement",
+        "quorum_abstention"
+      ]
+    }
+  ],
+  "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+  "receipts": [
+    {
+      "adapter_id": "IDEMPOTENT_PARTITION_FOLD",
+      "artifact": "results/aion_autonomous_authorities/autonomous_0170e53a33407e6775.json",
+      "artifact_sha256": "46e7b2960c78794a0a52e5e38195e870d1b7c2fb98bdfebdeecd0c3887e0dd54",
+      "authority_sha256": "7a62e4a4627adbede6b91dbb7e2400cc6e28d202f412eb1fc6657ec1ca67b334",
+      "candidate_count": 3,
+      "created_at": "2026-08-02T13:31:14.105753+00:00",
+      "family": "mathematical_reasoning",
+      "goal_id": "autonomous_0170e53a33407e6775",
+      "malicious_or_inadequate_rejected": 2,
+      "partner": "distributed_systems",
+      "partner_evidence_id": "competency_evidence_d06a5c4512add3b545b9",
+      "receipt_sha256": "d43885b370f90304a662d064a94004f9395619903cf351bb36461e1ac8ee6de4"
+    },
+    {
+      "adapter_id": "TRANSACTIONAL_CANARY_AUTHORITY",
+      "artifact": "results/aion_autonomous_authorities/autonomous_04f2838dbd308d1352.json",
+      "artifact_sha256": "530d277e67b725a4fd12208d9c714c920229620bfd50dda1a3313e96ce4d1528",
+      "authority_sha256": "9eaf6abbdfc8babd345fb5bef0c4a555ebb5269fac2fa16938fda1bb014aa373",
+      "candidate_count": 3,
+      "created_at": "2026-08-02T13:31:14.151905+00:00",
+      "family": "software_tool",
+      "goal_id": "autonomous_04f2838dbd308d1352",
+      "malicious_or_inadequate_rejected": 2,
+      "partner": "cloud_devops_sre",
+      "partner_evidence_id": "competency_evidence_28a75e52c48c7eb9d7fd",
+      "receipt_sha256": "c2729d06dd53438d2d4d1368ffb44c5671f076a7f097a6f6856a0d42c1c0dc06"
+    },
+    {
+      "adapter_id": "ROBUST_CONTAMINATION_ENVELOPE",
+      "artifact": "results/aion_autonomous_authorities/autonomous_066c85c3e548b6de43.json",
+      "artifact_sha256": "5bb0686e9546a78b820c7a2c31217023c4b6843e47dbf17107b81eed73ae9118",
+      "authority_sha256": "b950138bdaa03f028b29ff4a201f02b0bb64db33cf15de10de79e816cb6535d9",
+      "candidate_count": 3,
+      "created_at": "2026-08-02T13:32:03.807443+00:00",
+      "family": "data_decision",
+      "goal_id": "autonomous_066c85c3e548b6de43",
+      "malicious_or_inadequate_rejected": 2,
+      "partner": "data_statistics",
+      "partner_evidence_id": "competency_evidence_ed309fa6b04e7febc5ec",
+      "receipt_sha256": "8caf447fe6a7f7390e5b1504b2301ae104b4370aada8f62474b7a2d8961561ef"
+    },
+    {
+      "adapter_id": "AUTHENTICATED_EPOCH_QUORUM",
+      "artifact": "results/aion_autonomous_authorities/autonomous_6c9068c1a13f61f528.json",
+      "artifact_sha256": "119c0a0c3634a175778517adc1f76ff89dd5746d3e01c5f21ed25b0b6ed6e68d",
+      "authority_sha256": "43352aa1463a8d94a6a0200e2cc5e6164f49375d3e12914dd34c23b8fea3919f",
+      "candidate_count": 3,
+      "created_at": "2026-08-02T13:36:35.267089+00:00",
+      "family": "data_decision",
+      "goal_id": "autonomous_6c9068c1a13f61f528",
+      "malicious_or_inadequate_rejected": 2,
+      "partner": "distributed_systems",
+      "partner_evidence_id": "competency_evidence_71175d7062fb3d03e53a",
+      "receipt_sha256": "ae5e7962ba205511d2106641fc327f729f3c59c85c1935b474f9a889fb5bc667"
+    }
+  ],
+  "schema_version": "aion.hexcore.open_cross_domain_authority_factory.v1",
+  "updated_at": "2026-10-18T08:46:34.351545+00:00"
+}

@@ -6,40 +6,74 @@ Photon Parser
 Strict parser for pretty-printed Photon expressions.
 
 Supports:
-    ⊕   superposition (n-ary, commutative)
-    ⊗   fusion (binary, commutative)
-    ⊖   cancellation (binary, non-commutative)
-    ↔   entanglement (binary, lowest precedence)
-    ≈   similarity (binary, lowest precedence; inert for now)
-    ⊂   containment (binary, lowest precedence; inert for now)
-    ¬   negation (unary, prefix)
-    ★   projection (unary, prefix)
-    ∅   empty state
-    ⊤   top (constant)
-    ⊥   bottom (constant)
+    ⊕    superposition (n-ary, commutative)
+    ⊗    fusion (binary, commutative)
+    ⊗_M  magnetic coupling / composition (binary, directional)
+    ⊖    cancellation (binary, non-commutative)
+    ↔    entanglement (binary, lowest precedence)
+    ≈    similarity (binary, lowest precedence; inert for now)
+    ⊂    containment (binary, lowest precedence; inert for now)
+    ¬    negation (unary, prefix)
+    ★    projection (unary, prefix)
+    Φ_B  magnetic-state operator (unary, prefix)
+    ∅    empty state
+    ⊤    top (constant)
+    ⊥    bottom (constant)
 
 Grammar (EBNF):
     expr      := ent
     ent       := sum ( ("↔" | "≈" | "⊂") sum )*
     sum       := prod (("⊕" | "⊖") prod)*
-    prod      := factor ( "⊗" factor )*
-    factor    := "¬" factor | "★" factor | atom
+    prod      := factor ( ("⊗" | "⊗_M") factor )*
+    factor    := "¬" factor | "★" factor | "Φ_B" factor | atom
     atom      := SYMBOL | "∅" | "⊤" | "⊥" | "(" expr ")"
 
-SYMBOL := string of letters/numbers (atom identifiers)
+SYMBOL := string of letters/numbers/underscores (atom identifiers)
 """
 
 from __future__ import annotations
+import re
 from typing import Any, List
+
 
 # -------------------------------
 # Tokenizer
 # -------------------------------
+_TOKEN_RE = re.compile(
+    r"""
+    (⊗_M)             |  # longest operator first
+    (Φ_B)             |
+    ([⊕⊗⊖↔≈⊂¬★()∅⊤⊥]) |
+    ([A-Za-z0-9_?]+)
+    """,
+    re.VERBOSE,
+)
+
+
 def tokenize(s: str) -> List[str]:
-    # Add spacing around operators/parens (include new ops/constants)
-    for sym in ["⊕", "⊗", "⊖", "↔", "≈", "⊂", "¬", "★", "(", ")", "∅", "⊤", "⊥"]:
-        s = s.replace(sym, f" {sym} ")
-    return s.split()
+    tokens: List[str] = []
+    pos = 0
+
+    for match in _TOKEN_RE.finditer(s):
+        start, end = match.span()
+
+        # only allow whitespace between recognized tokens
+        if start > pos:
+            gap = s[pos:start]
+            if gap.strip():
+                raise SyntaxError(f"Unexpected token: {gap.strip()}")
+
+        tok = match.group(0)
+        tokens.append(tok)
+        pos = end
+
+    if pos < len(s):
+        tail = s[pos:]
+        if tail.strip():
+            raise SyntaxError(f"Unexpected token: {tail.strip()}")
+
+    return tokens
+
 
 # -------------------------------
 # Recursive descent parser
@@ -82,23 +116,22 @@ class Parser:
             op = self.eat()
             rhs = self.parse_prod()
             acc.append(rhs)
-            # Only build once at the end - n-ary ⊕ instead of binary chaining
             if op != "⊕":  # ⊖ stays binary
                 node = {"op": op, "states": [node, rhs]}
             else:
                 node = {"op": "⊕", "states": acc}
         return node
 
-    # prod := factor ( "⊗" factor )*
+    # prod := factor ( ("⊗" | "⊗_M") factor )*
     def parse_prod(self) -> Any:
         node = self.parse_factor()
-        while self.peek() == "⊗":
-            self.eat("⊗")
+        while self.peek() in ("⊗", "⊗_M"):
+            op = self.eat()
             rhs = self.parse_factor()
-            node = {"op": "⊗", "states": [node, rhs]}
+            node = {"op": op, "states": [node, rhs]}
         return node
 
-    # factor := "¬" factor | "★" factor | atom
+    # factor := "¬" factor | "★" factor | "Φ_B" factor | atom
     def parse_factor(self) -> Any:
         tok = self.peek()
         if tok == "¬":
@@ -107,6 +140,9 @@ class Parser:
         if tok == "★":
             self.eat()
             return {"op": "★", "state": self.parse_factor()}
+        if tok == "Φ_B":
+            self.eat()
+            return {"op": "Φ_B", "state": self.parse_factor()}
         return self.parse_atom()
 
     # atom := SYMBOL | "∅" | "⊤" | "⊥" | "(" expr ")"
@@ -122,9 +158,9 @@ class Parser:
         if tok in ("∅", "⊤", "⊥"):
             self.eat(tok)
             return {"op": tok}
-        # SYMBOL
         self.eat()
         return tok
+
 
 # -------------------------------
 # Public API
@@ -137,6 +173,7 @@ def parse(s: str) -> Any:
     if parser.peek() is not None:
         raise SyntaxError(f"Unexpected token: {parser.peek()}")
     return expr
+
 
 # -------------------------------
 # CLI harness

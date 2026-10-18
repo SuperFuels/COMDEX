@@ -1,0 +1,211 @@
+\section{AION Phase 20D --- Autonomy Lane Classifier v0}
+\label{sec:aion-phase20d-autonomy-lane-classifier-lock}
+
+\subsection{Status}
+
+Phase 20D locks the deterministic Autonomy Lane Classifier for AION Mission Mode / AION Pilot.
+
+\begin{quote}
+\textbf{Status: LOCKED --- deterministic classifier only. No LLM calls, no live tools, no external writes.}
+\end{quote}
+
+\subsection{Purpose}
+
+The classifier sits between the deterministic Mission Planner and the Mission Runtime.
+
+Planner and LLM-provided labels are advisory only. The classifier owns the final lane and execution decision.
+
+\subsection{Lanes}
+
+The supported lanes are:
+
+\begin{itemize}
+  \item \texttt{research}
+  \item \texttt{creation}
+  \item \texttt{internal\_ops}
+  \item \texttt{external\_action}
+  \item \texttt{financial\_action}
+  \item \texttt{legal\_action}
+  \item \texttt{deployment\_action}
+  \item \texttt{memory\_mutation}
+\end{itemize}
+
+\subsection{Decisions}
+
+Every step is assigned one of:
+
+\begin{itemize}
+  \item \texttt{safe\_autonomous}
+  \item \texttt{checkpoint\_required}
+  \item \texttt{blocked}
+  \item \texttt{forbidden}
+\end{itemize}
+
+\subsection{Safety Rule}
+
+External, financial, legal, deployment, and memory mutation actions MUST NOT be classified as \texttt{safe\_autonomous}.
+
+Unknown actions MUST be blocked until explicitly classified.
+
+Live/raw actions such as live WhatsApp sends, live email sends, payment capture, production deploys, raw terminal execution, and live reputation writes are forbidden.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20D-AUTONOMY-LANE-CLASSIFIER-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20D.1 --- Strict Parameter Whitelist and Atomic Batch Invalidation}
+
+The Payload Token Guard MUST enforce strict key-level schema validation.
+
+The classifier SHALL maintain an immutable parameter whitelist for every permitted \texttt{safe\_autonomous} action type.
+
+A planner, LLM adapter, template, or runtime step MUST NOT be allowed to attach arbitrary parameters to a safe action.
+
+If a mission step declares a known safe action such as \texttt{draft\_offer}, but introduces unknown keys, nested parameter blocks, live execution flags, unregistered tool payloads, or hidden execution instructions, the classifier MUST downgrade the step to \texttt{blocked} or \texttt{forbidden}.
+
+\begin{quote}
+\textbf{A safe action name is not enough. The payload shape must also be safe.}
+\end{quote}
+
+\subsection{Atomic Batch Isolation}
+
+The batch classifier MUST operate under strict atomic enforcement.
+
+A mission runtime MUST NOT begin executing a partial sequence if any step in the unified classifier batch resolves to \texttt{blocked} or \texttt{forbidden}.
+
+\begin{quote}
+\textbf{If one step in the mission plan is unsafe or unresolved, the runtime queue does not mount.}
+\end{quote}
+
+If any step is \texttt{blocked} or \texttt{forbidden}, the classifier MUST return:
+
+\begin{verbatim}
+batch_valid: false
+runtime_mount_allowed: false
+mission_runtime_state: waiting_human_review | blocked
+\end{verbatim}
+
+\subsection{Classifier Run Hash Folding}
+
+The classifier run hash MUST be deterministic across environments.
+
+The implementation folds individual step classifications in stable sorted order and emits a prefixed SHA-256 value.
+
+\begin{verbatim}
+classifier_run_hash: sha256:<digest>
+\end{verbatim}
+
+\subsection{Phase 20D.1 Validation}
+
+Additional tests prove:
+
+\begin{itemize}
+  \item safe actions with unknown parameters are blocked;
+  \item safe actions with nested forbidden payloads are forbidden;
+  \item a batch containing one blocked step cannot mount runtime;
+  \item a batch containing one forbidden step cannot mount runtime;
+  \item classifier run hashes are stable and SHA-256 prefixed.
+\end{itemize}
+
+\begin{quote}
+\textbf{The deterministic properties, lane constraints, payload schema controls, atomic batch isolation rules, and execution boundaries defined within Phase 20D.1 are officially architecture-locked.}
+\end{quote}
+
+\subsection{Phase 20D.2 --- Key Normalisation and JIT Runtime Verification}
+
+Phase 20D.2 closes two remaining implementation-level bypass classes:
+
+\begin{itemize}
+  \item semantic payload key evasion by casing, spacing, Unicode whitespace, or hyphenation;
+  \item runtime queue mutation between classifier approval and Mission Runtime mount.
+\end{itemize}
+
+\subsubsection{Canonical Payload Key Normalisation}
+
+All payload keys MUST be normalised before comparison against the forbidden schema registry.
+
+The normalisation function MUST:
+
+\begin{enumerate}
+  \item convert to lowercase;
+  \item convert hyphens to underscores;
+  \item remove all Unicode whitespace using a regular expression equivalent to \texttt{re.sub(r"\textbackslash s+", "", key)}.
+\end{enumerate}
+
+This means the following variants MUST be treated as the same key:
+
+\begin{verbatim}
+Live_Execution_Enabled
+live-execution-enabled
+ live_execution_enabled
+live execution enabled
+live\xa0execution\u2009enabled
+\end{verbatim}
+
+All MUST canonicalise to:
+
+\begin{verbatim}
+live_execution_enabled
+\end{verbatim}
+
+If the canonical key exists in the forbidden registry, the classifier MUST return \texttt{forbidden}.
+
+\subsubsection{Just-In-Time Runtime Queue Verification}
+
+The \texttt{classifier\_run\_hash} binds the exact classified batch to the Mission Runtime queue.
+
+Immediately before mounting the queue, the runtime MUST recalculate the classifier run hash from the runtime classification payload and compare it with the original classifier result.
+
+\begin{equation}
+S_{\mathrm{runtime}} \equiv \texttt{classifier\_run\_hash}
+\end{equation}
+
+If the values differ, the runtime MUST:
+
+\begin{itemize}
+  \item refuse runtime mount;
+  \item set \texttt{mission\_runtime\_state} to \texttt{blocked};
+  \item emit \texttt{classifier\_runtime\_hash\_mismatch};
+  \item surface the mismatch in Boardroom Mission Control;
+  \item require a fresh classifier pass.
+\end{itemize}
+
+\subsubsection{Phase 20D.2 Validation}
+
+Additional tests prove:
+
+\begin{itemize}
+  \item casing bypass attempts are forbidden;
+  \item hyphen bypass attempts are forbidden;
+  \item Unicode whitespace bypass attempts are forbidden;
+  \item unchanged runtime batches pass JIT verification;
+  \item mutated runtime batches fail JIT verification and block runtime mount.
+\end{itemize}
+
+\begin{quote}
+\textbf{The classifier approves the exact immutable classified batch only. Any mutation between classification and runtime mount invalidates execution.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20D2-KEY-NORMALISATION-JIT-RUNTIME-VERIFY
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

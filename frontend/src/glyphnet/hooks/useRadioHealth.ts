@@ -18,18 +18,14 @@ type Options = {
  *  - Vite proxy (relative /health goes to the radio-node via the proxy)
  *  - Direct radio base (VITE_RADIO_BASE), which httpUrl() expands to absolute
  *
- * Tip: To force a specific base at runtime, set:
- *   localStorage.setItem("gnet:radioNodeBase", "http://127.0.0.1:8787")
+ * Runtime routing is deployment-owned. Browser storage must not override the
+ * selected radio node because that would create an unreviewed authority path.
  */
 export function useRadioHealth(opts: Options = {}) {
   const intervalMs = opts.intervalMs ?? 3000;
   const timeoutMs = opts.timeoutMs ?? 1500;
 
-  // Optional runtime override (bypasses proxy/env)
-  const override = localStorage.getItem("gnet:radioNodeBase");
-  const HEALTH_URL = override
-    ? `${override.replace(/\/+$/, "")}/health`
-    : httpUrl("/health");
+  const HEALTH_URL = httpUrl("/health");
 
   const statusRef = { current: "unknown" as RadioStatus };
   const failuresRef = { current: 0 };

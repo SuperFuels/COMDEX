@@ -3,26 +3,17 @@ import { Telemetry } from "./telemetry";
 
 export type TransportMode = "auto" | "radio-only" | "ip-only";
 
-const MODE_KEY = "gnet:transportMode";
-
 // module state is fine (client), but SSR must not depend on it
 let lastRadioHealthy = false;
+let selectedMode: TransportMode | null = null;
 
 function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof location !== "undefined";
 }
 
-/** Persisted transport policy (falls back to NEXT_PUBLIC_TRANSPORT_MODE, then "auto"). */
+/** Process-local transport policy (falls back to configured default). */
 export function getTransportMode(): TransportMode {
-  // SSR-safe: no localStorage access
-  if (isBrowser()) {
-    try {
-      const v = (localStorage.getItem(MODE_KEY) as TransportMode | null) || null;
-      if (v === "radio-only" || v === "ip-only" || v === "auto") return v;
-    } catch {
-      // ignore
-    }
-  }
+  if (selectedMode) return selectedMode;
 
   // Next-safe env (replaces import.meta.env.VITE_TRANSPORT_MODE)
   const def = (process.env.NEXT_PUBLIC_TRANSPORT_MODE || "").trim() as TransportMode;
@@ -32,11 +23,7 @@ export function getTransportMode(): TransportMode {
 
 export function setTransportMode(m: TransportMode) {
   if (!isBrowser()) return;
-  try {
-    localStorage.setItem(MODE_KEY, m);
-  } catch {
-    // ignore
-  }
+  selectedMode = m;
 }
 
 /** Probe radio-node health via proxy and update `lastRadioHealthy`. */

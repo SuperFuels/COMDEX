@@ -1,0 +1,33 @@
+{
+  "capsule_digest": "466572c1eb94d98b783ecca00e973afe695ae224762d84a422c6a8351d8671e5",
+  "inputs": [
+    "RGB frame",
+    "timestamp",
+    "two bounded joint actions"
+  ],
+  "invariants": [
+    "RGB only",
+    "commit before action",
+    "identify controlled endpoint by intervention",
+    "abstain on singular action basis"
+  ],
+  "max_occlusion_steps": 120,
+  "method": [
+    "reload contact/occlusion parent",
+    "discover moving endpoint",
+    "identify static active target",
+    "learn local visual Jacobian",
+    "adapt Jacobian from consequences",
+    "propagate hidden endpoint belief",
+    "detect target transition",
+    "complete ordered sequence"
+  ],
+  "name": "rgb_articulated_sequential_reaching",
+  "parent_digest": "a2cec5124d3c5dd92578e958e7e459ece720f436438f621c382bd3208154adf6",
+  "parent_procedure_id": "procedure_rgb_contact_occlusion_skill_composition_v3",
+  "procedure_id": "procedure_rgb_articulated_sequence_skill_v4",
+  "purpose": "discover an articulated visual action basis and complete changing targets in sequence",
+  "schema_version": "aion.executable_skill_capsule.v1",
+  "verified_at": "2026-08-02T20:23:31.747262+00:00",
+  "verified_gate_digest": "c5f4354a7610c443522afecea7f2f943b614ecd610d16282f8e5ecd704cb8ae0"
+}

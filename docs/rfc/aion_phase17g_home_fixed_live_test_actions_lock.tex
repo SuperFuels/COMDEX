@@ -1,0 +1,58 @@
+\section{Phase 17G --- Home Fixed Live Intake Test Actions}
+\label{sec:aion-phase17g-home-fixed-live-test-actions}
+
+\subsection{Status}
+
+Phase 17G adds visible setup actions to the Website Intake Installation panel so a business onboarding operator can copy the integration details and send a local Home Fixed test enquiry from the Boardroom.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Home Fixed live-test action surface prepared.}
+\end{quote}
+
+\subsection{Purpose}
+
+The goal is to move from a static installation preview to an actionable integration test surface.
+
+The Boardroom now exposes:
+
+\begin{itemize}
+  \item copy intake email,
+  \item copy public webhook endpoint,
+  \item copy generated embed snippet,
+  \item send Home Fixed test enquiry.
+\end{itemize}
+
+The test enquiry simulates the real Home Fixed website-intake route:
+
+\begin{verbatim}
+website form
+  -> public intake endpoint
+  -> Home Fixed adapter
+  -> website_intake.trigger.created
+  -> workflow ticket preview
+  -> Boardroom ticket visibility
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+Phase 17G remains guarded. The local test submission MUST NOT create a booking, payment, escrow, external message, live execution, or chain write.
+
+\subsection{Manual Smoke Test}
+
+After rebuilding the desktop app, open the Boardroom and confirm:
+
+\begin{enumerate}
+  \item Website Intake Installation is visible below New Website Enquiry.
+  \item Copy buttons are visible for email, webhook, and embed.
+  \item Send test enquiry updates the visible latest submission panel.
+  \item The Boardroom ticket state moves to workflow ticket preview.
+  \item Safe mode remains visible.
+\end{enumerate}
+
+\subsection{Lock Footer}
+
+\noindent
+Lock ID: AION-PHASE17G-HOME-FIXED-LIVE-TEST-ACTIONS \\
+Status: LOCKED \\
+Maintainer: Tessaris AI \\
+Author: Kevin Robinson

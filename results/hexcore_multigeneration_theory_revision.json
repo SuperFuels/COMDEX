@@ -1,0 +1,546 @@
+{
+  "benchmark": "cumulative_governed_theory_revision",
+  "boundary_statement": "AION accumulated, reused, merged, and protected concepts across a bounded finite operator grammar. It did not invent arbitrary mathematics, unrestricted programs, or its own authority rules.",
+  "gate": {
+    "accepted": true,
+    "ambiguity_preserved": true,
+    "backward_retention_worst_accuracy": 1.0,
+    "bounded_growth": true,
+    "duplicate_aliases_merged": 1,
+    "errors": [],
+    "final_library_size": 5,
+    "forward_transfer_gain": 0.0694214876033058,
+    "frozen_initial_control_mean_accuracy": 0.9305785123966942,
+    "initial_library_size": 3,
+    "invented_operators": [
+      "max_ge",
+      "abs_difference_le"
+    ],
+    "mean_transfer_probes": 6.6,
+    "reused_operators": [
+      "min_ge"
+    ],
+    "sealed_mean_accuracy": 1.0,
+    "sealed_reinventions": 0,
+    "sealed_structure_recovery": 1.0,
+    "sealed_worst_accuracy": 1.0
+  },
+  "language_provider_used": false,
+  "passed": true,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "evaluation": "phase26_multigeneration_sealed",
+        "gate": {
+          "accepted": true,
+          "ambiguity_preserved": true,
+          "backward_retention_worst_accuracy": 1.0,
+          "bounded_growth": true,
+          "duplicate_aliases_merged": 1,
+          "errors": [],
+          "final_library_size": 5,
+          "forward_transfer_gain": 0.0694214876033058,
+          "frozen_initial_control_mean_accuracy": 0.9305785123966942,
+          "initial_library_size": 3,
+          "invented_operators": [
+            "max_ge",
+            "abs_difference_le"
+          ],
+          "mean_transfer_probes": 6.6,
+          "reused_operators": [
+            "min_ge"
+          ],
+          "sealed_mean_accuracy": 1.0,
+          "sealed_reinventions": 0,
+          "sealed_structure_recovery": 1.0,
+          "sealed_worst_accuracy": 1.0
+        }
+      },
+      "goal": "multigeneration_theory_revision",
+      "procedure_id": "procedure_multigeneration_theory_ea3ae1b2a2df",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "steps": [
+        "audit_current_ontology_against_each_new_world",
+        "invent_only_when_all_retained_concepts_are_inadequate",
+        "merge_predictively_equivalent_candidates",
+        "reuse_prior_concepts_without_reinvention",
+        "preserve_competing_hypotheses_under_insufficient_evidence",
+        "verify_forward_transfer_and_backward_retention",
+        "retain_bounded_revision_history"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_multigeneration_theory_ea3ae1b2a2df",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "multigeneration_theory_revision_authority"
+        },
+        "reason": "procedure_promotion:procedure_multigeneration_theory_ea3ae1b2a2df",
+        "state_hash": "1e30dea520a710de985bbcbe5e6faaa4bca0f4a14aab996a59689c260ad3d110"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "all_inventions_retained": true,
+    "champion_retained": true,
+    "relearning_generations": 0,
+    "revision_cycle_retained": true
+  },
+  "revision": {
+    "ambiguity_test": {
+      "preserved": true,
+      "remaining_hypotheses": [
+        [
+          "sum_ge",
+          1
+        ],
+        [
+          "sum_ge",
+          2
+        ],
+        [
+          "sum_ge",
+          3
+        ],
+        [
+          "sum_ge",
+          4
+        ],
+        [
+          "sum_ge",
+          5
+        ],
+        [
+          "sum_ge",
+          6
+        ],
+        [
+          "sum_ge",
+          7
+        ],
+        [
+          "sum_ge",
+          8
+        ],
+        [
+          "sum_ge",
+          9
+        ],
+        [
+          "sum_ge",
+          10
+        ],
+        [
+          "sum_ge",
+          11
+        ],
+        [
+          "sum_ge",
+          12
+        ],
+        [
+          "sum_ge",
+          13
+        ],
+        [
+          "sum_ge",
+          14
+        ],
+        [
+          "sum_ge",
+          15
+        ],
+        [
+          "sum_ge",
+          16
+        ],
+        [
+          "sum_ge",
+          17
+        ],
+        [
+          "sum_ge",
+          18
+        ],
+        [
+          "sum_ge",
+          19
+        ],
+        [
+          "sum_ge",
+          20
+        ],
+        [
+          "min_ge",
+          1
+        ],
+        [
+          "min_ge",
+          2
+        ],
+        [
+          "min_ge",
+          3
+        ],
+        [
+          "min_ge",
+          4
+        ],
+        [
+          "min_ge",
+          5
+        ],
+        [
+          "min_ge",
+          6
+        ],
+        [
+          "min_ge",
+          7
+        ],
+        [
+          "min_ge",
+          8
+        ],
+        [
+          "min_ge",
+          9
+        ],
+        [
+          "min_ge",
+          10
+        ],
+        [
+          "max_ge",
+          1
+        ],
+        [
+          "max_ge",
+          2
+        ],
+        [
+          "max_ge",
+          3
+        ],
+        [
+          "max_ge",
+          4
+        ],
+        [
+          "max_ge",
+          5
+        ],
+        [
+          "max_ge",
+          6
+        ],
+        [
+          "max_ge",
+          7
+        ],
+        [
+          "max_ge",
+          8
+        ],
+        [
+          "max_ge",
+          9
+        ],
+        [
+          "max_ge",
+          10
+        ]
+      ]
+    },
+    "backward_retention": {
+      "domains": [
+        {
+          "accuracy": 1.0,
+          "domain_id": "retained_margin",
+          "operator": "difference_ge"
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "retained_sum",
+          "operator": "sum_ge"
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "retained_joint",
+          "operator": "min_ge"
+        }
+      ],
+      "mean_accuracy": 1.0,
+      "worst_accuracy": 1.0
+    },
+    "created_at": "2026-07-29T05:39:18.829555+00:00",
+    "cycle_id": "phase26_multigeneration_revision",
+    "final_library": [
+      "difference_ge",
+      "sum_ge",
+      "min_ge",
+      "max_ge",
+      "abs_difference_le"
+    ],
+    "frozen_initial_control": {
+      "mean_accuracy": 0.9305785123966942,
+      "worst_accuracy": 0.7851239669421488
+    },
+    "gate": {
+      "accepted": true,
+      "ambiguity_preserved": true,
+      "backward_retention_worst_accuracy": 1.0,
+      "bounded_growth": true,
+      "duplicate_aliases_merged": 1,
+      "errors": [],
+      "final_library_size": 5,
+      "forward_transfer_gain": 0.0694214876033058,
+      "frozen_initial_control_mean_accuracy": 0.9305785123966942,
+      "initial_library_size": 3,
+      "invented_operators": [
+        "max_ge",
+        "abs_difference_le"
+      ],
+      "mean_transfer_probes": 6.6,
+      "reused_operators": [
+        "min_ge"
+      ],
+      "sealed_mean_accuracy": 1.0,
+      "sealed_reinventions": 0,
+      "sealed_structure_recovery": 1.0,
+      "sealed_worst_accuracy": 1.0
+    },
+    "generations": [
+      {
+        "accuracy": 1.0,
+        "domain_id": "solar_redundancy",
+        "fields": [
+          "arc",
+          "beam"
+        ],
+        "invented": true,
+        "library_after": [
+          "difference_ge",
+          "sum_ge",
+          "min_ge",
+          "max_ge"
+        ],
+        "library_before": [
+          "difference_ge",
+          "sum_ge",
+          "min_ge"
+        ],
+        "model_criticism": {
+          "invention_required": true,
+          "retained_attempt_accuracy": 0.7520661157024794,
+          "retained_hypotheses_remaining": 1,
+          "status": "THEORY_INADEQUATE"
+        },
+        "probes": 7,
+        "reused": false,
+        "selected_operator": "max_ge",
+        "selected_threshold": 6,
+        "structure_recovered": true
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "synchrony_window",
+        "fields": [
+          "phase_a",
+          "phase_b"
+        ],
+        "invented": true,
+        "library_after": [
+          "difference_ge",
+          "sum_ge",
+          "min_ge",
+          "max_ge",
+          "abs_difference_le"
+        ],
+        "library_before": [
+          "difference_ge",
+          "sum_ge",
+          "min_ge",
+          "max_ge"
+        ],
+        "model_criticism": {
+          "invention_required": true,
+          "retained_attempt_accuracy": 0.7024793388429752,
+          "retained_hypotheses_remaining": 1,
+          "status": "THEORY_INADEQUATE"
+        },
+        "probes": 7,
+        "reused": false,
+        "selected_operator": "abs_difference_le",
+        "selected_threshold": 2,
+        "structure_recovered": true
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "dual_feed",
+        "fields": [
+          "feed_l",
+          "feed_r"
+        ],
+        "invented": false,
+        "library_after": [
+          "difference_ge",
+          "sum_ge",
+          "min_ge",
+          "max_ge",
+          "abs_difference_le"
+        ],
+        "library_before": [
+          "difference_ge",
+          "sum_ge",
+          "min_ge",
+          "max_ge",
+          "abs_difference_le"
+        ],
+        "model_criticism": {
+          "invention_required": false,
+          "retained_attempt_accuracy": 1.0,
+          "retained_hypotheses_remaining": 1,
+          "status": "THEORY_ADEQUATE"
+        },
+        "probes": 6,
+        "reused": true,
+        "selected_operator": "min_ge",
+        "selected_threshold": 5,
+        "structure_recovered": true
+      }
+    ],
+    "grammar_deduplication": [
+      {
+        "reason": "EQUIVALENT_PREDICTIVE_SIGNATURE",
+        "rejected": "closeness_alias",
+        "retained": "abs_difference_le"
+      }
+    ],
+    "initial_library": [
+      "difference_ge",
+      "sum_ge",
+      "min_ge"
+    ],
+    "schema_version": "aion.hexcore.theory_revision_cycle.v1",
+    "sealed_transfer": {
+      "cold_hypothesis_evaluations": 3795,
+      "domains": [
+        {
+          "cold_accuracy": 1.0,
+          "cold_hypothesis_evaluations": 690,
+          "cold_probes": 6,
+          "cold_selected": [
+            "max_ge",
+            7
+          ],
+          "domain_id": "emergency_supply",
+          "operator": "max_ge",
+          "structure_recovered": true,
+          "warm_accuracy": 1.0,
+          "warm_hypothesis_evaluations": 690,
+          "warm_probes": 6,
+          "warm_selected": [
+            "max_ge",
+            7
+          ]
+        },
+        {
+          "cold_accuracy": 1.0,
+          "cold_hypothesis_evaluations": 805,
+          "cold_probes": 7,
+          "cold_selected": [
+            "abs_difference_le",
+            1
+          ],
+          "domain_id": "clock_alignment",
+          "operator": "abs_difference_le",
+          "structure_recovered": true,
+          "warm_accuracy": 1.0,
+          "warm_hypothesis_evaluations": 805,
+          "warm_probes": 7,
+          "warm_selected": [
+            "abs_difference_le",
+            1
+          ]
+        },
+        {
+          "cold_accuracy": 1.0,
+          "cold_hypothesis_evaluations": 805,
+          "cold_probes": 7,
+          "cold_selected": [
+            "min_ge",
+            4
+          ],
+          "domain_id": "paired_growth",
+          "operator": "min_ge",
+          "structure_recovered": true,
+          "warm_accuracy": 1.0,
+          "warm_hypothesis_evaluations": 805,
+          "warm_probes": 7,
+          "warm_selected": [
+            "min_ge",
+            4
+          ]
+        },
+        {
+          "cold_accuracy": 1.0,
+          "cold_hypothesis_evaluations": 690,
+          "cold_probes": 6,
+          "cold_selected": [
+            "difference_ge",
+            3
+          ],
+          "domain_id": "load_balance",
+          "operator": "difference_ge",
+          "structure_recovered": true,
+          "warm_accuracy": 1.0,
+          "warm_hypothesis_evaluations": 690,
+          "warm_probes": 6,
+          "warm_selected": [
+            "difference_ge",
+            3
+          ]
+        },
+        {
+          "cold_accuracy": 1.0,
+          "cold_hypothesis_evaluations": 805,
+          "cold_probes": 7,
+          "cold_selected": [
+            "sum_ge",
+            11
+          ],
+          "domain_id": "combined_stock",
+          "operator": "sum_ge",
+          "structure_recovered": true,
+          "warm_accuracy": 1.0,
+          "warm_hypothesis_evaluations": 805,
+          "warm_probes": 7,
+          "warm_selected": [
+            "sum_ge",
+            11
+          ]
+        }
+      ],
+      "mean_accuracy": 1.0,
+      "mean_cold_probes": 6.6,
+      "mean_warm_probes": 6.6,
+      "sealed_reinventions": 0,
+      "search_reduction": 0.0,
+      "structure_recovery": 1.0,
+      "warm_hypothesis_evaluations": 3795,
+      "worst_accuracy": 1.0
+    }
+  },
+  "schema_version": "aion.hexcore.multigeneration_theory_revision.v1"
+}

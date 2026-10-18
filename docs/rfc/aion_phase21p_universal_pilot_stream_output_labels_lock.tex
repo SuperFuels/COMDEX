@@ -1,0 +1,54 @@
+\section{Phase 21P --- Universal Pilot Stream Output Labels}
+\label{sec:aion-phase21p-universal-pilot-stream-output-labels}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21P removes PDF-specific stream language from the universal Pilot task flow.
+
+\subsection{Purpose}
+
+After Phase 21O, Pilot can accept any task, but the stream still displayed a document-specific message:
+
+\begin{verbatim}
+Draft PDF artifact prepared
+\end{verbatim}
+
+This is incorrect for non-document tasks such as social growth, spreadsheets, website previews and advertising campaigns.
+
+\subsection{Rule}
+
+Pilot stream output labels MUST come from the universal task plan.
+
+Examples:
+
+\begin{itemize}
+  \item social growth tasks show growth plan and content draft output;
+  \item spreadsheet tasks show spreadsheet draft output;
+  \item website tasks show website preview output;
+  \item advertising tasks show campaign preview and ad draft output;
+  \item document tasks show document/PDF draft output.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+This change is presentation-only.
+
+It MUST NOT create live posts, messages, deployments, payments, bookings, escrow, ad spend or reputation mutation without exact approval.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21p_universal_pilot_stream_output_labels_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21P-UNIVERSAL-PILOT-STREAM-OUTPUT-LABELS
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

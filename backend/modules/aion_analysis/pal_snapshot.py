@@ -1,121 +1,206 @@
 #!/usr/bin/env python3
-"""
-Aion Perceptual Snapshot Monitor (Phase 30+)
-───────────────────────────────────────────────
-Provides a visual + textual summary of Aion's cognitive growth:
-    * PAL learning accuracy across self-tune rounds
-    * Exploration parameter (ε) decay
-    * Knowledge Graph reinforcement statistics
-    * Exemplar memory count and distribution
-Outputs:
-    - Console summary
-    - Plot (accuracy / ε over rounds)
-    - JSONL snapshot record for longitudinal tracking
+"""Business-scoped PAL learning snapshots.
+
+Guardian mode stores longitudinal learning evidence in the external Business
+Vault and refuses to read undeclared application-relative legacy sources.
+Explicit paths remain available for legacy operation and copy migration.
 """
 
-import json, time, sqlite3, matplotlib.pyplot as plt
+from __future__ import annotations
+
+from datetime import UTC, datetime
+import json
 from pathlib import Path
+import sqlite3
 from statistics import mean
+import time
+from typing import Any, Iterable, Mapping
+from uuid import uuid4
 
-# Paths
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+
+
 DATA_DIR = Path("data")
 PAL_FILE = DATA_DIR / "perception" / "exemplars.jsonl"
 KG_DB = DATA_DIR / "knowledge" / "aion_knowledge_graph.db"
 SNAPSHOT_LOG = DATA_DIR / "analysis" / "pal_snapshots.jsonl"
-SNAPSHOT_LOG.parent.mkdir(parents=True, exist_ok=True)
 
-def read_pal_memory():
-    """Load PAL exemplars for summary."""
-    exemplars = []
-    if PAL_FILE.exists():
-        with open(PAL_FILE) as f:
-            for line in f:
-                try:
-                    exemplars.append(json.loads(line))
-                except Exception:
-                    pass
+
+def _timestamp() -> str:
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
+
+
+class PalSnapshotStore:
+    """Persist customer-derived PAL evidence outside the update boundary."""
+
+    EVENT_TYPE = "pal_learning_snapshot"
+
+    def __init__(
+        self,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        legacy_log_path: str | Path | None = None,
+        auto_configure: bool = True,
+    ) -> None:
+        self.vault_store = vault_store or AionLearningVaultStore(
+            auto_configure=auto_configure
+        )
+        self.legacy_log_path = Path(legacy_log_path or SNAPSHOT_LOG)
+
+    @property
+    def guardian_enabled(self) -> bool:
+        return self.vault_store.enabled
+
+    def append(self, snapshot: Mapping[str, Any]) -> dict[str, Any]:
+        payload = dict(snapshot)
+        event_id = str(payload.get("event_id") or f"pal-snapshot-{uuid4().hex}")
+        payload.setdefault("event_id", event_id)
+        payload.setdefault("event_type", self.EVENT_TYPE)
+        payload.setdefault("ts_utc", str(payload.get("timestamp") or _timestamp()))
+        payload.setdefault("vault_order_ns", time.time_ns())
+        if self.guardian_enabled:
+            self.vault_store.append_event(event_id, payload)
+            return payload
+        self.legacy_log_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.legacy_log_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
+        return payload
+
+    def list(self) -> list[dict[str, Any]]:
+        if self.guardian_enabled:
+            return self.vault_store.list_events(kind=self.EVENT_TYPE)
+        if not self.legacy_log_path.is_file():
+            return []
+        output: list[dict[str, Any]] = []
+        for raw in self.legacy_log_path.read_text(encoding="utf-8").splitlines():
+            if raw.strip():
+                output.append(json.loads(raw))
+        return output
+
+
+def read_pal_memory(path: str | Path = PAL_FILE) -> list[dict[str, Any]]:
+    """Load a retained legacy PAL source for summarisation."""
+    source = Path(path)
+    if not source.is_file():
+        return []
+    exemplars: list[dict[str, Any]] = []
+    for line in source.read_text(encoding="utf-8").splitlines():
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, dict):
+            exemplars.append(value)
     return exemplars
 
-def read_knowledge_graph():
-    """Load top triplets and reinforcement data."""
-    conn = sqlite3.connect(KG_DB)
-    cur = conn.execute(
-        "SELECT subject,predicate,object,strength FROM knowledge ORDER BY strength DESC LIMIT 20"
-    )
-    data = cur.fetchall()
-    conn.close()
-    return [{"subject": s, "predicate": p, "object": o, "strength": w} for s,p,o,w in data]
 
-def summarize_pal(exemplars):
-    """Summarize memory content."""
-    if not exemplars:
-        return {"count": 0, "avg_reward": 0.0}
-    rewards = [e.get("reward", 0.0) for e in exemplars]
-    prompts = list({e.get("prompt") for e in exemplars})
-    options = list({e.get("option") for e in exemplars})
+def read_knowledge_graph(path: str | Path = KG_DB) -> list[dict[str, Any]]:
+    """Read a retained legacy knowledge graph without creating a database."""
+    source = Path(path)
+    if not source.is_file():
+        return []
+    connection = sqlite3.connect(f"file:{source.resolve()}?mode=ro", uri=True)
+    try:
+        rows = connection.execute(
+            "SELECT subject,predicate,object,strength FROM knowledge "
+            "ORDER BY strength DESC LIMIT 20"
+        ).fetchall()
+    finally:
+        connection.close()
+    return [
+        {
+            "subject": subject,
+            "predicate": predicate,
+            "object": object_,
+            "strength": strength,
+        }
+        for subject, predicate, object_, strength in rows
+    ]
+
+
+def summarize_pal(exemplars: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
+    entries = list(exemplars)
+    if not entries:
+        return {
+            "count": 0,
+            "avg_reward": 0.0,
+            "unique_prompts": 0,
+            "unique_options": 0,
+        }
+    rewards = [float(entry.get("reward") or 0.0) for entry in entries]
+    prompts = {entry.get("prompt") for entry in entries}
+    options = {entry.get("option") for entry in entries}
     return {
-        "count": len(exemplars),
+        "count": len(entries),
         "avg_reward": mean(rewards),
         "unique_prompts": len(prompts),
         "unique_options": len(options),
     }
 
-def plot_progress(log_entries):
-    """Plot accuracy and ε trends."""
+
+def plot_progress(
+    log_entries: list[Mapping[str, Any]],
+    *,
+    output_path: str | Path = DATA_DIR / "analysis" / "pal_snapshot_plot.png",
+) -> Path:
+    """Render a rebuildable legacy diagnostic to an explicitly chosen path."""
+    import matplotlib.pyplot as plt
+
+    destination = Path(output_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
     rounds = list(range(1, len(log_entries) + 1))
-    acc = [e["accuracy"] for e in log_entries]
-    eps = [e["epsilon"] for e in log_entries]
-
-    fig, ax1 = plt.subplots()
-    ax1.set_xlabel("Rounds")
-    ax1.set_ylabel("Accuracy", color="black")
-    ax1.plot(rounds, acc, marker="o", label="Accuracy", color="black")
-    ax1.tick_params(axis='y', labelcolor='black')
-
-    ax2 = ax1.twinx()
-    ax2.set_ylabel("Epsilon (exploration)", color="gray")
-    ax2.plot(rounds, eps, marker="x", linestyle="--", color="gray", label="ε")
-
-    fig.tight_layout()
+    accuracy = [entry["accuracy"] for entry in log_entries]
+    epsilon = [entry["epsilon"] for entry in log_entries]
+    figure, first_axis = plt.subplots()
+    first_axis.set_xlabel("Rounds")
+    first_axis.set_ylabel("Accuracy", color="black")
+    first_axis.plot(rounds, accuracy, marker="o", color="black")
+    first_axis.tick_params(axis="y", labelcolor="black")
+    second_axis = first_axis.twinx()
+    second_axis.set_ylabel("Epsilon (exploration)", color="gray")
+    second_axis.plot(rounds, epsilon, marker="x", linestyle="--", color="gray")
+    figure.tight_layout()
     plt.title("Aion PAL Learning Dynamics")
-    plt.savefig("data/analysis/pal_snapshot_plot.png", dpi=300)
-    print("📊 Plot saved -> data/analysis/pal_snapshot_plot.png")
+    plt.savefig(destination, dpi=300)
+    plt.close(figure)
+    return destination
 
-def create_snapshot():
-    """Main entrypoint: summarize current Aion state."""
-    ts = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
-    exemplars = read_pal_memory()
-    kg_data = read_knowledge_graph()
-    pal_summary = summarize_pal(exemplars)
 
+def create_snapshot(
+    *,
+    exemplars: list[Mapping[str, Any]] | None = None,
+    knowledge_links: list[Mapping[str, Any]] | None = None,
+    store: PalSnapshotStore | None = None,
+    legacy_pal_path: str | Path | None = None,
+    legacy_kg_path: str | Path | None = None,
+) -> dict[str, Any]:
+    """Summarise supplied customer learning and persist encrypted evidence.
+
+    Guardian mode deliberately requires caller-supplied inputs. This prevents
+    an update from silently reading an undeclared application-local knowledge
+    source. Legacy paths must be explicit when the Vault is authoritative.
+    """
+    snapshot_store = store or PalSnapshotStore()
+    if exemplars is None:
+        if snapshot_store.guardian_enabled and legacy_pal_path is None:
+            raise RuntimeError("pal_snapshot_guardian_exemplars_required")
+        exemplars = read_pal_memory(legacy_pal_path or PAL_FILE)
+    if knowledge_links is None:
+        if snapshot_store.guardian_enabled and legacy_kg_path is None:
+            raise RuntimeError("pal_snapshot_guardian_knowledge_links_required")
+        knowledge_links = read_knowledge_graph(legacy_kg_path or KG_DB)
     snapshot = {
-        "timestamp": ts,
-        "pal_summary": pal_summary,
-        "top_kg_links": kg_data[:10],
+        "timestamp": _timestamp(),
+        "pal_summary": summarize_pal(exemplars),
+        "top_kg_links": [dict(item) for item in knowledge_links[:10]],
     }
+    return snapshot_store.append(snapshot)
 
-    with open(SNAPSHOT_LOG, "a") as f:
-        f.write(json.dumps(snapshot) + "\n")
 
-    print("\n🧩 AION SNAPSHOT -", ts)
-    print(f"Exemplar count: {pal_summary['count']}")
-    print(f"Average reward: {pal_summary['avg_reward']:.3f}")
-    print(f"Unique prompts: {pal_summary['unique_prompts']}")
-    print(f"Unique options: {pal_summary['unique_options']}")
-    print("\nTop reinforced knowledge links:")
-    for entry in kg_data[:10]:
-        print(f"  {entry['subject']} -[{entry['predicate']}:{entry['strength']:.3f}]-> {entry['object']}")
+def take_snapshot(**kwargs: Any) -> dict[str, Any]:
+    """Compatibility entrypoint used by PAL equilibrium training."""
+    return create_snapshot(**kwargs)
 
-    print("\n✅ Snapshot logged at:", SNAPSHOT_LOG)
-    return snapshot
 
 if __name__ == "__main__":
-    # Optional: if a run log exists, visualize
-    LOG_PATH = Path("data/analysis/pal_training_log.jsonl")
-    if LOG_PATH.exists():
-        with open(LOG_PATH) as f:
-            rounds = [json.loads(l) for l in f]
-        plot_progress(rounds)
-
-    # Always take a fresh snapshot
-    snapshot = create_snapshot()
+    create_snapshot()

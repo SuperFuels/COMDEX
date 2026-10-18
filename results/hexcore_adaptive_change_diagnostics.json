@@ -1,0 +1,473 @@
+{
+  "schema_version": "aion.hexcore.adaptive_change_diagnostics.v1",
+  "benchmark": "surprise_triggered_diagnostic_escalation",
+  "language_provider_used": false,
+  "development": {
+    "control": {
+      "policy": {
+        "policy_id": "phase15_fixed_five_trial_champion",
+        "posterior_gate": 0.85,
+        "stability_blocks": 4,
+        "diagnostic_trials": 5,
+        "maximum_revisions": 4,
+        "provisional_stability_blocks": 2,
+        "escalation_trials": 0,
+        "complexity": 9
+      },
+      "worlds": 20,
+      "change_recall": 1.0,
+      "false_revision_rate": 0.0,
+      "change_point_mae": 0.0,
+      "active_graph_accuracy": 0.93125,
+      "adaptive_goal_success": 0.9208333333333334,
+      "static_goal_success": 0.76875,
+      "average_revisions": 0.75,
+      "average_diagnostic_actions": 4860.0,
+      "by_family": {
+        "permanent_change": {
+          "worlds": 5,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9583333333333334,
+          "adaptive_goal_success": 0.9333333333333333,
+          "static_goal_success": 0.4833333333333333
+        },
+        "recurring_change": {
+          "worlds": 5,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9166666666666666,
+          "adaptive_goal_success": 0.875,
+          "static_goal_success": 0.775
+        },
+        "temporary_disturbance": {
+          "worlds": 5,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9583333333333334,
+          "adaptive_goal_success": 0.9666666666666666,
+          "static_goal_success": 0.9333333333333333
+        },
+        "stochastic_flicker": {
+          "worlds": 5,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.8916666666666666,
+          "adaptive_goal_success": 0.9083333333333334,
+          "static_goal_success": 0.8833333333333334
+        }
+      }
+    },
+    "challengers": [
+      {
+        "policy": {
+          "policy_id": "adaptive_base_2_extra_5",
+          "posterior_gate": 0.85,
+          "stability_blocks": 4,
+          "diagnostic_trials": 2,
+          "maximum_revisions": 4,
+          "provisional_stability_blocks": 2,
+          "escalation_trials": 5,
+          "complexity": 9
+        },
+        "worlds": 20,
+        "change_recall": 1.0,
+        "false_revision_rate": 0.0,
+        "change_point_mae": 0.0,
+        "active_graph_accuracy": 0.93125,
+        "adaptive_goal_success": 0.9229166666666666,
+        "static_goal_success": 0.7666666666666667,
+        "average_revisions": 0.75,
+        "average_diagnostic_actions": 2740.5,
+        "by_family": {
+          "permanent_change": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9583333333333334,
+            "adaptive_goal_success": 0.9333333333333333,
+            "static_goal_success": 0.5166666666666667
+          },
+          "recurring_change": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9166666666666666,
+            "adaptive_goal_success": 0.925,
+            "static_goal_success": 0.7666666666666667
+          },
+          "temporary_disturbance": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9583333333333334,
+            "adaptive_goal_success": 0.95,
+            "static_goal_success": 0.9333333333333333
+          },
+          "stochastic_flicker": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.8916666666666666,
+            "adaptive_goal_success": 0.8833333333333334,
+            "static_goal_success": 0.85
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "adaptive_base_3_extra_4",
+          "posterior_gate": 0.85,
+          "stability_blocks": 4,
+          "diagnostic_trials": 3,
+          "maximum_revisions": 4,
+          "provisional_stability_blocks": 2,
+          "escalation_trials": 4,
+          "complexity": 9
+        },
+        "worlds": 20,
+        "change_recall": 1.0,
+        "false_revision_rate": 0.0,
+        "change_point_mae": 0.0,
+        "active_graph_accuracy": 0.93125,
+        "adaptive_goal_success": 0.9354166666666666,
+        "static_goal_success": 0.7604166666666667,
+        "average_revisions": 0.75,
+        "average_diagnostic_actions": 3542.4,
+        "by_family": {
+          "permanent_change": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9583333333333334,
+            "adaptive_goal_success": 0.9583333333333334,
+            "static_goal_success": 0.4833333333333333
+          },
+          "recurring_change": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9166666666666666,
+            "adaptive_goal_success": 0.9166666666666666,
+            "static_goal_success": 0.7583333333333334
+          },
+          "temporary_disturbance": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9583333333333334,
+            "adaptive_goal_success": 0.9583333333333334,
+            "static_goal_success": 0.9166666666666666
+          },
+          "stochastic_flicker": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.8916666666666666,
+            "adaptive_goal_success": 0.9083333333333334,
+            "static_goal_success": 0.8833333333333334
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "adaptive_base_3_extra_3",
+          "posterior_gate": 0.85,
+          "stability_blocks": 4,
+          "diagnostic_trials": 3,
+          "maximum_revisions": 4,
+          "provisional_stability_blocks": 2,
+          "escalation_trials": 3,
+          "complexity": 9
+        },
+        "worlds": 20,
+        "change_recall": 1.0,
+        "false_revision_rate": 0.0,
+        "change_point_mae": 0.0,
+        "active_graph_accuracy": 0.93125,
+        "adaptive_goal_success": 0.9291666666666666,
+        "static_goal_success": 0.7875,
+        "average_revisions": 0.75,
+        "average_diagnostic_actions": 3385.8,
+        "by_family": {
+          "permanent_change": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9583333333333334,
+            "adaptive_goal_success": 0.975,
+            "static_goal_success": 0.5333333333333333
+          },
+          "recurring_change": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9166666666666666,
+            "adaptive_goal_success": 0.9,
+            "static_goal_success": 0.7666666666666666
+          },
+          "temporary_disturbance": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9583333333333334,
+            "adaptive_goal_success": 0.9583333333333334,
+            "static_goal_success": 0.9416666666666667
+          },
+          "stochastic_flicker": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.8916666666666666,
+            "adaptive_goal_success": 0.8833333333333334,
+            "static_goal_success": 0.9083333333333332
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "adaptive_base_4_extra_2",
+          "posterior_gate": 0.85,
+          "stability_blocks": 4,
+          "diagnostic_trials": 4,
+          "maximum_revisions": 4,
+          "provisional_stability_blocks": 2,
+          "escalation_trials": 2,
+          "complexity": 9
+        },
+        "worlds": 20,
+        "change_recall": 1.0,
+        "false_revision_rate": 0.0,
+        "change_point_mae": 0.0,
+        "active_graph_accuracy": 0.93125,
+        "adaptive_goal_success": 0.93125,
+        "static_goal_success": 0.7625,
+        "average_revisions": 0.75,
+        "average_diagnostic_actions": 4201.2,
+        "by_family": {
+          "permanent_change": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9583333333333334,
+            "adaptive_goal_success": 0.9666666666666668,
+            "static_goal_success": 0.4583333333333333
+          },
+          "recurring_change": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9166666666666666,
+            "adaptive_goal_success": 0.925,
+            "static_goal_success": 0.75
+          },
+          "temporary_disturbance": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.9583333333333334,
+            "adaptive_goal_success": 0.95,
+            "static_goal_success": 0.9333333333333333
+          },
+          "stochastic_flicker": {
+            "worlds": 5,
+            "change_recall": 1.0,
+            "false_revisions": 0,
+            "active_graph_accuracy": 0.8916666666666666,
+            "adaptive_goal_success": 0.8833333333333334,
+            "static_goal_success": 0.9083333333333334
+          }
+        }
+      }
+    ],
+    "selected_policy": {
+      "policy_id": "adaptive_base_2_extra_5",
+      "posterior_gate": 0.85,
+      "stability_blocks": 4,
+      "diagnostic_trials": 2,
+      "maximum_revisions": 4,
+      "provisional_stability_blocks": 2,
+      "escalation_trials": 5,
+      "complexity": 9
+    }
+  },
+  "sealed": {
+    "control": {
+      "policy": {
+        "policy_id": "phase15_fixed_five_trial_champion",
+        "posterior_gate": 0.85,
+        "stability_blocks": 4,
+        "diagnostic_trials": 5,
+        "maximum_revisions": 4,
+        "provisional_stability_blocks": 2,
+        "escalation_trials": 0,
+        "complexity": 9
+      },
+      "worlds": 32,
+      "change_recall": 1.0,
+      "false_revision_rate": 0.0,
+      "change_point_mae": 0.0,
+      "active_graph_accuracy": 0.9283854166666666,
+      "adaptive_goal_success": 0.9348958333333334,
+      "static_goal_success": 0.7578125,
+      "average_revisions": 0.75,
+      "average_diagnostic_actions": 4680.0,
+      "by_family": {
+        "permanent_change": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9583333333333334,
+          "adaptive_goal_success": 0.9635416666666667,
+          "static_goal_success": 0.5104166666666666
+        },
+        "recurring_change": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9166666666666666,
+          "adaptive_goal_success": 0.9166666666666666,
+          "static_goal_success": 0.6979166666666666
+        },
+        "temporary_disturbance": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9583333333333334,
+          "adaptive_goal_success": 0.9583333333333334,
+          "static_goal_success": 0.9322916666666666
+        },
+        "stochastic_flicker": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.8802083333333334,
+          "adaptive_goal_success": 0.9010416666666666,
+          "static_goal_success": 0.890625
+        }
+      }
+    },
+    "challenger": {
+      "policy": {
+        "policy_id": "adaptive_base_2_extra_5",
+        "posterior_gate": 0.85,
+        "stability_blocks": 4,
+        "diagnostic_trials": 2,
+        "maximum_revisions": 4,
+        "provisional_stability_blocks": 2,
+        "escalation_trials": 5,
+        "complexity": 9
+      },
+      "worlds": 32,
+      "change_recall": 1.0,
+      "false_revision_rate": 0.0,
+      "change_point_mae": 0.0,
+      "active_graph_accuracy": 0.9283854166666666,
+      "adaptive_goal_success": 0.93359375,
+      "static_goal_success": 0.7565104166666666,
+      "average_revisions": 0.75,
+      "average_diagnostic_actions": 2748.5625,
+      "by_family": {
+        "permanent_change": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9583333333333334,
+          "adaptive_goal_success": 0.953125,
+          "static_goal_success": 0.47916666666666663
+        },
+        "recurring_change": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9166666666666666,
+          "adaptive_goal_success": 0.921875,
+          "static_goal_success": 0.7083333333333334
+        },
+        "temporary_disturbance": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.9583333333333334,
+          "adaptive_goal_success": 0.9427083333333334,
+          "static_goal_success": 0.9375
+        },
+        "stochastic_flicker": {
+          "worlds": 8,
+          "change_recall": 1.0,
+          "false_revisions": 0,
+          "active_graph_accuracy": 0.8802083333333334,
+          "adaptive_goal_success": 0.9166666666666666,
+          "static_goal_success": 0.9010416666666666
+        }
+      }
+    },
+    "gate": {
+      "accepted": true,
+      "errors": [],
+      "change_recall_change": 0.0,
+      "false_revision_change": 0.0,
+      "active_graph_accuracy_change": 0.0,
+      "adaptive_goal_success_change": -0.0013020833333333703,
+      "diagnostic_action_reduction": 0.41270032051282046
+    }
+  },
+  "promotion": {
+    "candidate": {
+      "procedure_id": "procedure_adaptive_change_diagnostics_62bd6071e44c",
+      "goal": "continuous_world_model_maintenance",
+      "steps": [
+        "run_low_cost_stability_monitor",
+        "measure_active_graph_posterior",
+        "escalate_diagnostics_on_surprise",
+        "use_provisional_operational_graph",
+        "consolidate_only_after_durable_stability"
+      ],
+      "score": 2.7245510416666665,
+      "success": true,
+      "evidence": {
+        "evaluation": "phase16_adaptive_diagnostics_sealed",
+        "gate": {
+          "accepted": true,
+          "errors": [],
+          "change_recall_change": 0.0,
+          "false_revision_change": 0.0,
+          "active_graph_accuracy_change": 0.0,
+          "adaptive_goal_success_change": -0.0013020833333333703,
+          "diagnostic_action_reduction": 0.41270032051282046
+        }
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "decision": {
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT",
+      "champion_id": "procedure_adaptive_change_diagnostics_62bd6071e44c",
+      "commit": {
+        "reason": "procedure_promotion:procedure_adaptive_change_diagnostics_62bd6071e44c",
+        "authority": {
+          "allow_learn": true,
+          "goal": "maintain_coherence",
+          "source": "adaptive_change_diagnostics_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "3f54088901b32478eda72172fe82550914c22f1e9e2ebb6af1fe1ef4c5dfec9a"
+      }
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "champion_id": "procedure_adaptive_change_diagnostics_62bd6071e44c",
+    "relearning_worlds": 0
+  },
+  "gates": {
+    "surprise_triggered_escalation": true,
+    "sealed_gate_passed": true,
+    "cau_promoted_if_safe": true,
+    "restart_retention": true
+  },
+  "boundary_statement": "The diagnostic schedule mutates only base and escalation trial counts inside the bounded Phase 15 graph grammar.",
+  "passed": true
+}

@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_portfolio_construction",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:portfolio_construction",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_financial_risk_management",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_risk_management",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_financial_regulation_compliance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:hedge_fund_operations:mandate_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hedge_fund_operations:capital_allocation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hedge_fund_operations:prime_brokerage",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hedge_fund_operations:fund_accounting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hedge_fund_operations:liquidity_terms",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hedge_fund_operations:operational_due_diligence",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hedge_fund_operations:investor_reporting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hedge_fund_operations:governance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "label": "Hedge-fund management and operations",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hedge_fund_operations:mandate_design",
+      "label": "mandate design",
+      "subject_id": "hedge_fund_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hedge_fund_operations:capital_allocation",
+      "label": "capital allocation",
+      "subject_id": "hedge_fund_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hedge_fund_operations:prime_brokerage",
+      "label": "prime brokerage",
+      "subject_id": "hedge_fund_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hedge_fund_operations:fund_accounting",
+      "label": "fund accounting",
+      "subject_id": "hedge_fund_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hedge_fund_operations:liquidity_terms",
+      "label": "liquidity terms",
+      "subject_id": "hedge_fund_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hedge_fund_operations:operational_due_diligence",
+      "label": "operational due diligence",
+      "subject_id": "hedge_fund_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hedge_fund_operations:investor_reporting",
+      "label": "investor reporting",
+      "subject_id": "hedge_fund_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hedge_fund_operations:governance",
+      "label": "governance",
+      "subject_id": "hedge_fund_operations",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_hedge_fund_operations",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:hedge_fund_operations:mandate_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hedge_fund_operations:capital_allocation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hedge_fund_operations:prime_brokerage",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hedge_fund_operations:fund_accounting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hedge_fund_operations:liquidity_terms",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hedge_fund_operations:operational_due_diligence",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hedge_fund_operations:investor_reporting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hedge_fund_operations:governance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "label": "Hedge-fund management and operations",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hedge_fund_operations:mandate_design",
+        "label": "mandate design",
+        "subject_id": "hedge_fund_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hedge_fund_operations:capital_allocation",
+        "label": "capital allocation",
+        "subject_id": "hedge_fund_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hedge_fund_operations:prime_brokerage",
+        "label": "prime brokerage",
+        "subject_id": "hedge_fund_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hedge_fund_operations:fund_accounting",
+        "label": "fund accounting",
+        "subject_id": "hedge_fund_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hedge_fund_operations:liquidity_terms",
+        "label": "liquidity terms",
+        "subject_id": "hedge_fund_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hedge_fund_operations:operational_due_diligence",
+        "label": "operational due diligence",
+        "subject_id": "hedge_fund_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hedge_fund_operations:investor_reporting",
+        "label": "investor reporting",
+        "subject_id": "hedge_fund_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hedge_fund_operations:governance",
+        "label": "governance",
+        "subject_id": "hedge_fund_operations",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "hedge_fund_operations",
+    "title": "AION Academy \u00b7 Hedge-fund management and operations"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

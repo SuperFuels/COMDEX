@@ -1,0 +1,3006 @@
+{
+  "canonical_sha256": "7d840512519f85f87bc3451c15c84d39e0d9dff598c31a4747720e0e20fa8814",
+  "claim_boundary": "A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.",
+  "created_at": "2026-09-09T16:24:20.710242+00:00",
+  "declared_largest_native_arena_bytes": 805306368,
+  "declared_streaming_cache_bytes": 3221225472,
+  "embedding_row_bytes": 1980,
+  "embedding_row_sha256": "01982d630e1703c621228222546ee5326ceaf86713102a379eeaa0da37c72428",
+  "embedding_run": {
+    "checksum": 177.788,
+    "finite": true,
+    "schema": "aion.gptoss.embedding-row-cpu.v1"
+  },
+  "final_hidden_and_logits_bitwise_repeatable": true,
+  "generated_token_id": 2167,
+  "input_semantics": "GGUF-declared BOS token, one-token position-zero sequence",
+  "input_token_id": 199998,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "output_norm": {
+    "bytes": 11520,
+    "dimensions": [
+      2880
+    ],
+    "ggml_type": 0,
+    "sha256": "212afa1935207179fd445d3d5dc6c56fed73712e616564afafaa4c1c83df4261",
+    "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+  },
+  "output_weight": {
+    "bytes": 615329280,
+    "one_time_stage_seconds": 13.177181707986165,
+    "sha256": "049b19820999b23070d21c7d623bb31a697d8bf5f7492f175b5701084aa98692"
+  },
+  "reader_metrics": {
+    "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf": {
+      "cache_capacity_bytes": 67108864,
+      "cache_hit_rate": 0.9997604067076877,
+      "cache_hits": 1297722,
+      "cache_resident_bytes": 63032576,
+      "compressed_bytes_read": 1096234966,
+      "frame_faults": 311,
+      "peak_resident_bytes": 67108864,
+      "raw_bytes_materialized": 1164089248
+    },
+    "openai_gpt-oss-120b-Q4_K_M-00002-of-00002.gguf": {
+      "cache_capacity_bytes": 67108864,
+      "cache_hit_rate": 0.9082618025751072,
+      "cache_hits": 1693,
+      "cache_resident_bytes": 64150016,
+      "compressed_bytes_read": 256312218,
+      "frame_faults": 171,
+      "peak_resident_bytes": 65806080,
+      "raw_bytes_materialized": 268753696
+    }
+  },
+  "resident_replay": true,
+  "routes_repeatable": true,
+  "run_a": {
+    "final_hidden_sha256": "f2e99f840dc4ff1880b1b5f40b3e39ac883e08ab9fce3b83de9a105f4f9a4e64",
+    "label": "a",
+    "layers": [
+      {
+        "attention": {
+          "ffn_input_checksum": 204.027,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 69.7112,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5984602079843171,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 252.151,
+          "output_l2": 111.805,
+          "route": [
+            83,
+            84,
+            30,
+            33
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3474767273221237,
+          0.22898636698688207,
+          0.2241733979558584,
+          0.19936350773513567
+        ],
+        "layer": 0,
+        "output_sha256": "9ac7d6d83f5be636bfce9211f404292e1baa45ae26bc265c2cf790ab9757efcd",
+        "route": [
+          83,
+          84,
+          30,
+          33
+        ],
+        "shared_load_seconds": 1.2497184798121452e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 274.059,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 101.169,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5591444160090759,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 391.522,
+          "output_l2": 146.578,
+          "route": [
+            93,
+            64,
+            52,
+            5
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3778282493364321,
+          0.27710609399890035,
+          0.1774758854653266,
+          0.1675897711993409
+        ],
+        "layer": 1,
+        "output_sha256": "8239d4dae50f6274c42fbd15e2801f230b6e02ad26e225c969675a1368ae0b50",
+        "route": [
+          93,
+          64,
+          52,
+          5
+        ],
+        "shared_load_seconds": 4.169996827840805e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 452.652,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 118.181,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5599785419763066,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 484.046,
+          "output_l2": 192.526,
+          "route": [
+            92,
+            23,
+            112,
+            29
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.30134868595270203,
+          0.24093221779456372,
+          0.2344232260780234,
+          0.2232958701747109
+        ],
+        "layer": 2,
+        "output_sha256": "273867b42aea255f9d221a08fadc0e30f7ad495bceb15595b29347bee99c795c",
+        "route": [
+          92,
+          23,
+          112,
+          29
+        ],
+        "shared_load_seconds": 4.999455995857716e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 511.774,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 99.1792,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5611912499880418,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 633.561,
+          "output_l2": 258.742,
+          "route": [
+            110,
+            116,
+            30,
+            25
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.2780768695492458,
+          0.26907771237478106,
+          0.26773462971710305,
+          0.18511078835887004
+        ],
+        "layer": 3,
+        "output_sha256": "df9f9b740289b99be80b44d022c15053ce67de5b02b72c081a131440946b1c9b",
+        "route": [
+          110,
+          116,
+          30,
+          25
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 678.426,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 106.459,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5575061659910716,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 817.303,
+          "output_l2": 344.499,
+          "route": [
+            72,
+            14,
+            22,
+            34
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.28205129982170885,
+          0.26355726915690925,
+          0.26114936491451873,
+          0.1932420661068632
+        ],
+        "layer": 4,
+        "output_sha256": "29ed06870996a92a8be71089c3abe005bafa5d9f554d959cc658b03e2231236a",
+        "route": [
+          72,
+          14,
+          22,
+          34
+        ],
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 933.314,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 116.112,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5605569999897853,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 776.296,
+          "output_l2": 377.555,
+          "route": [
+            111,
+            29,
+            6,
+            44
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.47345169446987734,
+          0.25867241915742273,
+          0.14338076529346547,
+          0.12449512107923431
+        ],
+        "layer": 5,
+        "output_sha256": "03bbdfd8e262556915e3f6806142add855ca99879847cd42bebe2ca9d07ac92a",
+        "route": [
+          111,
+          29,
+          6,
+          44
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 742.28,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 92.1557,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5622222920064814,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -7380.13,
+          "output_l2": 9473.19,
+          "route": [
+            121,
+            55,
+            37,
+            21
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.757732044486188,
+          0.11207853919502053,
+          0.08293023539260497,
+          0.047259180926186424
+        ],
+        "layer": 6,
+        "output_sha256": "af6f57bf950619daf7950f0733a9fd02c66d5e4fe20a843bccfbc29394aeeea6",
+        "route": [
+          121,
+          55,
+          37,
+          21
+        ],
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -7326.26,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -42.0887,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5557687500258908,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -7870.11,
+          "output_l2": 9973.83,
+          "route": [
+            84,
+            80,
+            1,
+            75
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.44934747144957854,
+          0.25360340388296454,
+          0.19640089640107217,
+          0.10064822826638474
+        ],
+        "layer": 7,
+        "output_sha256": "9768f011b54b202ea26c0fab87b9b7643d8eff1d599d359d20af7a331bd33ce5",
+        "route": [
+          84,
+          80,
+          1,
+          75
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -7799.8,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -40.421,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5597186249797232,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -7861.98,
+          "output_l2": 9858.66,
+          "route": [
+            43,
+            7,
+            76,
+            31
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.8941272630895175,
+          0.03593705001152478,
+          0.035078704116798726,
+          0.0348569827821591
+        ],
+        "layer": 8,
+        "output_sha256": "312ec9e69a579bd34b5da6e24597e8a9583f3149c451de683c1ab9c9f30a80f1",
+        "route": [
+          43,
+          7,
+          76,
+          31
+        ],
+        "shared_load_seconds": 2.08965502679348e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -7938.55,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -37.1573,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5595882500056177,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6958.2,
+          "output_l2": 8746.2,
+          "route": [
+            85,
+            87,
+            6,
+            98
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.6920656972301666,
+          0.16541634571183736,
+          0.0797148338539035,
+          0.0628031232040925
+        ],
+        "layer": 9,
+        "output_sha256": "b6cca8b5241690bc864316a7f2f15659a72786b3792e45827b60ff8bb0922106",
+        "route": [
+          85,
+          87,
+          6,
+          98
+        ],
+        "shared_load_seconds": 2.0797597244381905e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6933.62,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -31.3191,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5597196249873377,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -7032.07,
+          "output_l2": 9336.84,
+          "route": [
+            20,
+            41,
+            80,
+            98
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.5551469225471615,
+          0.20823773194879477,
+          0.13308748457022895,
+          0.10352786093381484
+        ],
+        "layer": 10,
+        "output_sha256": "975eeabca70d20b6ad3b334e2f0968e621618fc8e21792a3fe4e96d0258ebc60",
+        "route": [
+          20,
+          41,
+          80,
+          98
+        ],
+        "shared_load_seconds": 2.9098009690642357e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6884.31,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -32.7593,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5582027090131305,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6768.51,
+          "output_l2": 9479.85,
+          "route": [
+            56,
+            48,
+            35,
+            28
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.8934946294778949,
+          0.036998397139771134,
+          0.03510687544694412,
+          0.034400097935389846
+        ],
+        "layer": 11,
+        "output_sha256": "06ac50e421cb7dff54dc5e128bafd363142cd7fb218a67cf89a5cc9c9e576409",
+        "route": [
+          56,
+          48,
+          35,
+          28
+        ],
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6699.53,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -35.3499,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5588829169864766,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6249.79,
+          "output_l2": 9408.34,
+          "route": [
+            109,
+            16,
+            86,
+            46
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.45322392335329187,
+          0.3218222818999183,
+          0.12551551424915836,
+          0.09943828049763148
+        ],
+        "layer": 12,
+        "output_sha256": "d8a527be66a01762d600016403dced94a54c7575aa640fab0ffb00bc5c44d394",
+        "route": [
+          109,
+          16,
+          86,
+          46
+        ],
+        "shared_load_seconds": 1.2497184798121452e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6720.8,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -31.8005,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.558670540980529,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6910.55,
+          "output_l2": 9399.44,
+          "route": [
+            57,
+            104,
+            22,
+            96
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.7768096562412105,
+          0.07816305748465065,
+          0.0741371516515452,
+          0.07089013462259364
+        ],
+        "layer": 13,
+        "output_sha256": "646806ef533c864f9fab239256cd243ac2d9360e7719da411c7fe902129ed4e4",
+        "route": [
+          57,
+          104,
+          22,
+          96
+        ],
+        "shared_load_seconds": 4.1601015254855156e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6910.24,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -43.7769,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5577687080367468,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6720.86,
+          "output_l2": 9252.17,
+          "route": [
+            60,
+            104,
+            30,
+            19
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.8642415568508166,
+          0.05633305673794077,
+          0.039940723885222594,
+          0.03948466252602002
+        ],
+        "layer": 14,
+        "output_sha256": "73a75f5eae639e1cfe5e780a22d048b3fd52c5783edf24e77bf253ad661d4f79",
+        "route": [
+          60,
+          104,
+          30,
+          19
+        ],
+        "shared_load_seconds": 4.1601015254855156e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6550.58,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -40.8193,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5577608750318177,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4901.92,
+          "output_l2": 7942.97,
+          "route": [
+            124,
+            33,
+            26,
+            100
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.347179767329519,
+          0.3306246771972267,
+          0.16720863602969357,
+          0.1549869194435608
+        ],
+        "layer": 15,
+        "output_sha256": "dff6ac300a8224ac2076ea637b003fda833b84513818e6e578be094bb30d8d38",
+        "route": [
+          124,
+          33,
+          26,
+          100
+        ],
+        "shared_load_seconds": 2.919696271419525e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4828.83,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -29.567,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5645971249905415,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4536.99,
+          "output_l2": 8049.06,
+          "route": [
+            21,
+            29,
+            13,
+            54
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.6082655053903921,
+          0.1816551977959025,
+          0.10542791956976331,
+          0.10465137724394197
+        ],
+        "layer": 16,
+        "output_sha256": "3ab3600fb124e205077ab400d82d02c3538b4cbb3f3888522a80102264248688",
+        "route": [
+          21,
+          29,
+          13,
+          54
+        ],
+        "shared_load_seconds": 5.839974619448185e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4567.55,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -21.1349,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5583364999620244,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -3471.45,
+          "output_l2": 6980.59,
+          "route": [
+            20,
+            99,
+            4,
+            124
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.28963377790115813,
+          0.24879861749623727,
+          0.23146830886675462,
+          0.23009929573585
+        ],
+        "layer": 17,
+        "output_sha256": "1bb94c06a8416f21063e55b96587a08994c1b2ca97605e05cb98da6341b51c2a",
+        "route": [
+          20,
+          99,
+          4,
+          124
+        ],
+        "shared_load_seconds": 2.0803418010473251e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4589.43,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -25.636,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5578642499749549,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4532.69,
+          "output_l2": 7446.11,
+          "route": [
+            20,
+            53,
+            107,
+            82
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.2860820939524475,
+          0.2637755617128793,
+          0.22610529572438223,
+          0.224037048610291
+        ],
+        "layer": 18,
+        "output_sha256": "f3b01a248d22943e853c123402400d14f1e33c450109cb36f3f763c00daf440c",
+        "route": [
+          20,
+          53,
+          107,
+          82
+        ],
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4793.56,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -28.8392,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5536358329700306,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -1736.46,
+          "output_l2": 8408.02,
+          "route": [
+            38,
+            97,
+            96,
+            12
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.40797779693421254,
+          0.22913887149883627,
+          0.18534174559059702,
+          0.17754158597635417
+        ],
+        "layer": 19,
+        "output_sha256": "0cbd6272e3be840e5bf0e7709f5c9aec734fb323532957174012f62f905f39ba",
+        "route": [
+          38,
+          97,
+          96,
+          12
+        ],
+        "shared_load_seconds": 2.92027834802866e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -729.982,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -20.2058,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5601313330116682,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 2755.41,
+          "output_l2": 10916.1,
+          "route": [
+            9,
+            104,
+            51,
+            59
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3123365614622252,
+          0.2604014757600569,
+          0.25129573480412776,
+          0.1759662279735901
+        ],
+        "layer": 20,
+        "output_sha256": "5d1a717257339e6e3ed7ccf6a07dfde761fa1f6c1a022450124086f71d7655c3",
+        "route": [
+          9,
+          104,
+          51,
+          59
+        ],
+        "shared_load_seconds": 3.3300602808594704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6441.06,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -52.1034,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.560934915964026,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -1883,
+          "output_l2": 13539.4,
+          "route": [
+            96,
+            123,
+            102,
+            83
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.33522498182155036,
+          0.28790766436773524,
+          0.2095971069750537,
+          0.16727024683566066
+        ],
+        "layer": 21,
+        "output_sha256": "686a6f29167c65997291b431826b3aba31c1563f30a74a6956134468924bc38b",
+        "route": [
+          96,
+          123,
+          102,
+          83
+        ],
+        "shared_load_seconds": 3.750319592654705e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 194.461,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -27.0812,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5574034999590367,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4996.35,
+          "output_l2": 16036.3,
+          "route": [
+            25,
+            116,
+            106,
+            50
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.4742259501969739,
+          0.18499823987528402,
+          0.18187435140115582,
+          0.15890145852658627
+        ],
+        "layer": 22,
+        "output_sha256": "875f0a3a53c16eb8759d977d506c59bcb1e191f7c9e541b2230d3ec89d39b11e",
+        "route": [
+          25,
+          116,
+          106,
+          50
+        ],
+        "shared_load_seconds": 2.9103830456733704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -2479.88,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -46.8489,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5565255000256002,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4219.4,
+          "output_l2": 17672.9,
+          "route": [
+            15,
+            124,
+            79,
+            42
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.43851713816295995,
+          0.23772960250190678,
+          0.1928086645330767,
+          0.13094459480205664
+        ],
+        "layer": 23,
+        "output_sha256": "d264f3b5c5f36f272853e2a03a7ef681346b1000309d84bc8f8147360de2b58c",
+        "route": [
+          15,
+          124,
+          79,
+          42
+        ],
+        "shared_load_seconds": 1.2497184798121452e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4332.29,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -34.4154,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5597847499884665,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -9313.71,
+          "output_l2": 21461.9,
+          "route": [
+            17,
+            86,
+            105,
+            113
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3892802125705302,
+          0.22079589353205484,
+          0.20965638660752486,
+          0.1802675072898902
+        ],
+        "layer": 24,
+        "output_sha256": "ee087d55f4fe80668bbe03c022bec05114542160acb452d4a1114661626178ca",
+        "route": [
+          17,
+          86,
+          105,
+          113
+        ],
+        "shared_load_seconds": 4.196772351861e-08
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6700.26,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -24.4838,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5626935419859365,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -8211.86,
+          "output_l2": 25673.7,
+          "route": [
+            7,
+            89,
+            68,
+            82
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.355972614309577,
+          0.2666259166890436,
+          0.20199760951737392,
+          0.17540385948400541
+        ],
+        "layer": 25,
+        "output_sha256": "9e1277abcedaced1ff97f6aa77c6293eff7dc97914c48cdc6ff7377540e1d6dd",
+        "route": [
+          7,
+          89,
+          68,
+          82
+        ],
+        "shared_load_seconds": 4.5797787606716156e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -8494.22,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -27.6529,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5592297079856507,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6572.93,
+          "output_l2": 28476.4,
+          "route": [
+            4,
+            110,
+            74,
+            79
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.39939865845117606,
+          0.2198546695092583,
+          0.20085539711575195,
+          0.17989127492381365
+        ],
+        "layer": 26,
+        "output_sha256": "9a45c42882f7cdfbbb8d5f047b7f6bf5f3f007fbe87bf6672a0461a6240968a9",
+        "route": [
+          4,
+          110,
+          74,
+          79
+        ],
+        "shared_load_seconds": 7.079797796905041e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6121.44,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -17.9987,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5584392080199905,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -3485,
+          "output_l2": 32160.9,
+          "route": [
+            98,
+            52,
+            16,
+            71
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.4988230027319094,
+          0.1975792461008564,
+          0.1748578077213696,
+          0.12873994344586454
+        ],
+        "layer": 27,
+        "output_sha256": "9d39d3e8ed921807f39d1a169d65554fde87b76b0f01630042544c4eb7bd3bc1",
+        "route": [
+          98,
+          52,
+          16,
+          71
+        ],
+        "shared_load_seconds": 3.3300602808594704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 865.006,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 3.13775,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5594268749700859,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -8851.41,
+          "output_l2": 36067.4,
+          "route": [
+            46,
+            57,
+            86,
+            95
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.34242383269138726,
+          0.24669000435313912,
+          0.21556494100990434,
+          0.19532122194556925
+        ],
+        "layer": 28,
+        "output_sha256": "44efc60aa86dc8b9b60f51b5beba384571f8e5a30672dbea33b3753652d1363c",
+        "route": [
+          46,
+          57,
+          86,
+          95
+        ],
+        "shared_load_seconds": 8.300412446260452e-08
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -9232.71,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -9.64336,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5587023330153897,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -3358.42,
+          "output_l2": 39208.8,
+          "route": [
+            22,
+            29,
+            87,
+            32
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3013532370243065,
+          0.2824254639785505,
+          0.213013917798171,
+          0.20320738119897197
+        ],
+        "layer": 29,
+        "output_sha256": "d8a357368c58567d2af39e09a3a7379f6fb51599fc11935bc6b735bef7447399",
+        "route": [
+          22,
+          29,
+          87,
+          32
+        ],
+        "shared_load_seconds": 3.33995558321476e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -923.083,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 0.943556,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5558670840109698,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -10924.2,
+          "output_l2": 43569.4,
+          "route": [
+            66,
+            88,
+            26,
+            105
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.4112679162685406,
+          0.21049680048620356,
+          0.2055191441625513,
+          0.17271613908270456
+        ],
+        "layer": 30,
+        "output_sha256": "eae6a0660869988a0dc9745cdd52d446979157f79f6d4e3debf5dcb2467837d8",
+        "route": [
+          66,
+          88,
+          26,
+          105
+        ],
+        "shared_load_seconds": 6.249756552278996e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 2968.94,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -18.843,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5551817910163663,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 15977.8,
+          "output_l2": 51850.4,
+          "route": [
+            29,
+            103,
+            96,
+            27
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3899341104623045,
+          0.2437138220313535,
+          0.18443681909364584,
+          0.18191524841269627
+        ],
+        "layer": 31,
+        "output_sha256": "45924d596a94623c857707050d4ce401467e13ca4119318f66de3b8c05311f02",
+        "route": [
+          29,
+          103,
+          96,
+          27
+        ],
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 27391.3,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -2.26933,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5605800829944201,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 24228.7,
+          "output_l2": 74970.4,
+          "route": [
+            67,
+            48,
+            15,
+            23
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.5104776088487576,
+          0.18393052519391484,
+          0.15705883178904576,
+          0.14853303416828176
+        ],
+        "layer": 32,
+        "output_sha256": "48d3c9c80b9c0c97b776ad6471592092fdd5a0ad1feb56af108ca5aa6d85fec7",
+        "route": [
+          67,
+          48,
+          15,
+          23
+        ],
+        "shared_load_seconds": 3.7497375160455704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 24606.7,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -10.4376,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5537197079975158,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 26862.2,
+          "output_l2": 72277.9,
+          "route": [
+            36,
+            118,
+            121,
+            21
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.30779529785820164,
+          0.2429078025003264,
+          0.2248839613509051,
+          0.22441293829056677
+        ],
+        "layer": 33,
+        "output_sha256": "41372f7300287342d3567d761fba5de5cb8b248500b205b40ea8e47d0289bc4b",
+        "route": [
+          36,
+          118,
+          121,
+          21
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 38241,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -15.1447,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5549988750135526,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 62685.4,
+          "output_l2": 95492.1,
+          "route": [
+            83,
+            25,
+            46,
+            99
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.4332078931510523,
+          0.20623064698248264,
+          0.19380760281340587,
+          0.16675385705305923
+        ],
+        "layer": 34,
+        "output_sha256": "49ab5d239b9d50e18c806e55733e55952ce82a26b86613c201c11b3c62790991",
+        "route": [
+          83,
+          25,
+          46,
+          99
+        ],
+        "shared_load_seconds": 2.92027834802866e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 64144.2,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -39.6794,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.5552314160158858,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 64498.4,
+          "output_l2": 101177,
+          "route": [
+            111,
+            98,
+            76,
+            116
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.31027016418664033,
+          0.2573335658223369,
+          0.25370507679005794,
+          0.17869119320096488
+        ],
+        "layer": 35,
+        "output_sha256": "f2e99f840dc4ff1880b1b5f40b3e39ac883e08ab9fce3b83de9a105f4f9a4e64",
+        "route": [
+          111,
+          98,
+          76,
+          116
+        ],
+        "shared_load_seconds": 4.589674063026905e-07
+      }
+    ],
+    "logits_sha256": "aa5c9b4ed7725bb2626401f4e4470271cb34e4e76e401b264c0bedadd5bd50fa",
+    "output": {
+      "argmax_token_id": 2167,
+      "finite": true,
+      "logit_checksum": -251787,
+      "max_logit": 12.6352,
+      "schema": "aion.gptoss.output-cpu.v1"
+    },
+    "store_metric_delta": {
+      "compressed_bytes_read": 1826871414,
+      "evictions": 0,
+      "faults": 144,
+      "hits": 0,
+      "raw_bytes_materialized": 1908541440
+    },
+    "store_metrics": {
+      "capacity_bytes": 3221225472,
+      "compressed_bytes_read": 1826871414,
+      "evictions": 0,
+      "faults": 144,
+      "hit_rate": 0.0,
+      "hits": 0,
+      "peak_resident_bytes": 1908541440,
+      "raw_bytes_materialized": 1908541440,
+      "resident_bytes": 1908541440
+    },
+    "wall_seconds": 28.328326959046535
+  },
+  "run_b": {
+    "final_hidden_sha256": "f2e99f840dc4ff1880b1b5f40b3e39ac883e08ab9fce3b83de9a105f4f9a4e64",
+    "label": "b",
+    "layers": [
+      {
+        "attention": {
+          "ffn_input_checksum": 204.027,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 69.7112,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 5.383300594985485e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 252.151,
+          "output_l2": 111.805,
+          "route": [
+            83,
+            84,
+            30,
+            33
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3474767273221237,
+          0.22898636698688207,
+          0.2241733979558584,
+          0.19936350773513567
+        ],
+        "layer": 0,
+        "output_sha256": "9ac7d6d83f5be636bfce9211f404292e1baa45ae26bc265c2cf790ab9757efcd",
+        "route": [
+          83,
+          84,
+          30,
+          33
+        ],
+        "shared_load_seconds": 8.399365469813347e-08
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 274.059,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 101.169,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.062497125938535e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 391.522,
+          "output_l2": 146.578,
+          "route": [
+            93,
+            64,
+            52,
+            5
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3778282493364321,
+          0.27710609399890035,
+          0.1774758854653266,
+          0.1675897711993409
+        ],
+        "layer": 1,
+        "output_sha256": "8239d4dae50f6274c42fbd15e2801f230b6e02ad26e225c969675a1368ae0b50",
+        "route": [
+          93,
+          64,
+          52,
+          5
+        ],
+        "shared_load_seconds": 1.125037670135498e-06
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 452.652,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 118.181,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.00014625000767409801,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 484.046,
+          "output_l2": 192.526,
+          "route": [
+            92,
+            23,
+            112,
+            29
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.30134868595270203,
+          0.24093221779456372,
+          0.2344232260780234,
+          0.2232958701747109
+        ],
+        "layer": 2,
+        "output_sha256": "273867b42aea255f9d221a08fadc0e30f7ad495bceb15595b29347bee99c795c",
+        "route": [
+          92,
+          23,
+          112,
+          29
+        ],
+        "shared_load_seconds": 4.169996827840805e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 511.774,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 99.1792,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.9249949622899294e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 633.561,
+          "output_l2": 258.742,
+          "route": [
+            110,
+            116,
+            30,
+            25
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.2780768695492458,
+          0.26907771237478106,
+          0.26773462971710305,
+          0.18511078835887004
+        ],
+        "layer": 3,
+        "output_sha256": "df9f9b740289b99be80b44d022c15053ce67de5b02b72c081a131440946b1c9b",
+        "route": [
+          110,
+          116,
+          30,
+          25
+        ],
+        "shared_load_seconds": 3.3300602808594704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 678.426,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 106.459,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.0002501669805496931,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 817.303,
+          "output_l2": 344.499,
+          "route": [
+            72,
+            14,
+            22,
+            34
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.28205129982170885,
+          0.26355726915690925,
+          0.26114936491451873,
+          0.1932420661068632
+        ],
+        "layer": 4,
+        "output_sha256": "29ed06870996a92a8be71089c3abe005bafa5d9f554d959cc658b03e2231236a",
+        "route": [
+          72,
+          14,
+          22,
+          34
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 933.314,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 116.112,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 4.1624996811151505e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 776.296,
+          "output_l2": 377.555,
+          "route": [
+            111,
+            29,
+            6,
+            44
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.47345169446987734,
+          0.25867241915742273,
+          0.14338076529346547,
+          0.12449512107923431
+        ],
+        "layer": 5,
+        "output_sha256": "03bbdfd8e262556915e3f6806142add855ca99879847cd42bebe2ca9d07ac92a",
+        "route": [
+          111,
+          29,
+          6,
+          44
+        ],
+        "shared_load_seconds": 2.919696271419525e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 742.28,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 92.1557,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 5.6333024986088276e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -7380.13,
+          "output_l2": 9473.19,
+          "route": [
+            121,
+            55,
+            37,
+            21
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.757732044486188,
+          0.11207853919502053,
+          0.08293023539260497,
+          0.047259180926186424
+        ],
+        "layer": 6,
+        "output_sha256": "af6f57bf950619daf7950f0733a9fd02c66d5e4fe20a843bccfbc29394aeeea6",
+        "route": [
+          121,
+          55,
+          37,
+          21
+        ],
+        "shared_load_seconds": 3.3300602808594704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -7326.26,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -42.0887,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.0750001315027475e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -7870.11,
+          "output_l2": 9973.83,
+          "route": [
+            84,
+            80,
+            1,
+            75
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.44934747144957854,
+          0.25360340388296454,
+          0.19640089640107217,
+          0.10064822826638474
+        ],
+        "layer": 7,
+        "output_sha256": "9768f011b54b202ea26c0fab87b9b7643d8eff1d599d359d20af7a331bd33ce5",
+        "route": [
+          84,
+          80,
+          1,
+          75
+        ],
+        "shared_load_seconds": 4.169996827840805e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -7799.8,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -40.421,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.845900598913431e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -7861.98,
+          "output_l2": 9858.66,
+          "route": [
+            43,
+            7,
+            76,
+            31
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.8941272630895175,
+          0.03593705001152478,
+          0.035078704116798726,
+          0.0348569827821591
+        ],
+        "layer": 8,
+        "output_sha256": "312ec9e69a579bd34b5da6e24597e8a9583f3149c451de683c1ab9c9f30a80f1",
+        "route": [
+          43,
+          7,
+          76,
+          31
+        ],
+        "shared_load_seconds": 2.919696271419525e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -7938.55,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -37.1573,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.279097680002451e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6958.2,
+          "output_l2": 8746.2,
+          "route": [
+            85,
+            87,
+            6,
+            98
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.6920656972301666,
+          0.16541634571183736,
+          0.0797148338539035,
+          0.0628031232040925
+        ],
+        "layer": 9,
+        "output_sha256": "b6cca8b5241690bc864316a7f2f15659a72786b3792e45827b60ff8bb0922106",
+        "route": [
+          85,
+          87,
+          6,
+          98
+        ],
+        "shared_load_seconds": 4.5902561396360397e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6933.62,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -31.3191,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 4.2583036702126265e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -7032.07,
+          "output_l2": 9336.84,
+          "route": [
+            20,
+            41,
+            80,
+            98
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.5551469225471615,
+          0.20823773194879477,
+          0.13308748457022895,
+          0.10352786093381484
+        ],
+        "layer": 10,
+        "output_sha256": "975eeabca70d20b6ad3b334e2f0968e621618fc8e21792a3fe4e96d0258ebc60",
+        "route": [
+          20,
+          41,
+          80,
+          98
+        ],
+        "shared_load_seconds": 2.92027834802866e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6884.31,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -32.7593,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.8582988306879997e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6768.51,
+          "output_l2": 9479.85,
+          "route": [
+            56,
+            48,
+            35,
+            28
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.8934946294778949,
+          0.036998397139771134,
+          0.03510687544694412,
+          0.034400097935389846
+        ],
+        "layer": 11,
+        "output_sha256": "06ac50e421cb7dff54dc5e128bafd363142cd7fb218a67cf89a5cc9c9e576409",
+        "route": [
+          56,
+          48,
+          35,
+          28
+        ],
+        "shared_load_seconds": 2.9098009690642357e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6699.53,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -35.3499,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.55830236710608e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6249.79,
+          "output_l2": 9408.34,
+          "route": [
+            109,
+            16,
+            86,
+            46
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.45322392335329187,
+          0.3218222818999183,
+          0.12551551424915836,
+          0.09943828049763148
+        ],
+        "layer": 12,
+        "output_sha256": "d8a527be66a01762d600016403dced94a54c7575aa640fab0ffb00bc5c44d394",
+        "route": [
+          109,
+          16,
+          86,
+          46
+        ],
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6720.8,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -31.8005,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.241701051592827e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6910.55,
+          "output_l2": 9399.44,
+          "route": [
+            57,
+            104,
+            22,
+            96
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.7768096562412105,
+          0.07816305748465065,
+          0.0741371516515452,
+          0.07089013462259364
+        ],
+        "layer": 13,
+        "output_sha256": "646806ef533c864f9fab239256cd243ac2d9360e7719da411c7fe902129ed4e4",
+        "route": [
+          57,
+          104,
+          22,
+          96
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6910.24,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -43.7769,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.8915994334965944e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6720.86,
+          "output_l2": 9252.17,
+          "route": [
+            60,
+            104,
+            30,
+            19
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.8642415568508166,
+          0.05633305673794077,
+          0.039940723885222594,
+          0.03948466252602002
+        ],
+        "layer": 14,
+        "output_sha256": "73a75f5eae639e1cfe5e780a22d048b3fd52c5783edf24e77bf253ad661d4f79",
+        "route": [
+          60,
+          104,
+          30,
+          19
+        ],
+        "shared_load_seconds": 3.3294782042503357e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6550.58,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -40.8193,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.266596468165517e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4901.92,
+          "output_l2": 7942.97,
+          "route": [
+            124,
+            33,
+            26,
+            100
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.347179767329519,
+          0.3306246771972267,
+          0.16720863602969357,
+          0.1549869194435608
+        ],
+        "layer": 15,
+        "output_sha256": "dff6ac300a8224ac2076ea637b003fda833b84513818e6e578be094bb30d8d38",
+        "route": [
+          124,
+          33,
+          26,
+          100
+        ],
+        "shared_load_seconds": 1.66997779160738e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4828.83,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -29.567,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.404199378564954e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4536.99,
+          "output_l2": 8049.06,
+          "route": [
+            21,
+            29,
+            13,
+            54
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.6082655053903921,
+          0.1816551977959025,
+          0.10542791956976331,
+          0.10465137724394197
+        ],
+        "layer": 16,
+        "output_sha256": "3ab3600fb124e205077ab400d82d02c3538b4cbb3f3888522a80102264248688",
+        "route": [
+          21,
+          29,
+          13,
+          54
+        ],
+        "shared_load_seconds": 2.9098009690642357e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4567.55,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -21.1349,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.62499849870801e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -3471.45,
+          "output_l2": 6980.59,
+          "route": [
+            20,
+            99,
+            4,
+            124
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.28963377790115813,
+          0.24879861749623727,
+          0.23146830886675462,
+          0.23009929573585
+        ],
+        "layer": 17,
+        "output_sha256": "1bb94c06a8416f21063e55b96587a08994c1b2ca97605e05cb98da6341b51c2a",
+        "route": [
+          20,
+          99,
+          4,
+          124
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4589.43,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -25.636,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.170897252857685e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4532.69,
+          "output_l2": 7446.11,
+          "route": [
+            20,
+            53,
+            107,
+            82
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.2860820939524475,
+          0.2637755617128793,
+          0.22610529572438223,
+          0.224037048610291
+        ],
+        "layer": 18,
+        "output_sha256": "f3b01a248d22943e853c123402400d14f1e33c450109cb36f3f763c00daf440c",
+        "route": [
+          20,
+          53,
+          107,
+          82
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4793.56,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -28.8392,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.208301495760679e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -1736.46,
+          "output_l2": 8408.02,
+          "route": [
+            38,
+            97,
+            96,
+            12
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.40797779693421254,
+          0.22913887149883627,
+          0.18534174559059702,
+          0.17754158597635417
+        ],
+        "layer": 19,
+        "output_sha256": "0cbd6272e3be840e5bf0e7709f5c9aec734fb323532957174012f62f905f39ba",
+        "route": [
+          38,
+          97,
+          96,
+          12
+        ],
+        "shared_load_seconds": 2.92027834802866e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -729.982,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -20.2058,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.3667002096772194e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 2755.41,
+          "output_l2": 10916.1,
+          "route": [
+            9,
+            104,
+            51,
+            59
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3123365614622252,
+          0.2604014757600569,
+          0.25129573480412776,
+          0.1759662279735901
+        ],
+        "layer": 20,
+        "output_sha256": "5d1a717257339e6e3ed7ccf6a07dfde761fa1f6c1a022450124086f71d7655c3",
+        "route": [
+          9,
+          104,
+          51,
+          59
+        ],
+        "shared_load_seconds": 2.919696271419525e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6441.06,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -52.1034,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.958295565098524e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -1883,
+          "output_l2": 13539.4,
+          "route": [
+            96,
+            123,
+            102,
+            83
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.33522498182155036,
+          0.28790766436773524,
+          0.2095971069750537,
+          0.16727024683566066
+        ],
+        "layer": 21,
+        "output_sha256": "686a6f29167c65997291b431826b3aba31c1563f30a74a6956134468924bc38b",
+        "route": [
+          96,
+          123,
+          102,
+          83
+        ],
+        "shared_load_seconds": 3.3294782042503357e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 194.461,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -27.0812,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.5415985621511936e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4996.35,
+          "output_l2": 16036.3,
+          "route": [
+            25,
+            116,
+            106,
+            50
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.4742259501969739,
+          0.18499823987528402,
+          0.18187435140115582,
+          0.15890145852658627
+        ],
+        "layer": 22,
+        "output_sha256": "875f0a3a53c16eb8759d977d506c59bcb1e191f7c9e541b2230d3ec89d39b11e",
+        "route": [
+          25,
+          116,
+          106,
+          50
+        ],
+        "shared_load_seconds": 3.3300602808594704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -2479.88,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -46.8489,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 4.554202314466238e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -4219.4,
+          "output_l2": 17672.9,
+          "route": [
+            15,
+            124,
+            79,
+            42
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.43851713816295995,
+          0.23772960250190678,
+          0.1928086645330767,
+          0.13094459480205664
+        ],
+        "layer": 23,
+        "output_sha256": "d264f3b5c5f36f272853e2a03a7ef681346b1000309d84bc8f8147360de2b58c",
+        "route": [
+          15,
+          124,
+          79,
+          42
+        ],
+        "shared_load_seconds": 5.41971530765295e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -4332.29,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -34.4154,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 4.612503107637167e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -9313.71,
+          "output_l2": 21461.9,
+          "route": [
+            17,
+            86,
+            105,
+            113
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3892802125705302,
+          0.22079589353205484,
+          0.20965638660752486,
+          0.1802675072898902
+        ],
+        "layer": 24,
+        "output_sha256": "ee087d55f4fe80668bbe03c022bec05114542160acb452d4a1114661626178ca",
+        "route": [
+          17,
+          86,
+          105,
+          113
+        ],
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6700.26,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -24.4838,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.4917011614888906e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -8211.86,
+          "output_l2": 25673.7,
+          "route": [
+            7,
+            89,
+            68,
+            82
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.355972614309577,
+          0.2666259166890436,
+          0.20199760951737392,
+          0.17540385948400541
+        ],
+        "layer": 25,
+        "output_sha256": "9e1277abcedaced1ff97f6aa77c6293eff7dc97914c48cdc6ff7377540e1d6dd",
+        "route": [
+          7,
+          89,
+          68,
+          82
+        ],
+        "shared_load_seconds": 2.500019036233425e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -8494.22,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -27.6529,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 4.7499954234808683e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -6572.93,
+          "output_l2": 28476.4,
+          "route": [
+            4,
+            110,
+            74,
+            79
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.39939865845117606,
+          0.2198546695092583,
+          0.20085539711575195,
+          0.17989127492381365
+        ],
+        "layer": 26,
+        "output_sha256": "9a45c42882f7cdfbbb8d5f047b7f6bf5f3f007fbe87bf6672a0461a6240968a9",
+        "route": [
+          4,
+          110,
+          74,
+          79
+        ],
+        "shared_load_seconds": 3.3294782042503357e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -6121.44,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -17.9987,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.7165998946875334e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -3485,
+          "output_l2": 32160.9,
+          "route": [
+            98,
+            52,
+            16,
+            71
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.4988230027319094,
+          0.1975792461008564,
+          0.1748578077213696,
+          0.12873994344586454
+        ],
+        "layer": 27,
+        "output_sha256": "9d39d3e8ed921807f39d1a169d65554fde87b76b0f01630042544c4eb7bd3bc1",
+        "route": [
+          98,
+          52,
+          16,
+          71
+        ],
+        "shared_load_seconds": 3.750319592654705e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 865.006,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 3.13775,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.8999987989664078e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -8851.41,
+          "output_l2": 36067.4,
+          "route": [
+            46,
+            57,
+            86,
+            95
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.34242383269138726,
+          0.24669000435313912,
+          0.21556494100990434,
+          0.19532122194556925
+        ],
+        "layer": 28,
+        "output_sha256": "44efc60aa86dc8b9b60f51b5beba384571f8e5a30672dbea33b3753652d1363c",
+        "route": [
+          46,
+          57,
+          86,
+          95
+        ],
+        "shared_load_seconds": 4.5902561396360397e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -9232.71,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -9.64336,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 18855936,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.629201091825962e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -3358.42,
+          "output_l2": 39208.8,
+          "route": [
+            22,
+            29,
+            87,
+            32
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3013532370243065,
+          0.2824254639785505,
+          0.213013917798171,
+          0.20320738119897197
+        ],
+        "layer": 29,
+        "output_sha256": "d8a357368c58567d2af39e09a3a7379f6fb51599fc11935bc6b735bef7447399",
+        "route": [
+          22,
+          29,
+          87,
+          32
+        ],
+        "shared_load_seconds": 5.00003807246685e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": -923.083,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": 0.943556,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.162503708153963e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": -10924.2,
+          "output_l2": 43569.4,
+          "route": [
+            66,
+            88,
+            26,
+            105
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.4112679162685406,
+          0.21049680048620356,
+          0.2055191441625513,
+          0.17271613908270456
+        ],
+        "layer": 30,
+        "output_sha256": "eae6a0660869988a0dc9745cdd52d446979157f79f6d4e3debf5dcb2467837d8",
+        "route": [
+          66,
+          88,
+          26,
+          105
+        ],
+        "shared_load_seconds": 3.3300602808594704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 2968.94,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -18.843,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.408303018659353e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 15977.8,
+          "output_l2": 51850.4,
+          "route": [
+            29,
+            103,
+            96,
+            27
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.3899341104623045,
+          0.2437138220313535,
+          0.18443681909364584,
+          0.18191524841269627
+        ],
+        "layer": 31,
+        "output_sha256": "45924d596a94623c857707050d4ce401467e13ca4119318f66de3b8c05311f02",
+        "route": [
+          29,
+          103,
+          96,
+          27
+        ],
+        "shared_load_seconds": 3.750319592654705e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 27391.3,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -2.26933,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 3.308401210233569e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 24228.7,
+          "output_l2": 74970.4,
+          "route": [
+            67,
+            48,
+            15,
+            23
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.5104776088487576,
+          0.18393052519391484,
+          0.15705883178904576,
+          0.14853303416828176
+        ],
+        "layer": 32,
+        "output_sha256": "48d3c9c80b9c0c97b776ad6471592092fdd5a0ad1feb56af108ca5aa6d85fec7",
+        "route": [
+          67,
+          48,
+          15,
+          23
+        ],
+        "shared_load_seconds": 2.92027834802866e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 24606.7,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -10.4376,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 0.0002812080201692879,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 26862.2,
+          "output_l2": 72277.9,
+          "route": [
+            36,
+            118,
+            121,
+            21
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.30779529785820164,
+          0.2429078025003264,
+          0.2248839613509051,
+          0.22441293829056677
+        ],
+        "layer": 33,
+        "output_sha256": "41372f7300287342d3567d761fba5de5cb8b248500b205b40ea8e47d0289bc4b",
+        "route": [
+          36,
+          118,
+          121,
+          21
+        ],
+        "shared_load_seconds": 3.7497375160455704e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 38241,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -15.1447,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 2.9666000045835972e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 62685.4,
+          "output_l2": 95492.1,
+          "route": [
+            83,
+            25,
+            46,
+            99
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.4332078931510523,
+          0.20623064698248264,
+          0.19380760281340587,
+          0.16675385705305923
+        ],
+        "layer": 34,
+        "output_sha256": "49ab5d239b9d50e18c806e55733e55952ce82a26b86613c201c11b3c62790991",
+        "route": [
+          83,
+          25,
+          46,
+          99
+        ],
+        "shared_load_seconds": 1.6600824892520905e-07
+      },
+      {
+        "attention": {
+          "ffn_input_checksum": 64144.2,
+          "finite": true,
+          "position": 0,
+          "router_input_checksum": -39.6794,
+          "schema": "aion.gptoss.layer0-attention-cpu.v1",
+          "shared_weight_bytes": 19408896,
+          "threads": 8
+        },
+        "expert_load_seconds": 4.8457994125783443e-05,
+        "finish": {
+          "expert_weight_bytes": 52876800,
+          "finite": true,
+          "output_checksum": 64498.4,
+          "output_l2": 101177,
+          "route": [
+            111,
+            98,
+            76,
+            116
+          ],
+          "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+        },
+        "gates": [
+          0.31027016418664033,
+          0.2573335658223369,
+          0.25370507679005794,
+          0.17869119320096488
+        ],
+        "layer": 35,
+        "output_sha256": "f2e99f840dc4ff1880b1b5f40b3e39ac883e08ab9fce3b83de9a105f4f9a4e64",
+        "route": [
+          111,
+          98,
+          76,
+          116
+        ],
+        "shared_load_seconds": 6.249756552278996e-07
+      }
+    ],
+    "logits_sha256": "aa5c9b4ed7725bb2626401f4e4470271cb34e4e76e401b264c0bedadd5bd50fa",
+    "output": {
+      "argmax_token_id": 2167,
+      "finite": true,
+      "logit_checksum": -251787,
+      "max_logit": 12.6352,
+      "schema": "aion.gptoss.output-cpu.v1"
+    },
+    "store_metric_delta": {
+      "compressed_bytes_read": 0,
+      "evictions": 0,
+      "faults": 0,
+      "hits": 144,
+      "raw_bytes_materialized": 0
+    },
+    "store_metrics": {
+      "capacity_bytes": 3221225472,
+      "compressed_bytes_read": 1826871414,
+      "evictions": 0,
+      "faults": 144,
+      "hit_rate": 0.5,
+      "hits": 144,
+      "peak_resident_bytes": 1908541440,
+      "raw_bytes_materialized": 1908541440,
+      "resident_bytes": 1908541440
+    },
+    "wall_seconds": 11.863616707967594
+  },
+  "schema": "aion.gptoss-first-token-gate.v1",
+  "shared_one_time_stage_seconds": 9.315355416038074,
+  "status": "PASSED"
+}

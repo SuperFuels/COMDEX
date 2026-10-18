@@ -69,6 +69,9 @@ class DecisionEngine:
         """
         Make an adaptive decision influenced by resonance, context, and goals.
         """
+        if context and (context.get("objective") or context.get("goal")):
+            return self.decide_governed(context)
+
         options = [
             "reflect on dreams",
             "prioritize goals",
@@ -134,6 +137,63 @@ class DecisionEngine:
         })
 
         return decision
+
+    def decide_governed(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Make an evidence- and authority-bound decision for a real mission."""
+        from backend.modules.consciousness.ethics_engine import EthicsEngine
+        from backend.modules.consciousness.planning_engine import PlanningEngine
+        from backend.modules.consciousness.prediction_engine import PredictionEngine
+        from backend.modules.hexcore.governed_cognitive_contract import canonical_hash, utc_now
+
+        capability = context.get("capability_decision")
+        if capability is None and self.action_switch.capability_harness is not None:
+            capability = self.action_switch.capability_harness.evaluate(
+                context, register_learning=True
+            )
+        capability = dict(capability or {"decision": "clarify", "reason": "capability_state_unavailable"})
+        plan = PlanningEngine.__new__(PlanningEngine).generate_governed_plan(
+            context, capability
+        )
+        feasibility = PredictionEngineBaseLike.assess(context, capability)
+        ethical = EthicsEngine().evaluate_action({
+            **context,
+            "capability_decision": capability,
+        })
+        decision = "propose"
+        reason = "ready_for_governed_adapter"
+        if capability.get("decision") in {"learn_then_execute", "clarify", "blocked"}:
+            decision, reason = capability.get("decision"), capability.get("reason")
+        elif not ethical.get("allowed"):
+            decision, reason = "deny_or_escalate", "ethics_or_authority_gate"
+        elif feasibility < 0.5:
+            decision, reason = "investigate", "feasibility_requires_more_evidence"
+        result = {
+            "schema_version": "aion.governed_decision.v1",
+            "decision_id": "decision_" + canonical_hash([context, capability, plan])[:20],
+            "decided_at": utc_now(),
+            "decision": decision,
+            "reason": reason,
+            "capability_decision": capability,
+            "feasibility": feasibility,
+            "ethics": ethical,
+            "plan": plan,
+            "proposal_only": True,
+            "execution_authority": False,
+        }
+        self.last_decision = decision
+        self.last_timestamp = result["decided_at"]
+        return result
+
+
+class PredictionEngineBaseLike:
+    """Lightweight deterministic feasibility bridge avoiding heavy re-init."""
+
+    @staticmethod
+    def assess(context: Dict[str, Any], capability: Dict[str, Any]) -> float:
+        from backend.modules.consciousness.prediction_engine import PredictionEngineBase
+        return PredictionEngineBase.assess_feasibility(
+            object(), {**context, "capability_decision": capability}
+        )
 
     # ------------------------------------------------------------
     def _run_highest_priority_goal(self):

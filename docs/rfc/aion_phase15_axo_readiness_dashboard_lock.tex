@@ -1,0 +1,62 @@
+\section{Phase 15C --- AXO Readiness Dashboard}
+\label{sec:phase15c-axo-readiness-dashboard-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- AXO readiness is exposed as a preview-only Boardroom dashboard panel.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock exposes the AXO and Execution Trust Score state as a readable Boardroom dashboard panel.
+
+The panel summarizes trust readiness, score separation, proof links, evidence links, governance blockers, and safety controls.
+
+\subsection{Contract}
+
+The AXO readiness dashboard payload uses:
+
+\begin{verbatim}
+aion.axo_readiness_dashboard.v0.1
+\end{verbatim}
+
+It includes:
+
+\begin{itemize}
+  \item readiness score preview,
+  \item customer outcome score,
+  \item system execution score,
+  \item agent reliability score,
+  \item evidence quality score,
+  \item proof receipt link,
+  \item job trace link,
+  \item evidence identifiers,
+  \item ETS feedback hash,
+  \item trust controls,
+  \item readiness blockers.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The dashboard is preview-only and read-only.
+
+It MUST NOT mutate reputation, publish rankings, accept external scores, create bookings, move money, create payment, create escrow, send external messages, or execute workflows.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase15_axo_readiness_dashboard_lock.py
+
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE15C-AXO-READINESS-DASHBOARD
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

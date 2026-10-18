@@ -1,0 +1,76 @@
+\section{Phase 21G --- Pilot Feedback Controls}
+\label{sec:aion-phase21g-pilot-feedback-controls}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21G locks the visible Pilot feedback controls.
+
+\subsection{Purpose}
+
+The Pilot cockpit MUST support governed user feedback.
+
+The UI MAY expose:
+
+\begin{itemize}
+  \item approve;
+  \item reject;
+  \item revise;
+  \item stop;
+  \item retry;
+  \item continue.
+\end{itemize}
+
+\subsection{Feedback Event Rule}
+
+Every feedback action MUST create a governed feedback event.
+
+Feedback MUST NOT silently mutate:
+
+\begin{itemize}
+  \item live memory;
+  \item reusable templates;
+  \item provider state;
+  \item reputation;
+  \item external systems.
+\end{itemize}
+
+\subsection{Approval Boundary}
+
+Approve does not mean execute immediately.
+
+Approve MUST route into the existing AION approval chain.
+
+The feedback layer MUST NOT bypass:
+
+\begin{itemize}
+  \item plan matrix;
+  \item approval lattice;
+  \item autonomy budget;
+  \item expiry revocation;
+  \item external tool gateway;
+  \item capability receipt generation.
+\end{itemize}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{Pilot feedback is a governed state transition surface, not an execution bypass. Feedback may revise, stop, retry, continue, reject or route approval, but it MUST NOT silently mutate memory, templates, provider state, reputation or external systems.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21g_pilot_feedback_controls_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21G-PILOT-FEEDBACK-CONTROLS
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,95 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.19 --- Live Level-2 Post-Game Evidence Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.19 locks the Phase 22E.18 full live Level-2 rerun evidence.
+
+The live rerun used the Phase 22E.16 authorized sender path.
+
+\section{Locked Evidence}
+
+The Phase 22E.18 live game evidence is:
+
+\begin{itemize}[leftmargin=*]
+  \item game ID: \texttt{Jh3hn2ru};
+  \item full ID: \texttt{Jh3hn2ruYUQW};
+  \item AION colour: white;
+  \item final status: \texttt{outoftime};
+  \item winner: black;
+  \item final ply count: 120;
+  \item AION live sends: 61;
+  \item successful sends: 61/61;
+  \item illegal move count: 0;
+  \item promotion detected: \texttt{d7d8q}.
+\end{itemize}
+
+\section{Failure Mode Shift}
+
+The previous Level-2 failure mode was mate collapse or early tactical collapse.
+
+The new failure mode is timeout after a long queen endgame.
+
+This is a meaningful improvement. AION survived into a promoted-queen endgame, but did not convert the advantage before the clock expired.
+
+\section{Failure Review}
+
+The observed failure mode is:
+
+\begin{itemize}[leftmargin=*]
+  \item primary: clock pressure failure;
+  \item secondary: queen endgame conversion failure;
+  \item tertiary: repetition-like queen shuffling.
+\end{itemize}
+
+The next patch MUST target queen endgame conversion and clock pressure.
+
+\section{Next Patch Targets}
+
+The next patch SHOULD implement:
+
+\begin{itemize}[leftmargin=*]
+  \item queen endgame conversion kernel;
+  \item forced check and mate-pressure scoring;
+  \item enemy king mobility reduction scoring;
+  \item repetition memory penalty;
+  \item clock pressure override;
+  \item simplify-when-winning capture bias.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not play chess, does not send moves, does not call Lichess, does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+It only locks the live evidence and converts it into a deterministic patch target.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e19_full_chess_level2_live_post_game_evidence_review_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e19_full_chess_level2_live_post_game_evidence_review_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E19-FULL-CHESS-LEVEL2-LIVE-POST-GAME-EVIDENCE-REVIEW\\
+Status: LOCKED --- live Level-2 evidence reviewed and queen-endgame failure target identified\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

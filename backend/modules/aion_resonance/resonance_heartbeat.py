@@ -19,15 +19,20 @@ Data-root discovery aligns with MRTC:
 from __future__ import annotations
 import datetime
 import argparse
+from hashlib import sha256
 import json
 import logging
 import os
 import threading
 import time
+import uuid
+import weakref
 from collections import deque
 from pathlib import Path
 from statistics import fmean, mean
 from typing import Any, Dict, List, Optional, Tuple
+
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 # ─────────────────────────────────────────────────────────────
 # Logging / quiet mode
@@ -96,6 +101,8 @@ def _pick_data_root() -> Path:
     return best if best else Path("data")
 
 DATA_ROOT = _pick_data_root()
+_LIVE_HEARTBEATS: "weakref.WeakValueDictionary[str, ResonanceHeartbeat]" = weakref.WeakValueDictionary()
+_LIVE_HEARTBEATS_LOCK = threading.Lock()
 
 def _atomic_write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -134,14 +141,34 @@ class ResonanceHeartbeat:
         namespace: str = "core",
         base_interval: float = 1.5,
         window: int = 60,
-        auto_tick: bool = True,
+        auto_tick: bool | None = None,
         enable_events: bool = True,
+        vault_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
+        legacy_file_persistence: bool | None = None,
+        persist_interval_seconds: float = 60.0,
     ):
         self.namespace = namespace
+        self._state_entity_id = (
+            "resonance_heartbeat--"
+            + sha256(str(namespace).encode("utf-8")).hexdigest()[:24]
+        )
         self.interval = max(0.10, float(base_interval))
         self.window = max(10, int(window))
+        if auto_tick is None:
+            auto_tick = os.getenv("AION_RESONANCE_AUTO_TICK_DEFAULT", "0") == "1"
         self.auto_tick = bool(auto_tick)
         self.enable_events = bool(enable_events)
+        self.vault_store = vault_store or AionLearningVaultStore(
+            workspace_id=workspace_id,
+        )
+        if legacy_file_persistence is None:
+            legacy_file_persistence = (
+                os.getenv("TESSARIS_ALLOW_LEGACY_RESONANCE_FILES", "0") == "1"
+            )
+        self.legacy_file_persistence = bool(legacy_file_persistence)
+        self.persist_interval_seconds = max(1.0, float(persist_interval_seconds))
+        self._last_persist_monotonic = 0.0
 
         # Threading + state
         self.listeners = []
@@ -160,7 +187,8 @@ class ResonanceHeartbeat:
 
         # Paths (DATA_ROOT aligned)
         self.log_path = DATA_ROOT / "aion_field" / f"{self.namespace}_heartbeat_live.json"
-        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        if self.legacy_file_persistence:
+            self.log_path.parent.mkdir(parents=True, exist_ok=True)
 
         self.event_log_path = DATA_ROOT / "analysis" / "aion_live_dashboard.jsonl"
         self.drift_log_path = DATA_ROOT / "aion_field" / "resonant_drift_log.jsonl"
@@ -175,8 +203,11 @@ class ResonanceHeartbeat:
             "resonance_delta": 0.0,
             "Θ_frequency": 1.0,
             "timestamp": time.time(),
-            "data_root": str(DATA_ROOT),
+            "storage_boundary": "guardian" if self.vault_store.enabled else "memory",
         }
+
+        with _LIVE_HEARTBEATS_LOCK:
+            _LIVE_HEARTBEATS[self.namespace] = self
 
         # Initialize according to mode
         if self.auto_tick:
@@ -189,13 +220,24 @@ class ResonanceHeartbeat:
 
     # ------------------------------------------------------------
     def _load_last_pulse(self) -> Optional[Dict[str, Any]]:
+        if self.vault_store.enabled:
+            value = self.vault_store.get_state(
+                self._state_entity_id,
+                None,
+            )
+            if isinstance(value, dict):
+                value["namespace"] = self.namespace
+                value["storage_boundary"] = "guardian"
+                return value
+        if not self.legacy_file_persistence:
+            return None
         try:
             if self.log_path.exists():
                 js = json.loads(self.log_path.read_text(encoding="utf-8"))
                 if isinstance(js, dict):
                     # ensure namespace matches
                     js["namespace"] = self.namespace
-                    js.setdefault("data_root", str(DATA_ROOT))
+                    js["storage_boundary"] = "legacy-development-file"
                     return js
         except Exception:
             pass
@@ -220,29 +262,27 @@ class ResonanceHeartbeat:
                 self._delta.append(float(delta))
 
         if (not self.auto_tick) and (not QUIET):
-            log.debug(f"[Θ] sample({self.namespace}) SQI={sqi} ΔΦ={delta} src={source}")
+            log.debug(f"[Θ] sample({self.namespace}) SQI={sqi} ΔΦ={delta}")
 
     # ------------------------------------------------------------
     def tick(self) -> Dict[str, Any]:
         with self._lock:
             # 1) Prefer authoritative φ from disk (metabolism state), else fall back to buffers/last_pulse
             st = None
-            candidates = [
-                DATA_ROOT / "phi_reinforce_state.json",
-                DATA_ROOT / "data" / "phi_reinforce_state.json",
-                Path("backend/data/phi_reinforce_state.json"),
-                Path("data/phi_reinforce_state.json"),
-                Path("data/data/phi_reinforce_state.json"),
-            ]
-            for p in candidates:
-                try:
-                    if p.exists():
-                        j = json.loads(p.read_text(encoding="utf-8"))
-                        if isinstance(j, dict) and any(k in j for k in ("Φ_coherence", "Φ_entropy", "Φ_flux")):
-                            st = j
-                            break
-                except Exception:
-                    continue
+            if self.vault_store.enabled:
+                candidate = self.vault_store.get_state("phi_reinforce_state", None)
+                if isinstance(candidate, dict):
+                    st = candidate
+            elif self.legacy_file_persistence:
+                for p in _phi_state_candidates(DATA_ROOT):
+                    try:
+                        if p.exists():
+                            j = json.loads(p.read_text(encoding="utf-8"))
+                            if isinstance(j, dict) and any(k in j for k in ("Φ_coherence", "Φ_entropy", "Φ_flux")):
+                                st = j
+                                break
+                    except Exception:
+                        continue
 
             if st:
                 phi = float(st.get("Φ_coherence", self._last_pulse.get("Φ_coherence", 0.5)))
@@ -282,8 +322,10 @@ class ResonanceHeartbeat:
                 "last_update": now_iso,
 
                 # source/debug
-                "phi_source_file": str(p) if st else None,
-                "data_root": str(DATA_ROOT),
+                "phi_source": "guardian" if st and self.vault_store.enabled else (
+                    "legacy-development-file" if st else "rolling-memory"
+                ),
+                "storage_boundary": "guardian" if self.vault_store.enabled else "memory",
             }
             self._last_pulse = pulse
 
@@ -295,9 +337,18 @@ class ResonanceHeartbeat:
                 if not QUIET:
                     log.warning(f"[{self.namespace}::Heartbeat] listener error: {e}")
 
-        # persist (atomic)
         try:
-            _atomic_write_text(self.log_path, json.dumps(pulse, indent=2, ensure_ascii=False))
+            if self.vault_store.enabled:
+                persist_now = time.monotonic()
+                if (
+                    self._last_persist_monotonic == 0.0
+                    or persist_now - self._last_persist_monotonic
+                    >= self.persist_interval_seconds
+                ):
+                    self.vault_store.put_state(self._state_entity_id, pulse)
+                    self._last_persist_monotonic = persist_now
+            elif self.legacy_file_persistence:
+                _atomic_write_text(self.log_path, json.dumps(pulse, indent=2, ensure_ascii=False))
         except Exception as e:
             if not QUIET:
                 log.debug(f"[Θ] persist failed: {e}")
@@ -345,16 +396,37 @@ class ResonanceHeartbeat:
     def event(self, name: str, **kwargs) -> None:
         if not self.enable_events:
             return
+        for reserved in ("namespace", "event", "timestamp", "event_type"):
+            kwargs.pop(reserved, None)
+        try:
+            encoded = json.dumps(kwargs, ensure_ascii=False)
+        except (TypeError, ValueError) as exc:
+            if not QUIET:
+                log.warning(f"[Θ] event() rejected non-JSON payload: {exc}")
+            return
+        if len(encoded.encode("utf-8")) > 262_144:
+            if not QUIET:
+                log.warning("[Θ] event() rejected payload above 256 KiB")
+            return
         payload = {
+            **kwargs,
             "namespace": self.namespace,
             "event": name,
             "timestamp": time.time(),
-            **kwargs,
         }
         try:
-            self.event_log_path.parent.mkdir(parents=True, exist_ok=True)
-            with self.event_log_path.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+            if self.vault_store.enabled:
+                self.vault_store.append_event(
+                    f"resonance-event--{time.time_ns()}--{uuid.uuid4().hex}",
+                    {
+                        "event_type": "resonance_runtime_event",
+                        **payload,
+                    },
+                )
+            elif self.legacy_file_persistence:
+                self.event_log_path.parent.mkdir(parents=True, exist_ok=True)
+                with self.event_log_path.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps(payload, ensure_ascii=False) + "\n")
         except Exception as e:
             if not QUIET:
                 log.warning(f"[Θ] event() error: {e}")
@@ -366,20 +438,14 @@ class ResonanceHeartbeat:
 
     # ------------------------------------------------------------
     def sync_all(self, emit_pulse: bool = True) -> Optional[float]:
-        hb_dir = DATA_ROOT / "aion_field"
-        hb_files = list(hb_dir.glob("*_heartbeat_live.json"))
-        if not hb_files:
+        with _LIVE_HEARTBEATS_LOCK:
+            heartbeats = list(_LIVE_HEARTBEATS.values())
+        if not heartbeats:
             if not QUIET:
                 print("[Θ] sync_all -> no heartbeat files found.")
             return None
 
-        phases = []
-        for f in hb_files:
-            try:
-                js = json.loads(f.read_text(encoding="utf-8"))
-                phases.append(float(js.get("Θ_frequency", 1.0)))
-            except Exception:
-                continue
+        phases = [float(hb.snapshot().get("Θ_frequency", 1.0)) for hb in heartbeats]
 
         if not phases:
             return None
@@ -388,16 +454,10 @@ class ResonanceHeartbeat:
         harmony = 1 - (sum(abs(p - master) for p in phases) / len(phases))
         harmony = round(max(0.0, min(1.0, harmony)), 3)
 
-        # write back master Θ (best-effort)
-        for f in hb_files:
-            try:
-                js = json.loads(f.read_text(encoding="utf-8"))
-                js["Θ_frequency"] = round(master, 3)
-                js["timestamp"] = time.time()
-                js["data_root"] = str(DATA_ROOT)
-                _atomic_write_text(f, json.dumps(js, indent=2, ensure_ascii=False))
-            except Exception:
-                pass
+        for heartbeat in heartbeats:
+            with heartbeat._lock:
+                heartbeat._last_pulse["Θ_frequency"] = round(master, 3)
+                heartbeat._last_pulse["timestamp"] = time.time()
 
         if emit_pulse:
             self.tick()
@@ -412,20 +472,18 @@ class ResonanceHeartbeat:
         if self._drift_running:
             return
         self._drift_running = True
-        self.drift_log_path.parent.mkdir(parents=True, exist_ok=True)
+        if self.legacy_file_persistence:
+            self.drift_log_path.parent.mkdir(parents=True, exist_ok=True)
 
         def _drift_loop() -> None:
-            hb_dir = DATA_ROOT / "aion_field"
             while self._drift_running:
                 try:
-                    files = list(hb_dir.glob("*_heartbeat_live.json"))
-                    phases: List[Tuple[Path, float]] = []
-                    for f in files:
-                        try:
-                            js = json.loads(f.read_text(encoding="utf-8"))
-                            phases.append((f, float(js.get("Θ_frequency", 1.0))))
-                        except Exception:
-                            continue
+                    with _LIVE_HEARTBEATS_LOCK:
+                        heartbeats = list(_LIVE_HEARTBEATS.values())
+                    phases = [
+                        (hb, float(hb.snapshot().get("Θ_frequency", 1.0)))
+                        for hb in heartbeats
+                    ]
 
                     if not phases:
                         time.sleep(interval)
@@ -433,28 +491,24 @@ class ResonanceHeartbeat:
 
                     master = fmean(p[1] for p in phases)
 
-                    for f, theta in phases:
+                    for heartbeat, theta in phases:
                         drift = theta - master
                         if abs(drift) > threshold:
                             corrected = theta - (correction_rate * drift)
-                            try:
-                                js = json.loads(f.read_text(encoding="utf-8"))
-                                js["Θ_frequency"] = round(corrected, 3)
-                                js["timestamp"] = time.time()
-                                js["data_root"] = str(DATA_ROOT)
-                                _atomic_write_text(f, json.dumps(js, indent=2, ensure_ascii=False))
-                            except Exception:
-                                continue
+                            with heartbeat._lock:
+                                heartbeat._last_pulse["Θ_frequency"] = round(corrected, 3)
+                                heartbeat._last_pulse["timestamp"] = time.time()
 
                             payload = {
-                                "namespace": f.stem,
+                                "namespace": heartbeat.namespace,
                                 "event": "drift_corrected",
                                 "ΔΦ": round(drift, 4),
                                 "corrected_to": round(corrected, 3),
                                 "timestamp": time.time(),
                             }
-                            with self.drift_log_path.open("a", encoding="utf-8") as df:
-                                df.write(json.dumps(payload, ensure_ascii=False) + "\n")
+                            if self.legacy_file_persistence:
+                                with self.drift_log_path.open("a", encoding="utf-8") as df:
+                                    df.write(json.dumps(payload, ensure_ascii=False) + "\n")
                             self.event("drift_corrected", **payload)
 
                     time.sleep(interval)

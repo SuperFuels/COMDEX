@@ -1,0 +1,48 @@
+{
+  "schema": "aion.riemann_live_exam.v3",
+  "execution_status": "ready",
+  "seal_manifest": "research/riemann_lab/v3_seal_manifest.json",
+  "replaces_incomplete_protocol_sha256": "ed3275b00d4c02514c6a88003e7ed27698013a6be47e718f45cb978bf2e62bf9",
+  "objective": "Measure governed verified-memory retrieval, diagnostic repair, cold-state behavior, and transfer on fresh source-closed zeta reformulations.",
+  "trusted_gate": "Lean 4.24.0 kernel with Mathlib v4.32.1",
+  "environment_sha256": "6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591",
+  "same_proposer_required": true,
+  "precommitted_scoring": {
+    "primary": "Lean-accepted tasks per arm",
+    "secondary": ["attempts", "provider_tokens", "elapsed_seconds"],
+    "superiority_claim_requires": "Full AION must pass the absolute floor and exceed every matched comparator by the precommitted margin; ties do not support superiority.",
+    "full_aion_minimum_passed": 4,
+    "full_aion_minimum_margin_over_each_ablation": 1,
+    "infrastructure_failures_allowed": 0
+  },
+  "budgets": {
+    "max_attempts_per_task": 2,
+    "max_output_tokens_per_call": 1000,
+    "equal_token_budget": true,
+    "equal_time_budget": true,
+    "equal_tool_budget": true
+  },
+  "arms": [
+    {"id":"proposer_alone","memory":false,"repair":false},
+    {"id":"aion_memory_repair","memory":true,"repair":true},
+    {"id":"aion_no_memory","memory":false,"repair":true},
+    {"id":"aion_no_repair","memory":true,"repair":false},
+    {"id":"cold_aion","memory":true,"repair":true,"isolated_state":true}
+  ],
+  "mechanisms": {
+    "memory": "HexCorePersistentLearningRuntime.knowledge.retrieve with Lean-verified evidence only",
+    "repair": "AionLeanRepairController classification, deterministic pinned-Mathlib theorem discovery, and one bounded retry",
+    "exam_memory_writes": false
+  },
+  "source_closed_tasks": [
+    {"id":"quadrupled_zeta_at_zero","family":"special_value_transfer","statement":"(4 : ℂ) * riemannZeta 0 = -2","statement_sha256":"9b000e8a669d38261f71e568a0a4e4bbaa564b05bcc37e3ff6815121f3658f37","declaration":"theorem quadrupled_zeta_at_zero : (4 : ℂ) * riemannZeta 0 = -2 := by","imports":["Mathlib.NumberTheory.LSeries.RiemannZeta"],"proof_body_disclosed":false},
+    {"id":"trivial_zero_at_neg_ten","family":"trivial_zero_specialization","statement":"riemannZeta (-10) = 0","statement_sha256":"34586aa990bdaccea85ffc14b6ceb1ec6090f73fe1ce087db022e900173a94dc","declaration":"theorem trivial_zero_at_neg_ten : riemannZeta (-10) = 0 := by","imports":["Mathlib.NumberTheory.LSeries.RiemannZeta"],"proof_body_disclosed":false},
+    {"id":"zero_implies_re_lt_one","family":"nonvanishing_contrapositive","statement":"For s : ℂ, riemannZeta s = 0 implies s.re < 1","statement_sha256":"c120c44cb90679ee3f9f4c4fd4d27eb02de879b1548dd56436f253a0224afaec","declaration":"theorem zero_implies_re_lt_one {s : ℂ} (hz : riemannZeta s = 0) : s.re < 1 := by","imports":["Mathlib.NumberTheory.LSeries.Nonvanishing"],"proof_body_disclosed":false},
+    {"id":"zeta_differentiable_within","family":"analytic_prerequisite","statement":"For s in {1}ᶜ, riemannZeta is differentiable within {1}ᶜ at s","statement_sha256":"5eee5abba2ff6515e9889fb34b0b66f2033f6621572675ade10c9845ccba7ef5","declaration":"theorem zeta_differentiable_within {s : ℂ} (hs : s ∈ ({1} : Set ℂ)ᶜ) : DifferentiableWithinAt ℂ riemannZeta ({1} : Set ℂ)ᶜ s := by","imports":["Mathlib.NumberTheory.LSeries.RiemannZeta"],"proof_body_disclosed":false},
+    {"id":"zeta_two_real_part_positive","family":"right_half_plane_positivity","statement":"0 < (riemannZeta (2 : ℝ)).re","statement_sha256":"cfb13c03f7163ae32f52fde9178b7155e9f37f195675f16994e3f0a13d565a53","declaration":"theorem zeta_two_real_part_positive : 0 < (riemannZeta (2 : ℝ)).re := by","imports":["Mathlib.NumberTheory.LSeries.Dirichlet"],"proof_body_disclosed":false},
+    {"id":"bounded_disk_has_finite_zeros","family":"zero_set_topology","statement":"The closed disk of radius 10 has finitely many riemannZetaZeros","statement_sha256":"8349a00b984e88fe1ede26e84ac836f328f3f40b3738fe92592752ce148cc50f","declaration":"theorem bounded_disk_has_finite_zeros : (Metric.closedBall (0 : ℂ) 10 ∩ riemannZetaZeros).Finite := by","imports":["Mathlib.NumberTheory.LSeries.ZetaZeros"],"proof_body_disclosed":false}
+  ],
+  "acceptance": {"lean_kernel_acceptance_required":true,"forbid_project_axiom_sorry_admit":true,"retain_candidate_and_output_hashes":true,"self_awarded_success_forbidden":true},
+  "delayed_retention": {"required":true,"minimum_delay_hours":8,"status":"precommitted_in_retention_task_packet_v1"},
+  "claim_boundary": {"rh_solved":false,"new_mathematics":false,"rh_progress_claimed":false,"aion_superiority_precommitted":false}
+}

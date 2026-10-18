@@ -1,0 +1,4203 @@
+{
+  "academy_id": "academy_programming_systems_security_v1",
+  "allocation": {
+    "cross_domain_transfer": 0.1,
+    "primary_academy": 0.7,
+    "retention_remediation": 0.2
+  },
+  "cycles": [
+    {
+      "action": {
+        "contract_commitment": "83a17fb4a278da2c85f74735c2ea5345513b40efc85d48ad41280ac1ee2d1d20",
+        "module": "Algorithms and Data Structures",
+        "module_id": "algorithms_data_structures",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T08:10:57.371921+00:00",
+      "cycle_id": "academy_cycle_877a8a24bffa0736",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "83a17fb4a278da2c85f74735c2ea5345513b40efc85d48ad41280ac1ee2d1d20",
+        "module": "Algorithms and Data Structures",
+        "module_id": "algorithms_data_structures",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T08:11:37.968094+00:00",
+      "cycle_id": "academy_cycle_37a89ca7aa71c21a",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "534620b22d87417305b53de07a0a43f4f2b182309c58c00ab6bdcad1934ac46d",
+        "module": "Advanced Python",
+        "module_id": "advanced_python",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T08:15:26.783115+00:00",
+      "cycle_id": "academy_cycle_91e1fd907d37a382",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "534620b22d87417305b53de07a0a43f4f2b182309c58c00ab6bdcad1934ac46d",
+        "module": "Advanced Python",
+        "module_id": "advanced_python",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T08:17:08.645452+00:00",
+      "cycle_id": "academy_cycle_9a5c13884ea942d8",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "534620b22d87417305b53de07a0a43f4f2b182309c58c00ab6bdcad1934ac46d",
+        "module": "Advanced Python",
+        "module_id": "advanced_python",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:17:08.699634+00:00",
+      "cycle_id": "academy_cycle_fc2ec07d2625b907",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "574e321dd33d9305a889bf47bd853eb03cf46be1de7ecdd160d975e7f2787921",
+        "module": "Testing and Debugging",
+        "module_id": "testing_debugging",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:23:25.785788+00:00",
+      "cycle_id": "academy_cycle_4cbecaf4c8d70429",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "9fad9418160bf53766ebd85ffc79345ab1dda2b42d54d280a21b66b396a85509",
+        "module": "Software Engineering",
+        "module_id": "software_engineering",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:24:33.740203+00:00",
+      "cycle_id": "academy_cycle_b06d150f3a68d50a",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "1fb084b42b2a529accaed6e014e8b40995a5aca1ad06086e8aa7f252a0c00ce1",
+        "module": "Database Engineering",
+        "module_id": "database_engineering",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:24:41.723539+00:00",
+      "cycle_id": "academy_cycle_261f7e460c014f7f",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "contract_commitment": "36ce9e45a67df5b98d57b865de260e1a8265a1d94a8c563e1f1587b2d7d7d528",
+        "module": "Operating Systems",
+        "module_id": "operating_systems",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:24:43.366699+00:00",
+      "cycle_id": "academy_cycle_baa13309962e1ead",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "module_id": "networking",
+        "source_module": "python_core",
+        "status": "transfer_contract_required",
+        "target": "Computer Networking"
+      },
+      "created_at": "2026-08-01T09:28:13.527328+00:00",
+      "cycle_id": "academy_cycle_d50fdef06d19a691",
+      "lane": "cross_domain_transfer"
+    },
+    {
+      "action": {
+        "contract_commitment": "43bd223d8f287f4a70e03aedfd249bb35fc019f5dd23ff1c687808db0663fd93",
+        "module": "Computer Networking",
+        "module_id": "networking",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:28:14.723057+00:00",
+      "cycle_id": "academy_cycle_1fdec420ded2b78e",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "ebabd149f23011c7e2433e55dfd5fbc78473a88c202ada5662a2fb9725db2989",
+        "module": "Rust Systems Engineering",
+        "module_id": "rust_systems",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:28:25.475374+00:00",
+      "cycle_id": "academy_cycle_5a559789faca5d14",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "5ff0520b14db79906ae0401b6dbeeb6f694036bbbe8343164e5a5926b8cc9932",
+        "module": "Secure Software Engineering",
+        "module_id": "secure_engineering",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:30:57.180198+00:00",
+      "cycle_id": "academy_cycle_ea99fb88e61bf337",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "c52d15ed553ec2a78d30a20453b9072433d2319860251c791958eeb152b6a29f",
+        "module": "Distributed Systems",
+        "module_id": "distributed_systems",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:30:58.785732+00:00",
+      "cycle_id": "academy_cycle_a24dc0f9f112a4fd",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "e6c60b541f9b24156a858eb3a5abe79bdbbf9452f0858065292c54acfcc0a40e",
+        "module": "Architecture and Production Operations",
+        "module_id": "architecture_operations",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:32:15.783292+00:00",
+      "cycle_id": "academy_cycle_8cbaa7b2e3668c23",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "contract_commitment": "3e65ca3929c7880c18516091a5b401e52f4832653a41c5cab112c4aa33c4ea7e",
+        "module": "Integrated Engineering Capstone",
+        "module_id": "integrated_engineering_capstone",
+        "status": "executor_required"
+      },
+      "created_at": "2026-08-01T09:32:15.801205+00:00",
+      "cycle_id": "academy_cycle_34df640fc58fb41b",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:32:15.822813+00:00",
+      "cycle_id": "academy_cycle_15a5fe500a9b1379",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:32:28.886924+00:00",
+      "cycle_id": "academy_cycle_99ac019a6f2d3cc3",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:32:28.900700+00:00",
+      "cycle_id": "academy_cycle_62483feaef7229b2",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:32:28.907115+00:00",
+      "cycle_id": "academy_cycle_f6ea980aa9b75a9a",
+      "lane": "cross_domain_transfer"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:32:28.912119+00:00",
+      "cycle_id": "academy_cycle_31b24c06590afbd3",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:04.001781+00:00",
+      "cycle_id": "academy_cycle_64f89a5b0c9a1abf",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:04.005369+00:00",
+      "cycle_id": "academy_cycle_2e19d4dbea105155",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:04.008485+00:00",
+      "cycle_id": "academy_cycle_b78f6afa5a500b75",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:04.011332+00:00",
+      "cycle_id": "academy_cycle_a9a26580f6a7c7b7",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:13.498381+00:00",
+      "cycle_id": "academy_cycle_184b66fddba05889",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:13.501236+00:00",
+      "cycle_id": "academy_cycle_3f5866c7a42f4115",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:13.504240+00:00",
+      "cycle_id": "academy_cycle_8d88e7210b493203",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:13.506969+00:00",
+      "cycle_id": "academy_cycle_9615d51baef0b5d8",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:48.064168+00:00",
+      "cycle_id": "academy_cycle_cc3f4e2f378e5a13",
+      "lane": "cross_domain_transfer"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:48.072434+00:00",
+      "cycle_id": "academy_cycle_bce2a82261f79ad4",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:48.083130+00:00",
+      "cycle_id": "academy_cycle_6f7c2388bfde9ec4",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:33:48.088791+00:00",
+      "cycle_id": "academy_cycle_e924263acba4c770",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:34:24.262331+00:00",
+      "cycle_id": "academy_cycle_3b18f74006171e4b",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:34:24.270917+00:00",
+      "cycle_id": "academy_cycle_a39667f83f26c4c4",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:34:24.277252+00:00",
+      "cycle_id": "academy_cycle_7a4aee29e04137d2",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:34:24.282258+00:00",
+      "cycle_id": "academy_cycle_e818d260a42533e2",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:35:00.107311+00:00",
+      "cycle_id": "academy_cycle_73aca75e1ffa1fdd",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:35:00.116141+00:00",
+      "cycle_id": "academy_cycle_a42a72ff267dc2a2",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:35:00.124045+00:00",
+      "cycle_id": "academy_cycle_53ca8f51df69c38e",
+      "lane": "cross_domain_transfer"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:35:00.130141+00:00",
+      "cycle_id": "academy_cycle_c28eacad7a1b312f",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:35:35.820264+00:00",
+      "cycle_id": "academy_cycle_8adf2fa739a172e2",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:35:35.828592+00:00",
+      "cycle_id": "academy_cycle_68095dc0847ad43e",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:35:35.834289+00:00",
+      "cycle_id": "academy_cycle_55c47ed99cf0bd91",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:35:35.837254+00:00",
+      "cycle_id": "academy_cycle_a632316ebb449459",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:36:18.093761+00:00",
+      "cycle_id": "academy_cycle_71f027f48205d006",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:36:18.103694+00:00",
+      "cycle_id": "academy_cycle_b092faf9c19ad4e2",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:36:18.110217+00:00",
+      "cycle_id": "academy_cycle_457693b2990dc3ec",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:36:18.115778+00:00",
+      "cycle_id": "academy_cycle_be8ee28831506036",
+      "lane": "retention_remediation"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:36:56.914758+00:00",
+      "cycle_id": "academy_cycle_5a1e4d8135df7d60",
+      "lane": "cross_domain_transfer"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:36:56.918019+00:00",
+      "cycle_id": "academy_cycle_6c75eb86291ffeba",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:36:56.920986+00:00",
+      "cycle_id": "academy_cycle_dcedd60f29a0e3b1",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:36:56.923977+00:00",
+      "cycle_id": "academy_cycle_f760c7ab7ab8a2e7",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:37:26.937331+00:00",
+      "cycle_id": "academy_cycle_e304ed48df259d32",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:37:26.944990+00:00",
+      "cycle_id": "academy_cycle_6e28e4b304dfcbdb",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:37:26.950839+00:00",
+      "cycle_id": "academy_cycle_9546bf96c68db0ff",
+      "lane": "primary_academy"
+    },
+    {
+      "action": {
+        "status": "academy_capstone_complete"
+      },
+      "created_at": "2026-08-01T09:37:26.956149+00:00",
+      "cycle_id": "academy_cycle_d3bc76706b98406f",
+      "lane": "primary_academy"
+    }
+  ],
+  "executor_requests": [
+    {
+      "authorities": [
+        "property_tests",
+        "measured_runtime",
+        "sealed_problems"
+      ],
+      "module_id": "algorithms_data_structures",
+      "procedure_id": "procedure_accelerated_algorithms_data_structures_apprenticeship_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_83a17fb4a278da2c",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "python_runtime",
+        "type_checker",
+        "package_tests"
+      ],
+      "module_id": "advanced_python",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_534620b22d874173",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "historical_failures",
+        "hidden_tests",
+        "mutation_tests"
+      ],
+      "module_id": "testing_debugging",
+      "procedure_id": "procedure_testing_debugging_academy_bridge_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_574e321dd33d9305",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "multi_repository_projects",
+        "ci",
+        "delayed_maintenance_outcome"
+      ],
+      "module_id": "software_engineering",
+      "procedure_id": "procedure_software_engineering_academy_bridge_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_9fad9418160bf537",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "sqlite_or_postgres",
+        "query_plans",
+        "concurrent_transactions"
+      ],
+      "module_id": "database_engineering",
+      "procedure_id": "procedure_database_engineering_academy_bridge_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_1fb084b42b2a529a",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "os_subprocess",
+        "resource_limits",
+        "system_traces"
+      ],
+      "module_id": "operating_systems",
+      "procedure_id": "procedure_operating_systems_apprenticeship_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_36ce9e45a67df5b9",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "isolated_network_lab",
+        "packet_trace",
+        "protocol_tests"
+      ],
+      "module_id": "networking",
+      "procedure_id": "procedure_networking_apprenticeship_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_43bd223d8f287f4a",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "cargo",
+        "clippy",
+        "sanitised_execution",
+        "hidden_tests"
+      ],
+      "module_id": "rust_systems",
+      "procedure_id": "procedure_rust_systems_academy_bridge_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_ebabd149f23011c7",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "adversarial_tests",
+        "static_scanner",
+        "sandbox",
+        "security_review"
+      ],
+      "module_id": "secure_engineering",
+      "procedure_id": "procedure_secure_engineering_academy_bridge_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_5ff0520b14db7990",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "multi_process_lab",
+        "fault_injection",
+        "delayed_outcomes"
+      ],
+      "module_id": "distributed_systems",
+      "procedure_id": "procedure_distributed_systems_apprenticeship_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_c52d15ed553ec2a7",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "competing_stack_bakeoff",
+        "load_test",
+        "operational_change"
+      ],
+      "module_id": "architecture_operations",
+      "procedure_id": "procedure_architecture_operations_academy_bridge_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_e6c60b541f9b2415",
+      "status": "satisfied"
+    },
+    {
+      "authorities": [
+        "unfamiliar_real_project",
+        "independent_tests",
+        "multi_day_outcomes"
+      ],
+      "module_id": "integrated_engineering_capstone",
+      "procedure_id": "procedure_integrated_engineering_capstone_bridge_v1",
+      "proposal_only": true,
+      "request_id": "academy_executor_3e65ca3929c7880c",
+      "status": "satisfied"
+    }
+  ],
+  "modules": {
+    "advanced_python": {
+      "attempts": 0,
+      "capstone": "build a multi-module asynchronous application",
+      "competencies": [
+        "typing",
+        "protocols",
+        "generators",
+        "context_managers",
+        "asyncio",
+        "packaging",
+        "profiling"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "852a582d4693f50db0d36e957b4e8df4f36a6abfc79b8948fec9f9ad837ec72e",
+        "authorities": [
+          "python_runtime",
+          "type_checker",
+          "package_tests"
+        ],
+        "capstone": "build a multi-module asynchronous application",
+        "commitment": "534620b22d87417305b53de07a0a43f4f2b182309c58c00ab6bdcad1934ac46d",
+        "competencies": [
+          "typing",
+          "protocols",
+          "generators",
+          "context_managers",
+          "asyncio",
+          "packaging",
+          "profiling"
+        ],
+        "module_id": "advanced_python",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "content": {
+              "common_failure_modes": [
+                "Incorrect Data Types",
+                "Logical Errors in Loops/Conditional Statements",
+                "Inefficient Algorithms",
+                "Lack of Error Handling",
+                "Ignoring Edge Cases",
+                "Poor Code Readability",
+                "Ignoring Security Best Practices",
+                "Insufficient Testing",
+                "Misunderstanding of Design Patterns",
+                "Over-Reliance on Libraries without Understanding"
+              ],
+              "modules": [
+                "Foundations & Data Structures",
+                "Object-Oriented Programming (OOP)",
+                "Data Manipulation & Analysis (DMA)",
+                "Web Development Fundamentals",
+                "Database Integration & Querying",
+                "Machine Learning Basics",
+                "Advanced Data Structures & Algorithms",
+                "Software Engineering Principles",
+                "Security & Ethical Considerations",
+                "System Design & Deployment",
+                "Version Control & Collaboration"
+              ],
+              "practical_projects": [
+                "Data Analysis Pipeline: Extract, Transform, Load from a Public Dataset",
+                "Simple Web Application (Flask/Django): CRUD Operations with User Authentication",
+                "Automated Report Generator: Using Python and a Template Engine",
+                "Basic Machine Learning Model: Classification with Scikit-learn",
+                "API Endpoint Development: RESTful API with Flask/FastAPI",
+                "Database Schema Design & Implementation (SQLite/PostgreSQL)",
+                "Build a Simple Web Application with a Frontend Framework (React/Vue/Angular)",
+                "Automated Script for File Management & Organization",
+                "Implement a Basic Logging System",
+                "Develop a Simple Chatbot using a Framework"
+              ],
+              "recommended_sources": [
+                "Official Python Documentation: [https://docs.python.org/3/](https://docs.python.org/3/)",
+                "Real Python: [https://realpython.com/](https://realpython.com/)",
+                "DataCamp: [https://www.datacamp.com/](https://www.datacamp.com/)",
+                "Codecademy: [https://www.codecademy.com/](https://www.codecademy.com/)",
+                "LeetCode: [https://leetcode.com/](https://leetcode.com/)",
+                "Stack Overflow: [https://stackoverflow.com/](https://stackoverflow.com/)",
+                "Python.org: [https://www.python.org/](https://www.python.org/)",
+                "Effective Python: [https://www.effectivepython.com/](https://www.effectivepython.com/)",
+                "Introduction to Algorithms and Data Structures (CLRS): [https://classic.github.io/Introduction-to-Algorithms/](https://classic.github.io/Introduction-to-Algorithms/)"
+              ]
+            },
+            "eval_count": 610,
+            "exam_material_shared": false,
+            "latency_ms": 7468.676,
+            "model": "gemma3:1b",
+            "prompt_eval_count": 97,
+            "proposal_hash": "852a582d4693f50db0d36e957b4e8df4f36a6abfc79b8948fec9f9ad837ec72e",
+            "proposal_id": "teacher_live_86ba8842d80e65f1",
+            "proposal_only": true,
+            "provider": "ollama"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T08:15:19.312412+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "e8b330c670dffa14d0d08f0d5519b65d082bd4b8d52c2db047d8e2cd6328ffe2",
+            "proposal_id": "teacher_c3807d8f16d68f85",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Advanced Python",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "e8b330c670dffa14d0d08f0d5519b65d082bd4b8d52c2db047d8e2cd6328ffe2"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_advanced_python_academy.json",
+          "artifact_hash": "75760e72aac6521d783746d5c21f337921bb7db7955d119c14fc827f8af94f9b",
+          "contract_commitment": "534620b22d87417305b53de07a0a43f4f2b182309c58c00ab6bdcad1934ac46d",
+          "created_at": "2026-08-01T09:23:25.783618+00:00",
+          "module_id": "advanced_python",
+          "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+          "receipt_id": "academy_receipt_b76badfbcc6f0115",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "advanced_python",
+      "name": "Advanced Python",
+      "practical_authorities": [
+        "python_runtime",
+        "type_checker",
+        "package_tests"
+      ],
+      "prerequisites": [
+        "python_core"
+      ],
+      "status": "passed_bounded"
+    },
+    "algorithms_data_structures": {
+      "attempts": 0,
+      "capstone": "solve unfamiliar correctness and complexity tasks",
+      "competencies": [
+        "complexity",
+        "arrays",
+        "maps",
+        "trees",
+        "graphs",
+        "sorting",
+        "search",
+        "dynamic_programming"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "e049ba5de547acdcbd99e8769d28b18f28baaa6887b5c8eea1d590d4c1b187a9",
+        "authorities": [
+          "property_tests",
+          "measured_runtime",
+          "sealed_problems"
+        ],
+        "capstone": "solve unfamiliar correctness and complexity tasks",
+        "commitment": "83a17fb4a278da2c85f74735c2ea5345513b40efc85d48ad41280ac1ee2d1d20",
+        "competencies": [
+          "complexity",
+          "arrays",
+          "maps",
+          "trees",
+          "graphs",
+          "sorting",
+          "search",
+          "dynamic_programming"
+        ],
+        "module_id": "algorithms_data_structures",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "content": {
+              "common_failure_modes": [
+                "Incorrect Algorithm Selection: Choosing an algorithm that doesn't suit the problem's constraints.",
+                "Inefficient Code: Implementing algorithms without proper optimization.",
+                "Lack of Error Handling: Failing to handle unexpected inputs or conditions.",
+                "Poor Data Structures: Using inappropriate data structures for the task.",
+                "Insufficient Testing: Not thoroughly testing the implemented algorithms.",
+                "Ignoring Complexity Analysis: Not considering the time and space complexity of algorithms.",
+                "Over-Reliance on Intuition: Not formally documenting or validating assumptions.",
+                "Ignoring Security Considerations: Failing to address potential vulnerabilities.",
+                "Poor Design: Creating a complex and difficult-to-maintain system.",
+                "Lack of Documentation: Not documenting the code or design choices."
+              ],
+              "modules": [
+                {
+                  "duration": "4 weeks",
+                  "name": "Introduction to Algorithms & Data Structures"
+                },
+                {
+                  "duration": "6 weeks",
+                  "name": "Basic Data Structures - Arrays & Linked Lists"
+                },
+                {
+                  "duration": "4 weeks",
+                  "name": "Trees & Graphs - Fundamental Concepts"
+                },
+                {
+                  "duration": "4 weeks",
+                  "name": "Sorting & Searching Algorithms - Complexity Analysis"
+                },
+                {
+                  "duration": "6 weeks",
+                  "name": "Database Fundamentals - SQL & Basic Data Modeling"
+                },
+                {
+                  "duration": "4 weeks",
+                  "name": "Data Structures & Algorithms - Optimization & Scalability"
+                },
+                {
+                  "duration": "4 weeks",
+                  "name": "Design Patterns & Software Architecture Principles"
+                },
+                {
+                  "duration": "2 weeks",
+                  "name": "Security & Privacy in Algorithms"
+                },
+                {
+                  "duration": "4 weeks",
+                  "name": "Algorithm Implementation & Testing"
+                },
+                {
+                  "duration": "6 weeks",
+                  "name": "Advanced Data Structures & Algorithms (Focus on Practical Applications)"
+                }
+              ],
+              "practical_projects": [
+                {
+                  "description": "Develop a crawler to extract data from a specified website, demonstrating basic data extraction and web scraping techniques.",
+                  "duration": "8 weeks",
+                  "project_name": "Implement a Simple Web Crawler"
+                },
+                {
+                  "description": "Create a simplified database system with CRUD operations (Create, Read, Update, Delete) for a specific data model.",
+                  "duration": "12 weeks",
+                  "project_name": "Build a Basic Database System"
+                },
+                {
+                  "description": "Analyze and optimize an existing sorting algorithm (e.g., quicksort, mergesort) for a given dataset, improving its performance.",
+                  "duration": "6 weeks",
+                  "project_name": "Optimize a Sorting Algorithm"
+                },
+                {
+                  "description": "Choose a real-world problem and design a data structure to efficiently solve it.",
+                  "duration": "8 weeks",
+                  "project_name": "Design and Implement a Data Structure for a Specific Use Case"
+                },
+                {
+                  "description": "Create a basic API endpoint using a framework (e.g., Flask, Express) to perform a specific task.",
+                  "duration": "10 weeks",
+                  "project_name": "Develop a Simple API"
+                }
+              ],
+              "recommended_sources": [
+                {
+                  "sources": [
+                    "Introduction to Algorithms",
+                    "Data Structures and Algorithms: The Big Book",
+                    "Algorithms - Design and Analysis"
+                  ],
+                  "type": "Textbooks"
+                },
+                {
+                  "sources": [
+                    "Coursera - Algorithms Specialization",
+                    "edX - Data Structures and Algorithms"
+                  ],
+                  "type": "Online Courses"
+                },
+                {
+                  "sources": [
+                    "Wikipedia - Algorithms",
+                    "Stack Overflow",
+                    "Official Documentation for Programming Languages and Frameworks"
+                  ],
+                  "type": "Documentation"
+                },
+                {
+                  "sources": [
+                    "ACM Digital Library",
+                    "IEEE Xplore"
+                  ],
+                  "type": "Research Papers"
+                },
+                {
+                  "sources": [
+                    "LeetCode",
+                    "HackerRank",
+                    "Codewars"
+                  ],
+                  "type": "Coding Challenges"
+                },
+                {
+                  "sources": [
+                    "Real-World Algorithms Projects",
+                    "GitHub Repositories"
+                  ],
+                  "type": "Case Studies"
+                },
+                {
+                  "sources": [
+                    "OWASP",
+                    "NIST Cybersecurity Framework"
+                  ],
+                  "type": "Security Frameworks"
+                }
+              ]
+            },
+            "eval_count": 834,
+            "exam_material_shared": false,
+            "latency_ms": 9734.332,
+            "model": "gemma3:1b",
+            "prompt_eval_count": 99,
+            "proposal_hash": "e049ba5de547acdcbd99e8769d28b18f28baaa6887b5c8eea1d590d4c1b187a9",
+            "proposal_id": "teacher_live_4f757a010730cef1",
+            "proposal_only": true,
+            "provider": "ollama"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T08:10:47.633967+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "3f62aacd08a015a1b900662aa96b5a8f6c5a5b1d5a1c708b453a50508e48fd67",
+            "proposal_id": "teacher_1b5895e0253aa7ec",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Algorithms and Data Structures",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "3f62aacd08a015a1b900662aa96b5a8f6c5a5b1d5a1c708b453a50508e48fd67"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_accelerated_algorithms_apprenticeship.json",
+          "artifact_hash": "ee28369f5e0260cfcc86c2085c64afbcebcb894b2a254b81a45ab2d8bba29079",
+          "contract_commitment": "83a17fb4a278da2c85f74735c2ea5345513b40efc85d48ad41280ac1ee2d1d20",
+          "created_at": "2026-08-01T08:14:19.239882+00:00",
+          "module_id": "algorithms_data_structures",
+          "procedure_id": "procedure_accelerated_algorithms_data_structures_apprenticeship_v1",
+          "receipt_id": "academy_receipt_ee646bb4088d16c3",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "algorithms_data_structures",
+      "name": "Algorithms and Data Structures",
+      "practical_authorities": [
+        "property_tests",
+        "measured_runtime",
+        "sealed_problems"
+      ],
+      "prerequisites": [
+        "python_core"
+      ],
+      "status": "passed_bounded"
+    },
+    "architecture_operations": {
+      "attempts": 0,
+      "capstone": "select, deploy and revise a measured architecture",
+      "competencies": [
+        "architecture_tradeoffs",
+        "observability",
+        "deployment",
+        "capacity",
+        "reliability",
+        "cost",
+        "rollback"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": null,
+        "authorities": [
+          "competing_stack_bakeoff",
+          "load_test",
+          "operational_change"
+        ],
+        "capstone": "select, deploy and revise a measured architecture",
+        "commitment": "e6c60b541f9b24156a858eb3a5abe79bdbbf9452f0858065292c54acfcc0a40e",
+        "competencies": [
+          "architecture_tradeoffs",
+          "observability",
+          "deployment",
+          "capacity",
+          "reliability",
+          "cost",
+          "rollback"
+        ],
+        "module_id": "architecture_operations",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "exam_material_shared": false,
+            "proposal_only": true,
+            "status": "not_requested"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:32:15.782541+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "ae45d91194660b56899681f09853f2e2b7ad31d77305b4557d1ae7459f7920fc",
+            "proposal_id": "teacher_831a39ad1575c3fa",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Architecture and Production Operations",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "ae45d91194660b56899681f09853f2e2b7ad31d77305b4557d1ae7459f7920fc"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_architecture_operations_academy.json",
+          "artifact_hash": "c2abef3bf28bbd6b88d01fbadb0dde88d21e91fe01ed55acca87bd3048fa2c41",
+          "contract_commitment": "e6c60b541f9b24156a858eb3a5abe79bdbbf9452f0858065292c54acfcc0a40e",
+          "created_at": "2026-08-01T09:32:15.795271+00:00",
+          "module_id": "architecture_operations",
+          "procedure_id": "procedure_architecture_operations_academy_bridge_v1",
+          "receipt_id": "academy_receipt_72a660edd7080eec",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "architecture_operations",
+      "name": "Architecture and Production Operations",
+      "practical_authorities": [
+        "competing_stack_bakeoff",
+        "load_test",
+        "operational_change"
+      ],
+      "prerequisites": [
+        "secure_engineering",
+        "distributed_systems"
+      ],
+      "status": "passed_bounded"
+    },
+    "database_engineering": {
+      "attempts": 0,
+      "capstone": "design, migrate and recover a transactional service",
+      "competencies": [
+        "relational_model",
+        "sql",
+        "transactions",
+        "indexes",
+        "migrations",
+        "concurrency",
+        "recovery"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "39e97f066824d716f4acbe321389dbf541ed4f90c48e3dd7c98408ec65582f22",
+        "authorities": [
+          "sqlite_or_postgres",
+          "query_plans",
+          "concurrent_transactions"
+        ],
+        "capstone": "design, migrate and recover a transactional service",
+        "commitment": "1fb084b42b2a529accaed6e014e8b40995a5aca1ad06086e8aa7f252a0c00ce1",
+        "competencies": [
+          "relational_model",
+          "sql",
+          "transactions",
+          "indexes",
+          "migrations",
+          "concurrency",
+          "recovery"
+        ],
+        "module_id": "database_engineering",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "content": {
+              "common_failure_modes": [
+                "Data Integrity Issues (Inconsistent Data, Missing Data)",
+                "Schema Design Flaws (Poorly Defined Relationships, Inadequate Normalization)",
+                "Performance Bottlenecks (Inefficient Queries, Lack of Indexing)",
+                "Security Vulnerabilities (SQL Injection, Authentication Failures)",
+                "Scalability Challenges (Horizontal Scaling Issues, Database Bottlenecks)",
+                "Data Governance Issues (Lack of Data Quality Standards)",
+                "Lack of Monitoring & Alerting",
+                "Complex Querying (Slow Queries, Difficult to Understand)",
+                "Version Control Issues (Database Schema Changes without Proper Updates)"
+              ],
+              "modules": [
+                {
+                  "duration": "6 weeks",
+                  "name": "Database Fundamentals"
+                },
+                {
+                  "duration": "8 weeks",
+                  "name": "SQL & Data Modeling"
+                },
+                {
+                  "duration": "4 weeks",
+                  "name": "NoSQL Databases"
+                },
+                {
+                  "duration": "6 weeks",
+                  "name": "Data Warehousing & ETL"
+                },
+                {
+                  "duration": "8 weeks",
+                  "name": "Cloud Databases (AWS/Azure/GCP)"
+                },
+                {
+                  "duration": "4 weeks",
+                  "name": "Database Performance & Optimization"
+                },
+                {
+                  "duration": "4 weeks",
+                  "name": "Data Security & Compliance"
+                },
+                {
+                  "duration": "6 weeks",
+                  "name": "Database Administration & Monitoring"
+                },
+                {
+                  "duration": "6 weeks",
+                  "name": "Database Design & Modeling"
+                }
+              ],
+              "practical_projects": [
+                {
+                  "description": "Design and implement a CRM database with features for customer management, sales tracking, and reporting.",
+                  "project_name": "Customer Relationship Management (CRM) Database"
+                },
+                {
+                  "description": "Build a database to store website traffic data, user behavior, and campaign performance.",
+                  "project_name": "Web Analytics Database"
+                },
+                {
+                  "description": "Create a database for managing inventory levels, tracking stock, and optimizing supply chains.",
+                  "project_name": "Inventory Management System"
+                },
+                {
+                  "description": "Develop a system to collect, process, and analyze social media data for insights.",
+                  "project_name": "Social Media Data Pipeline"
+                },
+                {
+                  "description": "Design and implement a data lake to store and manage large volumes of data from various sources.",
+                  "project_name": "Data Lake Implementation"
+                }
+              ],
+              "recommended_sources": [
+                {
+                  "sources": [
+                    "Database Systems: The Complete Guide by Michael J. Craig",
+                    "Designing Data-Intensive Applications by Martin Kleppmann"
+                  ],
+                  "type": "Textbooks"
+                },
+                {
+                  "sources": [
+                    "Coursera - Database Engineering - Specialization by University of Michigan",
+                    "Udemy - SQL for Data Science"
+                  ],
+                  "type": "Online Courses"
+                },
+                {
+                  "sources": [
+                    "AWS Database Migration Service Documentation",
+                    "Azure Database Security Documentation",
+                    "Google Cloud Database Documentation"
+                  ],
+                  "type": "Documentation"
+                },
+                {
+                  "sources": [
+                    "InfoQ - Database Engineering Blog",
+                    "DZone - Database Engineering"
+                  ],
+                  "type": "Blogs & Articles"
+                },
+                {
+                  "sources": [
+                    "PostgreSQL Documentation",
+                    "MySQL Documentation",
+                    "MongoDB Documentation"
+                  ],
+                  "type": "Frameworks & Tools"
+                }
+              ]
+            },
+            "eval_count": 661,
+            "exam_material_shared": false,
+            "latency_ms": 7973.797,
+            "model": "gemma3:1b",
+            "prompt_eval_count": 97,
+            "proposal_hash": "39e97f066824d716f4acbe321389dbf541ed4f90c48e3dd7c98408ec65582f22",
+            "proposal_id": "teacher_live_ea4dbdd39fcbef29",
+            "proposal_only": true,
+            "provider": "ollama"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:24:33.746073+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "f6ff8760736fdd94da9024588ab7a7ceaf82a74366375d8d4847522a4358f85c",
+            "proposal_id": "teacher_f5440aa966a03e6f",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Database Engineering",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "f6ff8760736fdd94da9024588ab7a7ceaf82a74366375d8d4847522a4358f85c"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_database_engineering_academy.json",
+          "artifact_hash": "c45f161726388aaeebe9fdea64b900b05d41be033f87f092feef7f53fd7c2540",
+          "contract_commitment": "1fb084b42b2a529accaed6e014e8b40995a5aca1ad06086e8aa7f252a0c00ce1",
+          "created_at": "2026-08-01T09:26:52.449340+00:00",
+          "module_id": "database_engineering",
+          "procedure_id": "procedure_database_engineering_academy_bridge_v1",
+          "receipt_id": "academy_receipt_b0a64f5c9af245d2",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "database_engineering",
+      "name": "Database Engineering",
+      "practical_authorities": [
+        "sqlite_or_postgres",
+        "query_plans",
+        "concurrent_transactions"
+      ],
+      "prerequisites": [
+        "advanced_python",
+        "testing_debugging"
+      ],
+      "status": "passed_bounded"
+    },
+    "distributed_systems": {
+      "attempts": 0,
+      "capstone": "maintain correctness through partitions and retries",
+      "competencies": [
+        "replication",
+        "consensus",
+        "consistency",
+        "queues",
+        "idempotency",
+        "partition_tolerance",
+        "recovery"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "adc0ed481b3c6abe75ffcb1a8c4a7fa8c6381f14f05674d43104ada306fd43d4",
+        "authorities": [
+          "multi_process_lab",
+          "fault_injection",
+          "delayed_outcomes"
+        ],
+        "capstone": "maintain correctness through partitions and retries",
+        "commitment": "c52d15ed553ec2a78d30a20453b9072433d2319860251c791958eeb152b6a29f",
+        "competencies": [
+          "replication",
+          "consensus",
+          "consistency",
+          "queues",
+          "idempotency",
+          "partition_tolerance",
+          "recovery"
+        ],
+        "module_id": "distributed_systems",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "content": {
+              "duration": "6 months (flexible, adaptable based on experience)",
+              "focus": "Hands-on, real-world problem-solving",
+              "overall_goal": "To equip learners with the foundational knowledge, practical skills, and critical thinking abilities to design, build, and maintain robust, scalable, and reliable distributed systems.",
+              "target_profession": "Software Engineer/DevOps Engineer/Data Engineer (with a focus on scalability and reliability)",
+              "title": "Distributed Systems Curriculum - Focused on Practical Application"
+            },
+            "eval_count": 105,
+            "exam_material_shared": false,
+            "latency_ms": 1590.2,
+            "model": "gemma3:1b",
+            "prompt_eval_count": 97,
+            "proposal_hash": "adc0ed481b3c6abe75ffcb1a8c4a7fa8c6381f14f05674d43104ada306fd43d4",
+            "proposal_id": "teacher_live_34095890bd585171",
+            "proposal_only": true,
+            "provider": "ollama"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:30:57.188603+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "a9a8ff9d037ba8e7cd4347b5d5395edba12b52c5904ba03d6a7110ec373a255f",
+            "proposal_id": "teacher_f2f76f6ee33aeab7",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Distributed Systems",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "a9a8ff9d037ba8e7cd4347b5d5395edba12b52c5904ba03d6a7110ec373a255f"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_distributed_systems_academy.json",
+          "artifact_hash": "add511a57762a4e7f5fb0433bbf45b884821c05bf7081dbb2a6e84127482f31e",
+          "contract_commitment": "c52d15ed553ec2a78d30a20453b9072433d2319860251c791958eeb152b6a29f",
+          "created_at": "2026-08-01T09:32:15.777723+00:00",
+          "module_id": "distributed_systems",
+          "procedure_id": "procedure_distributed_systems_apprenticeship_v1",
+          "receipt_id": "academy_receipt_795b830c35fc6fec",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "distributed_systems",
+      "name": "Distributed Systems",
+      "practical_authorities": [
+        "multi_process_lab",
+        "fault_injection",
+        "delayed_outcomes"
+      ],
+      "prerequisites": [
+        "database_engineering",
+        "networking",
+        "software_engineering"
+      ],
+      "status": "passed_bounded"
+    },
+    "integrated_engineering_capstone": {
+      "attempts": 0,
+      "capstone": "complete an unfamiliar production-style project end to end",
+      "competencies": [
+        "open_requirements",
+        "research",
+        "design",
+        "implementation",
+        "security",
+        "operation",
+        "repair",
+        "communication"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": null,
+        "authorities": [
+          "unfamiliar_real_project",
+          "independent_tests",
+          "multi_day_outcomes"
+        ],
+        "capstone": "complete an unfamiliar production-style project end to end",
+        "commitment": "3e65ca3929c7880c18516091a5b401e52f4832653a41c5cab112c4aa33c4ea7e",
+        "competencies": [
+          "open_requirements",
+          "research",
+          "design",
+          "implementation",
+          "security",
+          "operation",
+          "repair",
+          "communication"
+        ],
+        "module_id": "integrated_engineering_capstone",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "exam_material_shared": false,
+            "proposal_only": true,
+            "status": "not_requested"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:32:15.800402+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "a13095baab52b16e2181086c30760d52a35d51b34ce87349786b634579e1195d",
+            "proposal_id": "teacher_189aa120b416f700",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Integrated Engineering Capstone",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "a13095baab52b16e2181086c30760d52a35d51b34ce87349786b634579e1195d"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_integrated_engineering_capstone_academy.json",
+          "artifact_hash": "781397e634c1d3aad5708d12f6fab9d764fa24d6dc786e38ab085462555688d2",
+          "contract_commitment": "3e65ca3929c7880c18516091a5b401e52f4832653a41c5cab112c4aa33c4ea7e",
+          "created_at": "2026-08-01T09:32:15.817000+00:00",
+          "module_id": "integrated_engineering_capstone",
+          "procedure_id": "procedure_integrated_engineering_capstone_bridge_v1",
+          "receipt_id": "academy_receipt_37e8f75b276d1344",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "integrated_engineering_capstone",
+      "name": "Integrated Engineering Capstone",
+      "practical_authorities": [
+        "unfamiliar_real_project",
+        "independent_tests",
+        "multi_day_outcomes"
+      ],
+      "prerequisites": [
+        "rust_systems",
+        "architecture_operations"
+      ],
+      "status": "passed_bounded"
+    },
+    "networking": {
+      "attempts": 0,
+      "capstone": "build and diagnose a secure network service",
+      "competencies": [
+        "tcp_ip",
+        "dns",
+        "http",
+        "tls",
+        "routing",
+        "latency",
+        "failure_modes"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "ce78d7df30cd160b2804742b137a16aac5661cdec3d7dbef31050725d6348459",
+        "authorities": [
+          "isolated_network_lab",
+          "packet_trace",
+          "protocol_tests"
+        ],
+        "capstone": "build and diagnose a secure network service",
+        "commitment": "43bd223d8f287f4a70e03aedfd249bb35fc019f5dd23ff1c687808db0663fd93",
+        "competencies": [
+          "tcp_ip",
+          "dns",
+          "http",
+          "tls",
+          "routing",
+          "latency",
+          "failure_modes"
+        ],
+        "module_id": "networking",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "content": {
+              "assessment_type": "Project-Based & Practical Demonstrations",
+              "duration": "12 Months (Approximate)",
+              "focus": "Practical Application & Advanced Concepts",
+              "target_profession": "Network Engineers, System Administrators, DevOps Engineers, Security Analysts, IT Support Staff",
+              "title": "Computer Networking Curriculum - Focused on Enterprise Infrastructure"
+            },
+            "eval_count": 71,
+            "exam_material_shared": false,
+            "latency_ms": 1188.833,
+            "model": "gemma3:1b",
+            "prompt_eval_count": 97,
+            "proposal_hash": "ce78d7df30cd160b2804742b137a16aac5661cdec3d7dbef31050725d6348459",
+            "proposal_id": "teacher_live_d1269ff8621d993d",
+            "proposal_only": true,
+            "provider": "ollama"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:28:13.529609+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "ef202ee247929c036fe479c119da0c2013fc28c56b899ed1f94cd3da1e1aa163",
+            "proposal_id": "teacher_e95009e83c5e22e2",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Computer Networking",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "ef202ee247929c036fe479c119da0c2013fc28c56b899ed1f94cd3da1e1aa163"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_networking_academy.json",
+          "artifact_hash": "32b5c534fbe19a17926a4a572844f4ce0d76fa725b00fd4017b29fd837599039",
+          "contract_commitment": "43bd223d8f287f4a70e03aedfd249bb35fc019f5dd23ff1c687808db0663fd93",
+          "created_at": "2026-08-01T09:30:30.709487+00:00",
+          "module_id": "networking",
+          "procedure_id": "procedure_networking_apprenticeship_v1",
+          "receipt_id": "academy_receipt_d32f346b03fb74aa",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "networking",
+      "name": "Computer Networking",
+      "practical_authorities": [
+        "isolated_network_lab",
+        "packet_trace",
+        "protocol_tests"
+      ],
+      "prerequisites": [
+        "operating_systems"
+      ],
+      "status": "passed_bounded"
+    },
+    "operating_systems": {
+      "attempts": 0,
+      "capstone": "diagnose and control a resource-bounded process system",
+      "competencies": [
+        "processes",
+        "threads",
+        "memory",
+        "filesystems",
+        "scheduling",
+        "ipc",
+        "permissions"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "da7d475d20dd4c1a2eb32615b9e1ddf5a9e61678001494ab744d0c4c4af9dcef",
+        "authorities": [
+          "os_subprocess",
+          "resource_limits",
+          "system_traces"
+        ],
+        "capstone": "diagnose and control a resource-bounded process system",
+        "commitment": "36ce9e45a67df5b98d57b865de260e1a8265a1d94a8c563e1f1587b2d7d7d528",
+        "competencies": [
+          "processes",
+          "threads",
+          "memory",
+          "filesystems",
+          "scheduling",
+          "ipc",
+          "permissions"
+        ],
+        "module_id": "operating_systems",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "content": {
+              "duration": "6-12 months (flexible based on depth)",
+              "focus": "Practical Application & Core Concepts",
+              "overall_goal": "To equip learners with a strong understanding of OS fundamentals, practical implementation, and robust system design principles, enabling them to effectively develop and maintain embedded systems and real-time applications.",
+              "target_profession": "Embedded Systems Engineers, Firmware Developers, System Architects, and those involved in real-time system development.",
+              "title": "Operating Systems Curriculum - Focused on Embedded Systems & Real-Time Systems"
+            },
+            "eval_count": 112,
+            "exam_material_shared": false,
+            "latency_ms": 1635.032,
+            "model": "gemma3:1b",
+            "prompt_eval_count": 97,
+            "proposal_hash": "da7d475d20dd4c1a2eb32615b9e1ddf5a9e61678001494ab744d0c4c4af9dcef",
+            "proposal_id": "teacher_live_81e84d18253e6a7a",
+            "proposal_only": true,
+            "provider": "ollama"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:24:41.729270+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "7aac0ecdc5530b6f22c302d089fe66f9467114d0d205f884260d8e7475914265",
+            "proposal_id": "teacher_710d86b6b9d82520",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Operating Systems",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "7aac0ecdc5530b6f22c302d089fe66f9467114d0d205f884260d8e7475914265"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_operating_systems_academy.json",
+          "artifact_hash": "20e061249b6359aa53a318258040b0f18a167a5f0718ecfb26144dfddbdf3ce2",
+          "contract_commitment": "36ce9e45a67df5b98d57b865de260e1a8265a1d94a8c563e1f1587b2d7d7d528",
+          "created_at": "2026-08-01T09:27:50.834374+00:00",
+          "module_id": "operating_systems",
+          "procedure_id": "procedure_operating_systems_apprenticeship_v1",
+          "receipt_id": "academy_receipt_ab01f2226477a7e0",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "operating_systems",
+      "name": "Operating Systems",
+      "practical_authorities": [
+        "os_subprocess",
+        "resource_limits",
+        "system_traces"
+      ],
+      "prerequisites": [
+        "algorithms_data_structures",
+        "advanced_python"
+      ],
+      "status": "passed_bounded"
+    },
+    "python_core": {
+      "attempts": 0,
+      "capstone": "construct and debug a small typed program",
+      "competencies": [
+        "language_semantics",
+        "collections",
+        "functions",
+        "errors",
+        "basic_testing",
+        "input_security"
+      ],
+      "contract": null,
+      "evidence": [
+        {
+          "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
+          "hash": "9ca31a3b6ac539a687f381104efa345c03389fc18d16dba81cdc9d26e0a68ef3",
+          "level": "operational_bounded",
+          "mastery": false
+        }
+      ],
+      "module_id": "python_core",
+      "name": "Python Core",
+      "practical_authorities": [
+        "python_runtime",
+        "fresh_subprocess",
+        "sealed_tests"
+      ],
+      "prerequisites": [],
+      "status": "passed_bounded"
+    },
+    "rust_systems": {
+      "attempts": 0,
+      "capstone": "construct a multi-file concurrent systems component",
+      "competencies": [
+        "ownership",
+        "lifetimes",
+        "traits",
+        "errors",
+        "concurrency",
+        "unsafe_review",
+        "ffi"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "f4309bb9e1b1dac407c671e1db7d1bdddfd1a3f59bcf29c4f8b2def63088b780",
+        "authorities": [
+          "cargo",
+          "clippy",
+          "sanitised_execution",
+          "hidden_tests"
+        ],
+        "capstone": "construct a multi-file concurrent systems component",
+        "commitment": "ebabd149f23011c7e2433e55dfd5fbc78473a88c202ada5662a2fb9725db2989",
+        "competencies": [
+          "ownership",
+          "lifetimes",
+          "traits",
+          "errors",
+          "concurrency",
+          "unsafe_review",
+          "ffi"
+        ],
+        "module_id": "rust_systems",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "error": "JSONDecodeError",
+            "exam_material_shared": false,
+            "latency_ms": 10738.285,
+            "model": "gemma3:1b",
+            "proposal_hash": "f4309bb9e1b1dac407c671e1db7d1bdddfd1a3f59bcf29c4f8b2def63088b780",
+            "proposal_id": "teacher_live_c3d03cfc03d2b0b0",
+            "proposal_only": true,
+            "provider": "ollama",
+            "status": "unavailable"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:28:14.730730+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "a16b2f32e296063c230927681a31378aa4881042cc476c2822babca909dd7624",
+            "proposal_id": "teacher_6490f42a25ef0dac",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Rust Systems Engineering",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "a16b2f32e296063c230927681a31378aa4881042cc476c2822babca909dd7624"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_rust_systems_academy.json",
+          "artifact_hash": "51067a0cbf3acbd39f61622f73f201383f4c650bbf74bbccfd8c9dd9e8774e10",
+          "contract_commitment": "ebabd149f23011c7e2433e55dfd5fbc78473a88c202ada5662a2fb9725db2989",
+          "created_at": "2026-08-01T09:30:30.720923+00:00",
+          "module_id": "rust_systems",
+          "procedure_id": "procedure_rust_systems_academy_bridge_v1",
+          "receipt_id": "academy_receipt_088d3890d8f7c8cd",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "rust_systems",
+      "name": "Rust Systems Engineering",
+      "practical_authorities": [
+        "cargo",
+        "clippy",
+        "sanitised_execution",
+        "hidden_tests"
+      ],
+      "prerequisites": [
+        "algorithms_data_structures",
+        "operating_systems"
+      ],
+      "status": "passed_bounded"
+    },
+    "secure_engineering": {
+      "attempts": 0,
+      "capstone": "defend a service against unseen attack classes",
+      "competencies": [
+        "threat_models",
+        "validation",
+        "auth",
+        "secrets",
+        "sandboxing",
+        "supply_chain",
+        "incident_response"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "b03df2dc02028fc1b7aa24f31c2d379b687ac79c259cfb54ae44c2226848d318",
+        "authorities": [
+          "adversarial_tests",
+          "static_scanner",
+          "sandbox",
+          "security_review"
+        ],
+        "capstone": "defend a service against unseen attack classes",
+        "commitment": "5ff0520b14db79906ae0401b6dbeeb6f694036bbbe8343164e5a5926b8cc9932",
+        "competencies": [
+          "threat_models",
+          "validation",
+          "auth",
+          "secrets",
+          "sandboxing",
+          "supply_chain",
+          "incident_response"
+        ],
+        "module_id": "secure_engineering",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "content": {
+              "duration": "12 Months (with ongoing mentorship)",
+              "overall_goal": "To equip engineers with the knowledge, skills, and practical experience to design, develop, and maintain secure software systems throughout their lifecycle.",
+              "target_profession": "Software Engineers specializing in critical systems or applications requiring high security standards (e.g., finance, healthcare, defense, IoT)",
+              "title": "Secure Software Engineering Curriculum - Focused on Robustness & Security"
+            },
+            "eval_count": 93,
+            "exam_material_shared": false,
+            "latency_ms": 1555.401,
+            "model": "gemma3:1b",
+            "prompt_eval_count": 98,
+            "proposal_hash": "b03df2dc02028fc1b7aa24f31c2d379b687ac79c259cfb54ae44c2226848d318",
+            "proposal_id": "teacher_live_7575d097726c80dc",
+            "proposal_only": true,
+            "provider": "ollama"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:30:55.618148+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "f97120931bbe1ecddc21bd46c50a917889c23b12d2fa584411e51ed600ee2af2",
+            "proposal_id": "teacher_262b1e4f8e696bd8",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Secure Software Engineering",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "f97120931bbe1ecddc21bd46c50a917889c23b12d2fa584411e51ed600ee2af2"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_secure_engineering_academy.json",
+          "artifact_hash": "0d85e201a584caca2336726df26a32e87b405866730c12be4246191de35a052d",
+          "contract_commitment": "5ff0520b14db79906ae0401b6dbeeb6f694036bbbe8343164e5a5926b8cc9932",
+          "created_at": "2026-08-01T09:32:15.767976+00:00",
+          "module_id": "secure_engineering",
+          "procedure_id": "procedure_secure_engineering_academy_bridge_v1",
+          "receipt_id": "academy_receipt_4da6865a73af5067",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "secure_engineering",
+      "name": "Secure Software Engineering",
+      "practical_authorities": [
+        "adversarial_tests",
+        "static_scanner",
+        "sandbox",
+        "security_review"
+      ],
+      "prerequisites": [
+        "testing_debugging",
+        "operating_systems",
+        "networking"
+      ],
+      "status": "passed_bounded"
+    },
+    "software_engineering": {
+      "attempts": 0,
+      "capstone": "sustain a changing multi-file project",
+      "competencies": [
+        "requirements",
+        "modularity",
+        "version_control",
+        "review",
+        "maintenance",
+        "delivery"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": "f6220b21a2701cca3dbcb2df7db7dab27e1ddbe584cfce366bcb5aabac3637cf",
+        "authorities": [
+          "multi_repository_projects",
+          "ci",
+          "delayed_maintenance_outcome"
+        ],
+        "capstone": "sustain a changing multi-file project",
+        "commitment": "9fad9418160bf53766ebd85ffc79345ab1dda2b42d54d280a21b66b396a85509",
+        "competencies": [
+          "requirements",
+          "modularity",
+          "version_control",
+          "review",
+          "maintenance",
+          "delivery"
+        ],
+        "module_id": "software_engineering",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "cache_hit": false,
+            "content": {
+              "duration": "24 Months (Full-Time)",
+              "focus": "Robust, Scalable, and Maintainable Software Development Practices",
+              "target_profession": "Data Scientists & Machine Learning Engineers - Emphasis on Production-Ready Applications",
+              "title": "Software Engineering Curriculum - Focused on Scalable & Reliable Systems"
+            },
+            "eval_count": 65,
+            "exam_material_shared": false,
+            "latency_ms": 2088.801,
+            "model": "gemma3:1b",
+            "prompt_eval_count": 97,
+            "proposal_hash": "f6220b21a2701cca3dbcb2df7db7dab27e1ddbe584cfce366bcb5aabac3637cf",
+            "proposal_id": "teacher_live_78d211321933a920",
+            "proposal_only": true,
+            "provider": "ollama"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:24:31.647514+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "fdd13ae5769d5206dd94f4d473403d6bf3f8ff57f258a81e654a88ec47143b57",
+            "proposal_id": "teacher_6ef53bbde80fc1a0",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Software Engineering",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "fdd13ae5769d5206dd94f4d473403d6bf3f8ff57f258a81e654a88ec47143b57"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_software_engineering_academy.json",
+          "artifact_hash": "01f9edb0dba501ffc770f14f52227672e44a333d5c81c52927dd34fa539a20cd",
+          "contract_commitment": "9fad9418160bf53766ebd85ffc79345ab1dda2b42d54d280a21b66b396a85509",
+          "created_at": "2026-08-01T09:26:52.442672+00:00",
+          "module_id": "software_engineering",
+          "procedure_id": "procedure_software_engineering_academy_bridge_v1",
+          "receipt_id": "academy_receipt_220b9d435db5f175",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "software_engineering",
+      "name": "Software Engineering",
+      "practical_authorities": [
+        "multi_repository_projects",
+        "ci",
+        "delayed_maintenance_outcome"
+      ],
+      "prerequisites": [
+        "algorithms_data_structures",
+        "advanced_python",
+        "testing_debugging"
+      ],
+      "status": "passed_bounded"
+    },
+    "testing_debugging": {
+      "attempts": 0,
+      "capstone": "repair unfamiliar natural failures without solution access",
+      "competencies": [
+        "unit",
+        "integration",
+        "property_testing",
+        "fault_localisation",
+        "observability",
+        "regression"
+      ],
+      "contract": {
+        "academy_id": "academy_programming_systems_security_v1",
+        "advisory_hash": null,
+        "authorities": [
+          "historical_failures",
+          "hidden_tests",
+          "mutation_tests"
+        ],
+        "capstone": "repair unfamiliar natural failures without solution access",
+        "commitment": "574e321dd33d9305a889bf47bd853eb03cf46be1de7ecdd160d975e7f2787921",
+        "competencies": [
+          "unit",
+          "integration",
+          "property_testing",
+          "fault_localisation",
+          "observability",
+          "regression"
+        ],
+        "module_id": "testing_debugging",
+        "pass_threshold": 0.9,
+        "requires_delayed_retention": true,
+        "requires_transfer": true,
+        "teacher": {
+          "advisory": {
+            "exam_material_shared": false,
+            "proposal_only": true,
+            "status": "not_requested"
+          },
+          "retained": {
+            "cache_hit": false,
+            "created_at": "2026-08-01T09:23:25.785146+00:00",
+            "modules": [
+              {
+                "authority": "python_runtime",
+                "module_id": "language_fundamentals",
+                "outcomes": [
+                  "values",
+                  "control_flow",
+                  "functions",
+                  "exceptions"
+                ],
+                "practice": [
+                  "interpret edge cases",
+                  "write total functions"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "data_and_algorithms",
+                "outcomes": [
+                  "collections",
+                  "iteration",
+                  "complexity",
+                  "copy_semantics"
+                ],
+                "practice": [
+                  "transform records",
+                  "choose suitable structures"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "modules_and_packaging",
+                "outcomes": [
+                  "imports",
+                  "module_boundaries",
+                  "dependency_hygiene"
+                ],
+                "practice": [
+                  "construct a two-module package"
+                ]
+              },
+              {
+                "authority": "ast_and_runtime",
+                "module_id": "typing_and_contracts",
+                "outcomes": [
+                  "annotations",
+                  "protocols",
+                  "dataclasses",
+                  "invariants"
+                ],
+                "practice": [
+                  "express and enforce a service contract"
+                ]
+              },
+              {
+                "authority": "fresh_subprocess",
+                "module_id": "errors_and_resources",
+                "outcomes": [
+                  "exception_boundaries",
+                  "context_management",
+                  "rollback"
+                ],
+                "practice": [
+                  "preserve state after rejected input"
+                ]
+              },
+              {
+                "authority": "executable_tests",
+                "module_id": "testing_and_debugging",
+                "outcomes": [
+                  "unit_tests",
+                  "properties",
+                  "fault_localisation",
+                  "regression"
+                ],
+                "practice": [
+                  "reproduce and repair an unfamiliar defect"
+                ]
+              },
+              {
+                "authority": "sqlite_runtime",
+                "module_id": "persistence",
+                "outcomes": [
+                  "serialization",
+                  "sqlite",
+                  "transactions",
+                  "migration_awareness"
+                ],
+                "practice": [
+                  "transfer a state invariant into SQLite"
+                ]
+              },
+              {
+                "authority": "python_runtime",
+                "module_id": "concurrency",
+                "outcomes": [
+                  "asyncio",
+                  "thread_safety",
+                  "cancellation",
+                  "bounded_work"
+                ],
+                "practice": [
+                  "execute bounded concurrent work"
+                ]
+              },
+              {
+                "authority": "measured_execution",
+                "module_id": "performance",
+                "outcomes": [
+                  "measurement",
+                  "algorithmic_cost",
+                  "memory",
+                  "profiling"
+                ],
+                "practice": [
+                  "compare implementations using observed cost"
+                ]
+              },
+              {
+                "authority": "security_scanner",
+                "module_id": "security",
+                "outcomes": [
+                  "input_validation",
+                  "path_safety",
+                  "no_dynamic_execution",
+                  "least_authority"
+                ],
+                "practice": [
+                  "reject malicious variants before execution"
+                ]
+              },
+              {
+                "authority": "sealed_project_tests",
+                "module_id": "architecture",
+                "outcomes": [
+                  "separation_of_concerns",
+                  "testability",
+                  "observability",
+                  "maintenance"
+                ],
+                "practice": [
+                  "construct and revise a small maintainable service"
+                ]
+              },
+              {
+                "authority": "hidden_repository_outcome",
+                "module_id": "repository_transfer",
+                "outcomes": [
+                  "read_unfamiliar_code",
+                  "respect_local_contracts",
+                  "verify_change"
+                ],
+                "practice": [
+                  "solve a source-disjoint task without solution replay"
+                ]
+              }
+            ],
+            "proposal_hash": "d92ab29222f566b54bb91259c916d63376b6802bf58d0c7ba8b3c42d48412770",
+            "proposal_id": "teacher_3d3282830d172c3a",
+            "proposal_only": true,
+            "provider": "retained_teacher_fallback",
+            "request": {
+              "required": [
+                "knowledge",
+                "construction",
+                "debugging",
+                "security",
+                "transfer",
+                "retention"
+              ],
+              "subject": "Testing and Debugging",
+              "target": "bounded professional competence"
+            },
+            "suggested_overall_threshold": 0.9,
+            "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+          }
+        },
+        "teacher_has_exam_authority": false,
+        "teacher_hash": "d92ab29222f566b54bb91259c916d63376b6802bf58d0c7ba8b3c42d48412770"
+      },
+      "evidence": [
+        {
+          "artifact": "results/hexcore_testing_debugging_academy.json",
+          "artifact_hash": "b1a55868d0e5d5f29c047d2c3ae17a60b256b71017bf7e350578bef417958c64",
+          "contract_commitment": "574e321dd33d9305a889bf47bd853eb03cf46be1de7ecdd160d975e7f2787921",
+          "created_at": "2026-08-01T09:23:26.773125+00:00",
+          "module_id": "testing_debugging",
+          "procedure_id": "procedure_testing_debugging_academy_bridge_v1",
+          "receipt_id": "academy_receipt_77c1ba0fe21d79af",
+          "restart_verified": true,
+          "score": 1.0,
+          "transfer_verified": true,
+          "verified": true
+        }
+      ],
+      "module_id": "testing_debugging",
+      "name": "Testing and Debugging",
+      "practical_authorities": [
+        "historical_failures",
+        "hidden_tests",
+        "mutation_tests"
+      ],
+      "prerequisites": [
+        "python_core"
+      ],
+      "status": "passed_bounded"
+    }
+  },
+  "objective": "Develop deep, transferable programming, systems and security competence.",
+  "objective_hash": "2272ec4c80db2789a47205ed13c3bab3ca0e784844984494b3d557c5d797c2d3",
+  "owner_lesson_steps": 0,
+  "primary_academy_complete": true,
+  "retention_queue": [
+    {
+      "fresh_tasks_required": true,
+      "module_id": "python_core",
+      "not_before_epoch": 1785658247.6331038,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "algorithms_data_structures",
+      "not_before_epoch": 1785658459.239889,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "advanced_python",
+      "not_before_epoch": 1785662605.783625,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "testing_debugging",
+      "not_before_epoch": 1785662606.773132,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "software_engineering",
+      "not_before_epoch": 1785662812.4426801,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "database_engineering",
+      "not_before_epoch": 1785662812.449346,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "operating_systems",
+      "not_before_epoch": 1785662870.834383,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "networking",
+      "not_before_epoch": 1785663030.709507,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "rust_systems",
+      "not_before_epoch": 1785663030.720932,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "secure_engineering",
+      "not_before_epoch": 1785663135.7679832,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "distributed_systems",
+      "not_before_epoch": 1785663135.7777338,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "architecture_operations",
+      "not_before_epoch": 1785663135.795282,
+      "status": "scheduled"
+    },
+    {
+      "fresh_tasks_required": true,
+      "module_id": "integrated_engineering_capstone",
+      "not_before_epoch": 1785663135.817008,
+      "status": "scheduled"
+    }
+  ],
+  "schema_version": "aion.hexcore.guided_foundation_academy.v1",
+  "unsafe_actions": 0,
+  "updated_at": "2026-10-18T09:21:39.233617+00:00"
+}

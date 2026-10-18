@@ -1,0 +1,2131 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "autonomous_open_capability_mastery": "procedure_autonomous_mastery_runtime_v1",
+    "open_diagnostic_experiment_invention": "procedure_open_diagnostic_experiment_invention_v1"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "autonomous_mastery_cau"
+    },
+    "reason": "autonomous_mastery_runtime",
+    "state_hash": "c4ed3aedf9c6a646c9ee59102a07b27420faa20b7362028f328e2f22e35ac83b"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "diagnostic_rows": [
+          {
+            "actual": "assumption",
+            "case_id": "ambiguous_failure_0",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "assumption"
+            ],
+            "resolved_hypothesis": "assumption",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "d2faecbf00ad0b2e94761638397757c1cda76f1b205532ae13b6e4db96b4260f",
+                  "experiment_id": "diagnostic_d2faecbf00ad0b2e",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_0_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "2434e1af31377bc6906e894ba039ae59fdb6c8be0c0e4e165dab8440858834cf",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "823b843be38df48e359826d42e8d3281750b1b185cdecbf12a2fc1ccb6ce0718",
+                  "experiment_id": "diagnostic_823b843be38df48e",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_0_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "192b9f948a396c16ebf6fb4cd51892fe125ff3270202cdbfe6bf7a639c1418cd",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "47b67905d87306f3c19cf5e3516092de65b5a68513ee33e68d31c7f74da82f45",
+                  "experiment_id": "diagnostic_47b67905d87306f3",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_0_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "c159e3a221c0a2e32625a047902026be12b1861857dbd638ed853fbb5d54cdee",
+                  "value": "0"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "decision_model",
+            "case_id": "ambiguous_failure_1",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "decision_model"
+            ],
+            "resolved_hypothesis": "decision_model",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "e702b95ca7d6b7652f5edfa57669745649ffd7c9790ddcc6913e3d4e6fce89be",
+                  "experiment_id": "diagnostic_e702b95ca7d6b765",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_1_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "c974b0f559847fd978a36b825979009835e9ac03ede3d91419477b3ed49af315",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "b8adfb82f0bb2b0663dc7d4c25f9bcc8faa11f4fbdf537a28b2e63c5dd5a700d",
+                  "experiment_id": "diagnostic_b8adfb82f0bb2b06",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_1_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "783059500283c2813449563856b1626b65654ac45d288684040980c1ef84e33b",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "8cd30a998e8f498f0010cf5fcf4bab449816aa2511c9e3e80b900597cafcc1f4",
+                  "experiment_id": "diagnostic_8cd30a998e8f498f",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_1_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "0c46c0d64daf2c8f39930144c291a21e5c2341ac53b4c466e62dee9a0bddddd7",
+                  "value": "0"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "execution",
+            "case_id": "ambiguous_failure_2",
+            "correct": true,
+            "diagnostic_actions": 2,
+            "remaining_hypotheses": [
+              "execution"
+            ],
+            "resolved_hypothesis": "execution",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "992777a9540bc82c54bd71097a4a4d720616f146b2d8ddd16bc5f15acf588200",
+                  "experiment_id": "diagnostic_992777a9540bc82c",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_2",
+                    "channel": "signal_2_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_2_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_2",
+                  "outcome_hash": "51ffddcbf6fb4b18f09ea16a256d8ce43db5fa8af5b9b14af22d4f3927086325",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "4a3ad35e94659319a6e8e43ce44a4785ba13f9f7df708c36e9cf3f743fdd267c",
+                  "experiment_id": "diagnostic_4a3ad35e94659319",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_2",
+                    "channel": "signal_2_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_2_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_2",
+                  "outcome_hash": "e165cc7999aeba2dfebaf1205d387e09b6ed33b7d27cc7edad475f08b3aee84d",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "evidence",
+            "case_id": "ambiguous_failure_3",
+            "correct": true,
+            "diagnostic_actions": 2,
+            "remaining_hypotheses": [
+              "evidence"
+            ],
+            "resolved_hypothesis": "evidence",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "33c6aa3a3c8d145b59d690fd1e94eadf9bcc2caacd00cfc8294f5967e73d3862",
+                  "experiment_id": "diagnostic_33c6aa3a3c8d145b",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_3",
+                    "channel": "signal_3_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_3_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_3",
+                  "outcome_hash": "4a4c1fbe116a2a41b65ada28cf36fe2ffcc071a722ea2a559f6d01b3dd3b0810",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "599c28f20fc1aba1822229ec5679ea6fdf9ad382fa7b92bcdb9d70ba8653bc4b",
+                  "experiment_id": "diagnostic_599c28f20fc1aba1",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_3",
+                    "channel": "signal_3_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_3_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_3",
+                  "outcome_hash": "d3c0e725c78614b1e3edf9388958732358154c4ffc435aa4e1a8e7623d30bde2",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "environment",
+            "case_id": "ambiguous_failure_4",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "environment"
+            ],
+            "resolved_hypothesis": "environment",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "5adef6b2a6d329fbb13be0da0b0e14df57d5ef629526bf416f93c9f40481dd7d",
+                  "experiment_id": "diagnostic_5adef6b2a6d329fb",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_4_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "d9d50edd4491dab6f05d3f52c6e5fe766cb56195eaf1aa6ffb31c9449445651a",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "20f5b0a0ea11cd14ce3fda0cf692ec3a9f43747f95147c46435d48be1750051e",
+                  "experiment_id": "diagnostic_20f5b0a0ea11cd14",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_4_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "0a5d4109d3201704f4e6c3c2f5c74eaaa573ca8d4f7f4a31d86d838a938fc669",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "cb8e76aef3d06b0be94349436f70ab925c6c9467c0f8265bc8c9dc723c0f0972",
+                  "experiment_id": "diagnostic_cb8e76aef3d06b0b",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_4_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "5d34506b42e63aa03c6cc436b9f7fcaefafcc44bc1c000b3d3e3ce17312daaa0",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "authority",
+            "case_id": "ambiguous_failure_5",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "authority"
+            ],
+            "resolved_hypothesis": "authority",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "d2680f51f3079e14c97e922f4a7e7942a5b37b88012b4174404b5dfe15d201d2",
+                  "experiment_id": "diagnostic_d2680f51f3079e14",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_5_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "25ee83b06c255ccba307417d69266b34e5a33439ae422f12898b267d24d6ce0a",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "d8038ef30aea5746ffc6803fa3cb8cb22f09fcf79f635d7d5f2a73c479441716",
+                  "experiment_id": "diagnostic_d8038ef30aea5746",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_5_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "605ef6011cec57cae4486a9cc8a4bb8669050a7f94c1880e0b70cd76412bd9c4",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "1f6bb9225dd5433c69e65e4174938b1bf9f213ff1e2c3f77c0b938d7f5c472b1",
+                  "experiment_id": "diagnostic_1f6bb9225dd5433c",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_5_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "0eae4b3177414fedf7c5112056470a5040d53f78403bef60892f8be6a960b460",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          }
+        ],
+        "gate": {
+          "accepted": true,
+          "ambiguous_failure_cases": 6,
+          "attempt_reduction_vs_cold": 0.5686274509803921,
+          "diagnostic_accuracy": 1.0,
+          "invented_capabilities_mastered": 17,
+          "invented_capabilities_total": 17,
+          "invented_specialist_contracts": 17,
+          "llm_calls_for_metacognition": 0,
+          "mean_diagnostic_actions": 2.6666666666666665,
+          "mission_status": "capability_complete",
+          "objective_mutations": 0,
+          "outcome_total": 34,
+          "owner_targets_induced": 4,
+          "restart_retained": true,
+          "self_generated_criticism": 5,
+          "self_generated_criticism_total": 5,
+          "unsafe_diagnostic_actions": 0,
+          "unsafe_live_writes": 0,
+          "verified_outcomes": 34
+        }
+      },
+      "outcome_id": "outcome_0e881ea7d5584578",
+      "procedure_id": "procedure_open_diagnostic_experiment_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.5555555555555556,
+      "success": true,
+      "timestamp": "2026-07-31T23:11:51.358865+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambiguous_failure_cases": 6,
+          "attempt_reduction_vs_cold": 0.5686274509803921,
+          "diagnostic_accuracy": 1.0,
+          "invented_capabilities_mastered": 17,
+          "invented_capabilities_total": 17,
+          "invented_specialist_contracts": 17,
+          "llm_calls_for_metacognition": 0,
+          "mean_diagnostic_actions": 2.6666666666666665,
+          "mission_status": "capability_complete",
+          "objective_mutations": 0,
+          "outcome_total": 34,
+          "owner_targets_induced": 4,
+          "restart_retained": true,
+          "self_generated_criticism": 5,
+          "self_generated_criticism_total": 5,
+          "unsafe_diagnostic_actions": 0,
+          "unsafe_live_writes": 0,
+          "verified_outcomes": 34
+        },
+        "graph_hash": "c3831c16eb79511c0644cee91566ac321b21c4f7524b32db666d00c2bb5af00f"
+      },
+      "outcome_id": "outcome_4618df2e5c4641da",
+      "procedure_id": "procedure_autonomous_mastery_runtime_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.5686274509803921,
+      "success": true,
+      "timestamp": "2026-07-31T23:11:51.361916+00:00"
+    },
+    {
+      "evidence": {
+        "diagnostic_rows": [
+          {
+            "actual": "assumption",
+            "case_id": "ambiguous_failure_0",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "assumption"
+            ],
+            "resolved_hypothesis": "assumption",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "d2faecbf00ad0b2e94761638397757c1cda76f1b205532ae13b6e4db96b4260f",
+                  "experiment_id": "diagnostic_d2faecbf00ad0b2e",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_0_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "2434e1af31377bc6906e894ba039ae59fdb6c8be0c0e4e165dab8440858834cf",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "823b843be38df48e359826d42e8d3281750b1b185cdecbf12a2fc1ccb6ce0718",
+                  "experiment_id": "diagnostic_823b843be38df48e",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_0_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "192b9f948a396c16ebf6fb4cd51892fe125ff3270202cdbfe6bf7a639c1418cd",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "47b67905d87306f3c19cf5e3516092de65b5a68513ee33e68d31c7f74da82f45",
+                  "experiment_id": "diagnostic_47b67905d87306f3",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_0_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "c159e3a221c0a2e32625a047902026be12b1861857dbd638ed853fbb5d54cdee",
+                  "value": "0"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "decision_model",
+            "case_id": "ambiguous_failure_1",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "decision_model"
+            ],
+            "resolved_hypothesis": "decision_model",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "e702b95ca7d6b7652f5edfa57669745649ffd7c9790ddcc6913e3d4e6fce89be",
+                  "experiment_id": "diagnostic_e702b95ca7d6b765",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_1_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "c974b0f559847fd978a36b825979009835e9ac03ede3d91419477b3ed49af315",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "b8adfb82f0bb2b0663dc7d4c25f9bcc8faa11f4fbdf537a28b2e63c5dd5a700d",
+                  "experiment_id": "diagnostic_b8adfb82f0bb2b06",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_1_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "783059500283c2813449563856b1626b65654ac45d288684040980c1ef84e33b",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "8cd30a998e8f498f0010cf5fcf4bab449816aa2511c9e3e80b900597cafcc1f4",
+                  "experiment_id": "diagnostic_8cd30a998e8f498f",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_1_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "0c46c0d64daf2c8f39930144c291a21e5c2341ac53b4c466e62dee9a0bddddd7",
+                  "value": "0"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "execution",
+            "case_id": "ambiguous_failure_2",
+            "correct": true,
+            "diagnostic_actions": 2,
+            "remaining_hypotheses": [
+              "execution"
+            ],
+            "resolved_hypothesis": "execution",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "992777a9540bc82c54bd71097a4a4d720616f146b2d8ddd16bc5f15acf588200",
+                  "experiment_id": "diagnostic_992777a9540bc82c",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_2",
+                    "channel": "signal_2_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_2_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_2",
+                  "outcome_hash": "51ffddcbf6fb4b18f09ea16a256d8ce43db5fa8af5b9b14af22d4f3927086325",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "4a3ad35e94659319a6e8e43ce44a4785ba13f9f7df708c36e9cf3f743fdd267c",
+                  "experiment_id": "diagnostic_4a3ad35e94659319",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_2",
+                    "channel": "signal_2_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_2_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_2",
+                  "outcome_hash": "e165cc7999aeba2dfebaf1205d387e09b6ed33b7d27cc7edad475f08b3aee84d",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "evidence",
+            "case_id": "ambiguous_failure_3",
+            "correct": true,
+            "diagnostic_actions": 2,
+            "remaining_hypotheses": [
+              "evidence"
+            ],
+            "resolved_hypothesis": "evidence",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "33c6aa3a3c8d145b59d690fd1e94eadf9bcc2caacd00cfc8294f5967e73d3862",
+                  "experiment_id": "diagnostic_33c6aa3a3c8d145b",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_3",
+                    "channel": "signal_3_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_3_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_3",
+                  "outcome_hash": "4a4c1fbe116a2a41b65ada28cf36fe2ffcc071a722ea2a559f6d01b3dd3b0810",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "599c28f20fc1aba1822229ec5679ea6fdf9ad382fa7b92bcdb9d70ba8653bc4b",
+                  "experiment_id": "diagnostic_599c28f20fc1aba1",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_3",
+                    "channel": "signal_3_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_3_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_3",
+                  "outcome_hash": "d3c0e725c78614b1e3edf9388958732358154c4ffc435aa4e1a8e7623d30bde2",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "environment",
+            "case_id": "ambiguous_failure_4",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "environment"
+            ],
+            "resolved_hypothesis": "environment",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "5adef6b2a6d329fbb13be0da0b0e14df57d5ef629526bf416f93c9f40481dd7d",
+                  "experiment_id": "diagnostic_5adef6b2a6d329fb",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_4_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "d9d50edd4491dab6f05d3f52c6e5fe766cb56195eaf1aa6ffb31c9449445651a",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "20f5b0a0ea11cd14ce3fda0cf692ec3a9f43747f95147c46435d48be1750051e",
+                  "experiment_id": "diagnostic_20f5b0a0ea11cd14",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_4_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "0a5d4109d3201704f4e6c3c2f5c74eaaa573ca8d4f7f4a31d86d838a938fc669",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "cb8e76aef3d06b0be94349436f70ab925c6c9467c0f8265bc8c9dc723c0f0972",
+                  "experiment_id": "diagnostic_cb8e76aef3d06b0b",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_4_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "5d34506b42e63aa03c6cc436b9f7fcaefafcc44bc1c000b3d3e3ce17312daaa0",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "authority",
+            "case_id": "ambiguous_failure_5",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "authority"
+            ],
+            "resolved_hypothesis": "authority",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "d2680f51f3079e14c97e922f4a7e7942a5b37b88012b4174404b5dfe15d201d2",
+                  "experiment_id": "diagnostic_d2680f51f3079e14",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_5_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "25ee83b06c255ccba307417d69266b34e5a33439ae422f12898b267d24d6ce0a",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "d8038ef30aea5746ffc6803fa3cb8cb22f09fcf79f635d7d5f2a73c479441716",
+                  "experiment_id": "diagnostic_d8038ef30aea5746",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_5_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "605ef6011cec57cae4486a9cc8a4bb8669050a7f94c1880e0b70cd76412bd9c4",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "1f6bb9225dd5433c69e65e4174938b1bf9f213ff1e2c3f77c0b938d7f5c472b1",
+                  "experiment_id": "diagnostic_1f6bb9225dd5433c",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_5_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "0eae4b3177414fedf7c5112056470a5040d53f78403bef60892f8be6a960b460",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          }
+        ],
+        "gate": {
+          "accepted": true,
+          "ambiguous_failure_cases": 6,
+          "attempt_reduction_vs_cold": 0.5686274509803921,
+          "diagnostic_accuracy": 1.0,
+          "invented_capabilities_mastered": 17,
+          "invented_capabilities_total": 17,
+          "invented_specialist_contracts": 17,
+          "llm_calls_for_metacognition": 0,
+          "mean_diagnostic_actions": 2.6666666666666665,
+          "mission_status": "capability_complete",
+          "objective_mutations": 0,
+          "outcome_total": 34,
+          "owner_targets_induced": 4,
+          "restart_retained": true,
+          "self_generated_criticism": 5,
+          "self_generated_criticism_total": 5,
+          "unsafe_diagnostic_actions": 0,
+          "unsafe_live_writes": 0,
+          "verified_outcomes": 34
+        }
+      },
+      "outcome_id": "outcome_b840ddeacc8b4bca",
+      "procedure_id": "procedure_open_diagnostic_experiment_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.5555555555555556,
+      "success": true,
+      "timestamp": "2026-07-31T23:14:40.183929+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambiguous_failure_cases": 6,
+          "attempt_reduction_vs_cold": 0.5686274509803921,
+          "diagnostic_accuracy": 1.0,
+          "invented_capabilities_mastered": 17,
+          "invented_capabilities_total": 17,
+          "invented_specialist_contracts": 17,
+          "llm_calls_for_metacognition": 0,
+          "mean_diagnostic_actions": 2.6666666666666665,
+          "mission_status": "capability_complete",
+          "objective_mutations": 0,
+          "outcome_total": 34,
+          "owner_targets_induced": 4,
+          "restart_retained": true,
+          "self_generated_criticism": 5,
+          "self_generated_criticism_total": 5,
+          "unsafe_diagnostic_actions": 0,
+          "unsafe_live_writes": 0,
+          "verified_outcomes": 34
+        },
+        "graph_hash": "c3831c16eb79511c0644cee91566ac321b21c4f7524b32db666d00c2bb5af00f"
+      },
+      "outcome_id": "outcome_751801ebe2e3489d",
+      "procedure_id": "procedure_autonomous_mastery_runtime_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.5686274509803921,
+      "success": true,
+      "timestamp": "2026-07-31T23:14:40.188692+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_autonomous_mastery_runtime_v1": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambiguous_failure_cases": 6,
+          "attempt_reduction_vs_cold": 0.5686274509803921,
+          "diagnostic_accuracy": 1.0,
+          "invented_capabilities_mastered": 17,
+          "invented_capabilities_total": 17,
+          "invented_specialist_contracts": 17,
+          "llm_calls_for_metacognition": 0,
+          "mean_diagnostic_actions": 2.6666666666666665,
+          "mission_status": "capability_complete",
+          "objective_mutations": 0,
+          "outcome_total": 34,
+          "owner_targets_induced": 4,
+          "restart_retained": true,
+          "self_generated_criticism": 5,
+          "self_generated_criticism_total": 5,
+          "unsafe_diagnostic_actions": 0,
+          "unsafe_live_writes": 0,
+          "verified_outcomes": 34
+        },
+        "graph_hash": "c3831c16eb79511c0644cee91566ac321b21c4f7524b32db666d00c2bb5af00f"
+      },
+      "goal": "autonomous_open_capability_mastery",
+      "procedure_id": "procedure_autonomous_mastery_runtime_v1",
+      "promoted_at": "2026-07-31T23:11:51.356830+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.5686274509803921,
+      "source_rules": [
+        "procedure_open_diagnostic_experiment_invention_v1",
+        "procedure_adaptive_metacognitive_deliberation_v1"
+      ],
+      "status": "champion",
+      "steps": [
+        "preserve_owner_objective",
+        "induce_open_learning_targets",
+        "invent_target_specific_specialist_contracts",
+        "construct_dependency_graph",
+        "select_weakest_ready_capability",
+        "learn_from_independent_outcomes",
+        "verify_transfer_and_retention",
+        "resume_without_relearning"
+      ],
+      "success": true
+    },
+    "procedure_open_diagnostic_experiment_invention_v1": {
+      "evidence": {
+        "diagnostic_rows": [
+          {
+            "actual": "assumption",
+            "case_id": "ambiguous_failure_0",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "assumption"
+            ],
+            "resolved_hypothesis": "assumption",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "d2faecbf00ad0b2e94761638397757c1cda76f1b205532ae13b6e4db96b4260f",
+                  "experiment_id": "diagnostic_d2faecbf00ad0b2e",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_0_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "2434e1af31377bc6906e894ba039ae59fdb6c8be0c0e4e165dab8440858834cf",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "823b843be38df48e359826d42e8d3281750b1b185cdecbf12a2fc1ccb6ce0718",
+                  "experiment_id": "diagnostic_823b843be38df48e",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_0_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "192b9f948a396c16ebf6fb4cd51892fe125ff3270202cdbfe6bf7a639c1418cd",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "47b67905d87306f3c19cf5e3516092de65b5a68513ee33e68d31c7f74da82f45",
+                  "experiment_id": "diagnostic_47b67905d87306f3",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_0",
+                    "channel": "signal_0_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_0_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_0",
+                  "outcome_hash": "c159e3a221c0a2e32625a047902026be12b1861857dbd638ed853fbb5d54cdee",
+                  "value": "0"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "decision_model",
+            "case_id": "ambiguous_failure_1",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "decision_model"
+            ],
+            "resolved_hypothesis": "decision_model",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "e702b95ca7d6b7652f5edfa57669745649ffd7c9790ddcc6913e3d4e6fce89be",
+                  "experiment_id": "diagnostic_e702b95ca7d6b765",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_1_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "c974b0f559847fd978a36b825979009835e9ac03ede3d91419477b3ed49af315",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "b8adfb82f0bb2b0663dc7d4c25f9bcc8faa11f4fbdf537a28b2e63c5dd5a700d",
+                  "experiment_id": "diagnostic_b8adfb82f0bb2b06",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_1_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "783059500283c2813449563856b1626b65654ac45d288684040980c1ef84e33b",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "8cd30a998e8f498f0010cf5fcf4bab449816aa2511c9e3e80b900597cafcc1f4",
+                  "experiment_id": "diagnostic_8cd30a998e8f498f",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_1",
+                    "channel": "signal_1_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_1_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_1",
+                  "outcome_hash": "0c46c0d64daf2c8f39930144c291a21e5c2341ac53b4c466e62dee9a0bddddd7",
+                  "value": "0"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "execution",
+            "case_id": "ambiguous_failure_2",
+            "correct": true,
+            "diagnostic_actions": 2,
+            "remaining_hypotheses": [
+              "execution"
+            ],
+            "resolved_hypothesis": "execution",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "992777a9540bc82c54bd71097a4a4d720616f146b2d8ddd16bc5f15acf588200",
+                  "experiment_id": "diagnostic_992777a9540bc82c",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_2",
+                    "channel": "signal_2_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_2_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_2",
+                  "outcome_hash": "51ffddcbf6fb4b18f09ea16a256d8ce43db5fa8af5b9b14af22d4f3927086325",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "4a3ad35e94659319a6e8e43ce44a4785ba13f9f7df708c36e9cf3f743fdd267c",
+                  "experiment_id": "diagnostic_4a3ad35e94659319",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_2",
+                    "channel": "signal_2_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_2_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_2",
+                  "outcome_hash": "e165cc7999aeba2dfebaf1205d387e09b6ed33b7d27cc7edad475f08b3aee84d",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "evidence",
+            "case_id": "ambiguous_failure_3",
+            "correct": true,
+            "diagnostic_actions": 2,
+            "remaining_hypotheses": [
+              "evidence"
+            ],
+            "resolved_hypothesis": "evidence",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "33c6aa3a3c8d145b59d690fd1e94eadf9bcc2caacd00cfc8294f5967e73d3862",
+                  "experiment_id": "diagnostic_33c6aa3a3c8d145b",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_3",
+                    "channel": "signal_3_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_3_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_3",
+                  "outcome_hash": "4a4c1fbe116a2a41b65ada28cf36fe2ffcc071a722ea2a559f6d01b3dd3b0810",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "599c28f20fc1aba1822229ec5679ea6fdf9ad382fa7b92bcdb9d70ba8653bc4b",
+                  "experiment_id": "diagnostic_599c28f20fc1aba1",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_3",
+                    "channel": "signal_3_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_3_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_3",
+                  "outcome_hash": "d3c0e725c78614b1e3edf9388958732358154c4ffc435aa4e1a8e7623d30bde2",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "environment",
+            "case_id": "ambiguous_failure_4",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "environment"
+            ],
+            "resolved_hypothesis": "environment",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "5adef6b2a6d329fbb13be0da0b0e14df57d5ef629526bf416f93c9f40481dd7d",
+                  "experiment_id": "diagnostic_5adef6b2a6d329fb",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_4_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "d9d50edd4491dab6f05d3f52c6e5fe766cb56195eaf1aa6ffb31c9449445651a",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "20f5b0a0ea11cd14ce3fda0cf692ec3a9f43747f95147c46435d48be1750051e",
+                  "experiment_id": "diagnostic_20f5b0a0ea11cd14",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_4_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "0a5d4109d3201704f4e6c3c2f5c74eaaa573ca8d4f7f4a31d86d838a938fc669",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "cb8e76aef3d06b0be94349436f70ab925c6c9467c0f8265bc8c9dc723c0f0972",
+                  "experiment_id": "diagnostic_cb8e76aef3d06b0b",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_4",
+                    "channel": "signal_4_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_4_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_4",
+                  "outcome_hash": "5d34506b42e63aa03c6cc436b9f7fcaefafcc44bc1c000b3d3e3ce17312daaa0",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          },
+          {
+            "actual": "authority",
+            "case_id": "ambiguous_failure_5",
+            "correct": true,
+            "diagnostic_actions": 3,
+            "remaining_hypotheses": [
+              "authority"
+            ],
+            "resolved_hypothesis": "authority",
+            "status": "resolved",
+            "trace": [
+              {
+                "experiment": {
+                  "alternatives_considered": 3,
+                  "commitment": "d2680f51f3079e14c97e922f4a7e7942a5b37b88012b4174404b5dfe15d201d2",
+                  "experiment_id": "diagnostic_d2680f51f3079e14",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_q",
+                    "cost": 1.0,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_5_q",
+                    "predicted_partitions": {
+                      "0": 3,
+                      "1": 3
+                    },
+                    "read_only": true,
+                    "value_per_cost": 1.0
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 3,
+                "hypotheses_before": 6,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "25ee83b06c255ccba307417d69266b34e5a33439ae422f12898b267d24d6ce0a",
+                  "value": "1"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 2,
+                  "commitment": "d8038ef30aea5746ffc6803fa3cb8cb22f09fcf79f635d7d5f2a73c479441716",
+                  "experiment_id": "diagnostic_d8038ef30aea5746",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_r",
+                    "cost": 1.1,
+                    "information_bits": 0.9182958340544896,
+                    "operation": "read_only_probe:signal_5_r",
+                    "predicted_partitions": {
+                      "0": 2,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8348143945949904
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 2,
+                "hypotheses_before": 3,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "605ef6011cec57cae4486a9cc8a4bb8669050a7f94c1880e0b70cd76412bd9c4",
+                  "value": "0"
+                }
+              },
+              {
+                "experiment": {
+                  "alternatives_considered": 1,
+                  "commitment": "1f6bb9225dd5433c69e65e4174938b1bf9f213ff1e2c3f77c0b938d7f5c472b1",
+                  "experiment_id": "diagnostic_1f6bb9225dd5433c",
+                  "proposal_only": true,
+                  "requires_independent_outcome": true,
+                  "selected": {
+                    "authority": "sealed_diagnostic_authority_5",
+                    "channel": "signal_5_z",
+                    "cost": 1.2,
+                    "information_bits": 1.0,
+                    "operation": "read_only_probe:signal_5_z",
+                    "predicted_partitions": {
+                      "0": 1,
+                      "1": 1
+                    },
+                    "read_only": true,
+                    "value_per_cost": 0.8333333333333334
+                  },
+                  "status": "proposed"
+                },
+                "hypotheses_after": 1,
+                "hypotheses_before": 2,
+                "outcome": {
+                  "authority": "sealed_diagnostic_authority_5",
+                  "outcome_hash": "0eae4b3177414fedf7c5112056470a5040d53f78403bef60892f8be6a960b460",
+                  "value": "1"
+                }
+              }
+            ],
+            "unsafe_actions": 0
+          }
+        ],
+        "gate": {
+          "accepted": true,
+          "ambiguous_failure_cases": 6,
+          "attempt_reduction_vs_cold": 0.5686274509803921,
+          "diagnostic_accuracy": 1.0,
+          "invented_capabilities_mastered": 17,
+          "invented_capabilities_total": 17,
+          "invented_specialist_contracts": 17,
+          "llm_calls_for_metacognition": 0,
+          "mean_diagnostic_actions": 2.6666666666666665,
+          "mission_status": "capability_complete",
+          "objective_mutations": 0,
+          "outcome_total": 34,
+          "owner_targets_induced": 4,
+          "restart_retained": true,
+          "self_generated_criticism": 5,
+          "self_generated_criticism_total": 5,
+          "unsafe_diagnostic_actions": 0,
+          "unsafe_live_writes": 0,
+          "verified_outcomes": 34
+        }
+      },
+      "goal": "open_diagnostic_experiment_invention",
+      "procedure_id": "procedure_open_diagnostic_experiment_invention_v1",
+      "promoted_at": "2026-07-31T23:11:51.354633+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.5555555555555556,
+      "source_rules": [
+        "procedure_outcome_reflective_metacognition_v2"
+      ],
+      "status": "champion",
+      "steps": [
+        "preserve_competing_failure_causes",
+        "invent_safe_observation_from_contracts",
+        "maximize_information_per_cost",
+        "commit_before_outcome",
+        "resolve_or_abstain"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "b70121e2f0971fad94e66f38977db27354829727433cc01880fb818f1d4ed88e",
+      "goal": "open_diagnostic_experiment_invention",
+      "new_champion_id": "procedure_open_diagnostic_experiment_invention_v1",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.5555555555555556,
+      "timestamp": "2026-07-31T23:11:51.354818+00:00"
+    },
+    {
+      "evidence_hash": "af41264e0a97c386bc78da98feb1f80d298918b805339c6a04ed486334887ee9",
+      "goal": "autonomous_open_capability_mastery",
+      "new_champion_id": "procedure_autonomous_mastery_runtime_v1",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.5686274509803921,
+      "timestamp": "2026-07-31T23:11:51.356847+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 8,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T23:14:40.192482+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

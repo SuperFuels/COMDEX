@@ -1,0 +1,164 @@
+{
+  "canonical_sha256": "660a27b4cca4a78ef3840515dae778b71c9e6318dd8f15076e0ca867a39b967c",
+  "claim_boundary": "Exact mechanism-only four-expert frame I/O and decode comparison. F_NOCACHE is requested but cannot prove absence from every OS cache. This is not a complete layer or token.",
+  "condition_order": [
+    "sequential",
+    "parallel",
+    "parallel",
+    "sequential"
+  ],
+  "f_nocache_requested": true,
+  "layer": 0,
+  "parallel_p50_improvement_percent": 19.05676035715843,
+  "route": [
+    25,
+    112,
+    32,
+    127
+  ],
+  "schema": "aion.gptoss-parallel-route-io-gate.v1",
+  "status": "PASSED",
+  "summaries": {
+    "parallel": {
+      "p50_seconds": 0.5534414584981278,
+      "p95_seconds": 0.557982207974419,
+      "runs": 8
+    },
+    "sequential": {
+      "p50_seconds": 0.6837401874945499,
+      "p95_seconds": 0.6925603749696165,
+      "runs": 8
+    }
+  },
+  "trials": [
+    {
+      "compressed_bytes": 50506171,
+      "condition": "sequential",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 0,
+      "seconds": 0.6912639999645762
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "parallel",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 0,
+      "seconds": 0.557982207974419
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "parallel",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 0,
+      "seconds": 0.5548783339909278
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "sequential",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 0,
+      "seconds": 0.6925603749696165
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "parallel",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 1,
+      "seconds": 0.553121791977901
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "parallel",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 1,
+      "seconds": 0.5534085420076735
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "sequential",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 1,
+      "seconds": 0.6768882499891333
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "sequential",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 1,
+      "seconds": 0.6821980410022661
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "parallel",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 2,
+      "seconds": 0.5532525830203667
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "sequential",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 2,
+      "seconds": 0.6843300419859588
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "sequential",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 2,
+      "seconds": 0.6816221249755472
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "parallel",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 2,
+      "seconds": 0.553474374988582
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "sequential",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 3,
+      "seconds": 0.683150333003141
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "sequential",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 3,
+      "seconds": 0.6893439589766786
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "parallel",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 3,
+      "seconds": 0.5528194999787956
+    },
+    {
+      "compressed_bytes": 50506171,
+      "condition": "parallel",
+      "exact": true,
+      "raw_bytes": 53015040,
+      "repetition": 3,
+      "seconds": 0.554715208010748
+    }
+  ],
+  "workers": 4
+}

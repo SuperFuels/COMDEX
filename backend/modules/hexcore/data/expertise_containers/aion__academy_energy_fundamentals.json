@@ -1,0 +1,218 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_classical_physics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:classical_physics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:energy_fundamentals:energy_accounting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_fundamentals",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_fundamentals:conversion",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_fundamentals",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_fundamentals:efficiency",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_fundamentals",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_fundamentals:heat_transfer",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_fundamentals",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_fundamentals:lifecycle_energy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_fundamentals",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_fundamentals:technoeconomics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_fundamentals",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "energy",
+      "id": "work:aion@wave.tp:subject:energy_fundamentals",
+      "label": "Energy conversion and efficiency",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_fundamentals:energy_accounting",
+      "label": "energy accounting",
+      "subject_id": "energy_fundamentals",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_fundamentals:conversion",
+      "label": "conversion",
+      "subject_id": "energy_fundamentals",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_fundamentals:efficiency",
+      "label": "efficiency",
+      "subject_id": "energy_fundamentals",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_fundamentals:heat_transfer",
+      "label": "heat transfer",
+      "subject_id": "energy_fundamentals",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_fundamentals:lifecycle_energy",
+      "label": "lifecycle energy",
+      "subject_id": "energy_fundamentals",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_fundamentals:technoeconomics",
+      "label": "technoeconomics",
+      "subject_id": "energy_fundamentals",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_energy_fundamentals",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:energy_fundamentals:energy_accounting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_fundamentals",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_fundamentals:conversion",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_fundamentals",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_fundamentals:efficiency",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_fundamentals",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_fundamentals:heat_transfer",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_fundamentals",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_fundamentals:lifecycle_energy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_fundamentals",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_fundamentals:technoeconomics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_fundamentals",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "energy",
+        "id": "work:aion@wave.tp:subject:energy_fundamentals",
+        "label": "Energy conversion and efficiency",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_fundamentals:energy_accounting",
+        "label": "energy accounting",
+        "subject_id": "energy_fundamentals",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_fundamentals:conversion",
+        "label": "conversion",
+        "subject_id": "energy_fundamentals",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_fundamentals:efficiency",
+        "label": "efficiency",
+        "subject_id": "energy_fundamentals",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_fundamentals:heat_transfer",
+        "label": "heat transfer",
+        "subject_id": "energy_fundamentals",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_fundamentals:lifecycle_energy",
+        "label": "lifecycle energy",
+        "subject_id": "energy_fundamentals",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_fundamentals:technoeconomics",
+        "label": "technoeconomics",
+        "subject_id": "energy_fundamentals",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "energy",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "energy_fundamentals",
+    "title": "AION Academy \u00b7 Energy conversion and efficiency"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

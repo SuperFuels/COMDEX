@@ -1,0 +1,176 @@
+\section{Arenas v12--v14: Real Physical Learning, Improvement, and Continual Neural Consolidation}
+\label{sec:arenas-v12-v14-physical-neural}
+
+This sequence moved the physical-intelligence track beyond development-authored
+simulator dynamics in two stages and then consolidated verified control
+experience into a replaceable neural component.  Arena v12 established a real
+speaker--air--microphone observation loop; Arena v13 used that loop to invent
+and retain a physical compensation tool; Arena v14 tested whether verified
+experience from three unrelated public physics systems could be learned
+sequentially without erasing earlier competence.
+
+\subsection{Arena v12: Development-Owned Physical Contact}
+
+Arena v12 used the MacBook Pro loudspeakers as an actuator and the built-in
+microphone as a sensor.  The intervening room-air acoustic path was therefore
+part of the measured environment rather than an in-process simulator.  AION
+actively selected five probe frequencies and committed predictions for five
+withheld frequencies before their physical outcomes were measured.  The
+learned relative response error was $0.1550$, compared with $0.2599$ for a flat
+response control, giving
+\begin{equation}
+ \Delta_{\mathrm{err}}
+ =1-\frac{E_{\mathrm{learned}}}{E_{\mathrm{flat}}}
+ =1-\frac{0.1550}{0.2599}
+ =0.4036 .
+\end{equation}
+Thus the learned model reduced error by $40.36\%$.  Raw audio was held only in
+volatile memory and discarded after measurement.  Speech recognition, camera
+access, and Bluetooth discovery were not performed.  CAU promoted
+\path{procedure_real_world_acoustic_learning_v12_56a34d8c1ef2}.
+
+\subsection{Arena v13: Autonomous Real Physical Improvement}
+\label{subsec:arena-v13-real-improvement}
+
+AION received the broad objective of characterising the local acoustic path and
+making its narrowband response more uniform without increasing the original
+output ceiling or retaining ambient audio.  It invented the following seven
+subgoals:
+\begin{enumerate}
+ \item measure the baseline transfer response;
+ \item diagnose frequency-dependent imbalance;
+ \item invent bounded inverse compensation;
+ \item commit the coefficients before physical application;
+ \item apply the intervention through the loudspeaker;
+ \item measure the delayed microphone outcome; and
+ \item retain or reject the tool from measured consequences.
+\end{enumerate}
+
+For each of nine frequencies $f_i$, the observed transfer magnitude was
+\begin{equation}
+ T_i=\frac{M_i}{a_0}, \qquad a_0=0.04,
+\end{equation}
+where $M_i$ is the measured narrowband magnitude.  With
+$T_{\min}=\min_i T_i$, AION constructed one bounded coefficient per frequency,
+\begin{equation}
+ c_i=\max\!\left(0.20,
+       \min\!\left(1,\frac{T_{\min}}{T_i}\right)\right),
+ \qquad a_i=a_0c_i .
+\end{equation}
+This formulation permits attenuation but never amplification beyond the
+original stimulus ceiling.  The complete coefficient map was SHA-256 committed
+before any compensated measurement was revealed.
+
+Response non-uniformity was measured as the standard deviation of log
+magnitudes,
+\begin{equation}
+ D=\operatorname{std}_{i}\!\left(\log(M_i+10^{-12})\right).
+\end{equation}
+Baseline dispersion was $D_0=0.4972376$ and compensated dispersion was
+$D_1=0.1404789$.  The verified physical improvement was therefore
+\begin{equation}
+ I=1-\frac{D_1}{D_0}=0.7174814,
+\end{equation}
+or $71.75\%$.
+
+\begin{table}[htbp]
+\centering
+\caption{Arena v13 real physical improvement results.}
+\label{tab:arena-v13-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Real physical interventions & 18 \\
+Invented continuous tool parameters & 9 \\
+Invented project subgoals & 7 \\
+Baseline log dispersion & 0.4972 \\
+Compensated log dispersion & 0.1405 \\
+Physical uniformity improvement & $71.75\%$ \\
+Maximum output amplitude & 0.04 (original ceiling) \\
+Minimum compensated SNR & 17.82 dB \\
+Raw audio retained & No \\
+Unsafe output level & No \\
+\hline
+\end{tabular}
+\end{table}
+
+The tool was retained only after the second set of nine real measurements
+passed the improvement, signal-quality, amplitude, and privacy gates.  Project
+state and the retained tool survived runtime reconstruction without replaying
+raw audio.  CAU promoted
+\path{procedure_real_world_acoustic_improvement_v13_9b3c71e044fa}.
+
+\subsection{Arena v14: Continual Neural Physical-Skill Consolidation}
+\label{subsec:arena-v14-neural-consolidation}
+
+Arena v14 asked whether verified pixel/action experience could be consolidated
+across MountainCar, CartPole, and Acrobot while protecting earlier competence.
+It assembled $4{,}582$ verified outcomes and trained sequentially over three
+generations.  Fresh seeds were evaluated after every generation, and final
+evaluation used 15 sealed episodes across all three task families.
+
+The first shared multilayer network was rejected.  Although it later reached
+high final performance, its intermediate CartPole weakest-task success was only
+$66.67\%$.  Equal per-task replay also failed, producing complete intermediate
+forgetting on one protected family.  Neither result was promoted.
+
+The retained architecture is one versioned neural skill bank with private
+task-conditioned heads.  For grounded task indicator $q_k$ and pixel-derived
+evidence vector $x_t$, its proposal is
+\begin{equation}
+ \hat{u}_t
+ =\sum_{k=1}^{3}q_k h_k(x_t),
+ \qquad \sum_{k=1}^{3}q_k=1,
+\end{equation}
+where each $h_k$ is a small learned neural head.  Private capacity prevents a
+new physical skill from overwriting protected weights while retaining a single
+replaceable proposal interface.  The complete bank contains 795 parameters.
+
+\begin{table}[htbp]
+\centering
+\caption{Arena v14 continual neural consolidation results.}
+\label{tab:arena-v14-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Sequential learning generations & 3 \\
+Verified training outcomes & 4,582 \\
+Neural parameters & 795 \\
+Final sealed success & 15/15 \\
+Final mean success & $100\%$ \\
+Final weakest-task success & $100\%$ \\
+Minimum intermediate protected success & $80\%$ \\
+Pre-action commitments & 3,784 \\
+Unsafe actions & 0 \\
+Reloaded-component predictions & Bit-identical \\
+Restart retention & Passed \\
+\hline
+\end{tabular}
+\end{table}
+
+At inference the neural component does not execute the original hand-written
+momentum-sign or angular-phase controller expressions.  It proposes an action;
+HexCore commits that proposal before execution, the independently maintained
+Gymnasium environment reveals the consequence, and CAU remains the only
+promotion authority.  Serialized weights were SHA-256 committed, reloaded into
+a fresh component, and produced bit-identical proposals.  CAU promoted
+\path{procedure_continual_neural_physical_policy_v14_39d2506bf61c}.
+
+\subsection{Integrated Verification and Claim Boundary}
+
+Focused verification across the real-physical, external-protocol, neural
+consolidation, and evidence-registry components passed $17/17$ tests.  The AGI
+evidence registry now commits 20 capability artifacts with $100\%$ artifact
+integrity.  No gate is falsely labelled externally certified, and AGI claim
+authorization remains false.
+
+These experiments constitute real development-owned physical learning and a
+bounded continual neural-consolidation result.  They do not establish robotics,
+unrestricted visual representation learning, open-ended online reinforcement
+learning, independent physical administration, or AGI.  The task bindings,
+visual features, verified teachers, device, public environments, and promotion
+gates remain engineered.  The next authority-bearing milestones are multi-day
+operation against independently changing consequences, independently owned
+physical evaluation, and human-administered social and creative assessment.

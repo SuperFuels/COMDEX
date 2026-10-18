@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.5: Mini Chess Opponent Win Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.5 defines the AION Mini Chess Opponent Win Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can apply learned mini-chess policies against a deterministic weak opponent and reach a win condition.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.5 tests whether the mini-chess learning stack transfers into opponent play.
+
+\section{Opponent Play Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{opponent\_type};
+  \item \texttt{turns};
+  \item \texttt{aion\_legal\_moves};
+  \item \texttt{aion\_illegal\_moves};
+  \item \texttt{learned\_policy\_applied};
+  \item \texttt{avoided\_known\_bad\_capture};
+  \item \texttt{preserved\_king\_safety};
+  \item \texttt{win\_condition};
+  \item \texttt{aion\_won};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational mini-chess opponent play. It does not prove full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B5-MINI-CHESS-OPPONENT-WIN-KERNEL-LOCK\\
+Status: LOCKED --- mini chess opponent win kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

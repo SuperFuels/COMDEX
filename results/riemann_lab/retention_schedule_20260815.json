@@ -1,0 +1,12 @@
+{
+  "schema": "aion.riemann_retention_schedule.v1",
+  "automation_id": "aion-rh-retention-gate",
+  "kind": "thread_heartbeat",
+  "status": "ACTIVE",
+  "check_interval": "hourly",
+  "packet": "research/riemann_lab/retention_task_packet_v1.json",
+  "packet_sha256": "272bf6e920d66fd9064fe2e3ab81c7f1200ef67414304052a7736f97c87efc3f",
+  "not_before": "2026-08-15T08:00:00Z",
+  "execution_policy": "No paid calls before due time; after local reverification and sealing, exactly one two-arm retention comparison; disable automation on completion.",
+  "notification_policy": "failed_runs_only"
+}

@@ -1,0 +1,190 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_algebra_geometry",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:algebra_geometry",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:calculus_analysis:limits",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:calculus_analysis",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:calculus_analysis:derivatives",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:calculus_analysis",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:calculus_analysis:integrals",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:calculus_analysis",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:calculus_analysis:series",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:calculus_analysis",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:calculus_analysis:differential_equations",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:calculus_analysis",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "mathematics",
+      "id": "work:aion@wave.tp:subject:calculus_analysis",
+      "label": "Calculus and mathematical analysis",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:calculus_analysis:limits",
+      "label": "limits",
+      "subject_id": "calculus_analysis",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:calculus_analysis:derivatives",
+      "label": "derivatives",
+      "subject_id": "calculus_analysis",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:calculus_analysis:integrals",
+      "label": "integrals",
+      "subject_id": "calculus_analysis",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:calculus_analysis:series",
+      "label": "series",
+      "subject_id": "calculus_analysis",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:calculus_analysis:differential_equations",
+      "label": "differential equations",
+      "subject_id": "calculus_analysis",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_calculus_analysis",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:calculus_analysis:limits",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:calculus_analysis",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:calculus_analysis:derivatives",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:calculus_analysis",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:calculus_analysis:integrals",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:calculus_analysis",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:calculus_analysis:series",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:calculus_analysis",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:calculus_analysis:differential_equations",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:calculus_analysis",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "mathematics",
+        "id": "work:aion@wave.tp:subject:calculus_analysis",
+        "label": "Calculus and mathematical analysis",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:calculus_analysis:limits",
+        "label": "limits",
+        "subject_id": "calculus_analysis",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:calculus_analysis:derivatives",
+        "label": "derivatives",
+        "subject_id": "calculus_analysis",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:calculus_analysis:integrals",
+        "label": "integrals",
+        "subject_id": "calculus_analysis",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:calculus_analysis:series",
+        "label": "series",
+        "subject_id": "calculus_analysis",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:calculus_analysis:differential_equations",
+        "label": "differential equations",
+        "subject_id": "calculus_analysis",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "mathematics",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "calculus_analysis",
+    "title": "AION Academy \u00b7 Calculus and mathematical analysis"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

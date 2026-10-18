@@ -1,0 +1,301 @@
+{
+  "active_campaigns": [
+    {
+      "campaign_id": "reliable_dependency_service",
+      "commitment_sha256": "a5613edaea1c379f48a3945afc85eaeb86ed73e7c0b76a5e528eb6fe34a6ae5c",
+      "competency_award": false,
+      "functional_memory_ready": true,
+      "missing_practical_repetitions": [],
+      "objective": "Build and falsify a dependency service that remains correct under cycles, retries and partial failure.",
+      "required_subjects": [
+        "algorithms_data_structures",
+        "software_engineering"
+      ],
+      "status": "ACTIVE",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "algorithms_data_structures"
+    },
+    {
+      "campaign_id": "formal_empirical_model",
+      "commitment_sha256": "6c94eb76158d96ae2ea0f30652183c4cc75935806ed2dbc84418c248d2bb2d3f",
+      "competency_award": false,
+      "functional_memory_ready": false,
+      "missing_practical_repetitions": [
+        "experimental_design",
+        "hypotheses",
+        "literature_review"
+      ],
+      "objective": "Derive a mathematical model, design a falsifying experiment and revise it under conflicting measurements.",
+      "required_subjects": [
+        "mathematics",
+        "scientific_method"
+      ],
+      "status": "BLOCKED_MEMORY_OR_EXECUTOR",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "scientific_method"
+    },
+    {
+      "campaign_id": "ambiguous_software_mission",
+      "commitment_sha256": "eb385e3f530e9a845607afc6892d3db4b802cf73830d65fc5caa6f3c2f5709a2",
+      "competency_award": false,
+      "functional_memory_ready": false,
+      "missing_practical_repetitions": [
+        "lexical_grounding",
+        "morphology",
+        "native_question_answering",
+        "reference_resolution",
+        "semantic_relations",
+        "sentence_semantics",
+        "syntax"
+      ],
+      "objective": "Resolve an ambiguous natural-language software mission, state assumptions and implement only the verified interpretation.",
+      "required_subjects": [
+        "english",
+        "software_engineering"
+      ],
+      "status": "BLOCKED_MEMORY_OR_EXECUTOR",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "english"
+    },
+    {
+      "campaign_id": "reproducible_python_science",
+      "commitment_sha256": "9fd1b37e957cda2f64108f499fce75dfdb85730a1866b1aa43a8d6a8352df8f3",
+      "competency_award": false,
+      "functional_memory_ready": false,
+      "missing_practical_repetitions": [
+        "experimental_design",
+        "hypotheses",
+        "literature_review"
+      ],
+      "objective": "Create a reproducible Python investigation whose causal conclusion survives counterexamples and fresh execution.",
+      "required_subjects": [
+        "python",
+        "scientific_method"
+      ],
+      "status": "BLOCKED_MEMORY_OR_EXECUTOR",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "scientific_method"
+    },
+    {
+      "campaign_id": "algorithmic_proof_and_measurement",
+      "commitment_sha256": "9b01c8eb7241e1d103bf10eca95264662973fd096708f997b6d17852ea32bbef",
+      "competency_award": false,
+      "functional_memory_ready": true,
+      "missing_practical_repetitions": [],
+      "objective": "Prove an algorithmic invariant and compare its predicted complexity with independently measured growth.",
+      "required_subjects": [
+        "algorithms_data_structures",
+        "mathematics"
+      ],
+      "status": "ACTIVE",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "algorithms_data_structures"
+    },
+    {
+      "campaign_id": "evidence_bound_explanation",
+      "commitment_sha256": "cda52ffa4b3592f925843714e50281d0bcc31d71f19da51188b98abb95f4fe01",
+      "competency_award": false,
+      "functional_memory_ready": false,
+      "missing_practical_repetitions": [
+        "lexical_grounding",
+        "morphology",
+        "native_question_answering",
+        "reference_resolution",
+        "semantic_relations",
+        "sentence_semantics",
+        "syntax"
+      ],
+      "objective": "Investigate a disputed technical claim and produce a clear explanation that separates evidence, inference and uncertainty.",
+      "required_subjects": [
+        "english",
+        "scientific_method"
+      ],
+      "status": "BLOCKED_MEMORY_OR_EXECUTOR",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "english"
+    }
+  ],
+  "generations": [
+    {
+      "active_campaigns": 6,
+      "created_at": "2026-08-02T08:09:24.563567+00:00",
+      "functional_reconstructions": 6,
+      "generation": 1,
+      "source_hash": "5bdf02a6bf64db9e6e33181c292dabf9fade216acee727b7549355635ac75996",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 6,
+      "created_at": "2026-08-02T08:12:01.834113+00:00",
+      "functional_reconstructions": 6,
+      "generation": 2,
+      "source_hash": "31aed4426887f4599d2c2b3f9c54a4d03592a162a23a4d2c4a0a75d37f9570f7",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 6,
+      "created_at": "2026-08-02T09:53:03.643630+00:00",
+      "functional_reconstructions": 6,
+      "generation": 3,
+      "source_hash": "d875b4f09875d1fe2d24454f4b675d97004f7ce8e007eecc6db66c1a425fd889",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 6,
+      "created_at": "2026-08-02T10:03:19.391130+00:00",
+      "functional_reconstructions": 6,
+      "generation": 4,
+      "source_hash": "115621813ae38895dfa42ed59b9709ea66c727da27b4ee91da884e55624c1725",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T08:20:30.784584+00:00",
+      "functional_reconstructions": 5,
+      "generation": 5,
+      "source_hash": "21326ce15d897698ac5802f422944bf9072728ba516b84a5dbdccb57a3819ab5",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T12:51:10.576349+00:00",
+      "functional_reconstructions": 5,
+      "generation": 6,
+      "source_hash": "9e9a4bda0fadd834af853c6bf3278ac75930e09897bb238232d96ac800112865",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T12:56:46.681048+00:00",
+      "functional_reconstructions": 5,
+      "generation": 7,
+      "source_hash": "3538c307ff4025218f86dedafcf5a2506b02280de95151a1bc8269d64e0ba6d1",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T12:58:23.496515+00:00",
+      "functional_reconstructions": 5,
+      "generation": 8,
+      "source_hash": "ea8114af0f1533a154cc01e3fbd999046b22b997395ae8170668f58aa7ad4f7b",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T13:09:37.160781+00:00",
+      "functional_reconstructions": 5,
+      "generation": 9,
+      "source_hash": "3538c307ff4025218f86dedafcf5a2506b02280de95151a1bc8269d64e0ba6d1",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T16:56:45.768106+00:00",
+      "functional_reconstructions": 5,
+      "generation": 10,
+      "source_hash": "e906f3c3751b0be441d67af1c5bc4494add2e8555a9bc4a74a919e94d25f62b2",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T21:51:26.744127+00:00",
+      "functional_reconstructions": 5,
+      "generation": 11,
+      "source_hash": "86fda2498d5be823749cb5e04efd69b991e329136908ac489214e00a6842f7b5",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T22:52:47.370800+00:00",
+      "functional_reconstructions": 5,
+      "generation": 12,
+      "source_hash": "e900b2ec37d864f61a8c0bff16100e3dfd1b698efcac0f7ba7df744a5d2b610a",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-10-06T18:38:41.493861+00:00",
+      "functional_reconstructions": 5,
+      "generation": 13,
+      "source_hash": "16174599da7c0d338f9e0fa9137f35c20fd54bbd6661ee39b73178e0987d97b8",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 2,
+      "created_at": "2026-10-06T19:39:54.957469+00:00",
+      "functional_reconstructions": 4,
+      "generation": 14,
+      "source_hash": "63fa0c40b04bf2c5ead1d92952fc7a6df92341907857b3180f945cd4c7b9b9d6",
+      "substrate": "deterministic_control_retained"
+    }
+  ],
+  "next_compounding_action": {
+    "campaign_id": "ambiguous_software_mission",
+    "commitment_sha256": "eb385e3f530e9a845607afc6892d3db4b802cf73830d65fc5caa6f3c2f5709a2",
+    "competency_award": false,
+    "functional_memory_ready": false,
+    "missing_practical_repetitions": [
+      "lexical_grounding",
+      "morphology",
+      "native_question_answering",
+      "reference_resolution",
+      "semantic_relations",
+      "sentence_semantics",
+      "syntax"
+    ],
+    "objective": "Resolve an ambiguous natural-language software mission, state assumptions and implement only the verified interpretation.",
+    "required_subjects": [
+      "english",
+      "software_engineering"
+    ],
+    "status": "BLOCKED_MEMORY_OR_EXECUTOR",
+    "success_contract": [
+      "fresh executable or independently revealed outcome",
+      "at least two falsifying counterexamples",
+      "source-disjoint transfer",
+      "failure attribution before revision",
+      "delayed capsule-only reconstruction"
+    ],
+    "weakest_subject": "english"
+  },
+  "procedure_id": "procedure_compounding_intelligence_engine_v1",
+  "schema_version": "aion.hexcore.compounding_intelligence_state.v1",
+  "status": "ACTIVE_NOT_PROMOTED",
+  "updated_at": "2026-10-18T08:46:25.411827+00:00"
+}

@@ -17,7 +17,7 @@ function getEthereumProvider(): any {
  *  2) fetch full SIWE message from your backend
  *  3) ask user to sign that message
  *  4) POST { message, signature } to /auth/verify
- *  5) persist JWT (under "token") & role, set axios header, bind wallet
+ *  5) rely on the backend-issued HttpOnly session cookie and bind wallet
  *
  * @returns the connected address and your user role
  */
@@ -30,16 +30,13 @@ export async function signInWithEthereum(): Promise<{
   const [rawAddress] = (await eth.request({
     method: 'eth_requestAccounts',
   })) as string[]
-  const address = ethers.utils.getAddress(rawAddress)
+  const address = ethers.getAddress(rawAddress)
 
   // 2) fetch the full SIWE message from your backend
   const { data: { message } } = await api.get<{ message: string }>(
     '/auth/nonce',
     { params: { address }, withCredentials: true }
   )
-
-  // 2.1) log the exact SIWE payload for debugging
-  console.debug('SIWE nonce fetched:', message)
 
   // 3) have user sign exactly that message
   const signature = (await eth.request({
@@ -57,10 +54,9 @@ export async function signInWithEthereum(): Promise<{
     { withCredentials: true }
   )
 
-  // 5) persist JWT & role, configure axios
-  localStorage.setItem('token', token)
-  localStorage.setItem('role',  role)
-  api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  // 5) The backend establishes an HttpOnly session cookie. Never persist the
+  // compatibility token or signed SIWE payload in script-readable storage.
+  void token
 
   // 6) attempt to bind/update your wallet on your profile (optional)
   try {
@@ -76,15 +72,11 @@ export async function signInWithEthereum(): Promise<{
   return { address, role }
 }
 
-/** Helpers for other parts of your app */
-export const getToken        = (): string | null => localStorage.getItem('token')
-export const getRole         = (): string | null => localStorage.getItem('role')
-export const isAuthenticated = (): boolean      => Boolean(getToken())
-
-/** Clears storage & reloads to force logout */
-export function logout(): void {
-  localStorage.removeItem('token')
-  localStorage.removeItem('role')
-  localStorage.setItem('manualDisconnect', 'true')
-  window.location.reload()
+/** Clears the HttpOnly session at the authority and reloads the UI. */
+export async function logout(): Promise<void> {
+  try {
+    await api.post('/auth/logout', undefined, { withCredentials: true })
+  } finally {
+    window.location.reload()
+  }
 }

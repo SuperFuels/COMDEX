@@ -1,0 +1,40 @@
+\section{Phase 16F --- Founder Demo Loop Functional Hero Lock}
+
+\subsection{Status}
+LOCKED.
+
+\subsection{Purpose}
+Phase 16F makes the Boardroom Founder Demo Loop visibly functional as the primary founder-demo control surface.
+
+\subsection{Locked Behaviour}
+The Founder Demo Loop MUST expose clear operator actions for:
+\begin{itemize}
+  \item running the Home Fixed preview,
+  \item opening human review,
+  \item viewing the proof receipt,
+  \item replaying the boardroom trace.
+\end{itemize}
+
+The section MUST keep the side-effect boundary visible:
+\begin{itemize}
+  \item no booking created,
+  \item no payment created,
+  \item no escrow created,
+  \item no external message sent,
+  \item no live chain write,
+  \item human review required.
+\end{itemize}
+
+The section MUST use Tessaris teal/black/cream styling and MUST NOT inherit purple button branding.
+
+\subsection{Validation}
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase16f_founder_demo_loop_functional_hero_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+Lock ID: AION-PHASE16F-FOUNDER-DEMO-LOOP-FUNCTIONAL-HERO
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson

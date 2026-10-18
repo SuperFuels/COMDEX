@@ -1,0 +1,210 @@
+\section{AION Phase 20AA --- Business Container Artifact Persistence}
+\label{sec:aion-phase20aa-business-container-artifacts}
+
+\subsection{Status}
+
+Phase 20AA locks the storage rule for all AION Pilot-created user-usable artifacts.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot artifacts must persist inside the active business container and correct sub-container.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may create user-usable outputs such as documents, PDFs, spreadsheets, reports, campaign packs, quotes, workflow previews, AgentMap previews, evidence bundles, exports, approval payloads, and receipts.
+
+These outputs MUST NOT be scattered globally, left only in temporary runtime state, or saved outside the business/container hierarchy.
+
+\begin{quote}
+\textbf{If AION Pilot creates something the end user can use, it must be committed into the active business container or correct sub-container with provenance and receipt metadata.}
+\end{quote}
+
+\subsection{Allowed Business Sub-Containers}
+
+Pilot-created artifacts may be promoted only into approved business sub-containers:
+
+\begin{itemize}
+  \item \texttt{missions}
+  \item \texttt{campaigns}
+  \item \texttt{quotes}
+  \item \texttt{workflows}
+  \item \texttt{agentmaps}
+  \item \texttt{reports}
+  \item \texttt{evidence}
+  \item \texttt{exports}
+  \item \texttt{approvals}
+  \item \texttt{receipts}
+\end{itemize}
+
+\subsection{Required Artifact Metadata}
+
+Every promoted Pilot artifact MUST include:
+
+\begin{itemize}
+  \item \texttt{business\_id}
+  \item \texttt{business\_container\_id}
+  \item \texttt{sub\_container}
+  \item \texttt{artifact\_type}
+  \item \texttt{artifact\_name}
+  \item \texttt{mission\_id}
+  \item \texttt{mission\_run\_id}
+  \item \texttt{step\_id}
+  \item \texttt{tool\_id}
+  \item \texttt{created\_by = aion\_pilot}
+  \item \texttt{artifact\_hash}
+  \item \texttt{source\_payload\_hash}
+  \item \texttt{receipt\_hash}
+\end{itemize}
+
+\subsection{Storage Path Rule}
+
+Final promoted artifacts MUST resolve under:
+
+\begin{verbatim}
+business_containers/<business_container_id>/<sub_container>/<artifact_id>.json
+\end{verbatim}
+
+Examples:
+
+\begin{verbatim}
+business_containers/business_home_fixed/campaigns/artifact_abc.json
+business_containers/business_home_fixed/workflows/artifact_def.json
+business_containers/business_home_fixed/agentmaps/artifact_ghi.json
+business_containers/business_home_fixed/receipts/artifact_jkl.json
+\end{verbatim}
+
+\subsection{Session VFS Is Temporary Only}
+
+Session VFS drafts are temporary planning/execution scratch space.
+
+A session VFS draft is not a final artifact.
+
+Before a runtime step may be considered complete, any promoted user-usable output MUST be committed into the active business container.
+
+\subsection{Forbidden Final Targets}
+
+Pilot artifacts MUST NOT be saved as final outputs under:
+
+\begin{itemize}
+  \item \texttt{global}
+  \item \texttt{root}
+  \item \texttt{session\_vfs}
+  \item \texttt{tmp}
+  \item \texttt{temp}
+  \item any unknown business sub-container
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20AA-BUSINESS-CONTAINER-ARTIFACT-PERSISTENCE
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20AA.1 --- Canonical Path Containment and Artifact Merkle Triad}
+
+\subsubsection{Status}
+
+Phase 20AA.1 hardens the business-container artifact persistence layer against filesystem path escape and receipt tampering.
+
+\begin{quote}
+\textbf{Status: LOCKED --- final artifact writes MUST pass canonical real-path containment and Merkle triad validation.}
+\end{quote}
+
+\subsubsection{Canonical Path Real-Path Invariant Check}
+
+To eliminate directory traversal exploits such as \texttt{../../} and namespace smuggling attacks, the storage system MUST run a canonical real-path containment check before any file handle is opened.
+
+The engine MUST evaluate:
+
+\begin{equation}
+\mathrm{RealPath}(P_{\mathrm{target}})
+\subset
+\mathrm{RealPath}(P_{\mathrm{active\_business\_container}})
+\end{equation}
+
+where \(P_{\mathrm{target}}\) is the resolved artifact destination path and \(P_{\mathrm{active\_business\_container}}\) is the resolved active business container root.
+
+If the resolved destination path does not remain inside the active business container root, the write MUST fail immediately and emit a file-injection trace event.
+
+\subsubsection{Directory Traversal and Namespace Smuggling Rule}
+
+The following forms MUST NOT be accepted as final artifact destinations:
+
+\begin{verbatim}
+../../escape
+..\..\escape
+business_containers/<other_business>/...
+/absolute/path/outside/container
+\end{verbatim}
+
+The final destination MUST remain under:
+
+\begin{verbatim}
+business_containers/<active_business_container_id>/<approved_sub_container>/
+\end{verbatim}
+
+\subsubsection{Artifact Merkle Triad Validation}
+
+The artifact persistence layer uses a cryptographic triad:
+
+\begin{itemize}
+  \item \texttt{artifact\_hash}
+  \item \texttt{source\_payload\_hash}
+  \item \texttt{receipt\_hash}
+\end{itemize}
+
+The receipt hash MUST bind the artifact hash, source payload hash, provenance metadata, and storage path:
+
+\begin{equation}
+H_{\mathrm{receipt}}
+=
+\mathrm{SHA256}
+(
+H_{\mathrm{artifact}}
+\parallel
+H_{\mathrm{source\_payload}}
+\parallel
+\mathrm{ProvenanceMetadata}
+\parallel
+\mathrm{StoragePath}
+)
+\end{equation}
+
+Any Boardroom view, artifact indexer, replay engine, or retrieval surface MUST recalculate this triad before exposing the artifact to user interaction.
+
+\subsubsection{Validation Coverage}
+
+Phase 20AA.1 tests prove:
+
+\begin{itemize}
+  \item canonical artifact paths remain inside the active business container;
+  \item directory traversal artifact IDs are rejected;
+  \item namespace-smuggled sub-containers are rejected;
+  \item artifact Merkle triads validate when untampered;
+  \item artifact Merkle triads fail after storage-path tampering.
+\end{itemize}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20AA1-CANONICAL-PATH-CONTAINMENT-MERKLE-TRIAD
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,6 +1,6 @@
 // File: frontend/hooks/useEscrowContract.ts
 
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import {
   getEscrowContract,
@@ -9,17 +9,37 @@ import {
 } from '@/lib/escrow'; // ✅ Correct path
 
 export default function useEscrowContract() {
-  const getContract = () => {
-    if (typeof window === 'undefined') return null;
-    const { ethereum } = window as any;
-    if (!ethereum) {
-      console.error('MetaMask not found');
-      return null;
-    }
-    const provider = new ethers.providers.Web3Provider(ethereum);
-    const signer = provider.getSigner();
-    return new ethers.Contract(ESCROW_CONTRACT_ADDRESS, ESCROW_ABI, signer);
-  };
+  const [contract, setContract] = useState<ethers.Contract | null>(null);
 
-  return useMemo(() => getContract(), []);
+  useEffect(() => {
+    let active = true;
+
+    async function connect() {
+      if (typeof window === 'undefined') return;
+      const { ethereum } = window as any;
+      if (!ethereum) {
+        console.error('MetaMask not found');
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      if (active) {
+        setContract(
+          new ethers.Contract(ESCROW_CONTRACT_ADDRESS, ESCROW_ABI, signer)
+        );
+      }
+    }
+
+    connect().catch((error) => {
+      console.error('Could not connect escrow contract', error);
+      if (active) setContract(null);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return contract;
 }

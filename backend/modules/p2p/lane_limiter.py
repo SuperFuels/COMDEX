@@ -90,44 +90,45 @@ class LaneLimiter:
         if dp not in ("drop_new", "drop_old"):
             dp = "drop_new"
 
-        def gi(name: str, default: int) -> int:
+        def gi(name: str, default: int, minimum: int, maximum: int) -> int:
             try:
-                return int(os.getenv(name, str(default)) or str(default))
+                value = int(os.getenv(name, str(default)) or str(default))
             except Exception:
-                return int(default)
+                value = int(default)
+            return min(maximum, max(minimum, value))
 
         cfgs = {
             "proposal": LaneCfg(
                 name="proposal",
-                max_inflight=gi("P2P_LANE_MAX_INFLIGHT_PROPOSAL", 2),
-                max_queue=gi("P2P_LANE_MAX_QUEUE_PROPOSAL", 256),
+                max_inflight=gi("P2P_LANE_MAX_INFLIGHT_PROPOSAL", 2, 1, 64),
+                max_queue=gi("P2P_LANE_MAX_QUEUE_PROPOSAL", 256, 1, 20_000),
                 drop_policy=dp,
-                dup_lru=gi("P2P_LANE_DUP_LRU_PROPOSAL", 2048),
-                yield_every=gi("P2P_LANE_YIELD_EVERY_PROPOSAL", 64),
+                dup_lru=gi("P2P_LANE_DUP_LRU_PROPOSAL", 2048, 0, 100_000),
+                yield_every=gi("P2P_LANE_YIELD_EVERY_PROPOSAL", 64, 1, 10_000),
             ),
             "vote": LaneCfg(
                 name="vote",
-                max_inflight=gi("P2P_LANE_MAX_INFLIGHT_VOTE", 4),
-                max_queue=gi("P2P_LANE_MAX_QUEUE_VOTE", 2048),
+                max_inflight=gi("P2P_LANE_MAX_INFLIGHT_VOTE", 4, 1, 64),
+                max_queue=gi("P2P_LANE_MAX_QUEUE_VOTE", 2048, 1, 20_000),
                 drop_policy=dp,
-                dup_lru=gi("P2P_LANE_DUP_LRU_VOTE", 8192),
-                yield_every=gi("P2P_LANE_YIELD_EVERY_VOTE", 256),
+                dup_lru=gi("P2P_LANE_DUP_LRU_VOTE", 8192, 0, 100_000),
+                yield_every=gi("P2P_LANE_YIELD_EVERY_VOTE", 256, 1, 10_000),
             ),
             "sync": LaneCfg(
                 name="sync",
-                max_inflight=gi("P2P_LANE_MAX_INFLIGHT_SYNC", 1),
-                max_queue=gi("P2P_LANE_MAX_QUEUE_SYNC", 64),
+                max_inflight=gi("P2P_LANE_MAX_INFLIGHT_SYNC", 1, 1, 64),
+                max_queue=gi("P2P_LANE_MAX_QUEUE_SYNC", 64, 1, 20_000),
                 drop_policy=dp,
-                dup_lru=gi("P2P_LANE_DUP_LRU_SYNC", 256),
-                yield_every=gi("P2P_LANE_YIELD_EVERY_SYNC", 32),
+                dup_lru=gi("P2P_LANE_DUP_LRU_SYNC", 256, 0, 100_000),
+                yield_every=gi("P2P_LANE_YIELD_EVERY_SYNC", 32, 1, 10_000),
             ),
             "block": LaneCfg(
                 name="block",
-                max_inflight=gi("P2P_LANE_MAX_INFLIGHT_BLOCK", 2),
-                max_queue=gi("P2P_LANE_MAX_QUEUE_BLOCK", 256),
+                max_inflight=gi("P2P_LANE_MAX_INFLIGHT_BLOCK", 2, 1, 64),
+                max_queue=gi("P2P_LANE_MAX_QUEUE_BLOCK", 256, 1, 20_000),
                 drop_policy=dp,
-                dup_lru=gi("P2P_LANE_DUP_LRU_BLOCK", 1024),
-                yield_every=gi("P2P_LANE_YIELD_EVERY_BLOCK", 32),
+                dup_lru=gi("P2P_LANE_DUP_LRU_BLOCK", 1024, 0, 100_000),
+                yield_every=gi("P2P_LANE_YIELD_EVERY_BLOCK", 32, 1, 10_000),
             ),
         }
         return LaneLimiter(cfgs)

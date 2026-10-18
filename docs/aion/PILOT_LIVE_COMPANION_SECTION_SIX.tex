@@ -1,0 +1,151 @@
+\section{Pilot Live Companion: Evidence, Context, Accessibility and Live Events}
+\label{sec:pilot-live-companion-complete}
+
+Pilot Live Companion is the playback-preserving intelligence layer that can answer
+questions about a programme, scene, live claim or event without treating a language
+model as a source of truth or as device authority.  The locally enforceable scope was
+completed in Pilot Fabric 0.43.0.  Capabilities that require licensed feeds, native
+television permissions, content rights or hardware audio controls remain explicitly
+fail-closed and are listed in the external qualification register.
+
+\subsection{Evidence model and operating boundary}
+
+Every result separates three evidence classes: owner-permitted observation, authenticated
+provider fact and Pilot interpretation.  A camera observation can establish visible text,
+a scoreboard or a bounded object label; it cannot establish a person's identity, account
+entitlement or official event status.  An authenticated provider can establish only the
+fields present in its signed response.  Pilot may explain those facts, but its explanation
+cannot manufacture a missing source, permission or playback state.
+
+The operating sequence is:
+\begin{enumerate}
+  \item acquire explicit, bounded live context while preserving playback;
+  \item normalize observations and provider data independently;
+  \item reconcile agreement, conflict, staleness and missing evidence;
+  \item answer with provenance, confidence and a stated limitation;
+  \item route private evidence or approval to the phone when identity is required;
+  \item retain structured evidence hashes and audit receipts, not raw programme media.
+\end{enumerate}
+
+Raw microphone audio and source photographs are not retained.  Face recognition and
+visible-person guessing are not used.  Protected programme audio or video is never copied
+into a Pilot Moment.
+
+\subsection{Programme people, credits, origins and sources}
+
+After multi-frame perception has established one stable programme identity, the programme
+companion can retrieve the public main cast, resolve an exact character name and retrieve
+broader credits for an exactly matched current cast member.  Requests such as ``what else
+has this cast member been in?'' are accepted only when the named person matches one current
+cast entry exactly.  ``Who is that actor?'' is deliberately refused because programme
+membership does not prove that a person is visible in the present scene.
+
+Programme-origin evidence uses strict exact-title matching against Wikidata and extracts
+only structured properties such as filming locations, narrative locations, original
+sources, countries of origin, original languages and original broadcasters.  Multiple
+exact candidates fail closed.  A programme filming location is never represented as the
+location of the current shot.  Public catalogue responses are bounded, cached for twenty
+four hours and stripped of account information, pixels and protected media.
+
+\subsection{Contextual explanation and selectable audience modes}
+
+The explanation engine supports scene recap, dialogue, joke, reference and cultural
+context.  It also supports child, simple, normal and detailed response modes.  The prompt
+and deterministic fallback both impose an observed-evidence-only spoiler boundary: Pilot
+may explain what has been heard or captured, but may not retrieve or reveal future plot
+events to complete an explanation.
+
+Accessibility mode produces a descriptive scene summary without identifying unknown
+people.  Learning mode converts permitted scene evidence into an age-appropriate science,
+history or language activity.  The child mode uses short language, avoids mature invented
+detail and does not silently weaken the evidence threshold.  Reading level changes the
+presentation, not the underlying facts.
+
+\subsection{Products, advertising, cooking and visible objects}
+
+Screen fusion recognizes a bounded allowlist of ingredient and cooking-technique terms and
+retains only structured object labels above a confidence threshold.  It does not infer a
+brand, exact product or ingredient that was not visibly evidenced.  Advertising and
+product claims route through the same fact-check pipeline as live news: the claim is
+decomposed, HTTPS evidence is retained with source quality, contradictory verdicts are
+detected outside the model and an unverifiable result remains unverifiable.
+
+\subsection{Authenticated sports and live-event intelligence}
+
+The live-event adapter keeps authenticated provider data separate from an owner-captured
+scoreboard.  It can report scores, goals, bookings, substitutions and supplied lineups,
+and can build a chronological incident timeline.  If the feed omits player-performance
+statistics, Pilot says so instead of estimating them from the screen.  Screen/provider
+score conflicts are retained and displayed rather than silently merged.
+
+Historical comparisons require an explicit range of one to 365 days.  Pilot identifies
+one team from the authenticated results, rejects an ambiguous match and calculates played,
+won, drawn, lost, goals for and goals against from completed scored matches only.  The
+selected range and provider provenance remain part of the result.
+
+\subsection{Private alerts, commentary and household participation}
+
+``Notify me when this match becomes close'' creates an unassigned threshold request on the
+shared television.  A private phone must claim it before activation.  Evaluation occurs
+only against an authenticated event update and emits a notification only when the score
+first crosses into the selected absolute-margin threshold.  Repeated identical updates do
+not create duplicate alerts.  The initial adapter delivers to the local private-phone
+inbox; external push remains disabled until a signed native phone adapter is qualified.
+
+Commentary preferences are persona-bound and allow standard, child-friendly, tactical,
+quiet and accessibility styles.  They generate local explanations and do not replace the
+programme audio.  Household predictions are opt-in, persona-bound and explicitly disable
+money and betting.  Fantasy updates and richer competitions require an authenticated
+licensed provider before they may be represented as current.
+
+\subsection{Fact-check benchmark and private delivery}
+
+The repeatable benchmark fixes public claims and expected verdicts before execution.  It
+records verdict agreement, HTTPS evidence coverage, mean and 95th-percentile latency and
+provider errors.  Network and provider failures count against the run; the model does not
+grade itself.  The initial public case set includes stable claims with official WHO and
+NASA references and can be executed in air-gapped, public-evidence and optional-provider
+modes.
+
+The first AION Native public-evidence smoke run exposed irrelevant search results and
+matched one of three expected verdicts.  After adding deterministic token-overlap
+rejection and a bounded public encyclopaedia fallback, a fresh run matched all three fixed
+verdicts, retained HTTPS evidence for all three and completed with an 11.12-second mean
+latency.  This is recorded as a smoke result rather than a claim of general accuracy; a
+larger dated, adversarial and multilingual qualification set remains open.
+
+A fact-check Moment binds the statement, verdict, summary, sanitized source links and
+evidence hash into a signed, expiring card.  Recipient choice and the final Send action
+occur on the private phone.  The built-in local private-phone adapter writes the card to an
+identity-bound inbox and returns a verified receipt.  Email, messaging and Pilot-contact
+delivery remain adapter-gated and cannot claim success without a provider receipt.
+
+\subsection{Platform, rights and hardware authority}
+
+The \texttt{LiveMediaAuthority} gate treats permission as structured evidence rather than
+model output.  Synchronized subtitle projection requires native overlay authority, caption
+projection authority and explicit subtitle projection rights.  Local dubbing requires an
+authorized audio-output route and explicit content rights.  A compact playback overlay
+requires native dismissible-overlay authority.  Dialogue enhancement or background-sound
+reduction requires an exposed, signed hardware DSP preset.
+
+``Show every goal'' returns only HTTPS routes marked both provider-verified and
+rights-authorized by an event feed.  Pilot does not scrape, record or download protected
+video.  When any required grant is absent, the request produces a bounded explanation of
+the missing authority and no media operation is attempted.
+
+\subsection{Persistence, security and verification}
+
+All persistent files use canonical structured serialization and owner-only permissions.
+Caches are bounded; provider secrets remain on the mother brain; raw provider responses
+are not retained; shared-room speech cannot silently select a private identity.  Audit
+events record hashes, scopes and outcomes without copying raw private content.  Automated
+tests cover exact person matching, ambiguity rejection, scene modes, programme origins,
+screen-object bounds, incident normalization, historical ranges, private threshold claim,
+notification deduplication, no-money predictions, benchmark measurement, private Moment
+delivery and fail-closed media authority.
+
+Section 6 is therefore locally complete.  Field-complete claims remain conditional on the
+documented provider, platform, rights and hardware evidence.  This distinction allows work
+to continue into contextual companionship without disguising an unavailable third-party
+permission as finished functionality.

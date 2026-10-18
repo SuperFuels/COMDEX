@@ -1,0 +1,89 @@
+{
+  "all_outputs_bitwise_equal": true,
+  "canonical_sha256": "265c0790e2e4eba40a917fd0e26abf106c89d4ea9d3e34f8320edce08aa6d68b",
+  "claim_boundary": "One real original-weight resident expert was evaluated over independent synthetic activation rows. This is an exact arithmetic microgate, not full-model speculative acceptance or generated tokens-per-second evidence.",
+  "created_at": "2026-09-10T17:00:53.274684+00:00",
+  "expert": 0,
+  "layer": 0,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "rounds": 12,
+  "samples": [
+    {
+      "all_outputs_bitwise_equal": true,
+      "batch": 1,
+      "batch_activations_per_second": 5321.512480277145,
+      "batch_wall_p50_ms": 0.1879165,
+      "batch_wall_p95_ms": 0.190667,
+      "scalar_wall_p50_ms": 0.186542,
+      "scalar_wall_p95_ms": 0.213917,
+      "wall_speedup": 0.9926855810958592
+    },
+    {
+      "all_outputs_bitwise_equal": true,
+      "batch": 2,
+      "batch_activations_per_second": 6446.840161880156,
+      "batch_wall_p50_ms": 0.3102295,
+      "batch_wall_p95_ms": 0.312625,
+      "scalar_wall_p50_ms": 0.35,
+      "scalar_wall_p95_ms": 0.357583,
+      "wall_speedup": 1.1281970283290272
+    },
+    {
+      "all_outputs_bitwise_equal": true,
+      "batch": 4,
+      "batch_activations_per_second": 7610.893090736117,
+      "batch_wall_p50_ms": 0.5255624999999999,
+      "batch_wall_p95_ms": 0.557292,
+      "scalar_wall_p50_ms": 0.646875,
+      "scalar_wall_p95_ms": 0.713291,
+      "wall_speedup": 1.2308241170174814
+    },
+    {
+      "all_outputs_bitwise_equal": true,
+      "batch": 8,
+      "batch_activations_per_second": 8291.053279862948,
+      "batch_wall_p50_ms": 0.9648955,
+      "batch_wall_p95_ms": 1.002333,
+      "scalar_wall_p50_ms": 1.363229,
+      "scalar_wall_p95_ms": 1.423208,
+      "wall_speedup": 1.412825533956786
+    },
+    {
+      "all_outputs_bitwise_equal": true,
+      "batch": 16,
+      "batch_activations_per_second": 8495.294801330894,
+      "batch_wall_p50_ms": 1.8833955,
+      "batch_wall_p95_ms": 1.955875,
+      "scalar_wall_p50_ms": 2.769958,
+      "scalar_wall_p95_ms": 2.96175,
+      "wall_speedup": 1.4707256123315575
+    },
+    {
+      "all_outputs_bitwise_equal": true,
+      "batch": 32,
+      "batch_activations_per_second": 8606.4410335744,
+      "batch_wall_p50_ms": 3.7181455,
+      "batch_wall_p95_ms": 3.786625,
+      "scalar_wall_p50_ms": 5.5625205,
+      "scalar_wall_p95_ms": 5.646833,
+      "wall_speedup": 1.496047021290587
+    }
+  ],
+  "schema": "aion.gptoss-120b-exact-one-expert-batch-gate.v1",
+  "status": "NOT_PROMOTED",
+  "threads": 6,
+  "warehouse_metrics": {
+    "admission_allowlist_entries": 0,
+    "admission_bypasses": 0,
+    "capacity_bytes": 67108864,
+    "compressed_bytes_read": 12595862,
+    "evictions": 0,
+    "faults": 1,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 13253760,
+    "protected_entries": 0,
+    "raw_bytes_materialized": 13253760,
+    "resident_bytes": 13253760
+  }
+}

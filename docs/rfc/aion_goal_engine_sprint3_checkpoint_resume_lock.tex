@@ -1,0 +1,262 @@
+\section{AION Goal Engine Sprint 3 Checkpoint and Resume Lock}
+\label{sec:aion-goal-engine-sprint3-checkpoint-resume-lock}
+
+\subsection{Status}
+
+Sprint 3 now has a locked checkpoint, state-delta, and resume revalidation layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- checkpoint/state-delta contracts, checkpoint runtime summary, resume revalidation contract, dry-run bridge mirrors, and Boardroom visibility are passing.}
+\end{quote}
+
+\subsection{Locked Principle}
+
+Long-running Goal Engine loops MUST NOT resume blindly.
+
+A resumed run MUST pass explicit revalidation checks before it can be considered resumable.
+
+The Sprint 3 runtime remains dry-run/advisory only:
+
+\begin{itemize}
+  \item checkpoints do not grant permission;
+  \item state deltas do not write external state;
+  \item resume revalidation does not resume execution;
+  \item Boardroom visibility does not authorize execution;
+  \item all resume state is preview-only until a later approved runtime phase.
+\end{itemize}
+
+\subsection{State Delta Contract}
+
+Sprint 3 introduces a bounded state-delta contract.
+
+\begin{verbatim}
+STATE_DELTA_SCHEMA_VERSION = "aion.goal_engine.state_delta.v1"
+\end{verbatim}
+
+A state delta records only bounded changed fields. It MUST NOT store full historical payloads.
+
+Locked fields include:
+
+\begin{itemize}
+  \item \texttt{state_delta_id};
+  \item \texttt{run_id};
+  \item \texttt{goal_id};
+  \item \texttt{loop_id};
+  \item \texttt{iteration};
+  \item \texttt{changed_fields};
+  \item \texttt{full_payload};
+  \item \texttt{max_delta_bytes};
+  \item \texttt{bounded};
+  \item \texttt{stores_full_payload};
+  \item \texttt{full_payload_blocked}.
+\end{itemize}
+
+If a full payload is provided, the preview MUST expose:
+
+\begin{verbatim}
+full_payload_not_allowed
+\end{verbatim}
+
+The delta may still be structurally bounded if the changed-field payload fits inside the byte limit, but the full payload remains blocked and MUST NOT be treated as valid persisted loop memory.
+
+\subsection{Checkpoint Contract}
+
+Sprint 3 introduces a checkpoint contract.
+
+\begin{verbatim}
+CHECKPOINT_SCHEMA_VERSION = "aion.goal_engine.checkpoint.v1"
+\end{verbatim}
+
+A checkpoint stores resumable loop position and a bounded context snapshot.
+
+Locked fields include:
+
+\begin{itemize}
+  \item \texttt{checkpoint_id};
+  \item \texttt{run_id};
+  \item \texttt{parent_run_id};
+  \item \texttt{goal_id};
+  \item \texttt{loop_id};
+  \item \texttt{iteration};
+  \item \texttt{state_delta_id};
+  \item \texttt{loop_context_snapshot};
+  \item \texttt{environment_revalidation_required};
+  \item \texttt{resume_blocked_until_revalidated};
+  \item \texttt{would_resume}.
+\end{itemize}
+
+If environment revalidation is required, the checkpoint preview MUST expose:
+
+\begin{verbatim}
+resume_requires_environment_revalidation
+\end{verbatim}
+
+\subsection{Resume Revalidation Contract}
+
+Sprint 3 introduces a resume revalidation contract.
+
+\begin{verbatim}
+RESUME_REVALIDATION_SCHEMA_VERSION = "aion.goal_engine.resume_revalidation.v1"
+\end{verbatim}
+
+The resume revalidation preview checks:
+
+\begin{itemize}
+  \item approval is still valid;
+  \item vault state is ready;
+  \item connectors are ready;
+  \item parent goal is still required;
+  \item external state has not changed.
+\end{itemize}
+
+Blocked reasons are canonical:
+
+\begin{verbatim}
+approval_not_valid
+vault_not_ready
+connectors_not_ready
+parent_goal_no_longer_required
+external_state_changed
+\end{verbatim}
+
+If external state has changed, the preview MUST set:
+
+\begin{verbatim}
+safe_stop_required = true
+suggested_next_action = "stop_or_replan_before_resume"
+\end{verbatim}
+
+\subsection{Canonical Preview Bundle Ownership}
+
+The \texttt{GoalEnginePreviewBundle} remains the single source of truth.
+
+Sprint 3 adds:
+
+\begin{verbatim}
+checkpoint_runtime_summary
+resume_revalidation_summary
+\end{verbatim}
+
+The checkpoint runtime summary owns:
+
+\begin{itemize}
+  \item checkpoint previews;
+  \item state-delta previews;
+  \item resume-blocked counts;
+  \item full-payload-blocked counts;
+  \item checkpoint blocked reasons.
+\end{itemize}
+
+The resume revalidation summary owns:
+
+\begin{itemize}
+  \item revalidation previews;
+  \item resume allowed count;
+  \item resume blocked count;
+  \item safe stop required count;
+  \item revalidation blocked reasons.
+\end{itemize}
+
+\subsection{Dry-Run Bridge Contract}
+
+The dry-run bridge MUST mirror these summaries from the canonical bundle.
+
+It MUST expose compatibility mirrors:
+
+\begin{verbatim}
+checkpoint_runtime_summary
+goal_engine_checkpoint_runtime_summary
+resume_revalidation_summary
+goal_engine_resume_revalidation_summary
+\end{verbatim}
+
+The bridge MUST NOT rebuild:
+
+\begin{itemize}
+  \item checkpoint previews;
+  \item state-delta previews;
+  \item checkpoint runtime summaries;
+  \item resume revalidation previews;
+  \item resume revalidation summaries.
+\end{itemize}
+
+The bridge may only copy canonical bundle payloads into legacy/UI-compatible fields.
+
+\subsection{Boardroom Visibility}
+
+The Boardroom UI now renders:
+
+\begin{itemize}
+  \item \texttt{Checkpoint / Resume Summary};
+  \item checkpoint counts;
+  \item state-delta counts;
+  \item loop context snapshots;
+  \item changed fields;
+  \item \texttt{would_resume};
+  \item \texttt{Resume Revalidation Summary};
+  \item resume allowed count;
+  \item resume blocked count;
+  \item safe stop required count;
+  \item blocked revalidation reasons;
+  \item suggested next action.
+\end{itemize}
+
+The Boardroom MUST show safe-stop semantics when external state has changed.
+
+\subsection{Validation Commands}
+
+Sprint 3 checkpoint/resume validation commands:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_goal_engine_sprint3_checkpoint_state_delta_contract.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint3_preview_bundle_checkpoint_summary.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint3_bridge_checkpoint_summary_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint3_boardroom_checkpoint_summary_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint3_resume_revalidation_contract.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint3_preview_bundle_resume_revalidation_summary.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint3_bridge_resume_revalidation_summary_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint3_boardroom_resume_revalidation_ui_lock.py
+\end{verbatim}
+
+Known passing subsets:
+
+\begin{verbatim}
+12 passed in 0.13s
+17 passed in 0.16s
+20 passed in 0.16s
+21 passed in 0.25s
+\end{verbatim}
+
+\subsection{Sprint 4 Gate}
+
+Sprint 4 may now begin only after this lock remains green.
+
+Sprint 4 should focus on:
+
+\begin{itemize}
+  \item unbounded experiment blocking;
+  \item exploration decay tests;
+  \item experiment runtime policy;
+  \item variants under test in Boardroom;
+  \item keeping all Sprint 1--3 no-drift locks passing.
+\end{itemize}
+
+Sprint 4 MUST NOT weaken:
+
+\begin{itemize}
+  \item dry-run-only safety;
+  \item no external writes;
+  \item no permission grants;
+  \item evidence-required outcome success;
+  \item checkpoint/resume revalidation before resume.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-SPRINT-3-CHECKPOINT-RESUME-LOCK-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

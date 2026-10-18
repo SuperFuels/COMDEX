@@ -1,0 +1,178 @@
+\section{AION Gateway GlyphChain Proof Receipt Lookup v0.1 Lock}
+\label{sec:aion-gateway-glyphchain-proof-receipt-lookup-lock}
+
+\subsection{Status}
+
+The ChainSim/GlyphChain AION proof layer now exposes an internal receipt and verification service for committed AION proof records.
+
+\begin{quote}
+\textbf{Status: LOCKED --- committed proof records can be looked up and verified through an internal receipt-shaped service without exposing public routes or using bank, staking, payment, token, wallet, or escrow paths.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock completes Phase 6C of the AION Gateway GlyphChain proof integration.
+
+Phase 6A created deterministic Gateway proof envelopes.
+
+Phase 6B committed those envelopes into a dedicated ChainSim-side AION proof commit store.
+
+Phase 6C adds receipt-shaped lookup and verification helpers for those committed proof records.
+
+\subsection{Implemented Files}
+
+\begin{itemize}
+  \item \texttt{backend/modules/chain\_sim/aion\_proof\_receipts.py}
+  \item \texttt{backend/tests/workflow\_capsules/test\_aion\_gateway\_glyphchain\_proof\_receipt\_lookup\_lock.py}
+\end{itemize}
+
+\subsection{Receipt Version}
+
+The receipt version is:
+
+\begin{verbatim}
+glyphchain.aion_proof_receipt.v0.1
+\end{verbatim}
+
+\subsection{Internal Service Functions}
+
+The receipt service exposes:
+
+\begin{verbatim}
+build_aion_proof_commit_receipt(...)
+internal_commit_aion_proof_and_build_receipt(...)
+internal_lookup_aion_proof_receipt(...)
+internal_verify_aion_proof_receipt(...)
+\end{verbatim}
+
+These functions are intentionally internal service wrappers. They do not expose a public FastAPI route.
+
+\subsection{Receipt Shape}
+
+A proof receipt includes:
+
+\begin{itemize}
+  \item \texttt{receipt\_version}
+  \item \texttt{proof\_commitment\_id}
+  \item \texttt{proof\_commitment\_hash}
+  \item \texttt{proof\_type}
+  \item \texttt{business\_id}
+  \item \texttt{job\_id}
+  \item \texttt{status}
+  \item \texttt{verified}
+  \item \texttt{receipt\_status}
+  \item \texttt{created\_at\_ms}
+  \item \texttt{block\_height}
+  \item \texttt{tx\_id}
+  \item \texttt{tx\_hash}
+  \item \texttt{public\_route\_exposed}
+  \item \texttt{would\_move\_money}
+  \item \texttt{would\_require\_pho}
+  \item \texttt{would\_require\_token}
+  \item \texttt{would\_require\_wallet}
+  \item \texttt{would\_create\_payment}
+  \item \texttt{would\_create\_escrow}
+  \item \texttt{metadata}
+\end{itemize}
+
+\subsection{Lookup Behaviour}
+
+Lookup by \texttt{proof\_commitment\_id} returns:
+
+\begin{verbatim}
+status = found
+verified = true
+receipt = {...}
+record = {...}
+\end{verbatim}
+
+If no record exists, lookup returns:
+
+\begin{verbatim}
+status = not_found
+verified = false
+receipt = None
+\end{verbatim}
+
+\subsection{Verification Behaviour}
+
+Verification compares the stored \texttt{proof\_commitment\_hash} against the expected hash.
+
+A valid match returns:
+
+\begin{verbatim}
+status = verified
+verified = true
+receipt = {...}
+\end{verbatim}
+
+A mismatched hash returns:
+
+\begin{verbatim}
+status = failed
+verified = false
+receipt = None
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+This lock MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item use \texttt{BANK\_*} transaction types,
+  \item use staking transaction types,
+  \item move PHO,
+  \item require PHO,
+  \item require a token,
+  \item require a wallet,
+  \item create payment,
+  \item create escrow,
+  \item grant permissions.
+\end{itemize}
+
+For this lock:
+
+\begin{quote}
+\texttt{public\_route\_exposed = false}
+
+\texttt{block\_height = None}
+
+\texttt{tx\_id = None}
+
+\texttt{tx\_hash = None}
+\end{quote}
+
+\subsection{Validation}
+
+Standalone validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_receipt_lookup_lock.py
+\end{verbatim}
+
+Current result:
+
+\begin{verbatim}
+9 passed
+\end{verbatim}
+
+Compile validation:
+
+\begin{verbatim}
+python -m compileall \
+  backend/modules/chain_sim/aion_proof_receipts.py \
+  backend/modules/chain_sim/aion_proof_commit_store.py \
+  backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-GLYPHCHAIN-PROOF-RECEIPT-LOOKUP-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

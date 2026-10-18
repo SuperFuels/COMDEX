@@ -1,0 +1,91 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.37 --- Intent-Driven Strategic Regression Well}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.37 integrates the Phase 22E.36 Proactive Plan Primacy Intent Driver into the Phase 22E.34 Strategic Regression Well.
+
+The purpose is to prevent AION from playing only as a reactive selector. The Strategic Regression Well now receives an active intent signal and may override drift when the base well conflicts with opening development, center control, king safety, or emergency tactical requirements.
+
+\section{Correction Target}
+
+The live one-move test exposed a concrete failure:
+
+\begin{verbatim}
+d2d4 d7d5 h2h4
+\end{verbatim}
+
+The move \texttt{h2h4} was legal, but it did not support the intended opening plan. Phase 22E.37 adds an opening drift guard so that proactive intent can correct this class of move before live send.
+
+\section{Core Contract}
+
+The kernel MUST consume:
+
+\begin{itemize}[leftmargin=*]
+  \item Phase 22E.34 Strategic Regression Well output;
+  \item Phase 22E.36 active intent output.
+\end{itemize}
+
+The kernel MUST emit:
+
+\begin{verbatim}
+active_intent
+base_well_selected_move
+final_selected_move
+intent_override_applied
+intent_override_reason
+intent_candidate_scores
+final_regression_well_score
+trace_hash
+\end{verbatim}
+
+\section{Intent Override Rule}
+
+The base Strategic Regression Well move SHOULD be preserved unless the active intent provides a stronger correction.
+
+In opening positions, the following intents have priority:
+
+\begin{verbatim}
+rapid_development
+center_control
+king_safety
+\end{verbatim}
+
+The intent layer may override opening wing-pawn drift, early queen movement, or other moves that do not support development or center control.
+
+\section{Boundary}
+
+Phase 22E.37 does not send moves.
+
+It does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e37_full_chess_intent_driven_strategic_regression_well_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e37_full_chess_intent_driven_strategic_regression_well_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E37-FULL-CHESS-INTENT-DRIVEN-STRATEGIC-REGRESSION-WELL\\
+Status: LOCKED --- intent driver integrated into Strategic Regression Well\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

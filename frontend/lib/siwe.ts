@@ -14,12 +14,12 @@ export async function signInWithEthereum(): Promise<LoginResult> {
   }
 
   // 1) Connect wallet
-  const provider = new ethers.providers.Web3Provider(
+  const provider = new ethers.BrowserProvider(
     (window as any).ethereum,
     'any'
   )
   await provider.send('eth_requestAccounts', [])
-  const signer  = provider.getSigner()
+  const signer  = await provider.getSigner()
   const address = await signer.getAddress()
 
   // 2) Fetch the full SIWE message from backend
@@ -68,10 +68,8 @@ export async function signInWithEthereum(): Promise<LoginResult> {
     { withCredentials: true }
   )
 
-  // 7) Persist the JWT + role and set Axios header
-  localStorage.setItem('token', token)
-  localStorage.setItem('role',  role)
-  api.defaults.headers.common.Authorization = `Bearer ${token}`
+  // The backend also establishes an HttpOnly session cookie. The token in
+  // this compatibility response is deliberately not persisted by the UI.
 
   // 8) (Optional) bind wallet on profile—ignore errors
   try {

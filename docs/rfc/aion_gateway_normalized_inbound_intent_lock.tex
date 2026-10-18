@@ -1,0 +1,208 @@
+\section{AION Gateway Normalized Inbound Intent Lock}
+\label{sec:aion-gateway-normalized-inbound-intent-lock}
+
+\subsection{Status}
+
+The AION Agent Gateway v0 normalized inbound intent contract is locked as a backend-only, dry-run-only intake preview layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- gateway v0 normalizes inbound human/agent intent without creating jobs, executing workflows, mutating state, calling providers, or granting permissions.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock creates the safe first boundary for future website, embedded, and agent-to-agent intake.
+
+The Gateway is an on-ramp into AION. It is not a workflow engine, not a public API, and not a replacement for the Goal Engine.
+
+The v0 contract accepts messy inbound input and produces:
+
+\begin{itemize}
+  \item \texttt{NormalizedInboundIntent}
+  \item \texttt{FulfilmentJobPreview}
+  \item machine-readable preview trace
+\end{itemize}
+
+\subsection{Backend-Only Boundary}
+
+Gateway v0 lives under:
+
+\begin{verbatim}
+backend/modules/aion_gateway/
+\end{verbatim}
+
+It includes:
+
+\begin{itemize}
+  \item \texttt{contracts.py}
+  \item \texttt{inbound\_gateway.py}
+  \item \texttt{safety.py}
+\end{itemize}
+
+Gateway v0 MUST NOT add public routes, frontend embed scripts, live ingress, provider calls, or live Goal Engine execution.
+
+\subsection{Canonical Protocol Version}
+
+The default gateway protocol version is:
+
+\begin{verbatim}
+aion.gateway.v0.1
+\end{verbatim}
+
+The protocol version is part of the stable hash boundary and future compatibility contract.
+
+\subsection{Supported Source Channels}
+
+Gateway v0 supports only:
+
+\begin{itemize}
+  \item \texttt{legacy\_web\_form}
+  \item \texttt{agent\_protocol}
+\end{itemize}
+
+The following channels are reserved but not live in v0:
+
+\begin{itemize}
+  \item \texttt{website\_button}
+  \item \texttt{embedded\_chat}
+  \item \texttt{agent\_email}
+  \item \texttt{whatsapp}
+  \item \texttt{slack}
+  \item \texttt{voice}
+\end{itemize}
+
+\subsection{NormalizedInboundIntent Contract}
+
+The normalized inbound intent MUST expose:
+
+\begin{itemize}
+  \item \texttt{intent\_id}
+  \item \texttt{gateway\_protocol\_version}
+  \item \texttt{gateway\_session\_id}
+  \item \texttt{trace\_context}
+  \item \texttt{business\_id}
+  \item \texttt{source\_channel}
+  \item \texttt{vertical\_key}
+  \item \texttt{intent\_type}
+  \item \texttt{raw\_payload}
+  \item \texttt{normalized\_payload}
+  \item \texttt{intent\_hash}
+  \item \texttt{customer\_context}
+  \item \texttt{requested\_outcome}
+  \item \texttt{priority}
+  \item \texttt{created\_at}
+  \item \texttt{dry\_run\_only}
+  \item \texttt{requires\_human\_review}
+  \item \texttt{blocked\_reasons}
+  \item \texttt{metadata}
+\end{itemize}
+
+\texttt{raw\_payload} MUST remain the original untrusted input.
+
+\texttt{normalized\_payload} MUST be the cleaned typed operational intent.
+
+\subsection{FulfilmentJobPreview Contract}
+
+Gateway v0 MAY create a preview of a future fulfilment job, but MUST NOT create a real fulfilment job.
+
+The preview MUST expose:
+
+\begin{itemize}
+  \item \texttt{job\_preview\_id}
+  \item \texttt{intent\_id}
+  \item \texttt{business\_id}
+  \item \texttt{workflow\_hint}
+  \item \texttt{suggested\_goal\_hint}
+  \item \texttt{customer\_context}
+  \item \texttt{requested\_outcome}
+  \item \texttt{routing\_status}
+  \item \texttt{evidence\_requirements}
+  \item \texttt{risk\_flags}
+  \item \texttt{safety\_flags}
+  \item \texttt{would\_create\_fulfilment\_job = false}
+  \item \texttt{would\_execute\_goal\_engine = false}
+  \item \texttt{requires\_human\_review = true}
+\end{itemize}
+
+\subsection{Intent Hash Contract}
+
+\texttt{intent\_hash} MUST be deterministic.
+
+It MUST use:
+
+\begin{verbatim}
+hashlib.sha256()
+json.dumps(..., sort_keys=True, separators=(',', ':'))
+\end{verbatim}
+
+The hash input MUST include:
+
+\begin{itemize}
+  \item \texttt{gateway\_protocol\_version}
+  \item \texttt{business\_id.lower()}
+  \item \texttt{source\_channel.lower()}
+  \item \texttt{intent\_type.lower()}
+  \item \texttt{normalized\_payload}
+\end{itemize}
+
+The hash MUST NOT include \texttt{raw\_payload}.
+
+The hash is an evidence, replay, audit, and future GlyphChain anchor only. It MUST NOT grant permission or trigger execution.
+
+\subsection{Dry-Run Safety Contract}
+
+Gateway v0 MUST always remain preview-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item Create real fulfilment jobs.
+  \item Execute the Goal Engine.
+  \item Execute workflow capsules.
+  \item Mutate business containers.
+  \item Write to active repositories.
+  \item Call providers.
+  \item Send email, WhatsApp, Slack, or other messages.
+  \item Create bookings.
+  \item Create payments.
+  \item Create escrow records.
+  \item Grant permissions.
+\end{itemize}
+
+The \texttt{@enforce\_dry\_run\_only} guard MUST raise \texttt{RuntimeError} if a mutation, provider call, execution, external write, booking, payment, escrow, messaging, or permission-grant path is attempted while \texttt{dry\_run\_only} is true.
+
+\subsection{Validation}
+
+Standalone validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent.py
+\end{verbatim}
+
+Expected current result:
+
+\begin{verbatim}
+10 passed
+\end{verbatim}
+
+Compile check:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Next Boundary}
+
+After this lock, Gateway v0 may be added to the focused lock suite.
+
+Boardroom visibility, public embed scripts, public routes, and live Goal Engine attachment remain later phases.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-NORMALIZED-INBOUND-INTENT-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

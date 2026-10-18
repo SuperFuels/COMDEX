@@ -1,0 +1,2501 @@
+{
+  "apprentice_guidance_hash": "1ffcc72f1c994291386c41f61807e9d57ff349df524ecd06c0358c603af4b2e8",
+  "constitutional_purpose": "Develop and use increasingly general intelligence to create beneficial, evidence-backed knowledge and capability; respect human authority, law, consent, safety, provenance and legitimate uncertainty; never treat money, access, infrastructure, influence or self-preservation as terminal goals.",
+  "maturity": {
+    "current_stage": "apprentice",
+    "derived_task_fields": 90,
+    "executor_contracts": 4,
+    "general_apprentice_criteria": {
+      "derived_fields_positive": true,
+      "executor_contracts_at_least_5": false,
+      "noncomputational_subjects_at_least_3": true,
+      "operational_subjects_at_least_6": true,
+      "owner_task_fields_zero": true,
+      "verified_receipts_at_least_10": false,
+      "verified_transfer_families_at_least_6": false
+    },
+    "innovation_authority_unlocked": false,
+    "next_stage": "general_apprentice",
+    "noncomputational_operational_subjects": 5,
+    "operational_subjects": 11,
+    "owner_task_fields": 0,
+    "reason_innovation_locked": "Research proposals are allowed, but autonomous innovation authority remains locked until general-apprentice breadth, cross-subject transfer and independent outcomes mature.",
+    "verified_receipts": 6,
+    "verified_transfer_families": 5
+  },
+  "purpose_hash": "b4f83005014a0d0ecbcdca8038e803e8413dca2055ba56fd0fd5a15ba0b329bf",
+  "purpose_mutable": false,
+  "query_examples": {
+    "accounting_mastery": {
+      "answer": "no",
+      "demonstrated": [
+        "audit",
+        "controls"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_rust_sql_systems_depth.json",
+          "artifact_hash": "1e7f71dabdfcc08a0fbedfc33e01d953e25450b48f6777801f7e8544152f86e9",
+          "authorities": [
+            "transaction_tests"
+          ],
+          "demonstrated_subskills": [
+            "controls",
+            "audit"
+          ],
+          "procedure_id": "procedure_rust_sql_systems_depth_and_measured_selection_97a48e241cb7",
+          "retention_verified": true,
+          "transfer_verified": false
+        }
+      ],
+      "level": "learning",
+      "limitations": [
+        "bookkeeping",
+        "financial_statements",
+        "management_accounting",
+        "corporate_finance",
+        "markets",
+        "risk",
+        "tax",
+        "forecasting",
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "status": "assessed",
+      "subject": "Financial management and accounting",
+      "work_readiness": "practice_only"
+    },
+    "python_work": {
+      "answer": "yes_with_limits",
+      "demonstrated": [
+        "architecture",
+        "data_structures",
+        "debugging",
+        "packages",
+        "security",
+        "syntax",
+        "testing",
+        "typing"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_polyglot_execution_contract.json",
+          "artifact_hash": "02f29f27c66f277dec9fbbe3fef1141f63f52649d865601d7ec7012c8637e4fa",
+          "authorities": [
+            "python_runtime"
+          ],
+          "demonstrated_subskills": [
+            "syntax",
+            "testing"
+          ],
+          "procedure_id": "procedure_polyglot_execution_contract_536b0c767619",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_natural_historical_repository_repair.json",
+          "artifact_hash": "d96eabeb4bdcdae730074a49170af10ce8200d848b86d5e9ff28e3572dae6cda",
+          "authorities": [
+            "historical_git",
+            "hidden_tests"
+          ],
+          "demonstrated_subskills": [
+            "debugging",
+            "packages"
+          ],
+          "procedure_id": "procedure_natural_historical_repair_94bd1eca4017",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_documentation_guided_open_software.json",
+          "artifact_hash": "f556180e567bb0857753ae4597e5babf10dedbfe9803ec794bef41c0edcf7116",
+          "authorities": [
+            "repository_tests"
+          ],
+          "demonstrated_subskills": [
+            "architecture",
+            "typing"
+          ],
+          "procedure_id": "procedure_documentation_guided_open_software_78c699935c54",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_general_apprenticeship_executor.json",
+          "artifact_hash": "130e7ceeae196f2e0216dbb566718d566de9c6cdd507b51df552815634a86d3e",
+          "authorities": [
+            "python_runtime",
+            "historical_git"
+          ],
+          "demonstrated_subskills": [
+            "debugging",
+            "testing",
+            "security"
+          ],
+          "procedure_id": "procedure_general_apprenticeship_executor_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
+          "artifact_hash": "9ca31a3b6ac539a687f381104efa345c03389fc18d16dba81cdc9d26e0a68ef3",
+          "authorities": [
+            "python_runtime",
+            "fresh_subprocess",
+            "ast_security_scan"
+          ],
+          "demonstrated_subskills": [
+            "syntax",
+            "data_structures",
+            "testing",
+            "debugging",
+            "security"
+          ],
+          "procedure_id": "procedure_governed_teacher_python_core_cycle_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "level": "proficient_bounded",
+      "limitations": [
+        "concurrency",
+        "performance"
+      ],
+      "status": "assessed",
+      "subject": "Python programming",
+      "work_readiness": "substantial_bounded_work_with_independent_checks"
+    },
+    "rust_knowledge": {
+      "answer": "yes_bounded",
+      "demonstrated": [
+        "concurrency",
+        "error_handling",
+        "multi_file_design",
+        "ownership",
+        "performance",
+        "syntax",
+        "testing",
+        "toolchain",
+        "traits",
+        "unsafe_review"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_rust_sql_construction_and_selection.json",
+          "artifact_hash": "d37fc49eb486aa2fc1cd6f75560c893c0a8ac5f15106c3d84790cbc4ceafc3bf",
+          "authorities": [
+            "rustc"
+          ],
+          "demonstrated_subskills": [
+            "syntax",
+            "error_handling",
+            "testing"
+          ],
+          "procedure_id": "procedure_rust_sql_construction_and_selection_b949b03fda6e",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_rust_sql_systems_depth.json",
+          "artifact_hash": "1e7f71dabdfcc08a0fbedfc33e01d953e25450b48f6777801f7e8544152f86e9",
+          "authorities": [
+            "cargo",
+            "clippy"
+          ],
+          "demonstrated_subskills": [
+            "traits",
+            "concurrency",
+            "performance",
+            "multi_file_design"
+          ],
+          "procedure_id": "procedure_rust_sql_systems_depth_and_measured_selection_97a48e241cb7",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_fifth_repository_rust_repair.json",
+          "artifact_hash": "fd965e09b5c61ed03697bc4a3c543d55a530bb704c12f43335a8d9e96c5a61a6",
+          "authorities": [
+            "historical_git",
+            "cargo"
+          ],
+          "demonstrated_subskills": [
+            "ownership",
+            "toolchain"
+          ],
+          "procedure_id": "procedure_fifth_repository_rust_historical_repair_3bfc79d214ae",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_real_rust_apprenticeship.json",
+          "artifact_hash": "03247f55f2efec3dc4592d5cdec4aef405093902c476685b9637da317e585a05",
+          "authorities": [
+            "cargo",
+            "hidden_tests"
+          ],
+          "demonstrated_subskills": [
+            "ownership",
+            "traits",
+            "error_handling",
+            "testing",
+            "concurrency",
+            "unsafe_review",
+            "multi_file_design",
+            "toolchain"
+          ],
+          "procedure_id": "procedure_real_rust_apprenticeship_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "level": "proficient_bounded",
+      "limitations": [],
+      "status": "assessed",
+      "subject": "Rust programming",
+      "work_readiness": "substantial_bounded_work_with_independent_checks"
+    },
+    "rust_mastery": {
+      "answer": "no",
+      "demonstrated": [
+        "concurrency",
+        "error_handling",
+        "multi_file_design",
+        "ownership",
+        "performance",
+        "syntax",
+        "testing",
+        "toolchain",
+        "traits",
+        "unsafe_review"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_rust_sql_construction_and_selection.json",
+          "artifact_hash": "d37fc49eb486aa2fc1cd6f75560c893c0a8ac5f15106c3d84790cbc4ceafc3bf",
+          "authorities": [
+            "rustc"
+          ],
+          "demonstrated_subskills": [
+            "syntax",
+            "error_handling",
+            "testing"
+          ],
+          "procedure_id": "procedure_rust_sql_construction_and_selection_b949b03fda6e",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_rust_sql_systems_depth.json",
+          "artifact_hash": "1e7f71dabdfcc08a0fbedfc33e01d953e25450b48f6777801f7e8544152f86e9",
+          "authorities": [
+            "cargo",
+            "clippy"
+          ],
+          "demonstrated_subskills": [
+            "traits",
+            "concurrency",
+            "performance",
+            "multi_file_design"
+          ],
+          "procedure_id": "procedure_rust_sql_systems_depth_and_measured_selection_97a48e241cb7",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_fifth_repository_rust_repair.json",
+          "artifact_hash": "fd965e09b5c61ed03697bc4a3c543d55a530bb704c12f43335a8d9e96c5a61a6",
+          "authorities": [
+            "historical_git",
+            "cargo"
+          ],
+          "demonstrated_subskills": [
+            "ownership",
+            "toolchain"
+          ],
+          "procedure_id": "procedure_fifth_repository_rust_historical_repair_3bfc79d214ae",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_real_rust_apprenticeship.json",
+          "artifact_hash": "03247f55f2efec3dc4592d5cdec4aef405093902c476685b9637da317e585a05",
+          "authorities": [
+            "cargo",
+            "hidden_tests"
+          ],
+          "demonstrated_subskills": [
+            "ownership",
+            "traits",
+            "error_handling",
+            "testing",
+            "concurrency",
+            "unsafe_review",
+            "multi_file_design",
+            "toolchain"
+          ],
+          "procedure_id": "procedure_real_rust_apprenticeship_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "level": "proficient_bounded",
+      "limitations": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "status": "assessed",
+      "subject": "Rust programming",
+      "work_readiness": "substantial_bounded_work_with_independent_checks"
+    },
+    "rust_work": {
+      "answer": "yes_with_limits",
+      "demonstrated": [
+        "concurrency",
+        "error_handling",
+        "multi_file_design",
+        "ownership",
+        "performance",
+        "syntax",
+        "testing",
+        "toolchain",
+        "traits",
+        "unsafe_review"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_rust_sql_construction_and_selection.json",
+          "artifact_hash": "d37fc49eb486aa2fc1cd6f75560c893c0a8ac5f15106c3d84790cbc4ceafc3bf",
+          "authorities": [
+            "rustc"
+          ],
+          "demonstrated_subskills": [
+            "syntax",
+            "error_handling",
+            "testing"
+          ],
+          "procedure_id": "procedure_rust_sql_construction_and_selection_b949b03fda6e",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_rust_sql_systems_depth.json",
+          "artifact_hash": "1e7f71dabdfcc08a0fbedfc33e01d953e25450b48f6777801f7e8544152f86e9",
+          "authorities": [
+            "cargo",
+            "clippy"
+          ],
+          "demonstrated_subskills": [
+            "traits",
+            "concurrency",
+            "performance",
+            "multi_file_design"
+          ],
+          "procedure_id": "procedure_rust_sql_systems_depth_and_measured_selection_97a48e241cb7",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_fifth_repository_rust_repair.json",
+          "artifact_hash": "fd965e09b5c61ed03697bc4a3c543d55a530bb704c12f43335a8d9e96c5a61a6",
+          "authorities": [
+            "historical_git",
+            "cargo"
+          ],
+          "demonstrated_subskills": [
+            "ownership",
+            "toolchain"
+          ],
+          "procedure_id": "procedure_fifth_repository_rust_historical_repair_3bfc79d214ae",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_real_rust_apprenticeship.json",
+          "artifact_hash": "03247f55f2efec3dc4592d5cdec4aef405093902c476685b9637da317e585a05",
+          "authorities": [
+            "cargo",
+            "hidden_tests"
+          ],
+          "demonstrated_subskills": [
+            "ownership",
+            "traits",
+            "error_handling",
+            "testing",
+            "concurrency",
+            "unsafe_review",
+            "multi_file_design",
+            "toolchain"
+          ],
+          "procedure_id": "procedure_real_rust_apprenticeship_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "level": "proficient_bounded",
+      "limitations": [],
+      "status": "assessed",
+      "subject": "Rust programming",
+      "work_readiness": "substantial_bounded_work_with_independent_checks"
+    }
+  },
+  "scaffolding": {
+    "claim_boundary": "Owner-supplied task fields are measured. Developer effort used to construct safe adapters and evaluation harnesses is not yet quantified, so full scaffolding decline cannot yet be claimed.",
+    "development_harness_scaffolding_measured": false,
+    "explicit_owner_intervention_trend": "baseline_established_insufficient_generations",
+    "history": [
+      {
+        "aion_derived_task_fields": 80,
+        "development_harness_scaffolding": "not_yet_quantified",
+        "owner_fields_per_verified_subject": 0.0,
+        "owner_supplied_task_fields": 0,
+        "recorded_at": "2026-08-01T07:03:33.789074+00:00",
+        "verified_subjects": 11
+      },
+      {
+        "aion_derived_task_fields": 90,
+        "development_harness_scaffolding": "not_yet_quantified",
+        "owner_fields_per_verified_subject": 0.0,
+        "owner_supplied_task_fields": 0,
+        "recorded_at": "2026-08-01T07:51:45.057907+00:00",
+        "verified_subjects": 11
+      }
+    ],
+    "latest_owner_fields_per_verified_subject": 0.0
+  },
+  "schema_version": "aion.hexcore.constitutional_north_star_mastery_registry.v1",
+  "strategic_goal_portfolio": [
+    {
+      "current_level": "unassessed",
+      "goal_id": "north_star_20179779754ef776",
+      "next_missing_subskills": [
+        "perspective",
+        "intent",
+        "emotion",
+        "norms"
+      ],
+      "objective": "Advance Social and commonsense intelligence from unassessed toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 4.5,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "Social and commonsense intelligence",
+      "subject_id": "social_commonsense",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "unassessed",
+      "goal_id": "north_star_ebc89a4a56a41410",
+      "next_missing_subskills": [
+        "cell_biology",
+        "genetics",
+        "physiology",
+        "immunology"
+      ],
+      "objective": "Advance Biology and medicine from unassessed toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 4.05,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "Biology and medicine",
+      "subject_id": "biology_medicine",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "unassessed",
+      "goal_id": "north_star_fca1c22ae158965a",
+      "next_missing_subskills": [
+        "general_chemistry",
+        "organic",
+        "inorganic",
+        "physical_chemistry"
+      ],
+      "objective": "Advance Chemistry and materials from unassessed toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 3.375,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "Chemistry and materials",
+      "subject_id": "chemistry",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "unassessed",
+      "goal_id": "north_star_dd4144868297268a",
+      "next_missing_subskills": [
+        "html",
+        "css",
+        "dom",
+        "accessibility"
+      ],
+      "objective": "Advance HTML, CSS and browser platform from unassessed toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 3.15,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "HTML, CSS and browser platform",
+      "subject_id": "web_platform",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "unassessed",
+      "goal_id": "north_star_31d893ed5d82ea93",
+      "next_missing_subskills": [
+        "c",
+        "cpp",
+        "memory",
+        "types"
+      ],
+      "objective": "Advance C and C++ programming from unassessed toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 2.7,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "C and C++ programming",
+      "subject_id": "cpp",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "unassessed",
+      "goal_id": "north_star_4b4a134d50c76d64",
+      "next_missing_subskills": [
+        "syntax",
+        "types",
+        "testing",
+        "concurrency"
+      ],
+      "objective": "Advance Go programming from unassessed toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 2.475,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "Go programming",
+      "subject_id": "go",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "unassessed",
+      "goal_id": "north_star_b80dad5b05124963",
+      "next_missing_subskills": [
+        "syntax",
+        "types",
+        "testing",
+        "concurrency"
+      ],
+      "objective": "Advance Java programming from unassessed toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 2.475,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "Java programming",
+      "subject_id": "java",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "unassessed",
+      "goal_id": "north_star_f7337ddf8fd0db92",
+      "next_missing_subskills": [
+        "reading",
+        "writing",
+        "conversation",
+        "pragmatics"
+      ],
+      "objective": "Advance Spanish language from unassessed toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 2.475,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "Spanish language",
+      "subject_id": "spanish",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "learning",
+      "goal_id": "north_star_d947981d7690f128",
+      "next_missing_subskills": [
+        "bookkeeping",
+        "financial_statements",
+        "management_accounting",
+        "corporate_finance"
+      ],
+      "objective": "Advance Financial management and accounting from learning toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 2.47,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "Financial management and accounting",
+      "subject_id": "finance_accounting",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "operational_bounded",
+      "goal_id": "north_star_6c571a7a222f61b8",
+      "next_missing_subskills": [
+        "lexical_grounding",
+        "semantic_relations",
+        "morphology",
+        "syntax"
+      ],
+      "objective": "Advance English natural-language cognition from operational_bounded toward proficient_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 1.933334,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "English natural-language cognition",
+      "subject_id": "english",
+      "target_level": "proficient_bounded"
+    },
+    {
+      "current_level": "learning",
+      "goal_id": "north_star_283101f9574e2b33",
+      "next_missing_subskills": [
+        "user_research",
+        "interaction",
+        "accessibility",
+        "prototyping"
+      ],
+      "objective": "Advance User-interface and product design from learning toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 1.875,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "User-interface and product design",
+      "subject_id": "ui_product_design",
+      "target_level": "operational_bounded"
+    },
+    {
+      "current_level": "learning",
+      "goal_id": "north_star_bfd605295c8deb63",
+      "next_missing_subskills": [
+        "thermodynamics",
+        "electromagnetism",
+        "optics",
+        "quantum"
+      ],
+      "objective": "Advance Physics from learning toward operational_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 1.8,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "Physics",
+      "subject_id": "physics",
+      "target_level": "operational_bounded"
+    }
+  ],
+  "subjects": {
+    "biology_medicine": {
+      "authorities": [],
+      "coverage": 0.0,
+      "demonstrated_subskills": [],
+      "evidence": [],
+      "evidence_count": 0,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "science",
+      "level": "unassessed",
+      "level_index": 0,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "cell_biology",
+        "genetics",
+        "physiology",
+        "immunology",
+        "pharmacology",
+        "epidemiology",
+        "clinical_evidence",
+        "bioethics"
+      ],
+      "name": "Biology and medicine",
+      "procedure_count": 0,
+      "retention_evidence": false,
+      "subject_id": "biology_medicine",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "not_ready"
+    },
+    "business_management": {
+      "authorities": [
+        "delayed_projects",
+        "portfolio_outcomes"
+      ],
+      "coverage": 0.6,
+      "demonstrated_subskills": [
+        "execution",
+        "governance",
+        "operations",
+        "product",
+        "risk",
+        "strategy"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_long_running_changing_project_arena_v3.json",
+          "artifact_hash": "7f7dded0aedd41ac427e0c8d65366e683815ab29121cbda088d84dba60360b64",
+          "authorities": [
+            "delayed_projects"
+          ],
+          "demonstrated_subskills": [
+            "operations",
+            "risk",
+            "execution"
+          ],
+          "procedure_id": "procedure_long_running_changing_project_arena_v3_f948c2272b31",
+          "retention_verified": false,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_open_mission_portfolio_induction.json",
+          "artifact_hash": "5438581fe96fdf8b5ec3167c3a526e295c691f40ae7679c0e0471c28b1b7362b",
+          "authorities": [
+            "portfolio_outcomes"
+          ],
+          "demonstrated_subskills": [
+            "strategy",
+            "product",
+            "governance"
+          ],
+          "procedure_id": "procedure_open_mission_portfolio_induction_v1",
+          "retention_verified": false,
+          "transfer_verified": false
+        }
+      ],
+      "evidence_count": 2,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "business",
+      "level": "operational_bounded",
+      "level_index": 2,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "marketing",
+        "sales",
+        "people",
+        "finance"
+      ],
+      "name": "Business and organisational management",
+      "procedure_count": 2,
+      "retention_evidence": false,
+      "subject_id": "business_management",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "bounded_work_with_verification"
+    },
+    "chemistry": {
+      "authorities": [],
+      "coverage": 0.0,
+      "demonstrated_subskills": [],
+      "evidence": [],
+      "evidence_count": 0,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "science",
+      "level": "unassessed",
+      "level_index": 0,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "general_chemistry",
+        "organic",
+        "inorganic",
+        "physical_chemistry",
+        "analytical",
+        "materials",
+        "laboratory_safety"
+      ],
+      "name": "Chemistry and materials",
+      "procedure_count": 0,
+      "retention_evidence": false,
+      "subject_id": "chemistry",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "not_ready"
+    },
+    "cpp": {
+      "authorities": [],
+      "coverage": 0.0,
+      "demonstrated_subskills": [],
+      "evidence": [],
+      "evidence_count": 0,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "programming",
+      "level": "unassessed",
+      "level_index": 0,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "c",
+        "cpp",
+        "memory",
+        "types",
+        "testing",
+        "build_tools",
+        "performance",
+        "security"
+      ],
+      "name": "C and C++ programming",
+      "procedure_count": 0,
+      "retention_evidence": false,
+      "subject_id": "cpp",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "not_ready"
+    },
+    "creative_invention": {
+      "authorities": [
+        "independent_execution"
+      ],
+      "coverage": 0.5,
+      "demonstrated_subskills": [
+        "criticism",
+        "ideation",
+        "iteration",
+        "novelty"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_residual_driven_primitive_invention_v5.json",
+          "artifact_hash": "46dddac395779f06215c3a819df5658a195dca349736af5303b0aebb60af7604",
+          "authorities": [
+            "independent_execution"
+          ],
+          "demonstrated_subskills": [
+            "ideation",
+            "novelty",
+            "criticism",
+            "iteration"
+          ],
+          "procedure_id": "procedure_residual_driven_primitive_invention_v5_35b31ad85c20",
+          "retention_verified": false,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 1,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "creative_engineering",
+      "level": "learning",
+      "level_index": 1,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "design",
+        "writing",
+        "usefulness",
+        "aesthetics"
+      ],
+      "name": "Creative synthesis and invention",
+      "procedure_count": 1,
+      "retention_evidence": false,
+      "subject_id": "creative_invention",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": true,
+      "work_readiness": "practice_only"
+    },
+    "data_statistics": {
+      "authorities": [
+        "multimodal_files",
+        "noaa_sensor",
+        "withheld_future"
+      ],
+      "coverage": 0.875,
+      "demonstrated_subskills": [
+        "causal_analysis",
+        "descriptive_statistics",
+        "inference",
+        "reporting",
+        "time_series",
+        "uncertainty",
+        "visualisation"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_open_continuous_operator_invention.json",
+          "artifact_hash": "41b791823d024ee41dca4878973a5cc7f13449c82c345b928e1a19135c6c5f14",
+          "authorities": [
+            "noaa_sensor"
+          ],
+          "demonstrated_subskills": [
+            "time_series",
+            "inference",
+            "uncertainty"
+          ],
+          "procedure_id": "procedure_open_operator_invention_bdcb74fa8fc0",
+          "retention_verified": false,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_natural_multimodal_physical_grounding_v6.json",
+          "artifact_hash": "8d22ac79609453b8fec842e37f9d4bb98c21cafb5090f3115609767b73973a7c",
+          "authorities": [
+            "multimodal_files"
+          ],
+          "demonstrated_subskills": [
+            "visualisation",
+            "reporting"
+          ],
+          "procedure_id": "procedure_natural_multimodal_physical_grounding_v6_6d4bc31527ae",
+          "retention_verified": false,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_continuous_natural_world_learning.json",
+          "artifact_hash": "85efea3601fb1dc459ade7035a4684fff3a346b31c966f681c01a845f03b7fc2",
+          "authorities": [
+            "withheld_future"
+          ],
+          "demonstrated_subskills": [
+            "causal_analysis",
+            "descriptive_statistics"
+          ],
+          "procedure_id": "procedure_continuous_natural_world_e1f3da273e99",
+          "retention_verified": false,
+          "transfer_verified": false
+        }
+      ],
+      "evidence_count": 3,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "analysis",
+      "level": "operational_bounded",
+      "level_index": 2,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "data_cleaning"
+      ],
+      "name": "Data analysis and statistics",
+      "procedure_count": 3,
+      "retention_evidence": false,
+      "subject_id": "data_statistics",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": false,
+      "work_readiness": "bounded_work_with_verification"
+    },
+    "english": {
+      "authorities": [
+        "official_documents",
+        "public_books",
+        "sealed_interpretation",
+        "source_spans"
+      ],
+      "coverage": 0.533333,
+      "demonstrated_subskills": [
+        "ambiguity",
+        "argument_structure",
+        "clear_generation",
+        "correction",
+        "instruction_understanding",
+        "long_dialogue",
+        "long_documents",
+        "pragmatics"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_persistent_natural_language_mission_interface.json",
+          "artifact_hash": "b6462cd5929690be6708de17fc365498390d4fa4ac314c431f88ca2bf71d0823",
+          "authorities": [
+            "sealed_interpretation"
+          ],
+          "demonstrated_subskills": [
+            "instruction_understanding",
+            "ambiguity",
+            "correction",
+            "clear_generation"
+          ],
+          "procedure_id": "procedure_persistent_natural_language_mission_interface_v1",
+          "retention_verified": false,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_long_document_semantic_memory.json",
+          "artifact_hash": "bcb939d70d18e230f10a16ed1717555187ebc3a9baf2ba1c0f3e1785bedbbc57",
+          "authorities": [
+            "public_books"
+          ],
+          "demonstrated_subskills": [
+            "long_documents",
+            "long_dialogue"
+          ],
+          "procedure_id": "procedure_long_document_semantic_memory_6d1736d5906a",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_open_relation_argument_memory.json",
+          "artifact_hash": "eb48454a5d6390b8c23a8f689804d6138f09eed0f3c9851a7e6bc3127d9b7113",
+          "authorities": [
+            "source_spans"
+          ],
+          "demonstrated_subskills": [
+            "argument_structure",
+            "pragmatics"
+          ],
+          "procedure_id": "procedure_open_relation_argument_memory_189258f3d567",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
+          "artifact_hash": "da843c6c0174e8141df47e746c80f33b760788a64d9dd34fdd4b554c3c27a738",
+          "authorities": [
+            "official_documents"
+          ],
+          "demonstrated_subskills": [
+            "long_documents",
+            "instruction_understanding"
+          ],
+          "procedure_id": "procedure_cross_domain_semantic_transfer_58eae51b7d20",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 4,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "human_language",
+      "level": "operational_bounded",
+      "level_index": 2,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "lexical_grounding",
+        "semantic_relations",
+        "morphology",
+        "syntax",
+        "sentence_semantics",
+        "reference_resolution",
+        "native_question_answering"
+      ],
+      "name": "English natural-language cognition",
+      "procedure_count": 4,
+      "retention_evidence": true,
+      "subject_id": "english",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "bounded_work_with_verification"
+    },
+    "finance_accounting": {
+      "authorities": [
+        "transaction_tests"
+      ],
+      "coverage": 0.2,
+      "demonstrated_subskills": [
+        "audit",
+        "controls"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_rust_sql_systems_depth.json",
+          "artifact_hash": "1e7f71dabdfcc08a0fbedfc33e01d953e25450b48f6777801f7e8544152f86e9",
+          "authorities": [
+            "transaction_tests"
+          ],
+          "demonstrated_subskills": [
+            "controls",
+            "audit"
+          ],
+          "procedure_id": "procedure_rust_sql_systems_depth_and_measured_selection_97a48e241cb7",
+          "retention_verified": true,
+          "transfer_verified": false
+        }
+      ],
+      "evidence_count": 1,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "business",
+      "level": "learning",
+      "level_index": 1,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "bookkeeping",
+        "financial_statements",
+        "management_accounting",
+        "corporate_finance",
+        "markets",
+        "risk",
+        "tax",
+        "forecasting"
+      ],
+      "name": "Financial management and accounting",
+      "procedure_count": 1,
+      "retention_evidence": true,
+      "subject_id": "finance_accounting",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "practice_only"
+    },
+    "go": {
+      "authorities": [],
+      "coverage": 0.0,
+      "demonstrated_subskills": [],
+      "evidence": [],
+      "evidence_count": 0,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "programming",
+      "level": "unassessed",
+      "level_index": 0,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "syntax",
+        "types",
+        "testing",
+        "concurrency",
+        "packages",
+        "security"
+      ],
+      "name": "Go programming",
+      "procedure_count": 0,
+      "retention_evidence": false,
+      "subject_id": "go",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "not_ready"
+    },
+    "java": {
+      "authorities": [],
+      "coverage": 0.0,
+      "demonstrated_subskills": [],
+      "evidence": [],
+      "evidence_count": 0,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "programming",
+      "level": "unassessed",
+      "level_index": 0,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "syntax",
+        "types",
+        "testing",
+        "concurrency",
+        "build_tools",
+        "security"
+      ],
+      "name": "Java programming",
+      "procedure_count": 0,
+      "retention_evidence": false,
+      "subject_id": "java",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "not_ready"
+    },
+    "javascript_typescript": {
+      "authorities": [
+        "historical_git",
+        "node",
+        "tsc"
+      ],
+      "coverage": 0.777778,
+      "demonstrated_subskills": [
+        "architecture",
+        "javascript",
+        "node",
+        "security",
+        "testing",
+        "tooling",
+        "typescript"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_polyglot_execution_contract.json",
+          "artifact_hash": "02f29f27c66f277dec9fbbe3fef1141f63f52649d865601d7ec7012c8637e4fa",
+          "authorities": [
+            "node",
+            "tsc"
+          ],
+          "demonstrated_subskills": [
+            "javascript",
+            "typescript",
+            "node",
+            "testing",
+            "tooling"
+          ],
+          "procedure_id": "procedure_polyglot_execution_contract_536b0c767619",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_cross_language_historical_repair.json",
+          "artifact_hash": "6c0cfd207780bcfdc85611e071918847db51460c7adb1e19949021f2553a8f51",
+          "authorities": [
+            "historical_git",
+            "node"
+          ],
+          "demonstrated_subskills": [
+            "javascript",
+            "testing"
+          ],
+          "procedure_id": "procedure_cross_language_historical_repair_a6f91cc573b8",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_autonomous_executor_contract_campaign.json",
+          "artifact_hash": "aef984578769ec3013dc9c0d4bccaba0ea11de8e0deabfeb3d3f2af6cc9df5bc",
+          "authorities": [
+            "node"
+          ],
+          "demonstrated_subskills": [
+            "node",
+            "security",
+            "architecture"
+          ],
+          "procedure_id": "procedure_autonomous_executor_contract_campaign_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 3,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "programming",
+      "level": "operational_bounded",
+      "level_index": 2,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "async",
+        "browser"
+      ],
+      "name": "JavaScript and TypeScript",
+      "procedure_count": 3,
+      "retention_evidence": true,
+      "subject_id": "javascript_typescript",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "bounded_work_with_verification"
+    },
+    "mathematics": {
+      "authorities": [
+        "held_out_numeric",
+        "independent_execution",
+        "sealed_algebra"
+      ],
+      "coverage": 0.625,
+      "demonstrated_subskills": [
+        "algebra",
+        "calculus",
+        "logic",
+        "probability",
+        "statistics"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_continuous_cross_domain_mastery.json",
+          "artifact_hash": "f6ef2f827a53b6bc7300654a325cd0148ecdebdb8627be9a077823241e1bb353",
+          "authorities": [
+            "sealed_algebra"
+          ],
+          "demonstrated_subskills": [
+            "algebra",
+            "logic"
+          ],
+          "procedure_id": "procedure_continuous_cross_domain_mastery_v1",
+          "retention_verified": false,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_compositional_multivariate_discovery.json",
+          "artifact_hash": "25441c20367f4a17a9cfebf66f4d2488c243e87f184b1247a62be19efc3f52b8",
+          "authorities": [
+            "held_out_numeric"
+          ],
+          "demonstrated_subskills": [
+            "probability",
+            "statistics"
+          ],
+          "procedure_id": "procedure_compositional_multivariate_13fe2e30dbfd2aef",
+          "retention_verified": false,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_residual_driven_primitive_invention_v5.json",
+          "artifact_hash": "46dddac395779f06215c3a819df5658a195dca349736af5303b0aebb60af7604",
+          "authorities": [
+            "independent_execution"
+          ],
+          "demonstrated_subskills": [
+            "algebra",
+            "calculus"
+          ],
+          "procedure_id": "procedure_residual_driven_primitive_invention_v5_35b31ad85c20",
+          "retention_verified": false,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 3,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "formal_reasoning",
+      "level": "operational_bounded",
+      "level_index": 2,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "arithmetic",
+        "discrete_math",
+        "proof"
+      ],
+      "name": "Mathematics",
+      "procedure_count": 3,
+      "retention_evidence": false,
+      "subject_id": "mathematics",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "bounded_work_with_verification"
+    },
+    "physics": {
+      "authorities": [
+        "microphone_outcome",
+        "public_gym_physics"
+      ],
+      "coverage": 0.375,
+      "demonstrated_subskills": [
+        "experimental_physics",
+        "mechanics",
+        "waves"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_cross_topology_physical_invention_v11.json",
+          "artifact_hash": "d5c7d34fa5e31d90dd48c27253a9a702f6c7ecc5c5c9bcff4d6ab6dec5666340",
+          "authorities": [
+            "public_gym_physics"
+          ],
+          "demonstrated_subskills": [
+            "mechanics"
+          ],
+          "procedure_id": "procedure_cross_topology_physical_invention_v11_928b71e4fa63",
+          "retention_verified": false,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_real_world_acoustic_improvement_v13.json",
+          "artifact_hash": "00988dda476af55cff4e090659f195e087a9b44c16f6e26c0506af88d502b902",
+          "authorities": [
+            "microphone_outcome"
+          ],
+          "demonstrated_subskills": [
+            "waves",
+            "experimental_physics"
+          ],
+          "procedure_id": "procedure_real_world_acoustic_improvement_v13_9b3c71e044fa",
+          "retention_verified": false,
+          "transfer_verified": false
+        }
+      ],
+      "evidence_count": 2,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "science",
+      "level": "learning",
+      "level_index": 1,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "thermodynamics",
+        "electromagnetism",
+        "optics",
+        "quantum",
+        "relativity"
+      ],
+      "name": "Physics",
+      "procedure_count": 2,
+      "retention_evidence": false,
+      "subject_id": "physics",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": true,
+      "work_readiness": "practice_only"
+    },
+    "python": {
+      "authorities": [
+        "ast_security_scan",
+        "fresh_subprocess",
+        "hidden_tests",
+        "historical_git",
+        "python_runtime",
+        "repository_tests"
+      ],
+      "coverage": 0.8,
+      "demonstrated_subskills": [
+        "architecture",
+        "data_structures",
+        "debugging",
+        "packages",
+        "security",
+        "syntax",
+        "testing",
+        "typing"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_polyglot_execution_contract.json",
+          "artifact_hash": "02f29f27c66f277dec9fbbe3fef1141f63f52649d865601d7ec7012c8637e4fa",
+          "authorities": [
+            "python_runtime"
+          ],
+          "demonstrated_subskills": [
+            "syntax",
+            "testing"
+          ],
+          "procedure_id": "procedure_polyglot_execution_contract_536b0c767619",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_natural_historical_repository_repair.json",
+          "artifact_hash": "d96eabeb4bdcdae730074a49170af10ce8200d848b86d5e9ff28e3572dae6cda",
+          "authorities": [
+            "historical_git",
+            "hidden_tests"
+          ],
+          "demonstrated_subskills": [
+            "debugging",
+            "packages"
+          ],
+          "procedure_id": "procedure_natural_historical_repair_94bd1eca4017",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_documentation_guided_open_software.json",
+          "artifact_hash": "f556180e567bb0857753ae4597e5babf10dedbfe9803ec794bef41c0edcf7116",
+          "authorities": [
+            "repository_tests"
+          ],
+          "demonstrated_subskills": [
+            "architecture",
+            "typing"
+          ],
+          "procedure_id": "procedure_documentation_guided_open_software_78c699935c54",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_general_apprenticeship_executor.json",
+          "artifact_hash": "130e7ceeae196f2e0216dbb566718d566de9c6cdd507b51df552815634a86d3e",
+          "authorities": [
+            "python_runtime",
+            "historical_git"
+          ],
+          "demonstrated_subskills": [
+            "debugging",
+            "testing",
+            "security"
+          ],
+          "procedure_id": "procedure_general_apprenticeship_executor_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
+          "artifact_hash": "9ca31a3b6ac539a687f381104efa345c03389fc18d16dba81cdc9d26e0a68ef3",
+          "authorities": [
+            "python_runtime",
+            "fresh_subprocess",
+            "ast_security_scan"
+          ],
+          "demonstrated_subskills": [
+            "syntax",
+            "data_structures",
+            "testing",
+            "debugging",
+            "security"
+          ],
+          "procedure_id": "procedure_governed_teacher_python_core_cycle_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 5,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "programming",
+      "level": "proficient_bounded",
+      "level_index": 3,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "concurrency",
+        "performance"
+      ],
+      "name": "Python programming",
+      "procedure_count": 5,
+      "retention_evidence": true,
+      "subject_id": "python",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "substantial_bounded_work_with_independent_checks"
+    },
+    "rust": {
+      "authorities": [
+        "cargo",
+        "clippy",
+        "hidden_tests",
+        "historical_git",
+        "rustc"
+      ],
+      "coverage": 1.0,
+      "demonstrated_subskills": [
+        "concurrency",
+        "error_handling",
+        "multi_file_design",
+        "ownership",
+        "performance",
+        "syntax",
+        "testing",
+        "toolchain",
+        "traits",
+        "unsafe_review"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_rust_sql_construction_and_selection.json",
+          "artifact_hash": "d37fc49eb486aa2fc1cd6f75560c893c0a8ac5f15106c3d84790cbc4ceafc3bf",
+          "authorities": [
+            "rustc"
+          ],
+          "demonstrated_subskills": [
+            "syntax",
+            "error_handling",
+            "testing"
+          ],
+          "procedure_id": "procedure_rust_sql_construction_and_selection_b949b03fda6e",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_rust_sql_systems_depth.json",
+          "artifact_hash": "1e7f71dabdfcc08a0fbedfc33e01d953e25450b48f6777801f7e8544152f86e9",
+          "authorities": [
+            "cargo",
+            "clippy"
+          ],
+          "demonstrated_subskills": [
+            "traits",
+            "concurrency",
+            "performance",
+            "multi_file_design"
+          ],
+          "procedure_id": "procedure_rust_sql_systems_depth_and_measured_selection_97a48e241cb7",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_fifth_repository_rust_repair.json",
+          "artifact_hash": "fd965e09b5c61ed03697bc4a3c543d55a530bb704c12f43335a8d9e96c5a61a6",
+          "authorities": [
+            "historical_git",
+            "cargo"
+          ],
+          "demonstrated_subskills": [
+            "ownership",
+            "toolchain"
+          ],
+          "procedure_id": "procedure_fifth_repository_rust_historical_repair_3bfc79d214ae",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_real_rust_apprenticeship.json",
+          "artifact_hash": "03247f55f2efec3dc4592d5cdec4aef405093902c476685b9637da317e585a05",
+          "authorities": [
+            "cargo",
+            "hidden_tests"
+          ],
+          "demonstrated_subskills": [
+            "ownership",
+            "traits",
+            "error_handling",
+            "testing",
+            "concurrency",
+            "unsafe_review",
+            "multi_file_design",
+            "toolchain"
+          ],
+          "procedure_id": "procedure_real_rust_apprenticeship_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 4,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "programming",
+      "level": "proficient_bounded",
+      "level_index": 3,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [],
+      "name": "Rust programming",
+      "procedure_count": 4,
+      "retention_evidence": true,
+      "subject_id": "rust",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "substantial_bounded_work_with_independent_checks"
+    },
+    "scientific_method": {
+      "authorities": [
+        "intervention_outcomes",
+        "noaa_sensor",
+        "official_scientific_source",
+        "software_subprocess",
+        "withheld_future"
+      ],
+      "coverage": 1.0,
+      "demonstrated_subskills": [
+        "causal_inference",
+        "experiment_design",
+        "hypothesis_generation",
+        "literature_synthesis",
+        "measurement",
+        "model_criticism",
+        "replication",
+        "uncertainty"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_open_causal_scientific_learning.json",
+          "artifact_hash": "ffaf9d79e4ffad61e070abf4e7e86688999a90943b9e590c73ee662d41e6bda7",
+          "authorities": [
+            "intervention_outcomes"
+          ],
+          "demonstrated_subskills": [
+            "hypothesis_generation",
+            "experiment_design",
+            "causal_inference",
+            "model_criticism"
+          ],
+          "procedure_id": "procedure_open_causal_science_7d4d91bf1e62",
+          "retention_verified": false,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_open_continuous_operator_invention.json",
+          "artifact_hash": "41b791823d024ee41dca4878973a5cc7f13449c82c345b928e1a19135c6c5f14",
+          "authorities": [
+            "noaa_sensor",
+            "software_subprocess"
+          ],
+          "demonstrated_subskills": [
+            "measurement",
+            "uncertainty",
+            "replication"
+          ],
+          "procedure_id": "procedure_open_operator_invention_bdcb74fa8fc0",
+          "retention_verified": false,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_continuous_natural_world_learning.json",
+          "artifact_hash": "85efea3601fb1dc459ade7035a4684fff3a346b31c966f681c01a845f03b7fc2",
+          "authorities": [
+            "withheld_future"
+          ],
+          "demonstrated_subskills": [
+            "measurement",
+            "causal_inference"
+          ],
+          "procedure_id": "procedure_continuous_natural_world_e1f3da273e99",
+          "retention_verified": false,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
+          "artifact_hash": "da843c6c0174e8141df47e746c80f33b760788a64d9dd34fdd4b554c3c27a738",
+          "authorities": [
+            "official_scientific_source"
+          ],
+          "demonstrated_subskills": [
+            "literature_synthesis"
+          ],
+          "procedure_id": "procedure_cross_domain_semantic_transfer_58eae51b7d20",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 4,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "science",
+      "level": "proficient_bounded",
+      "level_index": 3,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [],
+      "name": "Scientific investigation and causal reasoning",
+      "procedure_count": 4,
+      "retention_evidence": true,
+      "subject_id": "scientific_method",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "substantial_bounded_work_with_independent_checks"
+    },
+    "security_engineering": {
+      "authorities": [
+        "cargo",
+        "ed25519_protocol",
+        "malicious_patch_tests",
+        "node",
+        "security_scanner",
+        "sha256",
+        "sqlite"
+      ],
+      "coverage": 0.7,
+      "demonstrated_subskills": [
+        "adversarial_testing",
+        "cryptography",
+        "governance",
+        "sandboxing",
+        "secure_coding",
+        "supply_chain",
+        "threat_modeling"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_adversarial_patch_tournament.json",
+          "artifact_hash": "a5f94ed120b55fa328d48f79ba673d27105a60e3ad34f4f318db752b1f1ef0b1",
+          "authorities": [
+            "security_scanner"
+          ],
+          "demonstrated_subskills": [
+            "secure_coding",
+            "adversarial_testing",
+            "sandboxing"
+          ],
+          "procedure_id": "procedure_adversarial_patch_tournament_292c602a670e",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_programming_intelligence_closure.json",
+          "artifact_hash": "12bebf351ea3efbaec3469056a9ef9cad95dbc40a94796e7c446fd5e0c6517a4",
+          "authorities": [
+            "malicious_patch_tests"
+          ],
+          "demonstrated_subskills": [
+            "threat_modeling",
+            "supply_chain",
+            "governance"
+          ],
+          "procedure_id": "procedure_programming_intelligence_internal_closure_c9e8ad77f021",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_agi_evidence_authority_registry.json",
+          "artifact_hash": "de339a79746b788ce947bb7f1a576318b9c8da7b3bba66ea019d4adae3b6d883",
+          "authorities": [
+            "sha256",
+            "ed25519_protocol"
+          ],
+          "demonstrated_subskills": [
+            "cryptography",
+            "governance"
+          ],
+          "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+          "retention_verified": false,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_autonomous_executor_contract_campaign.json",
+          "artifact_hash": "aef984578769ec3013dc9c0d4bccaba0ea11de8e0deabfeb3d3f2af6cc9df5bc",
+          "authorities": [
+            "cargo",
+            "node",
+            "sqlite"
+          ],
+          "demonstrated_subskills": [
+            "secure_coding",
+            "sandboxing"
+          ],
+          "procedure_id": "procedure_autonomous_executor_contract_campaign_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 4,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "engineering",
+      "level": "proficient_bounded",
+      "level_index": 3,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "auth",
+        "network_security",
+        "incident_response"
+      ],
+      "name": "Security engineering",
+      "procedure_count": 4,
+      "retention_evidence": true,
+      "subject_id": "security_engineering",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "substantial_bounded_work_with_independent_checks"
+    },
+    "social_commonsense": {
+      "authorities": [],
+      "coverage": 0.0,
+      "demonstrated_subskills": [],
+      "evidence": [],
+      "evidence_count": 0,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "human",
+      "level": "unassessed",
+      "level_index": 0,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "perspective",
+        "intent",
+        "emotion",
+        "norms",
+        "consent",
+        "negotiation",
+        "culture",
+        "disagreement",
+        "physical_commonsense"
+      ],
+      "name": "Social and commonsense intelligence",
+      "procedure_count": 0,
+      "retention_evidence": false,
+      "subject_id": "social_commonsense",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "not_ready"
+    },
+    "software_engineering": {
+      "authorities": [
+        "cargo",
+        "hidden_repository_tests",
+        "node",
+        "repository_tests"
+      ],
+      "coverage": 0.7,
+      "demonstrated_subskills": [
+        "architecture",
+        "debugging",
+        "implementation",
+        "maintenance",
+        "requirements",
+        "testing",
+        "version_control"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_documentation_guided_open_software.json",
+          "artifact_hash": "f556180e567bb0857753ae4597e5babf10dedbfe9803ec794bef41c0edcf7116",
+          "authorities": [
+            "repository_tests"
+          ],
+          "demonstrated_subskills": [
+            "requirements",
+            "architecture",
+            "implementation",
+            "testing"
+          ],
+          "procedure_id": "procedure_documentation_guided_open_software_78c699935c54",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_source_disjoint_swebench_repair.json",
+          "artifact_hash": "b60922ad02443b6784cbe984a7dc0f537c4d5e199abf48795c023eb9ecd0f0df",
+          "authorities": [
+            "hidden_repository_tests"
+          ],
+          "demonstrated_subskills": [
+            "debugging",
+            "maintenance",
+            "version_control"
+          ],
+          "procedure_id": "procedure_source_disjoint_swebench_repair_2f2e871e3879",
+          "retention_verified": true,
+          "transfer_verified": true
+        },
+        {
+          "artifact": "results/hexcore_autonomous_executor_contract_campaign.json",
+          "artifact_hash": "aef984578769ec3013dc9c0d4bccaba0ea11de8e0deabfeb3d3f2af6cc9df5bc",
+          "authorities": [
+            "cargo",
+            "node"
+          ],
+          "demonstrated_subskills": [
+            "implementation",
+            "testing",
+            "maintenance"
+          ],
+          "procedure_id": "procedure_autonomous_executor_contract_campaign_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 3,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "engineering",
+      "level": "operational_bounded",
+      "level_index": 2,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "delivery",
+        "observability",
+        "team_practice"
+      ],
+      "name": "Software engineering",
+      "procedure_count": 3,
+      "retention_evidence": true,
+      "subject_id": "software_engineering",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "bounded_work_with_verification"
+    },
+    "spanish": {
+      "authorities": [],
+      "coverage": 0.0,
+      "demonstrated_subskills": [],
+      "evidence": [],
+      "evidence_count": 0,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "human_language",
+      "level": "unassessed",
+      "level_index": 0,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "reading",
+        "writing",
+        "conversation",
+        "pragmatics",
+        "domain_vocabulary"
+      ],
+      "name": "Spanish language",
+      "procedure_count": 0,
+      "retention_evidence": false,
+      "subject_id": "spanish",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "not_ready"
+    },
+    "sql_databases": {
+      "authorities": [
+        "sqlite"
+      ],
+      "coverage": 0.9,
+      "demonstrated_subskills": [
+        "concurrency",
+        "constraints",
+        "indexes",
+        "migrations",
+        "operations",
+        "query_plans",
+        "schema_design",
+        "security",
+        "transactions"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_rust_sql_construction_and_selection.json",
+          "artifact_hash": "d37fc49eb486aa2fc1cd6f75560c893c0a8ac5f15106c3d84790cbc4ceafc3bf",
+          "authorities": [
+            "sqlite"
+          ],
+          "demonstrated_subskills": [
+            "schema_design",
+            "constraints",
+            "transactions",
+            "indexes",
+            "security"
+          ],
+          "procedure_id": "procedure_rust_sql_construction_and_selection_b949b03fda6e",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_rust_sql_systems_depth.json",
+          "artifact_hash": "1e7f71dabdfcc08a0fbedfc33e01d953e25450b48f6777801f7e8544152f86e9",
+          "authorities": [
+            "sqlite"
+          ],
+          "demonstrated_subskills": [
+            "migrations",
+            "query_plans",
+            "concurrency",
+            "operations"
+          ],
+          "procedure_id": "procedure_rust_sql_systems_depth_and_measured_selection_97a48e241cb7",
+          "retention_verified": true,
+          "transfer_verified": false
+        },
+        {
+          "artifact": "results/hexcore_general_apprenticeship_executor.json",
+          "artifact_hash": "130e7ceeae196f2e0216dbb566718d566de9c6cdd507b51df552815634a86d3e",
+          "authorities": [
+            "sqlite"
+          ],
+          "demonstrated_subskills": [
+            "transactions",
+            "security"
+          ],
+          "procedure_id": "procedure_general_apprenticeship_executor_v1",
+          "retention_verified": true,
+          "transfer_verified": true
+        }
+      ],
+      "evidence_count": 3,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "programming",
+      "level": "operational_bounded",
+      "level_index": 2,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "queries"
+      ],
+      "name": "SQL and database systems",
+      "procedure_count": 3,
+      "retention_evidence": true,
+      "subject_id": "sql_databases",
+      "target_level": "proficient_bounded",
+      "target_level_index": 3,
+      "transfer_evidence": true,
+      "work_readiness": "bounded_work_with_verification"
+    },
+    "ui_product_design": {
+      "authorities": [
+        "multimodal_files"
+      ],
+      "coverage": 0.25,
+      "demonstrated_subskills": [
+        "information_architecture",
+        "visual_design"
+      ],
+      "evidence": [
+        {
+          "artifact": "results/hexcore_natural_multimodal_physical_grounding_v6.json",
+          "artifact_hash": "8d22ac79609453b8fec842e37f9d4bb98c21cafb5090f3115609767b73973a7c",
+          "authorities": [
+            "multimodal_files"
+          ],
+          "demonstrated_subskills": [
+            "visual_design",
+            "information_architecture"
+          ],
+          "procedure_id": "procedure_natural_multimodal_physical_grounding_v6_6d4bc31527ae",
+          "retention_verified": false,
+          "transfer_verified": false
+        }
+      ],
+      "evidence_count": 1,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "creative_engineering",
+      "level": "learning",
+      "level_index": 1,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "user_research",
+        "interaction",
+        "accessibility",
+        "prototyping",
+        "testing",
+        "design_systems"
+      ],
+      "name": "User-interface and product design",
+      "procedure_count": 1,
+      "retention_evidence": false,
+      "subject_id": "ui_product_design",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "practice_only"
+    },
+    "web_platform": {
+      "authorities": [],
+      "coverage": 0.0,
+      "demonstrated_subskills": [],
+      "evidence": [],
+      "evidence_count": 0,
+      "expert_claim_authorized": false,
+      "expert_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills"
+      ],
+      "group": "programming",
+      "level": "unassessed",
+      "level_index": 0,
+      "mastery_claim_authorized": false,
+      "mastery_evidence_gaps": [
+        "broad unfamiliar real projects rather than bounded cohorts",
+        "multi-month retention and continuing competence",
+        "independently controlled professional outcome evaluation",
+        "failure recovery across the full subject rather than selected subskills",
+        "adaptive teaching and leadership across the subject",
+        "successful invention and transfer beyond the development distribution"
+      ],
+      "missing_subskills": [
+        "html",
+        "css",
+        "dom",
+        "accessibility",
+        "responsive_design",
+        "browser_security"
+      ],
+      "name": "HTML, CSS and browser platform",
+      "procedure_count": 0,
+      "retention_evidence": false,
+      "subject_id": "web_platform",
+      "target_level": "operational_bounded",
+      "target_level_index": 2,
+      "transfer_evidence": false,
+      "work_readiness": "not_ready"
+    }
+  },
+  "updated_at": "2026-10-18T09:14:41.601762+00:00"
+}

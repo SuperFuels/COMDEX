@@ -1,0 +1,594 @@
+{
+  "canonical_sha256": "a92e9b8d13f45f9f143585dfb94d15077b17d1050254797afd0d74e28838412a",
+  "edges": [
+    {
+      "co_route_count": 1,
+      "source": "expert:11",
+      "target": "expert:18"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:11",
+      "target": "expert:19"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:11",
+      "target": "expert:49"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:11",
+      "target": "expert:55"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:11",
+      "target": "expert:62"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:11",
+      "target": "expert:66"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:11",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:11",
+      "target": "expert:114"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:11",
+      "target": "expert:115"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:11",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:16",
+      "target": "expert:24"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:16",
+      "target": "expert:49"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:16",
+      "target": "expert:58"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:16",
+      "target": "expert:111"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:16",
+      "target": "expert:114"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:16",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:18",
+      "target": "expert:66"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:18",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:19",
+      "target": "expert:66"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:19",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:21",
+      "target": "expert:24"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:21",
+      "target": "expert:49"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:21",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:24",
+      "target": "expert:49"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:24",
+      "target": "expert:50"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:24",
+      "target": "expert:51"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:24",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:24",
+      "target": "expert:114"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:24",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:25",
+      "target": "expert:77"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:25",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:25",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:26",
+      "target": "expert:55"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:26",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:26",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:35",
+      "target": "expert:55"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:35",
+      "target": "expert:77"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:35",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:37",
+      "target": "expert:55"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:37",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:37",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 3,
+      "source": "expert:40",
+      "target": "expert:51"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:40",
+      "target": "expert:66"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:40",
+      "target": "expert:84"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:40",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:40",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:47",
+      "target": "expert:55"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:47",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:47",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:49",
+      "target": "expert:62"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:49",
+      "target": "expert:114"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:49",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:50",
+      "target": "expert:51"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:50",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:51",
+      "target": "expert:66"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:51",
+      "target": "expert:84"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:51",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:51",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:55",
+      "target": "expert:66"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:55",
+      "target": "expert:77"
+    },
+    {
+      "co_route_count": 6,
+      "source": "expert:55",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:55",
+      "target": "expert:115"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:55",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 7,
+      "source": "expert:55",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:55",
+      "target": "expert:122"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:58",
+      "target": "expert:111"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:58",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:62",
+      "target": "expert:114"
+    },
+    {
+      "co_route_count": 3,
+      "source": "expert:66",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:66",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:66",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:74",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:74",
+      "target": "expert:90"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:74",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:77",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:77",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:84",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:86",
+      "target": "expert:88"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:86",
+      "target": "expert:90"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:86",
+      "target": "expert:96"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:88",
+      "target": "expert:90"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:88",
+      "target": "expert:96"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:88",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 7,
+      "source": "expert:88",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:88",
+      "target": "expert:122"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:90",
+      "target": "expert:96"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:90",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:111",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:115",
+      "target": "expert:116"
+    },
+    {
+      "co_route_count": 2,
+      "source": "expert:116",
+      "target": "expert:121"
+    },
+    {
+      "co_route_count": 1,
+      "source": "expert:121",
+      "target": "expert:122"
+    }
+  ],
+  "kind": "shadow_expert_route_memory",
+  "layer": 6,
+  "nodes": [
+    {
+      "id": "expert:11",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:16",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:18",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:19",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:21",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:24",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:25",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:26",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:35",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:37",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:40",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:47",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:49",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:50",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:51",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:55",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:58",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:62",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:66",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:74",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:77",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:84",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:86",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:88",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:90",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:96",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:111",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:114",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:115",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:116",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:121",
+      "kind": "model_expert"
+    },
+    {
+      "id": "expert:122",
+      "kind": "model_expert"
+    }
+  ],
+  "numerical_role": "Audit and route identity. Numerical selection uses the bound gated expert vector; graph diffusion was diagnostic-only and was not retained.",
+  "schema": "aion.ghx-expert-route-crystal.v1"
+}

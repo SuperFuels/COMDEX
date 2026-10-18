@@ -46,27 +46,9 @@ export default function SciPanelHost(props: SciPanelHostProps) {
   const [activeId, setActiveId] = useState<string>(tabs[0]?.tabId || "");
   const [fileToOpen, setFileToOpen] = useState<string>("");
 
-  // restore tabs on first mount if no initialTabs provided
-  useEffect(() => {
-    if (props.initialTabs?.length) return;
-    const raw =
-      typeof window !== "undefined" ? localStorage.getItem("sci.tabs.v1") : null;
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw) as Tab[];
-        setTabs(parsed);
-        if (parsed[0]) setActiveId(parsed[0].tabId);
-      } catch {
-        /* ignore */
-      }
-    }
-  }, [props.initialTabs]);
-
-  // persist tabs whenever they change
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("sci.tabs.v1", JSON.stringify(tabs));
-  }, [tabs]);
+  // Tabs can contain file paths, container identifiers and customer working
+  // context. They remain process-local until a Guardian-backed workspace
+  // session API is available.
 
   const active = useMemo(
     () => tabs.find((t) => t.tabId === activeId) || tabs[0],

@@ -1,0 +1,581 @@
+{
+  "generated_at": 1773531085.7687838,
+  "safe_mode": true,
+  "steps": 5,
+  "ticks": 10,
+  "amplitude": 1.0,
+  "frequency": 1.0,
+  "harmonic_sets": [
+    [
+      1
+    ],
+    [
+      1,
+      2
+    ]
+  ],
+  "regions": [
+    {
+      "phi": 6.283185307179586,
+      "phi_deg": 360.0,
+      "semantic_state": "constructive",
+      "harmonics": [
+        1
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.008261605925542703,
+      "stability_mean": 0.9791477884435397,
+      "voltage_mean": 0.9803967292283058,
+      "pickup_mean": 0.93128251375786,
+      "pickup_std": 0.010423399070594025,
+      "aux_adc_1_mean": 0.34903416287347777,
+      "aux_adc_2_mean": 0.36069488564013896,
+      "magnetometer_x_mean": 0.059405667033947576,
+      "magnetometer_y_mean": 0.0020898806679834404,
+      "magnetometer_z_mean": -0.005246764792207369,
+      "quality": 5.502474136160881,
+      "final_profile": {
+        "label": "phase_probe_6.2832",
+        "phi": 6.282152044070848,
+        "amplitude": 1.009801635385847,
+        "frequency": 0.976255663466938,
+        "harmonics": [
+          1
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 1.9999994661837217,
+        "metadata": {
+          "expression_name": "phase_probe_6.2832",
+          "mode": "interference",
+          "compiled_at": 1773531079.518602,
+          "semantic_phi_state": "constructive",
+          "semantic_state": "phase_probe",
+          "refined": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531080.4467359,
+        "measured_voltage": 0.9637184739079344,
+        "measured_phase": 6.271117940078276,
+        "measured_amplitude": 0.9637184739079344,
+        "measured_frequency": 0.9781999514723224,
+        "stability_score": 0.9648096001794797,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 1.0079875590812437,
+          "interference_factor": 1.9999995327853612
+        }
+      }
+    },
+    {
+      "phi": 6.283185307179586,
+      "phi_deg": 360.0,
+      "semantic_state": "constructive",
+      "harmonics": [
+        1,
+        2
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.012859850237451731,
+      "stability_mean": 0.9616280375750546,
+      "voltage_mean": 1.0394867161405263,
+      "pickup_mean": 0.9350414650310848,
+      "pickup_std": 0.018159007525237025,
+      "aux_adc_1_mean": 0.34784710193787666,
+      "aux_adc_2_mean": 0.36182603414777526,
+      "magnetometer_x_mean": 0.05994437144783643,
+      "magnetometer_y_mean": 0.0031664587538228943,
+      "magnetometer_z_mean": 0.033651407927944035,
+      "quality": 5.389717728694813,
+      "final_profile": {
+        "label": "phase_probe_6.2832",
+        "phi": 0.0009773085406714053,
+        "amplitude": 0.9802566419297368,
+        "frequency": 0.9815115887274837,
+        "harmonics": [
+          1,
+          2
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 1.999999522434046,
+        "metadata": {
+          "expression_name": "phase_probe_6.2832",
+          "mode": "interference",
+          "compiled_at": 1773531084.721994,
+          "semantic_phi_state": "constructive",
+          "semantic_state": "phase_probe",
+          "refined": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531085.663303,
+        "measured_voltage": 1.0408375405121102,
+        "measured_phase": 0.019082345802595057,
+        "measured_amplitude": 1.0408375405121102,
+        "measured_frequency": 0.9830864708524807,
+        "stability_score": 0.952496070833232,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 0.9822985189553424,
+          "interference_factor": 1.9999996232684052
+        }
+      }
+    },
+    {
+      "phi": 0.0,
+      "phi_deg": 0.0,
+      "semantic_state": "constructive",
+      "harmonics": [
+        1
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.01786065367017642,
+      "stability_mean": 0.9584019879811277,
+      "voltage_mean": 0.9560596715058278,
+      "pickup_mean": 0.9694094058032056,
+      "pickup_std": 0.018149068692038604,
+      "aux_adc_1_mean": 0.3537675015751862,
+      "aux_adc_2_mean": 0.3576526083726403,
+      "magnetometer_x_mean": 0.05831794006125116,
+      "magnetometer_y_mean": 0.0034445483419861637,
+      "magnetometer_z_mean": -0.005188648762192254,
+      "quality": 5.35294394197914,
+      "final_profile": {
+        "label": "phase_probe_0.0000",
+        "phi": 6.282338432486741,
+        "amplitude": 1.0219701642470864,
+        "frequency": 0.9824794036056617,
+        "harmonics": [
+          1
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 1.9999996414016488,
+        "metadata": {
+          "expression_name": "phase_probe_0.0000",
+          "mode": "interference",
+          "compiled_at": 1773531075.3299031,
+          "semantic_phi_state": "constructive",
+          "semantic_state": "phase_probe",
+          "refined": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531076.273837,
+        "measured_voltage": 0.9542762632944648,
+        "measured_phase": 6.262750593713319,
+        "measured_amplitude": 0.9542762632944648,
+        "measured_frequency": 0.9839339549283299,
+        "stability_score": 0.9484850440889431,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 1.0196839774118096,
+          "interference_factor": 1.9999997345431684
+        }
+      }
+    },
+    {
+      "phi": 0.0,
+      "phi_deg": 0.0,
+      "semantic_state": "constructive",
+      "harmonics": [
+        1,
+        2
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.026919249048055427,
+      "stability_mean": 0.9864933349626999,
+      "voltage_mean": 0.9968381776567329,
+      "pickup_mean": 0.976419748168966,
+      "pickup_std": 0.007062192211755732,
+      "aux_adc_1_mean": 0.34762456824248444,
+      "aux_adc_2_mean": 0.3577502053233425,
+      "magnetometer_x_mean": 0.05939677904719748,
+      "magnetometer_y_mean": 0.004401754410351335,
+      "magnetometer_z_mean": 0.015006320539670775,
+      "quality": 5.314391815847508,
+      "final_profile": {
+        "label": "phase_probe_0.0000",
+        "phi": 0.00039651611862084017,
+        "amplitude": 1.0015809111716338,
+        "frequency": 0.9740519995111903,
+        "harmonics": [
+          1,
+          2
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 1.9999999213874848,
+        "metadata": {
+          "expression_name": "phase_probe_0.0000",
+          "mode": "interference",
+          "compiled_at": 1773531080.5483148,
+          "semantic_phi_state": "constructive",
+          "semantic_state": "phase_probe",
+          "refined": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531081.492673,
+        "measured_voltage": 1.0211107370542125,
+        "measured_phase": 0.018850155367715397,
+        "measured_amplitude": 1.0211107370542125,
+        "measured_frequency": 0.976609549771068,
+        "stability_score": 0.985251675329258,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 1.0026364480243444,
+          "interference_factor": 1.999999959351599
+        }
+      }
+    },
+    {
+      "phi": 1.5707963267948966,
+      "phi_deg": 90.0,
+      "semantic_state": "beyond_boolean_positive",
+      "harmonics": [
+        1,
+        2
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.015718031515184805,
+      "stability_mean": 0.9658041924380051,
+      "voltage_mean": 1.0347199105973577,
+      "pickup_mean": 0.7782736329144295,
+      "pickup_std": 0.013472399625754795,
+      "aux_adc_1_mean": 0.3976574430697274,
+      "aux_adc_2_mean": 0.2198768876352882,
+      "magnetometer_x_mean": 0.0199215668104362,
+      "magnetometer_y_mean": 0.04389808208307351,
+      "magnetometer_z_mean": 0.028526106258344164,
+      "quality": 5.09142474161263,
+      "final_profile": {
+        "label": "phase_probe_1.5708",
+        "phi": 1.5716653436741557,
+        "amplitude": 0.982640044701321,
+        "frequency": 0.9802587422685985,
+        "harmonics": [
+          1,
+          2
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 0.9991309832301198,
+        "metadata": {
+          "expression_name": "phase_probe_1.5708",
+          "mode": "interference",
+          "compiled_at": 1773531081.595063,
+          "semantic_phi_state": "beyond_boolean_positive",
+          "semantic_state": "phase_probe",
+          "refined": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531082.536138,
+        "measured_voltage": 1.023671210814241,
+        "measured_phase": 1.5751856824271877,
+        "measured_amplitude": 1.023671210814241,
+        "measured_frequency": 0.9822898613344947,
+        "stability_score": 0.9677039688632062,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 0.983823605242033,
+          "interference_factor": 0.999152232751987
+        }
+      }
+    },
+    {
+      "phi": 1.5707963267948966,
+      "phi_deg": 90.0,
+      "semantic_state": "beyond_boolean_positive",
+      "harmonics": [
+        1
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.025734756063718223,
+      "stability_mean": 0.9695616419597322,
+      "voltage_mean": 0.971267895392201,
+      "pickup_mean": 0.783803994891469,
+      "pickup_std": 0.020473052568045425,
+      "aux_adc_1_mean": 0.40058014669138736,
+      "aux_adc_2_mean": 0.21772418241965735,
+      "magnetometer_x_mean": 0.02008322862788768,
+      "magnetometer_y_mean": 0.041143736625316556,
+      "magnetometer_z_mean": 0.029558075417716406,
+      "quality": 4.948357917207295,
+      "final_profile": {
+        "label": "phase_probe_1.5708",
+        "phi": 1.5703718385071683,
+        "amplitude": 1.0143660523038995,
+        "frequency": 0.9791315074120804,
+        "harmonics": [
+          1
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 1.0004244882749802,
+        "metadata": {
+          "expression_name": "phase_probe_1.5708",
+          "mode": "interference",
+          "compiled_at": 1773531076.379043,
+          "semantic_phi_state": "beyond_boolean_positive",
+          "semantic_state": "phase_probe",
+          "refined": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531077.3204548,
+        "measured_voltage": 1.0127500337407047,
+        "measured_phase": 1.5777475599018667,
+        "measured_amplitude": 1.0127500337407047,
+        "measured_frequency": 0.9820780643942378,
+        "stability_score": 0.9982185660719131,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 1.0150035539909348,
+          "interference_factor": 1.0004690097276443
+        }
+      }
+    },
+    {
+      "phi": 4.71238898038469,
+      "phi_deg": 270.0,
+      "semantic_state": "beyond_boolean_negative",
+      "harmonics": [
+        1,
+        2
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.02334239028506868,
+      "stability_mean": 0.7790778776642202,
+      "voltage_mean": 0.7914639129590875,
+      "pickup_mean": 0.8446984979961343,
+      "pickup_std": 0.01270036010290326,
+      "aux_adc_1_mean": 0.32071826451344354,
+      "aux_adc_2_mean": 0.22036257832496053,
+      "magnetometer_x_mean": 0.021454662000296186,
+      "magnetometer_y_mean": -0.03544731852356427,
+      "magnetometer_z_mean": 0.0012220669720303743,
+      "quality": 4.573613193358907,
+      "final_profile": {
+        "label": "phase_probe_4.7124",
+        "phi": 4.711811950465587,
+        "amplitude": 1.1042680435204562,
+        "frequency": 1.0362766367007337,
+        "harmonics": [
+          1,
+          2
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 0.9994229701129189,
+        "metadata": {
+          "expression_name": "phase_probe_4.7124",
+          "mode": "interference",
+          "compiled_at": 1773531083.6769862,
+          "semantic_phi_state": "beyond_boolean_negative",
+          "semantic_state": "phase_probe",
+          "refined": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531084.616548,
+        "measured_voltage": 1.052620718558627,
+        "measured_phase": 4.716093980520246,
+        "measured_amplitude": 1.052620718558627,
+        "measured_frequency": 1.0380765836891606,
+        "stability_score": 0.959998232947563,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 1.1068990794483875,
+          "interference_factor": 0.9993971228535062
+        }
+      }
+    },
+    {
+      "phi": 4.71238898038469,
+      "phi_deg": 270.0,
+      "semantic_state": "beyond_boolean_negative",
+      "harmonics": [
+        1
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.028731018453074242,
+      "stability_mean": 0.814499457585487,
+      "voltage_mean": 0.827753140075826,
+      "pickup_mean": 0.8409936466488304,
+      "pickup_std": 0.014737257911142528,
+      "aux_adc_1_mean": 0.32029987470711496,
+      "aux_adc_2_mean": 0.22169934938201327,
+      "magnetometer_x_mean": 0.021506178330799618,
+      "magnetometer_y_mean": -0.03633037099861544,
+      "magnetometer_z_mean": 0.00206743938590992,
+      "quality": 4.573448437652853,
+      "final_profile": {
+        "label": "phase_probe_4.7124",
+        "phi": 4.7123955466525524,
+        "amplitude": 1.086123429962087,
+        "frequency": 1.0256501627243537,
+        "harmonics": [
+          1
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 1.0000065662678626,
+        "metadata": {
+          "expression_name": "phase_probe_4.7124",
+          "mode": "interference",
+          "compiled_at": 1773531078.468073,
+          "semantic_phi_state": "beyond_boolean_negative",
+          "semantic_state": "phase_probe",
+          "refined": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531079.414785,
+        "measured_voltage": 1.0471804233287647,
+        "measured_phase": 4.698150209754696,
+        "measured_amplitude": 1.0471804233287647,
+        "measured_frequency": 1.0277244420823326,
+        "stability_score": 0.9691426452659598,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 1.0884824511285252,
+          "interference_factor": 1.0000925542168124
+        }
+      }
+    },
+    {
+      "phi": 3.141592653589793,
+      "phi_deg": 180.0,
+      "semantic_state": "destructive",
+      "harmonics": [
+        1,
+        2
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.020023982677779273,
+      "stability_mean": 0.4487741974016638,
+      "voltage_mean": 0.28451517031280815,
+      "pickup_mean": 0.2566125896238417,
+      "pickup_std": 0.015044156744425125,
+      "aux_adc_1_mean": 0.16187041286734424,
+      "aux_adc_2_mean": 0.0816647245497933,
+      "magnetometer_x_mean": -0.036066010776606046,
+      "magnetometer_y_mean": 0.003688909512758471,
+      "magnetometer_z_mean": 0.0033449575574976778,
+      "quality": 2.7899624331928226,
+      "final_profile": {
+        "label": "phase_probe_3.1416",
+        "phi": 3.141592653589793,
+        "amplitude": 0.25,
+        "frequency": 1.0,
+        "harmonics": [
+          1,
+          2
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 0.0,
+        "metadata": {
+          "expression_name": "phase_probe_3.1416",
+          "mode": "interference",
+          "compiled_at": 1773531082.639891,
+          "semantic_phi_state": "destructive",
+          "semantic_state": "phase_probe",
+          "refined": true,
+          "destructive_hold": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531083.575146,
+        "measured_voltage": 0.060036030919682286,
+        "measured_phase": 3.121595718685081,
+        "measured_amplitude": 0.060036030919682286,
+        "measured_frequency": 1.0,
+        "stability_score": 0.9665465636010591,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 0.05,
+          "interference_factor": 0.0
+        }
+      }
+    },
+    {
+      "phi": 3.141592653589793,
+      "phi_deg": 180.0,
+      "semantic_state": "destructive",
+      "harmonics": [
+        1
+      ],
+      "ticks": 10,
+      "locked": false,
+      "drift": 0.00947770309497109,
+      "stability_mean": 0.3499562790745411,
+      "voltage_mean": 0.31549585142785774,
+      "pickup_mean": 0.23513443535658624,
+      "pickup_std": 0.01864715229000612,
+      "aux_adc_1_mean": 0.16214878570107571,
+      "aux_adc_2_mean": 0.08091449396718256,
+      "magnetometer_x_mean": -0.03499310808734315,
+      "magnetometer_y_mean": 0.0014655751190567816,
+      "magnetometer_z_mean": 0.004417087697369265,
+      "quality": 2.662856541909714,
+      "final_profile": {
+        "label": "phase_probe_3.1416",
+        "phi": 3.141592653589793,
+        "amplitude": 0.25,
+        "frequency": 1.0,
+        "harmonics": [
+          1
+        ],
+        "duty_cycle": 0.5,
+        "envelope": "steady",
+        "duration_s": 2.0,
+        "interference_factor": 0.0,
+        "metadata": {
+          "expression_name": "phase_probe_3.1416",
+          "mode": "interference",
+          "compiled_at": 1773531077.421983,
+          "semantic_phi_state": "destructive",
+          "semantic_state": "phase_probe",
+          "refined": true,
+          "destructive_hold": true
+        }
+      },
+      "last_feedback": {
+        "timestamp": 1773531078.3629818,
+        "measured_voltage": 0.11498787301127994,
+        "measured_phase": 3.158304272327918,
+        "measured_amplitude": 0.11498787301127994,
+        "measured_frequency": 1.0,
+        "stability_score": 0.7833737566290668,
+        "notes": {
+          "mode": "field_bridge",
+          "target_voltage": 0.05,
+          "interference_factor": 0.0
+        }
+      }
+    }
+  ]
+}

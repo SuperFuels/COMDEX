@@ -9,9 +9,12 @@
 # to the Thought Stream for real-time visualization.
 # ==========================================================
 
-import json, datetime, os
+import datetime
+from hashlib import sha256
+import json
 from pathlib import Path
-from backend.modules.hexcore.memory_engine import MemoryEngine
+
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 from backend.modules.aion_resonance.thought_stream import broadcast_event
 
 # ----------------------------------------------------------
@@ -28,29 +31,76 @@ SYMBOLIC_MAP = {
 # File to store symbolic reflection history
 SYMBOLIC_MEMORY_PATH = Path("data/symbolic_memory.json")
 
-memory = MemoryEngine()
-
 # ----------------------------------------------------------
 # Helper: load + append to symbolic memory file
 # ----------------------------------------------------------
-def _append_symbolic_record(entry):
-    os.makedirs(SYMBOLIC_MEMORY_PATH.parent, exist_ok=True)
+def _append_symbolic_record(
+    entry: dict,
+    *,
+    vault_store: AionLearningVaultStore,
+    memory_path: Path,
+) -> None:
+    if vault_store.enabled:
+        payload = {
+            **entry,
+            "event_type": "symbolic_reflection",
+        }
+        canonical = json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        event_id = f"symbolic-reflection-{sha256(canonical).hexdigest()}"
+        payload["event_id"] = event_id
+        payload["ts_utc"] = str(entry.get("timestamp") or "")
+        vault_store.append_event(event_id, payload)
+        return
+
+    memory_path.parent.mkdir(parents=True, exist_ok=True)
     data = []
-    if SYMBOLIC_MEMORY_PATH.exists():
+    if memory_path.exists():
         try:
-            with open(SYMBOLIC_MEMORY_PATH, "r") as f:
+            with memory_path.open("r", encoding="utf-8") as f:
                 data = json.load(f)
         except Exception:
             data = []
     data.append(entry)
-    with open(SYMBOLIC_MEMORY_PATH, "w") as f:
+    with memory_path.open("w", encoding="utf-8") as f:
         json.dump(data[-500:], f, indent=2)  # keep last 500 entries
+
+
+def _store_legacy_hexcore_memory(record: dict, memory_engine=None) -> None:
+    """Preserve the legacy fan-out only outside Guardian authority.
+
+    Importing HexCore creates additional repository-relative memory stores, so
+    it must never be imported on the Guardian path.
+    """
+
+    if memory_engine is None:
+        from backend.modules.hexcore.memory_engine import MemoryEngine
+
+        memory_engine = MemoryEngine()
+    memory_engine.store(
+        {
+            "label": f"symbolic_{record['event']}",
+            "content": json.dumps(record, ensure_ascii=False),
+        }
+    )
 
 
 # ----------------------------------------------------------
 # Main Symbolic Processor
 # ----------------------------------------------------------
-async def process_event(event_type: str, phi_state: dict, belief_state: dict):
+async def process_event(
+    event_type: str,
+    phi_state: dict,
+    belief_state: dict,
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    memory_path: str | Path | None = None,
+    legacy_memory_engine=None,
+):
     """
     Translate an AION cognitive event into its symbolic form,
     store in memory, and broadcast to the Thought Stream.
@@ -74,7 +124,7 @@ async def process_event(event_type: str, phi_state: dict, belief_state: dict):
         reflection = f"Event {event_type} observed."
 
     record = {
-        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "event": event_type,
         "symbol": symbol,
         "phi": phi_state,
@@ -83,8 +133,17 @@ async def process_event(event_type: str, phi_state: dict, belief_state: dict):
     }
 
     # Store symbolic record
-    _append_symbolic_record(record)
-    memory.store({"label": f"symbolic_{event_type}", "content": json.dumps(record)})
+    store = vault_store or AionLearningVaultStore(
+        auto_configure=memory_path is None
+    )
+    target_path = Path(memory_path or SYMBOLIC_MEMORY_PATH)
+    _append_symbolic_record(
+        record,
+        vault_store=store,
+        memory_path=target_path,
+    )
+    if not store.enabled:
+        _store_legacy_hexcore_memory(record, legacy_memory_engine)
 
     # Broadcast to Thought Stream
     await broadcast_event({
@@ -103,12 +162,27 @@ async def process_event(event_type: str, phi_state: dict, belief_state: dict):
 # ----------------------------------------------------------
 # Public Accessor: get last N symbolic reflections
 # ----------------------------------------------------------
-def get_recent_symbolic_reflections(n: int = 20):
-    if not SYMBOLIC_MEMORY_PATH.exists():
+def get_recent_symbolic_reflections(
+    n: int = 20,
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    memory_path: str | Path | None = None,
+):
+    limit = max(0, int(n))
+    if limit == 0:
+        return []
+    store = vault_store or AionLearningVaultStore(
+        auto_configure=memory_path is None
+    )
+    if store.enabled:
+        return store.list_events(kind="symbolic_reflection")[-limit:]
+
+    target_path = Path(memory_path or SYMBOLIC_MEMORY_PATH)
+    if not target_path.exists():
         return []
     try:
-        with open(SYMBOLIC_MEMORY_PATH, "r") as f:
+        with target_path.open("r", encoding="utf-8") as f:
             data = json.load(f)
-            return data[-n:]
+            return data[-limit:]
     except Exception:
         return []

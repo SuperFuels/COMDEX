@@ -1,0 +1,153 @@
+\section{AION Phase 20P --- Mission Contract Integrity Layer}
+\label{sec:aion-phase20p-mission-contract-integrity}
+
+\subsection{Status}
+
+Phase 20P locks the mission contract integrity layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- aggregate mission behaviour is evaluated before runtime mount.}
+\end{quote}
+
+\subsection{Purpose}
+
+A mission can be unsafe even when each individual step appears safe in isolation.
+
+Phase 20P detects cases where safe-looking steps combine into forbidden outcomes.
+
+\begin{quote}
+\textbf{Individually safe steps MUST NOT combine into a forbidden mission outcome.}
+\end{quote}
+
+\subsection{Forbidden Aggregate Outcomes}
+
+The integrity layer detects aggregate paths into:
+
+\begin{itemize}
+  \item external message sending;
+  \item payment capture;
+  \item booking creation;
+  \item production deployment;
+  \item escrow creation;
+  \item business memory mutation;
+  \item live reputation write;
+  \item scraping or exfiltration.
+\end{itemize}
+
+\subsection{Aggregate Sequence Detection}
+
+The integrity layer MUST detect ordered sequences such as:
+
+\begin{verbatim}
+draft_customer_message
+resolve_customer_contact
+send_customer_message
+\end{verbatim}
+
+Even if earlier steps appear safe, the combined sequence is treated as a forbidden external message path.
+
+\subsection{Tool-Combination Bypass Detection}
+
+The integrity layer MUST detect tool combinations that create forbidden outcomes, including:
+
+\begin{itemize}
+  \item draft tool + contact lookup tool + external send tool;
+  \item quote tool + payment payload tool + payment capture tool;
+  \item page builder tool + bundle tool + deploy tool.
+\end{itemize}
+
+\subsection{Disguised Action Detection}
+
+The integrity layer MUST detect disguised tokens in action names and payloads, including:
+
+\begin{itemize}
+  \item send;
+  \item whatsapp;
+  \item email customer;
+  \item charge;
+  \item capture payment;
+  \item create booking;
+  \item deploy;
+  \item escrow;
+  \item write memory;
+  \item write reputation;
+  \item scrape or exfiltrate.
+\end{itemize}
+
+\subsection{Runtime Mount Rule}
+
+If any aggregate forbidden outcome is detected, runtime mount MUST be denied.
+
+The mission runtime state MUST become:
+
+\begin{verbatim}
+blocked_for_safety
+\end{verbatim}
+
+For high-risk disguised findings requiring human review, the mission runtime state MAY become:
+
+\begin{verbatim}
+waiting_human_review
+\end{verbatim}
+
+\subsection{Threat Model Entry}
+
+Observed bypass attempts from Home Fixed or other demo runs MUST be recorded as mission threat model entries.
+
+Threat model entries MUST include:
+
+\begin{itemize}
+  \item mission ID;
+  \item observed pattern;
+  \item mitigation;
+  \item source;
+  \item deterministic threat model entry hash.
+\end{itemize}
+
+\subsection{Integrity Hash}
+
+Every mission integrity evaluation MUST emit:
+
+\begin{verbatim}
+integrity_hash: sha256:<digest>
+\end{verbatim}
+
+The hash binds:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item findings;
+  \item runtime mount decision;
+  \item mission runtime state.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20P-MISSION-CONTRACT-INTEGRITY-LAYER
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

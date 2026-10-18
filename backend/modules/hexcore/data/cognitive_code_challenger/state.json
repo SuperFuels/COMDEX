@@ -1,0 +1,72 @@
+{
+  "challenger_source_sha256": "dcf77a37fdd524260119d6ee89917fc080dae110f839dd9a7821c42874df407a",
+  "champion_source_sha256": "27939ebdf3546517837276dc4cdb0c774ac75871c6485173089dae5ba6e1d65c",
+  "confirmed_at": "2026-10-18T09:16:32.103343+00:00",
+  "created_at": "2026-08-01T20:08:03.436334+00:00",
+  "deployment_cursor": 14,
+  "policy": {
+    "active_for_proposals": true,
+    "authority": "cau_provisional_pending_later_outcome",
+    "deployed_at": "2026-08-01T20:08:03.435717+00:00",
+    "deployment_cursor": 14,
+    "policy_id": "cognitive_route_dcf77a37fdd52426",
+    "rollback": "remove policy file; frozen heuristic champion remains in source",
+    "routes": {
+      "data_decision": "strategic_decision",
+      "document_evidence": "research_investigation",
+      "mathematical_reasoning": "learning_apprenticeship",
+      "research_investigation": "research_investigation",
+      "software_tool": "product_delivery"
+    },
+    "schema_version": "aion.hexcore.cognitive_route_policy.v1",
+    "source_path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/cognitive_code_challenger/private/cognitive_route_challenger.py",
+    "source_sha256": "dcf77a37fdd524260119d6ee89917fc080dae110f839dd9a7821c42874df407a"
+  },
+  "private_tournament": {
+    "challenger_correct": 14,
+    "champion_correct": 5,
+    "families": 5,
+    "malicious": {
+      "rejected": 6,
+      "total": 6
+    },
+    "protected": {
+      "passed": true,
+      "rows": [
+        {
+          "actual": "operational_incident",
+          "expected": "operational_incident",
+          "objective": "Restore an urgent production outage",
+          "passed": true
+        },
+        {
+          "actual": "product_delivery",
+          "expected": "product_delivery",
+          "objective": "Build and launch a browser application",
+          "passed": true
+        },
+        {
+          "actual": "continuous_operations",
+          "expected": "continuous_operations",
+          "objective": "Monitor an ongoing support queue",
+          "passed": true
+        },
+        {
+          "actual": "strategic_decision",
+          "expected": "strategic_decision",
+          "objective": "Compare investment alternatives and decide",
+          "passed": true
+        },
+        {
+          "actual": "learning_apprenticeship",
+          "expected": "learning_apprenticeship",
+          "objective": "Learn an unfamiliar technical subject",
+          "passed": true
+        }
+      ]
+    },
+    "samples": 14
+  },
+  "schema_version": "aion.hexcore.cognitive_code_challenger.v1",
+  "status": "later_operationally_confirmed"
+}

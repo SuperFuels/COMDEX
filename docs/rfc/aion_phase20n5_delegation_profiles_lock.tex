@@ -1,0 +1,115 @@
+\section{AION Phase 20N.5 --- Delegation Profiles and Autonomy Modes}
+\label{sec:aion-phase20n5-delegation-profiles-autonomy-modes}
+
+\subsection{Status}
+
+Phase 20N.5 locks Delegation Profiles and Autonomy Modes.
+
+\begin{quote}
+\textbf{Status: LOCKED --- profile presets configure defaults only; the safety spine remains authoritative.}
+\end{quote}
+
+\subsection{Purpose}
+
+Delegation profiles allow the user to start missions quickly using reusable autonomy presets.
+
+Profiles MUST NOT bypass the classifier, kernel guard, approval lattice, payload approval, expiry rules, checkpoint rules, or blocked state.
+
+\subsection{Profiles}
+
+AION defines four profile presets:
+
+\begin{itemize}
+  \item \texttt{safe\_draft\_mode};
+  \item \texttt{business\_setup\_mode};
+  \item \texttt{trusted\_operator\_mode};
+  \item \texttt{emergency\_lockdown\_mode}.
+\end{itemize}
+
+\subsection{Safe Draft Mode}
+
+Safe Draft Mode permits draft and preview work only.
+
+No external side effects are allowed.
+
+\subsection{Business Setup Mode}
+
+Business Setup Mode allows AION Pilot to build and prepare work, including read-only external research, but requires approval for spend, deployment, publishing, messaging, ownership actions, and live external effects.
+
+\subsection{Trusted Operator Mode}
+
+Trusted Operator Mode allows more read-only and staged work under caps.
+
+Live high-risk actions still require exact payload approval.
+
+\subsection{Emergency Lockdown Mode}
+
+Emergency Lockdown Mode blocks autonomous execution and allows only proof, replay, and recovery-style inspection paths.
+
+\subsection{Always Approval Required}
+
+The following actions remain approval-required under all profiles:
+
+\begin{itemize}
+  \item payments;
+  \item legal actions;
+  \item identity actions;
+  \item production deployments;
+  \item domain purchases;
+  \item new ad spend;
+  \item live customer messages;
+  \item public publishing.
+\end{itemize}
+
+\subsection{Profile Safety Rule}
+
+Profiles set defaults only.
+
+The effective decision MUST still be resolved through the approval lattice:
+
+\begin{equation}
+\mathcal{D}_{\mathrm{effective}}
+=
+\sup
+(
+\mathcal{D}_{\mathrm{system}},
+\mathcal{D}_{\mathrm{profile}}
+)
+\end{equation}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20N5-DELEGATION-PROFILES-AUTONOMY-MODES
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

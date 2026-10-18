@@ -1,0 +1,128 @@
+{
+  "authorization_sha256": "e1bd12cbde252a410b6cd293c71f70c46edb8a99f1b2bc84a57f549dfcfbaa90",
+  "canonical_sha256": "8f1b1a6807c72e7eb5806c5b1feef2506d874bf88c18fa8b766ce10998541a5f",
+  "exact_fallback_required": true,
+  "files": {
+    "layer-6-alpha-f32.bin": {
+      "sha256": "100af7513d35b896225184d09ae96b0979cc582a4f004d0d022cb07f9f532a00",
+      "shape": [
+        21,
+        16
+      ]
+    },
+    "layer-6-basis-f32.bin": {
+      "sha256": "346cc8ec21fabdfb82e23eebfa7ffac154553a3799bf634ae3038d37d7fc4be4",
+      "shape": [
+        16,
+        2880
+      ]
+    },
+    "layer-6-center-f32.bin": {
+      "sha256": "3cffd6c330f1c6a97ca770599ebf7a1ef6917c1bb9697783d3eb95aac0169d74",
+      "shape": [
+        2880
+      ]
+    },
+    "layer-6-projection-f32.bin": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "shape": [
+        0,
+        2880
+      ]
+    },
+    "layer-6-train_activations-f32.bin": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "shape": [
+        21,
+        0
+      ]
+    },
+    "layer-6-train_routers-f32.bin": {
+      "sha256": "c1de0170668edf2720bfa21af9aa552de6132e20bc8e9b4bbd36ac5a3ecd2e13",
+      "shape": [
+        21,
+        2880
+      ]
+    },
+    "layer-6-train_routes-f32.bin": {
+      "sha256": "bcb1b1ba2dc40a8d98899f9a2c635d9f3ce0b4675b21742d8b5f757eb1a5a581",
+      "shape": [
+        21,
+        128
+      ]
+    },
+    "layer-9-alpha-f32.bin": {
+      "sha256": "56d4dafe4b38329884376c71ebdf5da279e4b7cec1f2b2b8e433a4c2f9410191",
+      "shape": [
+        21,
+        4
+      ]
+    },
+    "layer-9-basis-f32.bin": {
+      "sha256": "402d8807d13719f27089675ab753b6036f1a2638ed20c97bd5239c54dac55052",
+      "shape": [
+        4,
+        2880
+      ]
+    },
+    "layer-9-center-f32.bin": {
+      "sha256": "1e7b9c5adf9b913e43ba97cbab6832f0cd5c0b1bede2b2eba83f71f1120acabd",
+      "shape": [
+        2880
+      ]
+    },
+    "layer-9-projection-f32.bin": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "shape": [
+        0,
+        2880
+      ]
+    },
+    "layer-9-train_activations-f32.bin": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "shape": [
+        21,
+        0
+      ]
+    },
+    "layer-9-train_routers-f32.bin": {
+      "sha256": "0c9bbb73efa800ce707a577c65f6838eb307cb034a88f4633011714c874b9e03",
+      "shape": [
+        21,
+        2880
+      ]
+    },
+    "layer-9-train_routes-f32.bin": {
+      "sha256": "13f48d3bb5b55e6f72f18e1f7e32807d08f7e6aead650ab572ce5fbc54fe9662",
+      "shape": [
+        21,
+        128
+      ]
+    }
+  },
+  "quality_track": true,
+  "schema": "aion.shadow-per-expert-low-rank-cartridge.v1",
+  "selection": [
+    {
+      "activation_dimensions": 0,
+      "layer": 6,
+      "ridge": 1.0,
+      "shared_weight": 0.0,
+      "target_rank": 16,
+      "training_group_cv_relative_l2_max": 8.52960778963788,
+      "training_group_cv_relative_l2_p50": 0.9993359418403189,
+      "training_group_cv_relative_l2_p95": 8.380385070459841
+    },
+    {
+      "activation_dimensions": 0,
+      "layer": 9,
+      "ridge": 1.0,
+      "shared_weight": 0.0,
+      "target_rank": 4,
+      "training_group_cv_relative_l2_max": 1.0,
+      "training_group_cv_relative_l2_p50": 0.9469931014808762,
+      "training_group_cv_relative_l2_p95": 1.0
+    }
+  ],
+  "source_manifest_canonical_sha256": "a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a"
+}

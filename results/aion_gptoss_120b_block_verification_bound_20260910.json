@@ -1,0 +1,96 @@
+{
+  "acceptance": {
+    "all_eight_position_bounds_above_1_10x": true,
+    "all_source_traces_bitwise_repeatable": true,
+    "measured_runtime_speedup": false
+  },
+  "canonical_sha256": "6b9a801146fbb15feaa8b41ba9e465d8923c56723f79fb1305bb05ae25481c45",
+  "claim_boundary": "Analytical expert-load lower bound from exact observed routes. It assumes one load per unique layer/expert in a token block and excludes draft cost, rejected tokens, batched kernel efficiency and implementation overhead. It is not a measured tokens-per-second result.",
+  "created_at": "2026-09-10T13:54:28.463171+00:00",
+  "eight_position_reduction_max": 1.9136212624584719,
+  "eight_position_reduction_min": 1.8610662358642973,
+  "eight_position_reduction_p50": 1.8873437491613845,
+  "schema": "aion.gptoss-120b-block-verification-bound.v1",
+  "status": "ADVANCE_EXACT_BLOCK_PROTOTYPE",
+  "traces": [
+    {
+      "file_sha256": "378e0cf5fe52ab2b5c8e92c6864333710ad799b79ea95cc9e8b50faac7a32e61",
+      "hidden_and_logits_bitwise_repeatable": true,
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_train_65001_8token_gate_20260910.json",
+      "prefixes": [
+        {
+          "ideal_expert_load_traffic_reduction": 1.1755102040816328,
+          "layer_major_unique_expert_loads": 245,
+          "naive_layer_expert_uses": 288,
+          "positions": 2,
+          "unique_experts_per_layer_max": 8,
+          "unique_experts_per_layer_min": 5,
+          "unique_experts_per_layer_p50": 7.0,
+          "unique_experts_per_layer_p95": 8
+        },
+        {
+          "ideal_expert_load_traffic_reduction": 1.368171021377672,
+          "layer_major_unique_expert_loads": 421,
+          "naive_layer_expert_uses": 576,
+          "positions": 4,
+          "unique_experts_per_layer_max": 15,
+          "unique_experts_per_layer_min": 9,
+          "unique_experts_per_layer_p50": 12.0,
+          "unique_experts_per_layer_p95": 14
+        },
+        {
+          "ideal_expert_load_traffic_reduction": 1.8610662358642973,
+          "layer_major_unique_expert_loads": 619,
+          "naive_layer_expert_uses": 1152,
+          "positions": 8,
+          "unique_experts_per_layer_max": 27,
+          "unique_experts_per_layer_min": 12,
+          "unique_experts_per_layer_p50": 17.0,
+          "unique_experts_per_layer_p95": 21
+        }
+      ],
+      "routes_repeatable": true,
+      "source_canonical_sha256": "b66dfcfe75278b074b68872f249e9e3fc0fbcc08ee90e8ba122ba55e764d9cba"
+    },
+    {
+      "file_sha256": "43bfdb21d37f67721e80fc4dd5c62536a852f7dd3fdd7a0a45339332b2bff722",
+      "hidden_and_logits_bitwise_repeatable": true,
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_train_75001_8token_gate_20260910.json",
+      "prefixes": [
+        {
+          "ideal_expert_load_traffic_reduction": 1.2360515021459229,
+          "layer_major_unique_expert_loads": 233,
+          "naive_layer_expert_uses": 288,
+          "positions": 2,
+          "unique_experts_per_layer_max": 8,
+          "unique_experts_per_layer_min": 4,
+          "unique_experts_per_layer_p50": 7.0,
+          "unique_experts_per_layer_p95": 8
+        },
+        {
+          "ideal_expert_load_traffic_reduction": 1.465648854961832,
+          "layer_major_unique_expert_loads": 393,
+          "naive_layer_expert_uses": 576,
+          "positions": 4,
+          "unique_experts_per_layer_max": 16,
+          "unique_experts_per_layer_min": 7,
+          "unique_experts_per_layer_p50": 11.0,
+          "unique_experts_per_layer_p95": 14
+        },
+        {
+          "ideal_expert_load_traffic_reduction": 1.9136212624584719,
+          "layer_major_unique_expert_loads": 602,
+          "naive_layer_expert_uses": 1152,
+          "positions": 8,
+          "unique_experts_per_layer_max": 23,
+          "unique_experts_per_layer_min": 12,
+          "unique_experts_per_layer_p50": 16.0,
+          "unique_experts_per_layer_p95": 22
+        }
+      ],
+      "routes_repeatable": true,
+      "source_canonical_sha256": "99f66c36cf1d11c6970271829429f40bb4222ca2c40c7acac6a71df487871cd7"
+    }
+  ],
+  "track": "exact_route_trace_analytical_bound"
+}

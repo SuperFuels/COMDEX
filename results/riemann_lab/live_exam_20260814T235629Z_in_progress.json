@@ -1,0 +1,16 @@
+{
+  "experiment": "aion_riemann_source_closed_live_exam_v1",
+  "task_packet_schema": "aion.riemann_live_exam.v2.1",
+  "started_at": "2026-08-14T23:56:29.964147+00:00",
+  "model": "gpt-4.1",
+  "task_packet_hash": "ed3275b00d4c02514c6a88003e7ed27698013a6be47e718f45cb978bf2e62bf9",
+  "aion_mechanisms": {
+    "memory": "HexCorePersistentLearningRuntime.knowledge.retrieve",
+    "memory_state_hash": "858eec1f0f56048648397e5c997f37fd06507625bfcc722d9d55e873e829c22a",
+    "active_verified_claims": 6,
+    "repair": "AionLeanRepairController.diagnose",
+    "theorem_discovery": "AionMathlibTheoremDiscovery.search over pinned local Mathlib sources"
+  },
+  "claim_boundary": "This evaluates formal proof reconstruction, retained operational memory, and compiler-guided repair. It does not prove RH or claim new mathematics.",
+  "arms": []
+}

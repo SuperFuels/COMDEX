@@ -1,0 +1,110 @@
+\section{AION Goal Engine Child-Run Creation Bridge Runtime Lock}
+\label{sec:aion-goal-engine-child-run-creation-bridge-runtime-lock}
+
+\subsection{Status}
+
+The Goal Engine child-run creation bridge is locked as a guarded runtime boundary between approved Goal Engine child-run packets and Workflow Capsule dry-run creation.
+
+\begin{quote}
+\textbf{Status: LOCKED --- approved bridge packets may create safe child dry-runs; blocked packets may not create runs.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock closes the current Goal Engine sprint by making the child-run executor bridge useful without making it autonomous.
+
+The bridge converts a human-approved child-run executor packet into a safe Workflow Capsule dry-run request. It does not create live external effects, does not mutate parent goals, and does not grant permissions.
+
+\subsection{Canonical Runtime Boundary}
+
+The canonical runtime input is:
+
+\begin{verbatim}
+runtime_seed
+\end{verbatim}
+
+The bridge MUST trust \texttt{runtime\_seed} only.
+
+The older field:
+
+\begin{verbatim}
+child_run_seed
+\end{verbatim}
+
+The compatibility alias is \texttt{child\_run\_seed}.
+
+\texttt{child\_run\_seed} MAY remain for compatibility and provenance, but it MUST NOT override \texttt{runtime\_seed}.
+
+\subsection{Allowed Behaviour}
+
+An approved bridge packet MAY create a child Workflow Capsule dry-run when all of the following are true:
+
+\begin{itemize}
+  \item The packet status is \texttt{ready\_for\_workflow\_runtime}.
+  \item The packet contains canonical \texttt{runtime\_seed}.
+  \item The runtime seed contains a child workflow identifier.
+  \item The runtime seed contains a child run identifier.
+  \item The approval chain has already produced a human-approved child-run action.
+\end{itemize}
+
+The created child run MUST be dry-run first.
+
+\subsection{Blocked Behaviour}
+
+A blocked packet MUST NOT create a Workflow Capsule run.
+
+The bridge MUST return a blocked result when:
+
+\begin{itemize}
+  \item The packet is missing.
+  \item The packet status is not \texttt{ready\_for\_workflow\_runtime}.
+  \item \texttt{runtime\_seed} is missing.
+  \item The workflow identifier is missing.
+  \item The child run identifier is missing.
+  \item The packet exposes blocked reasons.
+\end{itemize}
+
+\subsection{Safety Contract}
+
+The child-run creation bridge MUST NOT:
+
+\begin{itemize}
+  \item Execute live external writes.
+  \item Send email, messages, payments, bookings, or connector calls.
+  \item Mutate parent goals.
+  \item Mutate child goals.
+  \item Mutate business containers.
+  \item Grant permissions.
+  \item Resolve conflicts automatically.
+  \item Bypass human approval.
+\end{itemize}
+
+\subsection{Validation}
+
+Current focused validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Current expected baseline:
+
+\begin{verbatim}
+527 passed or higher
+\end{verbatim}
+
+\subsection{Switch Boundary}
+
+After this lock, the Goal Engine sprint is switch-ready.
+
+The next active build should be AION Agent Gateway v0: backend-only, dry-run-only, contract-first normalized inbound intent preview.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GOAL-ENGINE-CHILD-RUN-CREATION-BRIDGE-RUNTIME-v1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

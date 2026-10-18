@@ -1,0 +1,32 @@
+\section{Organisation File Boundaries}
+\label{sec:pilot-mobile-organisation-files}
+\raggedright
+
+Pilot now exposes organisation files to the mobile Workspace through the existing AION Business
+workflow cabinet.  The organisation remains the owner and source of truth.  The adapter projects
+only a bounded catalogue containing an opaque file identifier, display label, document type,
+status, and protection flag.  Storage paths, bytes, embedded content, credentials, and contact
+details are excluded.
+
+Moving between a Personal, client, employer, or Boardroom space never copies the underlying file.
+When one person holds active memberships in two organisations, Pilot may create a redacted
+cross-space reference only if the source membership can read files and the target membership has
+explicit file-reference authority.  The reference records both space boundaries, the opaque
+organisation file identifier, a limited label and type, protection state, creator, time, and hash.
+It states that no content or storage path is present and that opening requires fresh authorization
+against the source organisation.
+
+This design prevents a convenient mobile handoff from silently transferring client property into
+another client's workspace or into Personal Pilot.  Revoking or expiring the source membership
+removes the ability to resolve the referenced file even though the harmless reference may remain
+as historical context.  A target administrator cannot derive the source path or bytes from it.
+
+Reference creation is content-bound and idempotent.  Unknown files, same-space requests, a missing
+source read permission, a missing target reference permission, a wrong person, and expired or
+revoked memberships fail closed.  The source provider is queried at creation time so a stale
+mobile catalogue cannot manufacture a reference to a file that no longer exists.
+
+Automated tests verify zero-byte transfer, preserved source ownership, redacted reference shape,
+two-membership authorization, missing-file rejection, and target-scope enforcement.  Twenty-four
+focused gateway tests pass and the optimized mobile application compiles.  This closes
+\texttt{MOB-0610}.

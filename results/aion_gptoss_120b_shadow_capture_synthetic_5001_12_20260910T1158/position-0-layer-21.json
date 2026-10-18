@@ -1,0 +1,37 @@
+{
+  "collection_implementation": "run_aion_gptoss_first_token_gate.py",
+  "collection_precision": "GGML MXFP4 expert arithmetic with F32 accumulation/output",
+  "contains_personal_or_customer_data": false,
+  "contains_prompt_text": false,
+  "ffn_sha256": "66f42e3b87f6a24b3b18e557fc6bb11ce12e21346a217b1894a394862dbc78b0",
+  "gates": [
+    0.3164911171184519,
+    0.2478878267442223,
+    0.21786066006549035,
+    0.21776039607183548
+  ],
+  "layer": 21,
+  "output_sha256": "9e66233e4b973309f1431dbd7390bfd143e4ba10fb7491ece58aca212ba93243",
+  "position": 0,
+  "residual_sha256": "0ba789f8ab96224a51b5592f7635455017a6de0a5081641bf963b194a42bf312",
+  "route": [
+    89,
+    58,
+    102,
+    34
+  ],
+  "router_sha256": "807c578438bf1b817f27d6cf0bcc8821f24adaebbe85ae600a57813a9fc60685",
+  "schema": "aion.gptoss-120b-shadow-target-capture.v2",
+  "source_model_shards": [
+    {
+      "name": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf",
+      "sha256": "48b6bea561b52aaa3c10ca7681f35a923196cc348098e55ffc6ee3d184eb0949"
+    },
+    {
+      "name": "openai_gpt-oss-120b-Q4_K_M-00002-of-00002.gguf",
+      "sha256": "06ab40ac3a9e2d7a77b6491b4cf76af152bee88ce493331a1f5147a0207abcad"
+    }
+  ],
+  "target_definition": "F32 layer output minus F32 post-attention residual input",
+  "warehouse_manifest_canonical_sha256": "ce9514c469fb8037d5d5fd500d0115a9c85e69ae647f976fddffbcd1092921ab"
+}

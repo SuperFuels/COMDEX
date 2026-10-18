@@ -1,0 +1,39 @@
+{
+  "capsule_digest": "a2cec5124d3c5dd92578e958e7e459ece720f436438f621c382bd3208154adf6",
+  "failure_signals": [
+    "parent missing",
+    "ambiguous entity",
+    "contact not verified",
+    "occlusion exceeds horizon",
+    "unsafe envelope"
+  ],
+  "inputs": [
+    "RGB frames",
+    "timestamp",
+    "bounded push action"
+  ],
+  "invariants": [
+    "RGB-only learner",
+    "commit before action",
+    "contact must be intervention-grounded",
+    "abstain beyond belief horizon"
+  ],
+  "max_occlusion_steps": 38,
+  "method": [
+    "reload parent visual skill",
+    "discover visual entities",
+    "identify controllable entity",
+    "falsify payload hypothesis by contact",
+    "propagate recurrent payload belief through occlusion",
+    "re-identify and settle at target"
+  ],
+  "name": "rgb_contact_occlusion_causal_control",
+  "parent_digest": "1b14824be88afde01ea51cd80a53a8992f3ba00804f69ac8de573ea4bf3a9433",
+  "parent_procedure_id": "procedure_rgb_belief_state_mujoco_planning_v2",
+  "pixel_gain": 0.0105,
+  "procedure_id": "procedure_rgb_contact_occlusion_skill_composition_v3",
+  "purpose": "identify controlled and passive visual objects, then move the passive object to a target through occlusion",
+  "schema_version": "aion.executable_skill_capsule.v1",
+  "verified_at": "2026-08-02T19:50:22.979221+00:00",
+  "verified_gate_digest": "4d1a8831e36ab99ddd84942a0df7d4bbf3b73b14c2f593040962ea8417981356"
+}

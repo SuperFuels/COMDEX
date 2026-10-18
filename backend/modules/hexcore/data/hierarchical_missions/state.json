@@ -1,0 +1,486 @@
+{
+  "missions": [
+    {
+      "archetype": "engineering",
+      "created_at": "2026-10-18T08:46:10.320098+00:00",
+      "external_actions_authorized": 0,
+      "graph_sha256": "14a056b72a6e2010f7d9f638d81a6ffc5317933022b17199fd09cb835d430bba",
+      "milestones": [
+        "mission_4620973e7bec6814ff:milestone:1:situation",
+        "mission_4620973e7bec6814ff:milestone:2:capability",
+        "mission_4620973e7bec6814ff:milestone:3:design",
+        "mission_4620973e7bec6814ff:milestone:4:operation",
+        "mission_4620973e7bec6814ff:milestone:5:learning"
+      ],
+      "mission_id": "mission_4620973e7bec6814ff",
+      "nodes": [
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Understand the situation and define measurable success",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:1:situation",
+          "status": "pending"
+        },
+        {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise capability real world grounding to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:capability_real_world_grounding",
+          "status": "ready",
+          "subject_id": "capability_real_world_grounding",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "verified_internal_state",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:learn:capability_real_world_grounding"
+          ],
+          "description": "Observe the current environment, constraints, stakeholders and available evidence",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:1:situation",
+          "node_id": "mission_4620973e7bec6814ff:work:observe_context",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "intermediate",
+              "practical_level": "intermediate",
+              "ready": true,
+              "subject_id": "research_communication"
+            },
+            {
+              "knowledge_level": "intermediate",
+              "overall_level": "intermediate",
+              "practical_level": "intermediate",
+              "ready": true,
+              "subject_id": "english"
+            },
+            {
+              "knowledge_level": "intermediate",
+              "overall_level": "intermediate",
+              "practical_level": "intermediate",
+              "ready": true,
+              "subject_id": "scientific_method"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "capability_real_world_grounding"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:observe_context"
+          ],
+          "description": "Define measurable outcome, leading indicators, non-goals and stopping rules",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:1:situation",
+          "node_id": "mission_4620973e7bec6814ff:work:define_success",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Assemble the competence and authority needed for execution",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:2:capability",
+          "status": "pending"
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "verified_internal_state",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:define_success"
+          ],
+          "description": "Map required competencies, tools, permissions and independent outcome authorities",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:2:capability",
+          "node_id": "mission_4620973e7bec6814ff:work:map_capabilities",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:map_capabilities"
+          ],
+          "description": "Close or explicitly bound every blocking knowledge, skill, tool and authority gap",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:2:capability",
+          "node_id": "mission_4620973e7bec6814ff:work:close_gaps",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Design from requirements and independently testable properties",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:3:design",
+          "status": "pending"
+        },
+        {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise power institutions legitimacy to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:power_institutions_legitimacy",
+          "status": "ready",
+          "subject_id": "power_institutions_legitimacy",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:learn:power_institutions_legitimacy",
+            "mission_4620973e7bec6814ff:work:close_gaps"
+          ],
+          "description": "Choose architecture and technology from measured requirements and failure modes",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:3:design",
+          "node_id": "mission_4620973e7bec6814ff:work:architecture",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "testing_debugging"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "capability_learning_strategy"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "networking"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "beginner",
+              "practical_level": "beginner",
+              "ready": false,
+              "subject_id": "power_institutions_legitimacy"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "software_engineering"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:architecture"
+          ],
+          "description": "Construct the smallest end-to-end implementation in a private workspace",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:3:design",
+          "node_id": "mission_4620973e7bec6814ff:work:implementation",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise security engineering to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:security_engineering",
+          "status": "ready",
+          "subject_id": "security_engineering",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:learn:security_engineering",
+            "mission_4620973e7bec6814ff:work:implementation"
+          ],
+          "description": "Invent and execute functional, adversarial and security tests",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:3:design",
+          "node_id": "mission_4620973e7bec6814ff:work:falsification",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "beginner",
+              "practical_level": "beginner",
+              "ready": false,
+              "subject_id": "security_engineering"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "secure_engineering"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Prove transfer, operational recovery and useful outcome",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:4:operation",
+          "status": "pending"
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:falsification"
+          ],
+          "description": "Execute the implementation on an unfamiliar project or environment",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:4:operation",
+          "node_id": "mission_4620973e7bec6814ff:work:source_disjoint",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:learn:capability_real_world_grounding",
+            "mission_4620973e7bec6814ff:work:source_disjoint"
+          ],
+          "description": "Observe later use, reliability, cost and failure-recovery outcomes",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:4:operation",
+          "node_id": "mission_4620973e7bec6814ff:work:operate",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "testing_debugging"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "capability_real_world_grounding"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Diagnose the outcome and compound verified learning",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:5:learning",
+          "status": "pending"
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:operate"
+          ],
+          "description": "Compare prediction with outcome and attribute success or failure",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:5:learning",
+          "node_id": "mission_4620973e7bec6814ff:work:retrospective",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "testing_debugging"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise capability retention compounding to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:capability_retention_compounding",
+          "status": "ready",
+          "subject_id": "capability_retention_compounding",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:learn:capability_retention_compounding",
+            "mission_4620973e7bec6814ff:work:retrospective"
+          ],
+          "description": "Retest later without replay and feed the verified method into the next objective",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:5:learning",
+          "node_id": "mission_4620973e7bec6814ff:work:retention",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "capability_retention_compounding"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        }
+      ],
+      "north_star_authority": "owner_authorized_mission",
+      "objective": "Build AION into a continuously improving system that completes increasingly valuable cross-domain work from independently verified consequences.",
+      "schema_version": "aion.hexcore.hierarchical_mission_graph.v1",
+      "terminal_goal_mutations": 0
+    }
+  ],
+  "schema_version": "aion.hexcore.hierarchical_mission_state.v1",
+  "updated_at": "2026-10-18T08:46:10.408409+00:00"
+}

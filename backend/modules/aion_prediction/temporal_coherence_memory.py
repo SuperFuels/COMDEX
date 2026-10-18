@@ -11,16 +11,33 @@ accuracy and confidence. Used by PredictiveBias and FusionCore.
 import json
 import random
 import os
+import time
+import uuid
 from collections import deque, defaultdict
 from pathlib import Path
+
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 TEMPORAL_BUFFER_PATH = Path("data/predictive/temporal_buffer.json")
 TEMPORAL_MODEL_PATH = Path("data/prediction/temporal_model.json")
 
 
 class TemporalCoherenceMemory:
-    def __init__(self, window_size: int = 5):
+    def __init__(
+        self,
+        window_size: int = 5,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        buffer_path: str | Path | None = None,
+        model_path: str | Path | None = None,
+    ):
         self.window_size = window_size
+        explicit_paths = buffer_path is not None or model_path is not None
+        self.vault_store = vault_store or AionLearningVaultStore(
+            auto_configure=not explicit_paths
+        )
+        self.buffer_path = Path(buffer_path or TEMPORAL_BUFFER_PATH)
+        self.model_path = Path(model_path or TEMPORAL_MODEL_PATH)
         self.sequence_buffer = deque(maxlen=window_size)
         self.temporal_sequences = []
         self.markov_graph = defaultdict(lambda: defaultdict(float))
@@ -39,8 +56,20 @@ class TemporalCoherenceMemory:
             self._append_to_buffer_file(triplet)
 
     def _append_to_buffer_file(self, triplet):
-        TEMPORAL_BUFFER_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(TEMPORAL_BUFFER_PATH, "a") as f:
+        if self.vault_store.enabled:
+            event_id = f"temporal-sequence-{uuid.uuid4()}"
+            self.vault_store.append_event(
+                event_id,
+                {
+                    "event_id": event_id,
+                    "event_type": "temporal_sequence",
+                    "timestamp": time.time(),
+                    "triplet": list(triplet),
+                },
+            )
+            return
+        self.buffer_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.buffer_path, "a") as f:
             f.write(json.dumps({"triplet": triplet}) + "\n")
 
     # ─────────────────────────────────────────────
@@ -76,25 +105,38 @@ class TemporalCoherenceMemory:
     # Persistence
     # ─────────────────────────────────────────────
     def _load_model(self):
-        if not os.path.exists(TEMPORAL_MODEL_PATH):
-            return
         try:
-            with open(TEMPORAL_MODEL_PATH, "r") as f:
-                data = json.load(f)
-            self.markov_graph.update(data.get("markov_graph", {}))
+            if self.vault_store.enabled:
+                data = self.vault_store.get_state("temporal_coherence_model", None)
+                if data is None:
+                    return
+            else:
+                if not os.path.exists(self.model_path):
+                    return
+                with open(self.model_path, "r") as f:
+                    data = json.load(f)
+            for previous, next_counts in data.get("markov_graph", {}).items():
+                self.markov_graph[str(previous)].update(
+                    {str(symbol): float(count) for symbol, count in next_counts.items()}
+                )
             self.prediction_confidence = data.get("confidence", 0.5)
         except Exception as e:
             print(f"[TCM] load failed: {e}")
 
     def _save_model(self):
         try:
-            TEMPORAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
             data = {
-                "markov_graph": self.markov_graph,
+                "markov_graph": {
+                    str(key): dict(value) for key, value in self.markov_graph.items()
+                },
                 "confidence": self.prediction_confidence,
             }
-            with open(TEMPORAL_MODEL_PATH, "w") as f:
-                json.dump(data, f)
+            if self.vault_store.enabled:
+                self.vault_store.put_state("temporal_coherence_model", data)
+            else:
+                self.model_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(self.model_path, "w") as f:
+                    json.dump(data, f)
         except Exception as e:
             print(f"[TCM] save failed: {e}")
 

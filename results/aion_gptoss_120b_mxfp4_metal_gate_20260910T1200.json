@@ -1,0 +1,65 @@
+{
+  "canonical_sha256": "9db1e300d30d571fcea9e5915fc2b81e2084465b637f0859108ba068cc75674f",
+  "claim_boundary": "One real expert with one synthetic activation. This tests direct packed Metal support and a narrow warm kernel; it is not a transformer-token or semantic-quality result. Bitwise equality remains mandatory on the exact track.",
+  "comparison": {
+    "argmax_equal": true,
+    "bitwise_equal": false,
+    "max_abs_error": 0.09746170043945312,
+    "mean_abs_error": 0.006846752079824606,
+    "metal_over_cpu_compute_ratio": 2.3073992299200303,
+    "relative_l2_error": 0.006230226447866017,
+    "values": 2880
+  },
+  "cpu": {
+    "checksum": -20.8766,
+    "finite": true,
+    "p50_ms": 0.222834,
+    "p95_ms": 0.291417,
+    "repetitions": 8,
+    "schema": "aion.gptoss.packed-expert-cpu.v1",
+    "threads": 8,
+    "weight_bytes": 13219200
+  },
+  "created_at": "2026-09-09T18:03:00.715897+00:00",
+  "expert": 0,
+  "gates": {
+    "argmax_equal": true,
+    "metal_speed_improvement_at_least": 0.15,
+    "relative_l2_at_most": 0.01
+  },
+  "layer": 0,
+  "metal": {
+    "all_ops_supported": true,
+    "checksum": -21.1436,
+    "compute_samples_ms": [
+      8.08967,
+      0.552209,
+      0.516417,
+      0.505458,
+      0.517958,
+      0.514834,
+      0.5135,
+      0.500916,
+      0.503084
+    ],
+    "device": "MTL0",
+    "first_compute_ms": 8.08967,
+    "status": "PASSED",
+    "upload_ms": 1.9475,
+    "warm_p50_ms": 0.514167
+  },
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "schema": "aion.gptoss-mxfp4-metal-gate.v1",
+  "status": "NOT_PROMOTED",
+  "warehouse_metrics": {
+    "capacity_bytes": 67108864,
+    "compressed_bytes_read": 12595862,
+    "evictions": 0,
+    "faults": 1,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 13253760,
+    "raw_bytes_materialized": 13253760,
+    "resident_bytes": 13253760
+  }
+}

@@ -1,0 +1,224 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_energy_fundamentals",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:energy_fundamentals",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_economics_core",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:economics_core",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:energy_policy_sustainability:emissions",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_policy_sustainability:lifecycle_assessment",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_policy_sustainability:policy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_policy_sustainability:regulation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_policy_sustainability:energy_markets",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_policy_sustainability:environmental_justice",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "energy",
+      "id": "work:aion@wave.tp:subject:energy_policy_sustainability",
+      "label": "Energy policy and sustainability",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_policy_sustainability:emissions",
+      "label": "emissions",
+      "subject_id": "energy_policy_sustainability",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_policy_sustainability:lifecycle_assessment",
+      "label": "lifecycle assessment",
+      "subject_id": "energy_policy_sustainability",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_policy_sustainability:policy",
+      "label": "policy",
+      "subject_id": "energy_policy_sustainability",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_policy_sustainability:regulation",
+      "label": "regulation",
+      "subject_id": "energy_policy_sustainability",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_policy_sustainability:energy_markets",
+      "label": "energy markets",
+      "subject_id": "energy_policy_sustainability",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_policy_sustainability:environmental_justice",
+      "label": "environmental justice",
+      "subject_id": "energy_policy_sustainability",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_energy_policy_sustainability",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:energy_policy_sustainability:emissions",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_policy_sustainability:lifecycle_assessment",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_policy_sustainability:policy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_policy_sustainability:regulation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_policy_sustainability:energy_markets",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_policy_sustainability:environmental_justice",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "energy",
+        "id": "work:aion@wave.tp:subject:energy_policy_sustainability",
+        "label": "Energy policy and sustainability",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_policy_sustainability:emissions",
+        "label": "emissions",
+        "subject_id": "energy_policy_sustainability",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_policy_sustainability:lifecycle_assessment",
+        "label": "lifecycle assessment",
+        "subject_id": "energy_policy_sustainability",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_policy_sustainability:policy",
+        "label": "policy",
+        "subject_id": "energy_policy_sustainability",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_policy_sustainability:regulation",
+        "label": "regulation",
+        "subject_id": "energy_policy_sustainability",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_policy_sustainability:energy_markets",
+        "label": "energy markets",
+        "subject_id": "energy_policy_sustainability",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_policy_sustainability:environmental_justice",
+        "label": "environmental justice",
+        "subject_id": "energy_policy_sustainability",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "energy",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "energy_policy_sustainability",
+    "title": "AION Academy \u00b7 Energy policy and sustainability"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

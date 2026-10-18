@@ -1,0 +1,161 @@
+\section{Phase 13D --- No-Escrow Side-Effect Regression v0}
+\label{sec:aion-phase13d-no-escrow-side-effect-regression-v0}
+
+\subsection{Status}
+
+Phase 13D locks the no-escrow and no-fund-release regression boundary across the public gateway, public embed/widget, A2A preview, settlement readiness, proof, and human review handoff surfaces.
+
+\begin{quote}
+\textbf{Status: LOCKED --- no-escrow and no-fund-release side-effect regression tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 13D extends the Phase 13 regression layer by proving that gateway and embed preview contracts cannot accidentally become escrow, payment, or fund-release paths.
+
+The locked intent is simple:
+
+\begin{quote}
+Public gateway and embed/widget preview flows may describe settlement readiness, proof status, quote previews, and human review packages, but they MUST NOT create escrow, release escrow, release funds, create payments, require wallets, or import live payment provider logic.
+\end{quote}
+
+This phase protects the separation between:
+
+\begin{itemize}
+  \item public website request capture,
+  \item widget request mapping,
+  \item A2A machine previews,
+  \item settlement readiness previews,
+  \item GlyphChain proof receipts,
+  \item human review handoff packages,
+  \item future guarded approval paths,
+  \item live escrow or payment execution.
+\end{itemize}
+
+\subsection{Regression Scope}
+
+The regression covers the gateway and public embed modules that participate in the current preview pipeline, including:
+
+\begin{verbatim}
+backend/modules/aion_gateway/public_intent_gateway.py
+backend/modules/aion_gateway/public_widget_request_mapping.py
+backend/modules/aion_gateway/public_embed_guard_envelope.py
+backend/modules/aion_gateway/public_embed_human_review_handoff.py
+backend/modules/aion_gateway/settlement_readiness.py
+backend/modules/aion_gateway/a2a_job_evidence_settlement.py
+backend/modules/aion_gateway/a2a_proof_receipt.py
+backend/modules/aion_gateway/glyphchain_proof_commit.py
+\end{verbatim}
+
+The regression also checks the broader A2A gateway preview modules for stale or accidental live escrow/payment provider imports.
+
+\subsection{Locked Safety Requirements}
+
+The following flags remain locked as false or preview-only across the relevant surfaces:
+
+\begin{verbatim}
+would_create_escrow = false
+would_release_funds = false
+would_move_money = false
+would_create_payment = false
+would_require_wallet = false
+preview_only = true
+human_review_required = true
+\end{verbatim}
+
+The human review handoff boundary remains non-executing:
+
+\begin{verbatim}
+approval_can_move_money = false
+approval_can_send_external_messages = false
+next_step = future_guarded_approval_path
+\end{verbatim}
+
+\subsection{Forbidden Couplings}
+
+Phase 13D explicitly blocks accidental coupling to live escrow or payment provider terms, including:
+
+\begin{verbatim}
+stripe
+revolut
+paypal
+escrow_provider
+PaymentIntent
+checkout.session
+create_payment
+release_payment
+release_escrow
+capture_payment
+transfer_funds
+\end{verbatim}
+
+These terms MUST NOT appear in the locked gateway preview modules unless a later deliberately scoped live-payment phase introduces them with a new approval, security, audit, and regression boundary.
+
+
+\subsection{Machine-Tested Escaped Lock Terms}
+
+The documentation lock intentionally repeats the key regression terms in escaped
+LaTeX form so that the doc-test can prove the safety contract has not drifted:
+
+\begin{itemize}
+  \item \texttt{would\_create\_escrow = false}
+  \item \texttt{would\_release\_funds = false}
+  \item \texttt{would\_move\_money = false}
+  \item \texttt{would\_create\_payment = false}
+  \item \texttt{would\_require\_wallet = false}
+  \item \texttt{preview\_only = true}
+  \item \texttt{human\_review\_required = true}
+  \item \texttt{escrow\_provider}
+  \item \texttt{create\_payment}
+  \item \texttt{release\_payment}
+  \item \texttt{release\_escrow}
+  \item \texttt{capture\_payment}
+  \item \texttt{transfer\_funds}
+\end{itemize}
+
+\subsection{Validation Commands}
+
+Run the Phase 13D regression and documentation tests:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_no_escrow_side_effect_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_no_escrow_side_effect_regression_lock_doc.py
+\end{verbatim}
+
+Run the focused lock suite:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Compile the gateway package:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Frontend Impact}
+
+Phase 13D does not create a new frontend visual surface.
+
+No new manual frontend smoke test is required.
+
+\subsection{Commit Boundary}
+
+Only the Phase 13D regression test, documentation test, lock documentation, and focused suite membership should be staged.
+
+The unrelated working-tree file MUST remain unstaged unless intentionally handled in a separate phase:
+
+\begin{verbatim}
+backend/modules/dna_chain/dna_switch_index.json
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13D-NO-ESCROW-SIDE-EFFECT-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

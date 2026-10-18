@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' data: blob: file: http://127.0.0.1:* http://localhost:*; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: http://127.0.0.1:* http://localhost:*; font-src 'self' data: file:; media-src 'self' data: blob: file: http://127.0.0.1:* http://localhost:*; connect-src 'self' http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:*; frame-src http://127.0.0.1:* http://localhost:*;"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tessaris</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./pilot_operating_team.css" />
+    <link rel="stylesheet" href="./aion_work_schedule_workspace.css" />
+  </head>
+  <body>
+    <div
+      id="tessaris-startup-splash"
+      class="tessaris-startup-splash"
+      role="status"
+      aria-live="polite"
+      aria-label="Tessaris is loading"
+    >
+      <div class="tessaris-startup-mark" aria-hidden="true">
+        <span class="tessaris-startup-orbit tessaris-startup-orbit-one"></span>
+        <span class="tessaris-startup-orbit tessaris-startup-orbit-two"></span>
+        <span class="tessaris-startup-orbit tessaris-startup-orbit-three"></span>
+        <span class="tessaris-startup-logo-wrap">
+          <img src="../assets/icon.png" alt="" />
+        </span>
+      </div>
+      <div class="tessaris-startup-copy">
+        <strong>Preparing Tessaris</strong>
+        <span>Loading your local workspace…</span>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const startedAt = performance.now();
+        window.__tessarisStartupInProgress = true;
+        window.__tessarisStartupSplashStartedAt = startedAt;
+
+        window.__tessarisDismissStartupSplash = () => {
+          const elapsed = performance.now() - startedAt;
+          const waitForMinimum = Math.max(0, 1000 - elapsed);
+
+          window.setTimeout(() => {
+            const splash = document.getElementById("tessaris-startup-splash");
+            if (!splash) {
+              window.__tessarisStartupInProgress = false;
+              return;
+            }
+
+            splash.classList.add("is-leaving");
+            window.__tessarisStartupInProgress = false;
+            window.setTimeout(() => splash.remove(), 280);
+          }, waitForMinimum);
+        };
+
+        window.addEventListener("load", window.__tessarisDismissStartupSplash, { once: true });
+        window.setTimeout(window.__tessarisDismissStartupSplash, 5000);
+      })();
+    </script>
+    <header class="tessaris-window-toolbar" data-tessaris-window-toolbar="true">
+      <div class="tessaris-window-controls-space" aria-hidden="true"></div>
+      <div class="tessaris-window-toolbar-actions">
+        <button type="button" data-tessaris-shell-action="back" aria-label="Back" title="Back">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+        </button>
+        <button type="button" data-tessaris-shell-action="forward" aria-label="Forward" title="Forward">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+        </button>
+        <button type="button" data-tessaris-shell-action="sidebar" aria-label="Toggle sidebar" title="Toggle sidebar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3" /><path d="M9 4v16" /></svg>
+        </button>
+      </div>
+      <div class="tessaris-window-toolbar-brand">
+        <strong>Tessaris</strong>
+      </div>
+      <div
+        class="tessaris-window-team-strip"
+        data-tessaris-window-team-strip="true"
+        aria-label="Board and executive team shortcuts"
+      ></div>
+      <div class="tessaris-window-toolbar-end">
+        <label class="tessaris-model-switcher" data-tessaris-model-switcher="true" title="Temporarily choose the AI model for current work">
+          <span>Model</span>
+          <select data-tessaris-active-model aria-label="Active AI model">
+            <option value="">Choose in Connections</option>
+          </select>
+        </label>
+        <div class="tessaris-pilot-control" data-tessaris-pilot-control="true">
+          <button
+            type="button"
+            class="tessaris-pilot-launch"
+            data-tessaris-pilot-dashboard-launch="true"
+            data-tessaris-pilot-action="open-dashboard"
+            title="Open Pilot Dashboard"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 8.5A6 6 0 0 1 18 8.5" />
+              <path d="M4.5 12.5V10.5A2 2 0 0 1 6.5 8.5H7.5V15H6.5A2 2 0 0 1 4.5 13Z" />
+              <path d="M19.5 12.5V10.5A2 2 0 0 0 17.5 8.5H16.5V15H17.5A2 2 0 0 0 19.5 13Z" />
+              <path d="M18 15V16A3 3 0 0 1 15 19H12" />
+            </svg>
+            <span>Open Pilot Dashboard</span>
+          </button>
+          <button
+            type="button"
+            class="tessaris-pilot-menu"
+            data-tessaris-pilot-toggle="true"
+            aria-expanded="false"
+            aria-controls="tessaris-pilot-panel"
+            aria-label="Pilot controls"
+            title="Pilot controls"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg>
+          </button>
+          <section
+            id="tessaris-pilot-panel"
+            class="tessaris-pilot-panel"
+            data-tessaris-pilot-panel="true"
+            aria-label="Pilot controls"
+            hidden
+          >
+            <header>
+              <div>
+                <span class="tessaris-pilot-eyebrow">LOCAL PILOT</span>
+                <strong>Pilot control centre</strong>
+              </div>
+              <button type="button" data-tessaris-pilot-close="true" aria-label="Close Pilot controls" title="Close">×</button>
+            </header>
+            <div class="tessaris-pilot-status-list" aria-live="polite">
+              <div data-tessaris-pilot-service-status data-state="checking"><i></i><span>Pilot unavailable</span></div>
+              <div data-tessaris-pilot-microphone-status data-state="off"><i></i><span>Microphone off</span></div>
+              <div data-tessaris-pilot-tv-status data-state="unavailable"><i></i><span>TV unavailable</span></div>
+            </div>
+            <p class="tessaris-pilot-message" data-tessaris-pilot-message>Checking the local Pilot service…</p>
+            <div class="tessaris-pilot-actions">
+              <button type="button" class="primary" data-tessaris-pilot-action="open-dashboard">Open Pilot Dashboard</button>
+              <button type="button" data-tessaris-pilot-action="toggle-microphone">Turn microphone on</button>
+              <button type="button" data-tessaris-pilot-action="reconnect-tv">Reconnect TV</button>
+              <button type="button" data-tessaris-pilot-action="open-games">Open Games</button>
+              <button type="button" data-tessaris-pilot-action="open-ai-tv">Open AI TV</button>
+              <button type="button" class="retry" data-tessaris-pilot-action="retry" hidden>Retry starting Pilot</button>
+            </div>
+          </section>
+        </div>
+        <span class="tessaris-window-local-status"><i></i> Local</span>
+        <button type="button" data-tessaris-shell-action="reload" aria-label="Reload" title="Reload">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66" /><path d="M20 4v7h-7" /></svg>
+        </button>
+      </div>
+    </header>
+    <div id="app"></div>
+
+    <!--
+      Load the renderer circuit-breaker before any feature bundle.  Tessaris has
+      accumulated a large number of legacy DOM maintenance patches; without a
+      shared scheduler they can amplify one another during a full render.
+    -->
+    <script src="./desktop-preference-policy.js"></script>
+    <script src="./business-data-browser-storage-discovery.js"></script>
+    <script src="./desktop-backend-origin-router.js"></script>
+    <script src="./renderer-stability.js"></script>
+    <script src="./lib/desktop-state-contracts.js"></script>
+    <script src="./lib/desktop-cache.js"></script>
+    <script src="./lib/desktop-store.js"></script>
+
+    <script src="./runtime_shared.js"></script>
+    <script src="./live_agents_runtime.js"></script>
+    <script src="./boardroom_runtime.js"></script>
+    <script src="./desktop-runtime-adapter.js"></script>
+
+    <script src="./vendor/three.min.js"></script>
+    
+    <script type="module" src="./vendor/three-gltf-loader-bridge.js"></script>
+    <script src="./lib/desktop-boardroom-renderer.js"></script>
+    <script src="./lib/boardroom-seat-conversation.js"></script>
+    <script src="./lib/desktop-operations-renderer.js"></script>
+
+    <script src="./workflow/nodeEditor/configs/intelligenceConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/textParserConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/toolsConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/logicConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/routerConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/mergeConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/index.js"></script>
+    <script src="./workflow/nodeEditor/nodeEditor.js"></script>
+    <script src="./aion_business_foundation_voice_controller.js"></script>
+    <script src="./aion_business_foundation_website_scan.js"></script>
+    <script src="./aion_development_business_session.js"></script>
+    <script src="./aion_desktop_preferences.js"></script>
+    <script src="./aion_business_container_client.js"></script>
+    <script src="./aion_operating_model_workspace.js"></script>
+    <script src="./aion_procurement_workspace.js"></script>
+    <script src="./aion_finance_discovery_schema.js"></script>
+    <script src="./aion_commerce_source_schema.js"></script>
+    <script src="./aion_finance_model_builder.js"></script>
+    <script src="./aion_finance_pilot.js"></script>
+    <script src="./aion_department_pilot_runtime.js"></script>
+    <script src="./aion_department_pilot_backend.js"></script>
+    <script src="./aion_business_twin_orchestrator.js"></script>
+    <script src="./aion_work_schedule_workspace.js"></script>
+    <script src="./aion_usage_billing_workspace.js"></script>
+    <script src="./aion_project_management_workspace.js"></script>
+    <script src="./app.js"></script>
+    <script src="./shell-toolbar.js"></script>
+    <script src="./aion_finance_light_theme.js"></script>
+    <script src="./aion_boardroom_department_pilot_producer.js"></script>
+    <script src="./aion_hr_people_workspace.js"></script>
+    <script src="./aion_finance_inbox_workspace.js"></script>
+    <script src="./aion_finance_sales_workspace.js"></script>
+    <script src="./aion_sales_revenue_workspace.js"></script>
+    <script src="./aion_telephony_vault.js"></script>
+    <script src="./aion_support_case_workspace.js"></script>
+    <script src="./aion_legal_workspace.js"></script>
+    <script src="./aion_cybersecurity_workspace.js"></script>
+    <script src="./pilot_operating_team_ui.js"></script>
+  </body>
+</html>

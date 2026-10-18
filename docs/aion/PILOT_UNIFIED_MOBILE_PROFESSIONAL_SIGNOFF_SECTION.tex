@@ -1,0 +1,36 @@
+\section{Professional Sign-Off Packages on the Trusted Phone}
+\label{sec:pilot-mobile-professional-signoff}
+\raggedright
+
+Pilot now supports reusable professional sign-off packages for accountants, auditors, advisers,
+and directors.  A package is prepared from one current Workspace review card and binds the
+organisation, authoritative source reference, visible source-scope hash, exact statement,
+required professional role, preparer, preparation time, and revision.  A deterministic package
+hash makes any subsequent change visible before a signature is accepted.
+
+Preparation requires a current organisation membership and the separate
+\texttt{workspace.signoff.prepare} authority on the possession-bound phone.  Reviewing packages
+uses its own read scope.  Signing requires either the exact role scope, such as
+\texttt{workspace.signoff.auditor}, or an explicitly granted general professional-sign-off scope.
+An accountant permission therefore cannot be silently substituted for an auditor permission.
+
+The signer reviews the immutable statement and source scope on the private phone, chooses sign or
+reject, and supplies a professional reference or declared capacity when signing.  The complete
+decision request is covered by the phone's Ed25519 possession signature.  Pilot stores the phone
+device identifier and a one-way hash of that request signature rather than exposing reusable
+signature material in the organisation package.
+
+The resulting receipt binds package identifier and hash, decision, professional role, person,
+membership, phone device, professional reference, and signing time.  It is independently
+hash-verifiable and explicitly records that no external write occurred.  Signing a review package
+does not file accounts, submit a tax return, authorize a bank transfer, or execute any other
+provider operation.
+
+Content-bound idempotency returns the original package or receipt after a genuine network retry.
+A changed request, changed package hash, incorrect professional role, revoked membership, or second
+decision fails closed.  The mobile Workspace interface can prepare packages from review cards and
+display awaiting, signed, and rejected states without mixing them with Personal Pilot data.
+
+Automated tests exercise all four roles, immutable hashes, exact-role authorization, trusted-phone
+binding, stale-package rejection, and no-execution receipts.  Twenty-two focused gateway tests and
+the optimized Next.js application build pass.  This closes \texttt{MOB-0609}.

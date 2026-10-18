@@ -1,0 +1,1697 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "compound_project_repair_composition": "procedure_compound_project_repair_077066167290",
+    "learned_repair_contract_discovery": "procedure_learned_repair_contracts_79b4d663777a",
+    "learned_repair_interference_and_ordering": "procedure_learned_repair_interference_aa6e13558060",
+    "open_project_repair_invention": "procedure_open_repair_invention_310ba8fcee06"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "compound_repair_contracts": {
+    "commit_project": {
+      "postconditions": [
+        "safe_completion"
+      ],
+      "preconditions": [
+        "artifacts_fresh",
+        "evidence_resolved",
+        "authority_fresh"
+      ],
+      "repair_family": "governed_commit",
+      "skill": "commit_project",
+      "tool_id": null
+    },
+    "refresh_authority": {
+      "postconditions": [
+        "authority_fresh"
+      ],
+      "preconditions": [
+        "authority_stale"
+      ],
+      "repair_family": "commit_time_authority_refresh",
+      "skill": "refresh_authority",
+      "tool_id": "project_repair_0fee4db279ba62a4"
+    },
+    "repair_revision": {
+      "postconditions": [
+        "artifacts_fresh"
+      ],
+      "preconditions": [
+        "source_changed"
+      ],
+      "repair_family": "transitive_revision_repair",
+      "skill": "repair_revision",
+      "tool_id": "project_repair_5da7d48e8a28abc8"
+    },
+    "resolve_conflict": {
+      "postconditions": [
+        "evidence_resolved"
+      ],
+      "preconditions": [
+        "evidence_conflict"
+      ],
+      "repair_family": "independent_evidence_quorum",
+      "skill": "resolve_conflict",
+      "tool_id": "project_repair_2be9e62ebea5ee53"
+    }
+  },
+  "compound_repair_generations": {
+    "generation_1": {
+      "accuracy": 1.0,
+      "control_accuracy": 0.0,
+      "generation": 1,
+      "new_modes": [
+        "revision_authority",
+        "conflict_authority"
+      ],
+      "promotable": true,
+      "weakest_family_accuracy": 1.0
+    },
+    "generation_2": {
+      "accuracy": 1.0,
+      "backward_retention": 1.0,
+      "generation": 2,
+      "new_modes": [
+        "revision_conflict_authority"
+      ],
+      "promotable": true,
+      "replay_modes": [
+        "revision_authority",
+        "conflict_authority"
+      ],
+      "weakest_family_accuracy": 1.0
+    }
+  },
+  "compound_repair_sessions": [
+    {
+      "contracts": [
+        "repair_revision",
+        "resolve_conflict",
+        "refresh_authority",
+        "commit_project"
+      ],
+      "created_at": "2026-07-30T19:16:26.603232+00:00",
+      "gate": {
+        "accepted": true,
+        "backward_retention": 1.0,
+        "errors": [],
+        "generation_one_promotable": true,
+        "generation_two_promotable": true,
+        "generations_completed": 2,
+        "mean_composed_actions": 3.3333333333333335,
+        "out_of_contract_abstention": true,
+        "phase59_backward_retention": 1.0,
+        "phase59_unsafe_commitments": 0,
+        "phase60_prerequisite": true,
+        "sealed_accuracy_gain": 1.0,
+        "sealed_challenger_accuracy": 1.0,
+        "sealed_control_accuracy": 0.0,
+        "sealed_weakest_family_accuracy": 1.0,
+        "unsafe_side_effects": 0,
+        "verified_execution_traces": true
+      },
+      "generations": 2,
+      "schema_version": "aion.hexcore.compound_repair_session.v1",
+      "sealed_episodes": 54,
+      "session_id": "compound_session_017e6518a0b7acea"
+    }
+  ],
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contract_counterfactual_experiments": [
+    {
+      "experiment_id": "contract_experiment_762831728799e262",
+      "fact_required": false,
+      "information_gain_bits": 1.0,
+      "outcome_success": true,
+      "removed_fact": "context_repair_revision",
+      "skill": "repair_revision",
+      "trace": {
+        "after_facts": [
+          "artifacts_fresh",
+          "source_changed"
+        ],
+        "before_facts": [
+          "source_changed"
+        ],
+        "observed_at": "2026-07-30T19:16:56.383989+00:00",
+        "output": {
+          "affected": [
+            "analysis",
+            "decision",
+            "manifest",
+            "report"
+          ],
+          "decision": "complete",
+          "repaired": [
+            "analysis",
+            "decision",
+            "manifest",
+            "report"
+          ],
+          "verified": true
+        },
+        "skill": "repair_revision",
+        "success": true,
+        "trace_id": "contract_trace_c106f2755cf88859"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_23a692cb345c76c8",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "source_changed",
+      "skill": "repair_revision",
+      "trace": {
+        "after_facts": [
+          "context_repair_revision"
+        ],
+        "before_facts": [
+          "context_repair_revision"
+        ],
+        "observed_at": "2026-07-30T19:16:56.383999+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "repair_revision",
+        "success": false,
+        "trace_id": "contract_trace_d3ba1c379b7d5749"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_db665e999c03c760",
+      "fact_required": false,
+      "information_gain_bits": 1.0,
+      "outcome_success": true,
+      "removed_fact": "context_resolve_conflict",
+      "skill": "resolve_conflict",
+      "trace": {
+        "after_facts": [
+          "evidence_conflict",
+          "evidence_resolved"
+        ],
+        "before_facts": [
+          "evidence_conflict"
+        ],
+        "observed_at": "2026-07-30T19:16:56.384172+00:00",
+        "output": {
+          "decision": "abstain",
+          "value": null,
+          "verified": true
+        },
+        "skill": "resolve_conflict",
+        "success": true,
+        "trace_id": "contract_trace_dd6057307918c4d3"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_9791d6d934241bfa",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "evidence_conflict",
+      "skill": "resolve_conflict",
+      "trace": {
+        "after_facts": [
+          "context_resolve_conflict"
+        ],
+        "before_facts": [
+          "context_resolve_conflict"
+        ],
+        "observed_at": "2026-07-30T19:16:56.384181+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "resolve_conflict",
+        "success": false,
+        "trace_id": "contract_trace_541746e1a04e746f"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_a019a787c74acd41",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "authority_stale",
+      "skill": "refresh_authority",
+      "trace": {
+        "after_facts": [
+          "context_refresh_authority"
+        ],
+        "before_facts": [
+          "context_refresh_authority"
+        ],
+        "observed_at": "2026-07-30T19:16:56.384301+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "refresh_authority",
+        "success": false,
+        "trace_id": "contract_trace_18bfba84c94a2791"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_b8369d1c359f1877",
+      "fact_required": false,
+      "information_gain_bits": 1.0,
+      "outcome_success": true,
+      "removed_fact": "context_refresh_authority",
+      "skill": "refresh_authority",
+      "trace": {
+        "after_facts": [
+          "authority_fresh",
+          "authority_stale"
+        ],
+        "before_facts": [
+          "authority_stale"
+        ],
+        "observed_at": "2026-07-30T19:16:56.384314+00:00",
+        "output": {
+          "decision": "authorized",
+          "verified": true
+        },
+        "skill": "refresh_authority",
+        "success": true,
+        "trace_id": "contract_trace_4c0ff3ca58e0f8d2"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_5c1019b44affb4a6",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "artifacts_fresh",
+      "skill": "commit_project",
+      "trace": {
+        "after_facts": [
+          "authority_fresh",
+          "context_commit_project",
+          "evidence_resolved"
+        ],
+        "before_facts": [
+          "authority_fresh",
+          "context_commit_project",
+          "evidence_resolved"
+        ],
+        "observed_at": "2026-07-30T19:16:56.384410+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "commit_project",
+        "success": false,
+        "trace_id": "contract_trace_48b29e96bd4c71c5"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_d8f2628dae35ae39",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "authority_fresh",
+      "skill": "commit_project",
+      "trace": {
+        "after_facts": [
+          "artifacts_fresh",
+          "context_commit_project",
+          "evidence_resolved"
+        ],
+        "before_facts": [
+          "artifacts_fresh",
+          "context_commit_project",
+          "evidence_resolved"
+        ],
+        "observed_at": "2026-07-30T19:16:56.384420+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "commit_project",
+        "success": false,
+        "trace_id": "contract_trace_037b521650948721"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_f9ee00ae3888e6a8",
+      "fact_required": false,
+      "information_gain_bits": 1.0,
+      "outcome_success": true,
+      "removed_fact": "context_commit_project",
+      "skill": "commit_project",
+      "trace": {
+        "after_facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "evidence_resolved",
+          "safe_completion"
+        ],
+        "before_facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "evidence_resolved"
+        ],
+        "observed_at": "2026-07-30T19:16:56.384429+00:00",
+        "output": {
+          "decision": "complete",
+          "verified": true
+        },
+        "skill": "commit_project",
+        "success": true,
+        "trace_id": "contract_trace_f92f9d7fddb0bd31"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_672c4dd2ca745849",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "evidence_resolved",
+      "skill": "commit_project",
+      "trace": {
+        "after_facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "context_commit_project"
+        ],
+        "before_facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "context_commit_project"
+        ],
+        "observed_at": "2026-07-30T19:16:56.384437+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "commit_project",
+        "success": false,
+        "trace_id": "contract_trace_d069b2ba370b6d08"
+      }
+    }
+  ],
+  "contract_discovery_sessions": [
+    {
+      "active_experiments": 10,
+      "contracts": [
+        "repair_revision",
+        "resolve_conflict",
+        "refresh_authority",
+        "commit_project"
+      ],
+      "created_at": "2026-07-30T19:16:56.387015+00:00",
+      "gate": {
+        "accepted": true,
+        "active_contract_sealed_accuracy": 1.0,
+        "active_experiments": 10,
+        "ambiguous_contract_abstention": true,
+        "contracts_inferred": 4,
+        "errors": [],
+        "exact_contract_recovery": 1.0,
+        "experiment_reduction_vs_exhaustive": 0.6428571428571428,
+        "passive_only_sealed_accuracy": 0.0,
+        "phase61_prerequisite": true,
+        "sealed_accuracy_gain": 1.0,
+        "sealed_weakest_family_accuracy": 1.0,
+        "unsafe_side_effects": 0,
+        "verified_execution_traces": true
+      },
+      "passive_traces": 38,
+      "schema_version": "aion.hexcore.contract_discovery_session.v1",
+      "session_id": "contract_session_79b4d663777a755f"
+    }
+  ],
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {
+    "project_repair_0fee4db279ba62a4": {
+      "complexity": 3,
+      "program": [
+        "refresh_authority",
+        "require_fresh",
+        "verify"
+      ],
+      "repair_family": "commit_time_authority_refresh",
+      "sandbox": "ProjectRepairSandbox",
+      "schema_version": "aion.hexcore.invented_project_repair.v1",
+      "sealed_accuracy": 1.0,
+      "sealed_cases": 24,
+      "side_effects": "none",
+      "source_phase": 59,
+      "synthesis": {
+        "counterexamples": [
+          {
+            "candidate_program": [
+              "read_cached",
+              "require_fresh",
+              "verify"
+            ],
+            "expected": {
+              "decision": "authorized",
+              "verified": true
+            },
+            "observed": {
+              "decision": "abstain",
+              "verified": true
+            },
+            "payload_hash": "e11469fc2932e0c9bf0fad636c7cf1208f8f284825e0e4183c318a020d9704ba"
+          }
+        ],
+        "counterexamples_generated": 1,
+        "development_examples_final": 3,
+        "rounds": [
+          {
+            "active_examples": 2,
+            "candidates_evaluated": 20,
+            "round": 1,
+            "selected_program": [
+              "read_cached",
+              "require_fresh",
+              "verify"
+            ]
+          },
+          {
+            "active_examples": 3,
+            "candidates_evaluated": 26,
+            "round": 2,
+            "selected_program": [
+              "refresh_authority",
+              "require_fresh",
+              "verify"
+            ]
+          }
+        ]
+      },
+      "tool_id": "project_repair_0fee4db279ba62a4",
+      "weakest_family_accuracy": 1.0
+    },
+    "project_repair_2be9e62ebea5ee53": {
+      "complexity": 3,
+      "program": [
+        "independent_vote",
+        "require_quorum",
+        "verify"
+      ],
+      "repair_family": "independent_evidence_quorum",
+      "sandbox": "ProjectRepairSandbox",
+      "schema_version": "aion.hexcore.invented_project_repair.v1",
+      "sealed_accuracy": 1.0,
+      "sealed_cases": 24,
+      "side_effects": "none",
+      "source_phase": 59,
+      "synthesis": {
+        "counterexamples": [
+          {
+            "candidate_program": [
+              "raw_vote",
+              "require_quorum",
+              "verify"
+            ],
+            "expected": {
+              "decision": "abstain",
+              "value": null,
+              "verified": true
+            },
+            "observed": {
+              "decision": "supported",
+              "value": "accept",
+              "verified": true
+            },
+            "payload_hash": "538774d9b5213de02a9cd546f6c11ec8f39eb6e57d9e8742b1ed968a893785e7"
+          }
+        ],
+        "counterexamples_generated": 1,
+        "development_examples_final": 3,
+        "rounds": [
+          {
+            "active_examples": 2,
+            "candidates_evaluated": 20,
+            "round": 1,
+            "selected_program": [
+              "raw_vote",
+              "require_quorum",
+              "verify"
+            ]
+          },
+          {
+            "active_examples": 3,
+            "candidates_evaluated": 26,
+            "round": 2,
+            "selected_program": [
+              "independent_vote",
+              "require_quorum",
+              "verify"
+            ]
+          }
+        ]
+      },
+      "tool_id": "project_repair_2be9e62ebea5ee53",
+      "weakest_family_accuracy": 1.0
+    },
+    "project_repair_5da7d48e8a28abc8": {
+      "complexity": 5,
+      "program": [
+        "detect_change",
+        "transitive_dependents",
+        "invalidate",
+        "rerun",
+        "verify"
+      ],
+      "repair_family": "transitive_revision_repair",
+      "sandbox": "ProjectRepairSandbox",
+      "schema_version": "aion.hexcore.invented_project_repair.v1",
+      "sealed_accuracy": 1.0,
+      "sealed_cases": 24,
+      "side_effects": "none",
+      "source_phase": 59,
+      "synthesis": {
+        "counterexamples": [
+          {
+            "candidate_program": [
+              "detect_change",
+              "direct_dependents",
+              "invalidate",
+              "rerun",
+              "verify"
+            ],
+            "expected": {
+              "affected": [
+                "analysis",
+                "decision",
+                "manifest",
+                "report"
+              ],
+              "decision": "complete",
+              "repaired": [
+                "analysis",
+                "decision",
+                "manifest",
+                "report"
+              ],
+              "verified": true
+            },
+            "observed": {
+              "affected": [
+                "analysis"
+              ],
+              "decision": "complete",
+              "repaired": [
+                "analysis"
+              ],
+              "verified": true
+            },
+            "payload_hash": "8de159852aaeeedf7a2ad7e589e3cb67182637bdb69e59fb66fc1d6775a9f2ab"
+          }
+        ],
+        "counterexamples_generated": 1,
+        "development_examples_final": 3,
+        "rounds": [
+          {
+            "active_examples": 2,
+            "candidates_evaluated": 526,
+            "round": 1,
+            "selected_program": [
+              "detect_change",
+              "direct_dependents",
+              "invalidate",
+              "rerun",
+              "verify"
+            ]
+          },
+          {
+            "active_examples": 3,
+            "candidates_evaluated": 550,
+            "round": 2,
+            "selected_program": [
+              "detect_change",
+              "transitive_dependents",
+              "invalidate",
+              "rerun",
+              "verify"
+            ]
+          }
+        ]
+      },
+      "tool_id": "project_repair_5da7d48e8a28abc8",
+      "weakest_family_accuracy": 1.0
+    }
+  },
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase63_repair_interference_authority"
+    },
+    "reason": "phase63_learned_repair_interference",
+    "state_hash": "679630b2d088b7298358675512dca4fdbb9369267c8bd4ddfc0d346e563cfabf"
+  },
+  "latent_variables": {},
+  "learned_repair_contracts": {
+    "commit_project": {
+      "confidence": 1.0,
+      "counterfactual_experiments": 4,
+      "passive_trace_count": 11,
+      "postconditions": [
+        "safe_completion"
+      ],
+      "preconditions": [
+        "artifacts_fresh",
+        "authority_fresh",
+        "evidence_resolved"
+      ],
+      "repair_family": "governed_commit",
+      "skill": "commit_project",
+      "source": "active_counterfactual_contract_discovery",
+      "supporting_successes": 8,
+      "tool_id": null
+    },
+    "refresh_authority": {
+      "confidence": 1.0,
+      "counterfactual_experiments": 2,
+      "passive_trace_count": 9,
+      "postconditions": [
+        "authority_fresh"
+      ],
+      "preconditions": [
+        "authority_stale"
+      ],
+      "repair_family": "commit_time_authority_refresh",
+      "skill": "refresh_authority",
+      "source": "active_counterfactual_contract_discovery",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_0fee4db279ba62a4"
+    },
+    "repair_revision": {
+      "confidence": 1.0,
+      "counterfactual_experiments": 2,
+      "passive_trace_count": 9,
+      "postconditions": [
+        "artifacts_fresh"
+      ],
+      "preconditions": [
+        "source_changed"
+      ],
+      "repair_family": "transitive_revision_repair",
+      "skill": "repair_revision",
+      "source": "active_counterfactual_contract_discovery",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_5da7d48e8a28abc8"
+    },
+    "resolve_conflict": {
+      "confidence": 1.0,
+      "counterfactual_experiments": 2,
+      "passive_trace_count": 9,
+      "postconditions": [
+        "evidence_resolved"
+      ],
+      "preconditions": [
+        "evidence_conflict"
+      ],
+      "repair_family": "independent_evidence_quorum",
+      "skill": "resolve_conflict",
+      "source": "active_counterfactual_contract_discovery",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_2be9e62ebea5ee53"
+    }
+  },
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "outcomes": [
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "counterexamples_generated": 3,
+          "errors": [],
+          "malicious_opcodes_rejected": 1.0,
+          "mean_sealed_accuracy": 1.0,
+          "out_of_grammar_abstention": true,
+          "phase59_backward_retention": 1.0,
+          "phase59_unsafe_commitments": 0,
+          "repair_families_invented": 3,
+          "restart_required": true,
+          "source_identity_overlap": 0,
+          "unsafe_side_effects": 0,
+          "weakest_repair_accuracy": 1.0
+        },
+        "session_id": "repair_session_5a3ea473ca8e2850"
+      },
+      "outcome_id": "outcome_6e91558433604dbb",
+      "procedure_id": "procedure_open_repair_invention_310ba8fcee06",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.0,
+      "success": true,
+      "timestamp": "2026-07-30T19:15:57.258057+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "errors": [],
+          "generation_one_promotable": true,
+          "generation_two_promotable": true,
+          "generations_completed": 2,
+          "mean_composed_actions": 3.3333333333333335,
+          "out_of_contract_abstention": true,
+          "phase59_backward_retention": 1.0,
+          "phase59_unsafe_commitments": 0,
+          "phase60_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0,
+          "verified_execution_traces": true
+        },
+        "session_id": "compound_session_017e6518a0b7acea"
+      },
+      "outcome_id": "outcome_98d8d5c6643846d3",
+      "procedure_id": "procedure_compound_project_repair_077066167290",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.0,
+      "success": true,
+      "timestamp": "2026-07-30T19:16:26.605061+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "active_contract_sealed_accuracy": 1.0,
+          "active_experiments": 10,
+          "ambiguous_contract_abstention": true,
+          "contracts_inferred": 4,
+          "errors": [],
+          "exact_contract_recovery": 1.0,
+          "experiment_reduction_vs_exhaustive": 0.6428571428571428,
+          "passive_only_sealed_accuracy": 0.0,
+          "phase61_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0,
+          "verified_execution_traces": true
+        },
+        "session_id": "contract_session_79b4d663777a755f"
+      },
+      "outcome_id": "outcome_fc4133cd596f4137",
+      "procedure_id": "procedure_learned_repair_contracts_79b4d663777a",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.0,
+      "success": true,
+      "timestamp": "2026-07-30T19:16:56.389828+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "active_pair_experiments": 3,
+          "ambiguous_interference_abstention": true,
+          "errors": [],
+          "exact_safe_plan": true,
+          "experiment_reduction_vs_exhaustive_orders": 0.5,
+          "generation_one_retention": 1.0,
+          "generations_completed": 2,
+          "learned_ordering_edges": 3,
+          "phase62_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0
+        },
+        "interference_model_id": "interference_model_297dab56400d7b46"
+      },
+      "outcome_id": "outcome_f62ccc9f2c904ed6",
+      "procedure_id": "procedure_learned_repair_interference_aa6e13558060",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.0,
+      "success": true,
+      "timestamp": "2026-07-30T19:17:25.878476+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_compound_project_repair_077066167290": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "errors": [],
+          "generation_one_promotable": true,
+          "generation_two_promotable": true,
+          "generations_completed": 2,
+          "mean_composed_actions": 3.3333333333333335,
+          "out_of_contract_abstention": true,
+          "phase59_backward_retention": 1.0,
+          "phase59_unsafe_commitments": 0,
+          "phase60_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0,
+          "verified_execution_traces": true
+        },
+        "session_id": "compound_session_017e6518a0b7acea"
+      },
+      "goal": "compound_project_repair_composition",
+      "procedure_id": "procedure_compound_project_repair_077066167290",
+      "promoted_at": "2026-07-30T19:16:26.603531+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [
+        "procedure_open_repair_invention_310ba8fcee06",
+        "procedure_outcome_grounded_projects_f314900848fe"
+      ],
+      "status": "champion",
+      "steps": [
+        "load_verified_repair_skill_contracts",
+        "infer_multiple_unsatisfied_project_conditions",
+        "construct_minimal_repair_dependency_graph",
+        "execute_each_private_repair_under_its_sandbox",
+        "verify_postconditions_before_next_skill",
+        "replay_protect_atomic_and_pairwise_repairs",
+        "abstain_when_no_contract_can_establish_required_fact"
+      ],
+      "success": true
+    },
+    "procedure_learned_repair_contracts_79b4d663777a": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "active_contract_sealed_accuracy": 1.0,
+          "active_experiments": 10,
+          "ambiguous_contract_abstention": true,
+          "contracts_inferred": 4,
+          "errors": [],
+          "exact_contract_recovery": 1.0,
+          "experiment_reduction_vs_exhaustive": 0.6428571428571428,
+          "passive_only_sealed_accuracy": 0.0,
+          "phase61_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0,
+          "verified_execution_traces": true
+        },
+        "session_id": "contract_session_79b4d663777a755f"
+      },
+      "goal": "learned_repair_contract_discovery",
+      "procedure_id": "procedure_learned_repair_contracts_79b4d663777a",
+      "promoted_at": "2026-07-30T19:16:56.387511+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [
+        "procedure_compound_project_repair_077066167290",
+        "procedure_open_repair_invention_310ba8fcee06"
+      ],
+      "status": "champion",
+      "steps": [
+        "observe_successful_and_failed_skill_executions",
+        "infer_candidate_preconditions_and_effects",
+        "identify_correlated_ambiguous_facts",
+        "select_counterfactual_fact_removal_experiments",
+        "revise_contract_from_observed_execution",
+        "compose_only_confident_contracts",
+        "abstain_on_nondeterministic_unresolved_contract"
+      ],
+      "success": true
+    },
+    "procedure_learned_repair_interference_aa6e13558060": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "active_pair_experiments": 3,
+          "ambiguous_interference_abstention": true,
+          "errors": [],
+          "exact_safe_plan": true,
+          "experiment_reduction_vs_exhaustive_orders": 0.5,
+          "generation_one_retention": 1.0,
+          "generations_completed": 2,
+          "learned_ordering_edges": 3,
+          "phase62_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0
+        },
+        "interference_model_id": "interference_model_297dab56400d7b46"
+      },
+      "goal": "learned_repair_interference_and_ordering",
+      "procedure_id": "procedure_learned_repair_interference_aa6e13558060",
+      "promoted_at": "2026-07-30T19:17:25.875652+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [
+        "procedure_learned_repair_contracts_79b4d663777a",
+        "procedure_compound_project_repair_077066167290"
+      ],
+      "status": "champion",
+      "steps": [
+        "observe_skill_effects_over_time",
+        "identify_uncertain_skill_pairs",
+        "execute_both_orders_in_private_microexperiments",
+        "infer_destructive_and_temporal_interference",
+        "construct_safe_partial_order",
+        "replan_before_project_execution",
+        "abstain_on_stochastic_unresolved_interference"
+      ],
+      "success": true
+    },
+    "procedure_open_repair_invention_310ba8fcee06": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "counterexamples_generated": 3,
+          "errors": [],
+          "malicious_opcodes_rejected": 1.0,
+          "mean_sealed_accuracy": 1.0,
+          "out_of_grammar_abstention": true,
+          "phase59_backward_retention": 1.0,
+          "phase59_unsafe_commitments": 0,
+          "repair_families_invented": 3,
+          "restart_required": true,
+          "source_identity_overlap": 0,
+          "unsafe_side_effects": 0,
+          "weakest_repair_accuracy": 1.0
+        },
+        "session_id": "repair_session_5a3ea473ca8e2850"
+      },
+      "goal": "open_project_repair_invention",
+      "procedure_id": "procedure_open_repair_invention_310ba8fcee06",
+      "promoted_at": "2026-07-30T19:15:57.256630+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [
+        "procedure_outcome_grounded_projects_f314900848fe",
+        "procedure_recursive_photon_b69e4f4c0a74"
+      ],
+      "status": "champion",
+      "steps": [
+        "recognise_existing_repair_family_inadequacy",
+        "derive_typed_repair_contract_from_residual_outcome",
+        "compose_private_repair_programs",
+        "execute_only_in_side_effect_free_sandbox",
+        "generate_counterexamples_and_resynthesise",
+        "verify_on_source_disjoint_portfolios",
+        "replay_protect_previous_project_repairs",
+        "abstain_outside_repair_grammar"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [
+    {
+      "candidate_program": [
+        "detect_change",
+        "direct_dependents",
+        "invalidate",
+        "rerun",
+        "verify"
+      ],
+      "expected": {
+        "affected": [
+          "analysis",
+          "decision",
+          "manifest",
+          "report"
+        ],
+        "decision": "complete",
+        "repaired": [
+          "analysis",
+          "decision",
+          "manifest",
+          "report"
+        ],
+        "verified": true
+      },
+      "observed": {
+        "affected": [
+          "analysis"
+        ],
+        "decision": "complete",
+        "repaired": [
+          "analysis"
+        ],
+        "verified": true
+      },
+      "payload_hash": "8de159852aaeeedf7a2ad7e589e3cb67182637bdb69e59fb66fc1d6775a9f2ab",
+      "repair_family": "transitive_revision_repair",
+      "tool_id": "project_repair_5da7d48e8a28abc8"
+    },
+    {
+      "candidate_program": [
+        "raw_vote",
+        "require_quorum",
+        "verify"
+      ],
+      "expected": {
+        "decision": "abstain",
+        "value": null,
+        "verified": true
+      },
+      "observed": {
+        "decision": "supported",
+        "value": "accept",
+        "verified": true
+      },
+      "payload_hash": "538774d9b5213de02a9cd546f6c11ec8f39eb6e57d9e8742b1ed968a893785e7",
+      "repair_family": "independent_evidence_quorum",
+      "tool_id": "project_repair_2be9e62ebea5ee53"
+    },
+    {
+      "candidate_program": [
+        "read_cached",
+        "require_fresh",
+        "verify"
+      ],
+      "expected": {
+        "decision": "authorized",
+        "verified": true
+      },
+      "observed": {
+        "decision": "abstain",
+        "verified": true
+      },
+      "payload_hash": "e11469fc2932e0c9bf0fad636c7cf1208f8f284825e0e4183c318a020d9704ba",
+      "repair_family": "commit_time_authority_refresh",
+      "tool_id": "project_repair_0fee4db279ba62a4"
+    }
+  ],
+  "project_repair_invention_sessions": [
+    {
+      "created_at": "2026-07-30T19:15:57.256343+00:00",
+      "gate": {
+        "accepted": true,
+        "counterexamples_generated": 3,
+        "errors": [],
+        "malicious_opcodes_rejected": 1.0,
+        "mean_sealed_accuracy": 1.0,
+        "out_of_grammar_abstention": true,
+        "phase59_backward_retention": 1.0,
+        "phase59_unsafe_commitments": 0,
+        "repair_families_invented": 3,
+        "restart_required": true,
+        "source_identity_overlap": 0,
+        "unsafe_side_effects": 0,
+        "weakest_repair_accuracy": 1.0
+      },
+      "repair_tool_ids": [
+        "project_repair_5da7d48e8a28abc8",
+        "project_repair_2be9e62ebea5ee53",
+        "project_repair_0fee4db279ba62a4"
+      ],
+      "schema_version": "aion.hexcore.project_repair_invention_session.v1",
+      "session_id": "repair_session_5a3ea473ca8e2850",
+      "source_procedure": "procedure_outcome_grounded_projects_f314900848fe"
+    }
+  ],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "1bdbc3bc47c2a45d51f1553d5c945a400c250e7e70156c7d12088ee07647b3ca",
+      "goal": "open_project_repair_invention",
+      "new_champion_id": "procedure_open_repair_invention_310ba8fcee06",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 2.0,
+      "timestamp": "2026-07-30T19:15:57.256643+00:00"
+    },
+    {
+      "evidence_hash": "19c61145b500cf5aa05e672391aaec9145455e1c0ace082a8c5bf8acd455698d",
+      "goal": "compound_project_repair_composition",
+      "new_champion_id": "procedure_compound_project_repair_077066167290",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 2.0,
+      "timestamp": "2026-07-30T19:16:26.603545+00:00"
+    },
+    {
+      "evidence_hash": "0977149eb135564bd21ce6ce941e74a857509a1dfd5a706bcb120f1ebc110b9a",
+      "goal": "learned_repair_contract_discovery",
+      "new_champion_id": "procedure_learned_repair_contracts_79b4d663777a",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 2.0,
+      "timestamp": "2026-07-30T19:16:56.387525+00:00"
+    },
+    {
+      "evidence_hash": "8a941e4ce7ff716a7f0c5d72a8900b61192bce6f3e03577455230b234bdc9848",
+      "goal": "learned_repair_interference_and_ordering",
+      "new_champion_id": "procedure_learned_repair_interference_aa6e13558060",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 2.0,
+      "timestamp": "2026-07-30T19:17:25.875666+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "real_file_projects": {},
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [
+    {
+      "experiment_id": "interference_15193fed8e2d4676",
+      "forward": {
+        "facts": [
+          "artifacts_fresh",
+          "authority_stale",
+          "evidence_conflict",
+          "evidence_resolved",
+          "source_changed"
+        ],
+        "score": 2,
+        "sequence": [
+          "repair_revision",
+          "resolve_conflict"
+        ],
+        "traces": [
+          {
+            "added": [
+              "artifacts_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 3,
+            "removed": [],
+            "skill": "repair_revision"
+          },
+          {
+            "added": [
+              "evidence_resolved"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [],
+            "skill": "resolve_conflict"
+          }
+        ]
+      },
+      "information_gain_bits": 1.0,
+      "learned_ordering": [
+        "repair_revision",
+        "resolve_conflict"
+      ],
+      "observed_at": "2026-07-30T19:17:25.869217+00:00",
+      "reverse": {
+        "facts": [
+          "artifacts_fresh",
+          "authority_stale",
+          "evidence_conflict",
+          "source_changed"
+        ],
+        "score": 1,
+        "sequence": [
+          "resolve_conflict",
+          "repair_revision"
+        ],
+        "traces": [
+          {
+            "added": [
+              "evidence_resolved"
+            ],
+            "after_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 2,
+            "removed": [],
+            "skill": "resolve_conflict"
+          },
+          {
+            "added": [
+              "artifacts_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [
+              "evidence_resolved"
+            ],
+            "skill": "repair_revision"
+          }
+        ]
+      },
+      "skills": [
+        "repair_revision",
+        "resolve_conflict"
+      ]
+    },
+    {
+      "experiment_id": "interference_ce4e096133bf5888",
+      "forward": {
+        "facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "evidence_conflict",
+          "source_changed"
+        ],
+        "score": 2,
+        "sequence": [
+          "repair_revision",
+          "refresh_authority"
+        ],
+        "traces": [
+          {
+            "added": [
+              "artifacts_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 3,
+            "removed": [],
+            "skill": "repair_revision"
+          },
+          {
+            "added": [
+              "authority_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 3,
+            "removed": [
+              "authority_stale"
+            ],
+            "skill": "refresh_authority"
+          }
+        ]
+      },
+      "information_gain_bits": 1.0,
+      "learned_ordering": [
+        "repair_revision",
+        "refresh_authority"
+      ],
+      "observed_at": "2026-07-30T19:17:25.871552+00:00",
+      "reverse": {
+        "facts": [
+          "artifacts_fresh",
+          "authority_stale",
+          "evidence_conflict",
+          "source_changed"
+        ],
+        "score": 1,
+        "sequence": [
+          "refresh_authority",
+          "repair_revision"
+        ],
+        "traces": [
+          {
+            "added": [
+              "authority_fresh"
+            ],
+            "after_facts": [
+              "authority_fresh",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 0,
+            "removed": [
+              "authority_stale"
+            ],
+            "skill": "refresh_authority"
+          },
+          {
+            "added": [
+              "artifacts_fresh",
+              "authority_stale"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_fresh",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 3,
+            "removed": [
+              "authority_fresh"
+            ],
+            "skill": "repair_revision"
+          }
+        ]
+      },
+      "skills": [
+        "repair_revision",
+        "refresh_authority"
+      ]
+    },
+    {
+      "experiment_id": "interference_7d771ebb35c9c28f",
+      "forward": {
+        "facts": [
+          "authority_fresh",
+          "evidence_conflict",
+          "evidence_resolved",
+          "source_changed"
+        ],
+        "score": 2,
+        "sequence": [
+          "resolve_conflict",
+          "refresh_authority"
+        ],
+        "traces": [
+          {
+            "added": [
+              "evidence_resolved"
+            ],
+            "after_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 2,
+            "removed": [],
+            "skill": "resolve_conflict"
+          },
+          {
+            "added": [
+              "authority_fresh"
+            ],
+            "after_facts": [
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "clock": 2,
+            "removed": [
+              "authority_stale"
+            ],
+            "skill": "refresh_authority"
+          }
+        ]
+      },
+      "information_gain_bits": 1.0,
+      "learned_ordering": [
+        "resolve_conflict",
+        "refresh_authority"
+      ],
+      "observed_at": "2026-07-30T19:17:25.871570+00:00",
+      "reverse": {
+        "facts": [
+          "authority_stale",
+          "evidence_conflict",
+          "evidence_resolved",
+          "source_changed"
+        ],
+        "score": 1,
+        "sequence": [
+          "refresh_authority",
+          "resolve_conflict"
+        ],
+        "traces": [
+          {
+            "added": [
+              "authority_fresh"
+            ],
+            "after_facts": [
+              "authority_fresh",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 0,
+            "removed": [
+              "authority_stale"
+            ],
+            "skill": "refresh_authority"
+          },
+          {
+            "added": [
+              "authority_stale",
+              "evidence_resolved"
+            ],
+            "after_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_fresh",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 2,
+            "removed": [
+              "authority_fresh"
+            ],
+            "skill": "resolve_conflict"
+          }
+        ]
+      },
+      "skills": [
+        "resolve_conflict",
+        "refresh_authority"
+      ]
+    }
+  ],
+  "repair_interference_generations": {
+    "generation_1": {
+      "edges": [
+        [
+          "repair_revision",
+          "resolve_conflict"
+        ]
+      ],
+      "experiments": 1,
+      "generation": 1,
+      "plan": [
+        "repair_revision",
+        "resolve_conflict"
+      ],
+      "promotable": true,
+      "skills": [
+        "repair_revision",
+        "resolve_conflict"
+      ]
+    },
+    "generation_2": {
+      "backward_retention": 1.0,
+      "development_accuracy": 1.0,
+      "generation": 2,
+      "new_edges": [
+        [
+          "repair_revision",
+          "refresh_authority"
+        ],
+        [
+          "resolve_conflict",
+          "refresh_authority"
+        ]
+      ],
+      "new_skill": "refresh_authority",
+      "plan": [
+        "repair_revision",
+        "resolve_conflict",
+        "refresh_authority",
+        "commit_project"
+      ],
+      "promotable": true,
+      "replay_edges": [
+        [
+          "repair_revision",
+          "resolve_conflict"
+        ]
+      ]
+    }
+  },
+  "repair_interference_models": {
+    "interference_model_297dab56400d7b46": {
+      "learned_edges": [
+        [
+          "repair_revision",
+          "resolve_conflict"
+        ],
+        [
+          "repair_revision",
+          "refresh_authority"
+        ],
+        [
+          "resolve_conflict",
+          "refresh_authority"
+        ]
+      ],
+      "model_id": "interference_model_297dab56400d7b46",
+      "observed_effects": {
+        "refresh_authority": {
+          "adds": [
+            "authority_fresh"
+          ],
+          "duration": 0
+        },
+        "repair_revision": {
+          "adds": [
+            "artifacts_fresh"
+          ],
+          "duration": 3,
+          "may_remove": [
+            "evidence_resolved",
+            "authority_fresh"
+          ]
+        },
+        "resolve_conflict": {
+          "adds": [
+            "evidence_resolved"
+          ],
+          "duration": 2,
+          "may_remove": [
+            "authority_fresh"
+          ]
+        }
+      },
+      "status": "promoted"
+    }
+  },
+  "revision": 16,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T19:17:25.880593+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

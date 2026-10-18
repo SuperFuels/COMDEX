@@ -1,0 +1,1212 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=22mm,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\definecolor{AionBlue}{HTML}{126E82}
+\definecolor{AionNavy}{HTML}{17324D}
+\definecolor{AionLight}{HTML}{EAF5F7}
+\definecolor{AionGrey}{HTML}{5D6872}
+\definecolor{CodeBg}{HTML}{F4F6F7}
+\definecolor{WarningBg}{HTML}{FFF4DD}
+\definecolor{RiskRed}{HTML}{A63A3A}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=AionNavy,
+  urlcolor=AionBlue,
+  pdftitle={AION Native English Intelligence Architecture and Operations},
+  pdfauthor={Tessaris / AION Engineering}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{AION Native English Intelligence}
+\rhead{Architecture and Operations}
+\cfoot{\thepage}
+
+\setlist[itemize]{leftmargin=*,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=*,itemsep=2pt,topsep=3pt}
+\renewcommand{\arraystretch}{1.18}
+
+\lstdefinestyle{aioncode}{
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{AionLight},
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+\lstset{style=aioncode}
+
+\newcommand{\statusbox}[1]{%
+  \begin{center}
+  \fcolorbox{AionBlue}{AionLight}{\parbox{0.92\textwidth}{#1}}
+  \end{center}}
+
+\newcommand{\warningbox}[1]{%
+  \begin{center}
+  \fcolorbox{RiskRed}{WarningBg}{\parbox{0.92\textwidth}{#1}}
+  \end{center}}
+
+\title{\textcolor{AionNavy}{\Huge AION Native English Intelligence}\\[4mm]
+\Large Architecture, Learning Governance, Storage and Operations}
+\author{Tessaris / AION Engineering}
+\date{Architecture baseline: 7 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document records the design and operational state of AION's restored native English
+intelligence layer. The system combines a verified local lexical and semantic store, a
+model-free student and examiner, a governed local Qwen teacher, a fifteen-layer curriculum,
+and a native symbolic conversation pipeline that parses, retrieves, reasons, plans and
+realises English without next-token prediction. It also
+documents the removable-media deployment, database schema, source files, service controls,
+tests, recovery procedures, known limitations, and the conditions under which AION may claim
+progress. The central design rule is that Qwen may teach curriculum material but may not
+answer AION's examinations, compose or polish conversational answers, participate in answer
+checking, or award AION competence.
+\end{abstract}
+
+\statusbox{\textbf{Operational snapshot, 7 October 2026.} The SD-resident native store
+contains 147,306 verified lexemes, 982,850 semantic relations, 223 separated teacher lessons
+and 2,438 closed-book attempts at 99.1\% recorded accuracy. AION has completed the original
+seven-layer foundation and is on layer 9 of 15, \texttt{paragraph\_comprehension}, with one of
+two required qualifying passes. The native conversation ledger contains 241 turns and six
+self-improvement cycles. The service is healthy, the SD store is mounted with 13.78 GiB free,
+and native conversational responses declare no Qwen, model, cloud, external polisher or
+next-token-prediction route. These are dated measurements, not permanent capability claims.}
+
+\tableofcontents
+\newpage
+
+\section{Purpose and Scope}
+
+The goal is to make English knowledge part of AION's own durable cognitive substrate rather
+than making every English question a disguised call to a generative model. The implemented
+system restores the earlier lexical-conceptual intention---definitions, relationships,
+context and continuous self-training---while connecting it to the current Learning Centre,
+governance gates, desktop interface and local-model infrastructure.
+
+This implementation is intentionally narrower than a claim of human-level language
+understanding. It establishes and tests lexical grounding, semantic relations, contrasts,
+context completion, mixed transfer, sentence semantics, discourse reasoning and a sequence
+of advanced free-response layers. It also supplies a usable native conversation surface.
+The remaining limitation is breadth: the symbolic parser, verified fact base and native
+grammar must continue expanding before unrestricted general conversation can be claimed.
+
+\subsection{What ``native'' means here}
+
+In this document, \emph{native English intelligence} means that AION can retrieve, compare,
+associate and answer supported English questions using its own local structured memory and
+deterministic reasoning path. For a native examination:
+
+\begin{itemize}
+  \item no cloud service is used;
+  \item Qwen is not called by the student path;
+  \item the expected answer is withheld until after the student response;
+  \item grading is deterministic;
+  \item reinforcement is subject to the Cognitive Authority Unit (CAU); and
+  \item the evidence is bounded to the tested subskills and task family.
+\end{itemize}
+
+\subsection{What the implementation does not claim}
+
+The system does not yet prove unrestricted conversation, broad commonsense or human-level
+pragmatic judgement. It now performs controlled compositional parsing, reference resolution,
+paragraph inference and pragmatic tests, but success is evidence only for the named sealed
+families. The architecture preserves this distinction in promotion logic, provenance and
+explicit abstention.
+
+\section{System Architecture}
+
+The architecture is a governed teacher--student system with four independent roles.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{0.18\textwidth} X}
+\toprule
+Role & Responsibility \\
+\midrule
+Qwen teacher & Receives the goal, complete curriculum, current stage, verified study targets,
+native-memory statistics and previous closed-book results. It creates explanations,
+contrasts, examples and guided study material. \\
+AION student & Answers supported exercises from the native SQLite lexicon and semantic
+relations. It never receives the expected-answer field. \\
+Native examiner & Generates deterministic tasks, withholds the answer key, compares the
+student response with verified ground truth, and records the result. \\
+Learning Centre & Decides which subject contracts run, accepts only bounded evidence,
+tracks covered subskills and controls broader curriculum advancement. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The runtime flow is:
+
+\begin{enumerate}
+  \item Load the current curriculum state and native lexical statistics.
+  \item Select verified terms appropriate to the active curriculum stage.
+  \item Present Qwen with the global goal, full curriculum, stage, targets and prior results.
+  \item Store Qwen's response as a \emph{teacher lesson}; it is explicitly marked as not being
+        examination evidence.
+  \item Close the teacher interaction.
+  \item Generate a new native examination with a withheld answer key.
+  \item Let AION answer from its local lexicon and relation graph.
+  \item Grade deterministically and consult CAU before reinforcement.
+  \item Update stage history. Two qualifying stage passes are required before promotion.
+  \item Expose the bounded result to the Learning Centre and service status.
+\end{enumerate}
+
+\subsection{Why this resembles distillation}
+
+The design is curriculum-driven capability transfer. It resembles model distillation because
+a more capable teacher shapes a bounded student. It differs from conventional neural
+distillation because knowledge is currently transferred into structured memory, semantic
+relations, practice history and verified skills rather than directly into smaller neural
+weights. A future fine-tuning phase could consume verified records, but that is not part of
+the present implementation.
+
+\section{Core Native Lexical Runtime}
+
+The principal runtime is:
+
+\begin{quote}
+\path{backend/modules/aion_cognition/native_lexical_intelligence.py}
+\end{quote}
+
+It defines \texttt{NativeLexicalIntelligence}, schema version 3. The class owns storage,
+ingestion, lookup, semantic relation queries, native question answering, task generation,
+student answering, grading, governed reinforcement and statistics.
+
+\subsection{Supported native operations}
+
+\begin{longtable}{p{0.25\textwidth} p{0.67\textwidth}}
+\toprule
+Operation & Behaviour \\
+\midrule
+\endhead
+\texttt{lookup} & Retrieves the normalized lemma, part of speech, definitions, examples,
+source, verification state and strongest semantic relations. \\
+\texttt{related} & Retrieves synonym, antonym, hypernym, hyponym or derivational relations,
+ordered by absolute relation strength. \\
+\texttt{compare} & Compares two known entries using direct relations and definition-token
+overlap. \\
+\texttt{context} & Ranks a word's known definitions against the surrounding sentence tokens. \\
+\texttt{answer} & Handles bounded requests including definitions, synonyms, antonyms,
+comparisons and the explicit context query form. \\
+\texttt{generate\_tasks} & Creates definition, synonym, antonym, context-completion or mixed
+tasks from verified entries. \\
+\texttt{answer\_task} & Executes the student path using only the prompt, choices and permitted
+metadata. The expected answer is absent. \\
+\texttt{run\_practice\_cycle} & Generates tasks, obtains student answers, grades them, records
+attempts and reinforces only correct CAU-authorized results. \\
+\texttt{record\_teacher\_lesson} & Stores teacher material in a separate table and labels it as
+not counting toward exam evidence. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Normalization and scoring}
+
+Lemmas are lower-cased, underscores are converted to spaces, and repeated whitespace is
+collapsed. Definition matching and context completion use token overlap against stored
+definitions and examples. Synonym and antonym questions use verified graph edges. This is a
+transparent baseline rather than a neural semantic encoder; its strengths and weaknesses can
+therefore be inspected exactly.
+
+\section{Database Design}
+
+The active database is:
+
+\begin{quote}
+\path{/Volumes/TESSARISQ38/TessarisLearning/AION/native_lexical_intelligence.sqlite3}
+\end{quote}
+
+SQLite is used because it is local, portable, transactional, inspectable and does not require
+a database server. The SD-card runtime deliberately uses rollback journal mode
+\texttt{DELETE} with \texttt{synchronous=FULL}; WAL is avoided because removable filesystems
+may not provide reliable shared-memory sidecars. Internal-disk fallback uses WAL with normal
+synchronisation. The database now contains both lexical-learning and native-conversation
+structures.
+
+\subsection{Lexemes}
+
+The \texttt{lexemes} table has one row per normalized lemma. Important columns are:
+
+\begin{itemize}
+  \item \texttt{lemma}: primary key;
+  \item \texttt{part\_of\_speech};
+  \item \texttt{definition} and \texttt{definitions\_json};
+  \item \texttt{examples\_json};
+  \item \texttt{source} and \texttt{source\_ref};
+  \item \texttt{verified};
+  \item \texttt{reinforcement\_count}; and
+  \item creation and update epochs.
+\end{itemize}
+
+\subsection{Semantic relations}
+
+The \texttt{relations} table is keyed by source lemma, relation type and target lemma. Supported
+relation types currently include synonym, antonym, hypernym, hyponym and derivation. Each edge
+stores its strength, source and verification flag. An index supports efficient source-and-type
+queries.
+
+\subsection{Practice attempts}
+
+The \texttt{practice\_attempts} table is the auditable closed-book record. It stores task ID,
+family, lemma, prompt, student answer, expected answer, correctness, CAU authorization,
+project family and timestamp. The expected answer is stored only after the student answer is
+produced; it is not present in the student's input mapping.
+
+\subsection{Teacher lessons}
+
+The \texttt{teacher\_lessons} table deliberately separates teaching from evidence. It stores
+the stage, lesson JSON, referenced lemmas, teacher model, count of verified references,
+authority status and timestamp. A lesson can improve study exposure, but the row cannot by
+itself raise a competency level.
+
+\subsection{Metadata}
+
+The \texttt{metadata} table records the schema version and last-ingest epoch. It provides a
+small migration and operational anchor without mixing system metadata into lexical entries.
+
+\section{Corpus and Provenance}
+
+The restored base corpus is Princeton WordNet 3.0, imported through NLTK. The ingestion helper
+\texttt{wordnet\_records} aggregates synsets into lemma records and derives definitions,
+examples, synonyms, antonyms, hypernyms, hyponyms and derivational links.
+
+The import snapshot produced:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Verified lexemes & 147,306 \\
+Semantic relations & 982,850 \\
+Skipped records & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The downloaded source corpus is retained at:
+
+\begin{quote}
+\path{/Volumes/TESSARISQ38/TessarisLearning/AION/nltk_data}
+\end{quote}
+
+The generated SQLite database is the runtime dependency. NLTK is needed for rebuilding or
+extending the WordNet import, but ordinary lookup and examination use the Python standard
+library and SQLite.
+
+\warningbox{WordNet provides broad lexical coverage, not complete modern conversational
+English and not verified world knowledge. Some lemmas are obscure, historical, multiword or
+domain-specific. Future portfolio sampling should include frequency bands and curated modern
+usage sets so perfect performance is not dominated by internally familiar dictionary edges.}
+
+\section{The Qwen Teacher}
+
+The teacher orchestration is implemented in:
+
+\begin{quote}
+\path{backend/modules/aion_cognition/native_english_teacher.py}
+\end{quote}
+
+The teacher prompt contains five essential parts:
+
+\begin{enumerate}
+  \item the permanent goal;
+  \item the complete ordered curriculum;
+  \item the active stage;
+  \item AION's current memory and prior closed-book results; and
+  \item a bounded set of verified study targets and definitions.
+\end{enumerate}
+
+Qwen is asked to return a compact JSON lesson containing an objective, explanation, contrasts,
+examples, guided practice, referenced lemmas and next focus. Teacher output is treated as a
+proposal. Referenced terms are checked against the native lexicon, and the lesson is stored
+separately from verified facts and examination evidence.
+
+\subsection{Local model configuration}
+
+The teacher uses the approved bounded local package:
+
+\begin{itemize}
+  \item model ID: \texttt{qwen3-8b-fast-local-q4};
+  \item runtime adapter: \texttt{openai\_compatible\_bounded\_chat.v1};
+  \item endpoint: \url{http://127.0.0.1:8897};
+  \item context size: 4096;
+  \item parallel slots: 1;
+  \item maximum output tokens: 320;
+  \item network fallback: disabled;
+  \item tool execution: disabled; and
+  \item finance arithmetic: forced through separately verified Tessaris tools.
+\end{itemize}
+
+The exact packaged weight is located under:
+
+\begin{quote}
+\path{/Volumes/TESSARISQ38/TessarisModelPackages/qwen3-8b-fast-local/weights/}
+\end{quote}
+
+The runtime normally requires a fully selectable verified installation. One carefully bounded
+exception is implemented for an already-running server: if the SD warehouse is verified, the
+model path exists, the only preflight failure is insufficient internal free-space reserve, and
+the declared loopback health endpoint is responsive, AION may reuse that already-loaded exact
+runtime. It may not use this exception for hash, warehouse, model-source, architecture or
+memory failures.
+
+\section{Curriculum and Promotion}
+
+The staged curriculum is defined in \texttt{native\_english\_teacher.py}.
+
+\begin{longtable}{p{0.05\textwidth} p{0.25\textwidth} p{0.36\textwidth} p{0.10\textwidth} p{0.10\textwidth}}
+\toprule
+No. & Stage ID & Focus & Minimum & Threshold \\
+\midrule
+\endhead
+1 & \texttt{lexical\_foundations} & Word meaning and definition matching & 24 & 0.82 \\
+2 & \texttt{semantic\_relations} & Synonyms and concept relations & 32 & 0.82 \\
+3 & \texttt{semantic\_contrasts} & Antonyms and fine-grained contrasts & 32 & 0.82 \\
+4 & \texttt{contextual\_meaning} & Meaning in unfamiliar sentence context & 40 & 0.84 \\
+5 & \texttt{mixed\_transfer} & Mixed lexical transfer without teacher access & 48 & 0.86 \\
+6 & \texttt{sentence\_semantics} & Entities, actions, properties, tense and negation & 64 & 0.88 \\
+7 & \texttt{discourse\_reasoning} & Reference, ambiguity, argument and pragmatics & 80 & 0.90 \\
+8 & \texttt{compositional\_syntax} & Complex clauses and compositional syntax & 80 & 0.90 \\
+9 & \texttt{paragraph\_comprehension} & Paragraph meaning and causal sequence & 96 & 0.90 \\
+10 & \texttt{unseen\_document\_qa} & Unseen-document reading and exact retrieval & 96 & 0.92 \\
+11 & \texttt{dialogue\_tracking} & Multi-turn reference and instruction tracking & 96 & 0.92 \\
+12 & \texttt{ambiguity\_pragmatics} & Implication and calibrated uncertainty & 96 & 0.90 \\
+13 & \texttt{explanation\_generation} & Grounded explanation in AION's own words & 96 & 0.90 \\
+14 & \texttt{error\_correction} & Grammar diagnosis and precise correction & 96 & 0.94 \\
+15 & \texttt{cross\_domain\_transfer} & Cross-domain reasoning and reliability & 128 & 0.92 \\
+\bottomrule
+\end{longtable}
+
+For a stage with threshold $\tau$ and minimum attempt count $N_{\min}$, a stage pass is:
+
+\[
+\mathrm{StagePass} =
+  (N \geq N_{\min}) \land
+  (U \geq N_{\min}) \land
+  \left(\frac{C}{N} \geq \tau\right) \land
+  E_{\mathrm{current}} \land W \land M_{0} \land A,
+\]
+
+where $U$ is the number of unique tasks, $E_{\mathrm{current}}$ means the current examination
+also meets the threshold, $W$ means the answer key was withheld, $M_0$ means no model or cloud
+route was used by the student, and $A$ is CAU authorization. Layers 6--15 additionally require
+the minimum number of source-disjoint attempts. Layers 8--15 require free responses rather
+than answer selection. Promotion requires two consecutive qualifying passes. The teacher does
+not participate in this calculation.
+
+The version-3 migration preserves the completed seven-layer foundation. A prior state with
+\texttt{curriculum\_complete=true} at layer 7 becomes
+\texttt{foundation\_curriculum\_complete=true}, moves to layer 8 and reopens the expanded
+curriculum without deleting previous evidence.
+
+\section{Closed-Book Examination Guarantees}
+
+Every generated \texttt{LexicalTask} contains an expected answer internally, but
+\texttt{student\_view()} removes it. The student receives only the task ID, task family,
+prompt, choices and---only when needed for relation queries---the lemma. Grading occurs after
+\texttt{answer\_task()} returns.
+
+The teacher cycle emits the following explicit invariants:
+
+\begin{itemize}
+  \item \texttt{teacher\_saw\_exam\_answer\_key = false};
+  \item \texttt{teacher\_graded\_exam = false};
+  \item \texttt{model\_used\_for\_student\_answers = false}; and
+  \item \texttt{lesson\_counts\_as\_competence\_evidence = false}.
+\end{itemize}
+
+These flags are useful audit assertions, but the stronger guarantee is structural: the call to
+the teacher finishes before the independent practice-cycle call begins, and the practice call
+does not accept a teacher callback or lesson payload.
+
+\section{Cognitive Authority and Reinforcement}
+
+Native learning consults:
+
+\begin{quote}
+\path{backend/modules/aion_cognition/cau_authority.py}
+\end{quote}
+
+CAU can permit reading while denying reinforcement. This matters because AION should remain
+able to answer from existing verified memory during an unstable state, while being prevented
+from writing new reinforcement when coherence or stability conditions fail. The practice
+record preserves whether learning authority was available for each attempt.
+
+The current live snapshot reported high stability and allowed native lexical learning. Those
+values are runtime conditions, not constants; denial must remain fail-closed if CAU is
+unavailable.
+
+\section{Learning Centre Integration}
+
+The closed-book project authority is implemented in:
+
+\begin{quote}
+\path{backend/modules/hexcore/native_english_competency_portfolio.py}
+\end{quote}
+
+It provides eight versioned project families spanning definitions, synonyms, antonyms,
+context and mixed transfer. A project is accepted only when it has at least 12 trials, a score
+of at least 0.75, a withheld answer key, no student model use and CAU authorization. It emits
+bounded evidence authorities:
+
+\begin{itemize}
+  \item \texttt{native\_lexical\_memory};
+  \item \texttt{withheld\_answer\_key}; and
+  \item \texttt{cau\_learning\_gate}.
+\end{itemize}
+
+The English project route in
+\path{backend/modules/hexcore/progressive_competency_executor.py} now uses this portfolio
+instead of the old Python-snippet English simulation. The executor also records the actual
+trial count and authority returned by this portfolio rather than incorrectly labelling it as
+a Python subprocess and security scan.
+
+The English subject registry in
+\path{backend/modules/hexcore/constitutional_north_star_mastery_registry.py} now includes:
+
+\begin{itemize}
+  \item lexical grounding;
+  \item semantic relations;
+  \item morphology;
+  \item syntax;
+  \item sentence semantics;
+  \item reference resolution; and
+  \item native question answering;
+\end{itemize}
+
+alongside the existing instruction, document, argument, ambiguity, correction, generation,
+pragmatic and dialogue subskills. The migration in
+\path{backend/modules/hexcore/progressive_competency_system.py} merges newly declared
+subskills into persisted subject state without erasing existing evidence.
+
+\section{Continuous Service Operation}
+
+The persistent service is:
+
+\begin{quote}
+\path{backend/AION/system/aion_mastery_curriculum_service.py}
+\end{quote}
+
+It starts a single-worker background teacher pool before the longer Learning Centre startup
+work. This prevents a slow Qwen response from blocking the main curriculum loop. The default
+teacher interval is 300 seconds, with a hard minimum of 60 seconds. Results appear in the
+service status under \texttt{native\_english\_teacher}.
+
+The service is supervised by:
+
+\begin{quote}
+\path{backend/AION/system/aion_heartbeat.py}
+\end{quote}
+
+and on the current Mac runs under the launch agent
+\texttt{com.tessaris.aion.heartbeat}. The supervisor restarts the mastery service if its
+process terminates.
+
+\subsection{Environment controls}
+
+\begin{longtable}{p{0.36\textwidth} p{0.54\textwidth}}
+\toprule
+Variable & Meaning \\
+\midrule
+\endhead
+\texttt{AION\_NATIVE\_ENGLISH\_TEACHER} & Set to \texttt{0}, \texttt{false} or
+\texttt{False} to disable continuous teacher dispatch. Default is enabled. \\
+\texttt{AION\_NATIVE\_ENGLISH\_TEACHER\_INTERVAL} & Seconds between dispatches. Default 300;
+minimum 60. \\
+\texttt{AION\_NATIVE\_LEXICON\_DB} & Explicit absolute database path. This takes precedence
+over automatic SD discovery. \\
+\texttt{AION\_REPO\_ROOT} & Repository root used by persistent services. \\
+\texttt{TESSARIS\_LOCAL\_MODEL\_ROOTS} & Optional colon-separated additional model-vault
+scan roots. \\
+\bottomrule
+\end{longtable}
+
+\section{Question and Dashboard Integration}
+
+The dashboard action layer is:
+
+\begin{quote}
+\path{backend/modules/aion_dashboard/actions.py}
+\end{quote}
+
+Its \texttt{ask} action now calls native lexical answering rather than the prior canned or
+random query path. Its \texttt{teach} action runs native closed-book practice instead of
+passing the expected answer directly to a shallow evaluator.
+
+The current desktop/local-node route is:
+
+\begin{quote}
+\path{backend/modules/local_node/local_node_runtime.py}
+\end{quote}
+
+The older general desktop chat route gives native lexical lookup first refusal and may send an
+unhandled question to a selected local model. That route must not be confused with the new
+native-English conversation contract. The dedicated
+\texttt{/english-intelligence/conversation/ask} route never falls back to a model: it answers,
+asks for clarification or abstains. Native AION speech and model-assisted desktop chat must
+remain visibly and technically distinct.
+
+As a verified example, the prompt ``What does inference mean?'' was answered directly from the
+WordNet-backed native entry and returned its definition and semantic relations without calling
+Qwen.
+
+\section{Native English Conversation Runtime}
+
+The new model-free speaking path is implemented in:
+
+\begin{quote}
+\path{backend/modules/aion_cognition/native_english_conversation.py}
+\end{quote}
+
+The class \texttt{NativeEnglishConversation} is deliberately not an LLM wrapper. It has no
+prompt builder, token sampler, completion client, embedding API, cloud client or polishing
+callback. A question passes through six explicit stages:
+
+\begin{enumerate}
+  \item \textbf{Parse}: normalize text and identify question intent, slots, tokens, tense,
+        negation, candidate entities, action, subject terms and object terms.
+  \item \textbf{Resolve context}: when a slot contains a reference such as ``it'', ``this''
+        or ``they'', inspect the latest answered turn in the same session and bind the
+        reference to a prior term, subject or object. Unresolved references cause
+        clarification rather than guessing.
+  \item \textbf{Retrieve}: consult verified lexical entries, verified semantic relations or
+        verified structured facts. Unverified teacher prose is not an answer source.
+  \item \textbf{Plan}: choose a symbolic answer act and assemble a proposition from retrieved
+        meanings and evidence identifiers.
+  \item \textbf{Realise}: convert the proposition into a grammatical surface sentence with
+        explicit rules for capitalization, punctuation, relation lists, comparisons,
+        explanations and factual clauses.
+  \item \textbf{Check}: require evidence, basic grammatical surface validity, balanced quoted
+        text and the absence of any model/cloud route. Unsupported questions are declined.
+\end{enumerate}
+
+This is meaning-plan-to-language generation. It does not predict a next token from a probability
+distribution. Selection still occurs---AION selects an intent, evidence set, answer plan and
+grammar rule---but those decisions are inspectable symbolic operations.
+
+\subsection{Native response contract}
+
+Every answer returns the parsed frame, status, confidence, evidence, checks and a generation
+receipt. The receipt is designed to be machine-auditable:
+
+\begin{lstlisting}
+{
+  "method": "symbolic_meaning_plan_and_rule_grammar",
+  "aion_generated": true,
+  "next_token_prediction": false,
+  "qwen_used": false,
+  "model_used": false,
+  "cloud_used": false,
+  "external_polisher_used": false
+}
+\end{lstlisting}
+
+These flags are backed by structure: the native conversation module imports the lexical
+runtime and SQLite only. It does not import the local-model runtime. A future integration must
+not weaken this boundary silently; tests should fail if a model route is introduced.
+
+\subsection{Supported conversational functions}
+
+\begin{longtable}{p{0.27\textwidth} p{0.64\textwidth}}
+\toprule
+Function & Current behaviour \\
+\midrule
+\endhead
+Definition & Produces ``The word X means Y'' from a verified lexical entry. \\
+Synonym/antonym & Retrieves verified relation edges and realises a bounded English list. \\
+Comparison & Retrieves both definitions, direct relations and shared semantic material before
+constructing the comparison. \\
+Known-about query & Summarizes a verified lexical concept and up to four relations. \\
+Structured fact query & Answers supported who/what/where/when/why forms from verified fact
+records and qualifiers. \\
+Session reference & Resolves selected pronouns and demonstratives from the latest answered turn
+within the same conversation session. \\
+Clarification & Requests a subject and requested information when the parse is ambiguous. \\
+Abstention & Says that verified knowledge is insufficient when the question is understood but
+the evidence store cannot support an answer. \\
+Audit & Persists question, parse, answer, status, confidence, evidence and checks. \\
+\bottomrule
+\end{longtable}
+
+The live two-turn acceptance check was:
+
+\begin{quote}
+\textbf{Question 1:} Define calm.\\
+\textbf{Native answer:} The word `calm' means (of weather) free from storm or wind.\\[2mm]
+\textbf{Question 2:} What does it mean?\\
+\textbf{Native answer:} The word `calm' means (of weather) free from storm or wind.
+\end{quote}
+
+The second result records \texttt{context.used=true}, the source turn identifier and
+\texttt{resolved\_to=calm}. Both answers report no model, Qwen, cloud, polisher or token
+prediction.
+
+\subsection{Verified fact interface}
+
+\texttt{remember\_fact} stores a subject, predicate, object, optional place/time/cause
+qualifiers, provenance and verification state. Mutation is CAU-gated. The public HTTP API does
+not expose an unrestricted ``mark this fact verified'' endpoint; this avoids allowing an
+arbitrary caller to poison AION's native truth store. Trusted subsystem adapters must supply
+source identity and verification before calling the internal method.
+
+At the dated snapshot the structured fact count is zero, so broad factual questions correctly
+abstain. This is a capability boundary, not a defect to hide: useful general answers require
+verified business, world, project and experiential facts to be bridged into this table or into
+another governed retriever implementing the same evidence contract.
+
+\section{Native Self-Improvement Programme}
+
+\texttt{self\_improvement\_cycle} provides continuous improvement without using Qwen or any
+other model as answerer, grader or editor. It has two initial mechanisms:
+
+\begin{enumerate}
+  \item retry open failures after memory changes and resolve them only when a new native answer
+        has verified evidence; and
+  \item generate paraphrases of verified definition questions and require both forms to return
+        the same answered state and evidence identity.
+\end{enumerate}
+
+The cycle is CAU-gated and records its own receipt. It returns
+\texttt{model\_used=false}, \texttt{cloud\_used=false} and
+\texttt{next\_token\_prediction=false}. Invalid internally generated probes are discarded
+instead of becoming permanent curriculum failures. The cycle is invoked after each teacher
+cycle and is also available as an explicit local API operation.
+
+\warningbox{``Self-improvement'' must not mean self-certification. AION may discover a gap,
+retry a question, test paraphrase consistency and reinforce an independently verified result.
+It may not convert its own unsupported sentence into truth merely because it generated the
+sentence repeatedly. This prevents autonomous error amplification.}
+
+The current design should expand through versioned mechanisms:
+
+\begin{itemize}
+  \item cluster failures by missing intent, grammar rule, reference type or knowledge source;
+  \item create remedial exercises from verified facts without exposing their answers;
+  \item test adversarial paraphrases, negation and minimally changed sentences;
+  \item schedule delayed retention at 1, 7, 30 and 90 days;
+  \item promote a new parser or grammar rule only after sealed regression tests pass; and
+  \item roll back a rule version when it reduces performance on unrelated held-out families.
+\end{itemize}
+
+\section{Advanced Examination Engine}
+
+Advanced model-free examinations are implemented in:
+
+\begin{quote}
+\path{backend/modules/aion_cognition/native_english_reasoning.py}
+\end{quote}
+
+The engine contains deterministic task construction and a student solver that receives only
+the prompt, response mode and non-answer metadata. Expected answers remain inside the examiner
+until the student response is returned. Sentence-semantics and discourse families use selected
+responses where appropriate. Layers 8--15 use free response and mark every task as
+source-disjoint from the WordNet-derived lexical curriculum.
+
+Eight advanced families currently provide 128 unique sealed situations each, for 1,024
+advanced free-response situations:
+
+\begin{itemize}
+  \item complex clauses and modifier scope;
+  \item paragraph cause and sequence;
+  \item unseen note reading with constrained calculation;
+  \item revised instructions across dialogue turns;
+  \item implication, ambiguity and explicit uncertainty;
+  \item evidence-grounded explanation;
+  \item tense and agreement correction; and
+  \item reliability reasoning across science, history, engineering, ecology, medicine,
+        finance, law and computing contexts.
+\end{itemize}
+
+Task identifiers hash the family, prompt, response space and expected answer. Mixed-radix
+selection and case variation avoid the short modulo cycles that would otherwise create many
+nominal attempts from a small number of semantic situations. Promotion counts distinct task
+identifiers, not just raw attempts.
+
+\section{Conversation Storage Schema}
+
+The native conversation tables share the SD-resident SQLite store so language memory remains
+portable with the lexical substrate:
+
+\begin{longtable}{p{0.34\textwidth} p{0.56\textwidth}}
+\toprule
+Table & Purpose \\
+\midrule
+\endhead
+\texttt{native\_english\_facts} & Verified subject--predicate--object propositions,
+qualifiers, provenance and timestamps. \\
+\texttt{native\_english\_turns} & Session, question, parse JSON, answer, status, confidence,
+evidence, checks and timestamp for every native turn. \\
+\texttt{native\_english\_failures} & Stable failure identity, question, reason, parse, retry
+count and lifecycle status. \\
+\texttt{native\_english\_improvement\_cycles} & Examined/resolved failure counts,
+paraphrase-consistency results, authority state and cycle details. \\
+\bottomrule
+\end{longtable}
+
+Conversation writes use short transactions and the same 30-second busy timeout as the lexical
+runtime. This is important because the SD card may be accessed simultaneously by the Learning
+Centre service and the desktop API. Rollback journalling avoids the previous WAL/SHM failure
+mode on removable media.
+
+\section{English Intelligence API and Panel}
+
+The HTTP surface and visual progress panel are implemented in:
+
+\begin{quote}
+\path{backend/api/aion_english_intelligence_router.py}
+\end{quote}
+
+\begin{longtable}{p{0.46\textwidth} p{0.44\textwidth}}
+\toprule
+Route & Function \\
+\midrule
+\endhead
+\texttt{GET /api/aion/english-intelligence/progress} & Read-only health, curriculum, storage,
+exam, Learning Centre and conversation metrics. \\
+\texttt{GET /api/aion/english-intelligence/panel} & Dark-theme operational panel with live
+refresh, curriculum layers and native conversation tester. \\
+\texttt{POST /api/aion/english-intelligence/conversation/ask} & Run one native conversation
+turn with a question and session identifier. \\
+\texttt{POST /api/aion/english-intelligence/conversation/improve} & Run one governed native
+self-improvement cycle. \\
+\bottomrule
+\end{longtable}
+
+The panel explicitly displays the proof boundary beneath every answer: confidence, verified
+evidence count and the statement ``Native Aion---no Qwen---no cloud---no token prediction.''
+It is intended as both a user test surface and an operational diagnostic.
+
+\section{Restored Legacy Components}
+
+The earlier Phase 41/advanced-cognition components remain for compatibility, but key defects
+were repaired:
+
+\begin{itemize}
+  \item \path{backend/modules/aion_language/query_resonance_api.py} now reads the same
+        \path{data/lexicons/language_resonance_matrix.json} location written by the exporter
+        and unwraps the export's \texttt{matrix} object.
+  \item \path{backend/modules/aion_language/thesaurus_linker.py} now uses deterministic
+        synonym and antonym strengths rather than time-varying sine values.
+  \item \path{backend/modules/aion_cognition/advanced_cognition/lexical_task_runner.py} now
+        routes compatibility task sets through the governed native examiner. It no longer
+        picks synonym answers randomly, compares a definition directly with its lemma string,
+        or manufactures random SQI and stability values.
+\end{itemize}
+
+\section{SD-Card Deployment}
+
+\subsection{What is stored on the SD card}
+
+The SD card currently contains two different classes of assets:
+
+\begin{enumerate}
+  \item \textbf{Teacher model assets}: the verified Qwen package and its warehouse manifest
+        under \path{/Volumes/TESSARISQ38/TessarisModelPackages/}.
+  \item \textbf{Native English assets}: the SQLite intelligence store and retained NLTK corpus
+        under \path{/Volumes/TESSARISQ38/TessarisLearning/AION/}.
+\end{enumerate}
+
+The AION codebase, curriculum definitions, most competency records, teacher-cycle state and
+most other AION memories remain in the Mac repository. The SD card is therefore an attached
+language/model volume, not the whole AION system.
+
+\subsection{Automatic database resolution}
+
+Database resolution follows this order:
+
+\begin{enumerate}
+  \item use \texttt{AION\_NATIVE\_LEXICON\_DB} when explicitly configured;
+  \item scan mounted volumes for
+        \path{TessarisLearning/AION/native_lexical_intelligence.sqlite3};
+  \item otherwise use \path{data/aion/native_lexical_intelligence.sqlite3} under the repository.
+\end{enumerate}
+
+The SD deployment was chosen when internal temporary space was critically low. At the dated
+snapshot used for this document, the generated database was approximately 192 MB, the retained
+NLTK corpus approximately 36 MB, the SD volume had approximately 14 GiB available, and macOS
+later reported approximately 7.6 GiB internally available after system cleanup. Capacity is
+dynamic and must be checked before copying the database back to the Mac.
+
+\warningbox{Current operational risk: if the SD card is absent and no explicit database path
+is set, resolution can fall back to a new or existing internal repository database. That can
+look like an empty AION rather than a disconnected memory volume. A fail-loud mount manifest
+and user-visible ``English memory unavailable'' status should be implemented before production
+deployment.}
+
+\subsection{Mount and health checks}
+
+The following read-only checks establish whether the expected assets are visible:
+
+\begin{lstlisting}[language=bash]
+test -f /Volumes/TESSARISQ38/TessarisLearning/AION/native_lexical_intelligence.sqlite3
+test -f /Volumes/TESSARISQ38/TessarisModelPackages/qwen3-8b-fast-local/weights/Qwen_Qwen3-8B-Q4_K_M.gguf
+curl --fail --silent http://127.0.0.1:8897/health
+df -h / /Volumes/TESSARISQ38
+\end{lstlisting}
+
+The model health endpoint proves only that a server responds. Runtime code additionally checks
+the selected model profile, loopback restriction, context and slot configuration, package path
+and exact model hash.
+
+\section{Backup, Portability and Recovery}
+
+\subsection{Backup policy}
+
+The database is portable but should not exist as a single unbacked-up intelligence volume.
+At minimum, retain:
+
+\begin{itemize}
+  \item a SQLite-consistent backup of the database;
+  \item a SHA-256 checksum for the backup;
+  \item the teacher state and cycle ledger from
+        \path{data/aion/native_english_teacher/};
+  \item the relevant progressive competency state and evidence artifacts; and
+  \item the model package and warehouse manifest independently of the lexical database.
+\end{itemize}
+
+Use SQLite's backup operation while services are live rather than copying only the main file
+while write-ahead-log files may contain committed pages:
+
+\begin{lstlisting}[language=bash]
+sqlite3 /Volumes/TESSARISQ38/TessarisLearning/AION/native_lexical_intelligence.sqlite3 \
+  ".backup '/path/to/backup/native_lexical_intelligence.snapshot.sqlite3'"
+shasum -a 256 /path/to/backup/native_lexical_intelligence.snapshot.sqlite3
+\end{lstlisting}
+
+The placeholder destination must be replaced with a real backup volume; it must not point to
+the same physical SD card.
+
+\subsection{Moving the intelligence store to a Mac or robot}
+
+There is no requirement to retrain from zero. A safe migration is:
+
+\begin{enumerate}
+  \item pause the native teacher service;
+  \item create and verify a SQLite backup;
+  \item copy the backup to the new device's durable data location;
+  \item set \texttt{AION\_NATIVE\_LEXICON\_DB} to the new absolute path;
+  \item start AION and compare lexeme, relation, lesson and attempt counts;
+  \item run a read-only definition query;
+  \item run a small closed-book test; and
+  \item resume continuous teaching only after CAU allows learning.
+\end{enumerate}
+
+The code and the data should be versioned separately. Repository checkout alone does not carry
+the live 192 MB database, and copying the database alone does not carry the Learning Centre
+logic.
+
+\subsection{Recovery checks}
+
+After restoration, verify at least:
+
+\begin{itemize}
+  \item SQLite opens and reports schema version 3;
+  \item lexeme and relation counts match the backup receipt;
+  \item practice-attempt counts and teacher-lesson counts are present;
+  \item a known definition query succeeds without a model;
+  \item Qwen remains local and network fallback remains disabled;
+  \item a new exam reports \texttt{expected\_withheld = true}; and
+  \item no stage promotion occurs solely from restored teacher lessons.
+\end{itemize}
+
+\section{Testing and Verification}
+
+The focused automated tests are located in:
+
+\begin{quote}
+\path{backend/tests/test_native_lexical_intelligence.py}
+\end{quote}
+
+and:
+
+\begin{quote}
+\path{backend/tests/test_native_english_conversation.py}\\
+\path{backend/tests/test_native_english_progress.py}\\
+\path{backend/tests/test_progressive_competency_system.py}
+\end{quote}
+
+They verify that:
+
+\begin{itemize}
+  \item definitions, synonyms and comparisons work without a model;
+  \item expected answers are missing from the student view;
+  \item model and cloud usage flags remain false during practice;
+  \item CAU denial blocks reinforcement but not reading;
+  \item Qwen receives the goal and curriculum; and
+  \item Qwen lessons do not count as examination evidence or grading authority;
+  \item all eight advanced banks contain 128 unique free-response tasks;
+  \item advanced answers are model-free, cloud-free and source-disjoint;
+  \item the completed version-2 foundation migrates into version 3 without false completion;
+  \item native answers carry evidence and the no-model generation receipt;
+  \item unsupported factual questions produce abstention rather than fabrication;
+  \item verified structured facts can be retrieved and realised as English;
+  \item session references resolve from AION's own prior turn; and
+  \item self-improvement uses verified paraphrase consistency without a model.
+\end{itemize}
+
+On 7 October 2026, 56 focused tests passed. Python compilation checks and
+\texttt{git diff --check} also passed for the changed implementation files. Live acceptance
+tests additionally exercised the HTTP conversation route, model-free receipt and two-turn
+reference resolution against the SD-resident store.
+
+\section{Operational Monitoring}
+
+Important live artifacts are:
+
+\begin{longtable}{p{0.42\textwidth} p{0.48\textwidth}}
+\toprule
+Path & Purpose \\
+\midrule
+\endhead
+\path{data/aion/native_english_teacher/state.json} & Current stage, cycle count, consecutive
+passes, last exam and last teacher error/model. \\
+\path{data/aion/native_english_teacher/cycles.jsonl} & Append-only teacher-cycle and exam audit. \\
+\path{results/aion_mastery_curriculum_service_status.json} & Persistent service status,
+including the background native English teacher lane. \\
+\path{backend/modules/hexcore/data/progressive_competency/state.json} & Curriculum subjects,
+contracts, evidence and blockers. \\
+\path{backend/logs/aion_heartbeat.log} & Service supervision and restart events. \\
+\bottomrule
+\end{longtable}
+
+The most useful dashboard metrics are:
+
+\begin{itemize}
+  \item current stage and time since last successful cycle;
+  \item teacher available/error and selected model;
+  \item verified lexeme and relation counts;
+  \item lessons stored, explicitly separated from exam evidence;
+  \item closed-book attempts today, accuracy and task-family distribution;
+  \item model/cloud usage flags for native examinations;
+  \item CAU-authorized versus denied attempts;
+  \item consecutive qualifying stage passes;
+  \item blocked native exam families; and
+  \item SD-card mount, free space, database health and backup age.
+  \item native conversation turns, answer rate, open failures and improvement cycles;
+  \item evidence count and generation receipt for each native answer; and
+  \item unresolved Learning Centre contracts independently of the native curriculum state.
+\end{itemize}
+
+At the dated snapshot, the native English service itself has no blocker, while the broader
+Learning Centre reports one open English executor-capability blocker on a lexical-grounding
+knowledge-test contract. This distinction matters: a healthy native curriculum does not erase
+an independently governed competency contract.
+
+\section{Security, Integrity and Trust Boundaries}
+
+\subsection{Teacher-output boundary}
+
+Qwen-generated material is not automatically promoted to verified truth. It is stored as
+study material, tagged with the teacher model and cross-referenced against known lemmas. The
+system should continue moving toward claim-level verification for teacher examples and
+explanations before allowing them to become new factual relations.
+
+\subsection{Prompt boundary}
+
+The teacher receives only bounded verified definitions, curriculum state and previous result
+summaries. It is told that it is not the student, examiner or competence authority. The exam
+is generated after the teacher call closes.
+
+\subsection{Storage boundary}
+
+The SD model warehouse is verified against its manifest and model SHA-256. The SQLite database
+currently relies on filesystem access controls and SQLite consistency. Production hardening
+should add signed backup receipts, a database checksum manifest, mount identity and optional
+encryption at rest.
+
+\subsection{Capability-claim boundary}
+
+Learning Centre evidence is attached only to named subskills. One project family cannot be
+reused indefinitely as novel evidence. Exhaustion requires a new portfolio version instead of
+manufacturing progress from repeated identical work.
+
+\section{Known Limitations}
+
+\begin{enumerate}
+  \item \textbf{Controlled capability is not unrestricted fluency.} The native parser and
+        grammar cover declared intents and forms; unseen constructions may require
+        clarification or abstention.
+  \item \textbf{Verified world knowledge is sparse.} The lexical store is large, but the
+        structured fact table is initially empty. Broad factual conversation requires
+        governed bridges from AION's other memories and real outcomes.
+  \item \textbf{Advanced tests are synthetic and sealed, not yet broad public benchmarks.}
+        They prove the implemented operations and teacher separation, but should be augmented
+        with licensed unseen documents and independent annotations.
+  \item \textbf{Self-improvement cannot invent a truth signal.} It can diagnose, replay and
+        verify consistency; new factual knowledge still needs evidence external to the answer
+        being evaluated.
+  \item \textbf{Reference resolution is intentionally conservative.} It currently uses the
+        most recent answered turn and selected reference words rather than a complete discourse
+        model.
+  \item \textbf{Sampling quality still needs frequency control.} Lexical probes can over-sample
+        obscure WordNet lemmas; modern frequency bands should be installed.
+  \item \textbf{The SD card remains a single operational dependency.} Automatic independent
+        backup, signed restore receipts and fail-loud volume identity remain required.
+  \item \textbf{Qwen lessons remain separate study proposals.} They do not directly rewrite
+        the native parser, grammar or verified fact store.
+\end{enumerate}
+
+\section{Required Next Engineering Layers}
+
+\subsection{Layer 1: production storage safety}
+
+Add an SD mount manifest, explicit configured database path, fail-loud health state, periodic
+SQLite backup, checksum receipts, backup-age metric and restore drill. This should precede
+substantial accumulation of unique learned material.
+
+\subsection{Layer 2: governed knowledge bridges}
+
+Connect project, business, scientific, experiential and AKG memories through adapters that
+emit verified subject--predicate--object facts with provenance. Do not expose a generic public
+endpoint that allows a caller to label arbitrary prose as verified.
+
+\subsection{Layer 3: broader parser and grammar}
+
+Expand modality, aspect, quantification, relative clauses, ellipsis, multi-reference chains,
+register and longer response planning. Every new rule should have minimal-pair, negation and
+regression portfolios before activation.
+
+\subsection{Layer 4: delayed autonomous improvement}
+
+Implement 1-, 7-, 30- and 90-day retention queues, failure clustering, versioned grammar-rule
+promotion, regression detection and rollback. Improvement receipts must identify the external
+truth or sealed authority that justified each change.
+
+\subsection{Layer 5: external transfer}
+
+Use unseen licensed or public text not used in corpus construction. Partition sources by
+document and time so the test genuinely measures transfer. Maintain separate development,
+validation, closed-book examination and delayed-retention sets.
+
+\subsection{Layer 6: native response breadth}
+
+Add multi-paragraph planning, safe summaries, explanations with multiple evidence items,
+counterfactual comparison and calibrated alternative interpretations. These must remain
+symbolic/native unless a separately labelled model-assisted mode is intentionally introduced;
+model output must never be presented as native AION speech.
+
+\section{Operator Runbook}
+
+\subsection{Normal startup}
+
+\begin{enumerate}
+  \item Mount \texttt{TESSARISQ38}.
+  \item Confirm the lexical database and Qwen weight exist.
+  \item Confirm the Qwen loopback endpoint or allow the verified runtime manager to start it.
+  \item Start or verify \texttt{com.tessaris.aion.heartbeat}.
+  \item Inspect the mastery-service status and native teacher state.
+  \item Confirm the last teacher error is null and the last native exam reports no model use.
+\end{enumerate}
+
+\subsection{If the SD card is disconnected}
+
+Do not treat an empty internal database as loss of intelligence and do not re-import into a
+second store without deciding which copy is authoritative. Pause the teacher, remount the card,
+verify the database path and counts, then resume. If the card has failed, restore the latest
+SQLite-consistent backup and its checksum receipt.
+
+\subsection{If Qwen is unavailable}
+
+Native lookup and closed-book examination can still operate from the lexical database. The
+teacher cycle records an error but does not fabricate a lesson. Resolve model mount, package
+verification, loopback endpoint and runtime-profile failures; do not enable network fallback
+as a shortcut.
+
+\subsection{If CAU denies learning}
+
+Existing verified memory remains readable. New attempts can be recorded, but they must not
+reinforce memory or qualify for stage progression. Investigate the reported CAU denial reason
+and restore stable conditions rather than bypassing authority.
+
+\subsection{If scores suddenly fall}
+
+Check database path and counts first, then stage/task family, SD health, corpus integrity,
+answer-key withholding, recent code changes and sampling distribution. Preserve failed
+attempts: they are curriculum signals and should not be deleted merely to recover a high score.
+
+\section{File and Folder Reference}
+
+\begin{longtable}{p{0.48\textwidth} p{0.43\textwidth}}
+\toprule
+File or folder & Responsibility \\
+\midrule
+\endhead
+\path{backend/modules/aion_cognition/native_lexical_intelligence.py} & Native memory,
+relations, question answering and closed-book practice. \\
+\path{backend/modules/aion_cognition/native_english_teacher.py} & Curriculum, Qwen teacher,
+stage progression and teacher/exam separation. \\
+\path{backend/modules/aion_cognition/native_english_reasoning.py} & Sealed sentence,
+discourse and advanced free-response examination banks and native solvers. \\
+\path{backend/modules/aion_cognition/native_english_conversation.py} & Symbolic question
+parsing, context resolution, retrieval, answer planning, grammar realisation, checking,
+conversation memory and model-free self-improvement. \\
+\path{backend/modules/aion_cognition/native_english_progress.py} & Read-only health,
+curriculum, storage, examination and Learning Centre projection. \\
+\path{backend/api/aion_english_intelligence_router.py} & Progress API, visual panel, native
+conversation route and explicit improvement route. \\
+\path{backend/modules/hexcore/native_english_competency_portfolio.py} & Versioned Learning
+Centre English project families. \\
+\path{backend/modules/hexcore/progressive_competency_executor.py} & Routes English projects
+and records bounded evidence. \\
+\path{backend/modules/hexcore/progressive_competency_system.py} & Persistent subject catalogue,
+contracts, evidence, blockers and subskill migration. \\
+\path{backend/modules/hexcore/constitutional_north_star_mastery_registry.py} & Canonical English
+subject and subskill declaration. \\
+\path{backend/AION/system/aion_mastery_curriculum_service.py} & Continuous asynchronous teacher
+dispatch and Learning Centre service status. \\
+\path{backend/AION/system/aion_heartbeat.py} & Persistent service supervision and restart. \\
+\path{backend/modules/aion_dashboard/actions.py} & Native dashboard teach/ask actions. \\
+\path{backend/modules/local_node/local_node_runtime.py} & Native-first AION desktop question route. \\
+\path{backend/modules/hexcore/prediction_market_research_engine.py} & Shared verified SD Qwen
+runtime-profile resolution. \\
+\path{backend/modules/aion_language/query_resonance_api.py} & Corrected legacy resonance query path. \\
+\path{backend/modules/aion_language/thesaurus_linker.py} & Deterministic legacy relation export. \\
+\path{backend/modules/aion_cognition/advanced_cognition/lexical_task_runner.py} & Compatibility
+runner redirected to native examination. \\
+\path{backend/tests/test_native_lexical_intelligence.py} & Native English and teacher-separation tests. \\
+\path{backend/tests/test_native_english_conversation.py} & Native answer, abstention, evidence,
+reference and self-improvement tests. \\
+\path{backend/tests/test_native_english_progress.py} & Progress and health projection tests. \\
+\path{data/aion/native_english_teacher/} & Small Mac-resident teacher state and audit ledger. \\
+\path{/Volumes/TESSARISQ38/TessarisLearning/AION/} & SD-resident lexical database and corpus. \\
+\path{/Volumes/TESSARISQ38/TessarisModelPackages/} & SD-resident verified model packages. \\
+\bottomrule
+\end{longtable}
+
+\section{Conclusion}
+
+AION now has a persistent native English substrate, a fifteen-layer governed curriculum,
+sealed free-response advancement tests and a working symbolic conversation path. It can parse
+supported questions, retrieve verified meanings, plan an answer, realise grammatical English,
+resolve a recent reference, verify evidence and abstain without calling a generative model.
+Its own failure and conversation ledgers now feed a governed model-free improvement cycle.
+
+This is not yet unrestricted English intelligence. Its verified fact base and grammar breadth
+must grow substantially, and independent real-document transfer remains essential. Its most
+important property is architectural honesty: curriculum teaching, native memory, examination,
+conversation, self-improvement and capability claims are separate and auditable. In native
+conversation mode, Qwen is neither AION's voice nor its ghost-writer; the returned English is
+constructed from AION's own structured understanding and explicit language rules.
+
+\end{document}

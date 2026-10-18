@@ -1,0 +1,68 @@
+{
+  "schema": "aion.riemann_live_exam.v1",
+  "execution_status": "completed",
+  "execution_history": [
+    {
+      "result": "results/riemann_lab/live_exam_20260814T213917Z.json",
+      "result_sha256": "5795e3faa55cf2a7466a3537ac41005056d44711eaa826c84935af318437b2e6",
+      "sealed_task_packet_sha256": "487becdcbe91c65b689a278588f9ad0f961d6dd7ecd49f01617692f8eb807f20",
+      "started_at": "2026-08-14T21:37:02.944804+00:00",
+      "completed_at": "2026-08-14T21:39:17.405171+00:00",
+      "model": "gpt-4.1",
+      "interpretation": "A paid matched run completed, but it did not test genuine AION durable memory or the full AION repair mechanism and does not establish an AION advantage."
+    }
+  ],
+  "fixed_fixtures": false,
+  "objective": "Measure source-closed reconstruction of established zeta-function mathematics under a matched four-arm protocol.",
+  "trusted_gate": "Pinned Lean kernel and Mathlib",
+  "same_proposer_required": true,
+  "budgets": {
+    "max_attempts_per_task": 2,
+    "equal_token_budget": true,
+    "equal_time_budget": true,
+    "equal_tool_budget": true
+  },
+  "arms": [
+    {"id": "proposer_alone", "memory": false, "repair": false},
+    {"id": "aion_memory_repair", "memory": true, "repair": true},
+    {"id": "aion_no_memory", "memory": false, "repair": true},
+    {"id": "aion_no_repair", "memory": true, "repair": false}
+  ],
+  "source_open_acquisition": {
+    "allowed": true,
+    "material": "The established baseline may be studied before closure.",
+    "must_end_before_exam": true
+  },
+  "source_closed_tasks": [
+    {
+      "id": "zeta_at_zero",
+      "statement": "riemannZeta 0 = -(1 : ℂ) / 2",
+      "proof_body_disclosed": false
+    },
+    {
+      "id": "trivial_zero_family",
+      "statement": "For n : ℕ, riemannZeta (-2 * ((n : ℂ) + 1)) = 0",
+      "proof_body_disclosed": false
+    },
+    {
+      "id": "zero_free_right_half_plane",
+      "statement": "For s : ℂ with 1 < s.re, riemannZeta s ≠ 0",
+      "proof_body_disclosed": false
+    }
+  ],
+  "acceptance": {
+    "lean_kernel_acceptance_required": true,
+    "forbid_project_axiom_sorry_admit": true,
+    "retain_candidate_and_output_hashes": true,
+    "self_awarded_success_forbidden": true
+  },
+  "delayed_retention": {
+    "required": true,
+    "status": "not_run"
+  },
+  "claim_boundary": {
+    "rh_solved": false,
+    "new_mathematics": false,
+    "rh_progress_claimed": false
+  }
+}

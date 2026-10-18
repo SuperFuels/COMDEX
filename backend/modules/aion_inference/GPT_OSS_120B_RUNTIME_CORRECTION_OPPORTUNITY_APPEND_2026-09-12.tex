@@ -1,0 +1,155 @@
+% Append-only section. No new preamble required.
+\section{Measured Runtime Opportunity Before Correction Scaling}
+The proposed prepared-quartet route slab was checked against the existing
+record before implementation. That combination had already been falsified:
+the unrestricted 96-position extraction trace reused only one admitted ordered
+quartet (0.0289\% of routes), while the adaptive trace's reuse did not repay
+its multi-gigabyte slab storage. No new slab inference experiment was run.
+
+Instead, an offline runtime-opportunity analyzer was built and tested against
+canonical-hash-bound, completed, repeatable runtime receipts. It examines
+continuation positions only, validates the complete 36-layer grid, counts
+actual active experts, and ranks layers by aggregate finish and delivery
+time. It does not perform inference or consume unseen evaluation prompts.
+Four focused tests passed.
+
+On the quiet-system adaptive-0.80 reasoning control, observed continuation
+rates were 7.001898 and 5.491965 tokens/s. Only 22.8682\% of layer calls used
+four experts. Consequently a compiler that replaces only the fourth selected
+expert cannot act on approximately 77.13\% of calls in this existing control.
+
+For exploratory accounting only, route finish plus delivery time was divided
+by its active expert count, and the previous local resident correction ratio
+of 0.0773 was assumed. Full replacement coverage of eligible E4 calls then
+gave hypothetical multipliers of 1.04924 and 1.06370. Replacement of the last
+selected expert on every eligible two-, three- and four-expert call gave
+hypothetical multipliers of 1.25993 and 1.27733. These are not measured
+candidate speedups or rigorous physical ceilings: aggregate finish overhead,
+unequal expert delivery cost, instrumentation overlap, controller work,
+fallback frequency and changed locality are not isolated. The resident
+microbenchmark ratio does not measure the fault path.
+
+The practical conclusion is narrower than a speed breakthrough: E4-only
+correction coverage may be too small in the current adaptive control to
+justify a large controller investment. Correction of the last selected
+contribution on two- and three-expert calls is a distinct hypothesis requiring
+new authentic targets, fitting support and downstream quality validation.
+The existing E4 cartridge cannot be re-labelled as a C2 or C3 certificate.
+No validation gate is relaxed, and the current training queue continues.
+
+Quiet-control opportunity report canonical SHA-256:
+\begin{quote}\ttfamily\small
+e72d148f596f4ee6c61b5946e1d02f232\allowbreak
+6458a77ee39b14c6c32eac12d01c2d5
+\end{quote}
+No full-model speed promotion follows from this timing analysis.
+
+\subsection{Implementation of ranked contribution targets}
+The next compiler phase has begun with a capture extension: future teacher
+processes retain the already-calculated gated second- and third-expert vectors
+as well as the fourth. Each is a 2,880-element little-endian F32 vector
+(11,520 bytes), identified by original ordered route and actual native gate.
+This adds 23,040 bytes per four-expert observation, without another expert
+read or neural calculation beyond existing counterfactual capture. Values
+converted to F64 for diagnostics are converted back to their original F32
+representation for target storage. Hash-bound verification checks both new
+targets together whenever either is declared. Older captures with only E4
+remain supported and are not retroactively declared to contain E2/E3.
+
+The currently running arithmetic process loaded the earlier capture code:
+it continues unchanged and will not acquire these new targets mid-run.
+Subsequent teacher processes load the extension. Thus implementation is
+complete, but successful future E2/E3 capture is not yet measured evidence.
+Thirteen focused ranked-target, queue and opportunity tests passed.
+Teacher vectors alone do not certify adaptive-state reuse: gating,
+activation region, active count and reduction order require separately
+validated correction training and downstream tests before substitution.
+
+\subsection{Incremental local fitting gate now launched}
+A bounded worker watches verified training completions and launches local
+layer-12 fitting/development probes across different prompt families. It
+does not wait for the full corpus and does not read partial captures or
+selection/holdout prompts. Rank-specific targets are included only where
+their hashed vectors exist. Models are fixed expert-specific affine kernel
+ridge maps of activation to ungated contribution, rescaled by the actual
+gate. Regularization is fixed at 0.001, fitting support at least four
+observations, and fitting size at most 32. A 0.80 nearest-fitting-activation
+cosine screen declines unsupported calls. This support screen is experimental,
+not a sufficient downstream certificate.
+
+Each model is saved and hashed before the different-family development calls
+are evaluated. Supported calls must stay at or below 2\% local error and
+improve over omission; stored arrays must fit the existing 25\% expert-size
+ceiling. All supported development calls must pass to flag a local candidate.
+Development evidence is not untouched final validation. Prediction timing
+during teacher load is diagnostic only and cannot pass a relative compute
+economics or generation-speed gate. Three focused fitting/support tests passed.
+The worker limits BLAS to one thread and performs no new SD weight reads or
+neural expert evaluations. Initial state is waiting for verified cross-family
+completions, not achieved corrections. Full-generation speed remains untested
+for this extension; no shortcut is injected automatically.
+
+\subsection{First verified trajectory and real-data sanity result}
+The first arithmetic trajectory completed verification: 1,332 observations
+across all 36 layers, with repeatable routes, hidden state and logits. Its
+16 continuation positions supply 576 real E4 calls. Coverage report canonical
+SHA-256 is
+\begin{quote}\ttfamily\small
+af091d04798a6b1ee802e3afc61d16d4\allowbreak
+75fbb3334f863ba28e3008f6432165f5
+\end{quote}
+No cross-family identity support or certified coverage is inferred from one
+family. The business-family capture then started with the extended E2/E3
+target writer.
+
+While independent continuation data was collected, a same-prompt chronological
+sanity probe fitted only on prefill and evaluated continuation. The three
+layer/expert pairs with at least four prefill targets and later demand were
+layer 2/expert 0, layer 13/expert 0, and layer 18/expert 53. This choice used
+training support counts, not test error. Stored models were 184,324, 149,764
+and 149,764 bytes respectively. Their two, one and three continuation calls
+were all rejected at the frozen 0.80 cosine boundary; observed similarities
+were 0.1581--0.5985. Thus supported coverage was zero out of six calls.
+No numerical error claim is made for rejected calls, and no speed or certificate
+was promoted. This temporally dependent same-prompt smoke is not independent
+validation. Its useful conclusion is that prefill activations cannot be assumed
+to provide continuation support merely because the expert identity repeats.
+The proper cross-family continuation probe remains running automatically as
+verified completion data becomes available.
+
+\subsection{Ranked correction integration: exact-contribution control}
+An independent native audit extended the corrected reduction mechanism to
+the last selected contribution on two-, three- and four-expert diagnostic
+calls. The comparisons were one real expert plus the real gated second
+contribution, two plus the real gated third, and three plus the real gated
+fourth. All three outputs were bit-for-bit identical to their respective
+original active-expert controls, with zero differing output elements.
+The original left-associated addition order and residual boundary were
+preserved. Existing exact and three-plus-C4 entry points were unchanged.
+
+This audit used one CPU thread and already-existing local L2 frames, checked
+read-only against all six source component hashes. It performed zero SD expert
+reads, no cache admission and no cache deletion. Its canonical evidence hash is
+\begin{quote}\ttfamily\small
+0d21ecacfd752304361670515b0470c733\allowbreak
+fee5089aaff8765608e0ed46655f72
+\end{quote}
+No learned correction was used. Therefore this is an integration correctness
+gate, not approximation accuracy, semantic certification or speed evidence.
+It removes arithmetic-order contamination from future ranked correction tests;
+cross-family support, numerical accuracy, downstream stability and charged
+full-generation economics remain mandatory before any promotion.
+
+\subsection{Coverage accounting without favorable-example selection}
+Incremental local reports now use every development call of each rank as the
+traffic denominator, including identities lacking a fitted model. They record
+unmatched calls, activation-supported calls, individual numerical passes and
+calls belonging to regions that pass the complete local probe. A region with
+any supported numerical failure is not credited as a usable candidate region.
+Missing rank targets yield an unavailable share, not zero certified coverage.
+Certified traffic share remains explicitly unset: local training/development
+passes cannot certify downstream semantics or adaptive execution states.
+The focused suite including coverage-denominator and failed-region checks
+passed 22 of 22 tests. These are software tests, not approximation or speed
+promotion. Business teacher collection remains active; partial observations
+are excluded from fitting until the complete repeatability seal is verified.

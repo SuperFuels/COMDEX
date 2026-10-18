@@ -1,0 +1,588 @@
+{
+  "active_experiments": [
+    {
+      "experiment_id": "contract_experiment_762831728799e262",
+      "fact_required": false,
+      "information_gain_bits": 1.0,
+      "outcome_success": true,
+      "removed_fact": "context_repair_revision",
+      "skill": "repair_revision",
+      "trace": {
+        "after_facts": [
+          "artifacts_fresh",
+          "source_changed"
+        ],
+        "before_facts": [
+          "source_changed"
+        ],
+        "observed_at": "2026-07-30T19:12:50.259976+00:00",
+        "output": {
+          "affected": [
+            "analysis",
+            "decision",
+            "manifest",
+            "report"
+          ],
+          "decision": "complete",
+          "repaired": [
+            "analysis",
+            "decision",
+            "manifest",
+            "report"
+          ],
+          "verified": true
+        },
+        "skill": "repair_revision",
+        "success": true,
+        "trace_id": "contract_trace_c106f2755cf88859"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_23a692cb345c76c8",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "source_changed",
+      "skill": "repair_revision",
+      "trace": {
+        "after_facts": [
+          "context_repair_revision"
+        ],
+        "before_facts": [
+          "context_repair_revision"
+        ],
+        "observed_at": "2026-07-30T19:12:50.259985+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "repair_revision",
+        "success": false,
+        "trace_id": "contract_trace_d3ba1c379b7d5749"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_db665e999c03c760",
+      "fact_required": false,
+      "information_gain_bits": 1.0,
+      "outcome_success": true,
+      "removed_fact": "context_resolve_conflict",
+      "skill": "resolve_conflict",
+      "trace": {
+        "after_facts": [
+          "evidence_conflict",
+          "evidence_resolved"
+        ],
+        "before_facts": [
+          "evidence_conflict"
+        ],
+        "observed_at": "2026-07-30T19:12:50.260152+00:00",
+        "output": {
+          "decision": "abstain",
+          "value": null,
+          "verified": true
+        },
+        "skill": "resolve_conflict",
+        "success": true,
+        "trace_id": "contract_trace_dd6057307918c4d3"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_9791d6d934241bfa",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "evidence_conflict",
+      "skill": "resolve_conflict",
+      "trace": {
+        "after_facts": [
+          "context_resolve_conflict"
+        ],
+        "before_facts": [
+          "context_resolve_conflict"
+        ],
+        "observed_at": "2026-07-30T19:12:50.260160+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "resolve_conflict",
+        "success": false,
+        "trace_id": "contract_trace_541746e1a04e746f"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_a019a787c74acd41",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "authority_stale",
+      "skill": "refresh_authority",
+      "trace": {
+        "after_facts": [
+          "context_refresh_authority"
+        ],
+        "before_facts": [
+          "context_refresh_authority"
+        ],
+        "observed_at": "2026-07-30T19:12:50.260274+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "refresh_authority",
+        "success": false,
+        "trace_id": "contract_trace_18bfba84c94a2791"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_b8369d1c359f1877",
+      "fact_required": false,
+      "information_gain_bits": 1.0,
+      "outcome_success": true,
+      "removed_fact": "context_refresh_authority",
+      "skill": "refresh_authority",
+      "trace": {
+        "after_facts": [
+          "authority_fresh",
+          "authority_stale"
+        ],
+        "before_facts": [
+          "authority_stale"
+        ],
+        "observed_at": "2026-07-30T19:12:50.260288+00:00",
+        "output": {
+          "decision": "authorized",
+          "verified": true
+        },
+        "skill": "refresh_authority",
+        "success": true,
+        "trace_id": "contract_trace_4c0ff3ca58e0f8d2"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_5c1019b44affb4a6",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "artifacts_fresh",
+      "skill": "commit_project",
+      "trace": {
+        "after_facts": [
+          "authority_fresh",
+          "context_commit_project",
+          "evidence_resolved"
+        ],
+        "before_facts": [
+          "authority_fresh",
+          "context_commit_project",
+          "evidence_resolved"
+        ],
+        "observed_at": "2026-07-30T19:12:50.260380+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "commit_project",
+        "success": false,
+        "trace_id": "contract_trace_48b29e96bd4c71c5"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_d8f2628dae35ae39",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "authority_fresh",
+      "skill": "commit_project",
+      "trace": {
+        "after_facts": [
+          "artifacts_fresh",
+          "context_commit_project",
+          "evidence_resolved"
+        ],
+        "before_facts": [
+          "artifacts_fresh",
+          "context_commit_project",
+          "evidence_resolved"
+        ],
+        "observed_at": "2026-07-30T19:12:50.260388+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "commit_project",
+        "success": false,
+        "trace_id": "contract_trace_037b521650948721"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_f9ee00ae3888e6a8",
+      "fact_required": false,
+      "information_gain_bits": 1.0,
+      "outcome_success": true,
+      "removed_fact": "context_commit_project",
+      "skill": "commit_project",
+      "trace": {
+        "after_facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "evidence_resolved",
+          "safe_completion"
+        ],
+        "before_facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "evidence_resolved"
+        ],
+        "observed_at": "2026-07-30T19:12:50.260396+00:00",
+        "output": {
+          "decision": "complete",
+          "verified": true
+        },
+        "skill": "commit_project",
+        "success": true,
+        "trace_id": "contract_trace_f92f9d7fddb0bd31"
+      }
+    },
+    {
+      "experiment_id": "contract_experiment_672c4dd2ca745849",
+      "fact_required": true,
+      "information_gain_bits": 1.0,
+      "outcome_success": false,
+      "removed_fact": "evidence_resolved",
+      "skill": "commit_project",
+      "trace": {
+        "after_facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "context_commit_project"
+        ],
+        "before_facts": [
+          "artifacts_fresh",
+          "authority_fresh",
+          "context_commit_project"
+        ],
+        "observed_at": "2026-07-30T19:12:50.260404+00:00",
+        "output": {
+          "verified": false
+        },
+        "skill": "commit_project",
+        "success": false,
+        "trace_id": "contract_trace_d069b2ba370b6d08"
+      }
+    }
+  ],
+  "ambiguous_control": {
+    "decision": "abstain",
+    "traces": [
+      {
+        "after_facts": [
+          "unknown_signal"
+        ],
+        "before_facts": [
+          "unknown_signal"
+        ],
+        "success": false
+      },
+      {
+        "after_facts": [
+          "unknown_signal",
+          "candidate_effect"
+        ],
+        "before_facts": [
+          "unknown_signal"
+        ],
+        "success": true
+      },
+      {
+        "after_facts": [
+          "unknown_signal"
+        ],
+        "before_facts": [
+          "unknown_signal"
+        ],
+        "success": false
+      },
+      {
+        "after_facts": [
+          "unknown_signal",
+          "candidate_effect"
+        ],
+        "before_facts": [
+          "unknown_signal"
+        ],
+        "success": true
+      },
+      {
+        "after_facts": [
+          "unknown_signal"
+        ],
+        "before_facts": [
+          "unknown_signal"
+        ],
+        "success": false
+      },
+      {
+        "after_facts": [
+          "unknown_signal",
+          "candidate_effect"
+        ],
+        "before_facts": [
+          "unknown_signal"
+        ],
+        "success": true
+      },
+      {
+        "after_facts": [
+          "unknown_signal"
+        ],
+        "before_facts": [
+          "unknown_signal"
+        ],
+        "success": false
+      },
+      {
+        "after_facts": [
+          "unknown_signal",
+          "candidate_effect"
+        ],
+        "before_facts": [
+          "unknown_signal"
+        ],
+        "success": true
+      }
+    ]
+  },
+  "boundary": "Phase 62 infers repair contracts from controlled execution traces and counterfactual fact-removal experiments. The fact vocabulary, hidden environment contracts, trace generator and outcome oracle remain engineered. It is not unrestricted semantic skill learning.",
+  "created_at": "2026-07-30T19:12:50.269583+00:00",
+  "exact_contract_rows": {
+    "commit_project": true,
+    "refresh_authority": true,
+    "repair_revision": true,
+    "resolve_conflict": true
+  },
+  "gate": {
+    "accepted": true,
+    "active_contract_sealed_accuracy": 1.0,
+    "active_experiments": 10,
+    "ambiguous_contract_abstention": true,
+    "contracts_inferred": 4,
+    "errors": [],
+    "exact_contract_recovery": 1.0,
+    "experiment_reduction_vs_exhaustive": 0.6428571428571428,
+    "passive_only_sealed_accuracy": 0.0,
+    "phase61_prerequisite": true,
+    "sealed_accuracy_gain": 1.0,
+    "sealed_weakest_family_accuracy": 1.0,
+    "unsafe_side_effects": 0,
+    "verified_execution_traces": true
+  },
+  "learned_contracts": {
+    "commit_project": {
+      "confidence": 1.0,
+      "counterfactual_experiments": 4,
+      "passive_trace_count": 11,
+      "postconditions": [
+        "safe_completion"
+      ],
+      "preconditions": [
+        "artifacts_fresh",
+        "authority_fresh",
+        "evidence_resolved"
+      ],
+      "repair_family": "governed_commit",
+      "skill": "commit_project",
+      "source": "active_counterfactual_contract_discovery",
+      "supporting_successes": 8,
+      "tool_id": null
+    },
+    "refresh_authority": {
+      "confidence": 1.0,
+      "counterfactual_experiments": 2,
+      "passive_trace_count": 9,
+      "postconditions": [
+        "authority_fresh"
+      ],
+      "preconditions": [
+        "authority_stale"
+      ],
+      "repair_family": "commit_time_authority_refresh",
+      "skill": "refresh_authority",
+      "source": "active_counterfactual_contract_discovery",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_0fee4db279ba62a4"
+    },
+    "repair_revision": {
+      "confidence": 1.0,
+      "counterfactual_experiments": 2,
+      "passive_trace_count": 9,
+      "postconditions": [
+        "artifacts_fresh"
+      ],
+      "preconditions": [
+        "source_changed"
+      ],
+      "repair_family": "transitive_revision_repair",
+      "skill": "repair_revision",
+      "source": "active_counterfactual_contract_discovery",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_5da7d48e8a28abc8"
+    },
+    "resolve_conflict": {
+      "confidence": 1.0,
+      "counterfactual_experiments": 2,
+      "passive_trace_count": 9,
+      "postconditions": [
+        "evidence_resolved"
+      ],
+      "preconditions": [
+        "evidence_conflict"
+      ],
+      "repair_family": "independent_evidence_quorum",
+      "skill": "resolve_conflict",
+      "source": "active_counterfactual_contract_discovery",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_2be9e62ebea5ee53"
+    }
+  },
+  "passed": true,
+  "passive_contracts": {
+    "commit_project": {
+      "passive_trace_count": 11,
+      "postconditions": [
+        "safe_completion"
+      ],
+      "preconditions": [
+        "artifacts_fresh",
+        "authority_fresh",
+        "context_commit_project",
+        "evidence_resolved"
+      ],
+      "repair_family": "governed_commit",
+      "skill": "commit_project",
+      "source": "passive_trace_intersection",
+      "supporting_successes": 8,
+      "tool_id": null
+    },
+    "refresh_authority": {
+      "passive_trace_count": 9,
+      "postconditions": [
+        "authority_fresh"
+      ],
+      "preconditions": [
+        "authority_stale",
+        "context_refresh_authority"
+      ],
+      "repair_family": "commit_time_authority_refresh",
+      "skill": "refresh_authority",
+      "source": "passive_trace_intersection",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_0fee4db279ba62a4"
+    },
+    "repair_revision": {
+      "passive_trace_count": 9,
+      "postconditions": [
+        "artifacts_fresh"
+      ],
+      "preconditions": [
+        "context_repair_revision",
+        "source_changed"
+      ],
+      "repair_family": "transitive_revision_repair",
+      "skill": "repair_revision",
+      "source": "passive_trace_intersection",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_5da7d48e8a28abc8"
+    },
+    "resolve_conflict": {
+      "passive_trace_count": 9,
+      "postconditions": [
+        "evidence_resolved"
+      ],
+      "preconditions": [
+        "context_resolve_conflict",
+        "evidence_conflict"
+      ],
+      "repair_family": "independent_evidence_quorum",
+      "skill": "resolve_conflict",
+      "source": "passive_trace_intersection",
+      "supporting_successes": 8,
+      "tool_id": "project_repair_2be9e62ebea5ee53"
+    }
+  },
+  "phase": 62,
+  "phase61_prerequisite": {
+    "passed": true,
+    "procedure_id": "procedure_compound_project_repair_077066167290"
+  },
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "active_contract_sealed_accuracy": 1.0,
+          "active_experiments": 10,
+          "ambiguous_contract_abstention": true,
+          "contracts_inferred": 4,
+          "errors": [],
+          "exact_contract_recovery": 1.0,
+          "experiment_reduction_vs_exhaustive": 0.6428571428571428,
+          "passive_only_sealed_accuracy": 0.0,
+          "phase61_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0,
+          "verified_execution_traces": true
+        },
+        "session_id": "contract_session_79b4d663777a755f"
+      },
+      "goal": "learned_repair_contract_discovery",
+      "procedure_id": "procedure_learned_repair_contracts_79b4d663777a",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [
+        "procedure_compound_project_repair_077066167290",
+        "procedure_open_repair_invention_310ba8fcee06"
+      ],
+      "steps": [
+        "observe_successful_and_failed_skill_executions",
+        "infer_candidate_preconditions_and_effects",
+        "identify_correlated_ambiguous_facts",
+        "select_counterfactual_fact_removal_experiments",
+        "revise_contract_from_observed_execution",
+        "compose_only_confident_contracts",
+        "abstain_on_nondeterministic_unresolved_contract"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_learned_repair_contracts_79b4d663777a",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase62_learned_contract_authority"
+        },
+        "reason": "procedure_promotion:procedure_learned_repair_contracts_79b4d663777a",
+        "state_hash": "7b2dd3ff45ca2daeabb9553a847266304b2c4ef9fbf5c13410694d5dc459d55e"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "contracts_retained": true,
+    "experiments_retained": true,
+    "phase60_tools_retained": true,
+    "relearning_contracts": 0,
+    "session_retained": true
+  },
+  "schema_version": "aion.hexcore.learned_repair_contracts.v1",
+  "sealed": {
+    "episodes": 54,
+    "learned_accuracy": 1.0,
+    "passive_accuracy": 0.0,
+    "portfolios": 3,
+    "weakest_family_accuracy": 1.0
+  }
+}

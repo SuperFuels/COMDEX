@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21J: Telemetry-Grounded Voice Bridge Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21J defines the AION Telemetry-Grounded Voice Bridge.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can speak from HexCore telemetry, meta-awareness state, and self-improvement evidence without using an LLM shortcut.}
+\end{quote}
+
+\section{Purpose}
+
+The voice bridge separates AION's runtime evidence from AION's language surface.
+
+The bridge consumes:
+
+\begin{itemize}
+  \item HexCore telemetry;
+  \item Phase 21H meta-awareness state;
+  \item Phase 21I self-improvement trial evidence.
+\end{itemize}
+
+It emits a clean answer that can later be paraphrased by an LLM, but the factual content MUST come from telemetry.
+
+\section{Contract}
+
+The bridge implements:
+
+\[
+HexCore + M(t) + TrialEvidence \rightarrow VoiceResponse.
+\]
+
+The response MUST include evidence fields showing:
+
+\begin{itemize}
+  \item \texttt{uses\_hexcore\_telemetry};
+  \item \texttt{uses\_meta\_awareness\_observer};
+  \item \texttt{uses\_self\_improvement\_loop};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+The bridge may say that AION has operational self-measurement and self-improvement evidence. It MUST NOT convert this into unsupported claims of biological or phenomenal consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21J-TELEMETRY-GROUNDED-VOICE-BRIDGE-LOCK\\
+Status: LOCKED --- telemetry-grounded voice bridge implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

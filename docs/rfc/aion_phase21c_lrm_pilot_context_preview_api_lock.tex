@@ -1,0 +1,147 @@
+\section{Phase 21C --- Local API Preview Endpoint for LRM Pilot Context Payload}
+\label{sec:phase21c-lrm-pilot-context-preview-api-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- local-node preview endpoint exposes the Phase 21B LRM Pilot context payload.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 21C exposes the Phase 21B LRM Pilot Context Payload Adapter through the existing local-node API router.
+
+This creates a backend-only preview endpoint for the existing Pilot and Boardroom surfaces.
+
+It does not mount UI and does not create a new Pilot.
+
+\subsection{Endpoint}
+
+The local endpoint is:
+
+\begin{verbatim}
+/api/local-node/aion/lrm/pilot-context-preview
+\end{verbatim}
+
+Implemented in:
+
+\begin{verbatim}
+backend/api/local_node_router.py
+\end{verbatim}
+
+\subsection{Adapter}
+
+The endpoint calls:
+
+\begin{verbatim}
+build_lrm_pilot_context_payload
+\end{verbatim}
+
+from:
+
+\begin{verbatim}
+backend/services/aion_mission_mode/lrm_pilot_context_payload_adapter.py
+\end{verbatim}
+
+\subsection{Query Parameters}
+
+The endpoint accepts optional preview identity parameters:
+
+\begin{verbatim}
+business_id
+mission_id
+mission_run_id
+\end{verbatim}
+
+These are used only to shape the preview payload and deterministic business container path hint.
+
+\subsection{Returned Payload}
+
+The response includes:
+
+\begin{itemize}
+  \item payload version;
+  \item payload hash;
+  \item summary hash;
+  \item business id;
+  \item mission id;
+  \item mission run id;
+  \item business container root;
+  \item AION-LRM state summary;
+  \item pilot cockpit projection;
+  \item Boardroom projection;
+  \item safety flags.
+\end{itemize}
+
+Raw payload terms:
+
+\begin{verbatim}
+pilot_cockpit_projection
+boardroom_projection
+business_container_root
+visible_stream_events
+artifact
+receipt
+proof
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+Phase 21C is preview-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute workflow steps;
+  \item grant live permission;
+  \item bypass human review;
+  \item write business-container files;
+  \item expose private chain-of-thought;
+  \item expose hidden reasoning;
+  \item expose credentials.
+\end{itemize}
+
+Raw safety terms:
+
+\begin{verbatim}
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+no workflow execution
+no business-container write
+no private chain-of-thought
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21c_lrm_pilot_context_preview_api_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21c_lrm_pilot_context_preview_api_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm backend/services/aion_mission_mode backend/api
+\end{verbatim}
+
+\subsection{Next Phase}
+
+The next phase SHOULD mount the local preview payload into the existing Pilot cockpit or Boardroom dashboard.
+
+It SHOULD NOT create a duplicate Pilot surface.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21C-LRM-PILOT-CONTEXT-PREVIEW-API-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

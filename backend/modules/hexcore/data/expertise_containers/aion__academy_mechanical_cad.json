@@ -1,0 +1,246 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_classical_physics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:classical_physics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:mechanical_cad:statics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:mechanical_cad",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:mechanical_cad:dynamics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:mechanical_cad",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:mechanical_cad:mechanisms",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:mechanical_cad",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:mechanical_cad:solid_mechanics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:mechanical_cad",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:mechanical_cad:cad",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:mechanical_cad",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:mechanical_cad:thermal_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:mechanical_cad",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:mechanical_cad:tolerances",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:mechanical_cad",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "engineering",
+      "id": "work:aion@wave.tp:subject:mechanical_cad",
+      "label": "Mechanical engineering and CAD",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:mechanical_cad:statics",
+      "label": "statics",
+      "subject_id": "mechanical_cad",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:mechanical_cad:dynamics",
+      "label": "dynamics",
+      "subject_id": "mechanical_cad",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:mechanical_cad:mechanisms",
+      "label": "mechanisms",
+      "subject_id": "mechanical_cad",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:mechanical_cad:solid_mechanics",
+      "label": "solid mechanics",
+      "subject_id": "mechanical_cad",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:mechanical_cad:cad",
+      "label": "cad",
+      "subject_id": "mechanical_cad",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:mechanical_cad:thermal_design",
+      "label": "thermal design",
+      "subject_id": "mechanical_cad",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:mechanical_cad:tolerances",
+      "label": "tolerances",
+      "subject_id": "mechanical_cad",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_mechanical_cad",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:mechanical_cad:statics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:mechanical_cad",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:mechanical_cad:dynamics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:mechanical_cad",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:mechanical_cad:mechanisms",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:mechanical_cad",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:mechanical_cad:solid_mechanics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:mechanical_cad",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:mechanical_cad:cad",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:mechanical_cad",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:mechanical_cad:thermal_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:mechanical_cad",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:mechanical_cad:tolerances",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:mechanical_cad",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "engineering",
+        "id": "work:aion@wave.tp:subject:mechanical_cad",
+        "label": "Mechanical engineering and CAD",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:mechanical_cad:statics",
+        "label": "statics",
+        "subject_id": "mechanical_cad",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:mechanical_cad:dynamics",
+        "label": "dynamics",
+        "subject_id": "mechanical_cad",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:mechanical_cad:mechanisms",
+        "label": "mechanisms",
+        "subject_id": "mechanical_cad",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:mechanical_cad:solid_mechanics",
+        "label": "solid mechanics",
+        "subject_id": "mechanical_cad",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:mechanical_cad:cad",
+        "label": "cad",
+        "subject_id": "mechanical_cad",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:mechanical_cad:thermal_design",
+        "label": "thermal design",
+        "subject_id": "mechanical_cad",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:mechanical_cad:tolerances",
+        "label": "tolerances",
+        "subject_id": "mechanical_cad",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "engineering",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "mechanical_cad",
+    "title": "AION Academy \u00b7 Mechanical engineering and CAD"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

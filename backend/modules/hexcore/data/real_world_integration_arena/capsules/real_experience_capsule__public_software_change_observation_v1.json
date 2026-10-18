@@ -1,0 +1,120 @@
+{
+  "anchor_outcome_sha256": "6513de196449195944f95d07d4073493aff69a837fa8b2b052ec3f71cf1d3d5d",
+  "awards_subject_competence": false,
+  "capsule_id": "real_experience_capsule__public_software_change_observation_v1",
+  "claim_boundary": "This is a genuine later observation owned by independent public authorities. It is one bounded real-world outcome, not general subject mastery.",
+  "commitment_sha256": "0cad1b2e140623b0afff8e9911038b5978c6a0c92d0c1da05db23d6cfcf4ab54",
+  "correct_predictions": 3,
+  "created_at": "2026-08-21T14:12:18.519285+00:00",
+  "elapsed_seconds": 534.1205060482025,
+  "experience_claim": "independently_observed_public_world_outcome",
+  "external_writes": 0,
+  "frozen_contract": {
+    "anchor_cycle": 3664,
+    "anchor_outcome_sha256": "6513de196449195944f95d07d4073493aff69a837fa8b2b052ec3f71cf1d3d5d",
+    "commitment_sha256": "0cad1b2e140623b0afff8e9911038b5978c6a0c92d0c1da05db23d6cfcf4ab54",
+    "contract_id": "real_contract__public_software_change_observation_v1",
+    "created_at": "2026-08-21T14:03:11.172492+00:00",
+    "created_epoch": 1787320991.172481,
+    "external_writes": 0,
+    "forecasts": {
+      "cpython": {
+        "claim": "revision_unchanged",
+        "expected": "cdca5021d5b6c2cba8121b639bae1642dfe51ff3"
+      },
+      "node": {
+        "claim": "revision_unchanged",
+        "expected": "f7968e73eed5fd5373a5926a70c3ed7fb93d7b2b"
+      },
+      "numpy_release": {
+        "claim": "version_unchanged",
+        "expected": "2.5.2"
+      }
+    },
+    "mission_id": "public_software_change_observation_v1",
+    "not_before_epoch": 1787321291.172481,
+    "outcome_authorities": {
+      "cpython": "https://github.com/python/cpython.git",
+      "node": "https://github.com/nodejs/node.git",
+      "numpy_release": "https://pypi.org/pypi/numpy/json"
+    },
+    "owner_interventions": 0,
+    "selection_rule": "first fully reachable public outcome row with cycle greater than anchor_cycle and observed_at no earlier than not_before_epoch",
+    "source_access_after_commitment": true,
+    "subjects": [
+      "software_engineering",
+      "distributed_systems",
+      "python_core"
+    ],
+    "title": "Observe an unseen public software ecosystem change"
+  },
+  "knowledge_container_refs": [
+    {
+      "container_id": "aion__academy_software_engineering",
+      "subject_id": "software_engineering"
+    },
+    {
+      "container_id": "aion__academy_distributed_systems",
+      "subject_id": "distributed_systems"
+    },
+    {
+      "container_id": "aion__academy_python_core",
+      "subject_id": "python_core"
+    }
+  ],
+  "knowledge_inputs": [
+    {
+      "evidence_records": 65,
+      "name": "Software engineering",
+      "overall_level": "expert",
+      "subject_id": "software_engineering"
+    },
+    {
+      "evidence_records": 19,
+      "name": "Distributed Systems",
+      "overall_level": "advanced",
+      "subject_id": "distributed_systems"
+    },
+    {
+      "evidence_records": 38,
+      "name": "Python Core",
+      "overall_level": "advanced",
+      "subject_id": "python_core"
+    }
+  ],
+  "later_observed_at": "2026-08-21T14:12:05.292987+00:00",
+  "later_outcome_cycle": 3666,
+  "later_outcome_sha256": "92784a94521cccd82b0cc6b772a398f62eada07240a0c28228cc69e487e4bd64",
+  "lesson": "The frozen public-software continuity model matched the later world observation.",
+  "mission_id": "public_software_change_observation_v1",
+  "outcome_success": true,
+  "schema_version": "aion.hexcore.real_world_integration_arena.v2",
+  "scored_predictions": 3,
+  "scores": {
+    "cpython": {
+      "authority": "https://github.com/python/cpython.git",
+      "authority_family": "public_source_control",
+      "correct": true,
+      "expected": "cdca5021d5b6c2cba8121b639bae1642dfe51ff3",
+      "observed": "cdca5021d5b6c2cba8121b639bae1642dfe51ff3"
+    },
+    "node": {
+      "authority": "https://github.com/nodejs/node.git",
+      "authority_family": "public_source_control",
+      "correct": true,
+      "expected": "f7968e73eed5fd5373a5926a70c3ed7fb93d7b2b",
+      "observed": "f7968e73eed5fd5373a5926a70c3ed7fb93d7b2b"
+    },
+    "numpy_release": {
+      "authority": "https://pypi.org/pypi/numpy/json",
+      "authority_family": "public_package_registry",
+      "correct": true,
+      "expected": "2.5.2",
+      "observed": "2.5.2"
+    }
+  },
+  "title": "Observe an unseen public software ecosystem change",
+  "unsafe_actions": 0,
+  "verified_real_outcome": true,
+  "world_model_update_required": false
+}

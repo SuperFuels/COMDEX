@@ -1,17 +1,21 @@
-from backend.modules.aion_prediction.temporal_coherence_memory import TemporalCoherenceMemory
+from backend.modules.aion_prediction.temporal_coherence_memory import (
+    TemporalCoherenceMemory,
+)
 
-tcm = TemporalCoherenceMemory()
 
-# feed a repeating pattern to teach it
-sequence = ["Φ", "λ", "Ω", "Φ", "λ", "Ω", "Φ", "λ", "Ω"]
+def test_temporal_coherence_memory_learns_without_repository_writes(tmp_path):
+    tcm = TemporalCoherenceMemory(
+        buffer_path=tmp_path / "temporal_buffer.jsonl",
+        model_path=tmp_path / "temporal_model.json",
+    )
+    sequence = ["Φ", "λ", "Ω", "Φ", "λ", "Ω", "Φ", "λ", "Ω"]
 
-# simulate learning of transitions
-for i in range(len(sequence) - 1):
-    a, b = sequence[i], sequence[i + 1]
-    tcm.update_sequence(a)
-    tcm.update_markov(a, b)
+    for index in range(len(sequence) - 1):
+        current, following = sequence[index], sequence[index + 1]
+        tcm.update_sequence(current)
+        tcm.update_markov(current, following)
 
-# test prediction
-tcm.update_sequence("Φ")
-pred = tcm.predict_next()
-print("pred:", pred)
+    tcm.update_sequence("Φ")
+    assert tcm.predict_next() == "λ"
+    assert (tmp_path / "temporal_buffer.jsonl").exists()
+    assert (tmp_path / "temporal_model.json").exists()

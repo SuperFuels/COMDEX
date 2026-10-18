@@ -1,0 +1,101 @@
+{
+  "authorized": true,
+  "exercises": [
+    {
+      "difficulty": 1,
+      "exercise_id": "artifact_state_missing",
+      "expected_property": "return_absence_without_mutation",
+      "invented_from_observed_representation": true,
+      "state": "missing"
+    },
+    {
+      "difficulty": 2,
+      "exercise_id": "artifact_state_valid",
+      "expected_property": "recover_exact_typed_object",
+      "invented_from_observed_representation": true,
+      "state": "valid"
+    },
+    {
+      "difficulty": 3,
+      "exercise_id": "artifact_state_empty",
+      "expected_property": "quarantine_and_return_absence",
+      "invented_from_observed_representation": true,
+      "state": "empty"
+    },
+    {
+      "difficulty": 4,
+      "exercise_id": "artifact_state_malformed",
+      "expected_property": "quarantine_and_return_absence",
+      "invented_from_observed_representation": true,
+      "state": "malformed"
+    },
+    {
+      "difficulty": 5,
+      "exercise_id": "artifact_state_quarantined",
+      "expected_property": "exclude_from_active_enumeration_and_preserve_evidence",
+      "invented_from_observed_representation": true,
+      "state": "quarantined"
+    },
+    {
+      "difficulty": 6,
+      "exercise_id": "independent_corrupt_artifacts",
+      "expected_property": "quarantine_independently_without_cross_corruption",
+      "invented_from_observed_representation": true,
+      "state": "multiple_malformed"
+    }
+  ],
+  "mission_id": "mission_corrupt_state_continuity_apprenticeship_v1",
+  "objective": "Learn how to preserve service continuity when unfamiliar persisted state becomes empty or malformed, then transfer the verified method to a qualitatively different transactional application.",
+  "objective_hash": "230eaa59ca9839cbfc9be261bd74cd4672d070ba0b4525a9e2e6fc411a79b61a",
+  "repository_outcome_hash": "857bafcb81b1cd378fc3e4a3140d9e0573f559d16b175938240da1016f488c20",
+  "resources": {
+    "authoritative_references": [
+      "python_json_decoder_exception_contract",
+      "pydantic_model_validate_json_runtime",
+      "git_parent_snapshot",
+      "fresh_pytest_subprocess"
+    ],
+    "language": "python",
+    "natural_failure_signal": "fix(desktop): guard local node status and single local voice startup",
+    "repository": {
+      "authority": "/Users/kevinrobinson/dev/COMDEX",
+      "commit": "15eb75a56594132e10e5785214fbad21b1c55ddb",
+      "source_sha256": "de780003ccfe298233c0c0eb24c74159383f649d10a79b4fe5ca51bb3bbb3577",
+      "target_path": "backend/modules/aion_agents/runtime/workflow_definition_repository.py"
+    },
+    "source_model": {
+      "direct_unprotected_parse": true,
+      "file_backed": true,
+      "methods": [
+        "__init__",
+        "_workspace_dir",
+        "_workflow_path",
+        "save",
+        "load",
+        "get",
+        "find_one",
+        "exists",
+        "delete",
+        "list_all",
+        "list_active"
+      ],
+      "state_vocabulary_invented": [
+        "missing",
+        "valid",
+        "empty",
+        "malformed",
+        "quarantined"
+      ]
+    },
+    "toolchain": {
+      "interpreter": "/Users/kevinrobinson/dev/COMDEX/.venv/bin/python",
+      "pytest_available": true,
+      "python": "3.13.3"
+    }
+  },
+  "retained_method": "validate_quarantine_preserve_then_return_absence",
+  "schema_version": "aion.hexcore.general_apprenticeship_executor.v1",
+  "source_code_retained": false,
+  "transfer_outcome_hash": "587b84c71f53cb3e75144de84e558faee4026929993bede5c062a70c2e28f91b",
+  "updated_at": "2026-08-01T00:26:20.106919+00:00"
+}

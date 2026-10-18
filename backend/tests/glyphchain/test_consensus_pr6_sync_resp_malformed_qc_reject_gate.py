@@ -61,8 +61,17 @@ async def test_consensus_pr6_sync_resp_malformed_qc_reject_gate() -> None:
 
         # state must not regress/change due to malformed QC
         st1 = await _get_status(dst)
-        assert int(st1.get("finalized_height") or 0) >= fh0, "finalized_height regressed after malformed sync_resp"
-        assert st1.get("last_qc") == last0, "last_qc changed after malformed sync_resp"
+        fh1 = int(st1.get("finalized_height") or 0)
+        last1 = st1.get("last_qc")
+        assert fh1 >= fh0, "finalized_height regressed after malformed sync_resp"
+        if last1 != last0:
+            # The live two-validator cluster may legitimately finalize its next
+            # round between the two observations. Distinguish that independent
+            # progress from accepting the malformed response.
+            assert fh1 > fh0
+            assert isinstance(last1, dict)
+            assert int(last1.get("height") or 0) == fh1
+            assert last1.get("height") != "nope"
 
     finally:
         await stop_nodes(nodes)

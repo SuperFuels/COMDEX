@@ -1,0 +1,246 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_software_engineering",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:software_engineering",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:operating_distributed_networks:operating_systems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:operating_distributed_networks:concurrency",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:operating_distributed_networks:networks",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:operating_distributed_networks:distributed_systems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:operating_distributed_networks:cloud",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:operating_distributed_networks:reliability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:operating_distributed_networks:observability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "label": "Operating, distributed and networked systems",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:operating_distributed_networks:operating_systems",
+      "label": "operating systems",
+      "subject_id": "operating_distributed_networks",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:operating_distributed_networks:concurrency",
+      "label": "concurrency",
+      "subject_id": "operating_distributed_networks",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:operating_distributed_networks:networks",
+      "label": "networks",
+      "subject_id": "operating_distributed_networks",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:operating_distributed_networks:distributed_systems",
+      "label": "distributed systems",
+      "subject_id": "operating_distributed_networks",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:operating_distributed_networks:cloud",
+      "label": "cloud",
+      "subject_id": "operating_distributed_networks",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:operating_distributed_networks:reliability",
+      "label": "reliability",
+      "subject_id": "operating_distributed_networks",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:operating_distributed_networks:observability",
+      "label": "observability",
+      "subject_id": "operating_distributed_networks",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_operating_distributed_networks",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:operating_distributed_networks:operating_systems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:operating_distributed_networks:concurrency",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:operating_distributed_networks:networks",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:operating_distributed_networks:distributed_systems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:operating_distributed_networks:cloud",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:operating_distributed_networks:reliability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:operating_distributed_networks:observability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "label": "Operating, distributed and networked systems",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:operating_distributed_networks:operating_systems",
+        "label": "operating systems",
+        "subject_id": "operating_distributed_networks",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:operating_distributed_networks:concurrency",
+        "label": "concurrency",
+        "subject_id": "operating_distributed_networks",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:operating_distributed_networks:networks",
+        "label": "networks",
+        "subject_id": "operating_distributed_networks",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:operating_distributed_networks:distributed_systems",
+        "label": "distributed systems",
+        "subject_id": "operating_distributed_networks",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:operating_distributed_networks:cloud",
+        "label": "cloud",
+        "subject_id": "operating_distributed_networks",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:operating_distributed_networks:reliability",
+        "label": "reliability",
+        "subject_id": "operating_distributed_networks",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:operating_distributed_networks:observability",
+        "label": "observability",
+        "subject_id": "operating_distributed_networks",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "operating_distributed_networks",
+    "title": "AION Academy \u00b7 Operating, distributed and networked systems"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

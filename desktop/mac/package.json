@@ -1,0 +1,66 @@
+{
+  "name": "tessaris-desktop",
+  "productName": "Tessaris",
+  "version": "0.1.2",
+  "private": true,
+  "description": "Tessaris local desktop shell",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test:photon-broker": "node --test electron/photon-billing-broker.test.cjs electron/photon-secure-session-store.test.cjs",
+    "test:business-data-tracer": "node --test electron/business-data-write-tracer.test.cjs electron/business-data-discovery-controller.test.cjs electron/business-data-browser-storage-discovery.test.cjs",
+    "dist": "electron-builder --mac",
+    "pack": "electron-builder --dir --mac",
+    "pack:local": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir --mac"
+  },
+  "devDependencies": {
+    "electron": "^43.1.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.tessaris.desktop",
+    "productName": "Tessaris",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "!src/*.bak*",
+      "!src/**/*.bak*",
+      "!**/*.bak-*",
+      "!**/*.bak_*",
+      "!**/*.backup",
+      "!**/*.orig",
+      "!**/.DS_Store",
+      "src/assets/**/*",
+      "public/**/*"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "extraResources": [
+      {
+        "from": "../../unity/spatial-boardroom-mvp/Builds/macOS/Tessaris Spatial Boardroom.app",
+        "to": "native/Tessaris Spatial Boardroom.app"
+      },
+      {
+        "from": "../../unity/spatial-boardroom-mvp/Builds/WebGL",
+        "to": "boardroom-web"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.business",
+      "extendInfo": {
+        "LSUIElement": false,
+        "LSBackgroundOnly": false
+      },
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/icon.icns"
+    }
+  }
+}

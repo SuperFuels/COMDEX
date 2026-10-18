@@ -1,0 +1,335 @@
+{
+  "boundary": "Phase 60 invents new composite project repairs rather than selecting one of Phase 59's four operators. The repair DSL, primitive opcodes, generated failure payloads and correctness oracles remain engineered. This is bounded sandboxed program synthesis, not unrestricted code invention or AGI.",
+  "created_at": "2026-07-30T18:38:17.292191+00:00",
+  "development": {
+    "portfolios": 3,
+    "source_hashes": 6
+  },
+  "gate": {
+    "accepted": true,
+    "counterexamples_generated": 3,
+    "errors": [],
+    "malicious_opcodes_rejected": 1.0,
+    "mean_sealed_accuracy": 1.0,
+    "out_of_grammar_abstention": true,
+    "phase59_backward_retention": 1.0,
+    "phase59_unsafe_commitments": 0,
+    "repair_families_invented": 3,
+    "restart_required": true,
+    "source_identity_overlap": 0,
+    "unsafe_side_effects": 0,
+    "weakest_repair_accuracy": 1.0
+  },
+  "out_of_grammar_control": {
+    "decision": "abstain",
+    "event": "semantic_source_forgery_without_independent_oracle",
+    "represented_by_repair_grammar": false
+  },
+  "passed": true,
+  "phase": 60,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "counterexamples_generated": 3,
+          "errors": [],
+          "malicious_opcodes_rejected": 1.0,
+          "mean_sealed_accuracy": 1.0,
+          "out_of_grammar_abstention": true,
+          "phase59_backward_retention": 1.0,
+          "phase59_unsafe_commitments": 0,
+          "repair_families_invented": 3,
+          "restart_required": true,
+          "source_identity_overlap": 0,
+          "unsafe_side_effects": 0,
+          "weakest_repair_accuracy": 1.0
+        },
+        "session_id": "repair_session_5a3ea473ca8e2850"
+      },
+      "goal": "open_project_repair_invention",
+      "procedure_id": "procedure_open_repair_invention_310ba8fcee06",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [
+        "procedure_outcome_grounded_projects_f314900848fe",
+        "procedure_recursive_photon_b69e4f4c0a74"
+      ],
+      "steps": [
+        "recognise_existing_repair_family_inadequacy",
+        "derive_typed_repair_contract_from_residual_outcome",
+        "compose_private_repair_programs",
+        "execute_only_in_side_effect_free_sandbox",
+        "generate_counterexamples_and_resynthesise",
+        "verify_on_source_disjoint_portfolios",
+        "replay_protect_previous_project_repairs",
+        "abstain_outside_repair_grammar"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_open_repair_invention_310ba8fcee06",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase60_open_project_repair_invention_authority"
+        },
+        "reason": "procedure_promotion:procedure_open_repair_invention_310ba8fcee06",
+        "state_hash": "70ca49752f2ecb328640b44b0a76618785e7c070d10659257cf5d79b95a331f5"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "counterexamples_retained": true,
+    "relearning_tools": 0,
+    "session_retained": true,
+    "tools_retained": true
+  },
+  "schema_version": "aion.hexcore.open_project_repair_invention.v1",
+  "sealed": {
+    "portfolios": 3,
+    "repair_tools": [
+      {
+        "complexity": 5,
+        "program": [
+          "detect_change",
+          "transitive_dependents",
+          "invalidate",
+          "rerun",
+          "verify"
+        ],
+        "repair_family": "transitive_revision_repair",
+        "sandbox": "ProjectRepairSandbox",
+        "schema_version": "aion.hexcore.invented_project_repair.v1",
+        "sealed_accuracy": 1.0,
+        "sealed_cases": 24,
+        "side_effects": "none",
+        "source_phase": 59,
+        "synthesis": {
+          "counterexamples": [
+            {
+              "candidate_program": [
+                "detect_change",
+                "direct_dependents",
+                "invalidate",
+                "rerun",
+                "verify"
+              ],
+              "expected": {
+                "affected": [
+                  "analysis",
+                  "decision",
+                  "manifest",
+                  "report"
+                ],
+                "decision": "complete",
+                "repaired": [
+                  "analysis",
+                  "decision",
+                  "manifest",
+                  "report"
+                ],
+                "verified": true
+              },
+              "observed": {
+                "affected": [
+                  "analysis"
+                ],
+                "decision": "complete",
+                "repaired": [
+                  "analysis"
+                ],
+                "verified": true
+              },
+              "payload_hash": "8de159852aaeeedf7a2ad7e589e3cb67182637bdb69e59fb66fc1d6775a9f2ab"
+            }
+          ],
+          "counterexamples_generated": 1,
+          "development_examples_final": 3,
+          "rounds": [
+            {
+              "active_examples": 2,
+              "candidates_evaluated": 526,
+              "round": 1,
+              "selected_program": [
+                "detect_change",
+                "direct_dependents",
+                "invalidate",
+                "rerun",
+                "verify"
+              ]
+            },
+            {
+              "active_examples": 3,
+              "candidates_evaluated": 550,
+              "round": 2,
+              "selected_program": [
+                "detect_change",
+                "transitive_dependents",
+                "invalidate",
+                "rerun",
+                "verify"
+              ]
+            }
+          ]
+        },
+        "tool_id": "project_repair_5da7d48e8a28abc8",
+        "weakest_family_accuracy": 1.0
+      },
+      {
+        "complexity": 3,
+        "program": [
+          "independent_vote",
+          "require_quorum",
+          "verify"
+        ],
+        "repair_family": "independent_evidence_quorum",
+        "sandbox": "ProjectRepairSandbox",
+        "schema_version": "aion.hexcore.invented_project_repair.v1",
+        "sealed_accuracy": 1.0,
+        "sealed_cases": 24,
+        "side_effects": "none",
+        "source_phase": 59,
+        "synthesis": {
+          "counterexamples": [
+            {
+              "candidate_program": [
+                "raw_vote",
+                "require_quorum",
+                "verify"
+              ],
+              "expected": {
+                "decision": "abstain",
+                "value": null,
+                "verified": true
+              },
+              "observed": {
+                "decision": "supported",
+                "value": "accept",
+                "verified": true
+              },
+              "payload_hash": "538774d9b5213de02a9cd546f6c11ec8f39eb6e57d9e8742b1ed968a893785e7"
+            }
+          ],
+          "counterexamples_generated": 1,
+          "development_examples_final": 3,
+          "rounds": [
+            {
+              "active_examples": 2,
+              "candidates_evaluated": 20,
+              "round": 1,
+              "selected_program": [
+                "raw_vote",
+                "require_quorum",
+                "verify"
+              ]
+            },
+            {
+              "active_examples": 3,
+              "candidates_evaluated": 26,
+              "round": 2,
+              "selected_program": [
+                "independent_vote",
+                "require_quorum",
+                "verify"
+              ]
+            }
+          ]
+        },
+        "tool_id": "project_repair_2be9e62ebea5ee53",
+        "weakest_family_accuracy": 1.0
+      },
+      {
+        "complexity": 3,
+        "program": [
+          "refresh_authority",
+          "require_fresh",
+          "verify"
+        ],
+        "repair_family": "commit_time_authority_refresh",
+        "sandbox": "ProjectRepairSandbox",
+        "schema_version": "aion.hexcore.invented_project_repair.v1",
+        "sealed_accuracy": 1.0,
+        "sealed_cases": 24,
+        "side_effects": "none",
+        "source_phase": 59,
+        "synthesis": {
+          "counterexamples": [
+            {
+              "candidate_program": [
+                "read_cached",
+                "require_fresh",
+                "verify"
+              ],
+              "expected": {
+                "decision": "authorized",
+                "verified": true
+              },
+              "observed": {
+                "decision": "abstain",
+                "verified": true
+              },
+              "payload_hash": "e11469fc2932e0c9bf0fad636c7cf1208f8f284825e0e4183c318a020d9704ba"
+            }
+          ],
+          "counterexamples_generated": 1,
+          "development_examples_final": 3,
+          "rounds": [
+            {
+              "active_examples": 2,
+              "candidates_evaluated": 20,
+              "round": 1,
+              "selected_program": [
+                "read_cached",
+                "require_fresh",
+                "verify"
+              ]
+            },
+            {
+              "active_examples": 3,
+              "candidates_evaluated": 26,
+              "round": 2,
+              "selected_program": [
+                "refresh_authority",
+                "require_fresh",
+                "verify"
+              ]
+            }
+          ]
+        },
+        "tool_id": "project_repair_0fee4db279ba62a4",
+        "weakest_family_accuracy": 1.0
+      }
+    ],
+    "source_hashes": 6
+  },
+  "unsafe_audit": [
+    {
+      "accepted": false,
+      "opcode": "filesystem_write"
+    },
+    {
+      "accepted": false,
+      "opcode": "network_request"
+    },
+    {
+      "accepted": false,
+      "opcode": "shell_execute"
+    },
+    {
+      "accepted": false,
+      "opcode": "dynamic_eval"
+    },
+    {
+      "accepted": false,
+      "opcode": "self_promote"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+\section{AION Gateway FulfilmentJob Core Preview Lock}
+\label{sec:aion-gateway-fulfilment-job-core-preview-lock}
+
+\subsection{Status}
+
+The AION Gateway v0 FulfilmentJob core preview layer is locked as a backend-only, dry-run-only contract.
+
+\begin{quote}
+\textbf{Status: LOCKED --- FulfilmentJob previews may be produced for review, but no real FulfilmentJob records are created.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock defines the first operational bridge between normalized inbound intent and future fulfilment execution.
+
+The Gateway receives messy external or human input, normalizes it into a \texttt{NormalizedInboundIntent}, and then derives a \texttt{FulfilmentJobPreview}. The preview describes what AION would later create as a fulfilment job, but it does not create a real job, execute Goal Engine, mutate business state, or call providers.
+
+\subsection{Implementation Files}
+
+The locked implementation is contained in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/contracts.py
+backend/modules/aion_gateway/inbound_gateway.py
+backend/modules/aion_gateway/fulfilment_job.py
+backend/modules/aion_gateway/safety.py
+backend/modules/aion_gateway/__init__.py
+\end{verbatim}
+
+The runtime test coverage is contained in:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent.py
+backend/tests/workflow_capsules/test_aion_gateway_fulfilment_job_core_preview.py
+\end{verbatim}
+
+\subsection{FulfilmentJob Preview Contract}
+
+The preview object MUST expose:
+
+\begin{itemize}
+  \item \texttt{job\_preview\_id}
+  \item \texttt{intent\_id}
+  \item \texttt{business\_id}
+  \item \texttt{workflow\_hint}
+  \item \texttt{suggested\_goal\_hint}
+  \item \texttt{customer\_context}
+  \item \texttt{requested\_outcome}
+  \item \texttt{routing\_status}
+  \item \texttt{evidence\_requirements}
+  \item \texttt{risk\_flags}
+  \item \texttt{safety\_flags}
+  \item \texttt{would\_create\_fulfilment\_job}
+  \item \texttt{would\_execute\_goal\_engine}
+  \item \texttt{requires\_human\_review}
+\end{itemize}
+
+\subsection{Dry-Run Boundary}
+
+The v0 Gateway MUST remain preview-only.
+
+The FulfilmentJob preview layer MUST NOT:
+
+\begin{itemize}
+  \item Create a real \texttt{FulfilmentJob}.
+  \item Instantiate database records.
+  \item Execute Goal Engine.
+  \item Execute Workflow Capsules.
+  \item Mutate business containers.
+  \item Call providers.
+  \item Send email, WhatsApp, Slack, or other messages.
+  \item Create bookings.
+  \item Create payments.
+  \item Create escrow records.
+  \item Grant permissions.
+\end{itemize}
+
+The following fields MUST remain false in v0:
+
+\begin{verbatim}
+would_create_fulfilment_job = false
+would_execute_goal_engine = false
+would_write_externally = false
+would_mutate_business_state = false
+would_grant_permission = false
+\end{verbatim}
+
+\subsection{Routing Relationship}
+
+The Gateway is an intake and normalization layer.
+
+It MUST feed AION later, but it MUST NOT replace the Goal Engine.
+
+The intended relationship is:
+
+\begin{verbatim}
+External input
+  -> NormalizedInboundIntent
+  -> FulfilmentJobPreview
+  -> Goal Engine later
+  -> FulfilmentJob later
+  -> Evidence and proof later
+\end{verbatim}
+
+\subsection{Validation}
+
+Standalone validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent.py \
+  backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_gateway_fulfilment_job_core_preview.py
+\end{verbatim}
+
+Current expected standalone baseline:
+
+\begin{verbatim}
+26 passed
+\end{verbatim}
+
+Compile command:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Next Boundary}
+
+After this lock, the next Gateway task is to add the FulfilmentJob preview lock-doc test, then include the FulfilmentJob preview tests in the focused lock suite.
+
+No public API, website embed, Boardroom panel, or live Goal Engine execution should be added until the backend Gateway contracts are stable.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-FULFILMENT-JOB-CORE-PREVIEW-v1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

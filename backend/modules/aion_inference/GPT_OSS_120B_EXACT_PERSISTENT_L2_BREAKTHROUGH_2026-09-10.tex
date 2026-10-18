@@ -1,0 +1,489 @@
+% Append-only LaTeX section for the AION GPT-OSS 120B technical record.
+% Required packages in the parent document: booktabs, amsmath.
+
+\section{Exact Persistent-L2 Acceleration for GPT-OSS 120B}
+\label{sec:gptoss120b-persistent-l2}
+
+\subsection{Purpose and Experimental Boundary}
+
+This section records the transition from task-specific 120B acceleration to an
+order-of-magnitude improvement that preserves unrestricted model execution.
+The target model is GPT-OSS 120B in the selected Q4\_K\_M/MXFP4
+representation.  Its authoritative representation remains in the verified
+AION warehouse on a 64~GB SD card.  The host is an Apple M3 Pro Mac with
+18~GB unified memory.  No model download, hardware purchase, retraining,
+weight substitution, router restriction, or reduction in active-expert count
+was used for the promoted exact result.
+
+Two categories of result must remain separate:
+
+\begin{enumerate}
+  \item The earlier 8~GiB arithmetic workbench reached a 6.6608 tokens/s
+  median and returned the correct value 391.  That is an important
+  request-specific quality-track result, approximately 80--105$\times$ faster
+  than its SD-streamed arithmetic control, but it does not prove unrestricted
+  or general-purpose GPT-OSS 120B performance.
+  \item The new persistent-L2 result leaves the 128-expert router unrestricted,
+  executes the original four selected experts and preserves every tested token,
+  route, hidden state and output logit exactly.  Its measured warm continuation
+  rate is 1.07--1.24 tokens/s across two prompt families.
+\end{enumerate}
+
+The second result is slower than the narrow 6.6608 tokens/s quality track, but
+it supports a much stronger scientific claim: the order-of-magnitude gain was
+obtained without changing the tested model computation.
+
+\subsection{Measurements That Determined the Direction}
+
+The preceding experiments established that expert arithmetic becomes cheap
+once the correct packed weights are close to the processor, while repeated
+weight retrieval and reconstruction dominate unrestricted SD-backed execution.
+Several plausible alternatives were measured and stopped before the new cache
+was implemented.
+
+\subsubsection{CPU thread escalation}
+
+A real resident four-expert route initially suggested that ten CPU threads
+might outperform six.  The full paired continuation test falsified that
+extrapolation.  The ten-thread candidate reached a 6.9172 tokens/s median,
+versus 7.2582 tokens/s for the paired six-thread control, a 4.70\% regression.
+Outputs remained exact.  The branch was stopped because added scheduling and
+memory pressure outweighed the narrow arithmetic gain.
+
+\subsubsection{Static cross-family expert pools}
+
+Three 8~GiB pools containing 648 layer-experts were trained from two families
+and tested on a disjoint invoice-extraction trace.  Equal per-layer allocation
+was best, yet covered the complete unrestricted four-expert route on only
+81 of 792 response layer-routes, or 10.23\%.  Median retained gate mass was
+0.4684, and more than 53.9\% of routes lost at least half of their unrestricted
+gate mass.  Frequency and gate-mass allocations did not repair the failure.
+Static cross-family pooling was therefore stopped as a general exact strategy.
+
+\subsubsection{Exact grouped expert batching}
+
+A packed one-expert CPU primitive remained bitwise exact and accelerated
+synthetic batches by 1.1282$\times$, 1.2308$\times$, 1.4128$\times$,
+1.4707$\times$ and 1.4960$\times$ at batch sizes 2, 4, 8, 16 and 32.
+However, a real eight-position layer contained twenty singleton reuse groups
+and only six pairs.  The grouped implementation required 6.4235~ms versus
+6.2350~ms for scalar execution, a 2.94\% regression.  This demonstrated that
+synthetic arithmetic reuse was too sparse in the observed autoregressive route
+to repay grouping and dispatch overhead.
+
+These falsifications pointed to a different opportunity.  The system could not
+reliably predict a small universal expert set, but a completed exact route did
+reveal a reusable, request-dependent working set.  The next design therefore
+accelerated where verified experts are retrieved from, without changing which
+experts the model selects.
+
+\subsection{Three-Tier Exact Architecture}
+
+The promoted hierarchy is
+
+\begin{center}
+\begin{tabular}{@{}cll@{}}
+\toprule
+Tier & Role & Integrity property \\
+\midrule
+L1 & 7.9--8~GiB bounded RAM workbench & Original verified expert bytes \\
+L2 & 17~GiB persistent internal-storage cache & Manifest-bound and hash-verified \\
+L3 & Compressed 120B SD warehouse & Authoritative model source \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For a requested layer-expert pair $(\ell,e)$, AION performs
+
+\[
+W_{\ell,e} =
+\begin{cases}
+W^{\mathrm{L1}}_{\ell,e}, & \text{if resident in the RAM workbench},\\
+\operatorname{Verify}(W^{\mathrm{L2}}_{\ell,e}), & \text{if present in L2},\\
+\operatorname{Verify}\!\left(\operatorname{Decode}
+  (W^{\mathrm{SD}}_{\ell,e})\right), & \text{otherwise}.
+\end{cases}
+\]
+
+An SD fallback that verifies successfully is promoted into L2.  Subsequent
+processes may use that entry only after its six components have been checked
+against the raw component hashes in the authoritative warehouse manifest.
+Thus L2 changes the source of the bytes, not their numerical content.
+
+\subsection{Persistent Expert-Frame Format and Integrity Controls}
+
+Each cached expert is represented as one raw frame containing the gate, up and
+down projection weights and biases.  The frame begins with the eight-byte magic
+value \texttt{AIONL2R1}, followed by six 64-bit component lengths and then the
+six raw components in a fixed order.  The cache namespace is derived from the
+SHA-256 of the warehouse manifest, preventing entries created for a different
+model manifest from being addressed as valid entries for this model.
+
+The implementation applies the following controls:
+
+\begin{itemize}
+  \item L2 writes use a unique temporary file, explicit flush and file-system
+  synchronization, followed by atomic replacement.
+  \item Every component length must equal the manifest-declared raw length.
+  \item Every component SHA-256 must equal the authoritative manifest hash.
+  \item A malformed, truncated or hash-invalid cache entry is deleted and
+  reconstructed from the SD warehouse.
+  \item Capacity is bounded, with least-recently-used eviction based on entry
+  access time.
+  \item Experts already protected in the RAM pool are marked as L2 bypasses so
+  the disk tier is not wasted duplicating the known L1 working set.
+  \item Metrics separately record L1 hits and faults, L2 hits and misses, bytes
+  read and written, evictions, integrity failures and true SD fallbacks.
+\end{itemize}
+
+The focused suite deliberately corrupted an L2 entry and verified rejection,
+deletion and exact reconstruction from SD.  Together with cross-process reuse
+and bypass behavior, all 11 focused tests passed.
+
+\subsection{Cross-Process Retrieval Microgate}
+
+Four genuine experts from layer 35, with IDs 0, 31, 63 and 127, were used for
+the narrow storage test.  The initial SD reconstruction required 563.959~ms,
+read 50,659,400 compressed bytes and wrote 53,015,264 raw L2 bytes.  Four fresh
+Python processes then retrieved the same four experts from L2.
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measurement & Result \\
+\midrule
+L2 retrieval median & 11.3616~ms \\
+L2 retrieval p95 & 12.2684~ms \\
+Populate-to-L2 speedup & 49.6372$\times$ \\
+Fresh-process L2 hits & 4/4 per run \\
+SD fallbacks during L2 runs & 0 \\
+Bitwise expert equality & Passed \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This passed the predeclared 5$\times$ advancement gate.  It is explicitly a
+cross-process warm-L2 result.  macOS may retain newly written file pages in its
+page cache; it is not presented as reboot-cold internal-NVMe performance or as
+a generated-token result.
+
+\subsection{First Full Integration: 2~GiB Capacity Falsification}
+
+The exact L2 was next placed behind the 8~GiB extraction workbench and ahead of
+the SD warehouse.  The full 48-position model path was executed twice with an
+unrestricted router and exact escape for every expert absent from L1.
+
+The 2~GiB L2 was exact, but it was too small.  The two passes produced only
+705 and 747 L2 hits from 3,209 out-of-L1 expert requests.  They required 2,504
+and 2,462 SD fallbacks and continually rewrote and evicted expert frames.
+Continuation reached 0.10011 and 0.09835 tokens/s.  This approximately matched
+the earlier 2~GiB RAM-halo behavior, but did not establish a new final
+performance result.  The configuration was preserved as a valid capacity
+falsification rather than hidden or relabeled.
+
+\subsection{Measured Working-Set Sizing}
+
+The successful next capacity was chosen from the exact trace rather than by
+post-hoc speed tuning.  The extraction trace used 1,956 distinct layer-experts
+in total.  After subtracting the 648 entries protected in L1, it contained
+1,315 distinct out-of-pool experts.  Their raw footprint was approximately
+16.23~GiB.  The persistent tier was therefore assigned a 17~GiB limit: large
+enough for the measured request working set, but much smaller than the complete
+model representation.
+
+This is the principal algorithmic insight of the experiment:
+
+\begin{quote}
+The complete model remains on the SD card, while AION promotes the exact expert
+working set discovered by real execution into a faster persistent tier.  It
+does not need to predict the entire route correctly before execution, and a
+wrong cache expectation cannot change the model output because any miss falls
+back to the authoritative SD warehouse.
+\end{quote}
+
+\subsection{Exact Extraction-Family Result}
+
+The identical 48-position invoice-extraction sequence was rerun with the
+17~GiB L2.  The first pass populated the missing portion of the working set.
+On the second pass, all 3,209 out-of-L1 expert requests hit L2.  There were zero
+L2 misses, zero SD fallbacks and zero compressed SD expert bytes read.
+
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Extraction continuation & Unrestricted SD control & Exact persistent L2 \\
+\midrule
+Continuation tokens & 22 & 22 \\
+Continuation time & 309.7243~s & 17.7469~s \\
+Tokens/s & 0.0710309 & 1.2396501 \\
+Median token latency & 13.9350~s & 0.78714~s \\
+p95 token latency & 17.3943~s & 0.88607~s \\
+Compressed SD expert bytes & 59.850~GB & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The directly paired continuation speedup is 17.4523$\times$, corresponding to
+a 94.2701\% reduction in continuation time.  It is approximately
+12.02$\times$ faster than the previous best exact extraction result of
+0.103133 tokens/s.
+
+The candidate was compared independently with the original unrestricted
+control.  Both candidate passes matched every generated token ID, all
+$48\times36=1{,}728$ layer routes, every step-final-hidden SHA-256 and every
+step-logit SHA-256.  Therefore this is an exact unrestricted execution result,
+not a reduced-expert or constrained-pool quality result.
+
+\subsection{Independent Arithmetic-Family Replication}
+
+The same bounded 17~GiB L2 was then presented with the unrelated frozen
+$17\times23$ arithmetic request.  At the start of this experiment, L2 contained
+the extraction working set; it therefore had to evict entries and adapt to a
+new request family.  L1 used a separate 7.9~GiB arithmetic workbench, while
+exact escape retained access to all original experts.
+
+On the second pass, every one of the 3,405 out-of-L1 requests hit L2, with zero
+L2 misses, zero SD fallbacks and zero compressed SD expert bytes read.  The
+complete 33-token continuation required 30.8556~s, reaching 1.06950 tokens/s.
+Median token latency was 0.94006~s and p95 was 1.12305~s.
+
+The frozen unrestricted arithmetic control provides a directly comparable
+17-token window:
+
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Arithmetic shared window & Unrestricted SD control & Exact persistent L2 \\
+\midrule
+Continuation tokens & 17 & 17 \\
+Continuation time & 235.8738~s & 14.8253~s \\
+Tokens/s & 0.0720724 & 1.1466850 \\
+Speedup & \multicolumn{2}{c}{15.9102$\times$} \\
+Time reduction & \multicolumn{2}{c}{93.7147\%} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Across this complete shared window, both candidate passes matched the
+unrestricted control's token IDs, all layer routes, step-hidden hashes and
+step-logit hashes exactly.  This independently reproduced the
+order-of-magnitude mechanism on a second family.
+
+\subsection{Consolidated Result}
+
+\begin{center}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Family & Control t/s & Candidate t/s & Speedup & Warm SD fallbacks \\
+\midrule
+Invoice extraction & 0.07103 & 1.23965 & 17.45$\times$ & 0 \\
+Arithmetic shared window & 0.07207 & 1.14668 & 15.91$\times$ & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The experiment therefore establishes the following bounded claim:
+
+\begin{quote}
+On the existing 18~GB M3 Pro, AION accelerated exact unrestricted warm
+GPT-OSS 120B continuation by more than one order of magnitude on two distinct
+prompt families.  The complete model remained authoritative on a 64~GB SD
+warehouse.  A manifest-bound persistent working-set tier on ordinary internal
+storage eliminated repeat SD expert reads without changing any tested token,
+route, hidden state or logit.
+\end{quote}
+
+This does not prove 30--50 tokens/s, reboot-cold performance, broad conversational
+quality, or universal working-set size.  Cache construction cost is real and
+was reported separately.  The result also uses approximately 16--17~GiB of
+ordinary internal storage in addition to the SD warehouse; it does not claim
+that the entire active system is confined to the SD card.
+
+\subsection{Remaining Bottleneck and Next Experiments}
+
+After the SD expert traffic was eliminated on the warm passes, the system still
+read 42.53~GB of raw expert frames from L2 during extraction and 45.13~GB during
+arithmetic.  The bottleneck has therefore moved from SD decompression and
+retrieval to repeated internal reads, component hashing, Python byte slicing
+and object construction, packed-kernel dispatch, CPU arithmetic, and remaining
+attention/output synchronization.
+
+The next exact programme is:
+
+\begin{enumerate}
+  \item Validate the persistent hierarchy on blinded extraction, reasoning and
+  business families, recording each family's distinct working-set size and
+  cross-family eviction behavior.
+  \item Map immutable verified L2 frames directly into aligned views so the
+  packed kernel can consume them without rebuilding six Python byte strings on
+  every access.
+  \item Separate one-time frame verification from repeated trusted reads using
+  manifest-bound verification metadata, while retaining detection of changed
+  or corrupted files.
+  \item Profile hashing, page faults, internal-storage reads, packed expert
+  arithmetic, attention, output projection and synchronization independently.
+  \item Introduce bounded persistent CPU or Metal arenas only where profiling
+  identifies allocation or transfer as dominant.
+  \item Advance a candidate only when a real complete-transformer gate remains
+  exact and improves predeclared continuation latency; preserve and stop narrow
+  microbenchmark wins that fail to transfer.
+\end{enumerate}
+
+Approximate quantization, pruning, changed expert counts or learned substitute
+calculators remain separate quality-gated research tracks and must never be
+reported as equivalent to this exact result.
+
+\subsection{Evidence, Reproducibility and Commits}
+
+The primary evidence was stored locally and copied without overwrite to the SD
+evidence volume.  Local and SD file SHA-256 values were compared after copying.
+The principal receipts are:
+
+\begin{itemize}
+  \item Retrieval microgate canonical SHA-256 (concatenate the two lines):\\
+  {\small\texttt{303b99f80a56f50ae0b2b2c33355895a}}\\
+  {\small\texttt{7b6e2087e0f6eb69d75a66e1aecf72f8}}.
+  \item Extraction report canonical SHA-256 (concatenate the two lines):\\
+  {\small\texttt{8d08104ad3036aafb4d9e1eb1085d319}}\\
+  {\small\texttt{ff98eadffafd5082be5d3773a5fd91b9}}.
+  \item Extraction stored-file SHA-256 (concatenate the two lines):\\
+  {\small\texttt{18541b52c9883006253465b812470ca34}}\\
+  {\small\texttt{4ec286762782dce66607dd4b4993dae}}.
+  \item Arithmetic report canonical SHA-256 (concatenate the two lines):\\
+  {\small\texttt{40b6070f6260910b3819ff6925cced39}}\\
+  {\small\texttt{54371186e15f28e8049fe674d3f3cda3}}.
+  \item Arithmetic stored-file SHA-256 (concatenate the two lines):\\
+  {\small\texttt{20e71d66a9228c8aaab58befa0c9e28c}}\\
+  {\small\texttt{de9845ba7ad0ba2eefe55cab8666e7d7}}.
+\end{itemize}
+
+The exact persistent-L2 implementation and first-family evidence were committed
+as \texttt{1ec98ea5}.  The independent arithmetic-family validation was
+committed as \texttt{074225a7}.  The focused cache and evidence tests passed
+11/11 before promotion.
+
+\section{Exact L2 Access Optimisation and Reusable Route Arena}
+\label{sec:exact-l2-arena-20260910}
+
+\subsection{Objective and unchanged integrity boundary}
+
+After the persistent L2 result, the remaining warm path still moved
+42.53--45.13~GB of logical raw expert data per tested response. This stage
+therefore attempted to reduce the cost of delivering already-verified L2
+frames to the unchanged packed MXFP4 kernel. No router value, expert ID,
+weight, attention operation, activation or output calculation was replaced.
+Every new process began with an empty verification epoch and authenticated
+each admitted expert against the six component hashes in the authoritative SD
+manifest. Only repeated reads of a frame already verified during the same
+process were permitted to omit a second SHA-256 calculation.
+
+\subsection{Direct mapping: large micro-win, full-model falsification}
+
+A private process-lifetime mapping exposed the six verified expert components
+directly to the native kernel. On one real four-expert layer route it reduced
+median complete-layer time from 13.938 to 0.815~ms, a 17.10$\times$ exact
+microgate improvement. This did not transfer to generation. On the
+48-position arithmetic test, the mapped candidate reached only 0.66837~t/s,
+versus 1.06950~t/s for copied L2. It removed approximately 19.19~s of explicit
+loader work but added approximately 35.87~s of native compute stalls because
+the mapped pages were faulted while the packed kernel touched them.
+
+Two prefetch repairs were also exact and were stopped. macOS
+\texttt{MADV\_WILLNEED} reached 0.37269~t/s. Explicit four-way native page
+touching moved the stalls out of the kernel but reached only 0.70108~t/s; page
+delivery still cost 17.15~s. The decision is
+\texttt{STOP\_MAPPED\_L2\_AS\_FULL\_MODEL\_PATH}. The result demonstrates
+that cached sequential reads are materially better than demand-paged file
+mappings for this workload on the tested M3 Pro.
+
+\subsection{Process-lifetime verified bulk reads}
+
+The next candidate retained sequential whole-frame reads but removed repeated
+component hashing after the first successful in-process verification. A new
+process still revalidates every component and repairs corruption from the SD
+warehouse. The real-layer gate was bit-exact and improved from 14.313 to
+9.586~ms, or 1.493$\times$.
+
+On arithmetic, the complete 48-position two-pass candidate matched all token
+IDs, all 1,728 layer routes, every layer-output hash, every final-hidden hash
+and every step-logit hash. Warm response rate rose from 1.06950 to
+1.45591~t/s, a 36.13\% improvement, while response expert-load time fell from
+19.468 to 12.351~s. There were zero warm SD fallbacks.
+
+Extraction required a three-pass audit because its second pass still admitted
+421 previously unseen L2 frames, representing 5.58~GB of verification work.
+After admission, the two zero-fallback passes reached 1.32157 and
+1.49916~t/s. Their median was 1.41036~t/s, 13.77\% above the previous
+1.23965~t/s extraction control. This records startup authentication
+separately from stable reuse rather than hiding it inside the warm claim.
+
+\subsection{Four-slot reusable route arena}
+
+Profiling then exposed a second redundant copy. The ordinary L2 reader first
+allocated a complete approximately 13.25~MB expert file and subsequently
+copied its six components into separate Python byte strings. The new arena
+allocates four resident expert slots once, totalling 53,015,264 bytes
+(50.56~MiB). Four parallel \texttt{preadv} calls fill those slots directly;
+component memory views then point into the page-resident slots and the existing
+native kernel consumes them without the second copy. The slots are reused
+only after the current layer calculation returns.
+
+The zero-SD-fallback real-layer gate was bit-exact and improved median complete
+layer time from 14.524 to 5.565~ms, or 2.610$\times$. Loading alone fell from
+13.573 to 4.506~ms. The focused implementation suite passed 16/16.
+
+The complete arithmetic scale test used the existing 7.9~GiB protected RAM
+pool, the 50.56~MiB route arena and a 20~GiB maximum internal-disk L2. The
+larger L2 is disk capacity, not RAM, and permits the tested working set to
+settle without cyclic SD repair. Its two settled passes reached 1.61779 and
+1.57043~t/s; the median was 1.59411~t/s. An equal-capacity verified bulk-copy
+control reached 1.26965 and 1.49403~t/s, median 1.38184~t/s. The arena therefore
+improved the same-capacity settled median by 15.36\%. Relative to the former
+17~GiB exact arithmetic control at 1.06950~t/s, the combined capacity and arena
+configuration improved median throughput by 49.05\%.
+
+All arithmetic passes retained identical token IDs, expert routes,
+layer-output hashes, final-hidden hashes and logits. The settled arena passes
+had zero SD fallbacks and zero L2 evictions. This promotes the configuration
+for a task-aligned arithmetic session, not for arbitrary mixed workloads.
+
+\subsection{Cross-family capacity boundary}
+
+The final extraction run deliberately followed the arithmetic run without
+rebuilding a family-specific L2. Even with a 20~GiB ceiling it incurred 690,
+230 and 51 SD fallbacks across its three passes. The third pass remained exact
+and reached 1.22879~t/s, but the L2 had not settled and the result did not beat
+the former extraction control. Decision:
+\texttt{NOT\_PROMOTED\_FOR\_RAPID\_MIXED\_FAMILY\_SWITCHING}.
+
+The honest system claim is therefore narrower than 120B at 1.6~t/s for every
+request. A family-aligned session can reuse a bounded local working set at
+approximately 1.4--1.6~t/s while the complete model remains on SD. Switching
+between unrelated families can exceed the 20~GiB L2 working set and reintroduce
+slow SD fills. The next architecture should use explicit signed family
+cartridges, admission forecasting or a larger/faster inexpensive local tier;
+it must not describe unsettled mixed-family results as warm throughput.
+
+\subsection{Evidence hashes}
+
+Principal canonical SHA-256 values are: mapped layer microgate
+\texttt{212cc6fc50313b7e5384bd9ceffa8f8f8e50148e2303816d58335790f8d2b90a};
+mapped full-model falsification
+\texttt{46131f5a2eb48311e1661eae3b72658ffb21848a206d667682d553727238f05d};
+pinned bulk arithmetic
+\texttt{49a2a8b950964a562c49c120380e3e8db200d5417f4de6fd48630ea938f0a6dc};
+pinned bulk extraction three-pass
+\texttt{083af674a5c0234269c8c64fe41722065e6c10cb8ca8476fd73cab2a4181ff5e};
+zero-fallback arena layer gate
+\texttt{51eec4a2ae486c3902dd4e4cc7476c7dc20b94575340ed171a16b3bfcba9fc12};
+20~GiB arena arithmetic
+\texttt{48e020933c66a50fb571f2db96dd75aff7e911e249517244d237b3707ecfd3fb};
+equal-capacity copy control
+\texttt{f14a72556e1bebb96cf2fb00b2ad07ef86960d5c1fc90e68f94bc24f556cf2ea};
+and mixed-family extraction boundary
+\texttt{bc37c7c05ebcaf60f347c48eef09050083fb130df86148446806fecc8a827d3e}.
+
+These experiments do not establish 30--50~t/s, broad semantic quality or a
+fully SD-only hot path. They establish a new exact 120B continuation frontier
+of 1.594~t/s median for the frozen task-aligned arithmetic cohort on the
+existing 18~GB M3 Pro, with a precisely measured cross-family capacity limit.

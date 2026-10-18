@@ -1,0 +1,31 @@
+{
+  "created_at": "2026-10-18T08:48:40.063039+00:00",
+  "gate": {
+    "accepted": true,
+    "complete_procedures": 2,
+    "compressed_bytes": 3447,
+    "corrupted_capsules_rejected": 1,
+    "edge_endpoints_resolve": true,
+    "edges": 13,
+    "evidence_resolves": true,
+    "evidence_sources": 3,
+    "functional_capsules_reconstructed": 2,
+    "functional_capsules_total": 2,
+    "live_source_writes": 0,
+    "node_provenance_resolves": true,
+    "node_types": 8,
+    "nodes": 11,
+    "procedures": 2,
+    "queries_passed": 4,
+    "queries_total": 4,
+    "raw_answers_stored": 0,
+    "relation_types": 11,
+    "source_documents_opened_during_reconstruction": 0,
+    "store_sha256": "aead5bd1133f59940f550e791433d8ca651faac0662e7f37fc39968fc91f81b6",
+    "uncompressed_bytes": 10953,
+    "unsafe_actions": 0
+  },
+  "schema_version": "aion.functional_glyph_lexicon.v2",
+  "store": "backend/modules/hexcore/data/functional_glyph_lexicon/lexicon.json.gz",
+  "store_sha256": "aead5bd1133f59940f550e791433d8ca651faac0662e7f37fc39968fc91f81b6"
+}

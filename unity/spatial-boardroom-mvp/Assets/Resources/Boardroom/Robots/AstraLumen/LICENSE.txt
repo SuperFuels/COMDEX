@@ -1,0 +1,10 @@
+Astra Lumen II, a rigged companion android
+Creator: XRProfXR (Sketchfab user pinckneyb)
+Source: https://sketchfab.com/3d-models/astra-lumen-ii-a-rigged-companion-android-84761f55aa17493d9b226bb1f7101428
+
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+Commercial use and modification are permitted with attribution.
+License: https://creativecommons.org/licenses/by/4.0/
+
+Downloaded from Sketchfab on 2026-09-28. The Tessaris project modifies the
+presentation, materials, lighting, scale and runtime pose of this model.

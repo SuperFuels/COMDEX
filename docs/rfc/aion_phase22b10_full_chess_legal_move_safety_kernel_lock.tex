@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.10: Full Chess Legal Move Safety Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.10 defines the AION Full Chess Legal Move Safety Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can reject pseudo-legal moves that leave the king in check and select a safe legal move.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.10 separates pseudo-legal move generation from legal move safety under king-check constraints.
+
+\section{Safety Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{pseudo\_legal\_move\_count};
+  \item \texttt{safe\_legal\_move\_count};
+  \item \texttt{unsafe\_king\_exposure\_count};
+  \item \texttt{own\_piece\_rejection\_count};
+  \item \texttt{illegal\_geometry\_count};
+  \item \texttt{selected\_safe\_move};
+  \item \texttt{king\_safe\_after\_selected\_move};
+  \item \texttt{selected\_move\_preserves\_king\_safety};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates selected full-board legal move safety filtering. It does not yet implement full chess mastery, full checkmate search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B10-FULL-CHESS-LEGAL-MOVE-SAFETY-KERNEL-LOCK\\
+Status: LOCKED --- full chess legal move safety kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

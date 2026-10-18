@@ -31,7 +31,10 @@ from backend.symatics import symatics_rulebook as SR
 from backend.modules.glyphos import glyph_instruction_set as GIS
 from backend.photon_algebra import rewriter as photon_rewriter
 from backend.photon_algebra.renderer import render_photon
-
+from backend.photon_algebra.magnetism_bridge import PhotonMagnetismBridge
+from backend.modules.dimensions.ucs.zones.experiments.qwave_engine.symatics_field_compiler import (
+    DEFAULT_CATALOG_PATH as DEFAULT_SYMATICS_CATALOG_PATH,
+)
 # ------------------------------------------------------------------
 # Loader for YAML codex instruction set
 # ------------------------------------------------------------------
@@ -85,6 +88,9 @@ class RegistryBridge:
         self.symbol_registry = symbol_registry.REGISTRY
         self.instruction_registry = instruction_registry.registry
         self.symbolic_registry = symbolic_registry
+        self.photon_magnetism = PhotonMagnetismBridge(
+            symatics_catalog_path=DEFAULT_SYMATICS_CATALOG_PATH
+        )
 
     # ------------------------------------------------------------------
     # Resolution Helpers
@@ -377,6 +383,78 @@ class RegistryBridge:
         _reg("≈")   # similarity
         _reg("⊂")   # containment
 
+    # ------------------------------------------------------------------
+    # Extra Sync - Photon Magnetism Bridge Ops
+    # ------------------------------------------------------------------
+    def sync_photon_magnetism_ops(self) -> None:
+        """
+        Register additive bridge ops without changing existing photon op behavior.
+
+        New ops:
+            photon:magnetic_intent
+                -> normalize Photon expr and return magnetic field intent dict
+
+            photon:compile_field_program
+                -> normalize Photon expr and compile to a Symatics field program
+        """
+
+        def _register_once(key: str, handler, aliases=()):
+            try:
+                self.instruction_registry.register(key, handler)
+            except ValueError:
+                pass
+
+            for alias in aliases:
+                try:
+                    self.instruction_registry.alias(alias, key)
+                except ValueError:
+                    pass
+
+        def _magnetic_intent_handler(ctx, expr=None, *args, **kwargs):
+            target = expr if expr is not None else (args[0] if args else None)
+            target = _to_photon_ast(target)
+            intent = self.photon_magnetism.compile_expr(target)
+            return intent.to_dict()
+
+        def _compile_field_program_handler(ctx, expr=None, *args, **kwargs):
+            target = expr if expr is not None else (args[0] if args else None)
+            target = _to_photon_ast(target)
+
+            fallback_symbol_id = kwargs.get("fallback_symbol_id", "S1")
+            amplitude = float(kwargs.get("amplitude", 1.0))
+            frequency = float(kwargs.get("frequency", 1.0))
+
+            intent, program = self.photon_magnetism.compile_to_symatics_program(
+                target,
+                fallback_symbol_id=fallback_symbol_id,
+                amplitude=amplitude,
+                frequency=frequency,
+            )
+
+            return {
+                "bridge": "PhotonMagnetismBridge",
+                "intent": intent.to_dict(),
+                "program": program.to_dict(),
+            }
+
+        _register_once(
+            "photon:magnetic_intent",
+            _magnetic_intent_handler,
+            aliases=(
+                "magnetic_intent",
+                "photon:symbolic:magnetic_intent",
+            ),
+        )
+
+        _register_once(
+            "photon:compile_field_program",
+            _compile_field_program_handler,
+            aliases=(
+                "compile_field_program",
+                "photon:symbolic:compile_field_program",
+            ),
+        )
+
 
 
 # ✅ Singleton bridge
@@ -385,3 +463,4 @@ registry_bridge.sync_from_symbol_registry()
 registry_bridge.sync_symatics_ops()
 registry_bridge.sync_photon_ops()
 registry_bridge.sync_mode_aliases()
+registry_bridge.sync_photon_magnetism_ops()

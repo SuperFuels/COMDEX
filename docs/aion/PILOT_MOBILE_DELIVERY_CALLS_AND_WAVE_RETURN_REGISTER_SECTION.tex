@@ -1,0 +1,130 @@
+\section{Return Register: Mobile Delivery, Native Phones, Calls and Wave Transport}
+\label{sec:pilot-mobile-delivery-calls-wave-return-register}
+
+This section is the authoritative return register for the work that could not be
+closed during the Mobile Delivery, Responsive Qualification and Sovereign Transport
+Hardening stage.  The underlying software foundations are implemented and tested;
+the following items require external accounts, signed native applications,
+representative physical devices, specialist review or radio hardware.  None of these
+items may be marked complete using a mock response, an interface demonstration or a
+locally reconstructed packet.
+
+\subsection{Real provider qualification}
+
+\begin{enumerate}
+  \item \textbf{Task, calendar and communication providers
+  (\texttt{MOB-0514}).} Connect persona-specific, user-authorized accounts for at
+  least one real task service, one real calendar and one real communication channel.
+  Exercise creation, modification or delivery only after the trusted phone displays
+  the exact account, recipient, content and scope.  Completion requires provider
+  receipts, idempotency evidence and confirmation that shared-TV speech cannot choose
+  another person's account.
+
+  \item \textbf{SMS field delivery.} Connect an authorized SMS provider account to
+  the implemented adapter.  Send to a controlled real recipient, authenticate the
+  provider's status callback and record provider acceptance and carrier delivery as
+  separate states.  Human reading or agreement must not be inferred from either
+  state.
+
+  \item \textbf{Official WhatsApp route (\texttt{MOB-0703}).} Obtain an officially
+  authorized WhatsApp Business Platform sender or another explicitly permitted
+  provider route.  Bind it to the correct persona, complete exact private approval,
+  verify the provider receipt and test revocation.  Browser automation, copied login
+  sessions and unofficial protocol clients are prohibited substitutes.
+\end{enumerate}
+
+\subsection{Signed native applications and representative devices}
+
+\begin{enumerate}
+  \item \textbf{Signed iOS application (\texttt{MOB-1101}).} Build the existing
+  native iOS source with the full Apple toolchain, bind the approved application
+  identifier and entitlements, sign it with an authorized development identity and
+  install it on representative physical iPhones.
+
+  \item \textbf{Signed Android application (\texttt{MOB-1102}).} Build the existing
+  native Android source with the production Android toolchain, sign it with the
+  controlled release key and install it on representative physical Android phones.
+
+  \item \textbf{Physical accessibility and family qualification
+  (\texttt{MOB-1110}).} Test VoiceOver, TalkBack, dynamic type, large controls,
+  reduced motion, camera and microphone permission flows, guardian-controlled child
+  journeys, notification privacy, phone locking, application suspension, background
+  delivery, network changes and biometric approval on representative devices.
+
+  \item \textbf{Store and privacy approval (\texttt{MOB-1111}).} Complete Apple and
+  Google signing, privacy manifests and declarations, permission explanations,
+  export/compliance declarations, release-key custody and store review.  Store
+  acceptance must not weaken customer ownership or move mother-brain secrets into a
+  Tessaris-operated service.
+\end{enumerate}
+
+\subsection{Independent call-encryption assurance}
+
+\begin{enumerate}
+  \item \textbf{Audited end-to-end media encryption (\texttt{MOB-1201}).} Submit the
+  native WebRTC media construction, participant authentication, reconnect epochs,
+  group-key rotation, dependency inventory and threat model to an independent
+  cryptographic/security reviewer.  Resolve material findings and publish a bounded
+  assurance statement identifying precisely what was reviewed.
+
+  \item Repeat real-device calls under packet loss, jitter, network switching,
+  suspension and reconnection.  Confirm that removed participants and revoked or
+  compromised devices cannot regain media or group authority.  These field results
+  supplement the completed automated adverse-network tests; they do not replace the
+  independent audit.
+\end{enumerate}
+
+\subsection{Physical Wave and direct-radio completion}
+
+Wave remains hidden and optional until every applicable item below is proven.
+
+\begin{enumerate}
+  \item \textbf{Genuine direct adapters (\texttt{MOB-1307}).} Implement actual BLE
+  and Wi-Fi Direct transports only against supported operating-system and hardware
+  interfaces.  The adapters must preserve signed enrollment, capability leases,
+  fragmentation, integrity, TTL, priority, retry, deduplication and truthful delivery
+  states.  Merely labelling an IP or mock transport as BLE or Wi-Fi Direct is not
+  acceptable.
+
+  \item \textbf{Hardware qualification (\texttt{MOB-1308}).} Select supported
+  ESP32, Raspberry Pi or dedicated radio/bridge hardware and record model, firmware,
+  antenna, power source, range, throughput, duty cycle, thermal behavior, reconnect
+  behavior and failure modes.  Test bridge revocation and automatic mock-driver
+  exclusion on the real device.
+
+  \item \textbf{Regional compliance (\texttt{MOB-1309}).} For every intended
+  market and radio profile, obtain competent confirmation of permitted frequency,
+  transmit power, bandwidth, duty cycle, equipment certification, labeling and
+  operator obligations.  A laboratory success is not authorization to transmit.
+
+  \item \textbf{Internet-disconnected field proof (\texttt{MOB-1310}).} Place two
+  independently controlled AION mothers on qualified hardware, physically remove
+  internet connectivity and exchange both text and push-to-talk traffic.  Completion
+  requires authenticated sender and recipient receipts, complete payload integrity,
+  duplicate suppression, store-and-forward recovery after interruption and proof that
+  local reconstruction was not misreported as over-the-air delivery.
+\end{enumerate}
+
+\subsection{Product and governance field closure}
+
+\begin{enumerate}
+  \item \textbf{Representative field pilots (\texttt{MOB-1409}).} Run consented,
+  documented trials with a household, freelancer, employee and Boardroom user.
+  Exercise identity separation, invitations, tasks, approvals, organization expiry,
+  shared-TV logout and recovery.  Record failures, corrections and participant
+  acceptance without collecting unnecessary private content.
+
+  \item \textbf{Independent product review (\texttt{MOB-1410}).} Complete security,
+  privacy, data-protection, consumer, employment, child-safety, communications and
+  relevant regulatory review before general release.  Track findings to verified
+  remediation or a clearly accepted residual risk.
+\end{enumerate}
+
+\subsection{Final closure rule}
+
+An item leaves this register only when it has a dated implementation or field
+reference, reproducible evidence, an accountable owner and a verified outcome.  The
+canonical mobile checklist must be updated at the same time.  Until then Pilot must
+continue to label unavailable providers, unaudited media, unqualified hardware and
+unverified delivery honestly, while keeping Wave and unfinished native distribution
+outside ordinary consumer claims.

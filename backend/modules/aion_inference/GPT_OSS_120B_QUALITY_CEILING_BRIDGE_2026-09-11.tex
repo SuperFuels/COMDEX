@@ -1,0 +1,141 @@
+% Append-only AION GPT-OSS 120B experimental record section.
+% Requires: amsmath, booktabs, hyperref.
+\section{Bridging the 120B Quality Track to the Measured Top--1 Ceiling}
+\label{sec:gptoss120b-quality-ceiling-bridge}
+
+\subsection{Objective and invariant boundaries}
+
+The immediate objective was to approach the measured top--1 physical ceiling of
+$28.6174$ generated tokens per second while retaining useful GPT-OSS 120B
+behaviour.  This ceiling is not a quality result: fixed top--1 continuation is
+repeatable and fast but produces repetitive or incoherent answers.  The exact
+unrestricted reference remains $1.72455$ tokens/s on arithmetic and $1.82858$
+tokens/s on extraction.  Every experiment in this section is therefore labelled
+either exact or quality-track, and no reduced-expert result is represented as
+bit-exact unrestricted GPT-OSS 120B inference.
+
+All experiments used the existing 18~GB M3 Pro Mac, the verified compressed
+GPT-OSS 120B warehouse on the 64~GB SD card, original model weights, exact
+unrestricted prompt processing, and an 8~GiB bounded request workbench.
+
+\subsection{Layer-only top--1 ablations}
+
+Two depth-only policies were tested before building a learned selector.  Using
+top--1 only in layers 28--35 diverged from the correct 0.75 preserved-mass
+trajectory at the fifth continuation token.  Restricting top--1 to layers
+32--35 delayed, but did not remove, the defect: divergence occurred at the
+eleventh continuation token.  Both candidates were internally repeatable and
+were stopped.  Their canonical evidence hashes are respectively
+\texttt{9855788439fa0719844789c6d7569a4e167a4a46e2b41e1811611a1461ef8a80}
+and
+\texttt{b064c90566dff361b61413d444e48b3d25c030dc5110c121c8734ef3d799e153}.
+The result falsifies layer depth alone as a sufficient safety signal.
+
+\subsection{Activation-bound counterfactual corpus}
+
+A metadata-only counterfactual collector was added to the real 120B runtime.
+For twelve continuation positions and all 36 layers it evaluated each selected
+expert contribution from the original packed MXFP4 weights and recorded router
+mass, gate entropy, gate gap, activation norms, and local output error.  This
+produced 432 provenance-bound observations.  Reconstruction of the separately
+calculated contributions matched the original layer output with maximum
+relative $L_2$ error $4.761\times10^{-8}$.
+
+The corpus showed that omitted experts were rarely negligible.  For top--1,
+median local output relative $L_2$ error was $0.14165$ and p95 was $0.26957$.
+For top--2 among the 399 three-expert observations, median error was $0.07378$
+and p95 was $0.14990$.  No top--1 sample passed the conservative local gate of
+output error at most $0.005$ and contribution error at most $0.1$; only three
+of 432 passed even the loose $0.02/0.2$ gate.  Only seven of 399 top--2 samples
+passed the loose gate.  The canonical corpus-run hash is
+\texttt{d7a5308f90daadaae00c390dd291b1a90652f2ec892bc92008882d2238a1c058}.
+
+This is important negative evidence: a selector based only on layer identity or
+large router mass cannot safely turn most layers into top--1 execution.
+
+\subsection{Reduced-route request cartridge}
+
+The request-pool builder was extended to accept verified one--four-expert route
+evidence and an explicit token offset.  For the first ten continuation
+positions of the aggressive 0.65 preserved-mass draft, the exact active union
+contained 597 layer--expert pairs and occupied 7,912,494,720 raw bytes
+(approximately 7.37~GiB).  It therefore fit inside the declared 8~GiB
+workbench.  The cryptographically bound pool has canonical hash
+\texttt{dc69730fc9c0ed81fa1d582c123aeca7652e39e0a9facd62ba5f16a73a30fa15}.
+
+With that pool preloaded, continuation expert lookup fell to approximately
+$0.5$~ms/token, proving that the cartridge removed SD lookup from the measured
+continuation critical path.  Throughput nevertheless remained $1.5826$--
+$1.6395$ tokens/s in the first full probe because two- and three-expert
+calculation, rather than lookup, had become dominant.  The run hash is
+\texttt{90321c9158c509551f6f40c29d99fcbf609fe17b578b10cef7b9b149357d4d19}.
+
+\subsection{Stable graph shape and persistent single-expert execution}
+
+Apple/GGML execution showed strong sensitivity to graph shape.  Padding a
+one--three-expert route to a stable four-branch graph with zero gates retained
+the same first five token IDs and hidden-state hashes as the adaptive reference.
+The settled five-token rate increased from $2.3357$ to $4.5863$ tokens/s.
+However, the complete 33-token quality gate falsified this approach: small
+floating-point differences accumulated, the route diverged, the request pool
+was escaped, and sustained throughput collapsed to $0.1168$ tokens/s.  The
+short and complete run hashes are
+\texttt{1811dbf64983000304b3ae0a1436efa0e90a277a4fb02660746377f6fcf6aeee}
+and
+\texttt{47cb58c31fedd6fdd22a2b1089a69a403187c87d4d992a08109e4cb8eeeb1a3d}.
+Decision: \texttt{STOP\_PADDED\_FOUR\_AS\_SUSTAINED\_QUALITY\_PATH}.
+
+A second implementation constructed one persistent single-expert graph and
+changed only activation, packed-weight, bias, and scalar-gate pointers.  Native
+left-associated reduction preserved the adaptive reference bit-for-bit.  It
+improved the settled five-token rate from $3.2435$ tokens/s for rebuilt serial
+graphs to $4.5381$ tokens/s.  This was a real graph-reuse improvement, but it did
+not exceed the existing correct 0.75 control at $4.6953$ tokens/s.  Its canonical
+hash is
+\texttt{14da05070e67f83c7e396aab28fd6d77bc863f60b865313fefd39bc9ff99035e}.
+Decision: retain the primitive as supporting infrastructure; do not promote it
+as the missing multiplier.
+
+\subsection{Exact top--1 with low-bit correction experts}
+
+A directly executable mixed representation retained the strongest routed
+expert in original MXFP4 and requantised the other three experts to GGML Q2\_0.
+Across four held-out real routes it preserved all local argmax decisions and
+reduced selected weight bytes by $1.545\times$.  It nevertheless produced
+median layer-output relative $L_2$ error $0.11815$ (p95 $0.17390$), median
+contribution error $0.62632$ (p95 $0.82358$), and only $1.0077\times$ median
+compute speedup.  It failed both quality and performance gates and was stopped.
+Canonical hash:
+\texttt{4f6b9c0f2f3a7f11fa1ae37e3f1041c4db4066344cee077dc8e19e6d985aa9e1}.
+
+\subsection{Measured frontier and next architecture}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Path & Settled rate & Boundary \\
+\midrule
+Exact unrestricted & $1.72$--$1.83$ t/s & bit-exact reference \\
+Correct preserved-mass 0.75 & $4.6953$ t/s & quality-passing arithmetic track \\
+Persistent aggressive draft, first five & $4.5381$ t/s & exact to changed draft only \\
+Fixed top--2 & $5.9082$ t/s & quality failure \\
+Fixed top--1 & $28.6174$ t/s & physical ceiling; quality failure \\
+\bottomrule
+\end{tabular}
+\caption{GPT-OSS 120B frontier after graph-shape, persistence, and compact-correction probes.}
+\end{table}
+
+The missing factor is not SD lookup, graph construction, or redundant output
+projection.  It is the information and physical work carried by experts two
+through four.  The next architecture is therefore a confidence-gated top--1
+draft with selective original-weight correction and exact fallback.  Its
+selector must combine layer identity, the full gate distribution, activation
+features, recent route state, and an explicit uncertainty gate.  It must be
+frozen on a development cohort and evaluated on blinded arithmetic,
+extraction, reasoning, business, and writing families.  Promotion requires
+coherent and factually correct answers, internal repeatability, measured traffic
+reduction, and balanced same-process timing.  Until those gates pass, $28.6174$
+tokens/s remains a physical ceiling rather than a usable 120B result.
+
+Focused tests after these changes passed 18/18.

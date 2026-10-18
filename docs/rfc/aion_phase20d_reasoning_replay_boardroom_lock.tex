@@ -1,0 +1,140 @@
+\section{Phase 20D --- Reasoning Replay Boardroom Visibility v0}
+\label{sec:phase20d-reasoning-replay-boardroom-visibility-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- Reasoning Replay Trace is exposed as a Boardroom-safe visibility payload.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20D makes the AION-LRM reasoning replay layer visible to the operator.
+
+Phase 20A created the governed reasoning packet.
+
+Phase 20B created the reasoning memory snapshot.
+
+Phase 20C created the reasoning replay trace.
+
+Phase 20D exposes that replay trace as a Boardroom-safe panel payload so the operator can inspect why AION reached a recommendation using only governed packet state, memory snapshot state, evidence hashes, proof hashes, and context hashes.
+
+This is the next intelligence layer because AION can now show a safe operational explanation without exposing private chain-of-thought.
+
+\subsection{Implemented Module}
+
+\begin{verbatim}
+backend/modules/aion_lrm/reasoning_replay_boardroom.py
+\end{verbatim}
+
+Exports:
+
+\begin{verbatim}
+REASONING_REPLAY_BOARDROOM_VERSION
+build_reasoning_replay_boardroom_panel
+build_default_home_fixed_reasoning_replay_boardroom_panel
+\end{verbatim}
+
+\subsection{Boardroom Visibility Contract}
+
+The Boardroom reasoning replay payload includes:
+
+\begin{itemize}
+  \item panel title;
+  \item panel status;
+  \item operator message;
+  \item recommendation summary;
+  \item governed reasoning packet hash;
+  \item reasoning memory snapshot hash;
+  \item reasoning replay trace hash;
+  \item evidence hashes;
+  \item proof hashes;
+  \item context hashes;
+  \item deterministic boardroom hash;
+  \item deterministic summary hash;
+  \item side-effect safety flags.
+\end{itemize}
+
+\subsection{Private Reasoning Boundary}
+
+The Boardroom payload MUST NOT expose:
+
+\begin{itemize}
+  \item private chain-of-thought;
+  \item hidden reasoning;
+  \item credentials;
+  \item access tokens;
+  \item API keys;
+  \item passwords;
+  \item secrets.
+\end{itemize}
+
+The payload may explain which governed facts, hashes, evidence references, proof references, and context references contributed to the recommendation.
+
+It MUST NOT expose internal private reasoning text.
+
+\subsection{Safety Boundary}
+
+Phase 20D is visibility-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute a workflow;
+  \item bypass human review.
+\end{itemize}
+
+The locked state remains:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+live_side_effects_enabled = false
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20d_reasoning_replay_boardroom_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_reasoning_replay_boardroom_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 20D
+Reasoning Replay Boardroom Visibility
+reasoning packet
+memory snapshot
+replay trace
+evidence
+proof
+context hashes
+private chain-of-thought
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20D-REASONING-REPLAY-BOARDROOM-VISIBILITY-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

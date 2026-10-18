@@ -1,0 +1,25 @@
+\section{Arena v11: Cross-Topology Physical Invention}
+\label{sec:arena-v11-cross-topology}
+
+Arena v11 enters the articulated Acrobot environment without supplied joint or
+link colours and without numerical state. Intervention-grounded component
+analysis invented two joints, two links, and the topology fixed pivot $\to$
+moving hinge $\to$ outer link. Six stateful controllers were composed.
+
+The initially selected inner-link phase controller solved textbook dynamics but
+collapsed under the alternate NeurIPS dynamics and was rejected. Failure-driven
+worst-group calibration selected an outer-link angular-phase primitive,
+\begin{equation}
+ u_t=-\operatorname{sign}\!\left(
+ \operatorname{wrap}(\phi^{\mathrm{outer}}_t-
+ \phi^{\mathrm{outer}}_{t-1})\right).
+\end{equation}
+On fresh sealed seeds the revised controller solved $6/6$ textbook and $6/6$
+NeurIPS-dynamics episodes, versus $0/12$ for the cold control. It recorded 1,617
+pre-action commitments, used no numerical simulator observation, and executed
+no unsafe action. CAU promoted
+\path{procedure_cross_topology_physical_invention_v11_928b71e4fa63}.
+
+This is bounded public-simulator topology and controller invention.  The
+component primitives, controller meta-grammar, seeds and gates remain under
+development control.  It is not external certification, robotics or AGI.

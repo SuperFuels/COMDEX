@@ -1,0 +1,42 @@
+\section{Phase 16G --- Boardroom Renderer Consolidation Lock}
+\label{sec:aion-phase16g-boardroom-renderer-consolidation-lock}
+
+\subsection{Status}
+\textbf{LOCKED.}
+
+Phase 16G consolidates duplicate Boardroom front-page renderer definitions so the application has one active canonical renderer for each founder-demo surface.
+
+\subsection{Purpose}
+Earlier Phase 16 iterations appended improved Boardroom renderers while older renderer definitions remained in \texttt{desktop/mac/src/app.js}. This made source inspection and frontend validation ambiguous. Phase 16G keeps the latest functional Founder Demo Loop, action handler, A2A setup card, workflow widget card, and proof replay card as the only active definitions.
+
+\subsection{Locked Contract}
+The Boardroom MUST expose exactly one active definition for:
+\begin{itemize}
+  \item \texttt{renderBoardroomFounderDemoLoopPanel}
+  \item \texttt{handleBoardroomFounderDemoPreviewAction}
+  \item \texttt{renderBoardroomA2ASetupPanel}
+  \item \texttt{renderBoardroomWorkflowWidgetPanel}
+  \item \texttt{renderBoardroomProofReplayPanel}
+\end{itemize}
+
+The canonical Founder Demo Loop MUST keep the four functional actions:
+\begin{itemize}
+  \item Run Home Fixed preview
+  \item Open human review
+  \item View proof receipt
+  \item Replay boardroom trace
+\end{itemize}
+
+The action handler MUST preserve preview-only side-effect guards: no booking, no payment, no escrow, no external message, no live chain write, live execution blocked, human review required, and replay/hash proof available.
+
+\subsection{Validation}
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase16g_boardroom_renderer_consolidation_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+Lock ID: AION-PHASE16G-BOARDROOM-RENDERER-CONSOLIDATION-LOCK \\
+Status: LOCKED \\
+Maintainer: Tessaris AI \\
+Author: Kevin Robinson
