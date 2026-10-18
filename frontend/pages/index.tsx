@@ -151,7 +151,7 @@ export default function HomePage() {
         <title>Tessaris — Your business gets an AI workforce</title>
         <meta
           name="description"
-          content="Give Sales, Marketing, Finance and Operations their own AI teams, coordinated as one business with Tessaris."
+          content="Run multiple open AI models locally on your own machine and give every core business function its own coordinated AI team with Tessaris."
         />
       </Head>
 
@@ -188,7 +188,16 @@ export default function HomePage() {
                 <h1 className="mx-auto max-w-4xl text-balance text-5xl font-black leading-[.96] tracking-[-.055em] sm:text-7xl lg:text-[78px]">
                   Your business gets an <span className="text-[#1748e5]">AI workforce.</span>
                 </h1>
-                <p className="mx-auto mt-7 max-w-3xl text-balance text-lg leading-8 text-slate-600 sm:text-xl">
+                <div className="mx-auto mt-7 max-w-3xl rounded-2xl border border-blue-200 bg-blue-50 px-5 py-5 shadow-[0_12px_30px_rgba(23,72,229,.08)] sm:px-7">
+                  <div className="text-sm font-black uppercase tracking-[.14em] text-[#1748e5]">Local-first. Owner-controlled.</div>
+                  <p className="mx-auto mt-2 max-w-2xl text-balance text-base font-bold leading-7 text-[#13274d] sm:text-lg">
+                    Run multiple open AI models locally on your own machine, selected from your portable model library. Your data stays yours. Your models. Your rules.
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs font-extrabold text-blue-800">
+                    {["Runs locally", "Multiple open models", "Your data", "Your rules"].map((item) => <span key={item} className="rounded-full border border-blue-200 bg-white px-3 py-1.5">{item}</span>)}
+                  </div>
+                </div>
+                <p className="mx-auto mt-5 max-w-3xl text-balance text-lg leading-8 text-slate-600 sm:text-xl">
                   Tessaris gives every core function its own AI team—then coordinates them as one business. Sales follows up. Marketing keeps creating. Finance stays current. Operations keeps everything moving.
                 </p>
                 <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
