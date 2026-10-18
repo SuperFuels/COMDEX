@@ -110,7 +110,6 @@
 /* 4) RESET + GLOBALS */
 * {
   box-sizing: border-box;
-  border-color: hsl(var(--border));
 }
 
 html,

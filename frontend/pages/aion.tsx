@@ -25,9 +25,9 @@ const researchLinks = [
   { label: "Sovereign QKD", href: "/sovereign-qkd", copy: "Secure communication research for sovereign agents and protected machine work." },
   { label: "Glyph Net", href: "/glyph-net", copy: "A network layer for exchanging structured intelligence across systems." },
   { label: "SLE Resonance", href: "/sle-resonance", copy: "Live research into resonance, stability and adaptive system behaviour." },
-  { label: "RQC Awareness", href: "/rqc-awareness", copy: "An awareness horizon showing how AION detects change and returns to coherence." },
-  { label: "AI", href: "/ai", copy: "A live proof-of-life view into AION's cognition, learning and system activity." },
-  { label: "Cognition", href: "/phase7-calibration", copy: "Calibration tools for evaluating and developing AION's cognitive systems." },
+  { label: "RQC Awareness", href: "/rqc-awareness", copy: "An awareness horizon showing how Si detects change and returns to coherence." },
+  { label: "AI", href: "/ai", copy: "A live proof-of-life view into Si’s cognition, learning and system activity." },
+  { label: "Cognition", href: "/phase7-calibration", copy: "Calibration tools for evaluating and developing Si’s cognitive systems." },
   { label: "WirePack", href: "/wirepack", copy: "A deterministic transport protocol for moving structured meaning efficiently." },
   { label: "QFC Canvas", href: "/qfc-canvas", copy: "An interactive field lab for exploring coherence across live system telemetry." },
   { label: "Homeostasis", href: "/homeostasis", copy: "A live training gate for monitoring balance, stability and recovery." },
@@ -45,10 +45,10 @@ export default function AionPage() {
   return (
     <>
       <Head>
-        <title>AION — The intelligence system behind Tessaris</title>
+        <title>Si — The intelligence system behind Tessaris</title>
         <meta
           name="description"
-          content="Explore AION, the governed intelligence and execution system behind Tessaris, including local models, model routing, business context, tools, memory and evidence."
+          content="Explore Si, the governed intelligence and execution system behind Tessaris, including local models, model routing, business context, tools, memory and evidence."
         />
       </Head>
 
@@ -60,13 +60,13 @@ export default function AionPage() {
               <div className="relative min-h-[330px] overflow-hidden rounded-[26px] border border-blue-100 bg-[#b9d2eb] shadow-[0_24px_70px_rgba(7,19,41,.16)] sm:min-h-[430px] lg:min-h-[560px]">
                 <Image
                   src="/tessaris-spatial-boardroom-clean.png"
-                  alt="AION coordinating specialist local and frontier AI models in the Tessaris intelligence boardroom"
+                  alt="Si coordinating specialist local and frontier AI models in the Tessaris intelligence boardroom"
                   fill
                   priority
                   sizes="(max-width: 768px) 100vw, 1380px"
                   className="object-cover object-center"
                 />
-                <div className="absolute left-[9%] top-[43%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">AION</div>
+                <div className="absolute left-[9%] top-[43%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">Si</div>
                 <div className="absolute left-[41.5%] top-[39%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">Gemini</div>
                 <div className="absolute left-[58%] top-[39%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">OpenAI</div>
                 <div className="absolute left-[90%] top-[43%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">Qwen</div>
@@ -80,11 +80,11 @@ export default function AionPage() {
                   Intelligence that can <span className="text-[#1748e5]">coordinate and act.</span>
                 </h1>
                 <p className="mx-auto mt-7 max-w-3xl text-balance text-lg leading-8 text-slate-600 sm:text-xl">
-                  AION brings business context, selected AI models, tools, memory and human-set authority into one governed system. It coordinates specialised intelligence and turns decisions into accountable work.
+                  Si brings business context, selected AI models, tools, memory and human-set authority into one governed system. It coordinates specialised intelligence and turns decisions into accountable work.
                 </p>
                 <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
                   <a href="#architecture" className="group inline-flex min-h-14 items-center justify-center gap-3 rounded-full !border-0 !bg-[#1748e5] px-7 py-3 text-base font-extrabold !text-white shadow-[0_16px_38px_rgba(23,72,229,.24)] transition hover:!bg-[#1039bc]">
-                    Explore AION <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+                    Explore Si <ArrowRight size={18} className="transition group-hover:translate-x-1" />
                   </a>
                   <Link href="/" className="inline-flex min-h-14 items-center justify-center rounded-full border border-slate-300 !bg-white px-7 py-3 text-base font-extrabold !text-[#071329] transition hover:border-blue-300 hover:!bg-blue-50">See Tessaris for business</Link>
                 </div>
@@ -101,7 +101,7 @@ export default function AionPage() {
               <div className="max-w-4xl">
                 <Eyebrow dark>The intelligence boardroom</Eyebrow>
                 <h2 className="text-balance text-4xl font-black leading-[1.02] tracking-[-.045em] sm:text-6xl">A board that watches the whole business—not one dashboard at a time.</h2>
-                <p className="mt-6 text-lg leading-8 text-slate-300">AION can bring selected local and API models into the same business context. Each contributes where it is strongest while AION coordinates the decision, authority and resulting work.</p>
+                <p className="mt-6 text-lg leading-8 text-slate-300">Si can bring selected local and API models into the same business context. Each contributes where it is strongest while Si coordinates the decision, authority and resulting work.</p>
                 <ul className="mt-7 grid gap-3 text-sm font-semibold text-slate-200 sm:grid-cols-3">
                   {["Shared context across departments", "Specialists called only when useful", "Results checked against the plan"].map((item) => <li key={item} className="flex gap-3"><BadgeCheck size={18} className="mt-0.5 shrink-0 text-blue-300" />{item}</li>)}
                 </ul>
@@ -109,12 +109,12 @@ export default function AionPage() {
 
               <figure className="mt-12 overflow-hidden rounded-[30px] border border-white/15 bg-[#102141] shadow-[0_34px_90px_rgba(0,0,0,.35)]">
                 <div className="relative aspect-[3216/1334] w-full">
-                  <Image src="/tessaris-spatial-boardroom-clean.png" alt="AION and selected AI models in the Tessaris spatial intelligence boardroom" fill sizes="(max-width: 1280px) 100vw, 1240px" className="object-cover" />
+                  <Image src="/tessaris-spatial-boardroom-clean.png" alt="Si and selected AI models in the Tessaris spatial intelligence boardroom" fill sizes="(max-width: 1280px) 100vw, 1240px" className="object-cover" />
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#071329]/90 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-3 sm:bottom-6 sm:left-6 sm:right-6 sm:flex-row sm:items-end sm:justify-between">
                     <div className="rounded-2xl border border-white/15 bg-[#071329]/80 px-4 py-3 backdrop-blur-md">
                       <div className="text-[9px] font-black uppercase tracking-[.2em] text-blue-300">Intelligence boardroom</div>
-                      <div className="mt-1 text-sm font-extrabold text-white sm:text-base">AION and selected models working on the same decision</div>
+                      <div className="mt-1 text-sm font-extrabold text-white sm:text-base">Si and selected models working on the same decision</div>
                     </div>
                     <div className="hidden rounded-full border border-white/15 bg-[#071329]/80 px-4 py-2 text-[10px] font-black uppercase tracking-[.15em] text-slate-200 backdrop-blur-md sm:block">Spatial 3D / 4D environment</div>
                   </div>
@@ -129,12 +129,12 @@ export default function AionPage() {
                 <div>
                   <Eyebrow>Owner-controlled intelligence</Eyebrow>
                   <h2 className="text-balance text-4xl font-black leading-[1.03] tracking-[-.04em] sm:text-6xl">Use the right intelligence without surrendering control.</h2>
-                  <p className="mt-6 text-lg leading-8 text-slate-600">AION is designed to combine compatible open models running locally with selected external model services. Portable model libraries on owner-controlled storage have been demonstrated internally; the complete customer download and verification flow remains in validation.</p>
+                  <p className="mt-6 text-lg leading-8 text-slate-600">Si is designed to combine compatible open models running locally with selected external model services. Portable model libraries on owner-controlled storage have been demonstrated internally; the complete customer download and verification flow remains in validation.</p>
                   <div className="mt-7 inline-flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-extrabold text-blue-800"><BadgeCheck size={18} /> Local-model capability demonstrated · customer packaging in validation</div>
                 </div>
                 <figure className="overflow-hidden rounded-[30px] border border-slate-200 bg-[#071329] shadow-[0_28px_70px_rgba(7,19,41,.18)]">
                   <div className="relative aspect-[16/10]">
-                    <Image src="/tessaris-open-model-card-rack.png" alt="Concept for a portable AION library of open AI models on removable storage" fill sizes="(max-width: 1024px) 100vw, 720px" className="object-cover" />
+                    <Image src="/tessaris-si-model-card-rack.png" alt="Concept for a portable Si library of open AI models on removable storage" fill sizes="(max-width: 1024px) 100vw, 720px" className="object-cover" />
                   </div>
                   <figcaption className="flex flex-col gap-2 border-t border-white/10 px-6 py-5 text-white sm:flex-row sm:items-center sm:justify-between">
                     <div><div className="text-[10px] font-black uppercase tracking-[.19em] text-blue-300">Portable model library</div><div className="mt-1 font-extrabold">Select the right model for the work and the device.</div></div>
@@ -145,7 +145,7 @@ export default function AionPage() {
 
               <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  [BrainCircuit, "AION", "Coordinates business context, specialist intelligence, tools and authority."],
+                  [BrainCircuit, "Si", "Coordinates business context, specialist intelligence, tools and authority."],
                   [Laptop, "Local models", "Compatible open models can handle selected work on owner-controlled hardware."],
                   [Network, "Portable libraries", "Verified model packages can be organised for compatible devices and roles."],
                   [Sparkles, "Expert APIs", "External intelligence can be called for selected work when its strengths are needed."],
@@ -162,7 +162,7 @@ export default function AionPage() {
               <div className="max-w-4xl">
                 <Eyebrow>Governed execution</Eyebrow>
                 <h2 className="text-balance text-4xl font-black leading-[1.03] tracking-[-.04em] sm:text-6xl">Authority is set by people. Work is accompanied by evidence.</h2>
-                <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">AION is designed around explicit authority, selected tools and inspectable outcomes. The owner decides what can run automatically, which actions need review and what information each part of the system may use.</p>
+                <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Si is designed around explicit authority, selected tools and inspectable outcomes. The owner decides what can run automatically, which actions need review and what information each part of the system may use.</p>
               </div>
               <div className="mt-12 grid gap-4 md:grid-cols-3">
                 {[
@@ -179,7 +179,7 @@ export default function AionPage() {
 
           <section className="px-5 py-20 sm:px-8 lg:py-28">
             <div className="mx-auto max-w-[1240px]">
-              <div className="max-w-4xl"><Eyebrow>A wider intelligence programme</Eyebrow><h2 className="text-balance text-4xl font-black leading-[1.03] tracking-[-.04em] sm:text-6xl">AION extends beyond one business application.</h2><p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Tessaris is AION&apos;s principal commercial use case. The wider programme explores symbolic systems, portable intelligence, compression, mathematics and new forms of machine representation.</p></div>
+              <div className="max-w-4xl"><Eyebrow>A wider intelligence programme</Eyebrow><h2 className="text-balance text-4xl font-black leading-[1.03] tracking-[-.04em] sm:text-6xl">Si extends beyond one business application.</h2><p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Tessaris is Si&apos;s principal commercial use case. The wider programme explores symbolic systems, portable intelligence, compression, mathematics and new forms of machine representation.</p></div>
               <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {researchLinks.map((item) => <Link key={item.href} href={item.href} className="group rounded-[26px] border border-slate-200 !bg-white p-7 !text-[#071329] shadow-[0_10px_35px_rgba(7,19,41,.04)] transition hover:-translate-y-1 hover:border-blue-200"><div className="text-xl font-black">{item.label}</div><p className="mt-3 text-sm leading-6 text-slate-600">{item.copy}</p><div className="mt-7 inline-flex items-center gap-2 text-sm font-extrabold text-[#1748e5]">Explore <ArrowRight size={16} className="transition group-hover:translate-x-1" /></div></Link>)}
               </div>
@@ -188,7 +188,7 @@ export default function AionPage() {
 
           <section className="px-5 pb-20 sm:px-8 lg:pb-28">
             <div className="mx-auto max-w-[1240px] overflow-hidden rounded-[34px] bg-[#1748e5] px-6 py-14 text-center text-white shadow-[0_28px_80px_rgba(23,72,229,.22)] sm:px-12 lg:py-20">
-              <div className="mx-auto max-w-3xl"><div className="text-[11px] font-black uppercase tracking-[.2em] text-blue-100">Commercial use in the real world</div><h2 className="mt-5 text-balance text-4xl font-black leading-[1.02] tracking-[-.045em] sm:text-6xl">See what AION powers inside Tessaris.</h2><p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-blue-100">Tessaris turns AION&apos;s intelligence and execution capabilities into an AI workforce for owner-led businesses.</p><div className="mt-9"><Link href="/" className="inline-flex min-h-14 items-center justify-center gap-3 rounded-full !border-0 !bg-white px-7 py-3 font-extrabold !text-[#1748e5]">Explore Tessaris <ArrowRight size={18} /></Link></div></div>
+              <div className="mx-auto max-w-3xl"><div className="text-[11px] font-black uppercase tracking-[.2em] text-blue-100">Commercial use in the real world</div><h2 className="mt-5 text-balance text-4xl font-black leading-[1.02] tracking-[-.045em] sm:text-6xl">See what Si powers inside Tessaris.</h2><p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-blue-100">Tessaris turns Si&apos;s intelligence and execution capabilities into an AI workforce for owner-led businesses.</p><div className="mt-9"><Link href="/" className="inline-flex min-h-14 items-center justify-center gap-3 rounded-full !border-0 !bg-white px-7 py-3 font-extrabold !text-[#1748e5]">Explore Tessaris <ArrowRight size={18} /></Link></div></div>
             </div>
           </section>
         </main>
@@ -196,10 +196,10 @@ export default function AionPage() {
         <footer className="border-t border-slate-200 bg-[#071329] px-5 py-14 text-white sm:px-8">
           <div className="mx-auto max-w-[1240px]">
             <div className="grid gap-10 border-b border-white/10 pb-10 md:grid-cols-[1.4fr_.6fr]">
-              <div><div className="text-xl font-black">AION by Tessaris</div><p className="mt-3 max-w-md text-sm leading-6 text-slate-400">A governed intelligence and execution system combining selected models, business context, tools, memory, authority and evidence.</p></div>
+              <div><div className="text-xl font-black">Si by Tessaris</div><p className="mt-3 max-w-md text-sm leading-6 text-slate-400">A governed intelligence and execution system combining selected models, business context, tools, memory, authority and evidence.</p></div>
               <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">Explore</div><div className="mt-4 grid gap-3 text-sm font-bold"><Link href="/" className="!border-0 !bg-transparent !p-0 !text-slate-300 hover:!text-white">Tessaris for business</Link><Link href="/pricing" className="!border-0 !bg-transparent !p-0 !text-slate-300 hover:!text-white">Pricing</Link><Link href="/privacy" className="!border-0 !bg-transparent !p-0 !text-slate-300 hover:!text-white">Privacy Policy</Link><Link href="/terms" className="!border-0 !bg-transparent !p-0 !text-slate-300 hover:!text-white">Terms of Service</Link></div></div>
             </div>
-            <div className="flex flex-col gap-3 pt-7 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between"><span>© 2026 Tessaris. AION research and product development.</span><span className="inline-flex items-center gap-2"><FileCheck2 size={14} /> Claims reflect current release status</span></div>
+            <div className="flex flex-col gap-3 pt-7 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between"><span>© 2026 Tessaris. Si research and product development.</span><span className="inline-flex items-center gap-2"><FileCheck2 size={14} /> Claims reflect current release status</span></div>
           </div>
         </footer>
 
