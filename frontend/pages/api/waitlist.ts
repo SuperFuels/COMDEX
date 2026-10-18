@@ -104,11 +104,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (!providerResponse.ok) {
+      const providerDetail = await providerResponse.text();
+      console.error("[waitlist] email delivery failed", {
+        status: providerResponse.status,
+        detail: providerDetail.slice(0, 1000),
+      });
       return res.status(502).json({ error: "waitlist_email_delivery_failed" });
     }
 
     return res.status(200).json({ ok: true });
-  } catch {
+  } catch (error) {
+    console.error("[waitlist] email delivery request failed", error);
     return res.status(502).json({ error: "waitlist_email_delivery_failed" });
   }
 }
