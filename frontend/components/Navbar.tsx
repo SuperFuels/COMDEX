@@ -34,7 +34,7 @@ export default function TessarisNavbar() {
         </Link>
 
         <nav aria-label="Primary navigation" className="flex items-center gap-1 sm:gap-3">
-          <Link href="/market" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
+          <Link href="/market" className="hidden !border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5] md:inline-flex">
             Market
           </Link>
           <Link href="/pricing" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
@@ -42,6 +42,9 @@ export default function TessarisNavbar() {
           </Link>
           <Link href="/aion" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
             Si
+          </Link>
+          <Link href="/articles" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
+            Articles
           </Link>
           <Link
             href="/waitlist"
