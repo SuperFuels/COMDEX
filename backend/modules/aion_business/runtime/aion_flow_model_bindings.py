@@ -8,6 +8,11 @@ from typing import Any, Dict, Mapping
 from uuid import uuid4
 
 from backend.modules.aion_business.runtime.sovereign_brain_setup import SovereignVault
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_fabric.canonical import canonical_hash, utc_now_iso
 
 
@@ -17,14 +22,36 @@ _SECRET_VALUES = re.compile(r"(?:sk-[A-Za-z0-9_-]{12,}|AIza[A-Za-z0-9_-]{12,}|--
 
 
 class AionFlowModelBindings:
-    """Stable model credential bindings backed by the encrypted mother-brain vault."""
+    """Stable model bindings with separate metadata and credential authorities.
 
-    def __init__(self, root: str | Path) -> None:
-        self.root = Path(root).resolve()
+    Customer-visible binding metadata is business configuration and therefore
+    belongs to the Business Vault in Guardian mode. Raw credentials never enter
+    that record: they remain in the dedicated encrypted secrets store.
+    """
+
+    def __init__(
+        self,
+        root: str | Path | None = None,
+        *,
+        workspace_id: str = "default",
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
+        self.root = Path(
+            root
+            or os.environ.get("TESSARIS_AION_FLOW_CREDENTIAL_STORE_PATH")
+            or Path.home() / ".tessaris/security/aion-flow-model-bindings"
+        ).resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.state_path = self.root / "model-bindings.json"
         self.vault = SovereignVault(self.root / "vault")
         self.vault.initialize()
+        self.workspace_id = self._workspace_id(workspace_id)
+        self.domain_store = domain_store
+        if root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="aion-flow-model-binding-runtime",
+            )
 
     def create(self, *, binding_id: str, provider: str, secret: str, label: str = "") -> Dict[str, Any]:
         clean_id = str(binding_id or "").strip().lower()
@@ -146,9 +173,28 @@ class AionFlowModelBindings:
 
     @staticmethod
     def _public(record: Mapping[str, Any]) -> Dict[str, Any]:
-        return {key: value for key, value in record.items() if key != "vault_name"} | {"secret_exposed": False}
+        return {
+            key: value for key, value in record.items()
+            if key not in {"vault_name", "schema_version"}
+        } | {"secret_exposed": False}
 
     def _state(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            bindings: Dict[str, Any] = {}
+            for item in self.domain_store.list(
+                "train_agent.automations", workspace_id=self.workspace_id,
+            ):
+                entity_id = str(item.get("entity_id") or "")
+                if not entity_id.startswith("aion_flow/model_binding/"):
+                    continue
+                record = dict(item["payload"])
+                binding_id = str(record.get("binding_id") or "")
+                if not _BINDING_ID.fullmatch(binding_id):
+                    raise RuntimeError("model_binding_state_invalid")
+                if record.get("schema_version") != "aion.flow.model_binding.v2":
+                    raise RuntimeError("model_binding_state_invalid")
+                bindings[binding_id] = record
+            return {"schema_version": "aion.flow.model_bindings.v2", "bindings": bindings}
         if not self.state_path.exists():
             return {"schema_version": "aion.flow.model_bindings.v1", "bindings": {}}
         value = json.loads(self.state_path.read_text(encoding="utf-8"))
@@ -157,7 +203,35 @@ class AionFlowModelBindings:
         return value
 
     def _write(self, state: Mapping[str, Any]) -> None:
+        if self.domain_store is not None:
+            for binding_id, raw_record in dict(state.get("bindings") or {}).items():
+                if not _BINDING_ID.fullmatch(str(binding_id)):
+                    raise RuntimeError("model_binding_state_invalid")
+                record = dict(raw_record)
+                record["schema_version"] = "aion.flow.model_binding.v2"
+                entity_id = f"aion_flow/model_binding/{binding_id}"
+                current = self.domain_store.get_optional(
+                    "train_agent.automations",
+                    workspace_id=self.workspace_id,
+                    entity_id=entity_id,
+                )
+                self.domain_store.put(
+                    "train_agent.automations",
+                    workspace_id=self.workspace_id,
+                    entity_id=entity_id,
+                    payload=record,
+                    expected_version=int(current["version"]) if current else None,
+                    actor_id="aion-flow-model-binding-runtime",
+                )
+            return
         temporary = self.state_path.with_suffix(".tmp")
         temporary.write_text(json.dumps(dict(state), indent=2, sort_keys=True), encoding="utf-8")
         os.chmod(temporary, 0o600)
         os.replace(temporary, self.state_path)
+
+    @staticmethod
+    def _workspace_id(value: str) -> str:
+        clean = str(value or "").strip()
+        if not clean or len(clean) > 160 or any(ord(character) < 32 for character in clean):
+            raise ValueError("workspace_id_invalid")
+        return clean

@@ -16,17 +16,8 @@ export default function DealsPage() {
     setLoading(true)
     setError(null)
 
-    const token = localStorage.getItem('token')
-    if (!token) {
-      setError('Not authenticated')
-      setLoading(false)
-      return
-    }
-
     try {
-      const res = await api.get<Deal[]>('/deals/', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const res = await api.get<Deal[]>('/deals/', { withCredentials: true })
       setDeals(res.data)
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to load deals')
@@ -40,17 +31,11 @@ export default function DealsPage() {
     id: number,
     nextStatus: 'confirmed' | 'completed'
   ) => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      alert('Not authenticated')
-      return
-    }
-
     try {
       await api.put(
         `/deals/${id}/status`,
         { status: nextStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true }
       )
       alert(`Status updated to ${nextStatus}`)
       await fetchDeals()

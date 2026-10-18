@@ -65,6 +65,28 @@ def test_human_takeover_and_return_to_department_pilot_are_audited(tmp_path):
     assert runtime.verify_audit("acme")["ok"] is True
 
 
+def test_train_agent_workspace_tabs_are_durable_business_state(tmp_path):
+    runtime = service(tmp_path)
+    payload = {
+        "active_id": "workflow-quote-follow-up",
+        "tabs": [{
+            "id": "workflow-quote-follow-up",
+            "title": "Quote follow-up",
+            "graph": {
+                "workflow_id": "workflow-quote-follow-up",
+                "nodes": [{"id": "trigger"}, {"id": "prepare-email"}],
+                "edges": [{"from": "trigger", "to": "prepare-email"}],
+            },
+        }],
+    }
+    saved = runtime.save_workspace_state(
+        "acme", "workflow-tabs", payload=payload, saved_by="person:founder"
+    )
+    assert saved["payload"] == payload
+    assert runtime.workspace_state("acme", "workflow-tabs")["payload"] == payload
+    assert runtime.verify_audit("acme")["ok"] is True
+
+
 def test_demonstration_redacts_secrets_and_requires_validation_before_publish(tmp_path):
     runtime = service(tmp_path)
     runtime.bootstrap_workspace("acme", departments=["finance"])

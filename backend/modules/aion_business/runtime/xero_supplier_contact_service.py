@@ -10,6 +10,7 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.finance_integration_store import FinanceIntegrationStore
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 
@@ -20,9 +21,11 @@ def _safe(value: Any) -> str: return re.sub(r"[^a-zA-Z0-9_.-]+", "-", str(value 
 
 class XeroSupplierContactService:
     def __init__(self, repository: BusinessContainerRepository | None = None,
-                 authority: OrganizationAuthorityService | None = None) -> None:
+                 authority: OrganizationAuthorityService | None = None, *,
+                 integration_store: FinanceIntegrationStore | None = None) -> None:
         self.repository = repository or BusinessContainerRepository()
         self.authority = authority or OrganizationAuthorityService(self.repository)
+        self.integration_store = integration_store or FinanceIntegrationStore()
 
     def prepare(self, workspace_id: str, *, name: str, prepared_by_person_id: str,
                 email: str | None = None) -> dict[str, Any]:
@@ -100,12 +103,13 @@ class XeroSupplierContactService:
         return [self.load(workspace_id, path.stem) for path in sorted(self._dir(workspace_id).glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)]
 
     def _existing_contacts(self, workspace_id: str) -> list[dict[str, Any]]:
-        connection_path = AIONBusinessPaths.business_container_dir(workspace_id) / "integrations/xero/connection.json"
-        if not connection_path.exists(): return []
-        connection = json.loads(connection_path.read_text())
+        root = self.integration_store.root(workspace_id, "xero")
+        connection_path = root / "connection.json"
+        if not self.integration_store.exists(connection_path): return []
+        connection = self.integration_store.read_json(connection_path, {})
         sync_id = str((connection.get("latest_snapshot_ref") or {}).get("sync_id") or "")
-        path = AIONBusinessPaths.business_container_dir(workspace_id) / f"integrations/xero/syncs/{sync_id}/contacts.json"
-        return (json.loads(path.read_text()).get("Contacts") or []) if path.exists() else []
+        path = root / "syncs" / sync_id / "contacts.json"
+        return (self.integration_store.read_json(path, {}).get("Contacts") or []) if self.integration_store.exists(path) else []
 
     def _dir(self, workspace_id: str) -> Path:
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/xero_supplier_contacts"; path.mkdir(parents=True, exist_ok=True); return path

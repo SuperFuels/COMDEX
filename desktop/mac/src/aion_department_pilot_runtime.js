@@ -67,12 +67,23 @@
   }
 
   function getDepartmentIntelligence(department) {
-    const ledger = safeParse(global.localStorage?.getItem?.('aion.departmentIntelligence.v1') || '', {}) || {};
+    const ledger = typeof global.getAionDepartmentIntelligence === 'function'
+      ? (global.getAionDepartmentIntelligence() || {})
+      : (global.__aionDepartmentIntelligence || {});
     return ledger[department] && typeof ledger[department] === 'object' ? ledger[department] : {};
   }
 
   function getFoundationPacket() {
-    return safeParse(global.localStorage?.getItem?.('aion.businessTwin.foundationPacket.v1') || '', {}) || {};
+    if (global.__aionFoundationPacket && typeof global.__aionFoundationPacket === 'object') {
+      return global.__aionFoundationPacket;
+    }
+    const legacy = safeParse(global.localStorage?.getItem?.('aion.businessTwin.foundationPacket.v1') || '', {}) || {};
+    if (Object.keys(legacy).length) {
+      global.__aionFoundationPacket = legacy;
+      try { global.localStorage?.removeItem?.('aion.businessTwin.foundationPacket.v1'); } catch {}
+      global.AionBusinessContainerClient?.commitFoundationPacket?.(legacy);
+    }
+    return legacy;
   }
 
   function getGraphContext(department) {

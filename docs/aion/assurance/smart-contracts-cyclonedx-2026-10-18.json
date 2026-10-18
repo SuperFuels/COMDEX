@@ -1,0 +1,3123 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:b0559c0d-1699-49b5-9975-3fc9348f66a2",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-18T08:22:54.036Z",
+    "lifecycles": [
+      {
+        "phase": "build"
+      }
+    ],
+    "tools": [
+      {
+        "vendor": "npm",
+        "name": "cli",
+        "version": "11.19.0"
+      }
+    ],
+    "component": {
+      "bom-ref": "smart-contracts@1.0.0",
+      "type": "library",
+      "name": "smart-contracts",
+      "version": "1.0.0",
+      "scope": "required",
+      "purl": "pkg:npm/smart-contracts@1.0.0",
+      "properties": [],
+      "externalReferences": [],
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "@adraffy/ens-normalize@1.11.1",
+      "type": "library",
+      "name": "@adraffy/ens-normalize",
+      "version": "1.11.1",
+      "scope": "required",
+      "author": "raffy.eth",
+      "description": "Ethereum Name Service (ENS) Name Normalizer",
+      "purl": "pkg:npm/%40adraffy/ens-normalize@1.11.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@adraffy/ens-normalize/-/ens-normalize-1.11.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/adraffy/ens-normalize.js.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/adraffy/ens-normalize.js#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/adraffy/ens-normalize.js/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "9e1081577aae1207acb9fedceca61fa5eaea492d784fc6d8baf27c3dc2c9a7ace7919a4573402e5b8a81b6bf1e295c8f3deffc452afbb2094258f53979ac7029"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@esbuild/darwin-arm64@0.28.2",
+      "type": "library",
+      "name": "@esbuild/darwin-arm64",
+      "version": "0.28.2",
+      "scope": "optional",
+      "description": "The macOS ARM 64-bit binary for esbuild, a JavaScript bundler.",
+      "purl": "pkg:npm/%40esbuild/darwin-arm64@0.28.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.28.2.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/evanw/esbuild.git"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "9f82aa90e42badac4725c82333546fc1b8a07d028828956933bc69f8ab318b2512ad17485e7b7bdd586b3c0c747d5e388607e62152a3c4c37d275b798f249593"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@noble/ciphers@1.3.0",
+      "type": "library",
+      "name": "@noble/ciphers",
+      "version": "1.3.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Audited & minimal JS implementation of Salsa20, ChaCha and AES",
+      "purl": "pkg:npm/%40noble/ciphers@1.3.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/ciphers/-/ciphers-1.3.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/noble-ciphers.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "d88d209c854fb5f9ccc3d79ef61d5d246eeda7cd7ef0e6f73896f732fdfbaf1e4be34fdbd22edd8e3095bc6395a9cf40108432bf2bb58baca929d170f11f2043"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@noble/curves@1.9.0",
+      "type": "library",
+      "name": "@noble/curves",
+      "version": "1.9.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Audited & minimal JS implementation of elliptic curve cryptography",
+      "purl": "pkg:npm/%40noble/curves@1.9.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/curves/-/curves-1.9.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/noble-curves.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ed80e55e234c74ed5865e1fab7f92fa291c76c8673971ac257d58ba8263a4217173a85e2342303a89220959f588f1e7ec3b0f3df44c84c5ae54e39d183bb0a12"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@noble/hashes@1.8.0",
+      "type": "library",
+      "name": "@noble/hashes",
+      "version": "1.8.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Audited & minimal 0-dependency JS implementation of SHA, RIPEMD, BLAKE, HMAC, HKDF, PBKDF & Scrypt",
+      "purl": "pkg:npm/%40noble/hashes@1.8.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/hashes/-/hashes-1.8.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/noble-hashes.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "8c2b3d95d77b370ce98170c87fa3f7f8dac787dfec0fa0907711f28d023e87feab0cda3cf32a41c71cf8e540ee647cfdaf7b4dcfb37f5489d256855db57108e0"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/edr@0.23.0",
+      "type": "library",
+      "name": "@nomicfoundation/edr",
+      "version": "0.23.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40nomicfoundation/edr@0.23.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/edr/-/edr-0.23.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "NomicFoundation/edr.git"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "7e0147839e6a24fb13ec42ad2f738491c4a9ae995745bcc639e802b50c1a1c44691e28567f45a5ca1b1d8f54b81485b8f2b9319254e2b779164d90d4a4e9b237"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/edr-darwin-arm64@0.23.0",
+      "type": "library",
+      "name": "@nomicfoundation/edr-darwin-arm64",
+      "version": "0.23.0",
+      "scope": "optional",
+      "purl": "pkg:npm/%40nomicfoundation/edr-darwin-arm64@0.23.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/edr-darwin-arm64/-/edr-darwin-arm64-0.23.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/NomicFoundation/edr.git"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "5c1d16a6f8f6d429f4142c0cc9a7ca45349418b2c108e4ae9d446f4d9a4e968a6d4b981377c11150ecfc6ed87466a4e858d8e3a9f1781d8b9e9095ff802add2b"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/hardhat-errors@3.1.3",
+      "type": "library",
+      "name": "@nomicfoundation/hardhat-errors",
+      "version": "3.1.3",
+      "scope": "required",
+      "author": "Nomic Foundation",
+      "description": "The different errors that Hardhat can throw",
+      "purl": "pkg:npm/%40nomicfoundation/hardhat-errors@3.1.3",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/hardhat-errors/-/hardhat-errors-3.1.3.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/NomicFoundation/hardhat"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/NomicFoundation/hardhat/tree/main/packages/hardhat-errors"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "df3721d1a3ef1886f63ef412ffd0e07c177fa17470440b7861a18a7be378744bb18ec269d8bfb7a36aeba1e9c4a94207ff8a54982cb8f02f2e9804f2b5b19f7b"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/hardhat-ethers@4.2.1",
+      "type": "library",
+      "name": "@nomicfoundation/hardhat-ethers",
+      "version": "4.2.1",
+      "scope": "required",
+      "author": "Nomic Foundation",
+      "description": "Hardhat plugin for ethers",
+      "purl": "pkg:npm/%40nomicfoundation/hardhat-ethers@4.2.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/hardhat-ethers/-/hardhat-ethers-4.2.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/NomicFoundation/hardhat"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/NomicFoundation/hardhat/tree/main/packages/hardhat-ethers"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "0538ecc64821a7cafc9211209113874826ddcc80b2a33d9686388facf9fcd4d1224e59762d0667a4c72d8d83998756518ffd0cb6707bc9d109e5f29e9dec0a63"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/hardhat-utils@5.0.0",
+      "type": "library",
+      "name": "@nomicfoundation/hardhat-utils",
+      "version": "5.0.0",
+      "scope": "required",
+      "author": "Nomic Foundation",
+      "description": "Utilities for Hardhat and its plugins",
+      "purl": "pkg:npm/%40nomicfoundation/hardhat-utils@5.0.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/hardhat-utils/-/hardhat-utils-5.0.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/NomicFoundation/hardhat"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/NomicFoundation/hardhat/tree/main/packages/hardhat-utils"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "fd0018651a0d52b66148fbb66284f31b3f22d4f9f6309de6dde52e80bcf0eff8106034cd121d5880ae4e7b54d61c6d477f75a9a4bb9bc12f2431aaa7d3c16a82"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/hardhat-vendored@3.0.4",
+      "type": "library",
+      "name": "@nomicfoundation/hardhat-vendored",
+      "version": "3.0.4",
+      "scope": "required",
+      "author": "Nomic Foundation",
+      "description": "Internal dependencies used by Hardhat that have been vendored to prevent bloating the main package",
+      "purl": "pkg:npm/%40nomicfoundation/hardhat-vendored@3.0.4",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/hardhat-vendored/-/hardhat-vendored-3.0.4.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/NomicFoundation/hardhat"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/NomicFoundation/hardhat/tree/main/packages/hardhat-vendored"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "44ef0eb63d45bd1bf12665f3931875bd3c0affe72a4953d82ea63a46b5a49b31c411cc67030005b0161d5bbc724c4c96fe955b49235dda0b376a819d1996a834"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/hardhat-zod-utils@3.0.8",
+      "type": "library",
+      "name": "@nomicfoundation/hardhat-zod-utils",
+      "version": "3.0.8",
+      "scope": "required",
+      "author": "Nomic Foundation",
+      "description": "Utilities to use Zod to validate Hardhat plugins' config",
+      "purl": "pkg:npm/%40nomicfoundation/hardhat-zod-utils@3.0.8",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/hardhat-zod-utils/-/hardhat-zod-utils-3.0.8.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/NomicFoundation/hardhat"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/NomicFoundation/hardhat/tree/main/packages/hardhat-zod-utils"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "04c834e9963b1f17ce5b516850a952b35426626ab13c746c8a1c65dc37914a214ed1450354fad5a1586559129407df4b19254b0c5fbdef019f225238f6d29362"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/solidity-analyzer@0.1.2",
+      "type": "library",
+      "name": "@nomicfoundation/solidity-analyzer",
+      "version": "0.1.2",
+      "scope": "required",
+      "purl": "pkg:npm/%40nomicfoundation/solidity-analyzer@0.1.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer/-/solidity-analyzer-0.1.2.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ab89f7dbf14d288850df34061b0e42bcf17a193bc30a963021fedb118fdd65365b81f0ec1f28c9c144715097f7550bae263f9f0c8165e3e2a40556f0e047fa8c"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.2",
+      "type": "library",
+      "name": "@nomicfoundation/solidity-analyzer-darwin-arm64",
+      "version": "0.1.2",
+      "scope": "optional",
+      "purl": "pkg:npm/%40nomicfoundation/solidity-analyzer-darwin-arm64@0.1.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer-darwin-arm64/-/solidity-analyzer-darwin-arm64-0.1.2.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "25aa9c58f0d910d0af9befa51451a3ac377c9b1b5ff82b4b7763225ef30d4c10f7ddd0a89ed4d9f535844f0345c20ec94c94f943d1c479c1fb140f874d2b0853"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/solidity-analyzer-darwin-x64@0.1.2",
+      "type": "library",
+      "name": "@nomicfoundation/solidity-analyzer-darwin-x64",
+      "version": "0.1.2",
+      "scope": "optional",
+      "purl": "pkg:npm/%40nomicfoundation/solidity-analyzer-darwin-x64@0.1.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer-darwin-x64/-/solidity-analyzer-darwin-x64-0.1.2.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "7d9366573b6b4970b4ddef5138d053f828a4b12798731235c25ceacabd0bee1b1094ad5fcd5f9fd3883626d43573f15eef8670755e9a40175de94c25d74e76b3"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/solidity-analyzer-linux-arm64-gnu@0.1.2",
+      "type": "library",
+      "name": "@nomicfoundation/solidity-analyzer-linux-arm64-gnu",
+      "version": "0.1.2",
+      "scope": "optional",
+      "purl": "pkg:npm/%40nomicfoundation/solidity-analyzer-linux-arm64-gnu@0.1.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer-linux-arm64-gnu/-/solidity-analyzer-linux-arm64-gnu-0.1.2.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ddde78a1cfbd65506e07a9dba7cc07ca5938c61d0dd0673e6e4fbfb8969efab5206ce0704127ee1886c066dd70057b394449129b29c419cab1e83bada0ad2d3c"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/solidity-analyzer-linux-arm64-musl@0.1.2",
+      "type": "library",
+      "name": "@nomicfoundation/solidity-analyzer-linux-arm64-musl",
+      "version": "0.1.2",
+      "scope": "optional",
+      "purl": "pkg:npm/%40nomicfoundation/solidity-analyzer-linux-arm64-musl@0.1.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer-linux-arm64-musl/-/solidity-analyzer-linux-arm64-musl-0.1.2.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "88325f476a9fe79be0b20ec1b496bb88f88502c61fd9dd13bffd01faf86d9c8d7afb07d07936cfeed7a8a246c6bc0a34789a3b68b2e6d317d2fc64e4bc722e70"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/solidity-analyzer-linux-x64-gnu@0.1.2",
+      "type": "library",
+      "name": "@nomicfoundation/solidity-analyzer-linux-x64-gnu",
+      "version": "0.1.2",
+      "scope": "optional",
+      "purl": "pkg:npm/%40nomicfoundation/solidity-analyzer-linux-x64-gnu@0.1.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer-linux-x64-gnu/-/solidity-analyzer-linux-x64-gnu-0.1.2.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "f5d947300b79ff67295b2b89f5f40d3945c507fbe04853918358e98d7d4c87d849fcc7d95e50dd1d0f83a450acdf6664e69c5105bd3bc86bd21e4f7f7deccbfa"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/solidity-analyzer-linux-x64-musl@0.1.2",
+      "type": "library",
+      "name": "@nomicfoundation/solidity-analyzer-linux-x64-musl",
+      "version": "0.1.2",
+      "scope": "optional",
+      "purl": "pkg:npm/%40nomicfoundation/solidity-analyzer-linux-x64-musl@0.1.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer-linux-x64-musl/-/solidity-analyzer-linux-x64-musl-0.1.2.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "1b3cd579e2686f795fad2943290c366d127cac17fa98461a598fa05b42674c31c8340d2cda03d1e249b944b223d7179964e633e33470f8011e6202d1a81d8d5e"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@nomicfoundation/solidity-analyzer-win32-x64-msvc@0.1.2",
+      "type": "library",
+      "name": "@nomicfoundation/solidity-analyzer-win32-x64-msvc",
+      "version": "0.1.2",
+      "scope": "optional",
+      "purl": "pkg:npm/%40nomicfoundation/solidity-analyzer-win32-x64-msvc@0.1.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer-win32-x64-msvc/-/solidity-analyzer-win32-x64-msvc-0.1.2.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "15d8e58b80c27051dbe1982ccf4b842576762bb5443bec39295bfb1e64fb58ed7488e0dd53d72c0b66b3e23ae112c46d891f467ddef81651b4358970d4131dc8"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@openzeppelin/contracts@5.4.0",
+      "type": "library",
+      "name": "@openzeppelin/contracts",
+      "version": "5.4.0",
+      "scope": "required",
+      "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
+      "description": "Secure Smart Contract library for Solidity",
+      "purl": "pkg:npm/%40openzeppelin/contracts@5.4.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@openzeppelin/contracts/-/contracts-5.4.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
+        },
+        {
+          "type": "website",
+          "url": "https://openzeppelin.com/contracts/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "7826205a72e0e963be5f9d88d7a4d9b7cb848dbb5d9202c2d12517ff19c092c8e3ad02385df9f88814682398f9e5d9a53a10efd58ec1a11ddc53b7b7596842e8"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@scure/base@1.2.6",
+      "type": "library",
+      "name": "@scure/base",
+      "version": "1.2.6",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Secure, audited & 0-dep implementation of base64, bech32, base58, base32 & base16",
+      "purl": "pkg:npm/%40scure/base@1.2.6",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@scure/base/-/base-1.2.6.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/scure-base.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/#scure"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "83f9e6e458146bffcc0a3d60574f734c94da33a281007a8b37dd3b61542a7fbcc2e3df8370ee01d6ca38657d3b11fd744f0afa9eea98107f461208055c0e059a"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@scure/bip32@1.7.0",
+      "type": "library",
+      "name": "@scure/bip32",
+      "version": "1.7.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Secure, audited & minimal implementation of BIP32 hierarchical deterministic (HD) wallets over secp256k1",
+      "purl": "pkg:npm/%40scure/bip32@1.7.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@scure/bip32/-/bip32-1.7.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/scure-bip32.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/#scure"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "1381455ff3777f807cd00296a7974fea8c3e7e50f52d0668ff0f149cb19864eebbe234ba62761e7a9c9c38e92cbfebcb3d2a60377e7080a832fb26df4dbd9233"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@scure/bip39@1.6.0",
+      "type": "library",
+      "name": "@scure/bip39",
+      "version": "1.6.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Secure, audited & minimal implementation of BIP39 mnemonic phrases",
+      "purl": "pkg:npm/%40scure/bip39@1.6.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@scure/bip39/-/bip39-1.6.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/scure-bip39.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "fa517405b2e224dc1595ebf878a7a5c355962da88a5f0eec4a5f13e85bc195691d5fef78686278a3c5e351d9728530a377c73e077293dc97d2f0fd1b2d1354e8"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@sentry/core@9.47.2",
+      "type": "library",
+      "name": "@sentry/core",
+      "version": "9.47.2",
+      "scope": "required",
+      "author": "Sentry",
+      "description": "Base implementation for all Sentry JavaScript SDKs",
+      "purl": "pkg:npm/%40sentry/core@9.47.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@sentry/core/-/core-9.47.2.tgz"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/getsentry/sentry-javascript/tree/master/packages/core"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "59810fd991e44d030fec68397ebceb432d78ef94e72b942ff3082f1e24e535ead868404236901e5a3525b5381f090f076efd62ab88a771aecaaa69b2bfd80b9d"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@streamparser/json@0.0.26",
+      "type": "library",
+      "name": "@streamparser/json",
+      "version": "0.0.26",
+      "scope": "required",
+      "author": "Juanjo Diaz <juanjo.diazmo@gmail.com>",
+      "description": "Streaming JSON parser in Javascript for Node.js, Deno and the browser",
+      "purl": "pkg:npm/%40streamparser/json@0.0.26",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@streamparser/json/-/json-0.0.26.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/juanjoDiaz/streamparser-json.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/juanjoDiaz/jsonparse2#readme"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "e3ae7decb34523e3057549f35f64095b099d4d176ad17543faf54d253b4657322b9c2ba11bda45a35380cdb341a9c8bc509824fd7e4a259e8b715fb2ecf4ee0d"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@streamparser/json-node@0.0.26",
+      "type": "library",
+      "name": "@streamparser/json-node",
+      "version": "0.0.26",
+      "scope": "required",
+      "author": "Juanjo Diaz <juanjo.diazmo@gmail.com>",
+      "description": "Streaming JSON parser in Javascript for Node.js, Deno and the browser",
+      "purl": "pkg:npm/%40streamparser/json-node@0.0.26",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@streamparser/json-node/-/json-node-0.0.26.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/juanjoDiaz/streamparser-json.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/juanjoDiaz/jsonparse2#readme"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "f4ec47de8c882dbc621f135f86f7d5a725a06a22c3c6b7962e4eadeb1752671265cca7225d178c37ac38e3afa5bbe720769271265c0da327c12cfb53ac250980"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "adm-zip@0.6.1",
+      "type": "library",
+      "name": "adm-zip",
+      "version": "0.6.1",
+      "scope": "required",
+      "author": "Nasca Iacob <adm-zip@pm.me> (https://github.com/cthackers)",
+      "description": "Javascript implementation of zip for nodejs with support for electron original-fs. Allows user to create or extract zip files both in memory or to/from disk",
+      "purl": "pkg:npm/adm-zip@0.6.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/adm-zip/-/adm-zip-0.6.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/cthackers/adm-zip.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/cthackers/adm-zip"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/cthackers/adm-zip/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "5f0ae36bc9f1f5ee68d8dd66cb80ec28278aa5dae7002cabd70b5b3f1043806ccaccac84f6446d04503c99695d23e455943ec205935663fc10dbec9dc0e47a91"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "aes-js@4.0.0-beta.5",
+      "type": "library",
+      "name": "aes-js",
+      "version": "4.0.0-beta.5",
+      "scope": "required",
+      "author": "Richard Moore <me@ricmoo.com>",
+      "description": "A pure JavaScript implementation of the AES block cipher and all common modes of operation.",
+      "purl": "pkg:npm/aes-js@4.0.0-beta.5",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/aes-js/-/aes-js-4.0.0-beta.5.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git://github.com/ricmoo/aes-js.git"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "http://github.com/ricmoo/aes-js/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "1bdeb916a6a5b0dcab3ea80418e37b9c8c757bf39510d4a0884233c82eb785a50cbaf367c088088ccb39da195308a864067cbb0363913657d8f59bbe8e61a4d5"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "ansi-colors@4.1.3",
+      "type": "library",
+      "name": "ansi-colors",
+      "version": "4.1.3",
+      "scope": "required",
+      "author": "Brian Woodward (https://github.com/doowb)",
+      "description": "Easily add ANSI colors to your text and symbols in the terminal. A faster drop-in replacement for chalk, kleur and turbocolor (without the dependencies and rendering bugs).",
+      "purl": "pkg:npm/ansi-colors@4.1.3",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/ansi-colors/-/ansi-colors-4.1.3.tgz"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/doowb/ansi-colors"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/doowb/ansi-colors/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ffac3f0b6d4f9b503b6998ad948e4d8bfd89e8515037c8b50afcf79070010006f0f77bff365bca7553aacfb0825b3ff78affc9a6545210467cdd720e375e68bf"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "ansi-regex@5.0.1",
+      "type": "library",
+      "name": "ansi-regex",
+      "version": "5.0.1",
+      "scope": "required",
+      "author": "Sindre Sorhus",
+      "description": "Regular expression for matching ANSI escape codes",
+      "purl": "pkg:npm/ansi-regex@5.0.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "aae2505e54d25062f62c7f52517a3c570b18e2ca1a9e1828e8b3529bce04d4b05c13cb373b4c29762473c91f73fd9649325316bf7eea38e6fda5d26531410a15"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "chokidar@5.0.0",
+      "type": "library",
+      "name": "chokidar",
+      "version": "5.0.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Minimal and efficient cross-platform file watching library",
+      "purl": "pkg:npm/chokidar@5.0.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/chokidar/-/chokidar-5.0.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/chokidar.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/paulmillr/chokidar"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/paulmillr/chokidar/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "4d0326737c3ee40c63a4bf22222c1e6c5ef77510c5e1f04889e02a1a7f5118259a115c10e856f67067b7d589ecd11448ce28b982827563bc5b330a354f132997"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "dotenv@16.5.0",
+      "type": "library",
+      "name": "dotenv",
+      "version": "16.5.0",
+      "scope": "required",
+      "description": "Loads environment variables from .env file",
+      "purl": "pkg:npm/dotenv@16.5.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/dotenv/-/dotenv-16.5.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git://github.com/motdotla/dotenv.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/motdotla/dotenv#readme"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "9bf0be030380afdfd6d54388654a36df67a330d9c9009b5842351b1e835304d4c94afab3cc387bbe7ade8b7a37af79bd6e57fa6680e4bdcc34566a33351149c6"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-2-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "enquirer@2.4.1",
+      "type": "library",
+      "name": "enquirer",
+      "version": "2.4.1",
+      "scope": "required",
+      "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+      "description": "Stylish, intuitive and user-friendly prompt system. Fast and lightweight enough for small projects, powerful and extensible enough for the most advanced use cases.",
+      "purl": "pkg:npm/enquirer@2.4.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/enquirer/-/enquirer-2.4.1.tgz"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/enquirer/enquirer"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/enquirer/enquirer/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ad1a8983fea0779dfc547bd1dcf4ab75105bff5572d987f31eacef6e11884290d12886b816057fe786f9435c584b138ec0abe35f0792dba13443e9c0330a76a5"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "env-paths@4.0.0",
+      "type": "library",
+      "name": "env-paths",
+      "version": "4.0.0",
+      "scope": "required",
+      "author": "Sindre Sorhus",
+      "description": "Get paths for storing things like data, config, cache, etc",
+      "purl": "pkg:npm/env-paths@4.0.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/env-paths/-/env-paths-4.0.0.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "a713fc78bd92c30693462fca1d8c0b6178a70ecee02f78f115c0589847587d99995db6950ef769a5dd17054f2a573d37ac37ca64c5e0d6898709bb098d9accb3"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "esbuild@0.28.2",
+      "type": "library",
+      "name": "esbuild",
+      "version": "0.28.2",
+      "scope": "required",
+      "description": "An extremely fast JavaScript and CSS bundler and minifier.",
+      "purl": "pkg:npm/esbuild@0.28.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/evanw/esbuild.git"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "1ca54b4bc76f208fb1a0a5bd926ab16d12ab9d61177c926bfc56618499a2a880747b4e7740d605a8e068b9330efe4e6c203e0cbc28940afbfc6fd338877db020"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "ethereum-cryptography@3.2.0",
+      "type": "library",
+      "name": "ethereum-cryptography",
+      "version": "3.2.0",
+      "scope": "required",
+      "description": "All the cryptographic primitives used in Ethereum.",
+      "purl": "pkg:npm/ethereum-cryptography@3.2.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/ethereum-cryptography/-/ethereum-cryptography-3.2.0.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "52baf9615b1a947f89a34b1891392fd4cc88f5b2d86705bc04435909e1354186931c44c4631d0dbff495b16912aa962bcf07a0e9df0a318d704e31ffd66fc122"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "ethers@6.17.0",
+      "type": "library",
+      "name": "ethers",
+      "version": "6.17.0",
+      "scope": "required",
+      "author": "Richard Moore <me@ricmoo.com>",
+      "description": "A complete and compact Ethereum library, for dapps, wallets and any other tools.",
+      "purl": "pkg:npm/ethers@6.17.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/ethers/-/ethers-6.17.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git://github.com/ethers-io/ethers.js.git"
+        },
+        {
+          "type": "website",
+          "url": "https://ethers.org"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "069caba483c9df2744568c3ccc66b3d43b8f4bb614f03716c6e06763d6b4500fe5bc03f0accafe10f5ec7ebba5eb6f1245a7a43cd78833850587ff7519665a9e"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@noble/curves@1.2.0",
+      "type": "library",
+      "name": "@noble/curves",
+      "version": "1.2.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Audited & minimal JS implementation of elliptic curve cryptography",
+      "purl": "pkg:npm/%40noble/curves@1.2.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/curves/-/curves-1.2.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/paulmillr/noble-curves.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "a18725acd81168cf52b0150155b6fc33a0d357b6474532ae82eadea18127718e5ceb91ce991cef4a24c4df2e4261a3d8240fc6564ae15c4a05d0cdd86bd3cc9f"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@noble/hashes@1.3.2",
+      "type": "library",
+      "name": "@noble/hashes",
+      "version": "1.3.2",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Audited & minimal 0-dependency JS implementation of SHA2, SHA3, RIPEMD, BLAKE2/3, HMAC, HKDF, PBKDF2, Scrypt",
+      "purl": "pkg:npm/%40noble/hashes@1.3.2",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/hashes/-/hashes-1.3.2.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/paulmillr/noble-hashes.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "3150bc100429eccbc4726df429610d163811f8c9267fe0f5f3d5c94e4148970a2153985c05b9f56642aaeca5538b61e67b73cc185dfdd0368be766de56b22285"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@types/node@22.7.5",
+      "type": "library",
+      "name": "@types/node",
+      "version": "22.7.5",
+      "scope": "required",
+      "description": "TypeScript definitions for node",
+      "purl": "pkg:npm/%40types/node@22.7.5",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@types/node/-/node-22.7.5.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/node"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "8cc2fbb36340ccc59cfff4122756b7a6ba64efc70e3dc846bd726c0b70ba47a3d2328a28cedbd1550133f3d826053058d523cc6aaa39b5e078b8d1cf75eb5285"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "tslib@2.7.0",
+      "type": "library",
+      "name": "tslib",
+      "version": "2.7.0",
+      "scope": "required",
+      "author": "Microsoft Corp.",
+      "description": "Runtime library for TypeScript helper functions",
+      "purl": "pkg:npm/tslib@2.7.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tslib/-/tslib-2.7.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Microsoft/tslib.git"
+        },
+        {
+          "type": "website",
+          "url": "https://www.typescriptlang.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Microsoft/TypeScript/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "80b5c229d375fe3e3b0221e23a424debd84999c6c64c72342262e66d82c7ca486078dd23546a256bdc958c5833094925b1940c5b9e68f9d5bb217bf74425c3cc"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "0BSD"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "undici-types@6.19.8",
+      "type": "library",
+      "name": "undici-types",
+      "version": "6.19.8",
+      "scope": "required",
+      "description": "A stand-alone types package for Undici",
+      "purl": "pkg:npm/undici-types@6.19.8",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/undici-types/-/undici-types-6.19.8.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/nodejs/undici.git"
+        },
+        {
+          "type": "website",
+          "url": "https://undici.nodejs.org"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/nodejs/undici/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "bded8a3fa7ff2676cf045ca86c61ee7ab0bd8351581a7fc5f27d4b593c0dc4213377a21fa93c1441c357804b66990e83951ac2d61ad2ac19c264fa2446b0c78f"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "fast-equals@6.2.1",
+      "type": "library",
+      "name": "fast-equals",
+      "version": "6.2.1",
+      "scope": "required",
+      "author": "Tony Quetano",
+      "description": "A blazing-fast equality comparison utility for a variety of use-cases",
+      "purl": "pkg:npm/fast-equals@6.2.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/fast-equals/-/fast-equals-6.2.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/planttheidea/fast-equals.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/planttheidea/fast-equals#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/planttheidea/fast-equals/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "b3b28590b3c001b20319387e9d56218d38b0286be03170141b9bf0ce0f2f40a8fb352459e1e106131050e2babd57dd1f4d855677571bfd6af87df08d0662d031"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "fsevents@2.3.3",
+      "type": "library",
+      "name": "fsevents",
+      "version": "2.3.3",
+      "scope": "optional",
+      "description": "Native Access to MacOS FSEvents",
+      "purl": "pkg:npm/fsevents@2.3.3",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/fsevents/fsevents.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/fsevents/fsevents"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/fsevents/fsevents/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "e71a037d7f9f2fb7da0139da82658fa5b16dc21fd1efb5a630caaa1c64bae42defbc1d181eb805f81d58999df8e35b4c8f99fade4d36d765cda09c339617df43"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "hardhat@3.20.0",
+      "type": "library",
+      "name": "hardhat",
+      "version": "3.20.0",
+      "scope": "required",
+      "author": "Nomic Foundation",
+      "description": "Hardhat is an extensible developer tool that helps smart contract developers increase productivity by reliably bringing together the tools they want.",
+      "purl": "pkg:npm/hardhat@3.20.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/hardhat/-/hardhat-3.20.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/NomicFoundation/hardhat"
+        },
+        {
+          "type": "website",
+          "url": "https://hardhat.org"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "cc1f6cd33d134b45033eb6f8a1a46e62e7d935f43d460384ebbc7cf6255997b4006149c405d3c7bfadd95abc776c0fef56281dce0118444b388c453f70cb2bad"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "ws@8.22.0",
+      "type": "library",
+      "name": "ws",
+      "version": "8.22.0",
+      "scope": "required",
+      "author": "Einar Otto Stangvik <einaros@gmail.com> (http://2x.io)",
+      "description": "Simple to use, blazing fast and thoroughly tested websocket client and server for Node.js",
+      "purl": "pkg:npm/ws@8.22.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/ws/-/ws-8.22.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/websockets/ws.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/websockets/ws"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "61d82073df3bf913b40275ad67fed6abd16d36f72b2f56ff44ed2e77d9968d43e00ebb00030412179d6c9b6866d57a1f6d4ff88e4a4612c2c5b1967153ed433a"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "is-safe-filename@0.1.1",
+      "type": "library",
+      "name": "is-safe-filename",
+      "version": "0.1.1",
+      "scope": "required",
+      "author": "Sindre Sorhus",
+      "description": "Check if a filename is safe to use in a path join operation",
+      "purl": "pkg:npm/is-safe-filename@0.1.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/is-safe-filename/-/is-safe-filename-0.1.1.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "e12ad1ec0767635d4b1df0ca4d9635bba19add1bb165d97760a5964a13b98b2b86e61f104b8183dad39bd38a5e049e48ee95db47e08604d1214dcc0af85ccdde"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "json-stream-stringify@3.1.7",
+      "type": "library",
+      "name": "json-stream-stringify",
+      "version": "3.1.7",
+      "scope": "required",
+      "author": "Faleij <faleij@gmail.com> (https://github.com/faleij)",
+      "description": "JSON.Stringify as a readable stream",
+      "purl": "pkg:npm/json-stream-stringify@3.1.7",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/json-stream-stringify/-/json-stream-stringify-3.1.7.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/Faleij/json-stream-stringify.git"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/faleij/json-stream-stringify/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "1783167ad2ed638d9831a00ac39715e1ee3bccc0f968e4feb638d05a35f5f000ad76443963fbeb71f6dc435d3b461f8c5e3382231e0a856d303e63af1bc890e7"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "micro-eth-signer@0.19.0",
+      "type": "library",
+      "name": "micro-eth-signer",
+      "version": "0.19.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Minimal library for Ethereum transactions, addresses and smart contracts",
+      "purl": "pkg:npm/micro-eth-signer@0.19.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/micro-eth-signer/-/micro-eth-signer-0.19.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/micro-eth-signer.git"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "be08a3f2af3c64c713bd60e73b2efa86d6a7790a9a82f53b1588efb71502790253da24e36021cccf0e3a02bc9b28935920243c5bca9416123d09758278f77db9"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@noble/ciphers@2.2.0",
+      "type": "library",
+      "name": "@noble/ciphers",
+      "version": "2.2.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Audited & minimal JS implementation of Salsa20, ChaCha and AES",
+      "purl": "pkg:npm/%40noble/ciphers@2.2.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/ciphers/-/ciphers-2.2.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/noble-ciphers.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "67aa63219ffc2097021b36f64bfd0fc7927cd728a3f39c404ae935b5e2cd7a0ef96df4f4ecc5776bf3b632d9f5236b1ee37937964544705691d7437872041c64"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@noble/curves@2.2.0",
+      "type": "library",
+      "name": "@noble/curves",
+      "version": "2.2.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Audited & minimal JS implementation of elliptic curve cryptography",
+      "purl": "pkg:npm/%40noble/curves@2.2.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/curves/-/curves-2.2.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/noble-curves.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "4ff0681e01578ab6f410d48f06abb35f4adc8d778ce8ba3cf766b68e560992a93cdcba99c7497539fec3ce5289ea3929bccae41d29c07206f925e80bf1278891"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@noble/hashes@2.2.0",
+      "type": "library",
+      "name": "@noble/hashes",
+      "version": "2.2.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Audited & minimal 0-dependency JS implementation of SHA, RIPEMD, BLAKE, HMAC, HKDF, PBKDF & Scrypt",
+      "purl": "pkg:npm/%40noble/hashes@2.2.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/hashes/-/hashes-2.2.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/noble-hashes.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "218a831a24d769be859e20209d2759c2059ba26c69cbd16d62f2cab3bc0252cd9af119084c6f831463b50ccf5cafe137fd18000d1a458eb295689d73eac8ed12"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "micro-packed@0.9.0",
+      "type": "library",
+      "name": "micro-packed",
+      "version": "0.9.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Define complex binary structures using composable primitives",
+      "purl": "pkg:npm/micro-packed@0.9.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/micro-packed/-/micro-packed-0.9.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/micro-packed.git"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "80575a593c445cec2d48e729c6e94ee00b9756da771d6211981f1eabcfb79b5664bb4b9b82f6b4506a62d3762172fb1325ab079e01bd8132142b990734a75eb2"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@scure/base@2.2.0",
+      "type": "library",
+      "name": "@scure/base",
+      "version": "2.2.0",
+      "scope": "required",
+      "author": "Paul Miller (https://paulmillr.com)",
+      "description": "Secure, audited & 0-dep implementation of base64, bech32, base58, base32 & base16",
+      "purl": "pkg:npm/%40scure/base@2.2.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@scure/base/-/base-2.2.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/paulmillr/scure-base.git"
+        },
+        {
+          "type": "website",
+          "url": "https://paulmillr.com/noble/#scure"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "6fc5c4ba92626de8225d5fad0d4b1e23ca0b41cf1e8b777fe0991bd91a5b1e1dcc7c4d39e28bf7b88cf6761164077148f22c18904874806080a64ad882090f36"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "p-map@7.1.1",
+      "type": "library",
+      "name": "p-map",
+      "version": "7.1.1",
+      "scope": "required",
+      "author": "Sindre Sorhus",
+      "description": "Map over promises concurrently",
+      "purl": "pkg:npm/p-map@7.1.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/p-map/-/p-map-7.1.1.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "e8b8778d03cbb6162e8d2ae5c3a71c5970466539284c2cf6ec777dda0efd2c7fe48c06e0a04bb4b78e3670208d6de80f489b00d25c035fccf46dc2ad929037da"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "readdirp@5.1.1",
+      "type": "library",
+      "name": "readdirp",
+      "version": "5.1.1",
+      "scope": "required",
+      "author": "Thorsten Lorenz <thlorenz@gmx.de> (thlorenz.com)",
+      "description": "Recursive version of fs.readdir with small RAM & CPU footprint",
+      "purl": "pkg:npm/readdirp@5.1.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/readdirp/-/readdirp-5.1.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/paulmillr/readdirp.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/paulmillr/readdirp"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/paulmillr/readdirp/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "2a4a3e6395d0e9f33e09edddab79bd606c6769c619625f5c035c198da17755baf2d8bde2d6a560f3e08080d3ec5d102b3cc50c09a391ee86bd36a9ed738dc928"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "resolve.exports@2.0.4",
+      "type": "library",
+      "name": "resolve.exports",
+      "version": "2.0.4",
+      "scope": "required",
+      "author": "Luke Edwards",
+      "description": "A tiny (952b), correct, general-purpose, and configurable \"exports\" and \"imports\" resolver without file-system reliance",
+      "purl": "pkg:npm/resolve.exports@2.0.4",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/resolve.exports/-/resolve.exports-2.0.4.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "cdea6e18bd2e95ffa7b7e5da16b94a79a89325ec8f14f2cb63adbe9dcab5fd54c705db771ec7d7387eb4a6b899ead9d7428cdd19c0de205e495536a7bc871859"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "rfdc@1.4.1",
+      "type": "library",
+      "name": "rfdc",
+      "version": "1.4.1",
+      "scope": "required",
+      "author": "David Mark Clements <david.clements@nearform.com>",
+      "description": "Really Fast Deep Clone",
+      "purl": "pkg:npm/rfdc@1.4.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/rfdc/-/rfdc-1.4.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/davidmarkclements/rfdc.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/davidmarkclements/rfdc#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/davidmarkclements/rfdc/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ab56f737942445459497b8b2ca569a8f790ea484f43768bd32a2044173fbdc656c37d730ddf771f17eb77049968491a2d8f3c2176dc88e9ee4b66777f6b6b020"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "semver@7.8.5",
+      "type": "library",
+      "name": "semver",
+      "version": "7.8.5",
+      "scope": "required",
+      "author": "GitHub Inc.",
+      "description": "The semantic version parser used by npm.",
+      "purl": "pkg:npm/semver@7.8.5",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/semver/-/semver-7.8.5.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/npm/node-semver.git"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "63bfca0ec6fc2e3a28669c1aa86cae94ee8342592c8029dc7211c693eb19218e1206f52870c044147e54af57c8e1d57e26f974c3a723bee71a222e34a6e462a0"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "strip-ansi@6.0.1",
+      "type": "library",
+      "name": "strip-ansi",
+      "version": "6.0.1",
+      "scope": "required",
+      "author": "Sindre Sorhus",
+      "description": "Strip ANSI escape codes from a string",
+      "purl": "pkg:npm/strip-ansi@6.0.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "637f153d21dcaa416b0a916743dbee4979aabaebf9a1738aa46793e9a1abaf7a3719cf409556ba2417d448e0a76f1186645fbfd28a08ecaacfb944b3b54754e4"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "tsx@4.23.15",
+      "type": "library",
+      "name": "tsx",
+      "version": "4.23.15",
+      "scope": "required",
+      "author": "Hiroki Osame",
+      "description": "TypeScript Execute (tsx): Node.js enhanced with esbuild to run TypeScript & ESM files",
+      "purl": "pkg:npm/tsx@4.23.15",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tsx/-/tsx-4.23.15.tgz"
+        },
+        {
+          "type": "website",
+          "url": "https://tsx.hirok.io"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "6227b1d4ebe7f33db13e9396724222cac575492c91318f4190b17efaad322a20f10aa461a2c29f320de36a72a488b07067973f62bca5a0ac0665cac49adc312b"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "typescript@5.8.3",
+      "type": "library",
+      "name": "typescript",
+      "version": "5.8.3",
+      "scope": "required",
+      "author": "Microsoft Corp.",
+      "description": "TypeScript is a language for application scale JavaScript development",
+      "purl": "pkg:npm/typescript@5.8.3",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/typescript/-/typescript-5.8.3.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/microsoft/TypeScript.git"
+        },
+        {
+          "type": "website",
+          "url": "https://www.typescriptlang.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/microsoft/TypeScript/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "a757625ba4ea2fd2f4ee7371bd130cee130cc387395cea3fd626cbe1a0081a6480b7db254c4d57830e4a5aea1fdae4cebc283d058ed9462f86685fbbb1f80f79"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "undici@7.30.1",
+      "type": "library",
+      "name": "undici",
+      "version": "7.30.1",
+      "scope": "required",
+      "description": "An HTTP/1.1 client, written from scratch for Node.js",
+      "purl": "pkg:npm/undici@7.30.1",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/undici/-/undici-7.30.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/nodejs/undici.git"
+        },
+        {
+          "type": "website",
+          "url": "https://undici.nodejs.org"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/nodejs/undici/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "d372ab31b8c814359047944d3eb4b0ddb775af5d89a7215097dff2c6351b26daa48e6965a82e65163661eae8deb8908aafc10e42f456f3bd8ecbf6b3fa72d8c6"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "ws@8.21.0",
+      "type": "library",
+      "name": "ws",
+      "version": "8.21.0",
+      "scope": "required",
+      "author": "Einar Otto Stangvik <einaros@gmail.com> (http://2x.io)",
+      "description": "Simple to use, blazing fast and thoroughly tested websocket client and server for Node.js",
+      "purl": "pkg:npm/ws@8.21.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/ws/-/ws-8.21.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/websockets/ws.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/websockets/ws"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "56ca76f1bec345c8a6150bebaaed967a4df3d626310c25aa1d807c42c9e4fd2e117da090ccf18fc8136e563255ddc77a5222ad52da7ab0d33bee05afcdc087fa"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "zod@3.25.76",
+      "type": "library",
+      "name": "zod",
+      "version": "3.25.76",
+      "scope": "required",
+      "author": "Colin McDonnell <zod@colinhacks.com>",
+      "description": "TypeScript-first schema declaration and validation library with static type inference",
+      "purl": "pkg:npm/zod@3.25.76",
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/zod/-/zod-3.25.76.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/colinhacks/zod.git"
+        },
+        {
+          "type": "website",
+          "url": "https://zod.dev"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/colinhacks/zod/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "83352dfeab7cd675ec14628815c0b76277c4031e4d92e9c27e70e5bee0524854b4d9b717bb82e679ad001485306cb5b158fc7777da7c4b94286ae8ca70d43171"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "smart-contracts@1.0.0",
+      "dependsOn": [
+        "dotenv@16.5.0",
+        "@nomicfoundation/hardhat-ethers@4.2.1",
+        "@openzeppelin/contracts@5.4.0",
+        "ethers@6.17.0",
+        "hardhat@3.20.0",
+        "typescript@5.8.3"
+      ]
+    },
+    {
+      "ref": "@adraffy/ens-normalize@1.11.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "@esbuild/darwin-arm64@0.28.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@noble/ciphers@1.3.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@noble/curves@1.9.0",
+      "dependsOn": [
+        "@noble/hashes@1.8.0"
+      ]
+    },
+    {
+      "ref": "@noble/hashes@1.8.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/edr@0.23.0",
+      "dependsOn": [
+        "@nomicfoundation/edr-darwin-arm64@0.23.0"
+      ]
+    },
+    {
+      "ref": "@nomicfoundation/edr-darwin-arm64@0.23.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/hardhat-errors@3.1.3",
+      "dependsOn": [
+        "@nomicfoundation/hardhat-utils@5.0.0"
+      ]
+    },
+    {
+      "ref": "@nomicfoundation/hardhat-ethers@4.2.1",
+      "dependsOn": [
+        "hardhat@3.20.0",
+        "@nomicfoundation/hardhat-errors@3.1.3",
+        "@nomicfoundation/hardhat-utils@5.0.0",
+        "@nomicfoundation/hardhat-zod-utils@3.0.8",
+        "ethereum-cryptography@3.2.0",
+        "ethers@6.17.0",
+        "zod@3.25.76"
+      ]
+    },
+    {
+      "ref": "@nomicfoundation/hardhat-utils@5.0.0",
+      "dependsOn": [
+        "@streamparser/json-node@0.0.26",
+        "env-paths@4.0.0",
+        "ethereum-cryptography@3.2.0",
+        "fast-equals@6.2.1",
+        "json-stream-stringify@3.1.7",
+        "micro-eth-signer@0.19.0",
+        "rfdc@1.4.1",
+        "undici@7.30.1"
+      ]
+    },
+    {
+      "ref": "@nomicfoundation/hardhat-vendored@3.0.4",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/hardhat-zod-utils@3.0.8",
+      "dependsOn": [
+        "zod@3.25.76",
+        "@nomicfoundation/hardhat-errors@3.1.3",
+        "@nomicfoundation/hardhat-utils@5.0.0"
+      ]
+    },
+    {
+      "ref": "@nomicfoundation/solidity-analyzer@0.1.2",
+      "dependsOn": [
+        "@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.2",
+        "@nomicfoundation/solidity-analyzer-darwin-x64@0.1.2",
+        "@nomicfoundation/solidity-analyzer-linux-arm64-gnu@0.1.2",
+        "@nomicfoundation/solidity-analyzer-linux-arm64-musl@0.1.2",
+        "@nomicfoundation/solidity-analyzer-linux-x64-gnu@0.1.2",
+        "@nomicfoundation/solidity-analyzer-linux-x64-musl@0.1.2",
+        "@nomicfoundation/solidity-analyzer-win32-x64-msvc@0.1.2"
+      ]
+    },
+    {
+      "ref": "@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/solidity-analyzer-darwin-x64@0.1.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/solidity-analyzer-linux-arm64-gnu@0.1.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/solidity-analyzer-linux-arm64-musl@0.1.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/solidity-analyzer-linux-x64-gnu@0.1.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/solidity-analyzer-linux-x64-musl@0.1.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@nomicfoundation/solidity-analyzer-win32-x64-msvc@0.1.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@openzeppelin/contracts@5.4.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@scure/base@1.2.6",
+      "dependsOn": []
+    },
+    {
+      "ref": "@scure/bip32@1.7.0",
+      "dependsOn": [
+        "@noble/curves@1.9.0",
+        "@noble/hashes@1.8.0",
+        "@scure/base@1.2.6"
+      ]
+    },
+    {
+      "ref": "@scure/bip39@1.6.0",
+      "dependsOn": [
+        "@noble/hashes@1.8.0",
+        "@scure/base@1.2.6"
+      ]
+    },
+    {
+      "ref": "@sentry/core@9.47.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@streamparser/json@0.0.26",
+      "dependsOn": []
+    },
+    {
+      "ref": "@streamparser/json-node@0.0.26",
+      "dependsOn": [
+        "@streamparser/json@0.0.26"
+      ]
+    },
+    {
+      "ref": "adm-zip@0.6.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "aes-js@4.0.0-beta.5",
+      "dependsOn": []
+    },
+    {
+      "ref": "ansi-colors@4.1.3",
+      "dependsOn": []
+    },
+    {
+      "ref": "ansi-regex@5.0.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "chokidar@5.0.0",
+      "dependsOn": [
+        "readdirp@5.1.1"
+      ]
+    },
+    {
+      "ref": "dotenv@16.5.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "enquirer@2.4.1",
+      "dependsOn": [
+        "ansi-colors@4.1.3",
+        "strip-ansi@6.0.1"
+      ]
+    },
+    {
+      "ref": "env-paths@4.0.0",
+      "dependsOn": [
+        "is-safe-filename@0.1.1"
+      ]
+    },
+    {
+      "ref": "esbuild@0.28.2",
+      "dependsOn": [
+        "@esbuild/darwin-arm64@0.28.2"
+      ]
+    },
+    {
+      "ref": "ethereum-cryptography@3.2.0",
+      "dependsOn": [
+        "@noble/ciphers@1.3.0",
+        "@noble/curves@1.9.0",
+        "@noble/hashes@1.8.0",
+        "@scure/bip32@1.7.0",
+        "@scure/bip39@1.6.0"
+      ]
+    },
+    {
+      "ref": "ethers@6.17.0",
+      "dependsOn": [
+        "@adraffy/ens-normalize@1.11.1",
+        "@noble/curves@1.2.0",
+        "@noble/hashes@1.3.2",
+        "@types/node@22.7.5",
+        "aes-js@4.0.0-beta.5",
+        "tslib@2.7.0",
+        "ws@8.21.0"
+      ]
+    },
+    {
+      "ref": "@noble/curves@1.2.0",
+      "dependsOn": [
+        "@noble/hashes@1.3.2"
+      ]
+    },
+    {
+      "ref": "@noble/hashes@1.3.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "@types/node@22.7.5",
+      "dependsOn": [
+        "undici-types@6.19.8"
+      ]
+    },
+    {
+      "ref": "tslib@2.7.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "undici-types@6.19.8",
+      "dependsOn": []
+    },
+    {
+      "ref": "fast-equals@6.2.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "fsevents@2.3.3",
+      "dependsOn": []
+    },
+    {
+      "ref": "hardhat@3.20.0",
+      "dependsOn": [
+        "@nomicfoundation/edr@0.23.0",
+        "@nomicfoundation/hardhat-errors@3.1.3",
+        "@nomicfoundation/hardhat-utils@5.0.0",
+        "@nomicfoundation/hardhat-vendored@3.0.4",
+        "@nomicfoundation/hardhat-zod-utils@3.0.8",
+        "@nomicfoundation/solidity-analyzer@0.1.2",
+        "@sentry/core@9.47.2",
+        "adm-zip@0.6.1",
+        "chokidar@5.0.0",
+        "enquirer@2.4.1",
+        "ethereum-cryptography@3.2.0",
+        "micro-eth-signer@0.19.0",
+        "p-map@7.1.1",
+        "resolve.exports@2.0.4",
+        "semver@7.8.5",
+        "tsx@4.23.15",
+        "ws@8.22.0",
+        "zod@3.25.76"
+      ]
+    },
+    {
+      "ref": "ws@8.22.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "is-safe-filename@0.1.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "json-stream-stringify@3.1.7",
+      "dependsOn": []
+    },
+    {
+      "ref": "micro-eth-signer@0.19.0",
+      "dependsOn": [
+        "@noble/ciphers@2.2.0",
+        "@noble/curves@2.2.0",
+        "@noble/hashes@2.2.0",
+        "micro-packed@0.9.0"
+      ]
+    },
+    {
+      "ref": "@noble/ciphers@2.2.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@noble/curves@2.2.0",
+      "dependsOn": [
+        "@noble/hashes@2.2.0"
+      ]
+    },
+    {
+      "ref": "@noble/hashes@2.2.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "micro-packed@0.9.0",
+      "dependsOn": [
+        "@scure/base@2.2.0"
+      ]
+    },
+    {
+      "ref": "@scure/base@2.2.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "p-map@7.1.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "readdirp@5.1.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "resolve.exports@2.0.4",
+      "dependsOn": []
+    },
+    {
+      "ref": "rfdc@1.4.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "semver@7.8.5",
+      "dependsOn": []
+    },
+    {
+      "ref": "strip-ansi@6.0.1",
+      "dependsOn": [
+        "ansi-regex@5.0.1"
+      ]
+    },
+    {
+      "ref": "tsx@4.23.15",
+      "dependsOn": [
+        "esbuild@0.28.2",
+        "fsevents@2.3.3"
+      ]
+    },
+    {
+      "ref": "typescript@5.8.3",
+      "dependsOn": []
+    },
+    {
+      "ref": "undici@7.30.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "ws@8.21.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "zod@3.25.76",
+      "dependsOn": []
+    }
+  ]
+}

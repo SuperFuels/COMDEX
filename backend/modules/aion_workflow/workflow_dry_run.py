@@ -5,9 +5,14 @@ from typing import Any
 from datetime import datetime, timezone
 import hashlib
 import json
+import uuid
 
 from .contracts_workflow_glyph import assert_safe_workflow_glyph
 from .workflow_approval_repository import WorkflowApprovalRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_agents.runtime.vault_repository_backend import (
+    AgentVaultRepositoryBackend,
+)
 
 
 def utc_now_iso() -> str:
@@ -427,7 +432,8 @@ def _sample_item_for_step(
 def dry_run_workflow_glyph(
     *,
     workflow_record: dict[str, Any],
-    audit_root: Path | str = ".runtime/local_node",
+    audit_root: Path | str | None = None,
+    domain_store: VaultDomainStore | None = None,
 ) -> dict[str, Any]:
     compiled_glyph = workflow_record.get("compiled_glyph") or {}
     assert_safe_workflow_glyph(compiled_glyph)
@@ -451,6 +457,10 @@ def dry_run_workflow_glyph(
     current_items: list[dict[str, Any]] = []
 
     paused_for_approval = False
+    approval_repo = WorkflowApprovalRepository(
+        runtime_root=audit_root,
+        domain_store=domain_store,
+    )
 
     for index, step in enumerate(steps):
         op = str(step.get("op") or "")
@@ -513,7 +523,6 @@ def dry_run_workflow_glyph(
         })
 
         if approval_waiting:
-            approval_repo = WorkflowApprovalRepository(runtime_root=audit_root)
             approval_request = approval_repo.create(
                 business_container=business_container,
                 workflow_id=workflow_id,
@@ -549,7 +558,24 @@ def dry_run_workflow_glyph(
         "ran_at": utc_now_iso(),
     }
 
-    audit_dir = Path(audit_root) / business_container / "aion_workflow_audit"
+    if approval_repo.vault is not None:
+        audit_id = f"{workflow_id}/{uuid.uuid4().hex}"
+        audit_backend = AgentVaultRepositoryBackend(
+            approval_repo.vault.store,
+            kind="workflow_dry_runs",
+            audit=True,
+        )
+        audit_backend.put(
+            workspace_id=business_container,
+            item_id=audit_id,
+            payload=result,
+        )
+        result["audit_path"] = (
+            "vault://train_agent.runs_and_audit/workflow_dry_runs/" + audit_id
+        )
+        return result
+
+    audit_dir = Path(audit_root or ".runtime/local_node") / business_container / "aion_workflow_audit"
     audit_dir.mkdir(parents=True, exist_ok=True)
     audit_path = audit_dir / f"{workflow_id}.jsonl"
 

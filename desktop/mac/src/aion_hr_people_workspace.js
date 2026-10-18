@@ -27,7 +27,9 @@
 
   function founderDefaults() {
     try {
-      const packet = JSON.parse(localStorage.getItem('aion.businessTwin.foundationPacket.v1') || '{}');
+      const packet = global.__aionFoundationPacket && typeof global.__aionFoundationPacket === 'object'
+        ? global.__aionFoundationPacket
+        : JSON.parse(localStorage.getItem('aion.businessTwin.foundationPacket.v1') || '{}');
       const draft = packet.foundation_draft || packet.business || {};
       return {
         name: packet.founder_name || draft.founder_name || draft.owner_name || draft.owner || '',
@@ -300,15 +302,17 @@
   }
 
   function loadFullCanvasPositions() {
+    if (state.orgFullPositionsKey === fullCanvasPositionKey() && state.orgFullPositions && typeof state.orgFullPositions === 'object') return;
     try {
       const saved = JSON.parse(global.localStorage?.getItem(fullCanvasPositionKey()) || '{}');
       state.orgFullPositions = saved && typeof saved === 'object' ? saved : {};
       state.orgFullPositionsKey = fullCanvasPositionKey();
+      global.localStorage?.removeItem(fullCanvasPositionKey());
     } catch { state.orgFullPositions = {}; }
   }
 
   function saveFullCanvasPositions() {
-    try { global.localStorage?.setItem(fullCanvasPositionKey(), JSON.stringify(state.orgFullPositions || {})); } catch {}
+    state.orgFullPositionsKey = fullCanvasPositionKey();
   }
 
   function redrawFullCanvasLines(root) {
@@ -507,9 +511,11 @@
         method: 'PUT', body: JSON.stringify({ model: state.model, expected_revision: state.model.revision || 0, changed_by: 'hr_pilot_desktop' }),
       });
       state.model = result.model;
-      try {
-        localStorage.setItem(`aion.organizationAuthority.summary.${state.workspaceId}`, JSON.stringify({ revision: state.model.revision, summary: state.model.summary, updated_at: new Date().toISOString() }));
-      } catch {}
+      global.__aionOrganisationAuthoritySummary = {
+        revision: state.model.revision,
+        summary: state.model.summary,
+        updated_at: new Date().toISOString(),
+      };
     } catch (error) {
       state.error = error.message.includes('organization_revision_conflict') ? 'The organisation changed elsewhere. Reload the HR Pilot before saving again.' : `Could not save: ${error.message}`;
     } finally { state.saving = false; render(); global.dispatchEvent(new CustomEvent('aion:people-workspace-updated', { detail: { workspace_id: state.workspaceId, revision: state.model?.revision || 0 } })); global.requestRender?.(); }

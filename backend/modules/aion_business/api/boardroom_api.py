@@ -8,6 +8,9 @@ from pydantic import BaseModel, Field
 from backend.modules.aion_business.runtime.business_container_service import (
     BusinessContainerService,
 )
+from backend.modules.aion_business.runtime.boardroom_conversation_service import (
+    BoardroomConversationService,
+)
 
 router = APIRouter(
     prefix="/api/aion/business/boardroom",
@@ -29,6 +32,13 @@ class BoardroomExistsResponse(BaseModel):
     workspace_id: str
     exists: bool
     source: str = "containers"
+
+
+class BoardroomConversationRequest(BaseModel):
+    team_mode: str = Field(default="board", max_length=80)
+    seat_key: str = Field(default="aion", max_length=80)
+    messages: list[dict[str, Any]] = Field(default_factory=list, max_length=30)
+    expected_revision: int | None = Field(default=None, ge=0)
 
 
 def _load_canonical_boardroom(
@@ -118,3 +128,36 @@ def boardroom_exists(workspace_id: str) -> BoardroomExistsResponse:
         exists=isinstance(payload, dict) and bool(payload),
         source="containers",
     )
+
+
+@router.get("/{workspace_id}/conversations/{team_mode}/{seat_key}")
+def get_boardroom_conversation(
+    workspace_id: str, team_mode: str, seat_key: str,
+) -> Dict[str, Any]:
+    try:
+        return BoardroomConversationService().load(
+            workspace_id, team_mode=team_mode, seat_key=seat_key,
+        )
+    except RuntimeError as exc:
+        if str(exc) == "business_vault_unavailable":
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        raise
+
+
+@router.put("/{workspace_id}/conversations")
+def save_boardroom_conversation(
+    workspace_id: str, request: BoardroomConversationRequest,
+) -> Dict[str, Any]:
+    try:
+        return BoardroomConversationService().save(
+            workspace_id, team_mode=request.team_mode, seat_key=request.seat_key,
+            messages=request.messages, expected_revision=request.expected_revision,
+        )
+    except RuntimeError as exc:
+        if str(exc) == "business_vault_unavailable":
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        raise
+    except ValueError as exc:
+        if str(exc) == "boardroom_conversation_revision_conflict":
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

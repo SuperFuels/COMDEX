@@ -21,7 +21,7 @@ def test_small_business_foundation_allowed_as_forced_route():
 
 def test_startup_helper_sets_forced_route_and_render_branch_returns_selector():
     text = APP.read_text(encoding="utf-8")
-    assert 'window.localStorage?.setItem("aion.forcedMainTab.v2", "small_business_foundation");' in text
+    assert 'window.AionDesktopPreferences.set("aion.forcedMainTab.v2", "small_business_foundation");' in text
     assert 'window.__aionForcedMainTabV2 = "small_business_foundation";' in text
     assert 'if (state.activeTab === "small_business_foundation") {' in text
     assert "return renderBusinessEntryModeSelector();" in text

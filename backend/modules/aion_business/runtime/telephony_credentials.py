@@ -10,13 +10,13 @@ for multi-business isolation.
 from __future__ import annotations
 
 import os
-import json
 from pathlib import Path
 import subprocess
 
+from backend.modules.aion_business.runtime.retell_deployment_store import RetellDeploymentStore
+
 
 RETELL_KEYCHAIN_SERVICE = "com.tessaris.sales.retell"
-RETELL_DEPLOYMENT_PATH = Path(__file__).resolve().parents[4] / "data" / "local_vault" / "retell_homefixed_agent.json"
 
 
 def set_retell_api_key(workspace_id: str, api_key: str) -> None:
@@ -81,20 +81,15 @@ def get_retell_api_key(workspace_id: str | None = None) -> str:
     return ""
 
 
-def _deployment() -> dict:
-    if not RETELL_DEPLOYMENT_PATH.exists():
-        return {}
-    try:
-        return json.loads(RETELL_DEPLOYMENT_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+def _deployment(workspace_id: str | None = None) -> dict:
+    return RetellDeploymentStore().read(workspace_id)
 
 
 def get_retell_agent_id(workspace_id: str | None = None) -> str:
     env_value = str(os.getenv("RETELL_AGENT_ID") or "").strip()
     if env_value:
         return env_value
-    record = _deployment()
+    record = _deployment(workspace_id)
     return str(record.get("agent_id") or "").strip()
 
 
@@ -102,5 +97,5 @@ def get_retell_from_number(workspace_id: str | None = None) -> str:
     env_value = str(os.getenv("RETELL_FROM_NUMBER") or "").strip()
     if env_value:
         return env_value
-    record = _deployment()
+    record = _deployment(workspace_id)
     return str(record.get("phone_number") or "").strip()

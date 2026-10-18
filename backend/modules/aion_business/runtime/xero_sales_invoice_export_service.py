@@ -10,10 +10,12 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
 from backend.modules.aion_business.runtime.finance_bookkeeping_service import FinanceBookkeepingService
 from backend.modules.aion_business.runtime.finance_sales_service import FinanceSalesService
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -37,11 +39,18 @@ class XeroSalesInvoiceExportService:
     def __init__(self, repository: BusinessContainerRepository | None = None,
                  authority: OrganizationAuthorityService | None = None,
                  bookkeeping: FinanceBookkeepingService | None = None,
-                 sales: FinanceSalesService | None = None) -> None:
+                 sales: FinanceSalesService | None = None,
+                 *, domain_store: VaultDomainStore | None = None) -> None:
         self.repository = repository or BusinessContainerRepository()
         self.authority = authority or OrganizationAuthorityService(self.repository)
         self.bookkeeping = bookkeeping or FinanceBookkeepingService(self.repository, self.authority)
         self.sales = sales or FinanceSalesService(self.repository, self.authority, self.bookkeeping)
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="xero-sales-export-runtime"
+            )
 
     def prepare(self, workspace_id: str, invoice_id: str, *, xero_contact_id: str,
                 prepared_by_person_id: str, target_status: str = "DRAFT") -> dict[str, Any]:
@@ -173,6 +182,20 @@ class XeroSalesInvoiceExportService:
         return record
 
     def load(self, workspace_id: str, export_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            row = self.domain_store.get_optional(
+                "finance.integration_records", workspace_id=workspace_id,
+                entity_id=self._entity_id(export_id),
+            )
+            if row is None:
+                raise FileNotFoundError(export_id)
+            record = dict(row["payload"]); expected = record.get("export_hash")
+            payload = dict(record); payload.pop("export_hash", None)
+            if not expected or canonical_contract_hash(payload) != expected:
+                raise ValueError("xero_sales_invoice_export_hash_mismatch")
+            if record.get("workspace_id") != workspace_id:
+                raise PermissionError("xero_sales_invoice_export_workspace_isolation_violation")
+            return record
         path = self._dir(workspace_id) / f"{_safe(export_id)}.json"
         if not path.exists(): raise FileNotFoundError(export_id)
         record = json.loads(path.read_text(encoding="utf-8")); expected = record.get("export_hash")
@@ -184,6 +207,19 @@ class XeroSalesInvoiceExportService:
         return record
 
     def list(self, workspace_id: str) -> list[dict[str, Any]]:
+        if self.domain_store is not None:
+            records: list[dict[str, Any]] = []
+            for row in self.domain_store.list(
+                "finance.integration_records", workspace_id=workspace_id,
+            ):
+                if not str(row.get("entity_id") or "").startswith("xero/sales_invoice_exports/"):
+                    continue
+                record = dict(row["payload"]); expected = record.get("export_hash")
+                payload = dict(record); payload.pop("export_hash", None)
+                if not expected or canonical_contract_hash(payload) != expected:
+                    raise ValueError("xero_sales_invoice_export_hash_mismatch")
+                records.append(record)
+            return sorted(records, key=lambda item: str(item.get("prepared_at") or ""), reverse=True)
         return [self.load(workspace_id, path.stem) for path in sorted(
             self._dir(workspace_id).glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)]
 
@@ -206,10 +242,29 @@ class XeroSalesInvoiceExportService:
         })
 
     def _dir(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_xero_sales_exports__") / workspace_id
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/xero_sales_invoice_exports"
         path.mkdir(parents=True, exist_ok=True); return path
 
     def _rehash_save(self, workspace_id: str, record: dict[str, Any]) -> None:
         record.pop("export_hash", None); record["export_hash"] = canonical_contract_hash(record)
+        if self.domain_store is not None:
+            entity_id = self._entity_id(str(record["export_id"]))
+            current = self.domain_store.get_optional(
+                "finance.integration_records", workspace_id=workspace_id,
+                entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "finance.integration_records", workspace_id=workspace_id,
+                entity_id=entity_id, payload=record,
+                expected_version=int(current["version"]) if current else None,
+                actor_id="xero-sales-export-runtime",
+            )
+            return
         (self._dir(workspace_id) / f"{_safe(record['export_id'])}.json").write_text(
             json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    @staticmethod
+    def _entity_id(export_id: str) -> str:
+        return f"xero/sales_invoice_exports/{_safe(export_id)}"

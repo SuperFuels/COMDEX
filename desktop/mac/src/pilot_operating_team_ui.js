@@ -1407,9 +1407,9 @@
     requestAnimationFrame(() => {
       renderQueued = false;
       render();
-      if (!runtime.workspace && !runtime.loading) loadWorkspace();
+      if (runtime.trainSurfacePresent && !runtime.workspace && !runtime.loading) loadWorkspace();
     });
   });
   observer.observe(document.body, { childList: true, subtree: true });
-  loadWorkspace();
+  render();
 })();

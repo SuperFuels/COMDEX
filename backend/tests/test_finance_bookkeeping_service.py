@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from hashlib import sha256
+import csv
+import io
 import json
 from pathlib import Path
 
@@ -129,3 +131,26 @@ def test_provider_catalog_is_honest_about_implemented_connectors(monkeypatch, tm
     assert rows["sage_accounting"]["implemented_mode"] == "read_adapter_and_harness_ready"
     assert rows["quickbooks_online"]["connected"] is False
     assert catalog["external_writes_enabled"] is False
+
+
+def test_customer_csv_export_is_deterministic_and_reproduces_approved_totals(monkeypatch, tmp_path):
+    repository, authority = configure(monkeypatch, tmp_path)
+    seed_document(repository)
+    service = FinanceBookkeepingService(repository, authority)
+    draft = service.prepare_document("acme", "finance-document-1", prepared_by_person_id="person.owner")
+    service.approve(
+        "acme", draft["draft_id"], approved_by_person_id="person.owner",
+        approved_draft_hash=draft["draft_hash"],
+    )
+    service.post_internal("acme", draft["draft_id"], posted_by_person_id="person.owner")
+
+    first, evidence = service.journal_csv_export("acme")
+    second, repeated = service.journal_csv_export("acme")
+    rows = list(csv.DictReader(io.StringIO(first.decode("utf-8"))))
+
+    assert first == second
+    assert evidence == repeated
+    assert evidence["sha256"] == sha256(first).hexdigest()
+    assert round(sum(float(row["debit"]) for row in rows), 2) == evidence["total_debits"] == 60.5
+    assert round(sum(float(row["credit"]) for row in rows), 2) == evidence["total_credits"] == 60.5
+    assert evidence["balanced"] is True

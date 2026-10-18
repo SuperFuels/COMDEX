@@ -16,6 +16,6 @@ def test_retired_dashboard_route_is_migrated_to_boardroom():
 
 
 def test_recovery_sets_stable_business_entry_mode_keys():
-    assert 'localStorage.setItem("aion.businessEntryMode.v1", "small_business_growth")' in APP
-    assert 'localStorage.setItem("aion.selectedBusinessEntryMode.v1", "small_business_growth")' in APP
-    assert 'localStorage.setItem("aion.business_entry_mode.v1", "small_business_growth")' in APP
+    assert 'writeBusinessWorkingStateString?.("aion.businessEntryMode.v1", "small_business_growth")' in APP
+    assert 'writeBusinessWorkingStateString?.("aion.selectedBusinessEntryMode.v1", "small_business_growth")' in APP
+    assert 'writeBusinessWorkingStateString?.("aion.business_entry_mode.v1", "small_business_growth")' in APP

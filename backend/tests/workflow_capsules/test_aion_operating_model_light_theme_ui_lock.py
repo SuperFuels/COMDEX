@@ -86,9 +86,11 @@ def test_workforce_is_hr_linked_and_work_schedule_owns_jobs_and_quotes():
     assert "Select a person from HR" in source
     assert "confidential_hr_effective_planning_cost" not in source
     assert "Customer jobs and quotes live in Work &amp; Schedule" in source
-    assert "Create a job, quote or appointment" in work_schedule
-    assert "OPTIONAL QUOTE &amp; COST ESTIMATE" in work_schedule
-    assert 'data-ws-cost-estimate-form' in work_schedule
+    assert "Prepare a job, quote or appointment" in work_schedule
+    assert "AI-ENHANCED QUOTE &amp; JOB COSTING" in work_schedule
+    assert 'data-ws-cost-estimate-form' not in work_schedule
+    assert "Add private cost / working rows beneath each customer quote line" in work_schedule
+    assert "data-ws-add-quote-child" in work_schedule
     assert "Quotes & invoices" in work_schedule
 
 
@@ -110,6 +112,22 @@ def test_margin_targets_are_a_guided_finance_decision():
     assert "Discuss with Finance Pilot" in source
     assert "These are evidence, not targets" in source
     assert "Record only targets you already know or have agreed" in source
+    assert "Default quote pricing rules" in source
+    assert "Protect gross margin" in source
+    assert "Add markup to cost" in source
+
+
+def test_variable_jobs_use_editable_ai_pricing_with_a_margin_floor():
+    work_schedule = WORK_SCHEDULE.read_text(encoding="utf-8")
+    sales = Path("desktop/mac/src/aion_sales_revenue_workspace.js").read_text(encoding="utf-8")
+
+    assert "Variable materials and labour do not need one fixed catalogue cost" in work_schedule
+    assert "data-ws-accept-ai-price" in work_schedule
+    assert "data-ws-use-recommended-quote" in work_schedule
+    assert "minimum_margin_percentage" in work_schedule
+    assert "priceOverridden" in sales
+    assert "AI pricing guidance · editable draft" in sales
+    assert "below the approved minimum margin" in sales
 
 
 def test_financial_foundations_are_exported_to_finance_not_duplicated_in_products():

@@ -10,6 +10,10 @@ import sqlite3
 import time
 from typing import Any
 
+from backend.modules.aion_cognition.sqlite_connection import (
+    close_thread_connections,
+    connect as sqlite_connect,
+)
 from backend.modules.aion_cognition.native_english_teacher import CURRICULUM
 from backend.modules.aion_cognition.native_lexical_intelligence import default_database_path
 from backend.modules.hexcore.progressive_competency_system import ProgressiveCompetencySystem
@@ -25,7 +29,23 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 def _recent_cycles(path: Path, limit: int = 8) -> list[dict[str, Any]]:
     try:
-        lines = path.read_text(encoding="utf-8").splitlines()[-max(1, limit):]
+        wanted = max(1, limit)
+        # This append-only ledger can exceed tens of megabytes. Reading and
+        # splitting the whole file just to display eight rows caused a very
+        # large temporary-memory spike in the desktop API. Seek backwards and
+        # retain only the tail records instead.
+        with path.open("rb") as handle:
+            handle.seek(0, os.SEEK_END)
+            position = handle.tell()
+            tail = b""
+            while position > 0 and tail.count(b"\n") <= wanted:
+                size = min(256 * 1024, position)
+                position -= size
+                handle.seek(position)
+                tail = handle.read(size) + tail
+                if len(tail) >= 8 * 1024 * 1024:
+                    break
+        lines = tail.decode("utf-8", errors="replace").splitlines()[-wanted:]
     except OSError:
         return []
     rows: list[dict[str, Any]] = []
@@ -49,12 +69,14 @@ def _recent_cycles(path: Path, limit: int = 8) -> list[dict[str, Any]]:
     return rows
 
 
-def _database_metrics(path: Path) -> tuple[dict[str, Any], str | None]:
+def _database_metrics(
+    path: Path, *, _lock_attempt: int = 0,
+) -> tuple[dict[str, Any], str | None]:
     if not path.is_file():
         return {}, "native_lexical_database_missing"
     try:
         uri = f"file:{path}?mode=ro"
-        with sqlite3.connect(uri, uri=True, timeout=10) as connection:
+        with sqlite_connect(uri, uri=True, timeout=10) as connection:
             connection.row_factory = sqlite3.Row
             connection.execute("PRAGMA busy_timeout=10000")
             counts = {
@@ -127,17 +149,46 @@ def _database_metrics(path: Path) -> tuple[dict[str, Any], str | None]:
                    MAX(created_epoch) AS last_attempt_epoch
                    FROM practice_attempts GROUP BY {family_key} ORDER BY {family_key}"""
             ).fetchall()
+            minimum_by_family = {
+                str(stage["family"]): int(stage["minimum_attempts"])
+                for stage in CURRICULUM
+            }
+            recent_freshness: dict[str, tuple[int, int]] = {}
+            for family, minimum in minimum_by_family.items():
+                recent_rows = connection.execute(
+                    f"""SELECT task_id FROM practice_attempts
+                        WHERE {family_key}=? ORDER BY created_epoch DESC LIMIT ?""",
+                    (family, minimum),
+                ).fetchall()
+                recent_freshness[family] = (
+                    len(recent_rows), len({str(item[0]) for item in recent_rows}),
+                )
             journal_mode = str(connection.execute("PRAGMA journal_mode").fetchone()[0])
     except (OSError, sqlite3.Error) as exc:
+        if (isinstance(exc, sqlite3.OperationalError)
+                and "locked" in str(exc).lower() and _lock_attempt < 2):
+            # A learning writer may briefly own the rollback journal on the
+            # removable SD card. Reopen the read channel and retry rather than
+            # turning a transient collision into a stale-dashboard incident.
+            close_thread_connections()
+            time.sleep(.25 * (_lock_attempt + 1))
+            return _database_metrics(path, _lock_attempt=_lock_attempt + 1)
         return {}, f"{type(exc).__name__}:{exc}"
     counts["practice_accuracy"] = round(
         counts["verified_correct_attempts"] / counts["practice_attempts"], 4
     ) if counts["practice_attempts"] else None
     counts["journal_mode"] = journal_mode
-    counts["families"] = {
-        str(row["family"]): {
+    counts["families"] = {}
+    for row in family_rows:
+        family = str(row["family"])
+        recent_attempts, recent_unique = recent_freshness.get(family, (0, 0))
+        counts["families"][family] = {
             "attempts": int(row["attempts"]), "correct": int(row["correct"] or 0),
             "unique_tasks": int(row["unique_tasks"] or 0),
+            "recent_freshness_attempts": recent_attempts,
+            "recent_unique_tasks": recent_unique,
+            "recent_unique_ratio": round(recent_unique / recent_attempts, 4)
+                if recent_attempts else None,
             "source_disjoint_attempts": int(row["source_disjoint_attempts"] or 0),
             "accuracy": round(int(row["correct"] or 0) / int(row["attempts"]), 4),
             "first_attempt_epoch": float(row["first_attempt_epoch"] or 0),
@@ -146,8 +197,7 @@ def _database_metrics(path: Path) -> tuple[dict[str, Any], str | None]:
                 0.0, float(row["last_attempt_epoch"] or 0)
                 - float(row["first_attempt_epoch"] or 0)
             ),
-        } for row in family_rows
-    }
+        }
     return counts, None
 
 
@@ -161,7 +211,20 @@ def collect_native_english_progress(repo_root: Path | str) -> dict[str, Any]:
     state = _read_json(state_path)
     service_root = _read_json(service_path)
     service = service_root.get("native_english_teacher") or {}
-    competency = _read_json(competency_path)
+    # The general competency ledger can grow to tens of megabytes and expands
+    # to well over a gigabyte when decoded.  The English panel already reads
+    # its authoritative native-English evidence directly from SQLite, so a UI
+    # refresh must not materialise that entire unrelated history.  Keep the
+    # small legacy projection when available; otherwise expose the specialised
+    # English metrics and let the general Learning Centre own its own summary.
+    try:
+        competency_bytes = competency_path.stat().st_size
+    except OSError:
+        competency_bytes = 0
+    competency = (
+        _read_json(competency_path)
+        if 0 < competency_bytes <= 8 * 1024 * 1024 else {}
+    )
     english_subject = (competency.get("subjects") or {}).get("english") or {}
     try:
         english_assessment = ProgressiveCompetencySystem.assess_snapshot(
@@ -183,11 +246,13 @@ def collect_native_english_progress(repo_root: Path | str) -> dict[str, Any]:
         threshold = float(row["pass_accuracy"])
         unique_tasks = int(family_metrics.get("unique_tasks") or 0)
         unique_ratio = round(unique_tasks / attempts, 4) if attempts else None
+        recent_unique_ratio = family_metrics.get("recent_unique_ratio")
         qualified = bool(
             attempts >= minimum
             and unique_tasks >= minimum
             and float(accuracy or 0.0) >= threshold
-            and float(unique_ratio or 0.0) >= float(row.get("minimum_unique_ratio") or 0.0)
+            and float(recent_unique_ratio or 0.0)
+                >= float(row.get("minimum_unique_ratio") or 0.0)
         )
         if row.get("require_source_disjoint"):
             qualified = qualified and int(family_metrics.get("source_disjoint_attempts") or 0) >= minimum
@@ -203,6 +268,7 @@ def collect_native_english_progress(repo_root: Path | str) -> dict[str, Any]:
             "unique_tasks": unique_tasks,
             "repeat_attempts": max(0, attempts - unique_tasks),
             "unique_ratio": unique_ratio,
+            "recent_unique_ratio": recent_unique_ratio,
             "retention_span_seconds": float(
                 family_metrics.get("retention_span_seconds") or 0.0
             ),
@@ -241,9 +307,15 @@ def collect_native_english_progress(repo_root: Path | str) -> dict[str, Any]:
         blockers.append(database_error)
     if not sd_mounted:
         blockers.append("sd_native_english_store_not_mounted")
-    if service_error:
+    curriculum_complete = bool(state.get("curriculum_complete"))
+    # Once the sealed curriculum is complete, the five-minute teacher cadence
+    # is no longer a prerequisite for continuing reader, spider, transfer and
+    # discourse practice. Preserve the last teacher error for inspection, but
+    # do not mislabel the whole English system as stopped.
+    if service_error and not curriculum_complete:
         blockers.append(service_error)
-    if last_success_age is None or last_success_age > interval * 2.5:
+    if (not curriculum_complete
+            and (last_success_age is None or last_success_age > interval * 2.5)):
         blockers.append("no_recent_completed_teacher_cycle")
     current_stage = stages[stage_index]
     if not current_stage["implemented"]:
@@ -288,6 +360,8 @@ def collect_native_english_progress(repo_root: Path | str) -> dict[str, Any]:
             "writable": os.access(database_path, os.W_OK),
         },
         "learning_centre": {
+            "general_snapshot_loaded": bool(competency),
+            "general_snapshot_bytes": competency_bytes,
             "overall_level": english_assessment.get("overall_level", "unassessed"),
             "knowledge_level": english_assessment.get("knowledge_level", "unassessed"),
             "practical_level": english_assessment.get("practical_level", "unassessed"),

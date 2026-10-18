@@ -11,8 +11,11 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import re
+import sys
+import tempfile
 from typing import Any
 
 from backend.modules.aion_business.contracts.business_containers import (
@@ -20,6 +23,9 @@ from backend.modules.aion_business.contracts.business_containers import (
     FinanceInboxContainer,
 )
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import configured_business_container_repository
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
+from backend.modules.aion_business.runtime.finance_operations_store import FinanceOperationsStore
 from backend.modules.aion_business.runtime.finance_expense_policy import (
     assess_expense,
     default_expense_policy,
@@ -27,6 +33,8 @@ from backend.modules.aion_business.runtime.finance_expense_policy import (
 )
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_object_store import VaultObjectStore
 
 
 MAX_DOCUMENT_BYTES = 25 * 1024 * 1024
@@ -64,10 +72,20 @@ def intake_channels() -> list[dict[str, Any]]:
 
 
 class FinanceInboxService:
-    def __init__(self, repository: BusinessContainerRepository | None = None, receipt_reader: Any | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+    def __init__(self, repository: BusinessContainerRepository | None = None, receipt_reader: Any | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 object_store: VaultObjectStore | None = None,
+                 operations_store: FinanceOperationsStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
         self.authority = OrganizationAuthorityService(self.repository)
         self.receipt_reader = receipt_reader
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            domain_store = VaultDomainStore(runtime.guardian, actor_id="finance-inbox-runtime")
+            object_store = runtime.objects
+        self.domain_store = domain_store
+        self.object_store = object_store
+        self.operations_store = operations_store or FinanceOperationsStore(domain_store=domain_store)
 
     def empty(self, workspace_id: str) -> dict[str, Any]:
         now = _now()
@@ -165,17 +183,29 @@ class FinanceInboxService:
             "decision_source": "organization_authority.v1",
         }
 
-        root = AIONBusinessPaths.business_container_dir(workspace_id) / "finance" / "inbox" / "documents" / document_id
-        root.mkdir(parents=True, exist_ok=True)
         stored_name = f"original{extension}"
-        destination = (root / stored_name).resolve()
-        business_root = AIONBusinessPaths.business_container_dir(workspace_id).resolve()
-        try:
-            destination.relative_to(business_root)
-        except ValueError as exc:
-            raise ValueError("finance_document_path_escape") from exc
-        destination.write_bytes(content)
-        relative_path = str(destination.relative_to(AIONBusinessPaths.ROOT.resolve()))
+        source_location: dict[str, Any]
+        if self.object_store is not None:
+            object_id = f"finance-inbox-{digest}"
+            self._audit_file_access("put")
+            sealed = self.object_store.put_bytes(
+                object_id=object_id, data=content, original_name=safe_name,
+                content_type=mime_type or "application/octet-stream",
+                idempotency_key=f"finance-inbox-{workspace_id}-{digest}",
+                actor_id="finance-inbox-runtime", recorded_at=_now(),
+            )
+            source_location = {"vault_object_id": object_id, "vault_receipt_hash": sealed.get("receipt_hash")}
+        else:
+            root = AIONBusinessPaths.business_container_dir(workspace_id) / "finance" / "inbox" / "documents" / document_id
+            root.mkdir(parents=True, exist_ok=True)
+            destination = (root / stored_name).resolve()
+            business_root = AIONBusinessPaths.business_container_dir(workspace_id).resolve()
+            try:
+                destination.relative_to(business_root)
+            except ValueError as exc:
+                raise ValueError("finance_document_path_escape") from exc
+            destination.write_bytes(content)
+            source_location = {"storage_path": str(destination.relative_to(AIONBusinessPaths.ROOT.resolve()))}
         preview_kind = "image" if extension in {".jpg", ".jpeg", ".png", ".webp", ".heic"} else "pdf" if extension == ".pdf" else "document"
         now = _now()
         document = {
@@ -184,7 +214,7 @@ class FinanceInboxService:
             "document_type": document_type,
             "source": {
                 "channel": channel, "filename": safe_name, "mime_type": mime_type or "application/octet-stream",
-                "byte_size": len(content), "content_hash": f"sha256:{digest}", "storage_path": relative_path,
+                "byte_size": len(content), "content_hash": f"sha256:{digest}", **source_location,
                 "preview_kind": preview_kind, "received_at": now,
                 "sender_address": str(sender_address or "").strip().lower() or None,
                 "source_reference": str(source_reference or "").strip() or None,
@@ -234,7 +264,7 @@ class FinanceInboxService:
         model = self.get(workspace_id)
         self._check_revision(model, expected_revision)
         document = self._document(model, document_id)
-        path, _ = self.file_path(workspace_id, document_id)
+        path, cleanup = self._reader_path(workspace_id, document_id)
         reader = self.receipt_reader
         if reader is None:
             from backend.modules.aion_business.runtime.finance_receipt_vision import FinanceReceiptVisionReader
@@ -252,6 +282,9 @@ class FinanceInboxService:
             document.setdefault("history", []).append({"event": "document_extraction_failed", "at": _now()})
             self._save(workspace_id, model, "document_extraction_failed", {"document_id": document_id, "error": type(exc).__name__})
             raise
+        finally:
+            if cleanup:
+                path.unlink(missing_ok=True)
 
         facts = deepcopy(result.get("facts") or {})
         fields = self._normalise_fields(facts)
@@ -457,6 +490,8 @@ class FinanceInboxService:
 
     def file_path(self, workspace_id: str, document_id: str) -> tuple[Path, dict[str, Any]]:
         document = self._document(self.get(workspace_id), document_id)
+        if document.get("source", {}).get("vault_object_id"):
+            raise RuntimeError("guardian_finance_document_has_no_plaintext_path")
         relative = str(document.get("source", {}).get("storage_path") or "")
         path = (AIONBusinessPaths.ROOT / relative).resolve()
         root = AIONBusinessPaths.business_container_dir(workspace_id).resolve()
@@ -467,6 +502,41 @@ class FinanceInboxService:
         if not path.exists():
             raise FileNotFoundError("finance_document_bytes_missing")
         return path, document
+
+    def file_bytes(self, workspace_id: str, document_id: str) -> tuple[bytes, dict[str, Any]]:
+        document = self._document(self.get(workspace_id), document_id)
+        object_id = str(document.get("source", {}).get("vault_object_id") or "")
+        if object_id:
+            if self.object_store is None:
+                raise FileNotFoundError("finance_document_vault_object_unavailable")
+            self._audit_file_access("get")
+            _metadata, data = self.object_store.get_bytes(object_id=object_id)
+            return data, deepcopy(document)
+        path, result = self.file_path(workspace_id, document_id)
+        return path.read_bytes(), result
+
+    @staticmethod
+    def _audit_file_access(operation: str) -> None:
+        """Declare encrypted Finance Inbox file access without exposing its subject."""
+
+        sys.audit("tessaris.vault_domain_access", "finance.inbox_files", operation)
+
+    def _reader_path(self, workspace_id: str, document_id: str) -> tuple[Path, bool]:
+        document = self._document(self.get(workspace_id), document_id)
+        if not document.get("source", {}).get("vault_object_id"):
+            path, _ = self.file_path(workspace_id, document_id)
+            return path, False
+        data, _ = self.file_bytes(workspace_id, document_id)
+        suffix = Path(str(document.get("source", {}).get("filename") or "document")).suffix
+        descriptor, name = tempfile.mkstemp(prefix=".finance-reader-", suffix=suffix)
+        path = Path(name)
+        try:
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(data)
+        except Exception:
+            path.unlink(missing_ok=True)
+            raise
+        return path, True
 
     @staticmethod
     def _document(model: dict[str, Any], document_id: str) -> dict[str, Any]:
@@ -632,10 +702,16 @@ class FinanceInboxService:
             boardroom.setdefault("meta", {})["updated_at"] = _now()
             self.repository.save_dict(workspace_id, "boardroom_snapshot", boardroom)
 
-    @staticmethod
-    def _audit(workspace_id: str, event_type: str, payload: dict[str, Any]) -> None:
+    def _audit(self, workspace_id: str, event_type: str, payload: dict[str, Any]) -> None:
         record = {"event_type": event_type, "occurred_at": _now(), **payload}
         record["event_hash"] = _hash(record)
+        if self.domain_store is not None:
+            entity_id = f"inbox_audit/{record['occurred_at']}-{record['event_hash'].split(':', 1)[-1][:16]}"
+            self.operations_store.write_json(
+                self.operations_store.root(workspace_id, "inbox_audit") / f"{entity_id.rsplit('/', 1)[-1]}.json",
+                record,
+            )
+            return
         path = AIONBusinessPaths.audit_file(workspace_id, "finance_inbox")
         with path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(record, sort_keys=True) + "\n")

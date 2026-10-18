@@ -36,6 +36,9 @@ env_vars.env
 cors_env.yaml
 backend/.env
 backend/.env.*
+# Safe configuration templates are source documentation and belong in Git.
+!.env.example
+!**/.env.example
 
 # ──────────────────────────────
 # 🐍 Python Virtual Envs
@@ -60,6 +63,7 @@ __pycache__/
 *.log
 .mypy_cache/
 .pytest_cache/
+.hypothesis/
 .ruff_cache/
 .coverage
 .coverage.*
@@ -220,6 +224,7 @@ INERTIA/artifacts/programmable_inertia/**/*
 
 # Tessaris: local artifacts (generated)
 **/artifacts/**
+frontend/smart-contracts/cache/*.json
 
 # AION desktop local build/runtime artifacts (source remains tracked separately)
 .venv_voice/

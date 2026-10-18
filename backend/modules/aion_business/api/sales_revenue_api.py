@@ -6,8 +6,9 @@ from typing import Any
 import os
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
+from fastapi.responses import Response
+from urllib.parse import quote
+from pydantic import BaseModel, ConfigDict, Field
 
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.sales_revenue_service import SalesRevenueService
@@ -80,6 +81,9 @@ class RelationshipUpdateRequest(BaseModel):
     owner_person_id: str
     address: str | None = None
     updated_by_person_id: str
+    contact_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
 
 
 class SessionStartRequest(BaseModel):
@@ -110,6 +114,22 @@ class WorkFeedEventRequest(BaseModel):
     attachments: list[dict[str, Any]] = Field(default_factory=list)
     action: dict[str, Any] = Field(
         default_factory=lambda: {"status": "recorded", "external_action_performed": False})
+    recorded_by_person_id: str
+
+
+class MessageDeliveryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: str
+    provider_message_id: str
+    provider_thread_id: str | None = None
+    channel: str = "email"
+    recipient: str
+    subject: str
+    content_sha256: str
+    delivery_status: str = "delivered"
+    linked_draft_event_id: str | None = None
+    sent_at: str | None = None
     recorded_by_person_id: str
 
 
@@ -243,6 +263,13 @@ def _call(method, *args, **kwargs):
 @router.get("/{workspace_id}")
 def workspace(workspace_id: str) -> dict[str, Any]:
     payload = _call(sales.workspace, _workspace(workspace_id))
+    # Connector status belongs to content-free Node state, not the customer's
+    # Sales record.  During a Business Vault discovery journey, instantiating
+    # the legacy Local Node runtime merely to decorate this read would create
+    # SQLite state outside the Vault and contaminate the journey.  Explicit
+    # connector journeys still exercise the connector endpoints themselves.
+    if os.getenv("TESSARIS_DISCOVERY_MODE") == "1":
+        return {"ok": True, **payload}
     try:
         from backend.api.local_node_router import get_runtime
         health = get_runtime().get_gmail_connector_health()
@@ -327,6 +354,22 @@ def append_work_event(workspace_id: str, opportunity_id: str,
             "external_action_performed": bool(result["event"]["action"]["external_action_performed"])}
 
 
+@router.post("/{workspace_id}/opportunities/{opportunity_id}/communications/delivery")
+def record_message_delivery(workspace_id: str, opportunity_id: str,
+                            request: MessageDeliveryRequest) -> dict[str, Any]:
+    result = _call(
+        sales.record_message_delivery,
+        _workspace(workspace_id),
+        opportunity_id,
+        **request.model_dump(),
+    )
+    return {
+        "ok": True,
+        **result,
+        "external_action_performed": True,
+    }
+
+
 @router.post("/{workspace_id}/opportunities/{opportunity_id}/work-feed/attachments")
 async def upload_work_feed_attachment(
     workspace_id: str,
@@ -348,17 +391,18 @@ async def upload_work_feed_attachment(
 
 
 @router.get("/{workspace_id}/opportunities/{opportunity_id}/work-feed/attachments/{attachment_id}")
-def get_work_feed_attachment(workspace_id: str, opportunity_id: str, attachment_id: str) -> FileResponse:
-    path, metadata = _call(
-        sales.work_feed_attachment_path,
+def get_work_feed_attachment(workspace_id: str, opportunity_id: str, attachment_id: str) -> Response:
+    data, metadata = _call(
+        sales.work_feed_attachment_bytes,
         _workspace(workspace_id),
         opportunity_id,
         attachment_id,
     )
-    return FileResponse(
-        path,
-        media_type=metadata.get("media_type") or "application/octet-stream",
-        filename=metadata.get("name") or path.name,
+    filename = str(metadata.get("name") or "customer-file")
+    return Response(
+        content=data,
+        media_type=str(metadata.get("media_type") or "application/octet-stream"),
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(filename)}"},
     )
 
 

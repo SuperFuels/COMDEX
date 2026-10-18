@@ -26,6 +26,9 @@ def _gym(tmp_path: Path, *, retry_delay: float = .01) -> NativeEnglishPracticeGy
         {"lemma": "forward-looking", "part_of_speech": "s", "definition": "concerned with the future"},
         {"lemma": "proportionately", "part_of_speech": "r", "definition": "in proportion"},
         {"lemma": "comprehensively", "part_of_speech": "r", "definition": "in an all-inclusive manner"},
+        {"lemma": "heave", "part_of_speech": "n", "definition": "an upward movement made with effort"},
+        {"lemma": "fine-tune", "part_of_speech": "v", "definition": "make small adjustments to improve performance"},
+        {"lemma": "custom-make", "part_of_speech": "v", "definition": "make for a particular customer"},
     )
     lexical.ingest_records(records, source="test", require_authority=False)
     wall = NativeWordwallLearning(repo_root=tmp_path, lexical=lexical)
@@ -80,6 +83,21 @@ def test_native_sentence_production_is_graded_by_rubric_not_exact_string(tmp_pat
 
     assert correct is True
     assert score >= .8
+
+
+def test_event_noun_rejects_semantically_awkward_inspection_template(tmp_path: Path):
+    gym = _gym(tmp_path)
+    concept = gym._concept_by_lemma("heave")
+    exercise = gym._build(concept, "sentence_construction", 0)
+
+    bad_score, bad = gym._grade(exercise, "Amara inspected the heave.")
+    good_score, good = gym._grade(exercise, "Amara observed the heave.")
+
+    assert "observed the heave" in exercise["answer_key"]
+    assert bad is False
+    assert bad_score < .8
+    assert good is True
+    assert good_score >= .8
 
 
 def test_practice_concentrates_on_cohorts_and_releases_transfer_ready_concepts(tmp_path: Path):
@@ -154,6 +172,85 @@ def test_reading_comprehension_asks_for_and_recovers_adverbial_manner(tmp_path: 
     assert gym._student_answer(view) == "calmly"
 
 
+def test_reading_comprehension_recovers_explicit_copular_property_when_parse_index_lags(
+    tmp_path: Path,
+):
+    gym = _gym(tmp_path)
+    concept = gym._concept_by_lemma("prepared")
+    exercise = gym._build(concept, "reading_comprehension", 2)
+    view = {key: exercise[key] for key in (
+        "concept_id", "lemma", "family", "activity_mode", "variant", "prompt",
+        "choices", "metadata",
+    )}
+    gym.transfer.parse = lambda _text: {"frame": {}, "tokens": [], "clauses": []}
+
+    assert gym._student_answer(view) == "prepared"
+
+
+def test_transformation_disambiguates_surface_from_acquired_meaning_and_accepts_variant(
+    tmp_path: Path,
+):
+    gym = _gym(tmp_path)
+    records = (
+        {"lemma": "barde", "part_of_speech": "v", "definition": "put caparison on a horse"},
+        {"lemma": "bard", "part_of_speech": "v", "definition": "cover meat with fat before roasting"},
+        {"lemma": "lambaste", "part_of_speech": "v", "definition": "criticize severely"},
+        {"lemma": "lambast", "part_of_speech": "v", "definition": "criticize severely"},
+    )
+    gym.lexical.ingest_records(records, source="test", require_authority=False)
+    wall = NativeWordwallLearning(repo_root=tmp_path, lexical=gym.lexical)
+    for row in records:
+        wall.encounter(row["lemma"])
+    barde = gym._concept_by_lemma("barde")
+    barde_exercise = gym._build(barde, "sentence_transformation", 0)
+    barde_view = {key: barde_exercise[key] for key in (
+        "concept_id", "lemma", "family", "activity_mode", "variant", "prompt",
+        "choices", "metadata",
+    )}
+    assert "did not barde" in gym._student_answer(barde_view)
+
+    lambaste = gym._concept_by_lemma("lambaste")
+    variant_exercise = gym._build(lambaste, "sentence_transformation", 0)
+    variant_answer = variant_exercise["answer_key"].replace("lambaste", "lambast")
+    score, correct = gym._grade(variant_exercise, variant_answer)
+    assert correct is True
+    assert score == 1.0
+
+    reading = gym._build(barde, "reading_comprehension", 0)
+    reading_view = {key: reading[key] for key in (
+        "concept_id", "lemma", "family", "activity_mode", "variant", "prompt",
+        "choices", "metadata",
+    )}
+    assert gym._student_answer(reading_view) == "barde"
+
+
+def test_hyphenated_verb_transformation_uses_acquired_lemma_and_returns_answer(
+    tmp_path: Path,
+):
+    gym = _gym(tmp_path)
+    concept = gym._concept_by_lemma("fine-tune")
+    exercise = gym._build(concept, "sentence_transformation", 0)
+    view = {key: exercise[key] for key in (
+        "concept_id", "lemma", "family", "activity_mode", "variant", "prompt",
+        "choices", "metadata",
+    )}
+
+    answer = gym._student_answer(view)
+
+    assert answer == exercise["answer_key"]
+    assert "did not fine-tune" in answer
+
+    irregular = gym._build(
+        gym._concept_by_lemma("custom-make"), "sentence_transformation", 0,
+    )
+    irregular_view = {key: irregular[key] for key in (
+        "concept_id", "lemma", "family", "activity_mode", "variant", "prompt",
+        "choices", "metadata",
+    )}
+    assert "custom-made" in irregular["prompt"]
+    assert gym._student_answer(irregular_view) == irregular["answer_key"]
+
+
 def test_failed_concept_cools_until_its_sealed_retry_is_due(tmp_path: Path):
     gym = _gym(tmp_path, retry_delay=60)
     concept = gym._concept_by_lemma("unprepared")
@@ -174,3 +271,10 @@ def test_choices_do_not_reveal_answer_through_a_fixed_first_position(tmp_path: P
     exercise = gym._build(concept, "context_completion", 1)
 
     assert exercise["choices"][0] != "calculate"
+
+
+def test_dictionary_punctuation_artifacts_are_not_used_as_practice_concepts(tmp_path: Path):
+    gym = _gym(tmp_path)
+    assert gym._usable_concept({"lemma": "o.k.", "part_of_speech": "a"}) is False
+    assert gym._usable_concept({"lemma": "'tween", "part_of_speech": "r"}) is False
+    assert gym._usable_concept({"lemma": "forward-looking", "part_of_speech": "s"}) is True

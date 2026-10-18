@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
 import shutil
 import subprocess
 import tarfile
@@ -11,12 +13,20 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-from scripts.build_aion_sovereign_brain_bootstrap import PACKAGING, build
+from scripts.build_aion_sovereign_brain_bootstrap import (
+    PACKAGING,
+    build,
+    write_reproducible_zip_file,
+)
 
 
 REPO = Path(__file__).resolve().parents[1]
 DIST = REPO / "dist"
-OLLAMA = Path("/opt/homebrew/Cellar/ollama/0.20.2/bin/ollama")
+OLLAMA = Path(
+    os.environ.get("TESSARIS_OLLAMA_BINARY")
+    or shutil.which("ollama")
+    or "/opt/homebrew/bin/ollama"
+).resolve()
 MODEL_ROOT = Path.home() / ".ollama" / "models"
 MODEL_MANIFEST = MODEL_ROOT / "manifests/registry.ollama.ai/library/gemma3/1b"
 PYTHON_VERSION = "3.13.15"
@@ -28,6 +38,24 @@ PYTHON_URL = (
 )
 PYTHON_SHA256 = "b9054a9d3d54f4cb5573d44907fddb29874b08909bde73f29f2868cf872223ee"
 CACHE = DIST / "offline-build-cache"
+
+
+def ollama_version(binary: Path) -> str:
+    result = subprocess.run(
+        [str(binary), "--version"], capture_output=True, text=True, check=True
+    )
+    match = re.search(r"\b(\d+\.\d+\.\d+)\b", result.stdout + result.stderr)
+    if not match:
+        raise RuntimeError("Unable to determine the qualified Ollama runtime version")
+    return match.group(1)
+
+
+def ollama_license(binary: Path) -> Path:
+    for parent in binary.parents:
+        candidate = parent / "LICENSE"
+        if candidate.is_file():
+            return candidate
+    raise RuntimeError("The qualified Ollama runtime licence was not found")
 
 
 def sha(path: Path) -> str:
@@ -56,6 +84,12 @@ def verified_download(url: str, target: Path, digest: str) -> Path:
 def build_offline() -> Path:
     if not OLLAMA.is_file() or not MODEL_MANIFEST.is_file():
         raise RuntimeError("The qualified Ollama arm64 runtime and Gemma 3 1B cache are required")
+    runtime_version = ollama_version(OLLAMA)
+    runtime_sha256 = sha(OLLAMA)
+    runtime_license = ollama_license(OLLAMA)
+    runtime_library = OLLAMA.parent / "lib"
+    if not (runtime_library / "ollama/llama-server").is_file():
+        raise RuntimeError("The qualified Ollama llama-server runtime is required")
     portable_python = verified_download(PYTHON_URL, CACHE / PYTHON_ARCHIVE, PYTHON_SHA256)
     base = build()
     release = json.loads((PACKAGING / "release_manifest.json").read_text(encoding="utf-8"))
@@ -91,7 +125,8 @@ def build_offline() -> Path:
         runtime = inner / "offline-runtime"
         runtime.mkdir()
         shutil.copy2(OLLAMA, runtime / "ollama")
-        shutil.copy2(OLLAMA.parents[1] / "LICENSE", runtime / "OLLAMA-LICENSE.txt")
+        shutil.copytree(runtime_library, runtime / "lib")
+        shutil.copy2(runtime_license, runtime / "OLLAMA-LICENSE.txt")
         (runtime / "ollama").chmod(0o755)
         shutil.copy2(PACKAGING / "offline-local-proof.py", inner / "offline-local-proof.py")
         shutil.copy2(PACKAGING / "offline-verify.py", inner / "offline-verify.py")
@@ -111,7 +146,7 @@ def build_offline() -> Path:
             'export OLLAMA_HOST=127.0.0.1:11455 OLLAMA_MODELS="$ROOT/offline-models" OLLAMA_NO_CLOUD=true\n'
             'export OLLAMA_LLM_LIBRARY=cpu OLLAMA_CONTEXT_LENGTH=512 OLLAMA_LOAD_TIMEOUT=10m\n'
             '"$ROOT/offline-runtime/ollama" serve >"$ROOT/offline-ollama.log" 2>&1 &\nPID=$!\ntrap "kill $PID 2>/dev/null || true" EXIT\n'
-            'for i in {1..60}; do curl -fsS http://127.0.0.1:11455/api/tags >/dev/null && break; sleep 1; done\n'
+            'for i in {1..60}; do curl -fsS http://127.0.0.1:11455/api/tags >/dev/null 2>&1 && break; sleep 1; done\n'
             '"$ROOT/offline-python/python/bin/python3" "$ROOT/offline-local-proof.py"\n', encoding="utf-8"
         )
         launcher.chmod(0o755)
@@ -134,7 +169,8 @@ def build_offline() -> Path:
             "schema_version": "aion.sovereign_offline_bundle.v1", "platform": "macos-arm64",
             "python": f"portable CPython {PYTHON_VERSION} ({PYTHON_BUILD})",
             "python_source": PYTHON_URL, "python_archive_sha256": PYTHON_SHA256,
-            "local_runtime": "Ollama 0.20.2 arm64", "model": "gemma3:1b",
+            "local_runtime": f"Ollama {runtime_version} arm64", "model": "gemma3:1b",
+            "local_runtime_sha256": runtime_sha256,
             "licences": {
                 "python": "offline-python/python/lib/python3.13/LICENSE.txt",
                 "ollama": "offline-runtime/OLLAMA-LICENSE.txt",
@@ -147,7 +183,11 @@ def build_offline() -> Path:
         with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_STORED, allowZip64=True) as archive:
             for path in sorted(inner.rglob("*")):
                 if path.is_file():
-                    archive.write(path, Path(root.name) / path.relative_to(inner))
+                    write_reproducible_zip_file(
+                        archive,
+                        source=path,
+                        archive_name=Path(root.name) / path.relative_to(inner),
+                    )
     return output
 
 

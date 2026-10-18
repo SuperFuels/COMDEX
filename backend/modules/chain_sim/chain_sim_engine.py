@@ -303,6 +303,10 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
     ):
         raise ValueError("invalid tx_type")
 
+    from backend.modules.chain_sim.ledger_content_policy import normalize_public_transaction_payload
+
+    payload = normalize_public_transaction_payload(tx_type, payload)
+
     signer_acc = bank.get_or_create_account(from_addr)
     expected = int(getattr(signer_acc, "nonce", 0) or 0) + 1  # ✅ next-nonce semantics
     if nonce != expected:

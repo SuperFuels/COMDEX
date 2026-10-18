@@ -10,9 +10,11 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.finance_operations_store import FinanceOperationsStore
 from backend.modules.aion_business.runtime.finance_ledger_service import FinanceLedgerService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -43,9 +45,15 @@ class FinanceDirectorService:
     """Build a read-only, evidence-labelled operating view of Finance."""
 
     def __init__(self, repository: BusinessContainerRepository | None = None,
-                 ledger_service: FinanceLedgerService | None = None) -> None:
+                 ledger_service: FinanceLedgerService | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 operations_store: FinanceOperationsStore | None = None) -> None:
         self.repository = repository or BusinessContainerRepository()
-        self.ledger_service = ledger_service or FinanceLedgerService(self.repository)
+        self.operations_store = operations_store or FinanceOperationsStore(domain_store=domain_store)
+        self.ledger_service = ledger_service or FinanceLedgerService(
+            self.repository, domain_store=domain_store,
+            operations_store=self.operations_store,
+        )
 
     def refresh(self, workspace_id: str, *, minimum_cash_reserve: float | None = None,
                 created_by: str = "finance_pilot", created_at: str | None = None) -> dict[str, Any]:
@@ -163,17 +171,18 @@ class FinanceDirectorService:
             "external_write_performed": False,
         }
         record["director_model_hash"] = canonical_contract_hash(record)
-        path = self._dir(workspace_id) / f"{director_id}.json"; path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        path = self._dir(workspace_id) / f"{director_id}.json"
+        self.operations_store.write_json(path, record)
         self._index(workspace_id, record, path); self._project(workspace_id, financial, record, path)
         return record
 
     def latest(self, workspace_id: str) -> dict[str, Any] | None:
-        paths = sorted(self._dir(workspace_id).glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)
-        if not paths: return None
-        record = json.loads(paths[0].read_text(encoding="utf-8")); self._verify(record); return record
+        records = self.operations_store.list_json(self._dir(workspace_id))
+        if not records: return None
+        record = records[0]; self._verify(record); return record
 
     def _dir(self, workspace_id: str) -> Path:
-        path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/director_models"; path.mkdir(parents=True, exist_ok=True); return path
+        return self.operations_store.root(workspace_id, "director_models")
 
     @staticmethod
     def _signals(profit: dict[str, Any], cash: dict[str, Any], working: dict[str, Any], commercial: dict[str, Any], unverified: bool) -> list[dict[str, Any]]:
@@ -246,11 +255,11 @@ class FinanceDirectorService:
         children = finance.setdefault("children", []); folder = next((item for item in children if item.get("id") == "folder_finance_director_models"), None)
         if folder is None:
             folder = {"id": "folder_finance_director_models", "name": "Finance Director", "type": "folder", "children": []}; children.append(folder)
-        folder.setdefault("children", []).append({"id": f"finance_director_pointer_{record['director_model_id']}", "name": record["director_model_id"], "type": "business_container_artifact", "document_type": "finance_director_model", "status": "current_operating_view", "target": {"storage_path": str(path), "director_model_hash": record["director_model_hash"]}})
+        folder.setdefault("children", []).append({"id": f"finance_director_pointer_{record['director_model_id']}", "name": record["director_model_id"], "type": "business_container_artifact", "document_type": "finance_director_model", "status": "current_operating_view", "target": {**self.operations_store.reference(path), "director_model_hash": record["director_model_hash"]}})
         tree["folders"] = folders; tree["root"] = {**(tree.get("root") or {}), "id": "root", "type": "folder", "name": "Workflows", "children": folders}; WorkflowFileCabinetRepository.save(workspace_id, tree)
 
     def _project(self, workspace_id: str, financial: dict[str, Any], record: dict[str, Any], path: Path) -> None:
-        compact = {"director_model_id": record["director_model_id"], "director_model_hash": record["director_model_hash"], "created_at": record["created_at"], "storage_path": str(path), "profit_and_loss": record["profit_and_loss"], "balance_sheet": record["balance_sheet"], "cash_flow": record["cash_flow"], "financial_statements": record.get("financial_statements") or {}, "statement_quality": record.get("statement_quality") or {}, "working_capital": record["working_capital"], "proactive_signals": record["proactive_signals"], "boardroom_proposals": record["boardroom_proposals"], "verification_state": record["verification_state"]}
+        compact = {"director_model_id": record["director_model_id"], "director_model_hash": record["director_model_hash"], "created_at": record["created_at"], **self.operations_store.reference(path), "profit_and_loss": record["profit_and_loss"], "balance_sheet": record["balance_sheet"], "cash_flow": record["cash_flow"], "financial_statements": record.get("financial_statements") or {}, "statement_quality": record.get("statement_quality") or {}, "working_capital": record["working_capital"], "proactive_signals": record["proactive_signals"], "boardroom_proposals": record["boardroom_proposals"], "verification_state": record["verification_state"]}
         financial["finance_director"] = compact; financial["revision"] = int(financial.get("revision") or 0) + 1
         self.repository.save_dict(workspace_id, "business_financial_model", financial)
         intelligence = self.repository.load_optional_dict(workspace_id, "department_intelligence")

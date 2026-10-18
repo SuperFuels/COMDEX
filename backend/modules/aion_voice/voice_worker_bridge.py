@@ -257,7 +257,10 @@ def _start_persistent_tts_worker(env: dict[str, str] | None = None) -> subproces
         text=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
+        # Inherit stderr instead of asking subprocess to open ``os.devnull``.
+        # This keeps the persistent worker observable without creating an
+        # undeclared filesystem write during business-data discovery.
+        stderr=None,
         bufsize=1,
         env=merged_env,
     )

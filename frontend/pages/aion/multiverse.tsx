@@ -42,6 +42,7 @@ export default function MultiversePage() {
   const [layout, setLayout] = useState<LayoutType>('ring');
   const [activeContainer, setActiveContainer] = useState<string | null>(null);
   const [containers, setContainers] = useState<ContainerInfo[]>([]);
+  const [homeContainerId, setHomeContainerId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const router = useRouter();
@@ -51,57 +52,16 @@ export default function MultiversePage() {
 
     (async () => {
       try {
-        const slug = typeof window !== 'undefined' ? localStorage.getItem('gnet:user_slug') : null;
-
-        if (!slug) {
-          // Fallback: keep your older API working if no identity is present.
-          try {
-            const data = await fetchJson<any[]>('/api/aion/containers/all');
-            if (!cancelled && Array.isArray(data)) setContainers(data as ContainerInfo[]);
-          } catch {
-            if (!cancelled) setErrMsg('No identity found and legacy list failed.');
-          }
-          return;
+        // Container ownership must be resolved by the authenticated backend;
+        // the browser is not a durable identity registry.
+        const data = await fetchJson<any[]>('/api/aion/containers/all');
+        if (!cancelled && Array.isArray(data)) {
+          const entries = data as ContainerInfo[];
+          setContainers(entries);
+          setHomeContainerId(
+            entries.find((item) => /(?:^|__)home$/i.test(item.id))?.id ?? null,
+          );
         }
-
-        // 1) Load the user's index (gives home/personal/work + shared)
-        const idx = await fetchJson<{
-          user: string;
-          wa: string;
-          home: string;
-          personal: string;
-          work: string;
-          shared: Array<{ id: string; label?: string; role?: string; permissions?: string[] }>;
-        }>(urlFrom(`/containers/${slug}/index.json`));
-
-        const ids: string[] = [
-          idx.home,
-          idx.personal,
-          idx.work,
-          ...(Array.isArray(idx.shared) ? idx.shared.map(s => s.id) : []),
-        ].filter(Boolean);
-
-        // 2) Load each manifest using the ID mapping route
-        const entries: ContainerInfo[] = await Promise.all(
-          ids.map(async (id) => {
-            try {
-              const m = await fetchJson<any>(urlFrom(`/containers/${encodeURIComponent(id)}.json`));
-              return {
-                id: m?.id || id,
-                name: m?.meta?.title || id,
-                in_memory: false,
-                connected: [],
-                glyph: m?.meta?.kind || m?.meta?.graph || undefined,
-                region: m?.meta?.graph || undefined,
-              } as ContainerInfo;
-            } catch {
-              // If manifest missing, still show a node
-              return { id, name: id, in_memory: false, connected: [] } as ContainerInfo;
-            }
-          })
-        );
-
-        if (!cancelled) setContainers(entries);
       } catch (e: any) {
         console.warn('Multiverse load failed, fallback:', e?.message || e);
         try {
@@ -141,9 +101,7 @@ export default function MultiversePage() {
   };
 
   const goHome = () => {
-    const slug = typeof window !== 'undefined' ? localStorage.getItem('gnet:user_slug') : null;
-    if (!slug) return;
-    openContainer(`${slug}__home`);
+    if (homeContainerId) openContainer(homeContainerId);
   };
 
   return (
@@ -173,6 +131,7 @@ export default function MultiversePage() {
           <div className="flex gap-2">
             <button
               onClick={goHome}
+              disabled={!homeContainerId}
               className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 rounded text-white text-xs"
               title="Jump to your Home container"
             >

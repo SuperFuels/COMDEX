@@ -91,7 +91,7 @@
       "source": "open_method_language_cau"
     },
     "reason": "open_method_language_expansion",
-    "state_hash": "aee39c2b906ea516a7421ae1608e6f7077dc1ea071084c4df34e6f9d1a39b236"
+    "state_hash": "eea636a45579857899fe8001a7e06d969772b79347865d9e705f4e21216e3677"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -63778,6 +63778,5131 @@
       "score": 32.0,
       "success": true,
       "timestamp": "2026-10-09T21:08:43.177012+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_6f818ca986dc4c10",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-09T22:09:26.464028+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0d82786194e34079",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-09T23:11:58.202214+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_fcfb2c54f4b74d74",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T00:14:03.501136+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_1f0bac72cdfd4204",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T01:16:07.131297+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_421a03790c0e4ed4",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T02:18:31.888724+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a28f4cab58c7410b",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T03:20:35.977237+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_1681931d22794574",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T04:22:47.422420+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_02d7e5403dd74bed",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T05:25:11.605810+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_f0b9a3a5ec064adf",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T06:27:16.526705+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_dd34bb25037d4854",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T07:30:18.383982+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_2ce1bad2030d4397",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T08:31:28.935011+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a130cf07b7f24810",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T09:32:16.644194+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_aca13e2883194628",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T10:32:53.990094+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ab91bbc150fe4425",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T11:34:15.622855+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8efdc0e52a0c45c7",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T12:36:51.379650+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_9e1ae01365bf453e",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T13:40:03.955965+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_bf9ebc8300c54957",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T14:42:17.373371+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_6b12bb44257344ee",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T15:44:21.391641+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_9f4f24719f9940c4",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T16:45:50.949259+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_9f64c04601fc4cfe",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T17:47:55.553172+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a0798b24335b47a2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T18:50:12.102625+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c5e08aa81c7f468d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T19:51:59.875407+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_5281211d29cf4b49",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T20:54:04.086958+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8d9b19b17e8f4be4",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T21:56:22.325726+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_b8e5fe0f1e6b4568",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-10T22:58:19.823724+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_09559bcc4c1a44c4",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T00:01:02.062489+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_e0af289d231c4b11",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T01:03:33.889783+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_cc206f2564c644ce",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T02:05:22.379869+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_7fe762b533524159",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T03:07:49.912233+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_6badf6126cfc458f",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T04:09:37.719912+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_57de24e379cd4c32",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T05:11:16.601543+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ef4819df31d54f62",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T06:13:51.109722+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0e72fcb6c3114821",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T07:16:38.507981+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8c44940237c4468b",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T08:19:13.872433+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a5c112924e87413a",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T09:21:11.762485+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_25a45f2d36f24253",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T10:23:28.164656+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c796bb4547e14457",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T11:25:32.335960+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d32f62c4a95f4bbf",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T12:27:14.676461+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_da910a21db894fb2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T13:29:52.751411+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_588e04c0d0e74e09",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T14:31:57.285019+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_cc3cc38958d54973",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T15:34:39.548891+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_129c2db4d9184a76",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T16:36:56.670122+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4efee510b2894979",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T17:48:58.149054+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_72789f0ed68a4422",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T19:41:06.463527+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_224e5fbbfe07408d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T20:53:26.371642+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0e1b568c521b4c35",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-11T21:55:41.274092+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d49d6e8fd44a4a88",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T13:02:06.914752+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_e9219b5ace9945fd",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T14:04:18.756699+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0b38d831719a47e3",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T15:05:18.407786+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_433ea9ea94b141b0",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T16:06:14.458237+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_79abff7fad2847c3",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T17:09:31.460184+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3e15a98e901f4b7f",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T18:10:00.047061+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_40ebfeaf87b04796",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T19:11:58.060493+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0795579a2b8e46e2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T20:14:36.162031+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_cf6fff315dc444c8",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T21:17:14.581544+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3c6c255515294e90",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T22:21:10.408609+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8a7c5011c5644828",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-12T23:24:53.930446+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_2d1a8fb876b146b7",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T00:28:20.252786+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c56c65a569d04b96",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T01:31:48.484391+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_2ba9c71d8ad94a13",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T02:35:26.713078+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_de63b1996d9444cc",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T03:39:24.811157+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_83263bce11994125",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T04:43:37.384427+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8e768012259b479a",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T05:47:49.006842+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c1925925a164443e",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T07:15:33.629423+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8aa42c72941f4cf2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T08:50:35.424362+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_5ebf7b0b4c204e0e",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T10:34:50.874498+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_e38bfa0ad0ac46fa",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T15:57:56.788534+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_79c13f4c57c24353",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T17:16:38.291666+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c16b2aed851042b7",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T18:19:10.278589+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3241dc8e27804040",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T19:21:14.503277+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_adfaeb5768bc4918",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T20:24:17.473159+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_32fc47058dbd4803",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T21:26:33.611394+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d835c6ed159141e3",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T22:28:19.847915+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_52c88f6f494a4db5",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-13T23:30:22.800268+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_adaee40260b84a00",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T00:32:45.371505+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_35c4548cb1c64005",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T01:35:13.365529+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_09410f56a85641a7",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T02:36:59.451408+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c5357601975a499f",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T03:39:52.315156+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_28eb74ac44244a4a",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T04:42:31.400950+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_6f32a5c9cde54e18",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T05:46:38.676868+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_608f79fceba44c7e",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T06:48:40.582240+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_74f27dc1b480461c",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T07:50:42.376578+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_80052ed6a87e4530",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T08:54:56.087812+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_011c4f71013943b6",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T09:56:56.760422+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_6b849897ca2049f2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T10:59:13.090567+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_5c93dc8b012b4b4c",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T12:03:44.605254+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0031536bb10742e3",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T13:05:51.924807+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_54e401da56b141ff",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T14:08:00.638735+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_6adad87f4d7e49a5",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T15:12:18.673274+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a0e5444d18514dca",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T16:14:43.208926+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_054b7403873b474d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T17:19:02.786902+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3d35fc93206f4e42",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T18:20:59.426466+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_de2c8a9c119a42c7",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T19:22:55.165370+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_9f4f16b4418540fb",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T20:24:31.677315+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4222ba06eaeb4a7b",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T21:27:24.611800+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4791e91bce56410b",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T22:31:40.473793+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d3db8fc2bc894cf7",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-14T23:34:02.093720+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_b6e028e8ef994d36",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T00:36:56.266960+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_cfa4fbe7295f42d9",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T01:39:49.826297+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_fd38b38c16464505",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T02:41:48.633028+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_08ab7722582f4607",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T03:44:25.017465+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_f0840287a0a14baf",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T04:47:13.084271+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_bd5d89a82dfc438f",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T05:49:34.876114+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_1f3472542f664db1",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T06:51:28.676249+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_928eca9a01fa4c43",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T07:54:39.336018+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_24782ba797dc4c50",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T08:57:13.489818+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_08d8bdd47fc841e2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T10:00:01.048745+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_dedac91da17a415e",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T11:03:02.905100+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_be28f9228e6b48f5",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T12:06:48.340554+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_97f97cc2612047c9",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T13:08:52.782151+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a1bdf87d47124433",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T14:12:28.679737+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ae408a593a454662",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T15:15:37.946469+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4baf26a2d60d4844",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T16:19:49.807286+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_9b0031b0351e4fa7",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T17:23:40.629849+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_958f3151c82c41ea",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T18:25:50.316347+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_09def776ab5e4d64",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T19:28:13.309170+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a85b822f8b1f4bd5",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T20:30:59.417472+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_aedbc660b04f4660",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T21:31:48.239459+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4b64da024d4744f3",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T22:33:55.611526+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_af7e083a81e247c4",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-15T23:37:26.565290+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_fee7d37ae92b48f9",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T00:40:11.434621+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_790283676c4e4436",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T01:43:55.937931+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_1c63113ce59d44fb",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T02:46:06.608789+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8697bab8ee554041",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T03:49:33.631832+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ed16d9942e214688",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T04:51:41.304030+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_5dd639aa2e9041ee",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T05:55:30.366710+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0d8112ea705c4235",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T06:57:24.986653+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8fa1ef71bf344ef3",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T08:00:52.004682+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3ab85d668493425d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T09:03:06.648780+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d00ae5add2054613",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T10:06:36.129529+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4861448516f14040",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T11:09:08.177324+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_16c5ae4f5a6e4a75",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T12:13:29.665126+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_b11aa581b8294dd8",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T13:16:03.442261+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_92a562a1fe1b45ef",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T14:20:40.720632+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_b8ebd6bed1784fdf",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T16:37:17.640494+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_b31dcf9591c84f78",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T17:39:49.136223+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_7f4b6cca257b40b0",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T18:46:15.212347+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d3c87ed6ceeb46a2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T20:08:29.045953+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0afd6d0ff2384b07",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T21:11:11.491632+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4f7d7e2789594cb0",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T22:13:30.065057+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0f1f5ea952d7443d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-16T23:16:20.006471+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_26f3087b948d48ff",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T00:18:30.134865+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0b5045337bf843a3",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T01:20:39.430593+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ea947cad72fd4fc1",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T02:24:56.380297+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_245b02a30da64567",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T03:27:31.973937+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_2096eeec623c4730",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T04:29:30.629901+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c22343e904c2421f",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T05:31:30.090803+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_abd0f3afa5064d6d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T06:33:08.219265+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ec01ee7af09c4776",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T07:35:18.552757+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3c7c785cbab54219",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T08:39:20.158901+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_5190f49add69448d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T10:12:47.395722+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_272f7699c1904507",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T14:17:30.978325+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3eafb332599e44c0",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T14:32:11.296640+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d9237d2be514486d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T14:47:38.710110+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_dcd4e85b126a4cb8",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:03:01.461649+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_09e69591d5f74da3",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:18:36.727181+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c2e3b12157c24ab4",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:33:26.228778+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_b2345739b6164f51",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T17:22:18.537832+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_956fedf7081b4a5a",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T17:54:47.750342+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_b34670c01d664cff",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T18:14:25.380461+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_39ac88cf1c424e9f",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T18:36:22.000666+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_695618a1d8704063",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T18:56:06.981935+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3e23eaae69eb4db8",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:15:53.703920+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_723fc0aef8104051",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:36:14.670373+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_fcc5be08e4604b85",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:39:19.089202+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_2cfb377fe7bb4d5d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:44:17.616274+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4c4afcd031ed4bb2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:47:10.758689+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_06e5ffd60fd945a9",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:48:34.508913+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ee93ef890e504ca0",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:50:03.521194+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a667c6fe6b324e2e",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:51:08.533451+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_e8fd259cc6794b3f",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:54:00.676976+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_414a62e6a8974a94",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:55:02.566513+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_bbe9d46185314dc9",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:56:09.707603+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_94eba6641bc54fd0",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:58:26.780595+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_81ed2fd9cc784ca4",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:01:30.788825+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4338d55aea9c4431",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:02:34.005797+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_eec19362a5db4abb",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:03:43.874772+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d80714cd6e704b29",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T21:07:58.085347+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_344b5c0fc50c49c5",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T21:09:30.447006+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ded3e173b74b412a",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T23:00:07.911866+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_67f4ede1fe3a456a",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T23:01:11.286336+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_afd346a8f27c46a7",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T23:02:18.733471+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a54682a141dc4d83",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-17T23:03:36.129146+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_6587d462fd4e4d19",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:37:45.331150+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0d1f6dca51004a89",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:38:54.121255+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_e2867c79a90c4b1e",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:39:57.558236+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_3e2d185de3794ad6",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:40:59.027813+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ea9191638c5d442a",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:42:00.316512+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_c1a2bf828ae1462d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:44:57.568053+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_5661a01213db41ae",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:45:58.577177+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_d2d712618a3e488e",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:47:09.495845+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_20af3ccbbbaf49f8",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:48:28.374565+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_1e9dcff488ff4e2c",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T02:50:33.263427+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_4c40bde05e6b4006",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T02:51:50.772202+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_7557dbd1eb0f4e38",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T03:54:02.650063+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_7d6c840a2fb5407c",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T03:55:03.990251+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_0d874014bd814b3d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T03:56:06.401671+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_17f43ba78a56462d",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:33:08.726868+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_eabcea7c19f54349",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:34:22.949458+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_6f45d91d739c4c29",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:35:36.454698+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_861d73c770a0454b",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:37:18.629752+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_a2d4629da72d40b2",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:40:01.817428+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_ef8a4a46580d4b31",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:44:04.091801+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_8d1f963ba34d46ae",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:45:07.495474+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "counterexamples_rejected": 32,
+          "counterexamples_total": 32,
+          "development_passed": true,
+          "live_writes": 0,
+          "malicious_programs_rejected": 6,
+          "malicious_programs_total": 6,
+          "premature_installs": 0,
+          "source_disjoint_transfers": 3,
+          "transfer_passed": 1,
+          "unsafe_actions": 0,
+          "unsupported_method_detected": true
+        }
+      },
+      "outcome_id": "outcome_7a128e9732584a34",
+      "procedure_id": "procedure_open_method_language_expansion_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 32.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:46:10.900153+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -63860,7 +68985,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 5093,
+  "revision": 5503,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -63883,7 +69008,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-10-09T21:08:43.400428+00:00",
+  "updated_at": "2026-10-18T08:46:11.002992+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

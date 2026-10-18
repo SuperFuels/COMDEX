@@ -2,23 +2,14 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import axios from "axios";
+import api from "@/lib/api";
 
 export function useRoleGuard(allowedRoles: string[]) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      router.push("/"); // Not logged in
-      return;
-    }
-
-    axios
-      .get("/auth/role", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/auth/profile", { withCredentials: true })
       .then((res) => {
         const userRole = res.data.role;
         if (!allowedRoles.includes(userRole)) {
@@ -30,4 +21,3 @@ export function useRoleGuard(allowedRoles: string[]) {
       });
   }, [allowedRoles, router]);
 }
-

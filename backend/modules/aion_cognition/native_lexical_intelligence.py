@@ -19,6 +19,10 @@ import sqlite3
 import time
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
+from backend.modules.aion_cognition.sqlite_connection import (
+    connect as sqlite_connect,
+    connect_read_only as sqlite_read_connect,
+)
 
 SCHEMA_VERSION = 4
 TOKEN_RE = re.compile(r"[a-z][a-z'-]{1,}", re.I)
@@ -121,14 +125,29 @@ class NativeLexicalIntelligence:
         *,
         repo_root: Path | None = None,
         authority_provider: Callable[[], Mapping[str, Any]] | None = None,
+        gate_timeout: float | None = None,
     ) -> None:
         self.database_path = Path(database_path or default_database_path(repo_root))
         self.database_path.parent.mkdir(parents=True, exist_ok=True)
         self.authority_provider = authority_provider or _default_authority
+        self.gate_timeout = gate_timeout
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.database_path, timeout=30)
+        timeout = min(30.0, self.gate_timeout) if self.gate_timeout is not None else 30.0
+        connection = sqlite_connect(
+            self.database_path, timeout=timeout, gate_timeout=self.gate_timeout,
+        )
+        connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA busy_timeout=30000")
+        connection.execute("PRAGMA foreign_keys=ON")
+        return connection
+
+    def _read_connect(self) -> sqlite3.Connection:
+        timeout = min(30.0, self.gate_timeout) if self.gate_timeout is not None else 30.0
+        connection = sqlite_read_connect(
+            self.database_path, timeout=timeout, gate_timeout=self.gate_timeout,
+        )
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA busy_timeout=30000")
         connection.execute("PRAGMA foreign_keys=ON")
@@ -414,15 +433,26 @@ class NativeLexicalIntelligence:
             "removable_volume": self._is_removable_volume,
         }
 
-    def practice_summary(self, *, family: str | None = None, limit: int = 200) -> dict[str, Any]:
+    def practice_summary(
+        self, *, family: str | None = None, limit: int | None = 200,
+    ) -> dict[str, Any]:
         """Return closed-book results only; teacher content is never counted as evidence."""
         where = "WHERE curriculum_family=?" if family else ""
-        params: tuple[Any, ...] = (family, max(1, int(limit))) if family else (max(1, int(limit)),)
-        with self._connect() as connection:
+        # Promotion uses the complete evidence history so a delayed-retention
+        # requirement cannot fall out of a rolling window.  Interactive views
+        # can still request a bounded recent sample with ``limit``.
+        if limit is None:
+            params: tuple[Any, ...] = (family,) if family else ()
+            limit_sql = ""
+        else:
+            bounded = max(1, int(limit))
+            params = (family, bounded) if family else (bounded,)
+            limit_sql = " LIMIT ?"
+        with self._read_connect() as connection:
             rows = connection.execute(
                 f"""SELECT curriculum_family,correct,authority_allowed,created_epoch,
                     source_disjoint,task_id,evidence_source FROM practice_attempts """
-                f"{where} ORDER BY created_epoch DESC LIMIT ?", params,
+                f"{where} ORDER BY created_epoch DESC{limit_sql}", params,
             ).fetchall()
         total = len(rows)
         correct = sum(int(row["correct"]) for row in rows)
@@ -677,12 +707,16 @@ class NativeLexicalIntelligence:
                       "does not work" if negated else "works")
             sentence = f"{subject} {action} {lemma} on the {obj}."
         else:
-            action = ("will not inspect" if tense == "future" and negated else
-                      "will inspect" if tense == "future" else
-                      "did not inspect" if tense == "past" and negated else
-                      "inspected" if tense == "past" else
-                      "does not inspect" if negated else "inspects")
-            sentence = f"{subject} {action} the {lemma} beside the {obj}."
+            # A neutral discourse predicate is valid for event, abstract and
+            # physical nouns.  The previous universal "inspect" frame created
+            # superficially grammatical but implausible phrases such as
+            # "inspected the heave".
+            action = ("will not describe" if tense == "future" and negated else
+                      "will describe" if tense == "future" else
+                      "did not describe" if tense == "past" and negated else
+                      "described" if tense == "past" else
+                      "does not describe" if negated else "describes")
+            sentence = f"{subject} {action} the {lemma} during work on the {obj}."
         if connector == "because":
             sentence = sentence.rstrip(".") + " because the evidence required it."
         return sentence
@@ -1017,7 +1051,7 @@ class NativeLexicalIntelligence:
             (tense_value == "future" and "will" in tokens)
             or (tense_value == "past" and (
                 "did" in tokens or "was" in tokens or "worked" in tokens
-                or "inspected" in tokens or _past_form(target) in normal or past_surface
+                or "described" in tokens or _past_form(target) in normal or past_surface
             ))
             or (tense_value == "present" and "will" not in tokens and "did" not in tokens
                 and "was" not in tokens)
@@ -1032,8 +1066,39 @@ class NativeLexicalIntelligence:
     def run_practice_cycle(
         self, *, family: str = "mixed", limit: int = 12, seed: int = 0,
         offset: int = 0, project_family: str | None = None,
+        require_unseen_tasks: bool = False,
     ) -> dict[str, Any]:
-        tasks = self.generate_tasks(family=family, limit=limit, seed=seed, offset=offset)
+        requested = max(1, int(limit))
+        tasks = self.generate_tasks(
+            family=family, limit=requested, seed=seed, offset=offset,
+        )
+        if require_unseen_tasks:
+            with self._connect() as connection:
+                seen = {
+                    str(row[0]) for row in connection.execute(
+                        "SELECT DISTINCT task_id FROM practice_attempts WHERE curriculum_family=?",
+                        (family,),
+                    ).fetchall()
+                }
+            fresh: list[LexicalTask] = []
+            accepted: set[str] = set()
+            generation_round = 0
+            while len(fresh) < requested and generation_round < 8:
+                candidates = tasks if generation_round == 0 else self.generate_tasks(
+                    family=family,
+                    limit=max(requested * 2, 16),
+                    seed=seed + generation_round * 10_007,
+                    offset=offset + generation_round * max(requested, 17),
+                )
+                for task in candidates:
+                    if task.task_id in seen or task.task_id in accepted:
+                        continue
+                    fresh.append(task)
+                    accepted.add(task.task_id)
+                    if len(fresh) >= requested:
+                        break
+                generation_round += 1
+            tasks = fresh
         authority = dict(self.authority_provider())
         rows: list[dict[str, Any]] = []
         for task in tasks:

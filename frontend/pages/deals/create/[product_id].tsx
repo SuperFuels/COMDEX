@@ -21,13 +21,10 @@ export default function CreateDealPage() {
   // Load product
   useEffect(() => {
     const loadProduct = async () => {
-      const token = localStorage.getItem('token')
-      if (!token || !product_id) return
+      if (!product_id) return
 
       try {
-        const res = await api.get(`/products/${product_id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        const res = await api.get(`/products/${product_id}`, { withCredentials: true })
         setProduct(res.data)
       } catch {
         setError('❌ Failed to load product data')
@@ -42,16 +39,15 @@ export default function CreateDealPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    const token = localStorage.getItem('token')
-    if (!token || !product_id) {
-      setError('❌ Missing auth or product ID')
+    if (!product_id) {
+      setError('❌ Missing product ID')
       return
     }
     try {
       await api.post(
         '/deals/',
         { product_id: Number(product_id), quantity_kg: Number(quantityKg) },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true }
       )
       router.push('/deals')
     } catch (err: any) {

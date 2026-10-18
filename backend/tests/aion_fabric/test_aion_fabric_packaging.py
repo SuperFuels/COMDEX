@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import subprocess
 import sys
 import zipfile
 from pathlib import Path
 
-from scripts.build_aion_fabric_preview import PACKAGING, build
+import pytest
+
+from scripts.build_aion_fabric_preview import PACKAGING, validate_build_root
 
 
 def test_release_manifest_is_fail_closed():
@@ -19,8 +22,7 @@ def test_release_manifest_is_fail_closed():
 def test_preview_bundle_contains_only_declared_runtime(tmp_path, monkeypatch):
     import scripts.build_aion_fabric_preview as builder
 
-    monkeypatch.setattr(builder, "DIST", tmp_path)
-    archive_path = builder.build()
+    archive_path = builder.build(output_root=tmp_path)
     assert archive_path.exists()
     with zipfile.ZipFile(archive_path) as archive:
         names = archive.namelist()
@@ -36,13 +38,13 @@ def test_preview_bundle_contains_only_declared_runtime(tmp_path, monkeypatch):
     assert not any(".runtime" in name for name in names)
     assert not any("vault/data" in name.lower() for name in names)
     assert not any(name.endswith((".pem", ".key", ".sqlite", ".db")) for name in names)
+    assert any(name.endswith("bundle-manifest.json") for name in names)
 
 
 def test_extracted_preview_imports_without_comdex_checkout(tmp_path, monkeypatch):
     import scripts.build_aion_fabric_preview as builder
 
-    monkeypatch.setattr(builder, "DIST", tmp_path)
-    archive_path = builder.build()
+    archive_path = builder.build(output_root=tmp_path)
     extract_root = tmp_path / "extracted"
     with zipfile.ZipFile(archive_path) as archive:
         archive.extractall(extract_root)
@@ -58,3 +60,23 @@ def test_extracted_preview_imports_without_comdex_checkout(tmp_path, monkeypatch
     )
     assert completed.returncode == 0, completed.stderr
     assert "AION Device Fabric" in completed.stdout
+
+
+def test_preview_build_root_rejects_app_update_vault_and_runtime_overlap(tmp_path):
+    for name in ("application", "updates", "vault", "runtime"):
+        protected = tmp_path / name
+        with pytest.raises(ValueError, match="overlaps_protected_root"):
+            validate_build_root(
+                protected / "preview",
+                protected_roots=(protected,),
+            )
+
+
+def test_preview_archive_is_deterministic(tmp_path):
+    import scripts.build_aion_fabric_preview as builder
+
+    first = builder.build(output_root=tmp_path / "first")
+    second = builder.build(output_root=tmp_path / "second")
+    assert hashlib.sha256(first.read_bytes()).hexdigest() == hashlib.sha256(
+        second.read_bytes()
+    ).hexdigest()

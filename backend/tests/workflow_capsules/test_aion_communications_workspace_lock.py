@@ -16,10 +16,18 @@ def test_communications_is_a_canonical_sidebar_route() -> None:
     assert "renderAionCommunicationsSurface()" in text
 
 
-def test_communications_has_the_four_bounded_subtabs() -> None:
+def test_communications_has_the_bounded_channel_subtabs() -> None:
     text = source()
-    for label in ("Website", "Inbox & Email", "Agent Network", "Phone & Channels"):
+    for label in ("Website", "Inbox & Email", "Social Accounts", "Agent Network", "Phone & Messaging"):
         assert f'label: "{label}"' in text
+
+
+def test_social_accounts_only_render_supplied_channel_evidence() -> None:
+    text = source()
+    assert "renderAionCommunicationsSocialAccountsTab" in text
+    assert "getAionMarketingDashboardSnapshotV1" in text
+    assert "Only supplied evidence is shown" in text
+    assert "unavailable metrics are never represented as zero" in text
 
 
 def test_communications_reuses_preserved_systems() -> None:
@@ -33,7 +41,7 @@ def test_communications_keeps_capability_claims_honest() -> None:
     text = source()
     assert "Live-capable" in text
     assert "Reserved / preview" in text
-    assert "real public handshake remains disabled" in text
+    assert "hosted customer chat surface is not yet a live public channel" in text
     assert "public widget hosting must be deployed" in text
 
 

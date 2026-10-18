@@ -41,18 +41,10 @@ class HQCESessionReplay:
     def load_records(self):
         """Load all telemetry records from the selected source."""
         if self.source == "db":
-            cur = hqce_telemetry_db.conn.cursor()
-            query = "SELECT timestamp, psi, kappa, T, coherence, stability FROM telemetry"
-            if self.session_id:
-                query += " WHERE session_id=?"
-                cur.execute(query, (self.session_id,))
-            else:
-                cur.execute(query)
-            rows = cur.fetchall()
+            rows = hqce_telemetry_db.latest_values(limit=100000)
             self.records = [
-                {"timestamp": r[0], "psi": r[1], "kappa": r[2],
-                 "T": r[3], "coherence": r[4], "stability": r[5]}
-                for r in rows
+                row for row in rows
+                if not self.session_id or row.get("session_id") == self.session_id
             ]
         elif os.path.exists(self.source):
             self.records = morphic_ledger.load_all()

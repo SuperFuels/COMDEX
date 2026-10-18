@@ -96,9 +96,9 @@ def _execution_outcome(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def _transaction_outcome(database: Path, cycle: int) -> dict[str, Any]:
-    database.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(database)
+def _transaction_outcome(cycle: int) -> dict[str, Any]:
+    """Exercise transaction semantics without creating a durable authority."""
+    connection = sqlite3.connect(":memory:")
     connection.execute("PRAGMA foreign_keys=ON")
     connection.execute("CREATE TABLE IF NOT EXISTS cycles(id INTEGER PRIMARY KEY, committed_at TEXT NOT NULL)")
     connection.execute("INSERT OR REPLACE INTO cycles VALUES (?, ?)", (cycle, _now()))
@@ -137,7 +137,7 @@ def run_cycle(*, repo_root: Path, state_path: Path, ledger_path: Path, minimum_h
     remotes = {name: _remote_head(*contract) for name, contract in REMOTE_AUTHORITIES.items()}
     remotes.update({name:_json_outcome(url) for name,url in JSON_AUTHORITIES.items()})
     execution = _execution_outcome(repo_root)
-    transaction = _transaction_outcome(state_path.parent / "campaign.sqlite3", cycle_number)
+    transaction = _transaction_outcome(cycle_number)
     changes = []
     for name, outcome in remotes.items():
         model = state["source_models"][name]

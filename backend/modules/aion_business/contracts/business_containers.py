@@ -105,6 +105,10 @@ class DepartmentIntelligenceContainer(BaseModel):
     meta: BusinessContainerMeta
 
     departments: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+    # Founder-created departments are business records, not application
+    # configuration. Keeping them in the typed Guardian container ensures
+    # they survive application replacement and restore.
+    custom_departments: List[Dict[str, Any]] = Field(default_factory=list)
     revision: int = 1
 
 

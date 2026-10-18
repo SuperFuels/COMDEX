@@ -7,6 +7,11 @@ from pathlib import Path
 from typing import Any, Dict, Mapping
 
 from backend.modules.aion_business.runtime.aion_flow_model_bindings import AionFlowModelBindings
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_fabric.canonical import canonical_bytes, canonical_hash, utc_now_iso
 from backend.modules.aion_fabric.identity import DeviceIdentity, IdentityStore
 
@@ -19,12 +24,23 @@ MAX_TEMPLATE_BYTES = 2 * 1024 * 1024
 class AionFlowTemplateLibrary:
     """Signed reusable logic with customer bindings and memory kept outside packages."""
 
-    def __init__(self, root: str | Path = ".runtime/aion_flow/templates") -> None:
-        self.root = Path(root).resolve()
+    def __init__(
+        self,
+        root: str | Path | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
+        self.root = Path(root or ".runtime/aion_flow/templates").resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.state_path = self.root / "template-library.json"
         self.installation_path = self.root / "organisation-installations.json"
         self.identity = IdentityStore(self.root / "publisher-identity").load_or_create()
+        self.domain_store = domain_store
+        if root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="aion-flow-template-runtime",
+            )
         self._seed_builtin_templates()
 
     def list(self) -> Dict[str, Any]:
@@ -65,25 +81,33 @@ class AionFlowTemplateLibrary:
             raise ValueError(f"template_bindings_missing:{','.join(missing)}")
         if any(not value.startswith("vault://") for value in supplied.values()):
             raise ValueError("template_bindings_must_be_opaque_vault_references")
-        installations = self._installations()
         installation_id = f"{organisation_id}:{manifest['template_id']}"
-        previous = (installations["installations"].get(installation_id) or {}).get("active_template_ref", "")
+        previous_item = self._installation_optional(installation_id, organisation_id=str(organisation_id))
+        previous = (previous_item or {}).get("active_template_ref", "")
         event = {
             "installation_id": installation_id, "organisation_id": str(organisation_id), "active_template_ref": template_ref,
             "previous_template_ref": previous, "bindings": supplied, "installed_by_role": actor_role,
             "installed_at": utc_now_iso(), "status": "installed_unapproved", "authority_granted": False,
         }
         event["installation_hash"] = canonical_hash(event)
-        installations["installations"][installation_id] = event
-        self._write(self.installation_path, installations)
+        self._save_installation(event, expected_version=(previous_item or {}).get("_vault_version"))
         return event
 
     def list_installations(self, *, organisation_id: str) -> Dict[str, Any]:
-        items = [
-            dict(item)
-            for item in self._installations()["installations"].values()
-            if item.get("organisation_id") == str(organisation_id)
-        ]
+        if self.domain_store is not None:
+            items = [
+                dict(record["payload"])
+                for record in self.domain_store.list(
+                    "train_agent.automations", workspace_id=str(organisation_id),
+                )
+                if str(record.get("entity_id") or "").startswith("aion_flow/template_installations/")
+            ]
+        else:
+            items = [
+                dict(item)
+                for item in self._installations()["installations"].values()
+                if item.get("organisation_id") == str(organisation_id)
+            ]
         return {
             "schema_version": "aion.flow.template_installations.public.v1",
             "organisation_id": str(organisation_id),
@@ -96,10 +120,11 @@ class AionFlowTemplateLibrary:
         template = self._require(template_ref)
         if template["status"] != "available" or not self._verify(template["manifest"]):
             raise PermissionError("template_version_not_available")
-        state = self._installations()
-        item = state["installations"].get(str(installation_id))
+        organisation_id = self._installation_organisation(installation_id)
+        item = self._installation_optional(installation_id, organisation_id=organisation_id)
         if not item:
             raise KeyError("template_installation_not_found")
+        vault_version = item.pop("_vault_version", None)
         current = item.get("active_template_ref", "")
         if current == template_ref:
             return dict(item)
@@ -112,19 +137,20 @@ class AionFlowTemplateLibrary:
             "authority_granted": False,
         })
         item["installation_hash"] = canonical_hash({key: value for key, value in item.items() if key != "installation_hash"})
-        self._write(self.installation_path, state)
+        self._save_installation(item, expected_version=vault_version)
         return dict(item)
 
     def remove(self, installation_id: str, *, actor_role: str) -> Dict[str, Any]:
         if actor_role not in {"owner", "admin", "workflow_publisher", "canonical_authority"}:
             raise PermissionError("template_remove_role_required")
-        state = self._installations()
-        item = state["installations"].get(str(installation_id))
+        organisation_id = self._installation_organisation(installation_id)
+        item = self._installation_optional(installation_id, organisation_id=organisation_id)
         if not item:
             raise KeyError("template_installation_not_found")
+        vault_version = item.pop("_vault_version", None)
         item.update({"status": "removed", "removed_at": utc_now_iso(), "authority_granted": False})
         item["installation_hash"] = canonical_hash({key: value for key, value in item.items() if key != "installation_hash"})
-        self._write(self.installation_path, state)
+        self._save_installation(item, expected_version=vault_version)
         return dict(item)
 
     def publish_private(self, *, organisation_id: str, payload: Mapping[str, Any], actor_role: str) -> Dict[str, Any]:
@@ -239,6 +265,41 @@ class AionFlowTemplateLibrary:
     def _installations(self) -> Dict[str, Any]:
         if not self.installation_path.exists(): return {"schema_version": "aion.flow.template_installations.v1", "installations": {}}
         return json.loads(self.installation_path.read_text(encoding="utf-8"))
+
+    @staticmethod
+    def _installation_organisation(installation_id: str) -> str:
+        organisation_id, separator, _template_id = str(installation_id).partition(":")
+        if not separator or not organisation_id:
+            raise ValueError("template_installation_identity_invalid")
+        return organisation_id
+
+    def _installation_optional(self, installation_id: str, *, organisation_id: str) -> Dict[str, Any] | None:
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=organisation_id,
+                entity_id=f"aion_flow/template_installations/{installation_id}",
+            )
+            if record is None:
+                return None
+            return {**dict(record["payload"]), "_vault_version": int(record["version"])}
+        value = self._installations()["installations"].get(str(installation_id))
+        return dict(value) if value else None
+
+    def _save_installation(self, item: Mapping[str, Any], *, expected_version: int | None) -> None:
+        clean = {key: value for key, value in dict(item).items() if key != "_vault_version"}
+        installation_id = str(clean["installation_id"])
+        organisation_id = str(clean["organisation_id"])
+        if self.domain_store is not None:
+            self.domain_store.put(
+                "train_agent.automations", workspace_id=organisation_id,
+                entity_id=f"aion_flow/template_installations/{installation_id}",
+                payload=clean, expected_version=expected_version,
+                actor_id="aion-flow-template-runtime",
+            )
+            return
+        state = self._installations()
+        state["installations"][installation_id] = clean
+        self._write(self.installation_path, state)
 
     @staticmethod
     def _write(path: Path, value: Mapping[str, Any]) -> None:

@@ -3,14 +3,10 @@ import * as React from "react";
 type Goal = { id: string; text: string; done: boolean };
 
 export default function SciGoalPanel() {
-  const [goals, setGoals] = React.useState<Goal[]>(() => {
-    try { return JSON.parse(localStorage.getItem("sqs.goals.v1") || "[]"); } catch { return []; }
-  });
+  // Goal text is customer-owned working data. Keep it in the current process
+  // until the science workspace is wired to a Guardian-backed repository.
+  const [goals, setGoals] = React.useState<Goal[]>([]);
   const [text, setText] = React.useState("");
-
-  React.useEffect(() => {
-    localStorage.setItem("sqs.goals.v1", JSON.stringify(goals));
-  }, [goals]);
 
   const add = () => {
     if (!text.trim()) return;

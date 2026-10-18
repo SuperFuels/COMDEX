@@ -16,6 +16,7 @@ from backend.modules.aion_business.contracts.department_pilot import (
 from backend.modules.aion_business.runtime.business_container_repository import (
     BusinessContainerRepository,
 )
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
 from backend.modules.aion_business.runtime.department_context_assembler import (
     DepartmentContextAssembler,
 )
@@ -42,6 +43,7 @@ from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import (
     WorkflowFileCabinetRepository,
 )
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -95,12 +97,17 @@ class FinancePilotExecutionService:
         container_repository: BusinessContainerRepository | None = None,
         *,
         artifact_root: Path | None = None,
+        domain_store: VaultDomainStore | None = None,
     ) -> None:
         self.task_repository = task_repository or DepartmentPilotRepository()
         self.container_repository = container_repository or BusinessContainerRepository()
         self.runtime = DepartmentPilotRuntime(self.task_repository)
         self.context_assembler = DepartmentContextAssembler(self.container_repository)
         self.artifact_root = artifact_root
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="finance-pilot-execution")
 
     def execute(
         self,
@@ -353,6 +360,8 @@ class FinancePilotExecutionService:
         }
 
     def _report_dir(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_finance_reports__") / workspace_id
         root = self.artifact_root or AIONBusinessPaths.business_container_dir(workspace_id)
         path = root / "finance" / "reports"
         path.mkdir(parents=True, exist_ok=True)
@@ -367,11 +376,27 @@ class FinancePilotExecutionService:
     ) -> tuple[Any, dict[str, Any]]:
         artifact_id = _safe_id(report["report_id"])
         destination = self._report_dir(envelope.task.workspace_id) / f"{artifact_id}.json"
-        temporary = destination.with_suffix(".json.tmp")
-        temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        temporary.replace(destination)
+        if self.domain_store is not None:
+            entity_id = f"reports/{artifact_id}"
+            current = self.domain_store.get_optional(
+                "finance.operations_records", workspace_id=envelope.task.workspace_id,
+                entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "finance.operations_records", workspace_id=envelope.task.workspace_id,
+                entity_id=entity_id, payload=report,
+                expected_version=int(current["version"]) if current else None,
+                actor_id=created_by,
+            )
+        else:
+            temporary = destination.with_suffix(".json.tmp")
+            temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            temporary.replace(destination)
         content_hash = canonical_contract_hash(report)
-        relative_path = str(destination)
+        relative_path = (
+            f"vault://finance.operations_records/reports/{artifact_id}"
+            if self.domain_store is not None else str(destination)
+        )
         try:
             relative_path = str(destination.relative_to(AIONBusinessPaths.ROOT))
         except ValueError:
@@ -404,9 +429,8 @@ class FinancePilotExecutionService:
         pointer = self._register_file_cabinet_pointer(envelope, artifact)
         return artifact, pointer
 
-    @staticmethod
     def _register_file_cabinet_pointer(
-        envelope: DepartmentPilotWorkEnvelope, artifact: Any
+        self, envelope: DepartmentPilotWorkEnvelope, artifact: Any
     ) -> dict[str, Any]:
         tree = WorkflowFileCabinetRepository.load(envelope.task.workspace_id)
         folders = tree.get("folders")
@@ -425,11 +449,15 @@ class FinancePilotExecutionService:
             "source_of_truth": "business_container",
             "file_cabinet_role": "index_pointer_only",
             "status": artifact.status,
-            "target": {
+            "target": ({
+                "vault_domain_id": "finance.operations_records",
+                "vault_entity_id": f"reports/{artifact.artifact_id}",
+            } if self.domain_store is not None else {
+                "storage_path": artifact.business_container_path,
+            }) | {
                 "business_container_id": envelope.task.workspace_id,
                 "sub_container": "finance",
                 "category": "reports",
-                "storage_path": artifact.business_container_path,
                 "artifact_id": artifact.artifact_id,
                 "artifact_hash": artifact.content_hash,
                 "task_id": envelope.task.task_id,
@@ -554,10 +582,16 @@ class FinancePilotExecutionService:
         )
         self.container_repository.save_dict(workspace_id, "boardroom_snapshot", snapshot)
 
-    @staticmethod
-    def _load_report(envelope: DepartmentPilotWorkEnvelope) -> dict[str, Any]:
+    def _load_report(self, envelope: DepartmentPilotWorkEnvelope) -> dict[str, Any]:
         if not envelope.artifacts:
             return {}
+        if self.domain_store is not None:
+            artifact_id = envelope.artifacts[-1].artifact_id
+            record = self.domain_store.get_optional(
+                "finance.operations_records", workspace_id=envelope.task.workspace_id,
+                entity_id=f"reports/{artifact_id}",
+            )
+            return dict(record["payload"]) if record else {}
         path = Path(envelope.artifacts[-1].business_container_path)
         if not path.is_absolute():
             path = AIONBusinessPaths.ROOT / path

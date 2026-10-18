@@ -8,15 +8,31 @@ import time
 from pathlib import Path
 from typing import Any, Callable, Dict
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
+from .canonical import utc_now_iso
+
 
 class PrivateServiceState:
     """Private, process-independent credentials for household-facing surfaces."""
 
+    KEYRING_SERVICE = "com.tessaris.aion-fabric.private-service-state.v1"
+    _DEFAULTS: Dict[str, Callable[[], str]] = {
+        "companion_token": lambda: secrets.token_urlsafe(24),
+        "companion_csrf": lambda: secrets.token_urlsafe(24),
+        "companion_pair_code": lambda: f"{secrets.randbelow(1_000_000):06d}",
+        "canvas_token": lambda: secrets.token_urlsafe(24),
+        "education_token": lambda: secrets.token_urlsafe(24),
+    }
+
     def __init__(self, base_dir: str | Path) -> None:
         self.path = Path(base_dir) / "private_service_state.json"
 
-    def load(self) -> Dict[str, str]:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+    def _file_state(self) -> Dict[str, str]:
         state: Dict[str, str] = {}
         if self.path.exists():
             try:
@@ -25,18 +41,85 @@ class PrivateServiceState:
                     state = {str(key): str(item) for key, item in value.items() if isinstance(item, str)}
             except (OSError, ValueError, json.JSONDecodeError):
                 state = {}
+        return {key: state[key] for key in self._DEFAULTS if state.get(key)}
+
+    def _with_defaults(self, state: Dict[str, str]) -> tuple[Dict[str, str], bool]:
         changed = False
-        defaults = {
-            "companion_token": lambda: secrets.token_urlsafe(24),
-            "companion_csrf": lambda: secrets.token_urlsafe(24),
-            "companion_pair_code": lambda: f"{secrets.randbelow(1_000_000):06d}",
-            "canvas_token": lambda: secrets.token_urlsafe(24),
-            "education_token": lambda: secrets.token_urlsafe(24),
-        }
-        for key, factory in defaults.items():
+        for key, factory in self._DEFAULTS.items():
             if not state.get(key):
                 state[key] = factory()
                 changed = True
+        return state, changed
+
+    @staticmethod
+    def _production_custody_required() -> bool:
+        mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+        return guardian_mode_requested() or mode in {"production", "prod"}
+
+    def _record_migration(self, workspace_id: str) -> None:
+        if not self.path.exists() or not guardian_mode_requested():
+            return
+        from hashlib import sha256
+
+        source_hash = sha256(self.path.read_bytes()).hexdigest()
+        domains = VaultDomainStore(
+            configured_business_vault_runtime().guardian,
+            actor_id="aion-fabric-private-service-state",
+        )
+        entity_id = f"aion_fabric.private_service_state_migration.{source_hash}"
+        if domains.get_optional("security.audit", workspace_id=workspace_id, entity_id=entity_id):
+            return
+        domains.put(
+            "security.audit",
+            workspace_id=workspace_id,
+            entity_id=entity_id,
+            payload={
+                "schema_version": "aion.private-service-state-migration.v1",
+                "source_sha256": source_hash,
+                "source_retained": True,
+                "copied_to_os_credential_store": True,
+                "raw_secret_copied_to_guardian": False,
+                "completed_at": utc_now_iso(),
+            },
+        )
+
+    def _load_keyring(self) -> Dict[str, str]:
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_private_service_workspace_required")
+        try:
+            import keyring
+        except Exception as exc:
+            raise RuntimeError("aion_fabric_os_credential_store_unavailable") from exc
+        try:
+            raw = keyring.get_password(self.KEYRING_SERVICE, workspace_id)
+            parsed = json.loads(raw) if raw else {}
+            state = {
+                key: str(parsed[key]) for key in self._DEFAULTS
+                if isinstance(parsed, dict) and isinstance(parsed.get(key), str) and parsed.get(key)
+            }
+            legacy = self._file_state()
+            if not state and legacy:
+                state = legacy
+            state, changed = self._with_defaults(state)
+            if changed or not raw:
+                encoded = json.dumps(state, sort_keys=True, separators=(",", ":"))
+                keyring.set_password(self.KEYRING_SERVICE, workspace_id, encoded)
+                if keyring.get_password(self.KEYRING_SERVICE, workspace_id) != encoded:
+                    raise RuntimeError("aion_fabric_os_credential_store_verification_failed")
+            if legacy:
+                self._record_migration(workspace_id)
+            return state
+        except RuntimeError:
+            raise
+        except Exception as exc:
+            raise RuntimeError("aion_fabric_os_credential_store_unavailable") from exc
+
+    def load(self) -> Dict[str, str]:
+        if self._production_custody_required():
+            return self._load_keyring()
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        state, changed = self._with_defaults(self._file_state())
         if changed or not self.path.exists():
             temporary = self.path.with_suffix(".tmp")
             temporary.write_text(json.dumps(state, sort_keys=True), encoding="utf-8")

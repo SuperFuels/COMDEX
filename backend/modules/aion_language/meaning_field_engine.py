@@ -8,7 +8,6 @@ goal and emotion modulation.
 """
 
 import json
-import sqlite3
 import random
 import logging
 import time
@@ -18,7 +17,7 @@ from statistics import mean
 # ─────────────────────────────────────────────
 # Imports and optional system dependencies
 # ─────────────────────────────────────────────
-from backend.modules.aion_knowledge.knowledge_graph_core import _connect
+from backend.modules.aion_knowledge.knowledge_graph_core import search as search_graph
 
 logger = logging.getLogger(__name__)
 
@@ -47,18 +46,17 @@ class MeaningFieldEngine:
 
     # ─────────────────────────────────────────
     def _load_triplets_from_db(self):
-        """Load concept↔concept relations directly from the AKG database."""
-        conn = _connect()
-        cur = conn.cursor()
-        cur.execute("SELECT subject, predicate, object, strength FROM knowledge")
-        data = cur.fetchall()
-        conn.close()
-
-        # Only include concept-concept edges
+        """Load concept relations through the workspace-scoped AKG boundary."""
         return [
-            (s, p, o, w)
-            for (s, p, o, w) in data
-            if s.startswith("concept:") and o.startswith("concept:")
+            (
+                row["subject"],
+                row["predicate"],
+                row["object"],
+                float(row["strength"]),
+            )
+            for row in search_graph()
+            if row["subject"].startswith("concept:")
+            and row["object"].startswith("concept:")
         ]
 
     # ─────────────────────────────────────────

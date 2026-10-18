@@ -5,15 +5,32 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Iterable
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
 
 
 class LiveContextStore:
     """Build a small, evidence-labelled context only after an explicit Pilot request."""
 
-    def __init__(self, runtime_dir: str | Path) -> None:
+    def __init__(
+        self,
+        runtime_dir: str | Path,
+        *,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.path = Path(runtime_dir) / "live" / "latest_context.json"
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_live_context_workspace_required")
 
     def build(
         self,
@@ -54,12 +71,34 @@ class LiveContextStore:
             },
         }
         record["context_hash"] = canonical_hash(record)
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.latest_live_context",
+            )
+            self.domain_store.put(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.latest_live_context",
+                payload=record,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return record
         temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(record))
+        os.chmod(temporary, 0o600)
         os.replace(temporary, self.path)
         return record
 
     def latest(self) -> Dict[str, Any] | None:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.latest_live_context",
+            )
+            return dict(result["payload"]) if result else None
         if not self.path.exists():
             return None
         try:
@@ -67,3 +106,58 @@ class LiveContextStore:
             return value if isinstance(value, dict) else None
         except (OSError, json.JSONDecodeError):
             return None
+
+
+def configured_live_context_store(runtime_dir: str | Path) -> LiveContextStore:
+    """Select encrypted explicit-request context and retain verified legacy state."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_live_context_workspace_required")
+        domains = VaultDomainStore(runtime.guardian, actor_id="aion-fabric-live-context")
+        selected = LiveContextStore(
+            runtime_path, domain_store=domains, workspace_id=workspace_id
+        )
+        entity_id = "aion_fabric.latest_live_context"
+        source = runtime_path / "live" / "latest_context.json"
+        if source.exists() and domains.get_optional(
+            "learning.customer_state", workspace_id=workspace_id, entity_id=entity_id
+        ) is None:
+            legacy = LiveContextStore(runtime_path).latest()
+            if legacy is None:
+                raise RuntimeError("aion_fabric_live_context_migration_source_invalid")
+            domains.put(
+                "learning.customer_state",
+                workspace_id=workspace_id,
+                entity_id=entity_id,
+                payload=legacy,
+            )
+            restored = domains.get_optional(
+                "learning.customer_state", workspace_id=workspace_id, entity_id=entity_id
+            )
+            if restored is None or dict(restored["payload"]) != legacy or not source.exists():
+                raise RuntimeError("aion_fabric_live_context_migration_verification_failed")
+            from hashlib import sha256
+
+            digest = sha256(source.read_bytes()).hexdigest()
+            domains.put(
+                "learning.audit",
+                workspace_id=workspace_id,
+                entity_id=f"aion_fabric.live_context_migration.{digest}",
+                payload={
+                    "schema_version": "aion.live-context-migration.v1",
+                    "source_sha256": digest,
+                    "source_file_count": 1,
+                    "source_retained": True,
+                    "copied_and_verified": True,
+                    "completed_at": utc_now_iso(),
+                },
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_live_context_required_in_production")
+    return LiveContextStore(runtime_path)

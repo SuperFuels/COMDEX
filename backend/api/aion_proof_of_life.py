@@ -10,7 +10,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, HTTPException, Query
+
+from backend.modules.aion_business.runtime.legacy_runtime_data_root import (
+    resolve_legacy_runtime_data_root,
+)
 
 router = APIRouter(tags=["AION Proof Of Life"])
 
@@ -28,26 +32,25 @@ def _truthy(name: str, default: bool = False) -> bool:
 
 
 def pick_data_root() -> Path:
-    # 1) explicit override
-    raw = (os.getenv(ENV_DATA_ROOT) or "").strip()
-    if raw:
-        return Path(raw).expanduser()
-
-    # 2) runtime moved data (most common in your logs)
-    rt = Path(".runtime")
-    if rt.exists():
-        cands = sorted(
-            rt.glob("*/data"),
-            key=lambda p: p.stat().st_mtime if p.exists() else 0.0,
-        )
-        if cands:
-            return cands[-1]
-
-    # 3) fallback
-    return Path("data")
+    application_root = Path(
+        os.getenv("TESSARIS_APPLICATION_ROOT")
+        or Path(__file__).resolve().parents[2]
+    )
+    return resolve_legacy_runtime_data_root(
+        application_root=application_root,
+        environment=os.environ,
+    )
 
 
 DATA_ROOT = pick_data_root()
+
+
+def _require_demo_mutation_authority() -> None:
+    runtime_mode = str(os.getenv("TESSARIS_RUNTIME_MODE") or "development").strip().lower()
+    if runtime_mode == "production" or not _truthy(
+        "TESSARIS_ENABLE_PROOF_OF_LIFE_MUTATIONS", False
+    ):
+        raise HTTPException(status_code=404, detail="proof_of_life_mutations_disabled")
 
 
 def _read_json(path: Path, default: Any = None) -> Any:
@@ -110,12 +113,11 @@ def _age_s(dt: Optional[datetime]) -> Optional[float]:
 # Φ (metabolism)
 # ============================================================
 def _phi_path_candidates() -> list[Path]:
-    # tolerate historical "data/data/*" mishaps
+    # The nested path remains readable only within the explicitly selected
+    # external transition root for source-retaining compatibility.
     return [
         DATA_ROOT / "phi_reinforce_state.json",
         DATA_ROOT / "data" / "phi_reinforce_state.json",
-        Path("data") / "phi_reinforce_state.json",
-        Path("data") / "data" / "phi_reinforce_state.json",
     ]
 
 
@@ -153,6 +155,7 @@ def api_phi() -> Dict[str, Any]:
 
 @router.post("/api/demo/phi/reset")
 def api_phi_reset() -> Dict[str, Any]:
+    _require_demo_mutation_authority()
     from backend.modules.aion_resonance.phi_reinforce import reset_reinforce_state
 
     reset_reinforce_state()
@@ -161,6 +164,7 @@ def api_phi_reset() -> Dict[str, Any]:
 
 @router.post("/api/demo/phi/inject_entropy")
 def api_phi_inject_entropy() -> Dict[str, Any]:
+    _require_demo_mutation_authority()
     # keep same semantics: write memory then reinforce
     from backend.modules.aion_resonance.phi_reinforce import reinforce_from_memory
 
@@ -175,6 +179,7 @@ def api_phi_inject_entropy() -> Dict[str, Any]:
 
 @router.post("/api/demo/phi/recover")
 def api_phi_recover() -> Dict[str, Any]:
+    _require_demo_mutation_authority()
     from backend.modules.aion_resonance.phi_reinforce import update_beliefs
 
     mem_path = DATA_ROOT / "conversation_memory.json"
@@ -310,6 +315,7 @@ def api_adr_inject(
     amount: float = Body(0.25),
     write_stream_event: bool = Body(True),
 ) -> Dict[str, Any]:
+    _require_demo_mutation_authority()
     _ensure_adr_files()
 
     now = time.time()
@@ -348,6 +354,7 @@ def api_adr_run(
     Runs PAL in the same way your stack already does, then makes sure pal_state.json
     has epsilon/k/memory_weight populated so the UI never shows "—".
     """
+    _require_demo_mutation_authority()
     _ensure_adr_files()
 
     before = _read_json(PAL_STATE_PATH, default={}) or {}
@@ -441,7 +448,7 @@ def api_reflex() -> Dict[str, Any]:
 # ============================================================
 @router.get("/api/homeostasis")
 def api_homeostasis() -> Dict[str, Any]:
-    snap = _read_json(Path("data/analysis/aion_live_dashboard.json"), default={}) or {}
+    snap = _read_json(DATA_ROOT / "analysis" / "aion_live_dashboard.json", default={}) or {}
     last = (snap.get("homeostasis", {}) or {}).get("last") or snap.get("last")
     return {
         "ok": True,
@@ -471,6 +478,7 @@ def api_mirror() -> Dict[str, Any]:
 
 @router.post("/api/demo/mirror/run")
 def api_mirror_run(steps: int = 12) -> Dict[str, Any]:
+    _require_demo_mutation_authority()
     phi = phi_state()
     hb = _read_json(DATA_ROOT / "aion_field" / "global_theta_heartbeat_live.json", default={}) or {}
 

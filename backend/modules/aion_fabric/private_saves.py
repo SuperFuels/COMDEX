@@ -8,6 +8,12 @@ from pathlib import Path
 from typing import Any, Dict
 from uuid import uuid4
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
 
 
@@ -16,15 +22,32 @@ class PrivateProgrammeSaves:
 
     CATEGORIES = {"product", "recipe", "destination", "music", "learning", "idea"}
 
-    def __init__(self, runtime_dir: str | Path) -> None:
+    def __init__(
+        self, runtime_dir: str | Path, *, domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.root = Path(runtime_dir) / "private_saves"
         self.pending_path = self.root / "pending.json"
         self.saved_path = self.root / "saved.json"
         self.deleted_path = self.root / "deleted.json"
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_private_saves_workspace_required")
 
-    @staticmethod
-    def _read(path: Path, default: Any) -> Any:
+    def _state_key(self, path: Path) -> str:
+        return {self.pending_path: "pending", self.saved_path: "saved", self.deleted_path: "deleted"}[path]
+
+    def _read(self, path: Path, default: Any) -> Any:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "learning.customer_state", workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_programme_saves",
+            )
+            state = dict(result["payload"]) if result else {}
+            return state.get(self._state_key(path), default)
         if not path.exists():
             return default
         try:
@@ -33,8 +56,24 @@ class PrivateProgrammeSaves:
         except (OSError, json.JSONDecodeError):
             return default
 
-    @staticmethod
-    def _write(path: Path, value: Any) -> None:
+    def _write(self, path: Path, value: Any) -> None:
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "learning.customer_state", workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_programme_saves",
+            )
+            state = dict(existing["payload"]) if existing else {
+                "schema_version": "aion.private-programme-saves.store.v1",
+                "pending": None, "saved": [], "deleted": [],
+            }
+            state[self._state_key(path)] = value
+            state["updated_at"] = utc_now_iso()
+            self.domain_store.put(
+                "learning.customer_state", workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_programme_saves", payload=state,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
         temporary = path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(value))
         os.chmod(temporary, 0o600)
@@ -217,3 +256,62 @@ class PrivateProgrammeSaves:
         if persona_id and pending and pending.get("persona_id") not in {None, persona_id}:
             pending = None
         return {"pending": pending, "saved": saved[-50:], "saved_count": len(saved)}
+
+
+def configured_private_programme_saves(runtime_dir: str | Path) -> PrivateProgrammeSaves:
+    """Select encrypted private saves and retain verified legacy files."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_private_saves_workspace_required")
+        domains = VaultDomainStore(runtime.guardian, actor_id="aion-fabric-private-saves")
+        selected = PrivateProgrammeSaves(
+            runtime_path, domain_store=domains, workspace_id=workspace_id,
+        )
+        entity_id = "aion_fabric.private_programme_saves"
+        sources = [
+            runtime_path / "private_saves" / name
+            for name in ("pending.json", "saved.json", "deleted.json")
+        ]
+        existing_sources = [path for path in sources if path.exists()]
+        if existing_sources and domains.get_optional(
+            "learning.customer_state", workspace_id=workspace_id, entity_id=entity_id,
+        ) is None:
+            legacy = PrivateProgrammeSaves(runtime_path)
+            state = {
+                "schema_version": "aion.private-programme-saves.store.v1",
+                "pending": legacy._read(legacy.pending_path, None),
+                "saved": legacy._read(legacy.saved_path, []),
+                "deleted": legacy._read(legacy.deleted_path, []),
+                "updated_at": utc_now_iso(),
+            }
+            domains.put(
+                "learning.customer_state", workspace_id=workspace_id,
+                entity_id=entity_id, payload=state,
+            )
+            restored = domains.get_optional(
+                "learning.customer_state", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            if restored is None or dict(restored["payload"]) != state or not all(path.exists() for path in existing_sources):
+                raise RuntimeError("aion_fabric_private_saves_migration_verification_failed")
+            from hashlib import sha256
+
+            digest = sha256(b"".join(path.read_bytes() for path in existing_sources)).hexdigest()
+            domains.put(
+                "learning.audit", workspace_id=workspace_id,
+                entity_id=f"aion_fabric.private_programme_saves_migration.{digest}",
+                payload={
+                    "schema_version": "aion.private-programme-saves-migration.v1",
+                    "source_sha256": digest, "source_file_count": len(existing_sources),
+                    "source_retained": True, "copied_and_verified": True,
+                    "completed_at": utc_now_iso(),
+                },
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_private_saves_required_in_production")
+    return PrivateProgrammeSaves(runtime_path)

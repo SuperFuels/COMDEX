@@ -6,6 +6,10 @@ from importlib import import_module
 from typing import Any, Dict, Tuple, Optional, Callable
 
 from .tx_models import TxEnvelope
+from .ledger_content_policy import (
+    LedgerContentPolicyError,
+    normalize_public_transaction_payload,
+)
 
 # Bank ops live here (mint/transfer/burn + nonce increments + fees)
 from backend.modules.chain_sim import chain_sim_model as bank
@@ -283,6 +287,22 @@ def apply_tx(envelope: TxEnvelope) -> Tuple[bool, Optional[str], Dict[str, Any]]
     p = _get_attr(envelope, "payload", None) or {}
 
     t_eff = "BANK_SEND" if t == "BANK_TRANSFER" else t
+
+    try:
+        p = normalize_public_transaction_payload(t_eff, p)
+    except LedgerContentPolicyError as exc:
+        return False, str(exc), {"op": t_eff, "policy_rejected": True}
+
+    try:
+        setattr(envelope, "payload", p)
+    except Exception:
+        try:
+            envelope = envelope.model_copy(update={"payload": p})
+        except Exception:
+            return False, "transaction payload could not be canonicalised", {
+                "op": t_eff,
+                "policy_rejected": True,
+            }
 
     def _ctx(extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         base: Dict[str, Any] = {"op": t_eff, "payload": p}

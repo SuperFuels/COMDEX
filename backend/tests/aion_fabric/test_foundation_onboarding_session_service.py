@@ -195,3 +195,209 @@ def test_desktop_session_hydrates_and_saves_against_mother_authority():
         text=True, capture_output=True, check=True,
     )
     assert "mother-authoritative desktop session verified" in result.stdout
+
+
+def test_desktop_session_does_not_apply_stale_response_after_workspace_switch():
+    repository_root = Path(__file__).resolve().parents[3]
+    module_path = repository_root / "desktop/mac/src/aion_development_business_session.js"
+    script = textwrap.dedent(
+        f"""
+        const assert = require('assert');
+        const store = new Map();
+        global.localStorage = {{
+          getItem: (key) => store.has(key) ? store.get(key) : null,
+          setItem: (key, value) => store.set(key, String(value)),
+          removeItem: (key) => store.delete(key),
+          key: (index) => Array.from(store.keys())[index] || null,
+          get length() {{ return store.size; }},
+        }};
+        global.sessionStorage = {{ clear() {{}} }};
+        global.state = {{ workspaceId: 'legacy-business', apiBase: 'http://127.0.0.1:8080' }};
+        global.location = {{ reload() {{}} }};
+        const calls = [];
+        global.fetch = async (url, options = {{}}) => {{
+          calls.push({{ url, options }});
+          const isNew = url.includes('qualification-workshop');
+          if (!options.method || options.method === 'GET') {{
+            await new Promise((resolve) => setTimeout(resolve, isNew ? 1 : 15));
+            return {{ ok: true, json: async () => ({{ ok: true, session: {{
+              workspace_id: isNew ? 'qualification-workshop' : 'legacy-business',
+              revision: isNew ? 0 : 7, status: 'in_progress',
+              packet: isNew ? null : {{ foundation_draft: {{ business_name: 'Legacy' }} }},
+              updated_at: '2026-10-18T00:00:00Z',
+            }} }}) }};
+          }}
+          const body = JSON.parse(options.body);
+          assert.equal(body.expected_revision, 0);
+          return {{ ok: true, json: async () => ({{ ok: true, session: {{
+            workspace_id: 'qualification-workshop', revision: 1, status: 'in_progress',
+            packet: body.packet, updated_at: '2026-10-18T00:01:00Z',
+          }} }}) }};
+        }};
+        require({module_path.as_posix()!r});
+        global.state.workspaceId = 'qualification-workshop';
+        const activePacket = {{ foundation_draft: {{ business_name: 'Qualification Workshop Ltd' }} }};
+        global.AionDevelopmentBusinessSession.persistFoundationPacket(activePacket);
+        setTimeout(() => {{
+          assert.equal(global.AionDevelopmentBusinessSession.getFoundationPacket().foundation_draft.business_name, 'Qualification Workshop Ltd');
+          assert.equal(global.AionDevelopmentBusinessSession.getMotherSyncState().workspace_id, 'qualification-workshop');
+          assert.equal(global.AionDevelopmentBusinessSession.getMotherSyncState().revision, 1);
+          assert.equal(calls.filter((call) => call.options.method === 'PUT').length, 1);
+          console.log('workspace switch stale response isolated');
+        }}, 40);
+        """
+    )
+    result = subprocess.run(
+        ["node", "-e", script], cwd=repository_root,
+        text=True, capture_output=True, check=True,
+    )
+    assert "workspace switch stale response isolated" in result.stdout
+
+
+def test_desktop_session_retries_revision_conflict_without_dropping_latest_answer():
+    repository_root = Path(__file__).resolve().parents[3]
+    module_path = repository_root / "desktop/mac/src/aion_development_business_session.js"
+    script = textwrap.dedent(
+        f"""
+        const assert = require('assert');
+        const store = new Map();
+        global.localStorage = {{
+          getItem: (key) => store.has(key) ? store.get(key) : null,
+          setItem: (key, value) => store.set(key, String(value)),
+          removeItem: (key) => store.delete(key),
+          key: (index) => Array.from(store.keys())[index] || null,
+          get length() {{ return store.size; }},
+        }};
+        global.sessionStorage = {{ clear() {{}} }};
+        global.state = {{ workspaceId: 'example-business', apiBase: 'http://127.0.0.1:8080' }};
+        global.location = {{ reload() {{}} }};
+        let revision = 3;
+        let packet = {{ business_context_draft: {{ legal_name: 'Example Ltd' }} }};
+        let putCount = 0;
+        global.fetch = async (url, options = {{}}) => {{
+          if (!options.method || options.method === 'GET') {{
+            return {{ ok: true, json: async () => ({{ ok: true, session: {{
+              workspace_id: 'example-business', revision, status: 'in_progress',
+              packet, updated_at: '2026-10-18T00:00:00Z',
+            }} }}) }};
+          }}
+          putCount += 1;
+          const body = JSON.parse(options.body);
+          if (putCount === 1) {{
+            revision = 4;
+            packet = {{ ...packet, voice_discovery: {{ status: 'draft' }} }};
+            return {{ ok: false, status: 409, json: async () => ({{ detail: {{ current: 4 }} }}) }};
+          }}
+          assert.equal(body.expected_revision, 4);
+          packet = body.packet;
+          revision = 5;
+          return {{ ok: true, json: async () => ({{ ok: true, session: {{
+            workspace_id: 'example-business', revision, status: 'in_progress',
+            packet, updated_at: '2026-10-18T00:01:00Z',
+          }} }}) }};
+        }};
+        require({module_path.as_posix()!r});
+        setTimeout(async () => {{
+          global.AionDevelopmentBusinessSession.persistFoundationPacket({{
+            foundation_draft: {{ business_name: 'Latest Founder Answer' }},
+          }});
+          await new Promise((resolve) => setTimeout(resolve, 40));
+          assert.equal(putCount, 2);
+          assert.equal(packet.foundation_draft.business_name, 'Latest Founder Answer');
+          assert.equal(packet.business_context_draft.legal_name, 'Example Ltd');
+          assert.equal(packet.voice_discovery.status, 'draft');
+          assert.equal(global.AionDevelopmentBusinessSession.getMotherSyncState().revision, 5);
+          console.log('foundation conflict retried without data loss');
+        }}, 20);
+        """
+    )
+    result = subprocess.run(
+        ["node", "-e", script], cwd=repository_root,
+        text=True, capture_output=True, check=True,
+    )
+    assert "foundation conflict retried without data loss" in result.stdout
+
+
+def test_clean_desktop_does_not_read_or_write_a_placeholder_business():
+    repository_root = Path(__file__).resolve().parents[3]
+    module_path = repository_root / "desktop/mac/src/aion_development_business_session.js"
+    script = textwrap.dedent(
+        f"""
+        const assert = require('assert');
+        const store = new Map();
+        global.localStorage = {{
+          getItem: (key) => store.has(key) ? store.get(key) : null,
+          setItem: (key, value) => store.set(key, String(value)),
+          removeItem: (key) => store.delete(key),
+          key: (index) => Array.from(store.keys())[index] || null,
+          get length() {{ return store.size; }},
+        }};
+        global.sessionStorage = {{ clear() {{}} }};
+        global.state = {{ workspaceId: 'business-not-registered', apiBase: 'http://127.0.0.1:8080' }};
+        global.location = {{ reload() {{}} }};
+        const calls = [];
+        global.fetch = async (...args) => {{ calls.push(args); throw new Error('unexpected_network_call'); }};
+        require({module_path.as_posix()!r});
+        const packet = {{ foundation_draft: {{ founder_name: 'Alex Tester' }} }};
+        global.AionDevelopmentBusinessSession.persistFoundationPacket(packet);
+        setTimeout(() => {{
+          assert.equal(calls.length, 0);
+          assert.equal(global.AionDevelopmentBusinessSession.getFoundationPacket(), packet);
+          assert.equal(global.AionDevelopmentBusinessSession.getMotherSyncState().status, 'awaiting_business_registration');
+          console.log('unregistered desktop kept memory-only');
+        }}, 20);
+        """
+    )
+    result = subprocess.run(
+        ["node", "-e", script], cwd=repository_root,
+        text=True, capture_output=True, check=True,
+    )
+    assert "unregistered desktop kept memory-only" in result.stdout
+
+
+def test_desktop_rehydrates_foundation_after_async_business_identity_restore():
+    repository_root = Path(__file__).resolve().parents[3]
+    module_path = repository_root / "desktop/mac/src/aion_development_business_session.js"
+    script = textwrap.dedent(
+        f"""
+        const assert = require('assert');
+        const store = new Map();
+        const listeners = new Map();
+        global.localStorage = {{
+          getItem: (key) => store.has(key) ? store.get(key) : null,
+          setItem: (key, value) => store.set(key, String(value)),
+          removeItem: (key) => store.delete(key),
+          key: (index) => Array.from(store.keys())[index] || null,
+          get length() {{ return store.size; }},
+        }};
+        global.sessionStorage = {{ clear() {{}} }};
+        global.state = {{ workspaceId: 'business-not-registered', apiBase: 'http://127.0.0.1:8080' }};
+        global.location = {{ reload() {{}} }};
+        global.addEventListener = (name, callback) => listeners.set(name, callback);
+        const calls = [];
+        global.fetch = async (url, options = {{}}) => {{
+          calls.push({{ url, options }});
+          return {{ ok: true, json: async () => ({{ ok: true, session: {{
+            workspace_id: 'restored-business', revision: 8, status: 'completed_pending_commit',
+            packet: {{ foundation_draft: {{ business_name: 'Restored Business Ltd' }} }},
+            updated_at: '2026-10-18T01:00:00Z',
+          }} }}) }};
+        }};
+        require({module_path.as_posix()!r});
+        assert.equal(calls.length, 0);
+        global.state.workspaceId = 'restored-business';
+        listeners.get('aion:business-identity-established')();
+        setTimeout(() => {{
+          assert.equal(calls.length, 1);
+          assert.equal(global.AionDevelopmentBusinessSession.getMotherSyncState().revision, 8);
+          assert.equal(global.AionDevelopmentBusinessSession.getMotherSyncState().workspace_id, 'restored-business');
+          assert.equal(global.AionDevelopmentBusinessSession.getFoundationPacket().foundation_draft.business_name, 'Restored Business Ltd');
+          console.log('async business identity restored foundation authority');
+        }}, 20);
+        """
+    )
+    result = subprocess.run(
+        ["node", "-e", script], cwd=repository_root,
+        text=True, capture_output=True, check=True,
+    )
+    assert "async business identity restored foundation authority" in result.stdout

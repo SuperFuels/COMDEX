@@ -57,7 +57,7 @@ class CreativePublicationService:
         )
         if provider == "google_ads": required_account_kind = "customer"
         if provider == "youtube": required_account_kind = "channel"
-        if provider == "linkedin": required_account_kind = "member"
+        if provider == "linkedin": required_account_kind = "organization"
         if provider == "tiktok": required_account_kind = "creator"
         if not selected.get(required_account_kind): missing.append(f"{required_account_kind}_selection")
         if tier_order.get(status["permission_tier"], 0) < tier_order[required_tier]: missing.append(f"{required_tier}_permission")

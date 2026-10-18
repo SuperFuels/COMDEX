@@ -441,6 +441,10 @@ def test_customer_relationship_core_is_compact_expandable_and_pilot_native():
     assert "Relationship status" in sales
     assert "Responsible person" in sales
     assert "Preferred contact" in sales
+    assert "Customer name" in sales
+    assert "Phone / mobile" in sales
+    assert "Service / job address" in sales
+    assert "contact_name: value.contact_name" in sales
     assert "Next action" in sales
     assert "Saved natively for Pilot, Sales, Support, Operations, Finance and Communications." in sales
     assert "relationship: row.relationship || {}" in sales

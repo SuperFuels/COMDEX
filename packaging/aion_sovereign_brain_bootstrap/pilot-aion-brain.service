@@ -9,14 +9,16 @@ Group=tessaris
 Environment=TESSARIS_PILOT_BRAIN_ROOT=/var/lib/tessaris/pilot-brain
 Environment=PYTHONDONTWRITEBYTECODE=1
 WorkingDirectory=/opt/tessaris/aion
-ExecStart=/opt/tessaris/aion/runtime/bin/python -m backend.modules.aion_business.runtime.sovereign_installed_service --root /var/lib/tessaris/pilot-brain --port 8776
+ExecStart=/opt/tessaris/aion/runtime/bin/python -m backend.modules.aion_business.runtime.sovereign_installed_service --root /var/lib/tessaris/pilot-brain --port 0 --port-file /run/tessaris-pilot-brain/health-endpoint.json
 Restart=on-failure
 RestartSec=10
+RuntimeDirectory=tessaris-pilot-brain
+RuntimeDirectoryMode=0700
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/tessaris/pilot-brain
+ReadWritePaths=/var/lib/tessaris/pilot-brain /run/tessaris-pilot-brain
 
 [Install]
 WantedBy=multi-user.target

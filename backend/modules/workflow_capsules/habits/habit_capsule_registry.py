@@ -85,10 +85,14 @@ class HabitCapsuleRegistry:
         self,
         *,
         repository: Optional[HabitCapsuleRepository] = None,
-        registry_path: Path | str = ".runtime/workflow_capsules/habits/habit_capsule_registry.json",
+        registry_path: Path | str | None = None,
     ) -> None:
         self.repository = repository or HabitCapsuleRepository()
-        self.registry_path = Path(registry_path)
+        self.registry_path = Path(
+            registry_path
+            or ".runtime/workflow_capsules/habits/habit_capsule_registry.json"
+        )
+        self.memory_only = self.repository.vault is not None and registry_path is None
         self.entries: Dict[str, HabitCapsuleRegistryEntry] = {}
 
     def build_from_repository(self) -> Dict[str, Any]:
@@ -112,6 +116,13 @@ class HabitCapsuleRegistry:
         }
 
     def save(self) -> Dict[str, Any]:
+        if self.memory_only:
+            return {
+                "ok": True,
+                "path": "memory://habit-capsule-derived-registry",
+                "count": len(self.entries),
+                "derived_registry_persisted": False,
+            }
         self.registry_path.parent.mkdir(parents=True, exist_ok=True)
         payload = {
             "schema_version": REGISTRY_SCHEMA_VERSION,
@@ -127,6 +138,7 @@ class HabitCapsuleRegistry:
             "ok": True,
             "path": str(self.registry_path),
             "count": len(self.entries),
+            "derived_registry_persisted": True,
         }
 
     def rebuild_and_save(self) -> Dict[str, Any]:
@@ -139,6 +151,14 @@ class HabitCapsuleRegistry:
         }
 
     def load(self) -> Dict[str, Any]:
+        if self.memory_only:
+            result = self.build_from_repository()
+            return {
+                "ok": bool(result.get("ok")),
+                "path": "memory://habit-capsule-derived-registry",
+                "count": len(self.entries),
+                "derived_registry_persisted": False,
+            }
         if not self.registry_path.exists():
             return {"ok": False, "error": "registry_not_found", "path": str(self.registry_path)}
 

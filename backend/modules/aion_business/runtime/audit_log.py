@@ -17,6 +17,9 @@ from backend.modules.aion_business.providers.contracts import (
     ProviderResult,
 )
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.department_operational_store import (
+    DepartmentOperationalStore,
+)
 
 
 def utc_now_iso() -> str:
@@ -34,8 +37,12 @@ class AuditLog:
     - memory_access
     """
 
-    def __init__(self) -> None:
-        AIONBusinessPaths.ensure_base_dirs()
+    def __init__(
+        self, *, operational_store: DepartmentOperationalStore | None = None,
+    ) -> None:
+        self.operational_store = operational_store or DepartmentOperationalStore()
+        if self.operational_store.domain_store is None:
+            AIONBusinessPaths.ensure_base_dirs()
 
     def _audit_dir(self, workspace_id: str) -> Path:
         path = AIONBusinessPaths.ROOT / "audit" / workspace_id
@@ -49,28 +56,43 @@ class AuditLog:
         with path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
+    def _append_record(
+        self, *, workspace_id: str, stream: str, record_id: str, payload: Dict[str, Any],
+    ) -> None:
+        if self.operational_store.domain_store is None:
+            self._append_jsonl(self._audit_file(workspace_id, stream), payload)
+            return
+        self.operational_store.append_audit(
+            workspace_id=workspace_id,
+            department_id="business_operations",
+            feature_id=f"runtime_audit/{stream}",
+            event_id=record_id,
+            payload=payload,
+            actor_id="aion-business-audit-runtime",
+        )
+
     def append_event(self, event: AuditEvent) -> None:
-        self._append_jsonl(
-            self._audit_file(event.workspace_id, "events"),
-            event.model_dump(mode="json"),
+        self._append_record(
+            workspace_id=event.workspace_id, stream="events", record_id=event.id,
+            payload=event.model_dump(mode="json"),
         )
 
     def append_trace(self, event: TraceEvent) -> None:
-        self._append_jsonl(
-            self._audit_file(event.workspace_id, "trace"),
-            event.model_dump(mode="json"),
+        self._append_record(
+            workspace_id=event.workspace_id, stream="trace", record_id=event.id,
+            payload=event.model_dump(mode="json"),
         )
 
     def append_provider_call(self, event: ProviderCallEvent) -> None:
-        self._append_jsonl(
-            self._audit_file(event.workspace_id, "provider_calls"),
-            event.model_dump(mode="json"),
+        self._append_record(
+            workspace_id=event.workspace_id, stream="provider_calls", record_id=event.id,
+            payload=event.model_dump(mode="json"),
         )
 
     def append_memory_access(self, event: MemoryAccessEvent) -> None:
-        self._append_jsonl(
-            self._audit_file(event.workspace_id, "memory_access"),
-            event.model_dump(mode="json"),
+        self._append_record(
+            workspace_id=event.workspace_id, stream="memory_access", record_id=event.id,
+            payload=event.model_dump(mode="json"),
         )
 
     def log_event(
@@ -296,6 +318,15 @@ class AuditLog:
         workspace_id: str,
         stream: str,
     ) -> List[Dict[str, Any]]:
+        if self.operational_store.domain_store is not None:
+            return [
+                dict(row["payload"])
+                for row in self.operational_store.list_audit(
+                    workspace_id=workspace_id,
+                    department_id="business_operations",
+                    feature_id=f"runtime_audit/{stream}",
+                )
+            ]
         path = self._audit_file(workspace_id, stream)
         if not path.exists():
             return []

@@ -1,4 +1,5 @@
 import json
+import gzip
 import subprocess
 import sys
 import time
@@ -95,6 +96,69 @@ def test_source_disjoint_assessment_does_not_impersonate_transfer(tmp_path: Path
     assert system.assess(sid)["transfer_cases"] == 0
     _record(system, sid, "transfer", [skill], 903, source_disjoint=True)
     assert system.assess(sid)["transfer_cases"] == 1
+
+
+def test_verified_evidence_only_closes_the_matching_requirement(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    sid = "python_core"
+    skills = system.state["subjects"][sid]["subskills"]
+    system.state["contracts"].extend([
+        {
+            "contract_id": "needs-project", "subject_id": sid, "status": "open",
+            "requirement": {"kind": "project", "subskills": [skills[0]]},
+        },
+        {
+            "contract_id": "needs-exercise", "subject_id": sid, "status": "open",
+            "requirement": {"kind": "exercise", "subskills": [skills[1]]},
+        },
+    ])
+    _record(system, sid, "exercise", [skills[1]], 904)
+    contracts = {row["contract_id"]: row for row in system.state["contracts"]}
+    assert contracts["needs-project"]["status"] == "open"
+    assert contracts["needs-exercise"]["status"] == "satisfied"
+
+
+def test_terminal_history_compaction_preserves_open_and_audit_records(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    system.state["contracts"] = [
+        {"contract_id": f"closed-{index}", "status": "satisfied"}
+        for index in range(5)
+    ] + [{"contract_id": "open-work", "status": "open"}]
+    system.state["blockers"] = [
+        {"blocker_id": f"resolved-{index}", "status": "resolved"}
+        for index in range(4)
+    ] + [{
+        "blocker_id": "open-blocker", "status": "open",
+        "contract_id": "closed-0",
+    }]
+    result = system.compact_terminal_history(retained_contracts=1, retained_blockers=1)
+    assert result["status"] == "terminal_history_archived"
+    assert {row["contract_id"] for row in system.state["contracts"]} == {
+        "closed-0", "closed-4", "open-work",
+    }
+    assert {row["blocker_id"] for row in system.state["blockers"]} == {
+        "resolved-3", "open-blocker",
+    }
+    archive = Path(result["archive_path"])
+    with gzip.open(archive, "rt", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    assert len(payload["contracts"]) == 3
+    assert len(payload["blockers"]) == 3
+
+
+def test_terminal_history_compaction_deduplicates_identical_open_requirements(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    requirement = {"kind": "exercise", "subskills": ["syntax"]}
+    system.state["contracts"] = [
+        {
+            "contract_id": f"duplicate-{index}", "subject_id": "english",
+            "target_level": "advanced", "status": "open", "requirement": requirement,
+        }
+        for index in range(4)
+    ]
+    result = system.compact_terminal_history(retained_contracts=10, retained_blockers=10)
+    assert result["deduplicated_open_contracts"] == 3
+    assert sum(row["status"] == "open" for row in system.state["contracts"]) == 1
 
 
 def test_replayed_named_family_is_retained_but_scored_once(tmp_path: Path):
@@ -615,6 +679,36 @@ def test_exhausted_diverse_project_portfolio_is_parked_without_false_progress(
     )
     next_cycle = system.step()["cycle"]["action"]
     assert next_cycle.get("subject_id") != "python_core"
+
+
+def test_busy_learning_store_keeps_contract_open_for_retry(tmp_path: Path, monkeypatch):
+    system = _empty_repo(tmp_path)
+    system.set_active_subject("python_core")
+    system.step()
+    evidence_before = len(system.evidence_for("python_core"))
+    monkeypatch.setitem(RUNNERS, "python_core", lambda contract, evidence: {
+        "status": "learning_store_busy", "passed": False, "retryable": True,
+        "reason": "Shared learning store is busy.",
+    })
+    executor = ProgressiveCompetencyExecutor(
+        system=system, state_path=tmp_path / "executor.json",
+        result_dir=tmp_path / "results/progressive_competency",
+    )
+
+    outcome = executor.step()
+
+    assert outcome["status"] == "learning_store_busy"
+    assert outcome["progressed"] is False
+    assert len(system.evidence_for("python_core")) == evidence_before
+    contract = next(
+        row for row in system.state["contracts"]
+        if row["contract_id"] == outcome["contract_id"]
+    )
+    assert contract["status"] == "open"
+    assert not any(
+        row.get("contract_id") == contract["contract_id"] and row.get("status") == "open"
+        for row in system.state["blockers"]
+    )
 
 
 def test_project_blocker_does_not_block_a_different_requirement_kind(tmp_path: Path):

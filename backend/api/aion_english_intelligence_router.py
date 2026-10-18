@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+import json
 import os
 from pathlib import Path
 import threading
@@ -12,6 +13,10 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from backend.modules.aion_cognition.native_english_conversation import NativeEnglishConversation
+from backend.modules.aion_cognition.native_discourse_dialogue import NativeDiscourseDialogueEngine
+from backend.modules.aion_cognition.native_communication_academy import NativeCommunicationAcademy
+from backend.modules.aion_cognition.native_conversation_runtime import NativeConversationRuntime
+from backend.modules.aion_cognition.native_open_conversation_academy import NativeOpenConversationAcademy
 from backend.modules.aion_cognition.native_english_games import FAMILIES, NativeEnglishGames
 from backend.modules.aion_cognition.native_english_transfer import NativeEnglishTransfer
 from backend.modules.aion_cognition.native_english_coverage import NativeEnglishCoverage
@@ -25,15 +30,183 @@ from backend.modules.aion_cognition.native_reading_academy import NativeReadingA
 
 router = APIRouter(prefix="/api/aion/english-intelligence", tags=["AION English Intelligence"])
 
-_PROGRESS_CACHE_SECONDS = 12.0
+# A complete evidence refresh deliberately reads several independently governed
+# ledgers on the SD card.  It currently takes about a minute, so refreshing it
+# every browser poll only creates a permanent scan queue and unnecessary memory
+# pressure.  The UI may poll frequently, but one coherent snapshot is reused for
+# two minutes while at most one background refresh is in flight.
+_PROGRESS_CACHE_SECONDS = 120.0
+_PROGRESS_STALE_SECONDS = 300.0
 _progress_cache: dict = {}
 _progress_cache_epoch = 0.0
 _progress_lock = threading.Lock()
+_progress_refresh_started_epoch = 0.0
+_progress_refresh_error = ""
+
+
+def _progress_snapshot_path() -> Path:
+    return _repo_root() / "data/aion/native_english_teacher/progress_snapshot.json"
+
+
+def _warming_progress() -> dict:
+    now = time.time()
+    return {
+        "schema_version": "aion.native_english_progress.v2",
+        "generated_epoch": now,
+        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
+        "health": "degraded", "learning_active": True,
+        "blockers": ["progress_snapshot_warming"],
+        "stage": {"current_number": 0, "total": 0, "title": "Loading evidence",
+                  "curriculum_complete": False, "progress": 0,
+                  "consecutive_passes": 0, "required_consecutive_passes": 2},
+        "memory": {}, "teacher": {}, "storage": {}, "learning_centre": {},
+        "curriculum": [], "recent_cycles": [],
+        "conversation": {}, "games": {}, "transfer": {}, "coverage": {},
+        "semantic_spider": {}, "semantic_transfer_academy": {},
+        "practice_gym": {}, "language_workshop": {}, "reading_academy": {},
+        "discourse_dialogue": {}, "communication_academy": {},
+        "native_conversation_runtime": {}, "open_conversation_academy": {},
+        "claim_boundary": "Refreshing Aion's sealed English evidence snapshot.",
+    }
+
+
+def _load_progress_snapshot() -> dict:
+    try:
+        payload = json.loads(_progress_snapshot_path().read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _build_progress_payload() -> dict:
+    global _progress_cache, _progress_cache_epoch
+    # Each ledger is independent. One brief SD-card lock collision must not
+    # discard an otherwise coherent refresh or leave the whole dashboard stale.
+    # Preserve only the affected section and retry it at the next refresh.
+    previous = _progress_cache or _load_progress_snapshot()
+    errors: dict[str, str] = {}
+    try:
+        payload = collect_native_english_progress(_repo_root())
+    except Exception as exc:
+        payload = dict(previous) if previous else _warming_progress()
+        errors["core"] = f"{type(exc).__name__}:{exc}"
+    components = {
+        "conversation": lambda: _conversation().metrics(),
+        "games": lambda: _games().metrics(),
+        "transfer": lambda: _transfer().metrics(),
+        "coverage": lambda: _coverage().metrics(),
+        "semantic_spider": lambda: _semantic_spider().status(),
+        "semantic_transfer_academy": lambda: _semantic_academy().metrics(),
+        "practice_gym": lambda: _practice_gym().metrics(),
+        "language_workshop": lambda: _language_workshop().metrics(),
+        "reading_academy": lambda: _reading_academy().metrics(),
+        "discourse_dialogue": lambda: _discourse_dialogue().metrics(),
+        "communication_academy": lambda: _communication_academy().metrics(),
+        "native_conversation_runtime": lambda: _native_conversation_runtime().metrics(),
+        "open_conversation_academy": lambda: _open_conversation_academy().metrics(),
+    }
+    # Publish the fresh core immediately. Some historical component summaries
+    # scan large SD-card tables and can legitimately take longer than a UI
+    # refresh. The old implementation withheld *all* new evidence until the
+    # slowest component finished, making a healthy dashboard appear many hours
+    # stale and encouraging duplicate refresh scans from open tabs.
+    for name in components:
+        payload.setdefault(name, dict(previous.get(name) or {}))
+    payload["snapshot_component_errors"] = {
+        name: "refresh_pending" for name in components
+    }
+    _progress_cache = dict(payload)
+    _progress_cache_epoch = time.monotonic()
+    completed: set[str] = set()
+    for name, load in components.items():
+        try:
+            payload[name] = load()
+        except Exception as exc:
+            payload[name] = dict(previous.get(name) or {})
+            errors[name] = f"{type(exc).__name__}:{exc}"
+        completed.add(name)
+        # Make each completed section visible without waiting for every other
+        # independent ledger. A shallow top-level copy is sufficient because
+        # component payloads are replaced atomically.
+        pending = {
+            item: "refresh_pending" for item in components
+            if item not in errors and item not in completed
+        }
+        payload["snapshot_component_errors"] = {**errors, **pending}
+        _progress_cache = dict(payload)
+        _progress_cache_epoch = time.monotonic()
+    payload["snapshot_component_errors"] = errors
+    if errors:
+        payload["blockers"] = list(dict.fromkeys([
+            *(payload.get("blockers") or []),
+            *(f"progress_section_retry:{name}" for name in errors),
+        ]))
+    return payload
+
+
+def _refresh_progress_worker() -> None:
+    global _progress_cache, _progress_cache_epoch, _progress_refresh_started_epoch
+    global _progress_refresh_error
+    try:
+        payload = _build_progress_payload()
+        _progress_cache = payload
+        _progress_cache_epoch = time.monotonic()
+        _progress_refresh_error = ""
+        path = _progress_snapshot_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+        temporary.replace(path)
+    except Exception as exc:
+        # Preserve the last coherent snapshot, but make its staleness explicit
+        # instead of presenting an old timestamp as live system health.
+        _progress_refresh_error = f"{type(exc).__name__}:{exc}"
+    finally:
+        _progress_refresh_started_epoch = 0.0
+        _progress_lock.release()
+
+
+def _start_progress_refresh() -> None:
+    global _progress_refresh_started_epoch
+    if not _progress_lock.acquire(blocking=False):
+        return
+    _progress_refresh_started_epoch = time.time()
+    threading.Thread(
+        target=_refresh_progress_worker, name="aion-english-progress-refresh", daemon=True,
+    ).start()
 
 
 class NativeQuestion(BaseModel):
     question: str = Field(min_length=1, max_length=4000)
     session_id: str = Field(default="panel", min_length=1, max_length=120)
+
+
+class DiscourseQuestion(BaseModel):
+    question: str = Field(min_length=1, max_length=4000)
+    passage: str = Field(default="", max_length=50_000)
+    session_id: str = Field(default="discourse-panel", min_length=1, max_length=120)
+    source_id: str = Field(default="owner-dialogue", max_length=300)
+    source_family: str = Field(default="owner", max_length=120)
+
+
+class DiscourseCorrectionRequest(BaseModel):
+    verified_answer: str = Field(min_length=1, max_length=4000)
+    explanation: str = Field(min_length=1, max_length=4000)
+    source_ref: str = Field(default="owner-verified", max_length=2000)
+
+
+class NativeConversationRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=4000)
+    context: str = Field(default="", max_length=50_000)
+    session_id: str = Field(default="native-conversation-panel", min_length=1, max_length=120)
+    source_id: str = Field(default="owner-conversation", max_length=300)
+    source_family: str = Field(default="owner", max_length=120)
+
+
+class NativeConversationCorrectionRequest(BaseModel):
+    corrected_fact: str = Field(min_length=1, max_length=4000)
+    explanation: str = Field(min_length=1, max_length=4000)
+    source_ref: str = Field(default="owner-verified", max_length=2000)
 
 
 class NewGameRequest(BaseModel):
@@ -95,6 +268,26 @@ def _conversation() -> NativeEnglishConversation:
 
 
 @lru_cache(maxsize=1)
+def _discourse_dialogue() -> NativeDiscourseDialogueEngine:
+    return NativeDiscourseDialogueEngine(repo_root=_repo_root())
+
+
+@lru_cache(maxsize=1)
+def _communication_academy() -> NativeCommunicationAcademy:
+    return NativeCommunicationAcademy(repo_root=_repo_root())
+
+
+@lru_cache(maxsize=1)
+def _native_conversation_runtime() -> NativeConversationRuntime:
+    return NativeConversationRuntime(repo_root=_repo_root())
+
+
+@lru_cache(maxsize=1)
+def _open_conversation_academy() -> NativeOpenConversationAcademy:
+    return NativeOpenConversationAcademy(repo_root=_repo_root())
+
+
+@lru_cache(maxsize=1)
 def _games() -> NativeEnglishGames:
     return NativeEnglishGames(repo_root=_repo_root())
 
@@ -139,32 +332,27 @@ def progress() -> dict:
     global _progress_cache, _progress_cache_epoch
     now = time.monotonic()
     if _progress_cache and now - _progress_cache_epoch < _PROGRESS_CACHE_SECONDS:
-        return _progress_cache
-    # Multiple panel tabs must not pile identical SD-card scans on top of the
-    # teacher and spider writers.  A concurrent caller receives the last
-    # coherent snapshot while one request refreshes it.
-    if not _progress_lock.acquire(blocking=False):
-        if _progress_cache:
-            return _progress_cache
-        _progress_lock.acquire()
-        _progress_lock.release()
-        return _progress_cache
-    try:
-        payload = collect_native_english_progress(_repo_root())
-        payload["conversation"] = _conversation().metrics()
-        payload["games"] = _games().metrics()
-        payload["transfer"] = _transfer().metrics()
-        payload["coverage"] = _coverage().metrics()
-        payload["semantic_spider"] = _semantic_spider().status()
-        payload["semantic_transfer_academy"] = _semantic_academy().metrics()
-        payload["practice_gym"] = _practice_gym().metrics()
-        payload["language_workshop"] = _language_workshop().metrics()
-        payload["reading_academy"] = _reading_academy().metrics()
-        _progress_cache = payload
-        _progress_cache_epoch = time.monotonic()
+        payload = dict(_progress_cache)
+        payload["snapshot"] = {"stale": False, "age_seconds": 0.0, "refresh_error": ""}
         return payload
-    finally:
-        _progress_lock.release()
+    # Never make the panel wait for several SD-card evidence scans. Return the
+    # last coherent snapshot immediately and refresh it on one background
+    # thread. This also prevents multiple open tabs from multiplying work.
+    if not _progress_cache:
+        _progress_cache = _load_progress_snapshot() or _warming_progress()
+    _start_progress_refresh()
+    payload = dict(_progress_cache)
+    generated = float(payload.get("generated_epoch") or 0.0)
+    age = max(0.0, time.time() - generated) if generated else None
+    payload["snapshot"] = {
+        "stale": bool(age is None or age > _PROGRESS_STALE_SECONDS),
+        "age_seconds": round(age, 1) if age is not None else None,
+        "refresh_running_seconds": round(
+            max(0.0, time.time() - _progress_refresh_started_epoch), 1
+        ) if _progress_refresh_started_epoch else 0.0,
+        "refresh_error": _progress_refresh_error,
+    }
+    return payload
 
 
 @router.post("/conversation/ask")
@@ -185,6 +373,60 @@ def correct_native_english(turn_id: str, payload: ConversationCorrectionRequest)
         turn_id=turn_id, proposed_answer=payload.proposed_answer,
         reason=payload.reason, source_ref=payload.source_ref,
     )
+
+
+@router.post("/discourse/ask")
+def ask_native_discourse(payload: DiscourseQuestion) -> dict:
+    return _discourse_dialogue().ask(
+        payload.question, passage=payload.passage, session_id=payload.session_id,
+        source_id=payload.source_id, source_family=payload.source_family,
+    )
+
+
+@router.post("/discourse/{turn_id}/correction")
+def correct_native_discourse(turn_id: str, payload: DiscourseCorrectionRequest) -> dict:
+    return _discourse_dialogue().correct(
+        turn_id=turn_id, verified_answer=payload.verified_answer,
+        explanation=payload.explanation, source_ref=payload.source_ref,
+    )
+
+
+@router.post("/discourse/exam/run")
+def run_native_discourse_exam() -> dict:
+    return _discourse_dialogue().run_cycle(limit=4)
+
+
+@router.post("/communication-academy/run")
+def run_native_communication_academy() -> dict:
+    return _communication_academy().run_cycle(limit=1)
+
+
+@router.post("/native-conversation/respond")
+def respond_native_conversation(payload: NativeConversationRequest) -> dict:
+    return _native_conversation_runtime().respond(
+        payload.message, context=payload.context, session_id=payload.session_id,
+        source_id=payload.source_id, source_family=payload.source_family,
+    )
+
+
+@router.get("/native-conversation/{session_id}/state")
+def native_conversation_state(session_id: str) -> dict:
+    return _native_conversation_runtime().session_state(session_id)
+
+
+@router.post("/native-conversation/{turn_id}/correction")
+def correct_native_conversation(
+    turn_id: str, payload: NativeConversationCorrectionRequest,
+) -> dict:
+    return _native_conversation_runtime().correct(
+        turn_id=turn_id, corrected_fact=payload.corrected_fact,
+        explanation=payload.explanation, source_ref=payload.source_ref,
+    )
+
+
+@router.post("/open-conversation-academy/run")
+def run_native_open_conversation_academy() -> dict:
+    return _open_conversation_academy().run_cycle(limit=1)
 
 
 @router.get("/games/families")
@@ -316,12 +558,15 @@ _PANEL_HTML = r"""<!doctype html>
 <section class="section card"><h2>Unseen Transfer Lab</h2><div class="detail">Create material Aion has never seen. Its answer comes from lexical memory and a native semantic parse—not a sentence template. The expected answer remains sealed until after Aion responds.</div><div class="transfer-grid"><select id="transferKind"><option value="sentence_qa">Question about a sentence</option><option value="word_order">Order my words</option></select><textarea id="transferMaterial" placeholder="Before lunch, Xanthe calculated the report in the garden."></textarea><input id="transferQuestion" placeholder="Where did the action happen?"><input id="transferExpected" placeholder="Expected answer for independent grading (optional)"><input id="transferReason" placeholder="Why that answer is correct (optional)"><button id="runTransfer" class="primary">Test Aion on unseen material</button></div><div id="transferResult" class="transfer-result muted">No owner-created transfer test has run yet.</div><div id="transferStats" class="proof">Transfer results are kept separate from guided practice.</div></section>
 <section class="section card"><h2>Guided English practice — scaffolded</h2><div class="detail">These generated games are useful practice, but use known sentence families and must not be treated as general-English transfer evidence. You can solve one yourself or let Aion practise it.</div><div class="game-controls"><select id="gameFamily"><option value="mixed">Mixed games</option><option value="sentence_unscramble">Jumbled sentence</option><option value="missing_word">Missing word</option><option value="tense_transform">Change tense</option><option value="negation_transform">Make negative</option><option value="sentence_comprehension">Understand sentence</option><option value="grammar_repair">Repair grammar</option></select><select id="gameDifficulty"><option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option></select><button id="newGame" class="primary">New guided game</button></div><div id="gamePrompt" class="game-prompt muted">Choose a guided game and difficulty.</div><div id="gameChoices" class="choices"></div><input id="gameAnswer" class="game-input" style="display:none;width:100%" placeholder="Type the completed sentence"><div class="game-actions"><button id="humanAnswer" class="primary" disabled>Check my answer</button><button id="aionAnswer" disabled>Let Aion practise</button><button id="clearTokens" style="display:none">Clear order</button></div><div id="gameResult" class="game-result"></div><div id="gameStats" class="proof">No guided games played yet.</div></section>
 <section class="section card"><h2>Speak with native Aion</h2><div class="detail" style="margin-bottom:11px">Answers use only concepts Aion has acquired and retained. Dictionary-only material is labelled as reference material. Qwen, cloud models and token prediction are disconnected.</div><div class="ask-row"><input id="nativeQuestion" placeholder="Try: What does calm mean?" maxlength="4000"><button id="askNative">Ask Aion</button></div><div id="nativeAnswer" class="native-answer muted">Aion is ready for a native-English question.</div><div id="nativeProof" class="proof"></div><div id="correctionBox" style="display:none;margin-top:12px"><div class="detail">If Aion is wrong, provide the correction and why. It will be learned only if independent evidence verifies it.</div><div class="ask-row" style="margin-top:8px"><input id="correctedAnswer" placeholder="Correct answer"><input id="correctionReason" placeholder="Why is this correct?"><button id="correctAion">Teach correction</button></div><div id="correctionResult" class="proof"></div></div></section>
+<section class="section card"><h2>Native Discourse &amp; Dialogue Lab</h2><div class="detail">Give Aion a connected passage once, then question it across multiple turns. Aion builds persistent entities, events, time, negation, causes and references; every answer exposes its evidence and response plan. Definition drills are excluded from these results.</div><div class="transfer-grid"><label class="label" for="discoursePassage">Situation or passage</label><textarea id="discoursePassage" placeholder="Leona inspected the damaged sensor. She replaced the cable because the warning light had failed."></textarea><label class="label" for="discourseQuestion">Question</label><input id="discourseQuestion" placeholder="Why did Leona replace the cable?"><span></span><button id="askDiscourse">Reason from the passage</button></div><div id="discourseAnswer" class="native-answer muted">No connected-language dialogue has started.</div><div id="discourseProof" class="proof"></div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Situation models</div><strong id="discourseModels">—</strong></div><div class="coverage-stat"><div class="label">Dialogue turns</div><strong id="discourseTurns">—</strong></div><div class="coverage-stat"><div class="label">Sealed exams</div><strong id="discourseExams">—</strong></div><div class="coverage-stat"><div class="label">Unfamiliar accuracy</div><strong id="discourseAccuracy">—</strong></div></div><div id="discourseBoundary" class="coverage-note">Waiting for source-labelled discourse evidence.</div></section>
+<section class="section card"><h2>Native Communication Academy</h2><div class="detail">Aion advances from a supported one-sentence answer to connected explanations, paragraphs, passage discussions and five- then ten-turn conversations. Every answer is produced from Aion's situation model with Qwen disconnected. Graduation requires complete conversations from different sources plus delayed closed-book retests.</div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Current communication stage</div><strong id="communicationStage">—</strong></div><div class="coverage-stat"><div class="label">Academy sessions</div><strong id="communicationSessions">—</strong></div><div class="coverage-stat"><div class="label">Native dialogue turns</div><strong id="communicationTurns">—</strong></div><div class="coverage-stat"><div class="label">Turn accuracy</div><strong id="communicationAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Delayed retests due</div><strong id="communicationDue">—</strong></div><div class="coverage-stat"><div class="label">Retests cleared</div><strong id="communicationCleared">—</strong></div></div><button id="runCommunicationAcademy">Run one communication session</button><div id="communicationBoundary" class="coverage-note">Waiting for the first evidence-backed communication session.</div></section>
+<section class="section card"><h2>Native Conversation Runtime</h2><div class="detail">Talk directly to Aion's persistent situation model. It interprets open questions, resolves references, retrieves its own evidence, plans propositions and produces a checked grammatical response. Ambiguity and missing evidence cause clarification or an honest “I do not know”; Qwen never participates in the answer.</div><div class="transfer-grid"><label class="label" for="runtimeContext">Optional opening context</label><textarea id="runtimeContext" placeholder="Leona inspected the damaged sensor. She replaced its cable because the warning light had failed."></textarea><label class="label" for="runtimeMessage">Your message</label><input id="runtimeMessage" placeholder="Why did Leona replace the cable?"><span></span><button id="askRuntime">Talk to native Aion</button></div><div id="runtimeAnswer" class="native-answer muted">No persistent native conversation has started.</div><div id="runtimeProof" class="proof"></div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Runtime sessions</div><strong id="runtimeSessions">—</strong></div><div class="coverage-stat"><div class="label">Conversation turns</div><strong id="runtimeTurns">—</strong></div><div class="coverage-stat"><div class="label">Evidence-supported</div><strong id="runtimeSupported">—</strong></div><div class="coverage-stat"><div class="label">Unsupported claims</div><strong id="runtimeUnsupported">—</strong></div><div class="coverage-stat"><div class="label">Clarifications</div><strong id="runtimeClarifications">—</strong></div><div class="coverage-stat"><div class="label">Corrections retained</div><strong id="runtimeCorrections">—</strong></div></div><div class="coverage-summary"><div class="coverage-stat"><div class="label">20-turn exams passed</div><strong id="openExamPasses">—</strong></div><div class="coverage-stat"><div class="label">Independent accuracy</div><strong id="openExamAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Evidence-backed turns</div><strong id="openExamEvidence">—</strong></div><div class="coverage-stat"><div class="label">Delayed retention</div><strong id="openExamRetention">—</strong></div></div><button id="runOpenConversationAcademy">Run independent 20-turn examination</button><div id="openConversationBoundary" class="coverage-note">The first source-disjoint 20-turn examination has not run yet.</div></section>
 <section class="section card"><h2>English Coverage Ledger</h2><div class="detail">A capability map based on sealed regression tests. It shows exactly what was tested and passed; it does not infer understanding from the size of the dictionary.</div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Reference senses</div><strong id="coverageSenses">—</strong></div><div class="coverage-stat"><div class="label">Distinct lemmas</div><strong id="coverageLemmas">—</strong></div><div class="coverage-stat"><div class="label">Multi-role words</div><strong id="coverageMultiPos">—</strong></div><div class="coverage-stat"><div class="label">Stored word forms</div><strong id="coverageMorphology">—</strong></div></div><div style="overflow:auto"><table class="cycles"><thead><tr><th>Capability family</th><th>Tested</th><th>Passed</th><th>Accuracy</th><th>Confidence</th></tr></thead><tbody id="coverageRows"><tr><td colspan="5" class="muted">No coverage run recorded.</td></tr></tbody></table></div><div id="coverageBoundary" class="coverage-note">These are regression results, not a claim of general English mastery.</div></section>
 <section class="section card"><h2>Aion Semantic Spider</h2><div class="detail">A capped local crawler moves through dictionary definitions and thesaurus relationships word by word. Wikipedia context is limited and cached. Reading never counts as learning: every eight-word page must pass an exact page-specific, model-free Word Wall examination before it can close.</div><div class="spider-controls"><input id="spiderSeed" value="language" placeholder="Seed word"><button id="startSpider" class="primary">Start crawling</button><button id="pauseSpider">Pause</button><button id="stepSpider">Single step</button></div><div class="spider-metrics"><div class="spider-metric"><span class="label">Certified pages</span><strong id="spiderPages">0</strong></div><div class="spider-metric"><span class="label">Words read</span><strong id="spiderWords">0</strong></div><div class="spider-metric"><span class="label">Discovered</span><strong id="spiderDiscoveries">0</strong></div><div class="spider-metric"><span class="label">Frontier</span><strong id="spiderFrontier">0</strong></div><div class="spider-metric"><span class="label">Certified tests</span><strong id="spiderTests">0</strong></div><div class="spider-metric"><span class="label">Accuracy</span><strong id="spiderAccuracy">—</strong></div></div><div id="spiderBoard" class="spider-board"><svg id="spiderLines" class="web-lines" viewBox="0 0 100 100" preserveAspectRatio="none"></svg><div id="spiderNodes"></div><svg id="semanticSpider" class="semantic-spider" viewBox="0 0 130 110" style="left:50%;top:50%" aria-label="Aion semantic spider"><defs><radialGradient id="spiderBodyGlow"><stop offset="0" stop-color="#235675"/><stop offset="1" stop-color="#08131d"/></radialGradient></defs><g id="spiderLegs"><path id="leg0" class="leg"/><path id="leg1" class="leg"/><path id="leg2" class="leg"/><path id="leg3" class="leg"/><path id="leg4" class="leg"/><path id="leg5" class="leg"/><path id="leg6" class="leg"/><path id="leg7" class="leg"/><circle id="joint0" class="joint" r="2.4"/><circle id="joint1" class="joint" r="2.4"/><circle id="joint2" class="joint" r="2.4"/><circle id="joint3" class="joint" r="2.4"/><circle id="joint4" class="joint" r="2.4"/><circle id="joint5" class="joint" r="2.4"/><circle id="joint6" class="joint" r="2.4"/><circle id="joint7" class="joint" r="2.4"/><circle id="foot0" class="foot" r="1.6"/><circle id="foot1" class="foot" r="1.6"/><circle id="foot2" class="foot" r="1.6"/><circle id="foot3" class="foot" r="1.6"/><circle id="foot4" class="foot" r="1.6"/><circle id="foot5" class="foot" r="1.6"/><circle id="foot6" class="foot" r="1.6"/><circle id="foot7" class="foot" r="1.6"/></g><g id="spiderBody"><ellipse class="abdomen" cx="65" cy="67" rx="18" ry="25"/><ellipse class="shell" cx="65" cy="54" rx="16" ry="18"/><circle class="head" cx="65" cy="35" r="13"/><circle class="eye" cx="60" cy="31" r="2.4"/><circle class="eye" cx="70" cy="31" r="2.4"/><path class="fang" d="M59 43 Q61 48 64 44 M71 43 Q69 48 66 44"/></g></svg></div><div id="spiderSources" class="spider-source"></div><div id="spiderPagesList" class="spider-pages"></div><div id="spiderStatus" class="proof">The crawler is ready.</div></section>
-<section class="section card"><h2>Native Reading Academy</h2><div class="detail">Aion automatically discovers online books, downloads each source into temporary storage, extracts it, and deletes the original file immediately. It rapidly reads every sentence, retains compact meaning and provenance, and selects novel, ambiguous and representative material for deeper closed-book examination. Exposure is never counted as mastery.</div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Books and documents</div><strong id="readingSources">—</strong></div><div class="coverage-stat"><div class="label">Online books imported</div><strong id="readingOnline">—</strong></div><div class="coverage-stat"><div class="label">Temporary files retained</div><strong id="readingRawCache">—</strong></div><div class="coverage-stat"><div class="label">Text compacted</div><strong id="readingCompacted">—</strong></div><div class="coverage-stat"><div class="label">Sentences read</div><strong id="readingProgress">—</strong></div><div class="coverage-stat"><div class="label">Rapid exposure</div><strong id="readingExposure">—</strong></div><div class="coverage-stat"><div class="label">Latest speed</div><strong id="readingSpeed">—</strong></div><div class="coverage-stat"><div class="label">Comprehension</div><strong id="readingAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Words experienced</div><strong id="readingWords">—</strong></div><div class="coverage-stat"><div class="label">Sourced claims</div><strong id="readingClaims">—</strong></div><div class="coverage-stat"><div class="label">Corrections due</div><strong id="readingCorrections">—</strong></div><div class="coverage-stat"><div class="label">Retention due</div><strong id="readingRetention">—</strong></div><div class="coverage-stat"><div class="label">Reading cycles</div><strong id="readingCycles">—</strong></div><div class="coverage-stat"><div class="label">PDFs accepted</div><strong id="readingPdfs">—</strong></div><div class="coverage-stat"><div class="label">Imports quarantined</div><strong id="readingQuarantined">—</strong></div></div><div class="transfer-grid"><input id="readingTitle" placeholder="Book or document title"><input id="readingAuthor" placeholder="Author"><input id="readingSubject" placeholder="Subject, for example science"><textarea id="readingText" placeholder="Paste text here, or place EPUB, PDF, TXT or Markdown books in a watched reading-library folder."></textarea><button id="ingestReading">Add to reading library</button><button id="runReading" class="primary">Run a high-speed reading batch</button></div><div id="readingResult" class="coverage-note">The online reader automatically maintains the queue; local reading-library folders remain available for your own material.</div><div id="readingSourceList" class="proof"></div></section>
+<section class="section card"><h2>Native Reading Academy</h2><div class="detail">The semantic spider discovers words and relations. Reading has a different job: Aion must recognise acquired concepts inside authentic sentences and passages, answer sealed meaning-in-context questions, learn from verified corrections and then survive source-disjoint transfer. Exposure is never counted as mastery.</div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Books and documents</div><strong id="readingSources">—</strong></div><div class="coverage-stat"><div class="label">Online books imported</div><strong id="readingOnline">—</strong></div><div class="coverage-stat"><div class="label">Temporary files retained</div><strong id="readingRawCache">—</strong></div><div class="coverage-stat"><div class="label">Text compacted</div><strong id="readingCompacted">—</strong></div><div class="coverage-stat"><div class="label">Sentences read</div><strong id="readingProgress">—</strong></div><div class="coverage-stat"><div class="label">Rapid exposure</div><strong id="readingExposure">—</strong></div><div class="coverage-stat"><div class="label">Latest speed</div><strong id="readingSpeed">—</strong></div><div class="coverage-stat"><div class="label">Comprehension</div><strong id="readingAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Verified context</div><strong id="readingContextAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Concepts used in context</div><strong id="readingContextConcepts">—</strong></div><div class="coverage-stat"><div class="label">Words experienced</div><strong id="readingWords">—</strong></div><div class="coverage-stat"><div class="label">Sourced claims</div><strong id="readingClaims">—</strong></div><div class="coverage-stat"><div class="label">Corrections due</div><strong id="readingCorrections">—</strong></div><div class="coverage-stat"><div class="label">Retention due</div><strong id="readingRetention">—</strong></div><div class="coverage-stat"><div class="label">Reading cycles</div><strong id="readingCycles">—</strong></div><div class="coverage-stat"><div class="label">PDFs accepted</div><strong id="readingPdfs">—</strong></div><div class="coverage-stat"><div class="label">Imports quarantined</div><strong id="readingQuarantined">—</strong></div></div><div class="transfer-grid"><input id="readingTitle" placeholder="Book or document title"><input id="readingAuthor" placeholder="Author"><input id="readingSubject" placeholder="Subject, for example science"><textarea id="readingText" placeholder="Paste text here, or place EPUB, PDF, TXT or Markdown books in a watched reading-library folder."></textarea><button id="ingestReading">Add to reading library</button><button id="runReading" class="primary">Run a high-speed reading batch</button></div><div id="readingResult" class="coverage-note">The online reader automatically maintains the queue; local reading-library folders remain available for your own material.</div><div id="readingSourceList" class="proof"></div></section>
 <section class="section card"><h2>English Practice Gym</h2><div class="detail">Wordwall-style activities now train acquired meanings, context choice, native sentence production, transformation, reading, controlled writing and conversation. Practice is concentrated into concept cohorts; only concepts that pass the complete preparation package are released to unfamiliar transfer exams. Every wrong answer receives a verified explanation and a delayed, different retest.</div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Attempts last hour</div><strong id="gymRecent">—</strong></div><div class="coverage-stat"><div class="label">Recent accuracy</div><strong id="gymAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Transfer ready</div><strong id="gymReady">—</strong></div><div class="coverage-stat"><div class="label">Nearly ready</div><strong id="gymNearly">—</strong></div><div class="coverage-stat"><div class="label">Corrections due</div><strong id="gymDue">—</strong></div><div class="coverage-stat"><div class="label">Retests cleared</div><strong id="gymCleared">—</strong></div><div class="coverage-stat"><div class="label">Learning rewards</div><strong id="gymRewards">—</strong></div><div class="coverage-stat"><div class="label">Practice cycles</div><strong id="gymCycles">—</strong></div></div><div id="gymFamilies" class="coverage-note">Waiting for the first governed practice cycle.</div></section>
 <section class="section card"><h2>Native Language Workshop</h2><div class="detail">Connected-language training combines clause and inference comprehension, native sentence production, paraphrasing, multi-turn dialogue and delayed vocabulary retention. Qwen may author sealed lessons, but it disconnects before Aion plans, parses or answers. Workshop results guide correction and retesting but do not grant mastery.</div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Attempts last hour</div><strong id="workshopRecent">—</strong></div><div class="coverage-stat"><div class="label">Recent accuracy</div><strong id="workshopAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Correction retries due</div><strong id="workshopDue">—</strong></div><div class="coverage-stat"><div class="label">Retries cleared</div><strong id="workshopCleared">—</strong></div><div class="coverage-stat"><div class="label">Workshop cycles</div><strong id="workshopCycles">—</strong></div></div><div id="workshopFamilies" class="coverage-note">Waiting for the first connected-language workshop cycle.</div></section>
-<section class="section card"><h2>Semantic Transfer Academy</h2><div class="detail">The academy concentrates unfamiliar transfer into a focused 32-concept cohort. The system fixes a guaranteed parseable semantic frame and answer role first; local Qwen varies only safe names, objects and settings. Aion then answers with Qwen disconnected.</div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Eligible concepts</div><strong id="academyEligible">—</strong></div><div class="coverage-stat"><div class="label">Focused cohort</div><strong id="academyCohort">—</strong></div><div class="coverage-stat"><div class="label">Near productive</div><strong id="academyNearProductive">—</strong></div><div class="coverage-stat"><div class="label">Contract-built exams</div><strong id="academyCompiledTransfers">—</strong></div><div class="coverage-stat"><div class="label">Attempts last hour</div><strong id="academyRecent">—</strong></div><div class="coverage-stat"><div class="label">Recalled use</div><strong id="academyRecalled">—</strong></div><div class="coverage-stat"><div class="label">Contextual use</div><strong id="academyContextual">—</strong></div><div class="coverage-stat"><div class="label">Productive use</div><strong id="academyProductive">—</strong></div><div class="coverage-stat"><div class="label">Recent free transfer</div><strong id="academyFreeAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Current remedies</div><strong id="academyRemedies">—</strong></div><div class="coverage-stat"><div class="label">Cooling down</div><strong id="academyCooling">—</strong></div></div><div id="academyStatus" class="coverage-note">Waiting for the first automated semantic-transfer cycle.</div></section>
+<section class="section card"><h2>Semantic Transfer Academy</h2><div class="detail">The academy concentrates unfamiliar transfer into a focused 96-concept cohort. The system fixes a guaranteed parseable semantic frame and answer role first; local Qwen varies only safe names, objects and settings. Aion then answers with Qwen disconnected.</div><div class="coverage-summary"><div class="coverage-stat"><div class="label">Eligible concepts</div><strong id="academyEligible">—</strong></div><div class="coverage-stat"><div class="label">Focused cohort</div><strong id="academyCohort">—</strong></div><div class="coverage-stat"><div class="label">Near productive</div><strong id="academyNearProductive">—</strong></div><div class="coverage-stat"><div class="label">Contract-built exams</div><strong id="academyCompiledTransfers">—</strong></div><div class="coverage-stat"><div class="label">Attempts last hour</div><strong id="academyRecent">—</strong></div><div class="coverage-stat"><div class="label">Recalled use</div><strong id="academyRecalled">—</strong></div><div class="coverage-stat"><div class="label">Reached contextual use</div><strong id="academyContextual">—</strong></div><div class="coverage-stat"><div class="label">Productive use</div><strong id="academyProductive">—</strong></div><div class="coverage-stat"><div class="label">Recent free transfer</div><strong id="academyFreeAccuracy">—</strong></div><div class="coverage-stat"><div class="label">Current remedies</div><strong id="academyRemedies">—</strong></div><div class="coverage-stat"><div class="label">Cooling down</div><strong id="academyCooling">—</strong></div></div><div id="academyStatus" class="coverage-note">Waiting for the first automated semantic-transfer cycle.</div></section>
 <section class="section"><h2>Foundation archive and advanced curriculum</h2><p class="muted">Completed foundations remain visible as certificates. Advanced promotion requires fresh, mostly unrepeated, free-response transfer.</p><div id="stages" class="stages"></div></section>
 <section class="section card"><h2>Recent closed-book cycles</h2><div style="overflow:auto"><table class="cycles"><thead><tr><th>Layer</th><th>Result</th><th>Score</th><th>Qwen in exam</th><th>Promotion</th></tr></thead><tbody id="cycles"></tbody></table></div></section>
 <div class="footer"><span id="claim">Stored words are not general English mastery.</span><span id="updated">—</span></div>
@@ -337,8 +582,8 @@ const easeStep=p=>p*p*(3-2*p);
 function animateSpiderRig(t){const spider=$('semanticSpider'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,walking=!reduced&&t<spiderMotion.moveUntil;if(spider)spider.classList.toggle('walking',walking);spiderLegSpec.forEach((spec,i)=>{const[side,hx,hy,bx,by]=spec,group=(i+(i>3?1:0))%2,phase=((t/520)+(group*.5))%1,stepping=walking&&phase<.46,p=stepping?easeStep(phase/.46):0,planted=(phase-.46)/.54;let stride=0,lift=0;if(walking){stride=stepping?-9+(18*p):9-(18*Math.max(0,planted));lift=stepping?Math.sin(Math.PI*p)*8:0}const fx=bx+side*lift*.24,fy=by+stride,kx=(hx+fx)/2+side*(11+lift*.35),ky=(hy+fy)/2-lift*.72,leg=$(`leg${i}`),joint=$(`joint${i}`),foot=$(`foot${i}`);if(leg)leg.setAttribute('d',`M${hx} ${hy} L${kx.toFixed(2)} ${ky.toFixed(2)} L${fx.toFixed(2)} ${fy.toFixed(2)}`);if(joint){joint.setAttribute('cx',kx);joint.setAttribute('cy',ky)}if(foot){foot.setAttribute('cx',fx);foot.setAttribute('cy',fy);foot.setAttribute('r',stepping?'2.25':'1.6')}});const body=$('spiderBody');if(body)body.setAttribute('transform',`translate(0 ${(walking?Math.sin(t/65)*1.8:Math.sin(t/700)*.45).toFixed(2)})`);requestAnimationFrame(animateSpiderRig)}
 requestAnimationFrame(animateSpiderRig);
 function renderSpider(s){spiderRunning=!!s.running;$('spiderPages').textContent=num(s.pages_completed);$('spiderWords').textContent=num(s.words_read);$('spiderDiscoveries').textContent=num(s.discoveries);$('spiderFrontier').textContent=`${num(s.frontier_queued)} / ${num(s.caps?.max_frontier)}`;$('spiderTests').textContent=`${num(s.tests_correct)} / ${num(s.tests_attempted)}`;$('spiderAccuracy').textContent=pct(s.test_accuracy);const page=(s.pages||[])[0]||{},words=page.words||[],discoveries=page.discoveries||[],arrived=!!s.current_word&&s.current_word!==lastSpiderWord;const labels=[];for(const word of words)if(!labels.includes(word.lemma))labels.push(word.lemma);for(const item of discoveries)if(labels.length<16&&!labels.includes(item.lemma))labels.push(item.lemma);if(!labels.length&&s.seed)labels.push(s.seed);const positions=labels.map((_,i)=>{const angle=-Math.PI/2+(Math.PI*2*i/Math.max(1,labels.length));const ring=i%3===0?29:38;return{x:50+Math.cos(angle)*ring,y:49+Math.sin(angle)*ring}});$('spiderNodes').innerHTML=labels.map((label,i)=>`<div class="word-node ${label===s.current_word?`current ${arrived?'stepped':''}`:words.some(w=>w.lemma===label)?'read':''}" style="left:${positions[i].x}%;top:${positions[i].y}%" title="${esc(label)}">${esc(label)}</div>`).join('');$('spiderLines').innerHTML=positions.map((p,i)=>i?`<line x1="${positions[0].x}" y1="${positions[0].y}" x2="${p.x}" y2="${p.y}"/>`:'').join('');const current=Math.max(0,labels.indexOf(s.current_word)),pos=positions[current]||{x:50,y:50},spider=$('semanticSpider'),dx=pos.x-spiderMotion.x,dy=pos.y-spiderMotion.y;if(Math.hypot(dx,dy)>.5){spiderMotion.angle=Math.atan2(dy,dx)*180/Math.PI+90;spider.style.setProperty('--heading',`${spiderMotion.angle}deg`)}spider.style.left=`${pos.x}%`;spider.style.top=`${pos.y}%`;spiderMotion.x=pos.x;spiderMotion.y=pos.y;if(arrived){spiderMotion.moveUntil=performance.now()+1380;lastSpiderWord=s.current_word}const assets=s.sources?.assets||[];$('spiderSources').innerHTML=`<span class="source-chip ${assets.length?'live':''}">Local Dictionary ${assets.length?'connected':'unavailable'}</span><span class="source-chip live">Local thesaurus graph</span><span class="source-chip ${s.sources?.wikipedia_mode==='network_cached'?'live':''}">Wikipedia ${esc(String(s.sources?.wikipedia_mode||'disabled').replaceAll('_',' '))}</span><span class="source-chip live">Exact page exams</span><span class="source-chip">Single SD writer</span>`;$('spiderPagesList').innerHTML=(s.pages||[]).map(p=>{const t=p.test||{},coverage=`${num(t.coverage_count)}/${num(t.coverage_total||s.caps?.words_per_page)}`;return`<div class="spider-page"><b>Page ${num(p.page_number)}</b><div>${esc(p.seed)}</div><div class="${p.status==='tested'?'ok':'muted'}">${esc(String(p.status).replaceAll('_',' '))} · ${num((p.words||[]).length)}/${num(s.caps?.words_per_page)}</div>${p.status==='tested'?`<div>${coverage} page words tested · ${num(t.correct)}/${num(t.attempted)} correct</div>`:p.status==='legacy_uncertified'?`<div>${coverage} historical page coverage · excluded from certified totals</div>`:''}</div>`}).join('');$('spiderStatus').textContent=`${s.running?'Crawling':'Paused'} · current word: ${s.current_word||'—'} · a page cannot close until all its own words are examined · no model grades tests`;}
-function render(d){const h=$('health');h.className=`health ${d.health}`;h.innerHTML=`<span class="dot"></span>${esc(d.learning_active?'Learning normally':d.health==='offline'?'Offline':'Needs attention')}`;
- const alert=$('alert');if(d.blockers?.length){alert.className='alert show';alert.innerHTML=`<b>Learning blocker:</b> ${d.blockers.map(esc).join(' · ')}`}else alert.className='alert';
+function render(d){const h=$('health'),stale=!!d.snapshot?.stale;h.className=`health ${stale?'degraded':d.health}`;h.innerHTML=`<span class="dot"></span>${esc(stale?'Refreshing live evidence':d.learning_active?'Learning normally':d.health==='offline'?'Offline':'Needs attention')}`;
+ const alert=$('alert'),issues=[...(d.blockers||[])];if(stale)issues.unshift(`dashboard snapshot is ${age(d.snapshot?.age_seconds)} old${d.snapshot?.refresh_error?` · ${d.snapshot.refresh_error}`:''}`);if(issues.length){alert.className='alert show';alert.innerHTML=`<b>${stale?'Evidence status':'Learning blocker'}:</b> ${issues.map(esc).join(' · ')}`}else alert.className='alert';
  $('stage').textContent=d.stage.curriculum_complete?`Complete · ${d.stage.current_number} of ${d.stage.total}`:`${d.stage.current_number} of ${d.stage.total} · ${d.stage.title}`;$('stageFill').style.width=`${d.stage.progress*100}%`;$('stageDetail').textContent=d.stage.curriculum_complete?'All native layers passed; continued cycles now provide retention evidence.':`${d.stage.consecutive_passes}/${d.stage.required_consecutive_passes} consecutive passes toward the next layer`;
  $('accuracy').textContent=pct(d.memory.practice_accuracy);$('attempts').textContent=`${num(d.memory.practice_attempts)} closed-book attempts · model disconnected`;
  $('cycleAge').textContent=age(d.teacher.last_success_age_seconds);$('teacher').textContent=`${d.teacher.cycles} completed cycles · ${d.teacher.model||'teacher unavailable'}`;
@@ -347,9 +592,12 @@ function render(d){const h=$('health');h.className=`health ${d.health}`;h.innerH
  $('competency').textContent=String(d.learning_centre.overall_level||'unassessed').replaceAll('_',' ');$('competencyDetail').textContent=`${num(d.learning_centre.evidence_records)} distinct evidence records · ${num(d.learning_centre.raw_evidence_records)} raw receipts`;
  if(d.games)$('gameStats').textContent=`${num(d.games.attempts)} attempts · ${pct(d.games.accuracy)} accuracy · ${num(d.games.verified_corrections)} verified corrections · ${num(d.games.remediation_rules_due)} remedial rules due`;
  if(d.transfer)$('transferStats').textContent=`${num(d.transfer.first_seen_challenges)} first-seen challenges · ${num(d.transfer.attempts)} attempts · ${pct(d.transfer.accuracy)} independently graded accuracy · ${pct(d.transfer.average_confidence)} average confidence · ${num(d.transfer.reinforcements)} reinforcements · ${num(d.transfer.remediation_due)} remedies due`;
- const reading=d.reading_academy||{},online=reading.online_reader||{};$('readingSources').textContent=`${num(reading.sources_completed)} / ${num(reading.sources)}`;$('readingOnline').textContent=num(online.sources_imported);$('readingRawCache').textContent=num(online.temporary_files_retained);$('readingCompacted').textContent=`${num(Math.round(Number(reading.sentence_characters_compacted||0)/1000))}k chars`;$('readingProgress').textContent=`${num(reading.sentences_processed)} / ${num(reading.sentences_available)}`;$('readingExposure').textContent=num(reading.sentences_exposure_only);$('readingSpeed').textContent=reading.latest_cycle_sentences_per_second==null?'—':`${Number(reading.latest_cycle_sentences_per_second).toFixed(1)}/sec`;$('readingAccuracy').textContent=pct(reading.recent_accuracy??reading.accuracy);$('readingWords').textContent=num(reading.distinct_words_experienced);$('readingClaims').textContent=num(reading.provenanced_claims);$('readingCorrections').textContent=`${num(reading.corrections_due_now)} now · ${num(reading.corrections_due)} scheduled`;$('readingRetention').textContent=`${num(reading.retention_due)} now · ${num(reading.retention_scheduled)} scheduled`;$('readingCycles').textContent=num(reading.cycles);$('readingPdfs').textContent=num(reading.pdfs_ready);$('readingQuarantined').textContent=num(reading.imports_quarantined);$('readingSourceList').textContent=(reading.source_list||[]).length?(reading.source_list||[]).map(s=>`${s.title} — ${num(s.next_sentence_index)}/${num(s.sentence_count)} sentences · ${String(s.format||'text').toUpperCase()} · extraction ${pct(s.extraction_quality)} · ${String(s.status).replaceAll('_',' ')}`).join(' · '):'No reading sources have been loaded yet.';
+ const reading=d.reading_academy||{},online=reading.online_reader||{};$('readingSources').textContent=`${num(reading.sources_completed)} / ${num(reading.sources)}`;$('readingOnline').textContent=num(online.sources_imported);$('readingRawCache').textContent=num(online.temporary_files_retained);$('readingCompacted').textContent=`${num(Math.round(Number(reading.sentence_characters_compacted||0)/1000))}k chars`;$('readingProgress').textContent=`${num(reading.sentences_processed)} / ${num(reading.sentences_available)}`;$('readingExposure').textContent=num(reading.sentences_exposure_only);$('readingSpeed').textContent=reading.latest_cycle_sentences_per_second==null?'—':`${Number(reading.latest_cycle_sentences_per_second).toFixed(1)}/sec`;$('readingAccuracy').textContent=pct(reading.recent_accuracy??reading.accuracy);$('readingContextAccuracy').textContent=reading.verified_context_attempts?`${pct(reading.verified_context_accuracy)} · ${num(reading.verified_context_attempts)} tests`:'Waiting for new contextual tests';$('readingContextConcepts').textContent=num(reading.concepts_verified_in_context);$('readingWords').textContent=num(reading.distinct_words_experienced);$('readingClaims').textContent=num(reading.provenanced_claims);$('readingCorrections').textContent=`${num(reading.corrections_due_now)} now · ${num(reading.corrections_due)} scheduled · ${num(reading.diagnostic_parked)} diagnostic`;$('readingRetention').textContent=`${num(reading.retention_due)} now · ${num(reading.retention_scheduled)} scheduled`;$('readingCycles').textContent=num(reading.cycles);$('readingPdfs').textContent=num(reading.pdfs_ready);$('readingQuarantined').textContent=num(reading.imports_quarantined);$('readingSourceList').textContent=(reading.source_list||[]).length?(reading.source_list||[]).map(s=>`${s.title} — ${num(s.next_sentence_index)}/${num(s.sentence_count)} sentences · ${String(s.format||'text').toUpperCase()} · extraction ${pct(s.extraction_quality)} · ${String(s.status).replaceAll('_',' ')}`).join(' · '):'No reading sources have been loaded yet.';
  const gym=d.practice_gym||{};$('gymRecent').textContent=num(gym.attempts_last_hour);$('gymAccuracy').textContent=pct(gym.recent_accuracy??gym.accuracy);$('gymReady').textContent=num(gym.transfer_ready_concepts);$('gymNearly').textContent=num(gym.nearly_transfer_ready_concepts);$('gymRewards').textContent=num(gym.rewards);$('gymDue').textContent=num(gym.corrections_due);$('gymCleared').textContent=num(gym.corrections_cleared);$('gymCycles').textContent=num(gym.cycles);const gymFamilies=Object.entries(gym.recent_families||gym.families||{});$('gymFamilies').textContent=gymFamilies.length?gymFamilies.map(([name,row])=>`${name.replaceAll('_',' ')}: ${num(row.correct)}/${num(row.attempts)} (${pct(row.accuracy)}) last hour`).join(' · '):'Waiting for the first governed practice cycle.';
  const workshop=d.language_workshop||{};$('workshopRecent').textContent=num(workshop.attempts_last_hour);$('workshopAccuracy').textContent=pct(workshop.recent_accuracy??workshop.accuracy);$('workshopDue').textContent=num(workshop.remediation_due);$('workshopCleared').textContent=num(workshop.remediation_cleared);$('workshopCycles').textContent=num(workshop.cycles);const workshopFamilies=Object.entries(workshop.recent_families||workshop.families||{});$('workshopFamilies').textContent=workshopFamilies.length?workshopFamilies.map(([name,row])=>`${name.replaceAll('_',' ')}: ${num(row.correct)}/${num(row.attempts)} (${pct(row.accuracy)}) last hour`).join(' · '):'Waiting for the first connected-language workshop cycle.';
+ const discourse=d.discourse_dialogue||{};$('discourseModels').textContent=num(discourse.situation_models);$('discourseTurns').textContent=num(discourse.dialogue_turns);$('discourseExams').textContent=`${num(discourse.correct)} / ${num(discourse.exams)}`;$('discourseAccuracy').textContent=pct(discourse.recent_accuracy??discourse.accuracy);$('discourseBoundary').textContent=discourse.claim_boundary||'Definition drills are excluded from discourse evidence.';
+ const communication=d.communication_academy||{},communicationStage=communication.current_stage||{};$('communicationStage').textContent=communicationStage.title||String(communicationStage.id||'Waiting').replaceAll('_',' ');$('communicationSessions').textContent=`${num(communication.sessions_passed)} / ${num(communication.sessions)}`;$('communicationTurns').textContent=num(communication.dialogue_turns);$('communicationAccuracy').textContent=pct(communication.recent_turn_accuracy??communication.turn_accuracy);$('communicationDue').textContent=`${num(communication.retests_due)} now · ${num(communication.retests_pending)} scheduled`;$('communicationCleared').textContent=num(communication.retests_cleared);$('communicationBoundary').textContent=communication.claim_boundary||'Graduation requires complete evidence-backed conversations from distinct passages.';
+ const runtime=d.native_conversation_runtime||{},openAcademy=d.open_conversation_academy||{};$('runtimeSessions').textContent=num(runtime.sessions);$('runtimeTurns').textContent=num(runtime.turns);$('runtimeSupported').textContent=`${num(runtime.evidence_supported_turns)} / ${num(runtime.answered)}`;$('runtimeUnsupported').textContent=num(runtime.unsupported_claims);$('runtimeClarifications').textContent=num(runtime.clarifications);$('runtimeCorrections').textContent=num(runtime.verified_corrections);$('openExamPasses').textContent=`${num(openAcademy.passed)} / ${num(openAcademy.exams)}`;$('openExamAccuracy').textContent=pct(openAcademy.accuracy);$('openExamEvidence').textContent=pct(openAcademy.evidence_supported_rate);$('openExamRetention').textContent=`${num(openAcademy.retests_cleared)} cleared · ${num(openAcademy.retests_pending)} scheduled`;$('openConversationBoundary').textContent=openAcademy.claim_boundary||'Independent exams require twenty model-free turns across several source families.';
  const academy=d.semantic_transfer_academy||{},pipeline=academy.focused_cohort_pipeline||{};$('academyEligible').textContent=num(academy.eligible_acquired_concepts);$('academyCohort').textContent=`${num(academy.focused_cohort_active)} active`;$('academyNearProductive').textContent=num(Number(pipeline.three_free_successes||0)+Number(pipeline.four_plus_needing_family_variety||0));$('academyCompiledTransfers').textContent=num(academy.compiled_transfer_contracts);$('academyRecent').textContent=num(academy.attempts_last_hour);$('academyRecalled').textContent=num(academy.recalled_use_concepts);$('academyContextual').textContent=num(academy.contextual_use_concepts);$('academyProductive').textContent=num(academy.productive_use_concepts);$('academyFreeAccuracy').textContent=pct(academy.recent_free_transfer_accuracy);$('academyRemedies').textContent=num(academy.remediation_due);$('academyCooling').textContent=num(academy.concepts_cooling_down);$('academyStatus').textContent=academy.cycles?`${num(academy.attempted)} sealed attempts total · ${num(academy.guided_foundations)} guided · ${num(academy.remedial_retries)} corrective retries · ${num(academy.free_transfer_attempts)} free transfers (${pct(academy.free_transfer_accuracy)} lifetime) · ${num(academy.focused_cohort_graduated)} cohort graduates · ${num(academy.remediation_verified)} remedies cleared · ${num(academy.rejected)} unsafe/invalid teacher drafts rejected · ${num(academy.teacher_slot_fallbacks)} slot fallbacks · student model always disconnected`:'Waiting for the next supervised learning-centre cycle.';
  const coverage=d.coverage||{};$('coverageSenses').textContent=num(coverage.lexical_senses);$('coverageLemmas').textContent=num(coverage.sense_lemmas);$('coverageMultiPos').textContent=num(coverage.multi_part_of_speech_lemmas);$('coverageMorphology').textContent=num(coverage.morphology_forms);const ledger=Object.entries(coverage.latest_categories||{});$('coverageRows').innerHTML=ledger.length?ledger.map(([name,row])=>`<tr><td>${esc(name.replaceAll('_',' '))}</td><td>${num(row.tested)}</td><td class="${row.passed===row.tested?'ok':'bad'}">${num(row.passed)}</td><td>${pct(row.accuracy)}</td><td>${pct(row.average_confidence)}</td></tr>`).join(''):`<tr><td colspan="5" class="muted">No coverage run recorded.</td></tr>`;$('coverageBoundary').textContent=coverage.claim_boundary||'Regression coverage is not general English mastery.';
  if(d.semantic_spider)renderSpider(d.semantic_spider);
@@ -360,9 +608,13 @@ async function spiderPost(action,body){const options={method:'POST',headers:{'Co
 async function spiderTick(){if(!spiderRunning||spiderBusy)return;spiderBusy=true;try{await spiderPost('step')}catch(e){$('spiderStatus').textContent=`Crawler paused: ${e.message}`;spiderRunning=false}finally{spiderBusy=false}}
 async function ingestReading(){const title=$('readingTitle').value.trim(),text=$('readingText').value.trim();if(!title||!text)return;$('readingResult').textContent='Adding the source and preserving its sentence order…';const r=await fetch('/api/aion/english-intelligence/reading-academy/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,text,author:$('readingAuthor').value.trim()||'Unknown',subject:$('readingSubject').value.trim()||'general',license:'owner-provided',source_ref:'English progress panel'})});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json();$('readingResult').textContent=`${d.title||title}: ${num(d.sentences??d.sentence_count)} sentences ${d.status==='already_ingested'?'were already in the library':'added to the reading queue'}.`;refresh()}
 async function runReading(){const out=$('readingResult');out.textContent='Aion is reading and answering with its native English system…';const r=await fetch('/api/aion/english-intelligence/reading-academy/run',{method:'POST'});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json();out.textContent=d.status==='library_complete'?'The current library is fully read; delayed retention checks will run when due.':`${num(d.sentences_read)} sentences read · ${num(d.exercises_correct)}/${num(d.exercises_attempted)} comprehension answers correct · ${num(d.new_concepts_encountered)} new concept encounters · ${num(d.claims_recorded)} sourced claims · no model used.`;refresh()}
+async function runCommunicationAcademy(){const out=$('communicationBoundary');out.textContent='Aion is completing a sealed native conversation…';const r=await fetch('/api/aion/english-intelligence/communication-academy/run',{method:'POST'});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json(),session=(d.results||[])[0];out.textContent=session?`${String(session.stage_id).replaceAll('_',' ')} · ${num(session.correct)}/${num(session.turns)} turns correct · ${num(session.evidence_supported)} evidence-backed · ${session.passed?'session passed':'corrections scheduled'} · student model disconnected`:`${String(d.status||'waiting').replaceAll('_',' ')}`;refresh()}
+let runtimeStarted=false;async function askRuntime(){const message=$('runtimeMessage').value.trim(),context=$('runtimeContext').value.trim();if(!message)return;const out=$('runtimeAnswer');out.className='native-answer muted';out.textContent='Aion is interpreting your intent, updating dialogue memory and checking evidence…';const r=await fetch('/api/aion/english-intelligence/native-conversation/respond',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,context:runtimeStarted?'':context,session_id:'owner-native-conversation',source_id:'owner-conversation',source_family:'owner'})});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json();if(context)runtimeStarted=true;out.className=`native-answer ${d.status==='answered'?'ok':'bad'}`;out.textContent=d.response;const frame=d.request_frame||{},checks=d.checks||{};$('runtimeProof').textContent=`${String(frame.intent||frame.requested_relation||'open request').replaceAll('_',' ')} · ${Math.round(Number(d.confidence||0)*100)}% confidence · ${(d.evidence||[]).length} evidence item${(d.evidence||[]).length===1?'':'s'} · ${checks.ambiguity_detected?'ambiguity detected':'reference state checked'} · ${checks.unsupported_claims?'unsupported answer withheld':'claims supported or clarification requested'} · native proposition/clause realiser · Qwen disconnected`;refresh()}
+async function runOpenConversationAcademy(){const out=$('openConversationBoundary');out.textContent='Aion is completing an independent source-disjoint 20-turn examination…';const r=await fetch('/api/aion/english-intelligence/open-conversation-academy/run',{method:'POST'});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json(),exam=(d.results||[])[0];out.textContent=exam?`${num(exam.correct)}/${num(exam.turns)} correct · ${num(exam.evidence_supported)}/${num(exam.turns)} evidence-backed · ${num(exam.unsupported_claims)} unsupported claims · ${num((exam.source_families||[]).length)} source families · ${exam.passed?'20-turn exam passed':'remedial retests scheduled'} · student model disconnected`:`${String(d.status||'waiting').replaceAll('_',' ')}`;refresh()}
 let refreshBusy=false;async function refresh(){if(refreshBusy)return;refreshBusy=true;try{const r=await fetch('/api/aion/english-intelligence/progress',{cache:'no-store'});if(!r.ok)throw Error(`HTTP ${r.status}`);render(await r.json())}catch(e){const h=$('health');h.className='health offline';h.innerHTML='<span class="dot"></span>Panel unavailable';const a=$('alert');a.className='alert show';a.textContent=e.message}finally{refreshBusy=false}}
 let currentTurnId='';async function askNative(){const q=$('nativeQuestion').value.trim();if(!q)return;$('nativeAnswer').className='native-answer muted';$('nativeAnswer').textContent='Aion is reasoning…';$('nativeProof').textContent='';$('correctionBox').style.display='none';try{const r=await fetch('/api/aion/english-intelligence/conversation/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,session_id:'english-progress-panel'})});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json();currentTurnId=d.turn_id;$('correctionBox').style.display='block';$('nativeAnswer').className=`native-answer ${d.status==='answered'?'ok':d.status==='reference_only'?'muted':'bad'}`;$('nativeAnswer').textContent=d.answer;const knowledge=d.knowledge_status==='acquired'?`Acquired concept · ${String(d.acquisition_stage||'').replaceAll('_',' ')}`:d.knowledge_status==='reference_only'?`Reference only · ${String(d.acquisition_stage||'not started').replaceAll('_',' ')}`:String(d.knowledge_status||d.status).replaceAll('_',' ');$('nativeProof').textContent=`${knowledge} · ${Math.round(Number(d.confidence||0)*100)}% confidence · ${d.evidence.length} evidence item${d.evidence.length===1?'':'s'} · Native Aion · no Qwen · no cloud · no token prediction`;}catch(e){$('nativeAnswer').className='native-answer bad';$('nativeAnswer').textContent=`Unable to ask Aion: ${e.message}`}}
 async function correctAion(){const proposed=$('correctedAnswer').value.trim();if(!currentTurnId||!proposed)return;const r=await fetch(`/api/aion/english-intelligence/conversation/${encodeURIComponent(currentTurnId)}/correction`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposed_answer:proposed,reason:$('correctionReason').value.trim(),source_ref:''})});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json();$('correctionResult').textContent=d.verified?`Verified correction accepted. ${d.remedial_action.replaceAll('_',' ')}. It must still pass closed-book practice.`:`Not learned automatically: ${d.verification_reason}`;refresh()}
+let discourseStarted=false;async function askDiscourse(){const question=$('discourseQuestion').value.trim(),passage=$('discoursePassage').value.trim();if(!question)return;const out=$('discourseAnswer');out.className='native-answer muted';out.textContent='Aion is updating its situation model and checking evidence…';const r=await fetch('/api/aion/english-intelligence/discourse/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,passage:discourseStarted?'':passage,session_id:'english-discourse-panel',source_id:'owner-dialogue',source_family:'owner'})});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json();if(passage)discourseStarted=true;out.className=`native-answer ${d.status==='answered'?'ok':'bad'}`;out.textContent=d.answer;$('discourseProof').textContent=`${String(d.intent).replaceAll('_',' ')} · ${Math.round(Number(d.confidence||0)*100)}% confidence · ${(d.evidence||[]).length} cited event${(d.evidence||[]).length===1?'':'s'} · plan: ${(d.reasoning_steps||[]).join(' → ')} · Qwen disconnected · no cloud/token prediction`;refresh()}
 async function runTransfer(){const kind=$('transferKind').value,material=$('transferMaterial').value.trim(),question=$('transferQuestion').value.trim(),expected_answer=$('transferExpected').value.trim(),answer_reason=$('transferReason').value.trim();if(!material)return;const out=$('transferResult');out.className='transfer-result muted';out.textContent='Aion is building a native parse…';const r=await fetch('/api/aion/english-intelligence/transfer/challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,material,question,expected_answer,answer_reason})});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json(),a=d.attempt,p=a.parse||{},f=p.frame||{},g=p.grounding||{},se=a.semantic_evidence||null;const verdict=a.correct===null?'Not independently graded':a.correct?'Correct':'Incorrect';const cells=Object.entries(f).map(([k,v])=>`<div class="parse-cell"><span>${esc(k)}</span>${esc(v??'—')}</div>`).join('');const clauses=(p.clauses||[]).map((c,i)=>`<div class="parse-cell"><span>${c.subordinate?'Subordinate clause':'Main clause'} ${i+1}</span>${esc((c.tokens||[]).join(' '))}<div class="proof">subject=${esc(c.subject||'—')} · action=${esc(c.action||'—')} · object=${esc(c.object||c.complement||'—')} · negated=${esc(c.negated)}</div></div>`).join('');const semanticProof=se?`<div class="proof ok">Acquired meaning proof · ${esc(se.target_lemma)} · ${esc(se.target_concept_id)} · stage ${esc(se.target_stage)} · bridge ${esc((se.semantic_bridge||[]).join(', '))} · target reference fallback: ${se.target_reference_fallback?'yes':'no'} · no model/cloud</div>`:'';out.className=`transfer-result ${a.correct===false?'bad':a.correct===true?'ok':''}`;out.innerHTML=`<span class="transfer-badge">${a.first_seen?'First seen':'Repeated material'}</span><span class="transfer-badge">${esc(verdict)}</span>${se?'<span class="transfer-badge">Acquired meaning used</span>':''}<h3>${esc(a.answer)}</h3><div>${esc(a.explanation)}</div><div class="parse-grid">${cells}</div>${clauses?`<div class="parse-grid">${clauses}</div>`:''}${semanticProof}<div class="proof">Confidence ${Math.round(Number(a.confidence||0)*100)}% · acquired ${num(g.acquired)} · reference ${num(g.reference)} · structural ${num(g.structural)} · unknown ${num(g.unknown)} · ambiguities ${(p.ambiguities||[]).map(esc).join(', ')||'none'} · no model/cloud</div>${a.correct===false?`<div class="answer-reveal">Sealed answer: ${esc(a.correct_answer)}</div>`:''}`;refresh()}
 let currentGame=null,selectedAnswer='',orderedTokens=[];
 function gameAnswerValue(){return currentGame?.response_mode==='token_order'?orderedTokens.join(' ').replace(/\s+([,.?!])/g,'$1'):$('gameAnswer').style.display==='none'?selectedAnswer:$('gameAnswer').value.trim()}
@@ -371,6 +623,10 @@ async function newGame(){const family=$('gameFamily').value,difficulty=Number($(
 async function submitGame(player){if(!currentGame)return;const answer=player==='aion'?'':gameAnswerValue();if(player==='human'&&!answer)return;const r=await fetch(`/api/aion/english-intelligence/games/${encodeURIComponent(currentGame.game_id)}/answer`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answer,player})});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=await r.json(),result=$('gameResult');[...$('gameChoices').children].forEach(x=>{if(String(x.textContent).trim()===String(d.correct_answer).trim())x.classList.add('correct-answer')});result.className=`game-result show ${d.correct?'correct':'wrong'}`;result.innerHTML=`<b>${d.correct?'Correct':'Not quite'}${player==='aion'?' — Aion answered':''}</b><div>Aion/player answer: ${esc(d.answer||'No answer')}</div>${d.correct?'':`<div class="answer-reveal">Correct answer: ${esc(d.correct_answer)}</div>`}<div class="why">Why: ${esc(d.explanation)}</div><div class="proof">${d.correction?'Verified correction stored and related retry scheduled.':'Result recorded.'} No model or cloud was used.</div>`;refresh()}
 $('newGame').addEventListener('click',()=>newGame().catch(e=>{$('gamePrompt').textContent=e.message}));$('humanAnswer').addEventListener('click',()=>submitGame('human'));$('aionAnswer').addEventListener('click',()=>submitGame('aion'));$('clearTokens').addEventListener('click',()=>{orderedTokens=[];$('gameAnswer').value='';[...$('gameChoices').children].forEach(x=>{x.disabled=false;x.classList.remove('selected')})});
 $('askNative').addEventListener('click',askNative);$('nativeQuestion').addEventListener('keydown',e=>{if(e.key==='Enter')askNative()});
+$('askDiscourse').addEventListener('click',()=>askDiscourse().catch(e=>{$('discourseAnswer').textContent=e.message}));$('discourseQuestion').addEventListener('keydown',e=>{if(e.key==='Enter')askDiscourse()});$('discoursePassage').addEventListener('input',()=>{discourseStarted=false});
+$('runCommunicationAcademy').addEventListener('click',()=>runCommunicationAcademy().catch(e=>{$('communicationBoundary').textContent=e.message}));
+$('askRuntime').addEventListener('click',()=>askRuntime().catch(e=>{$('runtimeAnswer').textContent=e.message}));$('runtimeMessage').addEventListener('keydown',e=>{if(e.key==='Enter')askRuntime()});$('runtimeContext').addEventListener('input',()=>{runtimeStarted=false});
+$('runOpenConversationAcademy').addEventListener('click',()=>runOpenConversationAcademy().catch(e=>{$('openConversationBoundary').textContent=e.message}));
 $('correctAion').addEventListener('click',()=>correctAion().catch(e=>{$('correctionResult').textContent=e.message}));
 $('runTransfer').addEventListener('click',()=>runTransfer().catch(e=>{$('transferResult').textContent=e.message}));
 $('ingestReading').addEventListener('click',()=>ingestReading().catch(e=>{$('readingResult').textContent=e.message}));$('runReading').addEventListener('click',()=>runReading().catch(e=>{$('readingResult').textContent=e.message}));

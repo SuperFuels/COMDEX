@@ -9,15 +9,42 @@ from typing import Any, Mapping
 
 from backend.modules.aion_fabric.canonical import canonical_bytes, canonical_hash, utc_now_iso
 from backend.modules.aion_fabric.identity import DeviceIdentity, IdentityStore
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 class AionFlowPolicyStore:
-    def __init__(self, root: str | Path = ".runtime/aion_flow/policies") -> None:
-        self.root = Path(root).resolve()
+    def __init__(
+        self,
+        root: str | Path | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
+        self.root = Path(root or ".runtime/aion_flow/policies").resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.identity = IdentityStore(self.root / "policy-identity").load_or_create()
+        self.domain_store = domain_store
+        if root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="aion-flow-policy-runtime",
+            )
 
     def effective(self, workspace_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="aion_flow/policy",
+            )
+            if record is None:
+                return self._write(self._default(workspace_id))
+            value = dict(record["payload"])
+            if not self._verify(value):
+                raise PermissionError("aion_flow_policy_signature_invalid")
+            return value
         path = self._path(workspace_id)
         if not path.exists():
             return self._write(self._default(workspace_id))
@@ -62,6 +89,19 @@ class AionFlowPolicyStore:
         unsigned["signer_public_key"] = self.identity.public_key_b64
         unsigned["policy_hash"] = canonical_hash(unsigned)
         signed = {**unsigned, "signature": self.identity.sign(canonical_bytes(unsigned))}
+        if self.domain_store is not None:
+            workspace_id = str(signed["workspace_id"])
+            current = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="aion_flow/policy",
+            )
+            self.domain_store.put(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="aion_flow/policy", payload=signed,
+                expected_version=int(current["version"]) if current else None,
+                actor_id="aion-flow-policy-runtime",
+            )
+            return signed
         path = self._path(str(signed["workspace_id"])); temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps(signed, indent=2, sort_keys=True), encoding="utf-8")
         os.chmod(temporary, 0o600); os.replace(temporary, path)

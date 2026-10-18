@@ -12,6 +12,12 @@ from typing import Any, Mapping
 from uuid import uuid4
 
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_data_domain_registry import (
+    BusinessDataDomainRegistryError,
+    department_vault_namespaces,
+)
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_business.providers.router import ProviderRouter
 
 
@@ -61,11 +67,20 @@ class ProjectManagementService:
         *,
         root: str | Path | None = None,
         provider_router: ProviderRouter | None = None,
+        domain_store: VaultDomainStore | None = None,
     ) -> None:
         self.repository = repository or BusinessContainerRepository(base_dir=root)
         self.provider_router = provider_router or ProviderRouter()
+        self.domain_store = domain_store
+        if repository is None and root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="project-management-runtime"
+            )
 
     def _path(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_project_management__") / workspace_id / "project_management.json"
         directory = Path(self.repository.base_dir) / workspace_id
         directory.mkdir(parents=True, exist_ok=True)
         return directory / "project_management.json"
@@ -80,11 +95,23 @@ class ProjectManagementService:
         }
 
     def load(self, workspace_id: str) -> dict[str, Any]:
-        path = self._path(workspace_id)
         state = self.empty()
-        if path.exists():
+        raw: Any = None
+        if self.domain_store is not None:
+            row = self.domain_store.get_optional(
+                "departments.operational_records", workspace_id=workspace_id,
+                entity_id="projects/project_management/portfolio",
+            )
+            raw = dict(row["payload"]) if row is not None else None
+        else:
+            path = self._path(workspace_id)
+            if path.exists():
+                try:
+                    raw = json.loads(path.read_text(encoding="utf-8"))
+                except (OSError, TypeError, ValueError):
+                    raw = None
+        if raw is not None:
             try:
-                raw = json.loads(path.read_text(encoding="utf-8"))
                 if isinstance(raw, Mapping):
                     state["revision"] = int(raw.get("revision") or 0)
                     state["updated_at"] = _text(raw.get("updated_at"), 80)
@@ -98,7 +125,7 @@ class ProjectManagementService:
                         for key, value in dict(raw.get("agent_drafts") or {}).items()
                         if isinstance(value, Mapping)
                     }
-            except (OSError, TypeError, ValueError):
+            except (TypeError, ValueError):
                 state = self.empty()
         state["summary"] = self._summary(state["projects"])
         return state
@@ -585,7 +612,13 @@ class ProjectManagementService:
     @staticmethod
     def _department(value: Any) -> str:
         department = _text(value, 40).casefold()
-        return department if department in DEPARTMENTS else ""
+        if not department:
+            return ""
+        try:
+            department_vault_namespaces(department)
+        except BusinessDataDomainRegistryError:
+            return ""
+        return department
 
     @staticmethod
     def _extract_department(text: str) -> str:
@@ -740,9 +773,22 @@ class ProjectManagementService:
                 if isinstance(value, Mapping)
             },
         }
-        path = self._path(workspace_id)
-        temporary = path.with_suffix(".tmp")
-        temporary.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-        temporary.replace(path)
+        if self.domain_store is not None:
+            entity_id = "projects/project_management/portfolio"
+            current = self.domain_store.get_optional(
+                "departments.operational_records", workspace_id=workspace_id,
+                entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "departments.operational_records", workspace_id=workspace_id,
+                entity_id=entity_id, payload=payload,
+                expected_version=int(current["version"]) if current else None,
+                actor_id=_text(actor_id, 160) or "project-management-runtime",
+            )
+        else:
+            path = self._path(workspace_id)
+            temporary = path.with_suffix(".tmp")
+            temporary.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+            temporary.replace(path)
         payload["summary"] = self._summary(projects)
         return payload

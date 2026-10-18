@@ -8,28 +8,26 @@ and issues auto-tuning advisories for underperforming modules.
 Output -> data/analysis/resonance_audit_report.json
 """
 
-import json
-import math
-from pathlib import Path
-from statistics import mean, fmean, pstdev
+from __future__ import annotations
 
-HEARTBEAT_DIR = Path("data/aion_field")
-DRIFT_LOG = Path("data/aion_field/resonant_drift_log.jsonl")
-OUT = Path("data/analysis/resonance_audit_report.json")
+from collections.abc import Mapping, Sequence
+from statistics import fmean
+from typing import Any
+
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+
+
+HEARTBEATS_ENTITY_ID = "resonance_heartbeat_snapshots"
+DRIFT_ENTITY_ID = "resonance_drift_history"
+AUDIT_ENTITY_ID = "resonance_audit_report"
+AUDIT_SCHEMA = "tessaris.resonance-audit-report.v1"
 
 def safe_mean(vals):
     vals = [v for v in vals if isinstance(v, (int, float))]
     return round(fmean(vals), 3) if vals else None
 
-def load_heartbeat(fpath):
-    try:
-        return json.loads(Path(fpath).read_text())
-    except Exception:
-        return {}
-
-def audit_engine(fpath):
-    js = load_heartbeat(fpath)
-    name = Path(fpath).stem.replace("_heartbeat_live", "")
+def audit_engine(js: Mapping[str, Any]):
+    name = str(js.get("namespace") or js.get("engine") or "unknown")
     rho = js.get("Φ_coherence")
     ent = js.get("Φ_entropy")
     sqi = js.get("sqi")
@@ -60,35 +58,49 @@ def audit_engine(fpath):
         "advisory": advisory,
     }
 
-def main():
-    hb_files = list(HEARTBEAT_DIR.glob("*heartbeat_live.json"))
-    if not hb_files:
-        print("No heartbeat logs found.")
-        return
+def run_resonance_audit(
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    workspace_id: str | None = None,
+    heartbeats: Sequence[Mapping[str, Any]] | None = None,
+    drift_rows: Sequence[Mapping[str, Any]] | None = None,
+) -> dict[str, Any] | None:
+    store = vault_store or AionLearningVaultStore(workspace_id=workspace_id)
+    if not store.enabled:
+        raise RuntimeError("resonance_audit_guardian_store_not_configured")
+    if heartbeats is None:
+        payload = store.get_state(HEARTBEATS_ENTITY_ID, {"snapshots": []})
+        heartbeat_values = payload.get("snapshots", []) if isinstance(payload, Mapping) else []
+    else:
+        heartbeat_values = heartbeats
+    if drift_rows is None:
+        payload = store.get_state(DRIFT_ENTITY_ID, {"events": []})
+        drift_values = payload.get("events", []) if isinstance(payload, Mapping) else []
+    else:
+        drift_values = drift_rows
+    heartbeat_values = [row for row in heartbeat_values if isinstance(row, Mapping)]
+    drift_values = [row for row in drift_values if isinstance(row, Mapping)]
+    if not heartbeat_values:
+        return None
 
-    audits = [audit_engine(f) for f in hb_files]
-    drift_rows = []
-    if DRIFT_LOG.exists():
-        with open(DRIFT_LOG, "r", encoding="utf-8") as f:
-            for line in f:
-                try:
-                    drift_rows.append(json.loads(line))
-                except Exception:
-                    pass
+    audits = [audit_engine(row) for row in heartbeat_values]
 
     global_stats = {
         "engines_audited": len(audits),
         "avg_stability": safe_mean([a["stability"] for a in audits if a["stability"] is not None]),
         "avg_drift": safe_mean([a["ΔΦ"] for a in audits]),
-        "total_drift_corrections": len(drift_rows),
+        "total_drift_corrections": len(drift_values),
     }
 
-    report = {"summary": global_stats, "engines": audits}
+    report = {"schema": AUDIT_SCHEMA, "summary": global_stats, "engines": audits}
+    store.put_state(AUDIT_ENTITY_ID, report)
+    return report
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(report, indent=2))
-    print(f"📘 Wrote resonance audit -> {OUT}")
-    print(json.dumps(report, indent=2))
+
+def main() -> None:
+    report = run_resonance_audit()
+    if report:
+        print(f"Resonance audit stored in Guardian ({len(report['engines'])})")
 
 if __name__ == "__main__":
     main()

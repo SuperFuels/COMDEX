@@ -21,6 +21,10 @@ from backend.modules.chain_sim.ledger_storage import (
     configure_sqlite_storage_bounds,
     ledger_storage_status,
 )
+from backend.modules.chain_sim.ledger_content_policy import (
+    assert_public_transaction_result,
+    normalize_public_transaction_payload,
+)
 
 # ───────────────────────────────────────────────
 # Persistence env (DO NOT freeze at import-time)
@@ -56,11 +60,20 @@ def _db_path() -> Optional[Path]:
     if not _CHAIN_SIM_PERSIST:
         return None
     if _CHAIN_SIM_DB_PATH:
-        return Path(_CHAIN_SIM_DB_PATH)
+        return Path(_CHAIN_SIM_DB_PATH).expanduser().resolve()
 
-    # default: repo-root/data/chain_sim.sqlite3
-    root = Path(__file__).resolve().parents[3]
-    return root / "data" / "chain_sim.sqlite3"
+    # Production persistence must never fall back into the updateable
+    # application tree. Guardian mode derives an external Vault location;
+    # every other persistent runtime must name its custody path explicitly.
+    from backend.modules.aion_business.runtime.business_vault_runtime import (
+        configured_business_vault_runtime,
+        guardian_mode_requested,
+    )
+
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        return (runtime.layout.records / "glyphchain" / "chain.sqlite3").resolve()
+    raise RuntimeError("glyphchain_ledger_external_path_required")
 
 def _env_truthy(name: str, default: str = "0") -> bool:
     return os.getenv(name, default).strip().lower() in ("1", "true", "yes", "on")
@@ -84,8 +97,9 @@ def _db() -> Optional[sqlite3.Connection]:
         if _DB_CONN is not None:
             return _DB_CONN
 
-        p.parent.mkdir(parents=True, exist_ok=True)
+        p.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         conn = sqlite3.connect(str(p), check_same_thread=False)
+        os.chmod(p, 0o600)
         conn.row_factory = sqlite3.Row
         try:
             _db_init(conn)
@@ -647,11 +661,11 @@ def persist_get_genesis_state() -> Optional[Dict[str, Any]]:
     Best-effort loader for whatever table persist_set_genesis_state() writes.
     Tries a few common table/column names to avoid schema coupling.
     """
-    db_path = _persist_db_path()
-    if not db_path:
+    db_path = persist_database_path()
+    if db_path is None or not db_path.is_file():
         return None
 
-    con = sqlite3.connect(db_path)
+    con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     try:
         cur = con.cursor()
 
@@ -856,8 +870,10 @@ def persist_tx_row(tx: Dict[str, Any]) -> None:
     if isinstance(fee, dict):
         fee_json = json.dumps(fee, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
-    payload_json = json.dumps(tx.get("payload") or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    result_json = json.dumps(tx.get("result") or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    payload = normalize_public_transaction_payload(tx.get("tx_type"), tx.get("payload") or {})
+    result = assert_public_transaction_result(tx.get("result") or {})
+    payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    result_json = json.dumps(result, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     estimated = sum(len(value.encode("utf-8")) for value in (payload_json, result_json, fee_json or "")) + 8192
     _guard_persist_write(estimated)
 
@@ -1317,7 +1333,7 @@ def compute_tx_identity(
     tx_hash: sha256 over stable envelope JSON
     tx_id: short human-friendly id derived from tx_hash
     """
-    norm_payload = _normalize_payload(payload)
+    norm_payload = normalize_public_transaction_payload(tx_type, _normalize_payload(payload))
     envelope = {
         "from_addr": from_addr,
         "nonce": int(nonce),
@@ -1559,13 +1575,14 @@ def record_applied_tx(
     created_at_ms: Optional[int] = None,
     block_header: Optional[Dict[str, Any]] = None,
 ) -> DevTxRecord:
-    norm_payload = _normalize_payload(payload)
+    norm_payload = normalize_public_transaction_payload(tx_type, _normalize_payload(payload))
+    safe_result = assert_public_transaction_result(result or {})
     estimated_write = len(_stable_json({
         "from_addr": from_addr,
         "nonce": int(nonce),
         "tx_type": tx_type,
         "payload": norm_payload,
-        "result": result or {},
+        "result": safe_result,
         "fee": fee or {},
     })) + 24 * 1024
     key = (from_addr, int(nonce), tx_type)
@@ -1602,7 +1619,7 @@ def record_applied_tx(
             tx_type=tx_type,
             payload=norm_payload,
             applied=bool(applied),
-            result=result or {},
+            result=safe_result,
             created_at_ms=int(created_at_ms) if created_at_ms is not None else _now_ms(),
             block_height=0,
             tx_index=0,

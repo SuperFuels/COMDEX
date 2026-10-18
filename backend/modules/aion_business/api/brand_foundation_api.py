@@ -7,11 +7,15 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
 from backend.modules.aion_business.runtime.business_container_service import (
     BusinessContainerService,
+)
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
 )
 
 router = APIRouter(
@@ -424,8 +428,19 @@ async def upload_brand_asset(
     digest = hashlib.sha256(content).hexdigest()
     asset_id = f"brand_{clean_role}_{digest[:16]}"
     stored_name = f"{asset_id}{suffix}"
-    path = _brand_asset_dir(service, workspace_id) / stored_name
-    path.write_bytes(content)
+    if guardian_mode_requested():
+        configured_business_vault_runtime().objects.put_bytes(
+            object_id=asset_id,
+            data=content,
+            original_name=filename,
+            content_type=str(file.content_type or "application/octet-stream"),
+            idempotency_key=f"brand-asset-{workspace_id}-{digest}",
+            actor_id="brand-foundation-api",
+            recorded_at=_utc_now_iso(),
+        )
+    else:
+        path = _brand_asset_dir(service, workspace_id) / stored_name
+        path.write_bytes(content)
 
     asset = {
         "id": asset_id,
@@ -435,13 +450,17 @@ async def upload_brand_asset(
         "sizeBytes": len(content),
         "sha256": digest,
         "url": f"/api/aion/business/brand-foundation/{workspace_id}/assets/{stored_name}",
+        "vaultObjectId": asset_id if guardian_mode_requested() else None,
         "source": "user_upload",
         "authority": "user_supplied",
         "deletionPolicy": "user_removable_before_evidence_use",
         "uploadedAt": _utc_now_iso(),
     }
 
-    payload = service.get_brand_foundation_payload(workspace_id)
+    try:
+        payload = service.get_brand_foundation_payload(workspace_id)
+    except (FileNotFoundError, KeyError):
+        payload = {}
     brand_map = _first_dict(payload.get("brandMap"), payload.get("brand_map"))
     visual = _as_dict(brand_map.get("visualIdentity"))
     design_system = _as_dict(visual.get("designSystem"))
@@ -459,11 +478,23 @@ async def upload_brand_asset(
 
 
 @router.get("/{workspace_id}/assets/{stored_name}")
-def get_brand_asset(workspace_id: str, stored_name: str) -> FileResponse:
+def get_brand_asset(workspace_id: str, stored_name: str) -> Response:
     service = get_business_container_service()
     safe_name = Path(str(stored_name or "")).name
     if safe_name != stored_name or not safe_name.startswith("brand_"):
         raise HTTPException(status_code=404, detail="Brand asset not found")
+    if guardian_mode_requested():
+        try:
+            metadata, content = configured_business_vault_runtime().objects.get_bytes(
+                object_id=Path(safe_name).stem,
+            )
+        except (KeyError, ValueError, RuntimeError, OSError) as exc:
+            raise HTTPException(status_code=404, detail="Brand asset not found") from exc
+        return Response(
+            content=content,
+            media_type=str(metadata.get("content_type") or "application/octet-stream"),
+            headers={"Content-Disposition": f'inline; filename="{safe_name}"'},
+        )
     path = (_brand_asset_dir(service, workspace_id) / safe_name).resolve()
     if not path.exists() or _brand_asset_dir(service, workspace_id) not in path.parents:
         raise HTTPException(status_code=404, detail="Brand asset not found")

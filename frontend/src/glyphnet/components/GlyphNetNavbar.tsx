@@ -133,19 +133,33 @@ export default function GlyphNetNavbar({
     return () => document.removeEventListener("mousedown", onDown);
   }, [loginOpen]);
 
-  // session bootstrap
+  // Session bootstrap comes from the HttpOnly-cookie authority. Identity is
+  // kept in this process only, never reconstructed from browser storage.
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const read = () => {
-      const slug = localStorage.getItem("gnet:user_slug");
-      const wa = localStorage.getItem("gnet:wa") || localStorage.getItem("gnet:ownerWa");
-      if (slug && wa) setSession({ slug, wa });
-      else setSession(null);
+    const read = async (event?: Event) => {
+      const detail = (event as CustomEvent<Session> | undefined)?.detail;
+      if (detail?.slug && detail?.wa) {
+        setSession(detail);
+        return;
+      }
+      try {
+        const response = await fetch("/auth/profile", { credentials: "include" });
+        if (!response.ok) throw new Error("No active session");
+        const profile = await response.json();
+        const slug = String(profile.email || profile.name || "user")
+          .split("@")[0]
+          .toLowerCase()
+          .replace(/[^a-z0-9._-]/g, "-");
+        setSession({ slug, wa: `${slug}@wave.tp`, name: profile.name });
+      } catch {
+        setSession(null);
+      }
     };
 
-    read();
-    const handler = () => read();
+    void read();
+    const handler = (event: Event) => void read(event);
     window.addEventListener("gnet:session:changed", handler);
     return () => window.removeEventListener("gnet:session:changed", handler);
   }, []);
@@ -155,7 +169,7 @@ export default function GlyphNetNavbar({
     if (typeof window === "undefined") return;
 
     const refresh = async () => {
-      const wa = localStorage.getItem("gnet:ownerWa") ?? localStorage.getItem("gnet:wa") ?? null;
+      const wa = session?.wa ?? null;
 
       setPhoLoading(true);
       try {
@@ -176,13 +190,15 @@ export default function GlyphNetNavbar({
     const h = () => void refresh();
     window.addEventListener("glyphnet:wallet:updated", h);
     return () => window.removeEventListener("glyphnet:wallet:updated", h);
-  }, []);
+  }, [session?.wa]);
 
-  const doLogout = () => {
+  const doLogout = async () => {
     if (typeof window === "undefined") return;
-    localStorage.removeItem("gnet:user_slug");
-    localStorage.removeItem("gnet:wa");
-    localStorage.removeItem("gnet:ownerWa");
+    try {
+      await fetch("/auth/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // The local view is still cleared if the authority is unavailable.
+    }
     setSession(null);
     setLoginOpen(false);
     window.dispatchEvent(new CustomEvent("gnet:session:changed"));
@@ -194,12 +210,17 @@ export default function GlyphNetNavbar({
     setErr(null);
 
     try {
-      // Minimal local session (replace with real auth later)
-      const slug = (email.split("@")[0] || "user").toLowerCase().replace(/[^a-z0-9._-]/g, "-");
+      const response = await fetch("/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) throw new Error("Login failed");
+      const slug = (email.split("@")[0] || "user")
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]/g, "-");
       const wa = `${slug}@wave.tp`;
-
-      localStorage.setItem("gnet:user_slug", slug);
-      localStorage.setItem("gnet:wa", wa);
 
       setLoginOpen(false);
       setEmail("");

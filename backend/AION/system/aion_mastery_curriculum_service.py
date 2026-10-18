@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import sqlite3
 import time
 import traceback
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -34,6 +35,9 @@ from backend.modules.hexcore.autonomous_progressive_executor_factory import run 
 from backend.modules.hexcore.open_toolchain_progressive_authority import run_acquisition as run_toolchain_acquisition
 from backend.modules.hexcore.cross_domain_depth_acceleration import run as run_depth_acceleration
 from backend.modules.hexcore.verified_objective_competency_bridge import run as run_objective_competency_bridge
+from backend.modules.hexcore.native_english_progressive_bridge import (
+    run as run_native_english_progressive_bridge,
+)
 from backend.modules.hexcore.compounding_intelligence_engine import run as run_compounding_intelligence
 from backend.modules.hexcore.cross_domain_campaign_execution import run as run_cross_domain_campaigns
 from backend.modules.hexcore.autonomous_capability_research_executive import (
@@ -104,7 +108,7 @@ from backend.modules.hexcore.standalone_task_governance import (
 )
 from backend.modules.aion_cognition.native_english_teacher import (
     run_teacher_cycle, run_semantic_transfer_academy_cycle,
-    run_native_language_workshop_cycle,
+    run_native_language_workshop_cycle, run_native_discourse_cycle,
 )
 from backend.modules.aion_cognition.native_english_practice_gym import NativeEnglishPracticeGym
 from backend.modules.aion_cognition.native_reading_academy import NativeReadingAcademy
@@ -136,20 +140,17 @@ def run_service() -> None:
     # The core curriculum owns first use of the single local-Qwen lane. The
     # academy and workshop are supporting practice and must not starve the
     # teacher that advances the actual curriculum state.
-    english_teacher_future: Future[dict] | None = (
-        english_teacher_pool.submit(run_teacher_cycle, repo_root=repo_root)
-        if english_teacher_enabled else None
-    )
-    english_teacher_outcome: dict = {"status": "starting"}
+    # Publish the governed curriculum's first checkpoint before starting any
+    # long English database job. Otherwise a teacher transaction can own the
+    # process-local SD-card gate while the main curriculum waits behind it.
+    english_teacher_future: Future[dict] | None = None
+    english_teacher_outcome: dict = {"status": "scheduled_after_initial_checkpoint"}
     last_english_teacher_epoch = time.time() if english_teacher_enabled else 0.0
     semantic_academy_interval = max(
         20.0, float(os.getenv("AION_SEMANTIC_ACADEMY_INTERVAL", "45"))
     )
-    semantic_academy_future: Future[dict] | None = (
-        english_teacher_pool.submit(run_semantic_transfer_academy_cycle, repo_root=repo_root)
-        if english_teacher_enabled else None
-    )
-    semantic_academy_outcome: dict = {"status": "starting"}
+    semantic_academy_future: Future[dict] | None = None
+    semantic_academy_outcome: dict = {"status": "scheduled_after_initial_checkpoint"}
     last_semantic_academy_epoch = time.time() if english_teacher_enabled else 0.0
     language_workshop_interval = max(
         45.0, float(os.getenv("AION_LANGUAGE_WORKSHOP_INTERVAL", "120"))
@@ -160,6 +161,18 @@ def run_service() -> None:
     )
     language_workshop_outcome: dict = {"status": "starting"}
     last_language_workshop_epoch = time.time() if english_teacher_enabled else 0.0
+    discourse_enabled = os.getenv("AION_NATIVE_DISCOURSE", "1") not in {
+        "0", "false", "False",
+    }
+    discourse_interval = max(
+        30.0, float(os.getenv("AION_NATIVE_DISCOURSE_INTERVAL", "60"))
+    )
+    discourse_pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="aion-discourse")
+    # Stagger startup so the teacher's schema check is not met by three other
+    # writers at the same instant on the removable database.
+    discourse_future: Future[dict] | None = None
+    discourse_outcome: dict = {"status": "starting"}
+    last_discourse_epoch = time.time() + 30.0 if discourse_enabled else 0.0
     practice_gym_enabled = os.getenv("AION_ENGLISH_PRACTICE_GYM", "1") not in {
         "0", "false", "False",
     }
@@ -170,14 +183,13 @@ def run_service() -> None:
         1, min(100, int(os.getenv("AION_ENGLISH_PRACTICE_GYM_BATCH", "20")))
     )
     practice_gym_pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="aion-english-practice")
-    practice_gym_future: Future[dict] | None = (
-        practice_gym_pool.submit(
-            run_native_english_practice_cycle, repo_root=repo_root, limit=practice_gym_batch,
-        ) if practice_gym_enabled else None
-    )
+    practice_gym_future: Future[dict] | None = None
     practice_gym_outcome: dict = {"status": "starting"}
     last_practice_gym_epoch = time.time() if practice_gym_enabled else 0.0
-    reading_academy_enabled = os.getenv("AION_READING_ACADEMY", "1") not in {
+    # The dedicated native-reading launch service owns continuous book work.
+    # Keep this legacy in-process lane opt-in to avoid two readers contending
+    # for the same SD-card database and doubling memory/temporary pressure.
+    reading_academy_enabled = os.getenv("AION_READING_ACADEMY", "0") not in {
         "0", "false", "False",
     }
     reading_academy_interval = max(
@@ -189,19 +201,12 @@ def run_service() -> None:
     reading_academy_pool = ThreadPoolExecutor(
         max_workers=1, thread_name_prefix="aion-native-reading",
     )
-    reading_academy_future: Future[dict] | None = (
-        reading_academy_pool.submit(
-            run_native_reading_cycle, repo_root=repo_root, limit=reading_academy_batch,
-        ) if reading_academy_enabled else None
-    )
-    reading_academy_outcome: dict = {"status": "starting"}
+    reading_academy_future: Future[dict] | None = None
+    reading_academy_outcome: dict = {"status": "scheduled_after_initial_checkpoint"}
     last_reading_academy_epoch = time.time() if reading_academy_enabled else 0.0
-    # The short academy lane gets first use of the shared local-Qwen worker;
-    # the larger five-minute teacher cycle queues behind it at startup.
-    if english_teacher_enabled:
-        english_teacher_future = english_teacher_pool.submit(
-            run_teacher_cycle, repo_root=repo_root,
-        )
+    # Background English work is deliberately deferred until after its normal
+    # cadence. This leaves the first governed competency cycle unobstructed
+    # after every service reconstruction.
     # Live teacher consultation is proposal-only and may be slow or absent.  It
     # must never sit on the critical path of the persistent curriculum loop.
     # Operators can opt in explicitly; the cached deterministic teacher remains
@@ -210,6 +215,11 @@ def run_service() -> None:
     # Qualify and retain every currently supported family adapter before the
     # persistent loop selects work.  This runs once per service reconstruction;
     # the live executor still verifies every individual learning outcome.
+    competency_maintenance = ProgressiveCompetencySystem(
+        repo_root=repo_root,
+        state_path=repo_root / "backend/modules/hexcore/data/progressive_competency/state.json",
+    )
+    competency_history_maintenance = competency_maintenance.compact_terminal_history()
     factory_outcome = run_executor_factory(
         repo_root=repo_root,
         result_path=repo_root / "results/hexcore_autonomous_progressive_executor_factory.json",
@@ -252,6 +262,11 @@ def run_service() -> None:
     real_world_adapter_outcome = None
     practical_testing_authority_outcome = None
     spaced_practice_outcome = None
+    native_english_bridge_outcome: dict = {"status": "not_run"}
+    last_native_english_bridge_epoch = 0.0
+    native_english_bridge_interval = max(
+        300.0, float(os.getenv("AION_NATIVE_ENGLISH_BRIDGE_INTERVAL", "900"))
+    )
     knowledge_entanglement_outcome = None
     cognitive_control_plane_outcome = None
     cognitive_migration_outcome = None
@@ -315,6 +330,21 @@ def run_service() -> None:
                     repo_root=repo_root, limit=practice_gym_batch,
                 )
                 last_practice_gym_epoch = time.time()
+            if discourse_future is not None and discourse_future.done():
+                try:
+                    discourse_outcome = discourse_future.result()
+                except Exception as discourse_error:
+                    discourse_outcome = {
+                        "status": "error", "error": type(discourse_error).__name__,
+                        "detail": str(discourse_error),
+                    }
+                discourse_future = None
+            if (discourse_enabled and discourse_future is None
+                    and time.time() - last_discourse_epoch >= discourse_interval):
+                discourse_future = discourse_pool.submit(
+                    run_native_discourse_cycle, repo_root=repo_root,
+                )
+                last_discourse_epoch = time.time()
             # Requeue the core teacher before lower-priority Qwen work. All
             # three still serialize through one worker, so student answers
             # remain isolated and local inference is never run concurrently.
@@ -424,6 +454,19 @@ def run_service() -> None:
             # curriculum after the foundation Academy. Existing contracts are
             # retained as history but no longer define proficiency.
             if academy.state.get("primary_academy_complete"):
+                if time.time() - last_native_english_bridge_epoch >= native_english_bridge_interval:
+                    try:
+                        native_english_bridge_outcome = run_native_english_progressive_bridge(
+                            repo_root=repo_root,
+                            result_path=repo_root / "results/hexcore_native_english_progressive_bridge.json",
+                        )
+                    except Exception as exc:  # fail closed without stopping other subjects
+                        native_english_bridge_outcome = {
+                            "status": "failed_closed",
+                            "passed": False,
+                            "error": type(exc).__name__,
+                        }
+                    last_native_english_bridge_epoch = time.time()
                 bridge_outcome = run_objective_competency_bridge(
                     repo_root=repo_root,
                     result_path=repo_root / "results/hexcore_verified_objective_competency_bridge.json",
@@ -459,7 +502,22 @@ def run_service() -> None:
                     service_id="mastery_curriculum",
                     task_text=f"Execute the current governed competency contract: {task_descriptor[:2000]}",
                 ) as governed:
-                    competency_executor_outcome = competency_executor.step()
+                    try:
+                        competency_executor_outcome = competency_executor.step()
+                    except sqlite3.OperationalError as database_error:
+                        detail = str(database_error).lower()
+                        if not any(marker in detail for marker in ("locked", "busy", "gate timed out")):
+                            raise
+                        # A shared SD-card database can be occupied by the
+                        # reader, spider or an English academy. Preserve the
+                        # contract and let the rest of the curriculum publish
+                        # its checkpoint instead of failing the whole cycle.
+                        competency_executor_outcome = {
+                            "status": "learning_store_busy",
+                            "progressed": False,
+                            "retryable": True,
+                            "reason": "Shared learning store is busy; contract retained for retry.",
+                        }
                     governed.finish(competency_executor_outcome, verified=False)
                 if (
                     competency_executor_outcome.get("progressed")
@@ -661,6 +719,7 @@ def run_service() -> None:
                     "real_world_experience_adapters": real_world_adapter_outcome,
                     "governed_practical_testing_authority": practical_testing_authority_outcome,
                     "continuous_spaced_practice": spaced_practice_outcome,
+                    "native_english_progressive_bridge": native_english_bridge_outcome,
                     "continuous_knowledge_entanglement": knowledge_entanglement_outcome,
                     "first_class_cognitive_control_plane": cognitive_control_plane_outcome,
                     "active_runtime_cognitive_migration": cognitive_migration_outcome,
@@ -858,6 +917,7 @@ def run_service() -> None:
                 else "competency_executor_acquisition" if executor_status == "executor_acquisition_required"
                 else "competency_rotated_after_executor_failure" if executor_status == "rejected_and_parked"
                 else "competency_executor_retrying" if executor_status == "executor_rejected"
+                else "competency_learning_store_busy" if executor_status == "learning_store_busy"
                 else "competency_stalled" if competency_status.startswith("stalled")
                 else "competency_retention_wait" if competency_status == "waiting_elapsed_retention"
                 else "competency_waiting_for_executor" if competency_status == "executor_required"
@@ -899,6 +959,13 @@ def run_service() -> None:
                           "interval_seconds": language_workshop_interval,
                           "last_dispatch_epoch": last_language_workshop_epoch,
                       },
+                      "native_discourse_dialogue": {
+                          **discourse_outcome,
+                          "running": bool(discourse_future is not None),
+                          "enabled": discourse_enabled,
+                          "interval_seconds": discourse_interval,
+                          "last_dispatch_epoch": last_discourse_epoch,
+                      },
                       "native_english_practice_gym": {
                           **practice_gym_outcome,
                           "running": bool(practice_gym_future is not None),
@@ -919,6 +986,7 @@ def run_service() -> None:
                           competency_executor.registry.summary(subjects=competency.state["subjects"])
                           if academy.state.get("primary_academy_complete") else {}
                       ),
+                      "progressive_history_maintenance": competency_history_maintenance,
                       "progressive_executor_factory": {
                           "passed": factory_outcome.get("passed") is True,
                           "gate": factory_outcome.get("gate") or {},
@@ -938,6 +1006,11 @@ def run_service() -> None:
                           "passed": bridge_outcome.get("passed") is True,
                           "gate": bridge_outcome.get("gate") or {},
                           "procedure_id": bridge_outcome.get("procedure_id"),
+                      } if academy.state.get("primary_academy_complete") else {},
+                      "native_english_progressive_bridge": {
+                          **native_english_bridge_outcome,
+                          "interval_seconds": native_english_bridge_interval,
+                          "last_dispatch_epoch": last_native_english_bridge_epoch,
                       } if academy.state.get("primary_academy_complete") else {},
                       "broad_curriculum": broad_outcome, "glyph_consolidation": glyph_outcome,
                       "functional_glyph_lexicon": {

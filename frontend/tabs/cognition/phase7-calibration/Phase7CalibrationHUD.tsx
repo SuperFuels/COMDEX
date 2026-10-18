@@ -481,23 +481,9 @@ export default function Phase7CalibrationHUD() {
   useEffect(() => {
     load({ allowAutoHeal: true });
 
-    // Welcome overlay once
-    try {
-      const k = "aion_phase7_welcome_seen_v1";
-      if (!localStorage.getItem(k)) {
-        setWelcomeOpen(true);
-        localStorage.setItem(k, "1");
-      }
-    } catch {}
-
-    // Tour once (you can still open manually)
-    try {
-      const k = "aion_phase7_tour_seen_v1";
-      if (!localStorage.getItem(k)) {
-        // don’t auto-open tour; welcome overlay drives them to it
-        localStorage.setItem(k, "1");
-      }
-    } catch {}
+    // Onboarding display state is process-local. Browser storage is not an
+    // authority boundary, even for disposable calibration preferences.
+    setWelcomeOpen(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

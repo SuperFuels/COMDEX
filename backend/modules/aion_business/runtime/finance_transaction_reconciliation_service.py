@@ -14,12 +14,16 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import configured_business_container_repository
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
 from backend.modules.aion_business.runtime.finance_ledger_service import FinanceLedgerService
+from backend.modules.aion_business.runtime.finance_operations_store import FinanceOperationsStore
 from backend.modules.aion_business.runtime.finance_counterparty_intelligence_service import (
     FinanceCounterpartyIntelligenceService,
 )
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -46,10 +50,24 @@ class FinanceTransactionReconciliationService:
 
     def __init__(self, repository: BusinessContainerRepository | None = None,
                  ledger_service: FinanceLedgerService | None = None,
-                 counterparty_intelligence: FinanceCounterpartyIntelligenceService | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
-        self.ledger_service = ledger_service or FinanceLedgerService(self.repository)
-        self.counterparty_intelligence = counterparty_intelligence or FinanceCounterpartyIntelligenceService()
+                 counterparty_intelligence: FinanceCounterpartyIntelligenceService | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 operations_store: FinanceOperationsStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="finance-reconciliation-runtime")
+        self.operations_store = operations_store or FinanceOperationsStore(
+            domain_store=self.domain_store,
+        )
+        self.ledger_service = ledger_service or FinanceLedgerService(
+            self.repository, domain_store=self.domain_store,
+            operations_store=self.operations_store,
+        )
+        self.counterparty_intelligence = counterparty_intelligence or FinanceCounterpartyIntelligenceService(
+            domain_store=self.domain_store, operations_store=self.operations_store,
+        )
 
     def run(self, workspace_id: str, *, created_by: str = "finance_pilot",
             created_at: str | None = None, amount_tolerance: float = 0.01,
@@ -148,7 +166,7 @@ class FinanceTransactionReconciliationService:
         }
         record["run_hash"] = canonical_contract_hash(record)
         path = self._dir(workspace_id) / f"{run_id}.json"
-        path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self._write(path, record)
         self._index(workspace_id, record, path); self._project(workspace_id, record, path)
         return record
 
@@ -156,9 +174,9 @@ class FinanceTransactionReconciliationService:
                               reviewed_by: str, selected_account: dict[str, Any] | None = None,
                               notes: str | None = None, reviewed_at: str | None = None) -> dict[str, Any]:
         path = self._dir(workspace_id) / f"{_safe(run_id)}.json"
-        if not path.exists():
+        if not self._exists(path):
             raise FileNotFoundError(f"Transaction reconciliation not found: {run_id}")
-        record = json.loads(path.read_text(encoding="utf-8")); self._verify(record)
+        record = self._read(path); self._verify(record)
         suggestion = next((item for item in record.get("classifications") or [] if item.get("suggestion_id") == suggestion_id), None)
         if suggestion is None:
             raise FileNotFoundError(f"Counterparty suggestion not found: {suggestion_id}")
@@ -171,7 +189,7 @@ class FinanceTransactionReconciliationService:
         suggestion.pop("suggestion_hash", None); suggestion["suggestion_hash"] = canonical_contract_hash(suggestion)
         record["reviewed_classification_count"] = sum(bool(item.get("review")) for item in record.get("classifications") or [])
         record.pop("run_hash", None); record["run_hash"] = canonical_contract_hash(record)
-        path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self._write(path, record)
         self._project(workspace_id, record, path)
         return record
 
@@ -180,9 +198,9 @@ class FinanceTransactionReconciliationService:
         if decision not in self.DECISIONS:
             raise ValueError("invalid_transaction_match_decision")
         path = self._dir(workspace_id) / f"{_safe(run_id)}.json"
-        if not path.exists():
+        if not self._exists(path):
             raise FileNotFoundError(f"Transaction reconciliation not found: {run_id}")
-        record = json.loads(path.read_text(encoding="utf-8")); self._verify(record)
+        record = self._read(path); self._verify(record)
         match = next((item for item in record.get("matches") or [] if item.get("match_id") == match_id), None)
         if match is None:
             raise FileNotFoundError(f"Transaction match not found: {match_id}")
@@ -193,19 +211,63 @@ class FinanceTransactionReconciliationService:
         record["status"] = "reviewed_drafts_not_posted" if record["reviewed_match_count"] == record["match_count"] else "review_required"
         record["external_write_performed"] = False; record["provider_reconciliations_posted"] = 0
         record.pop("run_hash", None); record["run_hash"] = canonical_contract_hash(record)
-        path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self._write(path, record)
         self._project(workspace_id, record, path)
         return record
 
     def latest(self, workspace_id: str) -> dict[str, Any] | None:
+        if self.domain_store is not None:
+            rows = self.domain_store.list("finance.reconciliation_records", workspace_id=workspace_id)
+            rows.sort(key=lambda row: str((row.get("payload") or {}).get("created_at") or ""), reverse=True)
+            if not rows: return None
+            record = dict(rows[0]["payload"]); self._verify(record); return record
         paths = sorted(self._dir(workspace_id).glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)
         if not paths:
             return None
         record = json.loads(paths[0].read_text(encoding="utf-8")); self._verify(record); return record
 
-    def _dir(self, workspace_id: str) -> Path:
-        path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/transaction_reconciliations"
-        path.mkdir(parents=True, exist_ok=True); return path
+    def _dir(self, workspace_id: str, *, create: bool = False) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_finance_reconciliation__") / _safe(workspace_id) / "finance" / "transaction_reconciliations"
+        path = (
+            AIONBusinessPaths.BUSINESS_CONTAINERS
+            / _safe(workspace_id)
+            / "finance/transaction_reconciliations"
+        )
+        if create:
+            AIONBusinessPaths.ensure_base_dirs()
+            path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _identity(self, path: Path) -> tuple[str, str]:
+        parts = path.parts
+        marker = parts.index("__tessaris_guardian_finance_reconciliation__")
+        workspace_id = parts[marker + 1]
+        reconciliations = parts.index("transaction_reconciliations", marker + 2)
+        return workspace_id, Path(*parts[reconciliations + 1:]).with_suffix("").as_posix()
+
+    def _exists(self, path: Path) -> bool:
+        if self.domain_store is None: return path.exists()
+        workspace_id, entity_id = self._identity(path)
+        return self.domain_store.get_optional("finance.reconciliation_records", workspace_id=workspace_id, entity_id=entity_id) is not None
+
+    def _read(self, path: Path) -> dict[str, Any]:
+        if self.domain_store is None: return json.loads(path.read_text(encoding="utf-8"))
+        workspace_id, entity_id = self._identity(path)
+        return dict(self.domain_store.get("finance.reconciliation_records", workspace_id=workspace_id, entity_id=entity_id)["payload"])
+
+    def _write(self, path: Path, record: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            workspace_id, entity_id = self._identity(path)
+            current = self.domain_store.get_optional("finance.reconciliation_records", workspace_id=workspace_id, entity_id=entity_id)
+            self.domain_store.put(
+                "finance.reconciliation_records", workspace_id=workspace_id, entity_id=entity_id,
+                payload=record, expected_version=int(current["version"]) if current else None,
+                actor_id="finance-reconciliation-runtime",
+            )
+            return
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     @staticmethod
     def _payment_score(payment: dict[str, Any], invoice: dict[str, Any], tolerance: float, window: int) -> tuple[int, list[str]]:
@@ -278,13 +340,20 @@ class FinanceTransactionReconciliationService:
         children = finance.setdefault("children", []); folder = next((item for item in children if item.get("id") == "folder_finance_transaction_reconciliations"), None)
         if folder is None:
             folder = {"id": "folder_finance_transaction_reconciliations", "name": "Transaction Reconciliation", "type": "folder", "children": []}; children.append(folder)
+        target = ({"vault_domain_id": "finance.reconciliation_records", "vault_entity_id": self._identity(path)[1], "run_hash": record["run_hash"]}
+                  if self.domain_store is not None else {"storage_path": str(path), "run_hash": record["run_hash"]})
         folder.setdefault("children", []).append({"id": f"finance_transaction_reconciliation_{record['run_id']}", "name": record["run_id"], "type": "business_container_artifact",
-            "document_type": "finance_transaction_reconciliation", "status": record["status"], "target": {"storage_path": str(path), "run_hash": record["run_hash"]}})
+            "document_type": "finance_transaction_reconciliation", "status": record["status"], "target": target})
         tree["folders"] = folders; tree["root"] = {**(tree.get("root") or {}), "id": "root", "type": "folder", "name": "Workflows", "children": folders}; WorkflowFileCabinetRepository.save(workspace_id, tree)
 
     def _project(self, workspace_id: str, record: dict[str, Any], path: Path) -> None:
         summary = {key: record.get(key) for key in ("run_id", "ledger_id", "created_at", "status", "match_count", "exception_count", "confidence_counts", "classification_count", "reviewed_classification_count", "reviewed_match_count", "accepted_draft_match_count", "run_hash")}
-        summary["storage_path"] = str(path); summary["external_write_performed"] = False
+        if self.domain_store is not None:
+            summary["vault_domain_id"] = "finance.reconciliation_records"
+            summary["vault_entity_id"] = self._identity(path)[1]
+        else:
+            summary["storage_path"] = str(path)
+        summary["external_write_performed"] = False
         intelligence = self.repository.load_optional_dict(workspace_id, "department_intelligence")
         if intelligence:
             finance = intelligence.setdefault("departments", {}).setdefault("finance", {}); finance["latest_transaction_reconciliation"] = summary

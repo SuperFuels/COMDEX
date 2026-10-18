@@ -35,6 +35,8 @@ def test_builder_pins_runtime_digest_and_forbids_cloud_fallback() -> None:
     assert "OLLAMA_NO_CLOUD=true" in source
     assert "unset OPENAI_API_KEY GEMINI_API_KEY ANTHROPIC_API_KEY" in source
     assert "/usr/bin/python3" not in source
+    assert "/opt/homebrew/Cellar/ollama/0.20.2" not in source
+    assert '"local_runtime_sha256": runtime_sha256' in source
 
 
 def test_built_archive_contains_complete_runtime_when_present() -> None:
@@ -59,6 +61,7 @@ def test_built_archive_contains_complete_runtime_when_present() -> None:
         assert manifest["network_required_after_download"] is False
         assert manifest["provider_keys_required"] is False
         assert manifest["model"] == "gemma3:1b"
+        assert len(manifest["local_runtime_sha256"]) == 64
 
 
 def test_integrity_verifier_rejects_changed_file(tmp_path: Path) -> None:

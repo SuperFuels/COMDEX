@@ -10,6 +10,7 @@ import sqlite3
 import time
 from typing import Any, Mapping
 
+from backend.modules.aion_cognition.sqlite_connection import connect as sqlite_connect
 from backend.modules.aion_cognition.native_lexical_intelligence import NativeLexicalIntelligence
 
 
@@ -68,7 +69,7 @@ class NativeEnglishGames:
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.database_path, timeout=30)
+        connection = sqlite_connect(self.database_path, timeout=30)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA busy_timeout=30000")
         return connection

@@ -22,6 +22,186 @@
   transition: opacity 260ms ease, visibility 260ms ease;
 }
 
+/* Board meeting record — formal black-and-white reading surface. */
+.aion-o25e-language-style {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.aion-o25e-language-style button {
+  display: grid;
+  gap: 5px;
+  padding: 14px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  background: #fff;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+}
+
+.aion-o25e-language-style button:first-child {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.aion-o25e-language-style strong {
+  font-size: 14px;
+}
+
+.aion-o25e-language-style span {
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.aion-board-legal-document {
+  max-width: 1120px !important;
+  margin: 24px auto !important;
+  padding: 42px 54px !important;
+  border: 1px solid #1f2933 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #111 !important;
+  box-shadow: none !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+.aion-board-legal-document *,
+.aion-board-legal-document [style*="color:"] {
+  color: #111 !important;
+  box-shadow: none !important;
+}
+
+.aion-board-legal-document [style*="background:"] {
+  background: #fff !important;
+}
+
+.aion-board-legal-document [style*="border:"] {
+  border-color: #707070 !important;
+}
+
+.aion-board-legal-document [style*="border-radius:999px"] {
+  border-radius: 2px !important;
+}
+
+.aion-board-legal-document > div:first-child {
+  padding-bottom: 22px;
+  border-bottom: 2px solid #111;
+}
+
+.aion-board-legal-document h1,
+.aion-board-legal-document h2,
+.aion-board-legal-document h3,
+.aion-board-legal-document [style*="text-transform:uppercase"] {
+  letter-spacing: .08em !important;
+}
+
+.aion-board-legal-document section,
+.aion-board-legal-document details,
+.aion-board-legal-document [data-aion-boardroom-pushback-gate],
+.aion-board-legal-document [data-aion-founder-feedback-gate-resolution],
+.aion-board-legal-document [data-aion-discovery-question-inbox] {
+  border-color: #a8a8a8 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.aion-board-document-next-step,
+.aion-board-document-conclusion {
+  border: 0 !important;
+  border-bottom: 1px solid #a8a8a8 !important;
+  border-radius: 0 !important;
+  padding: 20px 0 !important;
+}
+
+.aion-board-document-sections {
+  display: block !important;
+  margin-top: 0 !important;
+}
+
+.aion-board-document-sections > section {
+  margin: 0 !important;
+  padding: 24px 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #a8a8a8 !important;
+}
+
+.aion-board-document-sections ol,
+.aion-board-document-sections ul {
+  max-width: 900px;
+  margin-top: 12px !important;
+  padding-left: 28px !important;
+}
+
+.aion-board-document-sections li {
+  margin: 8px 0 !important;
+  padding-left: 7px !important;
+}
+
+.aion-board-legal-document [data-aion-boardroom-pushback-gate],
+.aion-board-legal-document [data-aion-founder-feedback-gate-resolution],
+.aion-board-legal-document [data-aion-discovery-question-inbox] {
+  margin-top: 0 !important;
+  padding: 24px 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #a8a8a8 !important;
+}
+
+.aion-board-legal-document [data-aion-boardroom-pushback-gate] > div:first-child > span:first-child {
+  display: none !important;
+}
+
+.aion-board-legal-document [data-aion-boardroom-pushback-gate] [style*="border-radius:11px"],
+.aion-board-legal-document [data-aion-founder-feedback-gate-resolution] [style*="border-radius:11px"] {
+  padding: 14px 0 !important;
+  border: 0 !important;
+  border-top: 1px solid #d1d1d1 !important;
+}
+
+.aion-board-legal-document button,
+.aion-board-legal-document input,
+.aion-board-legal-document textarea,
+.aion-board-legal-document select {
+  border: 1px solid #555 !important;
+  border-radius: 2px !important;
+  background: #fff !important;
+  color: #111 !important;
+}
+
+.aion-board-document-appendix {
+  margin-top: 26px !important;
+  padding: 16px 0 0 !important;
+  border: 0 !important;
+  border-top: 2px solid #111 !important;
+}
+
+.aion-board-document-appendix > .aion-board-document-appendix-heading {
+  padding: 0 0 14px !important;
+  font-size: 13px !important;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.aion-board-document-appendix > div > div {
+  padding: 14px 0 !important;
+  border: 0 !important;
+  border-top: 1px solid #d1d1d1 !important;
+  border-radius: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .aion-board-legal-document {
+    margin: 12px !important;
+    padding: 28px 24px !important;
+  }
+}
+
 .tessaris-startup-splash.is-leaving {
   opacity: 0;
   visibility: hidden;

@@ -15,8 +15,9 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import sqlite3
 from typing import Any, Callable, Mapping, Optional, Sequence
+
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 
 MAX_ABSOLUTE_INPUT = Decimal("1e12")
@@ -169,12 +170,13 @@ class LearnedAtomSheetStore:
 
     def __init__(
         self,
-        database_path: Path,
-        promoted_dir: Path,
+        database_path: Path | None = None,
+        promoted_dir: Path | None = None,
         *,
         minimum_observations: int = 6,
         holdout_observations: int = 2,
         minimum_verifiers: int = 2,
+        vault_store: AionLearningVaultStore | None = None,
     ) -> None:
         if minimum_observations < 4 or holdout_observations < 1:
             raise ValueError("promotion requires at least four observations and one holdout")
@@ -185,101 +187,78 @@ class LearnedAtomSheetStore:
         self.minimum_observations = minimum_observations
         self.holdout_observations = holdout_observations
         self.minimum_verifiers = minimum_verifiers
-        database_path.parent.mkdir(parents=True, exist_ok=True)
-        promoted_dir.mkdir(parents=True, exist_ok=True)
-        self._initialize()
+        self.vault_store = vault_store or AionLearningVaultStore()
+        self._state_id = "aion_inference_learned_atomsheets_v1"
+        saved = self.vault_store.get_state(
+            self._state_id,
+            {"outcomes": {}, "candidates": {}, "promoted": {}, "audit_sequence": 0},
+        )
+        self._outcomes: dict[str, dict[str, Any]] = {
+            str(key): dict(value) for key, value in dict(saved.get("outcomes", {})).items()
+        }
+        self._candidates: dict[str, dict[str, Any]] = {
+            str(key): dict(value) for key, value in dict(saved.get("candidates", {})).items()
+        }
+        self._promoted: dict[str, dict[str, Any]] = {
+            str(key): dict(value) for key, value in dict(saved.get("promoted", {})).items()
+        }
+        self._audit_sequence = int(saved.get("audit_sequence", 0))
 
-    def _initialize(self) -> None:
-        with sqlite3.connect(self.database_path) as connection:
-            connection.executescript(
-                """
-                CREATE TABLE IF NOT EXISTS verified_outcomes (
-                    outcome_sha256 TEXT PRIMARY KEY,
-                    intent TEXT NOT NULL,
-                    inputs_json TEXT NOT NULL,
-                    result_text TEXT NOT NULL,
-                    verifier_id TEXT NOT NULL,
-                    model_id TEXT NOT NULL,
-                    response_sha256 TEXT NOT NULL,
-                    verifier_passed INTEGER NOT NULL,
-                    human_approved INTEGER NOT NULL,
-                    created_at TEXT NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS learned_candidates (
-                    intent TEXT PRIMARY KEY,
-                    payload_json TEXT NOT NULL,
-                    status TEXT NOT NULL,
-                    updated_at TEXT NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS promoted_atomsheets (
-                    intent TEXT PRIMARY KEY,
-                    contract_sha256 TEXT NOT NULL,
-                    sheet_json TEXT NOT NULL,
-                    promoted_at TEXT NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS learning_audit (
-                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT NOT NULL,
-                    event_type TEXT NOT NULL,
-                    intent TEXT NOT NULL,
-                    payload_sha256 TEXT NOT NULL,
-                    payload_json TEXT NOT NULL
-                );
-                """
-            )
+    def _persist(self) -> None:
+        if not self.vault_store.enabled:
+            return
+        self.vault_store.put_state(
+            self._state_id,
+            {
+                "schema_version": "aion.inference.learned-atomsheets.v2",
+                "outcomes": self._outcomes,
+                "candidates": self._candidates,
+                "promoted": self._promoted,
+                "audit_sequence": self._audit_sequence,
+            },
+        )
 
     def _audit(self, event_type: str, intent: str, payload: Mapping[str, Any]) -> None:
         raw = _canonical(payload).decode("utf-8")
-        with sqlite3.connect(self.database_path) as connection:
-            connection.execute(
-                "INSERT INTO learning_audit(timestamp,event_type,intent,payload_sha256,payload_json) VALUES(?,?,?,?,?)",
-                (_utc_now(), event_type, intent, hashlib.sha256(raw.encode()).hexdigest(), raw),
-            )
+        self._audit_sequence += 1
+        timestamp = _utc_now()
+        event = {
+            "event_type": "learned_atomsheet_audit",
+            "learning_event_type": event_type,
+            "intent": intent,
+            "payload_sha256": hashlib.sha256(raw.encode()).hexdigest(),
+            "payload": dict(payload),
+            "sequence": self._audit_sequence,
+            "timestamp": timestamp,
+            "ts_utc": timestamp,
+        }
+        if self.vault_store.enabled:
+            event_id = f"learned-atomsheet-{self._audit_sequence}-{_sha(event)[:24]}"
+            self.vault_store.append_event(event_id, {**event, "event_id": event_id})
+        self._persist()
 
     def observe(self, outcome: VerifiedModelOutcome, *, auto_promote: bool = True) -> LearningDecision:
         normalized = outcome.normalized()
         outcome_payload = asdict(normalized)
         outcome_hash = _sha(outcome_payload)
-        with sqlite3.connect(self.database_path) as connection:
-            connection.execute(
-                """INSERT OR IGNORE INTO verified_outcomes
-                (outcome_sha256,intent,inputs_json,result_text,verifier_id,model_id,response_sha256,
-                 verifier_passed,human_approved,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)""",
-                (
-                    outcome_hash,
-                    normalized.intent,
-                    json.dumps(dict(normalized.inputs), sort_keys=True, separators=(",", ":")),
-                    normalized.result,
-                    normalized.verifier_id,
-                    normalized.model_id,
-                    normalized.response_sha256,
-                    int(normalized.verifier_passed),
-                    int(normalized.human_approved),
-                    normalized.created_at,
-                ),
-            )
+        self._outcomes.setdefault(outcome_hash, outcome_payload)
         self._audit("outcome_observed", normalized.intent, {"outcome_sha256": outcome_hash})
         return self.evaluate(normalized.intent, outcome_hash=outcome_hash, auto_promote=auto_promote)
 
     def _observations(self, intent: str) -> list[dict[str, Any]]:
-        with sqlite3.connect(self.database_path) as connection:
-            rows = connection.execute(
-                """SELECT outcome_sha256,inputs_json,result_text,verifier_id,human_approved,created_at
-                   FROM verified_outcomes WHERE intent=? AND verifier_passed=1
-                   ORDER BY created_at,outcome_sha256""",
-                (intent,),
-            ).fetchall()
-        return [
+        rows = [
             {
-                "outcome_sha256": row[0],
-                "inputs": json.loads(row[1]),
-                "result": row[2],
-                "verifier_id": row[3],
-                "human_approved": bool(row[4]),
-                "created_at": row[5],
+                "outcome_sha256": outcome_hash,
+                "inputs": dict(row["inputs"]),
+                "result": row["result"],
+                "verifier_id": row["verifier_id"],
+                "human_approved": bool(row["human_approved"]),
+                "created_at": row["created_at"],
             }
-            for row in rows
+            for outcome_hash, row in self._outcomes.items()
+            if row["intent"] == intent and bool(row["verifier_passed"])
         ]
+        return sorted(rows, key=lambda row: (str(row["created_at"]), row["outcome_sha256"]))
 
     @staticmethod
     def _matching_templates(observations: Sequence[Mapping[str, Any]]) -> list[OperatorTemplate]:
@@ -365,13 +344,7 @@ class LearnedAtomSheetStore:
             "status": status,
             "reason": reason,
         }
-        with sqlite3.connect(self.database_path) as connection:
-            connection.execute(
-                """INSERT INTO learned_candidates(intent,payload_json,status,updated_at) VALUES(?,?,?,?)
-                   ON CONFLICT(intent) DO UPDATE SET payload_json=excluded.payload_json,
-                   status=excluded.status,updated_at=excluded.updated_at""",
-                (intent, json.dumps(candidate_payload, sort_keys=True), status, _utc_now()),
-            )
+        self._candidates[intent] = {**candidate_payload, "updated_at": _utc_now()}
         self._audit("candidate_evaluated", intent, candidate_payload)
         return LearningDecision(
             schema_version="aion.learned_atomsheet.decision.v1",
@@ -426,35 +399,16 @@ class LearnedAtomSheetStore:
         ]
         contract_hash = _sha(sheet)
         envelope = {**sheet, "contract_sha256": contract_hash, "promoted_at": _utc_now()}
-        with sqlite3.connect(self.database_path) as connection:
-            existing = connection.execute(
-                "SELECT contract_sha256,sheet_json FROM promoted_atomsheets WHERE intent=?",
-                (intent,),
-            ).fetchone()
-            if existing is not None and existing[0] != contract_hash:
-                raise RuntimeError("a promoted intent cannot be replaced without explicit version migration")
-            connection.execute(
-                """INSERT OR IGNORE INTO promoted_atomsheets(intent,contract_sha256,sheet_json,promoted_at)
-                   VALUES(?,?,?,?)""",
-                (intent, contract_hash, json.dumps(envelope, sort_keys=True), envelope["promoted_at"]),
-            )
-        target = self.promoted_dir / f"{slug}.v1.json"
-        if target.exists():
-            current = json.loads(target.read_text(encoding="utf-8"))
-            if current.get("contract_sha256") != contract_hash:
-                raise RuntimeError("promoted sheet file already contains a different contract")
-        else:
-            target.write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        self._audit("atomsheet_promoted", intent, {"contract_sha256": contract_hash, "path": str(target)})
+        existing = self._promoted.get(intent)
+        if existing is not None and existing.get("contract_sha256") != contract_hash:
+            raise RuntimeError("a promoted intent cannot be replaced without explicit version migration")
+        self._promoted.setdefault(intent, envelope)
+        self._audit("atomsheet_promoted", intent, {"contract_sha256": contract_hash})
         return envelope, contract_hash
 
     def promoted(self, intent: str) -> Optional[Mapping[str, Any]]:
-        with sqlite3.connect(self.database_path) as connection:
-            row = connection.execute(
-                "SELECT sheet_json FROM promoted_atomsheets WHERE intent=?",
-                (intent.strip().upper(),),
-            ).fetchone()
-        return json.loads(row[0]) if row else None
+        row = self._promoted.get(intent.strip().upper())
+        return dict(row) if row is not None else None
 
     def execute(self, intent: str, inputs: Mapping[str, Any]) -> LearnedExecutionResult:
         normalized_intent = intent.strip().upper()
@@ -598,12 +552,11 @@ class LearnedAtomSheetStore:
         return self.execute(intent, dict(inputs))
 
     def status(self) -> Mapping[str, Any]:
-        with sqlite3.connect(self.database_path) as connection:
-            observations = connection.execute("SELECT COUNT(*) FROM verified_outcomes").fetchone()[0]
-            verified = connection.execute("SELECT COUNT(*) FROM verified_outcomes WHERE verifier_passed=1").fetchone()[0]
-            candidates = connection.execute("SELECT COUNT(*) FROM learned_candidates").fetchone()[0]
-            promoted = connection.execute("SELECT COUNT(*) FROM promoted_atomsheets").fetchone()[0]
-            last_sequence = connection.execute("SELECT COALESCE(MAX(sequence),0) FROM learning_audit").fetchone()[0]
+        observations = len(self._outcomes)
+        verified = sum(bool(row["verifier_passed"]) for row in self._outcomes.values())
+        candidates = len(self._candidates)
+        promoted = len(self._promoted)
+        last_sequence = self._audit_sequence
         return {
             "schema_version": "aion.learned_atomsheet.status.v1",
             "observed_outcomes": observations,

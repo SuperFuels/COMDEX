@@ -6,6 +6,14 @@ from typing import Any, Dict, Optional
 from datetime import datetime, timezone
 import json
 import hashlib
+import os
+import uuid
+
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_agents.runtime.vault_repository_backend import (
+    AgentVaultRepositoryBackend,
+    configured_agent_domain_store,
+)
 
 
 DEFAULT_TRACE_PATH = Path(".runtime/workflow_capsules/runs/workflow_execution_log.jsonl")
@@ -45,8 +53,33 @@ class WorkflowCapsuleTraceWriter:
     Feedback remains CAU-gated in a later layer.
     """
 
-    def __init__(self, path: Path | str = DEFAULT_TRACE_PATH) -> None:
-        self.path = Path(path)
+    def __init__(
+        self,
+        path: Path | str | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
+        self.path = Path(path or DEFAULT_TRACE_PATH)
+        store = domain_store or (
+            configured_agent_domain_store() if path is None else None
+        )
+        self.vault = (
+            AgentVaultRepositoryBackend(
+                store,
+                kind="workflow_capsule_traces",
+                audit=True,
+            )
+            if store
+            else None
+        )
+        self.workspace_id = str(
+            workspace_id
+            or os.environ.get("TESSARIS_BUSINESS_STABLE_ID")
+            or ""
+        ).strip()
+        if self.vault is not None and not self.workspace_id:
+            raise ValueError("workflow_capsule_trace_workspace_id_required")
 
     def append(
         self,
@@ -101,13 +134,26 @@ class WorkflowCapsuleTraceWriter:
             k: v for k, v in record.items() if k != "trace_hash"
         })
 
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+        if self.vault is not None:
+            trace_id = f"{str(run_id or 'trace')}-{uuid.uuid4().hex}"
+            self.vault.put(
+                workspace_id=self.workspace_id,
+                item_id=trace_id,
+                payload=record,
+            )
+            output_path = (
+                "vault://train_agent.runs_and_audit/workflow_capsule_traces/"
+                + trace_id
+            )
+        else:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with self.path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+            output_path = str(self.path)
 
         return {
             "ok": True,
-            "path": str(self.path),
+            "path": output_path,
             "event_type": event_type,
             "canonical_key": capsule_key,
             "run_id": run_id,

@@ -11,8 +11,10 @@ Path: data/predictive/resonance_state.json
 import json, time
 from pathlib import Path
 
+from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+
 STATE_PATH = Path("data/predictive/resonance_state.json")
-STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 DEFAULT_STATE = {
     "avg_strength": 0.0,
@@ -23,7 +25,18 @@ DEFAULT_STATE = {
 
 
 class ResonanceStateManager:
-    def __init__(self):
+    def __init__(
+        self,
+        path: Path | str | None = None,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
+    ):
+        explicit_path = path is not None
+        self.path = Path(path or STATE_PATH)
+        self.vault_store = vault_store
+        if vault_store is None and not explicit_path and guardian_mode_requested():
+            self.vault_store = AionLearningVaultStore(workspace_id=workspace_id)
         self.state = DEFAULT_STATE.copy()
         self.load()
 
@@ -31,9 +44,12 @@ class ResonanceStateManager:
     # Load & Save
     # ─────────────────────────────────────────────
     def load(self):
-        if STATE_PATH.exists():
+        if self.vault_store is not None:
+            payload = self.vault_store.get_state("resonance_state", DEFAULT_STATE.copy())
+            self.state = payload if isinstance(payload, dict) else DEFAULT_STATE.copy()
+        elif self.path.exists():
             try:
-                with open(STATE_PATH, "r") as f:
+                with open(self.path, "r") as f:
                     self.state = json.load(f)
             except Exception:
                 print("⚠️ Corrupt resonance_state.json - using defaults.")
@@ -41,8 +57,12 @@ class ResonanceStateManager:
 
     def save(self):
         self.state["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        with open(STATE_PATH, "w") as f:
-            json.dump(self.state, f, indent=2)
+        if self.vault_store is not None:
+            self.vault_store.put_state("resonance_state", self.state)
+        else:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.path, "w") as f:
+                json.dump(self.state, f, indent=2)
 
     # ─────────────────────────────────────────────
     # Update Helpers

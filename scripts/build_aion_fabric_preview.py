@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import ast
+import hashlib
 import json
+import os
 import shutil
 import stat
 import tempfile
@@ -13,7 +16,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_PACKAGE = REPO_ROOT / "backend" / "modules" / "aion_fabric"
 PACKAGING = REPO_ROOT / "packaging" / "aion_fabric_preview"
-DIST = REPO_ROOT / "dist"
 EXTRA_SOURCE_FILES = (
     REPO_ROOT / "backend/modules/aion_business/runtime/business_connector_onboarding_service.py",
     REPO_ROOT / "backend/modules/aion_business/runtime/sovereign_intelligence_router.py",
@@ -30,6 +32,43 @@ EXTRA_SOURCE_FILES = (
     REPO_ROOT / "backend/modules/aion_business/runtime/governed_improvement_service.py",
     REPO_ROOT / "backend/modules/aion_business/runtime/commercial_assurance_service.py",
 )
+
+
+def _overlaps(left: Path, right: Path) -> bool:
+    left_value = left.expanduser().resolve(strict=False)
+    right_value = right.expanduser().resolve(strict=False)
+    try:
+        left_value.relative_to(right_value)
+        return True
+    except ValueError:
+        pass
+    try:
+        right_value.relative_to(left_value)
+        return True
+    except ValueError:
+        return False
+
+
+def validate_build_root(
+    root: str | Path,
+    *,
+    protected_roots: tuple[Path, ...] | None = None,
+) -> Path:
+    candidate = Path(root).expanduser().resolve(strict=False)
+    if protected_roots is None:
+        values = [Path(os.environ.get("TESSARIS_APPLICATION_ROOT") or REPO_ROOT)]
+        for variable in (
+            "TESSARIS_UPDATE_ROOT",
+            "TESSARIS_BUSINESS_VAULT_ROOT",
+            "TESSARIS_DATA_ROOT",
+        ):
+            value = str(os.environ.get(variable) or "").strip()
+            if value:
+                values.append(Path(value))
+        protected_roots = tuple(values)
+    if any(_overlaps(candidate, protected) for protected in protected_roots):
+        raise ValueError("aion_fabric_build_root_overlaps_protected_root")
+    return candidate
 
 
 def _resolve_module(module: str) -> Path | None:
@@ -68,7 +107,7 @@ def _internal_dependency_closure() -> list[Path]:
                 elif node.module:
                     modules = [node.module]
             for module in modules:
-                if not module.startswith("backend.modules."):
+                if not module.startswith(("backend.modules.", "backend.services.")):
                     continue
                 resolved = _resolve_module(module)
                 if resolved and resolved not in selected:
@@ -92,13 +131,15 @@ def _cached_speech_model() -> Path | None:
     return snapshot if snapshot.is_dir() else None
 
 
-def build() -> Path:
+def build(*, output_root: str | Path) -> Path:
     manifest = json.loads((PACKAGING / "release_manifest.json").read_text(encoding="utf-8"))
     version = manifest["version"]
-    DIST.mkdir(parents=True, exist_ok=True)
-    output = DIST / f"aion-fabric-preview-{version}.zip"
+    destination = validate_build_root(output_root)
+    destination.mkdir(parents=True, exist_ok=True)
+    output = destination / f"aion-fabric-preview-{version}.zip"
 
     with tempfile.TemporaryDirectory(prefix="aion-fabric-build-") as temp:
+        validate_build_root(temp)
         root = Path(temp) / f"AION Fabric Preview {version}"
         dependencies = _internal_dependency_closure()
         package_target = root / "backend" / "modules" / "aion_fabric"
@@ -135,12 +176,49 @@ def build() -> Path:
             launcher = root / launcher_name
             launcher.chmod(launcher.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
+        files = []
+        for path in sorted(root.rglob("*")):
+            if path.is_file():
+                files.append(
+                    {
+                        "path": path.relative_to(root).as_posix(),
+                        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                        "size_bytes": path.stat().st_size,
+                    }
+                )
+        (root / "bundle-manifest.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": "tessaris.aion-fabric-preview-bundle.v1",
+                    "version": version,
+                    "files": files,
+                    "manifest_self_excluded": True,
+                },
+                sort_keys=True,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
         with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
             for path in sorted(root.rglob("*")):
                 if path.is_file():
-                    archive.write(path, path.relative_to(root.parent))
+                    info = zipfile.ZipInfo(
+                        path.relative_to(root.parent).as_posix(),
+                        date_time=(1980, 1, 1, 0, 0, 0),
+                    )
+                    info.compress_type = zipfile.ZIP_DEFLATED
+                    info.external_attr = (path.stat().st_mode & 0xFFFF) << 16
+                    archive.writestr(info, path.read_bytes(), compresslevel=9)
     return output
 
 
 if __name__ == "__main__":
-    print(build())
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--output-root",
+        required=True,
+        help="External build directory, separate from the application, updater, Vault and runtime data.",
+    )
+    print(build(output_root=parser.parse_args().output_root))

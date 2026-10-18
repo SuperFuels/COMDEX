@@ -12,6 +12,11 @@ from .contracts_workflow_glyph import (
     assert_safe_workflow_glyph,
 )
 from .workflow_glyph_compiler import build_canvas_layout, compile_workflow_graph_to_glyph
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_agents.runtime.vault_repository_backend import (
+    AgentVaultRepositoryBackend,
+    configured_agent_domain_store,
+)
 
 
 SAFE_ID_RE = re.compile(r"[^a-zA-Z0-9_.-]+")
@@ -27,8 +32,21 @@ def utc_now_iso() -> str:
 
 
 class WorkflowGlyphRepository:
-    def __init__(self, runtime_root: Path | str = ".runtime/local_node") -> None:
-        self.runtime_root = Path(runtime_root)
+    def __init__(
+        self,
+        runtime_root: Path | str | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
+        self.runtime_root = Path(runtime_root or ".runtime/local_node")
+        store = domain_store or (
+            configured_agent_domain_store() if runtime_root is None else None
+        )
+        self.vault = (
+            AgentVaultRepositoryBackend(store, kind="workflow_glyphs")
+            if store
+            else None
+        )
 
     def workflow_dir(self, business_container: str) -> Path:
         safe_business = _safe_id(business_container, "costa-conexion")
@@ -91,6 +109,23 @@ class WorkflowGlyphRepository:
             "updated_at": now,
         }
 
+        if self.vault is not None:
+            self.vault.put(
+                workspace_id=record["business_container"],
+                item_id=record["workflow_id"],
+                payload=record,
+            )
+            return {
+                "ok": True,
+                "workflow_id": record["workflow_id"],
+                "business_container": record["business_container"],
+                "path": (
+                    "vault://train_agent.automations/workflow_glyphs/"
+                    + record["workflow_id"]
+                ),
+                "updated_at": record["updated_at"],
+            }
+
         path = self.workflow_path(record["business_container"], record["workflow_id"])
         path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -107,6 +142,11 @@ class WorkflowGlyphRepository:
         }
 
     def load(self, business_container: str, workflow_id: str) -> dict[str, Any] | None:
+        if self.vault is not None:
+            return self.vault.get(
+                workspace_id=_safe_id(business_container, "costa-conexion"),
+                item_id=_safe_id(workflow_id, "workflow_draft_1"),
+            )
         path = self.workflow_path(business_container, workflow_id)
         if not path.exists():
             return None

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from dataclasses import dataclass
 import json
 from pathlib import Path
 import re
@@ -14,6 +15,18 @@ from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.business_container_repository import (
     BusinessContainerRepository,
 )
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.business_data_domain_registry import (
+    BusinessDataDomainRegistryError,
+    department_vault_namespaces,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import (
     WorkflowFileCabinetRepository,
 )
@@ -56,6 +69,25 @@ SECRET_FIELDS = {"password", "passcode", "otp", "token", "secret", "api_key", "a
 _LOCK = RLock()
 
 
+@dataclass(frozen=True)
+class _VaultRecordPath:
+    store: VaultDomainStore
+    workspace_id: str
+    kind: str
+    item_id: str
+
+    @property
+    def name(self) -> str:
+        return f"{self.item_id}.json"
+
+    def exists(self) -> bool:
+        return self.store.get_optional(
+            "train_agent.automations",
+            workspace_id=self.workspace_id,
+            entity_id=f"{self.kind}/{self.item_id}",
+        ) is not None
+
+
 def _now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
@@ -67,6 +99,22 @@ def _safe(value: Any, fallback: str = "item") -> str:
 
 def _identity(prefix: str) -> str:
     return f"{prefix}_{uuid4().hex[:16]}"
+
+
+def _validated_department_id(value: Any) -> str:
+    """Accept current or future departments without weakening Vault isolation."""
+
+    department_id = str(value or "").strip().lower()
+    if not department_id or department_id == "item" or _safe(department_id).lower() != department_id:
+        raise ValueError("invalid_department_id")
+    try:
+        # This is also the namespace-escape guard used by the update release
+        # contract. A department introduced later is valid only when it can be
+        # isolated beneath its own complete Vault namespace plan.
+        department_vault_namespaces(department_id)
+    except BusinessDataDomainRegistryError as exc:
+        raise ValueError("invalid_department_id") from exc
+    return department_id
 
 
 def _redact(value: Any, key: str = "") -> Any:
@@ -94,10 +142,19 @@ class PilotOperatingTeamService:
         container_repository: BusinessContainerRepository | None = None,
         coo_mission_service: CooMissionService | None = None,
         workflow_cabinet_loader: Callable[[str], dict[str, Any]] | None = None,
+        domain_store: VaultDomainStore | None = None,
     ) -> None:
         self.base_dir = Path(base_dir) if base_dir else AIONBusinessPaths.BUSINESS_CONTAINERS
-        self.containers = container_repository or BusinessContainerRepository(
-            base_dir=Path(base_dir) if base_dir else None
+        self.domain_store = domain_store
+        if self.domain_store is None and base_dir is None and guardian_mode_requested():
+            self.domain_store = VaultDomainStore(
+                configured_business_vault_runtime().guardian,
+                actor_id="train-agent-runtime",
+            )
+        self.containers = container_repository or (
+            BusinessContainerRepository(base_dir=Path(base_dir))
+            if base_dir is not None
+            else configured_business_container_repository()
         )
         self.coo_missions = coo_mission_service or CooMissionService()
         self.workflow_cabinet_loader = workflow_cabinet_loader or WorkflowFileCabinetRepository.load
@@ -112,17 +169,48 @@ class PilotOperatingTeamService:
             (root / folder).mkdir(parents=True, exist_ok=True)
         return root
 
-    def _path(self, workspace_id: str, kind: str, item_id: str) -> Path:
+    def _path(self, workspace_id: str, kind: str, item_id: str) -> Path | _VaultRecordPath:
+        if self.domain_store is not None:
+            return _VaultRecordPath(
+                self.domain_store,
+                _safe(workspace_id, "default"),
+                _safe(kind),
+                _safe(item_id),
+            )
         return self._root(workspace_id) / kind / f"{_safe(item_id)}.json"
 
-    @staticmethod
-    def _read(path: Path) -> dict[str, Any]:
+    def _read(self, path: Path | _VaultRecordPath) -> dict[str, Any]:
+        if isinstance(path, _VaultRecordPath):
+            record = path.store.get_optional(
+                "train_agent.automations",
+                workspace_id=path.workspace_id,
+                entity_id=f"{path.kind}/{path.item_id}",
+            )
+            if record is None:
+                raise FileNotFoundError(path.name)
+            return dict(record["payload"])
         if not path.exists():
             raise FileNotFoundError(path.name)
         return json.loads(path.read_text(encoding="utf-8"))
 
-    @staticmethod
-    def _write(path: Path, payload: dict[str, Any]) -> dict[str, Any]:
+    def _write(self, path: Path | _VaultRecordPath, payload: dict[str, Any]) -> dict[str, Any]:
+        if isinstance(path, _VaultRecordPath):
+            with _LOCK:
+                existing = path.store.get_optional(
+                    "train_agent.automations",
+                    workspace_id=path.workspace_id,
+                    entity_id=f"{path.kind}/{path.item_id}",
+                )
+                path.store.put(
+                    "train_agent.automations",
+                    workspace_id=path.workspace_id,
+                    entity_id=f"{path.kind}/{path.item_id}",
+                    payload=payload,
+                    expected_version=int(existing["version"]) if existing else None,
+                    idempotency_key=f"train-agent-{uuid4().hex}",
+                    actor_id="train-agent-runtime",
+                )
+            return payload
         with _LOCK:
             path.parent.mkdir(parents=True, exist_ok=True)
             temporary = path.with_suffix(path.suffix + ".tmp")
@@ -131,6 +219,16 @@ class PilotOperatingTeamService:
         return payload
 
     def _list(self, workspace_id: str, kind: str) -> list[dict[str, Any]]:
+        if self.domain_store is not None:
+            prefix = f"{_safe(kind)}/"
+            return [
+                dict(record["payload"])
+                for record in self.domain_store.list(
+                    "train_agent.automations",
+                    workspace_id=_safe(workspace_id, "default"),
+                )
+                if str(record.get("entity_id") or "").startswith(prefix)
+            ]
         items: list[dict[str, Any]] = []
         for path in sorted((self._root(workspace_id) / kind).glob("*.json")):
             try:
@@ -139,6 +237,44 @@ class PilotOperatingTeamService:
                 continue
         return items
 
+    def save_workspace_state(
+        self,
+        workspace_id: str,
+        state_id: str,
+        *,
+        payload: dict[str, Any],
+        saved_by: str = "person:founder",
+    ) -> dict[str, Any]:
+        """Persist Train Agent UI/workflow state in the business Vault.
+
+        Canvas tabs contain complete automation graphs and therefore business
+        procedures, customer routing and connector configuration.  They are
+        business data, not disposable browser preferences.
+        """
+        safe_state_id = _safe(state_id, "workspace-state")
+        if not isinstance(payload, dict):
+            raise ValueError("workspace_state_payload_required")
+        record = {
+            "schema_version": "aion.train_agent.workspace_state.v1",
+            "workspace_id": workspace_id,
+            "state_id": safe_state_id,
+            "payload": _redact(payload),
+            "saved_at": _now(),
+            "saved_by": saved_by,
+        }
+        self._write(self._path(workspace_id, "workspace_state", safe_state_id), record)
+        self._audit(
+            workspace_id,
+            "train_agent_workspace_state_saved",
+            {"state_id": safe_state_id, "saved_by": saved_by},
+        )
+        return record
+
+    def workspace_state(self, workspace_id: str, state_id: str) -> dict[str, Any]:
+        return self._read(
+            self._path(workspace_id, "workspace_state", _safe(state_id, "workspace-state"))
+        )
+
     def _seal(self, payload: dict[str, Any], hash_field: str) -> dict[str, Any]:
         sealed = dict(payload)
         sealed.pop(hash_field, None)
@@ -146,6 +282,38 @@ class PilotOperatingTeamService:
         return sealed
 
     def _audit(self, workspace_id: str, event_type: str, payload: dict[str, Any]) -> dict[str, Any]:
+        if self.domain_store is not None:
+            with _LOCK:
+                events = self.domain_store.list(
+                    "train_agent.runs_and_audit",
+                    workspace_id=_safe(workspace_id, "default"),
+                )
+                previous_event = max(
+                    (dict(record["payload"]) for record in events),
+                    key=lambda item: int(item.get("sequence") or 0),
+                    default={"sequence": 0, "event_hash": "GENESIS"},
+                )
+                event = {
+                    "schema_version": "aion.pilot.audit_event.v2",
+                    "workspace_id": workspace_id,
+                    "sequence": int(previous_event.get("sequence") or 0) + 1,
+                    "event_id": _identity("pilot_event"),
+                    "event_type": event_type,
+                    "occurred_at": _now(),
+                    "previous_hash": previous_event.get("event_hash") or "GENESIS",
+                    "payload": _redact(payload),
+                }
+                event["event_hash"] = canonical_contract_hash(event)
+                self.domain_store.put(
+                    "train_agent.runs_and_audit",
+                    workspace_id=_safe(workspace_id, "default"),
+                    entity_id=f"event-{event['sequence']:012d}-{event['event_id']}",
+                    payload=event,
+                    expected_version=None,
+                    idempotency_key=f"train-agent-audit-{event['event_id']}",
+                    actor_id="train-agent-runtime",
+                )
+            return event
         root = self._root(workspace_id)
         head_path = root / "audit_head.json"
         with _LOCK:
@@ -168,6 +336,29 @@ class PilotOperatingTeamService:
         return event
 
     def verify_audit(self, workspace_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            events = sorted(
+                (
+                    dict(record["payload"])
+                    for record in self.domain_store.list(
+                        "train_agent.runs_and_audit",
+                        workspace_id=_safe(workspace_id, "default"),
+                    )
+                ),
+                key=lambda item: int(item.get("sequence") or 0),
+            )
+            previous = "GENESIS"
+            for position, stored in enumerate(events, start=1):
+                event = dict(stored)
+                supplied = event.pop("event_hash", None)
+                if (
+                    int(event.get("sequence") or 0) != position
+                    or event.get("previous_hash") != previous
+                    or canonical_contract_hash(event) != supplied
+                ):
+                    return {"ok": False, "count": position - 1, "reason": "audit_chain_mismatch"}
+                previous = str(supplied)
+            return {"ok": True, "count": len(events), "head_hash": previous}
         path = self._root(workspace_id) / "audit.jsonl"
         previous = "GENESIS"
         count = 0
@@ -190,13 +381,15 @@ class PilotOperatingTeamService:
     ) -> dict[str, Any]:
         capsules = []
         for department in departments:
-            department_id = _safe(department).lower()
-            if department_id not in DEPARTMENTS:
-                raise ValueError(f"unsupported_department:{department_id}")
+            department_id = _validated_department_id(department)
             path = self._path(workspace_id, "capsules", department_id)
-            department_workspace = self._root(workspace_id) / "department_workspaces" / department_id
-            for folder in ("files", "artifacts", "downloads"):
-                (department_workspace / folder).mkdir(parents=True, exist_ok=True)
+            if self.domain_store is None:
+                department_workspace = self._root(workspace_id) / "department_workspaces" / department_id
+                for folder in ("files", "artifacts", "downloads"):
+                    (department_workspace / folder).mkdir(parents=True, exist_ok=True)
+                workspace_path = str(department_workspace.relative_to(self.base_dir / _safe(workspace_id, "default")))
+            else:
+                workspace_path = f"guardian://pilot-operating-team/{_safe(workspace_id)}/departments/{department_id}"
             if path.exists():
                 capsules.append(self._read(path))
                 continue
@@ -206,7 +399,7 @@ class PilotOperatingTeamService:
                 "workspace_id": workspace_id,
                 "department_id": department_id,
                 "browser_profile_id": f"pilot-{_safe(workspace_id)}-{department_id}",
-                "workspace_path": str(department_workspace.relative_to(self.base_dir / _safe(workspace_id, "default"))),
+                "workspace_path": workspace_path,
                 "control_state": "pilot",
                 "controller_id": f"department_pilot:{department_id}",
                 "previous_controller_id": None,
@@ -319,8 +512,7 @@ class PilotOperatingTeamService:
         source_systems: list[str] | None = None,
         failure_policy: str = "stop_and_report",
     ) -> dict[str, Any]:
-        if department_id not in DEPARTMENTS:
-            raise ValueError("unsupported_skill_department")
+        department_id = _validated_department_id(department_id)
         if not observed_steps:
             raise ValueError("demonstration_requires_steps")
         skill_id = _identity("pilot_skill")
@@ -671,8 +863,7 @@ class PilotOperatingTeamService:
     ) -> dict[str, Any]:
         if bool(schedule) == bool(event_trigger):
             raise ValueError("routine_requires_exactly_one_trigger")
-        if department_id not in DEPARTMENTS:
-            raise ValueError("unsupported_routine_department")
+        department_id = _validated_department_id(department_id)
         if skill_id:
             skill = self._read(self._path(workspace_id, "skills", skill_id))
             if skill.get("status") != "published":
@@ -1121,13 +1312,20 @@ class PilotOperatingTeamService:
             "gateway": gateway,
             "created_at": _now(),
         }
-        task_path = (
-            self._root(workspace_id)
-            / "department_workspaces"
-            / _safe(department_id)
-            / "tasks"
-            / f"{_safe(str(queue_item.get('task_id') or assignment_id))}.json"
-        )
+        if self.domain_store is not None:
+            task_path = self._path(
+                workspace_id,
+                "department_assignments",
+                f"{_safe(department_id)}--{_safe(str(queue_item.get('task_id') or assignment_id))}",
+            )
+        else:
+            task_path = (
+                self._root(workspace_id)
+                / "department_workspaces"
+                / _safe(department_id)
+                / "tasks"
+                / f"{_safe(str(queue_item.get('task_id') or assignment_id))}.json"
+            )
         self._write(task_path, self._seal(assignment, "assignment_hash"))
 
         capsule_path = self._path(workspace_id, "capsules", department_id)
@@ -1243,8 +1441,7 @@ class PilotOperatingTeamService:
     ) -> dict[str, Any]:
         path = self._path(workspace_id, "missions", mission_id)
         mission = self._read(path)
-        if department_id not in DEPARTMENTS:
-            raise ValueError("unsupported_handoff_department")
+        department_id = _validated_department_id(department_id)
         if depth > int(mission["max_handoff_depth"]):
             raise ValueError("mission_handoff_depth_exceeded")
         if len(mission["assignments"]) >= int(mission["max_parallel_assignments"]):
@@ -1603,8 +1800,7 @@ class PilotOperatingTeamService:
         payload: dict[str, Any],
         registered_capability: bool,
     ) -> dict[str, Any]:
-        if department_id not in DEPARTMENTS:
-            raise ValueError("unsupported_action_department")
+        department_id = _validated_department_id(department_id)
         exact = {
             "department_id": department_id,
             "initiator": initiator,

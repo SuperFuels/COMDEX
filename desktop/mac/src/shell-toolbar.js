@@ -95,6 +95,10 @@
     }
   };
 
+  window.refreshTessarisModelSwitcher = refreshModelSwitcher;
+  window.addEventListener("tessaris-lead-model-changed", () => void refreshModelSwitcher());
+  modelSelect?.addEventListener("focus", () => void refreshModelSwitcher(), { once: true });
+
   modelSelect?.addEventListener("change", async () => {
     const option = modelSelect.options[modelSelect.selectedIndex];
     const selection = {
@@ -315,11 +319,7 @@
     pilotToggle?.focus();
   });
   void refreshPilotStatus({ quiet: true });
-  window.setTimeout(() => void refreshModelSwitcher(), 600);
-  window.setTimeout(() => void refreshModelSwitcher(), 2500);
-  window.setTimeout(() => void refreshModelSwitcher(), 7000);
   window.setInterval(() => void refreshPilotStatus({ quiet: true }), 8000);
-  window.setInterval(() => void refreshModelSwitcher(), 30000);
 
   toolbar.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-tessaris-shell-action]");

@@ -4,11 +4,21 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
 import json
+import os
+import uuid
 
 from backend.modules.workflow_capsules.foundations.workflow_capsule_schema import WorkflowCapsule
 from backend.modules.workflow_capsules.habits.habit_capsule_schema import (
     HabitCapsule,
     make_habit_key,
+)
+from backend.modules.workflow_capsules.habits.habit_capsule_repository import (
+    HabitCapsuleRepository,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_agents.runtime.vault_repository_backend import (
+    AgentVaultRepositoryBackend,
+    configured_agent_domain_store,
 )
 
 
@@ -39,13 +49,41 @@ class HabitPromotionEngine:
     def __init__(
         self,
         *,
-        habit_dir: Path | str = DEFAULT_HABIT_DIR,
-        promotion_log: Path | str = DEFAULT_PROMOTION_LOG,
+        habit_dir: Path | str | None = None,
+        promotion_log: Path | str | None = None,
+        repository: HabitCapsuleRepository | None = None,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
         min_successful_runs: int = 3,
         min_avg_quality: float = 0.70,
     ) -> None:
-        self.habit_dir = Path(habit_dir)
-        self.promotion_log = Path(promotion_log)
+        explicit_legacy = habit_dir is not None or promotion_log is not None
+        self.habit_dir = Path(habit_dir or DEFAULT_HABIT_DIR)
+        self.promotion_log = Path(promotion_log or DEFAULT_PROMOTION_LOG)
+        store = domain_store or (
+            configured_agent_domain_store() if not explicit_legacy else None
+        )
+        self.workspace_id = str(
+            workspace_id
+            or os.environ.get("TESSARIS_BUSINESS_STABLE_ID")
+            or ""
+        ).strip()
+        self.repository = repository or HabitCapsuleRepository(
+            habit_dir=(self.habit_dir if explicit_legacy else None),
+            domain_store=store,
+            workspace_id=self.workspace_id or None,
+        )
+        self.log_vault = (
+            AgentVaultRepositoryBackend(
+                store,
+                kind="workflow_capsule_habit_promotion_events",
+                audit=True,
+            )
+            if store
+            else None
+        )
+        if self.log_vault is not None and not self.workspace_id:
+            raise ValueError("workflow_capsule_habit_promotion_workspace_id_required")
         self.min_successful_runs = max(1, int(min_successful_runs))
         self.min_avg_quality = _clamp01(min_avg_quality, 0.70)
 
@@ -127,8 +165,8 @@ class HabitPromotionEngine:
             ).finalize()
 
             if persist:
-                habit_path = self.habit_dir / f"{habit_key.replace(':', '_').replace('/', '_')}.json"
-                habit.save(habit_path)
+                saved = self.repository.save(habit)
+                habit_path = saved["path"]
 
             promoted = True
 
@@ -161,6 +199,14 @@ class HabitPromotionEngine:
         return record
 
     def _append_log(self, record: Dict[str, Any]) -> None:
+        if self.log_vault is not None:
+            source_key = str(record.get("source_workflow_key") or "workflow")
+            self.log_vault.put(
+                workspace_id=self.workspace_id,
+                item_id=f"{source_key.replace('/', '_')}-{uuid.uuid4().hex}",
+                payload=record,
+            )
+            return
         self.promotion_log.parent.mkdir(parents=True, exist_ok=True)
         with self.promotion_log.open("a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")

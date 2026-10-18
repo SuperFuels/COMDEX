@@ -57,7 +57,8 @@ def test_unique_template_is_promoted_after_training_holdout_and_verifier_diversi
     assert decision.candidate_template_ids == ("increase_a_percent_b.v1",)
     assert decision.promoted_sheet["origin"] == "verified_model_outcomes"
     assert decision.promoted_sheet["promotion_evidence"]["holdout_observations"] == 2
-    assert (tmp_path / "promoted" / "calculate.marked.up.price.v1.json").exists()
+    assert not (tmp_path / "learning.sqlite3").exists()
+    assert not (tmp_path / "promoted").exists()
 
 
 def test_promoted_sheet_executes_new_values_with_inverse_receipt_and_no_model(tmp_path):
@@ -148,15 +149,15 @@ def test_execute_fails_closed_on_unknown_intent_or_input_mismatch(tmp_path):
     assert missing.proof_receipt["gate_reason"] == "no_promoted_atomsheet"
 
 
-def test_status_and_audit_are_persistent(tmp_path):
+def test_status_and_audit_are_memory_only_without_customer_vault(tmp_path):
     store = _store(tmp_path)
     _observe_markup(store, 0, "100", "10")
     status = store.status()
     assert status["verified_outcomes"] == 1
     assert status["candidate_intents"] == 1
     assert status["last_audit_sequence"] >= 2
-    reopened = _store(tmp_path)
-    assert reopened.status()["verified_outcomes"] == 1
+    assert not (tmp_path / "learning.sqlite3").exists()
+    assert not (tmp_path / "promoted").exists()
 
 
 def test_later_verified_outcome_monitors_without_rewriting_promoted_contract(tmp_path):

@@ -7,27 +7,81 @@ from pathlib import Path
 from typing import Any, Dict
 from uuid import uuid4
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
 
 
 class PrivateEntertainmentPersonalization:
     """Persona-isolated watchlists, deterministic recommendations, reminders and service health."""
 
-    def __init__(self, runtime_dir: str | Path) -> None:
+    def __init__(
+        self,
+        runtime_dir: str | Path,
+        *,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.root = Path(runtime_dir) / "entertainment_personalization"
         self.path = self.root / "state.json"
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_entertainment_workspace_required")
+
+    @staticmethod
+    def _empty_state() -> Dict[str, Any]:
+        return {
+            "schema_version": "aion.private-entertainment-personalization.store.v1",
+            "watchlists": [],
+            "history": [],
+            "reminders": [],
+            "service_health": {},
+            "pending_history": [],
+        }
 
     def _read(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_entertainment_personalization",
+            )
+            return dict(result["payload"]) if result else self._empty_state()
         if not self.path.exists():
-            return {"watchlists": [], "history": [], "reminders": [], "service_health": {}}
+            return self._empty_state()
         try:
             value = json.loads(self.path.read_text(encoding="utf-8"))
-            return value if isinstance(value, dict) else {"watchlists": [], "history": [], "reminders": [], "service_health": {}}
+            return value if isinstance(value, dict) else self._empty_state()
         except (OSError, json.JSONDecodeError):
-            return {"watchlists": [], "history": [], "reminders": [], "service_health": {}}
+            return self._empty_state()
 
     def _write(self, state: Dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_entertainment_personalization",
+            )
+            payload = dict(state)
+            payload.setdefault(
+                "schema_version", "aion.private-entertainment-personalization.store.v1"
+            )
+            payload["updated_at"] = utc_now_iso()
+            self.domain_store.put(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_entertainment_personalization",
+                payload=payload,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
         temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(state))
         os.chmod(temporary, 0o600)
@@ -199,3 +253,63 @@ class PrivateEntertainmentPersonalization:
         reminders = [dict(item) for item in state.get("reminders", []) if persona_id and item.get("persona_id") == persona_id]
         pending = [dict(item) for item in state.get("pending_history", []) if item.get("status") == "awaiting_private_claim"]
         return {"watchlists": watchlists[-50:], "private_history": history[-50:], "reminders": reminders[-50:], "service_health": dict(state.get("service_health") or {}), "pending_history": pending[-10:]}
+
+
+def configured_private_entertainment_personalization(
+    runtime_dir: str | Path,
+) -> PrivateEntertainmentPersonalization:
+    """Select encrypted persona entertainment state and retain verified legacy JSON."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_entertainment_workspace_required")
+        domains = VaultDomainStore(runtime.guardian, actor_id="aion-fabric-entertainment")
+        selected = PrivateEntertainmentPersonalization(
+            runtime_path, domain_store=domains, workspace_id=workspace_id
+        )
+        entity_id = "aion_fabric.private_entertainment_personalization"
+        source = runtime_path / "entertainment_personalization" / "state.json"
+        if source.exists() and domains.get_optional(
+            "learning.customer_state", workspace_id=workspace_id, entity_id=entity_id
+        ) is None:
+            legacy = PrivateEntertainmentPersonalization(runtime_path)
+            legacy_state = legacy._read()
+            domains.put(
+                "learning.customer_state",
+                workspace_id=workspace_id,
+                entity_id=entity_id,
+                payload=legacy_state,
+            )
+            restored = domains.get_optional(
+                "learning.customer_state", workspace_id=workspace_id, entity_id=entity_id
+            )
+            if (
+                restored is None
+                or dict(restored["payload"]) != legacy_state
+                or not source.exists()
+            ):
+                raise RuntimeError("aion_fabric_entertainment_migration_verification_failed")
+            from hashlib import sha256
+
+            digest = sha256(source.read_bytes()).hexdigest()
+            domains.put(
+                "learning.audit",
+                workspace_id=workspace_id,
+                entity_id=f"aion_fabric.private_entertainment_migration.{digest}",
+                payload={
+                    "schema_version": "aion.private-entertainment-migration.v1",
+                    "source_sha256": digest,
+                    "source_file_count": 1,
+                    "source_retained": True,
+                    "copied_and_verified": True,
+                    "completed_at": utc_now_iso(),
+                },
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_entertainment_required_in_production")
+    return PrivateEntertainmentPersonalization(runtime_path)

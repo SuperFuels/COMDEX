@@ -13,7 +13,10 @@ from backend.modules.aion_business.contracts.workspace import WorkspaceSpec
 from backend.modules.aion_business.runtime.aion_flow_authority import AionFlowWorkspaceAuthority
 from backend.modules.aion_business.runtime.aion_flow_production import AionFlowProductionService
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_vault import provision_business_vault
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_guardian import VaultGuardian
 from backend.modules.aion_business.runtime.workspace_repository import WorkspaceRepository
 
 
@@ -225,3 +228,29 @@ def test_concurrent_writers_cannot_both_commit_the_same_base_revision(tmp_path):
 
     assert sorted(item[0] for item in results) == ["blocked", "committed"]
     assert first.history("wf-production", actor=actor())["revision"] == 1
+
+
+def test_production_revisions_restart_from_encrypted_business_vault(tmp_path):
+    production = service(tmp_path)
+    layout = provision_business_vault(
+        tmp_path / "vault", business_name="Acme", business_stable_id="acme",
+        application_root=tmp_path / "app", update_root=tmp_path / "updates",
+    )
+    guardian = VaultGuardian(layout, business_stable_id="acme", encryption_key=b"p" * 32)
+    domains = VaultDomainStore(guardian)
+    production.domain_store = domains
+
+    committed = production.commit(graph("private production automation"), actor=actor(), base_revision=0)
+    assert committed["revision"] == 1
+    restarted = AionFlowProductionService(
+        tmp_path / "restarted-production", authority=production.authority, domain_store=domains,
+    )
+    history = restarted.history("wf-production", actor=actor())
+    assert history["revision"] == 1
+    stored = domains.get(
+        "train_agent.automations", workspace_id="space-1",
+        entity_id="aion_flow/production_revisions",
+    )["payload"]
+    assert stored["workflows"]["space-1:wf-production"]["history"][0]["graph"]["name"] == "private production automation"
+    assert b"private production automation" not in guardian.database.read_bytes()
+    assert not production.state_path.exists()

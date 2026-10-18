@@ -44,6 +44,28 @@ _CONTAINER_FILE_MAP: dict[BusinessContainerKind, str] = {
 
 
 class BusinessContainerRepository:
+    def __new__(cls, base_dir: str | Path | None = None):
+        # This is the final compatibility boundary for older departmental
+        # services.  A default repository must never bypass an explicitly
+        # enabled Guardian vault; explicit paths remain available only for
+        # tests and copy/verify migration sources.
+        if cls is BusinessContainerRepository and base_dir is None:
+            from backend.modules.aion_business.runtime.business_vault_runtime import (
+                configured_business_vault_runtime,
+                guardian_mode_requested,
+            )
+
+            if guardian_mode_requested():
+                from backend.modules.aion_business.runtime.guardian_business_container_repository import (
+                    GuardianBusinessContainerRepository,
+                )
+
+                return GuardianBusinessContainerRepository(
+                    configured_business_vault_runtime().guardian,
+                    default_actor_id="business-container-compatibility-boundary",
+                )
+        return super().__new__(cls)
+
     def __init__(self, base_dir: str | Path | None = None) -> None:
         self.base_dir = Path(base_dir) if base_dir else AIONBusinessPaths.ROOT / "business_containers"
         self.base_dir.mkdir(parents=True, exist_ok=True)

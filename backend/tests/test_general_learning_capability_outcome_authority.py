@@ -41,3 +41,16 @@ def test_capability_portfolios_are_finite_and_cross_domain() -> None:
     assert len(set(families)) == len(SCENARIOS)
     exhausted = runner(contract, evidence)
     assert exhausted["status"] == "diverse_project_executor_required"
+
+
+def test_capability_knowledge_portfolio_can_reach_expert_case_count() -> None:
+    runner = build_general_learning_capability_runners()["capability_systems_thinking"]
+    evidence = []
+    families = []
+    contract = {"requirement": {"kind": "knowledge_test", "subskills": ["model_feedback"]}}
+    for _ in range(15):
+        result = runner(contract, evidence)
+        assert result["passed"] is True
+        families.append(result["project_family"])
+        evidence.append({"kind": "knowledge_test", "project_family": result["project_family"]})
+    assert len(set(families)) == 15

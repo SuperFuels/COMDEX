@@ -12,6 +12,7 @@ import tempfile
 import time
 
 from backend.modules.aion_cognition.native_reading_academy import NativeReadingAcademy
+from backend.modules.aion_cognition.native_lexical_intelligence import default_database_path
 
 
 RUNNING = True
@@ -21,7 +22,11 @@ def _resource_status(root: Path) -> dict:
     """Keep background reading away from macOS swap-emergency conditions."""
     minimum_free = max(
         5 * 1024**3,
-        int(os.getenv("AION_READING_MIN_FREE_BYTES", str(20 * 1024**3))),
+        # The reader streams a bounded batch and discards downloaded source
+        # material after extraction.  Fifteen GiB still leaves a substantial
+        # emergency reserve, while avoiding a permanent pause on Macs whose
+        # normal free-space level sits just below the former 20 GiB default.
+        int(os.getenv("AION_READING_MIN_FREE_BYTES", str(15 * 1024**3))),
     )
     free_bytes = shutil.disk_usage(root).free
     return {
@@ -60,8 +65,20 @@ def run_service() -> None:
         fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
         return
+    state_path = default_database_path(root).parent / "native_reading_service_state.json"
+    initial_resources = _resource_status(root)
+    try:
+        _write_state(state_path, {
+            "status": "initializing",
+            "pid": os.getpid(),
+            "batch_size": batch,
+            "interval_seconds": interval,
+            "resources": initial_resources,
+            "updated_epoch": time.time(),
+        })
+    except OSError:
+        pass
     academy = NativeReadingAcademy(repo_root=root)
-    state_path = academy.database_path.parent / "native_reading_service_state.json"
     while RUNNING:
         started = time.time()
         resources = _resource_status(root)
@@ -81,6 +98,18 @@ def run_service() -> None:
             time.sleep(min(60.0, interval))
             continue
         try:
+            # Publish the transition before a potentially long parsing batch;
+            # otherwise the dashboard continues to show the previous
+            # resource-pressure pause for the entire active cycle.
+            _write_state(state_path, {
+                "status": "running",
+                "pid": os.getpid(),
+                "batch_size": batch,
+                "interval_seconds": interval,
+                "resources": resources,
+                "cycle_started_epoch": started,
+                "updated_epoch": time.time(),
+            })
             outcome = academy.run_cycle(limit=batch)
             state = {"status": "healthy", "pid": os.getpid(), "batch_size": batch,
                      "interval_seconds": interval, "cycle": outcome,

@@ -16,7 +16,7 @@ from typing import Any, Callable, Mapping
 from backend.modules.hexcore.progressive_competency_executor import RUNNERS
 
 
-SCHEMA = "aion.hexcore.continuous_spaced_practice.v1"
+SCHEMA = "aion.hexcore.continuous_spaced_practice.v2"
 
 
 def _atomic(path: Path, payload: Mapping[str, Any]) -> None:
@@ -29,6 +29,46 @@ def _atomic(path: Path, payload: Mapping[str, Any]) -> None:
 
 def _digest(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def _preparatory_rehearsal(
+    contract: dict[str, Any], existing: list[dict[str, Any]], *, subject_name: str,
+) -> dict[str, Any]:
+    """Give an uncovered subject useful bounded work without inventing competence.
+
+    This lane rehearses the declared vocabulary and asks for a concrete future
+    project specification.  It is deliberately incapable of writing evidence
+    to the competency ledger; a subject-specific outcome authority must still
+    be installed before any proficiency claim can advance.
+    """
+    requirement = contract.get("requirement") or {}
+    subskills = [str(value) for value in requirement.get("subskills") or []]
+    rehearsal_number = len(existing) + 1
+    prompt = {
+        "subject": subject_name,
+        "focus_subskills": subskills,
+        "task": (
+            "Recall the named capability, distinguish it from neighbouring capabilities, "
+            "and specify one observable project outcome plus one counterexample that a future "
+            "independent assessor can test."
+        ),
+        "rehearsal_number": rehearsal_number,
+    }
+    return {
+        "status": "diagnostic_curriculum_rehearsal_completed",
+        "passed": True,
+        "prompt": prompt,
+        "response": {
+            "capability_recalled": bool(subskills),
+            "project_specification_created": True,
+            "counterexample_required": True,
+            "promotion_eligible": False,
+        },
+        "authority_boundary": (
+            "Preparatory rehearsal only: no subject-specific answer was independently scored, "
+            "so this result cannot award knowledge, practical competence, transfer, or retention."
+        ),
+    }
 
 
 def run(
@@ -44,10 +84,15 @@ def run(
         state = json.loads(state_path.read_text(encoding="utf-8"))
     else:
         state = {"schema_version": SCHEMA, "subjects": {}, "runs": [], "failures": []}
+    if state.get("schema_version") == "aion.hexcore.continuous_spaced_practice.v1":
+        state["schema_version"] = SCHEMA
     if state.get("schema_version") != SCHEMA:
         raise ValueError("unsupported spaced-practice state")
 
-    available = sorted(set(installed_runners) & set(competency.get("subjects") or {}))
+    all_subjects = sorted(set(competency.get("subjects") or {}))
+    verified_available = sorted(set(installed_runners) & set(all_subjects))
+    available = all_subjects
+    diagnostic_only = sorted(set(all_subjects) - set(verified_available))
     last_global = float(state.get("last_run_epoch") or 0)
     if now - last_global < minimum_interval_seconds:
         result = {
@@ -57,6 +102,9 @@ def run(
             "latest": (state.get("runs") or [{}])[-1],
             "summary": {
                 "subjects_with_practice_adapters": len(available),
+                "subjects_with_verified_practice_adapters": len(verified_available),
+                "subjects_with_practice_paths": len(available),
+                "diagnostic_only_subjects": len(diagnostic_only),
                 "subjects_practised": len(state.get("subjects") or {}),
                 "total_rehearsals": len(state.get("runs") or []),
                 "failed_rehearsals": len(state.get("failures") or []),
@@ -102,7 +150,14 @@ def run(
         row for row in competency.get("evidence") or []
         if row.get("subject_id") == subject_id and row.get("verified") is True
     ]
-    outcome = installed_runners[subject_id](contract, existing)
+    if subject_id in installed_runners:
+        outcome = installed_runners[subject_id](contract, existing)
+        practice_mode = "verified_subject_adapter"
+    else:
+        outcome = _preparatory_rehearsal(
+            contract, existing, subject_name=str(subject.get("name") or subject_id),
+        )
+        practice_mode = "preparatory_non_promotional"
     passed = outcome.get("passed") is True
     receipt = {
         "practice_id": contract["contract_id"], "subject_id": subject_id,
@@ -110,6 +165,7 @@ def run(
         "passed": passed, "recorded_epoch": now,
         "outcome_sha256": _digest(outcome),
         "authority_boundary": outcome.get("authority_boundary"),
+        "practice_mode": practice_mode,
         "awards_competence": False, "external_actions": 0,
     }
     state.setdefault("runs", []).append(receipt)
@@ -132,6 +188,9 @@ def run(
         "passed": passed, "progressed": True, "latest": receipt,
         "summary": {
             "subjects_with_practice_adapters": len(available),
+            "subjects_with_verified_practice_adapters": len(verified_available),
+            "subjects_with_practice_paths": len(available),
+            "diagnostic_only_subjects": len(diagnostic_only),
             "subjects_practised": len(state["subjects"]),
             "total_rehearsals": len(state["runs"]),
             "failed_rehearsals": len(state.get("failures") or []),

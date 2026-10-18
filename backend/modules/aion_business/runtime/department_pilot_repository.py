@@ -12,6 +12,11 @@ from backend.modules.aion_business.contracts.department_pilot import (
     TaskStatus,
 )
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 class DepartmentPilotConcurrencyError(RuntimeError):
@@ -21,11 +26,27 @@ class DepartmentPilotConcurrencyError(RuntimeError):
 class DepartmentPilotRepository:
     """Persist one immutable-hash envelope per task with compare-and-swap updates."""
 
-    def __init__(self, base_dir: str | Path | None = None) -> None:
+    def __init__(
+        self,
+        base_dir: str | Path | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
         self.base_dir = (
             Path(base_dir) if base_dir is not None else AIONBusinessPaths.DEPARTMENT_PILOT_RUNTIME
         )
-        self.base_dir.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        if self.domain_store is None and base_dir is None and guardian_mode_requested():
+            self.domain_store = VaultDomainStore(
+                configured_business_vault_runtime().guardian,
+                actor_id="department-pilot-runtime",
+            )
+        if self.domain_store is None:
+            self.base_dir.mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _entity_id(department_id: str, task_id: str) -> str:
+        return f"{department_id}/{task_id}"
 
     def _department_dir(self, workspace_id: str, department_id: str) -> Path:
         path = self.base_dir / workspace_id / department_id
@@ -53,6 +74,24 @@ class DepartmentPilotRepository:
         temporary.replace(path)
 
     def create(self, envelope: DepartmentPilotWorkEnvelope) -> str:
+        if self.domain_store is not None:
+            entity_id = self._entity_id(envelope.task.department_id, envelope.task.task_id)
+            if self.domain_store.get_optional(
+                "departments.pilot_tasks",
+                workspace_id=envelope.task.workspace_id,
+                entity_id=entity_id,
+            ) is not None:
+                raise FileExistsError("Department Pilot task already exists")
+            result = self.domain_store.put(
+                "departments.pilot_tasks",
+                workspace_id=envelope.task.workspace_id,
+                entity_id=entity_id,
+                payload=envelope.model_dump(mode="json"),
+                expected_version=None,
+                idempotency_key=f"department-task-create-{envelope.envelope_hash.removeprefix('sha256:')[:32]}",
+            )
+            self._append_audit(envelope, "created")
+            return f"guardian://department_pilot_tasks/{result['record_id']}?version={result['version']}"
         path = self.task_path(
             envelope.task.workspace_id, envelope.task.department_id, envelope.task.task_id
         )
@@ -68,6 +107,29 @@ class DepartmentPilotRepository:
         *,
         expected_previous_hash: str,
     ) -> str:
+        if self.domain_store is not None:
+            entity_id = self._entity_id(envelope.task.department_id, envelope.task.task_id)
+            record = self.domain_store.get(
+                "departments.pilot_tasks",
+                workspace_id=envelope.task.workspace_id,
+                entity_id=entity_id,
+            )
+            current = DepartmentPilotWorkEnvelope.model_validate(record["payload"])
+            if current.envelope_hash != expected_previous_hash:
+                raise DepartmentPilotConcurrencyError(
+                    "department_pilot_stale_write:"
+                    f"expected={expected_previous_hash}:actual={current.envelope_hash}"
+                )
+            result = self.domain_store.put(
+                "departments.pilot_tasks",
+                workspace_id=envelope.task.workspace_id,
+                entity_id=entity_id,
+                payload=envelope.model_dump(mode="json"),
+                expected_version=int(record["version"]),
+                idempotency_key=f"department-task-update-{envelope.envelope_hash.removeprefix('sha256:')[:32]}",
+            )
+            self._append_audit(envelope, "updated", previous_hash=current.envelope_hash)
+            return f"guardian://department_pilot_tasks/{result['record_id']}?version={result['version']}"
         path = self.task_path(
             envelope.task.workspace_id, envelope.task.department_id, envelope.task.task_id
         )
@@ -87,6 +149,16 @@ class DepartmentPilotRepository:
     def load(
         self, workspace_id: str, department_id: str, task_id: str
     ) -> DepartmentPilotWorkEnvelope:
+        if self.domain_store is not None:
+            try:
+                record = self.domain_store.get(
+                    "departments.pilot_tasks",
+                    workspace_id=workspace_id,
+                    entity_id=self._entity_id(department_id, task_id),
+                )
+            except KeyError as exc:
+                raise FileNotFoundError("Department Pilot task not found") from exc
+            return DepartmentPilotWorkEnvelope.model_validate(record["payload"])
         path = self.task_path(workspace_id, department_id, task_id)
         if not path.exists():
             raise FileNotFoundError(f"Department Pilot task not found: {path}")
@@ -100,6 +172,15 @@ class DepartmentPilotRepository:
         statuses: Optional[Iterable[TaskStatus]] = None,
     ) -> list[DepartmentPilotWorkEnvelope]:
         allowed = set(statuses or [])
+        if self.domain_store is not None:
+            envelopes = [
+                DepartmentPilotWorkEnvelope.model_validate(record["payload"])
+                for record in self.domain_store.list(
+                    "departments.pilot_tasks", workspace_id=workspace_id
+                )
+                if str(record.get("entity_id") or "").startswith(f"{department_id}/")
+            ]
+            return [item for item in envelopes if not allowed or item.task.status in allowed]
         envelopes: list[DepartmentPilotWorkEnvelope] = []
         for path in sorted(self._task_dir(workspace_id, department_id).glob("*.json")):
             envelope = DepartmentPilotWorkEnvelope.model_validate_json(
@@ -115,6 +196,16 @@ class DepartmentPilotRepository:
         *,
         statuses: Optional[Iterable[TaskStatus]] = None,
     ) -> list[DepartmentPilotWorkEnvelope]:
+        if self.domain_store is not None:
+            allowed = set(statuses or [])
+            envelopes = [
+                DepartmentPilotWorkEnvelope.model_validate(record["payload"])
+                for record in self.domain_store.list(
+                    "departments.pilot_tasks", workspace_id=workspace_id
+                )
+            ]
+            filtered = [item for item in envelopes if not allowed or item.task.status in allowed]
+            return sorted(filtered, key=lambda item: (item.task.department_id, item.task.task_id))
         workspace_dir = self.base_dir / workspace_id
         if not workspace_dir.exists():
             return []
@@ -149,6 +240,17 @@ class DepartmentPilotRepository:
             "event_count": len(envelope.events),
             "receipt_count": len(envelope.receipts),
         }
+        if self.domain_store is not None:
+            event_id = f"{envelope.task.department_id}/{envelope.task.task_id}/{operation}/{envelope.envelope_hash}"
+            self.domain_store.put(
+                "departments.pilot_audit",
+                workspace_id=envelope.task.workspace_id,
+                entity_id=event_id,
+                payload=record,
+                expected_version=None,
+                idempotency_key=f"department-audit-{envelope.envelope_hash.removeprefix('sha256:')[:24]}-{operation}",
+            )
+            return
         path = self.audit_path(envelope.task.workspace_id, envelope.task.department_id)
         with path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(record, sort_keys=True, ensure_ascii=False) + "\n")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+import base64
 from fastapi import APIRouter, Header, HTTPException, Request
 from urllib.parse import parse_qs
 from pydantic import BaseModel, Field
@@ -62,6 +63,12 @@ class EscalationRequest(BaseModel):
 class ResolutionRequest(BaseModel):
     outcome: str; evidence_reference: str; authority_type: str
     resolved_by_person_id: str
+
+class AttachmentRequest(BaseModel):
+    filename: str = Field(min_length=1, max_length=240)
+    content_type: str = Field(min_length=1, max_length=160)
+    data_base64: str = Field(min_length=1, max_length=24_000_000)
+    captured_by_person_id: str = Field(min_length=1, max_length=160)
 
 class IntakeEndpointRequest(BaseModel):
     name: str = "Website support"
@@ -173,6 +180,22 @@ def create_case(workspace_id: str, request: CaseRequest):
 @router.post("/{workspace_id}/cases/{case_id}/conversation")
 def append_conversation(workspace_id: str, case_id: str, request: ConversationRequest):
     return {"ok": True, "case": _call(service.append_conversation, _workspace(workspace_id), case_id, **request.model_dump())}
+
+@router.post("/{workspace_id}/cases/{case_id}/attachments")
+def capture_attachment(workspace_id: str, case_id: str, request: AttachmentRequest):
+    try:
+        content = base64.b64decode(request.data_base64, validate=True)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail="support_attachment_base64_invalid") from exc
+    return {"ok": True, "attachment": _call(
+        service.capture_attachment,
+        _workspace(workspace_id),
+        case_id,
+        filename=request.filename,
+        content_type=request.content_type,
+        content=content,
+        captured_by_person_id=request.captured_by_person_id,
+    )}
 
 @router.post("/{workspace_id}/cases/{case_id}/responses")
 def prepare_response(workspace_id: str, case_id: str, request: ResponseRequest):

@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
@@ -53,7 +53,8 @@ def validate_nonce(nonce: str) -> bool:
     return ts is not None and (time.time() - ts) < NONCE_TTL
 
 # ─── OAuth2 scheme ───────────────────────────────
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
+AUTH_COOKIE_NAME = os.getenv("TESSARIS_AUTH_COOKIE_NAME", "tessaris_session")
 
 # ─── Token creation & retrieval ───────────────────
 def create_access_token(
@@ -66,9 +67,20 @@ def create_access_token(
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    request: Request,
+    token: Optional[str] = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ) -> User:
+    # Browser sessions use an HttpOnly cookie, so application scripts cannot
+    # read or exfiltrate the credential. Bearer tokens remain accepted for
+    # non-browser API clients during the compatibility migration.
+    token = token or request.cookies.get(AUTH_COOKIE_NAME)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         sub     = payload.get("sub")

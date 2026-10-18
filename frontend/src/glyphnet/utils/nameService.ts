@@ -65,17 +65,14 @@ type Book = {
 };
 
 function keyFor(kg: GraphKey) { return `gnet:aliases:${kg}`; }
+const processBooks = new Map<string, Book>();
 
 function loadBook(kg: GraphKey): Book {
-  try {
-    const raw = localStorage.getItem(keyFor(kg));
-    if (raw) return JSON.parse(raw) as Book;
-  } catch {}
-  return { byWA: {}, byLabel: {} };
+  return processBooks.get(keyFor(kg)) || { byWA: {}, byLabel: {} };
 }
 
 function saveBook(kg: GraphKey, b: Book) {
-  try { localStorage.setItem(keyFor(kg), JSON.stringify(b)); } catch {}
+  processBooks.set(keyFor(kg), b);
 }
 
 /** Persist the best-known label for a WA (and keep reverse mapping). */

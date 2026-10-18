@@ -12,7 +12,7 @@ from backend.modules.aion_business.runtime.department_pilot_contracts import (
     create_provenance,
 )
 from backend.modules.aion_business.runtime.department_pilot_profiles import (
-    get_department_pilot_profile,
+    get_workspace_department_pilot_profile,
 )
 from backend.modules.aion_business.runtime.department_pilot_repository import (
     DepartmentPilotRepository,
@@ -52,7 +52,9 @@ class CentralPilotDepartmentRouter:
         if package.status != "approved" or not package.approval or not package.approval.approved:
             raise ValueError("central_pilot_requires_approved_boardroom_package")
 
-        profile = get_department_pilot_profile(package.department_id)
+        profile = get_workspace_department_pilot_profile(
+            package.workspace_id, package.department_id
+        )
         if profile is None:
             raise ValueError(f"unknown_department_pilot:{package.department_id}")
         if profile.get("activation_state") != "enabled":
@@ -71,13 +73,13 @@ class CentralPilotDepartmentRouter:
                 )
                 if part
             )
-            path = self.repository.task_path(
-                package.workspace_id, package.department_id, task_id
-            )
-            if path.exists():
+            try:
                 existing = self.repository.load(
                     package.workspace_id, package.department_id, task_id
                 )
+            except FileNotFoundError:
+                existing = None
+            if existing is not None:
                 if (
                     existing.package.package_hash != package.package_hash
                     or existing.task.action_id != action.action_id

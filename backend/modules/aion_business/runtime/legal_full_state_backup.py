@@ -84,9 +84,18 @@ class LegalFullStateLayout:
         checkpoint_id = str(os.getenv("GLYPHCHAIN_TRUSTED_CHECKPOINT_ID") or "").strip()
         validator_root = str(os.getenv("GLYPHCHAIN_TRUSTED_VALIDATOR_SET_ROOT") or "").strip()
         if configured_ledger:
-            ledger = Path(configured_ledger).expanduser()
+            ledger = Path(configured_ledger).expanduser().resolve()
         else:
-            ledger = Path(__file__).resolve().parents[4] / "data" / "chain_sim.sqlite3"
+            from backend.modules.aion_business.runtime.business_vault_runtime import (
+                configured_business_vault_runtime,
+                guardian_mode_requested,
+            )
+
+            ledger = (
+                configured_business_vault_runtime().layout.records
+                / "glyphchain"
+                / "chain.sqlite3"
+            ).resolve() if guardian_mode_requested() else None
         return cls(
             legal_roots={
                 "signing": AIONBusinessPaths.LEGAL_SIGNING,

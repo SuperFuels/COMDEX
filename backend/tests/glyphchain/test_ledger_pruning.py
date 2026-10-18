@@ -71,7 +71,19 @@ def _database(path: Path) -> tuple[str, str]:
     first_hash = ""
     final_root = ""
     for height in range(1, 4):
-        payload = {"proof_id": f"proof-{height}", "document_hash": f"{height:02x}" * 32}
+        payload = {
+            "schema_version": "glyphchain.document-proof.v1",
+            "proof_id": f"proof-{height}",
+            "document_id_commitment": "11" * 32,
+            "document_hash": f"{height:02x}" * 32,
+            "signed_copy_hash": "22" * 32,
+            "signatures_root": "33" * 32,
+            "audit_root": "44" * 32,
+            "issuer_key_id": "pruning-test-key",
+            "completed_at_ms": 1_700_000_000_000 + height,
+            "policy_version": "pruning-test-v1",
+            "verification_version": "sha256-merkle-ed25519-v1",
+        }
         tx_id, tx_hash = compute_tx_identity("origin-device", height, "DOCUMENT_PROOF_V1", payload)
         root = merkle_root([hash_leaf(bytes.fromhex(tx_hash))]).hex()
         if height == 1:
@@ -181,6 +193,20 @@ def test_pruned_database_restarts_and_continues_at_next_height(tmp_path, monkeyp
     assert get_block(3) is not None
     record = record_applied_tx(
         from_addr="new-origin", nonce=1, tx_type="DOCUMENT_PROOF_V1",
-        payload={"proof_id": "proof-4"}, applied=True, result={},
+        payload={
+            "schema_version": "glyphchain.document-proof.v1",
+            "proof_id": "proof-4",
+            "document_id_commitment": "11" * 32,
+            "document_hash": "04" * 32,
+            "signed_copy_hash": "22" * 32,
+            "signatures_root": "33" * 32,
+            "audit_root": "44" * 32,
+            "issuer_key_id": "pruning-test-key",
+            "completed_at_ms": 1_700_000_000_004,
+            "policy_version": "pruning-test-v1",
+            "verification_version": "sha256-merkle-ed25519-v1",
+        },
+        applied=True,
+        result={},
     )
     assert record.block_height == 4

@@ -8,7 +8,9 @@ This module never files tax returns or performs an external provider write.
 from __future__ import annotations
 
 from datetime import UTC, datetime
+import csv
 from hashlib import sha256
+import io
 import json
 from pathlib import Path
 import re
@@ -16,9 +18,19 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
+from backend.modules.aion_business.runtime.finance_integration_store import FinanceIntegrationStore
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -68,9 +80,20 @@ class FinanceBookkeepingService:
     """Prepare, separately approve, and post balanced internal journals."""
 
     def __init__(self, repository: BusinessContainerRepository | None = None,
-                 authority: OrganizationAuthorityService | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+                 authority: OrganizationAuthorityService | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 integration_store: FinanceIntegrationStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="finance-bookkeeping-runtime",
+            )
         self.authority = authority or OrganizationAuthorityService(self.repository)
+        self.integration_store = integration_store or FinanceIntegrationStore(
+            domain_store=self.domain_store,
+        )
 
     def provider_catalog(self, workspace_id: str) -> dict[str, Any]:
         financial = self.repository.load_optional_dict(workspace_id, "business_financial_model") or {}
@@ -80,9 +103,8 @@ class FinanceBookkeepingService:
             evidence = integrations.get(provider_id) or {}
             connection: dict[str, Any] = {}
             if provider_id == "xero":
-                path = AIONBusinessPaths.business_container_dir(workspace_id) / "integrations/xero/connection.json"
-                if path.exists():
-                    connection = json.loads(path.read_text(encoding="utf-8"))
+                path = self.integration_store.root(workspace_id, "xero") / "connection.json"
+                connection = self.integration_store.read_json(path, {})
             connected = bool(provider_id == "generic_import" or connection.get("status") == "connected" or evidence.get("status") == "connected")
             write_scopes = {"accounting.contacts", "accounting.invoices", "accounting.payments", "accounting.banktransactions",
                             "accounting.manualjournals", "accounting.attachments"}
@@ -247,12 +269,17 @@ class FinanceBookkeepingService:
         }
         entry["entry_hash"] = canonical_contract_hash(entry)
         ledger_path = self._dir(workspace_id) / "internal_journal.jsonl"
-        existing = []
-        if ledger_path.exists():
-            existing = [json.loads(line) for line in ledger_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        existing = self._journal_entries(workspace_id)
         if not any(row.get("source_document_id") == entry["source_document_id"] for row in existing):
-            with ledger_path.open("a", encoding="utf-8") as stream:
-                stream.write(json.dumps(entry, sort_keys=True) + "\n")
+            if self.domain_store is not None:
+                self.domain_store.put(
+                    "finance.bookkeeping_journal", workspace_id=workspace_id,
+                    entity_id=str(entry["entry_id"]), payload=entry, expected_version=None,
+                    actor_id="finance-bookkeeping-runtime",
+                )
+            else:
+                with ledger_path.open("a", encoding="utf-8") as stream:
+                    stream.write(json.dumps(entry, sort_keys=True) + "\n")
         draft["status"] = "posted_internal"
         draft["internal_posting"] = {key: entry[key] for key in ("entry_id", "entry_hash", "posted_at", "posted_by_person_id")}
         draft.pop("draft_hash", None); draft["draft_hash"] = canonical_contract_hash(draft)
@@ -262,17 +289,38 @@ class FinanceBookkeepingService:
 
     def load(self, workspace_id: str, draft_id: str) -> dict[str, Any]:
         path = self._dir(workspace_id) / "drafts" / f"{_safe(draft_id)}.json"
-        if not path.exists():
-            raise FileNotFoundError(f"Bookkeeping draft not found: {draft_id}")
-        value = json.loads(path.read_text(encoding="utf-8"))
+        if self.domain_store is not None:
+            try:
+                value = dict(self.domain_store.get(
+                    "finance.bookkeeping_records", workspace_id=workspace_id,
+                    entity_id=f"drafts/{_safe(draft_id)}",
+                )["payload"])
+            except KeyError as exc:
+                raise FileNotFoundError(f"Bookkeeping draft not found: {draft_id}") from exc
+        else:
+            if not path.exists():
+                raise FileNotFoundError(f"Bookkeeping draft not found: {draft_id}")
+            value = json.loads(path.read_text(encoding="utf-8"))
         expected = value.get("draft_hash"); payload = dict(value); payload.pop("draft_hash", None)
         if not expected or canonical_contract_hash(payload) != expected:
             raise ValueError("bookkeeping_draft_hash_mismatch")
-        if value.get("workspace_id") != workspace_id:
+        if canonical_business_id(value.get("workspace_id")) != canonical_business_id(workspace_id):
             raise PermissionError("bookkeeping_workspace_isolation_violation")
         return value
 
     def list(self, workspace_id: str) -> list[dict[str, Any]]:
+        if self.domain_store is not None:
+            rows = [
+                row for row in self.domain_store.list(
+                    "finance.bookkeeping_records", workspace_id=workspace_id,
+                )
+                if str(row.get("entity_id") or "").startswith("drafts/")
+            ]
+            rows.sort(
+                key=lambda row: str((row.get("payload") or {}).get("prepared_at") or ""),
+                reverse=True,
+            )
+            return [self.load(workspace_id, str(row["entity_id"]).removeprefix("drafts/")) for row in rows]
         return [self.load(workspace_id, path.stem) for path in sorted(
             (self._dir(workspace_id) / "drafts").glob("*.json"),
             key=lambda item: item.stat().st_mtime, reverse=True,
@@ -280,8 +328,7 @@ class FinanceBookkeepingService:
 
     def ledger_summary(self, workspace_id: str) -> dict[str, Any]:
         """Return verified internal movements without mixing them into provider actuals."""
-        path = self._dir(workspace_id) / "internal_journal.jsonl"
-        entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()] if path.exists() else []
+        entries = self._journal_entries(workspace_id)
         accounts: dict[tuple[str, str, str], dict[str, Any]] = {}
         currencies: set[str] = set()
         total_debits = total_credits = 0.0
@@ -326,6 +373,51 @@ class FinanceBookkeepingService:
             "boundary": "Internal postings remain a separate controlled movement layer until a provider confirms import; management reports must not add them to provider actuals twice.",
         }
 
+    def journal_csv_export(self, workspace_id: str) -> tuple[bytes, dict[str, Any]]:
+        """Return a deterministic customer-owned export of verified journal lines."""
+
+        summary = self.ledger_summary(workspace_id)
+        entries = sorted(
+            self._journal_entries(workspace_id),
+            key=lambda row: (str(row.get("journal_date") or ""), str(row.get("entry_id") or "")),
+        )
+        output = io.StringIO(newline="")
+        fields = [
+            "entry_id", "journal_date", "currency", "description", "account_code",
+            "account_name", "account_type", "debit", "credit", "tax_code", "entry_hash",
+        ]
+        writer = csv.DictWriter(output, fieldnames=fields, lineterminator="\n")
+        writer.writeheader()
+        row_count = 0
+        for entry in entries:
+            for line in entry.get("lines") or []:
+                writer.writerow({
+                    "entry_id": entry.get("entry_id"),
+                    "journal_date": entry.get("journal_date"),
+                    "currency": entry.get("currency"),
+                    "description": entry.get("description"),
+                    "account_code": line.get("account_code"),
+                    "account_name": line.get("account_name"),
+                    "account_type": line.get("account_type"),
+                    "debit": f"{_money(line.get('debit')):.2f}",
+                    "credit": f"{_money(line.get('credit')):.2f}",
+                    "tax_code": line.get("tax_code"),
+                    "entry_hash": entry.get("entry_hash"),
+                })
+                row_count += 1
+        content = output.getvalue().encode("utf-8")
+        return content, {
+            "schema_version": "aion.finance.bookkeeping_customer_export.v1",
+            "workspace_id": workspace_id,
+            "format": "csv",
+            "row_count": row_count,
+            "entry_count": summary["entry_count"],
+            "total_debits": summary["total_debits"],
+            "total_credits": summary["total_credits"],
+            "balanced": summary["balanced"],
+            "sha256": sha256(content).hexdigest(),
+        }
+
     @staticmethod
     def _instruction_hash(value: dict[str, Any]) -> str:
         raw = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
@@ -344,13 +436,40 @@ class FinanceBookkeepingService:
         return code.replace("control.", "").replace("_", " ").title()
 
     def _dir(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_finance_bookkeeping__") / _safe(workspace_id) / "finance" / "bookkeeping"
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/bookkeeping"
         (path / "drafts").mkdir(parents=True, exist_ok=True)
         return path
 
     def _save_draft(self, workspace_id: str, draft: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            entity_id = f"drafts/{_safe(draft['draft_id'])}"
+            current = self.domain_store.get_optional(
+                "finance.bookkeeping_records", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "finance.bookkeeping_records", workspace_id=workspace_id, entity_id=entity_id,
+                payload=draft, expected_version=int(current["version"]) if current else None,
+                actor_id="finance-bookkeeping-runtime",
+            )
+            return
         path = self._dir(workspace_id) / "drafts" / f"{_safe(draft['draft_id'])}.json"
         path.write_text(json.dumps(draft, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    def _journal_entries(self, workspace_id: str) -> list[dict[str, Any]]:
+        if self.domain_store is not None:
+            return [
+                dict(row["payload"])
+                for row in self.domain_store.list(
+                    "finance.bookkeeping_journal", workspace_id=workspace_id,
+                )
+            ]
+        path = self._dir(workspace_id) / "internal_journal.jsonl"
+        return [
+            json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ] if path.exists() else []
 
     def _project(self, workspace_id: str, draft: dict[str, Any], entry: dict[str, Any], path: Path) -> None:
         summary = {
@@ -384,10 +503,16 @@ class FinanceBookkeepingService:
         journal = next((item for item in children if item.get("id") == "folder_finance_bookkeeping"), None)
         if journal is None:
             journal = {"id": "folder_finance_bookkeeping", "name": "Bookkeeping Journal", "type": "folder", "children": []}; children.append(journal)
+        target = (
+            {"vault_domain_id": "finance.bookkeeping_journal", "vault_entity_id": entry["entry_id"],
+             "entry_hash": entry["entry_hash"]}
+            if self.domain_store is not None else
+            {"storage_path": str(path), "entry_hash": entry["entry_hash"]}
+        )
         journal.setdefault("children", []).append({
             "id": f"finance_bookkeeping_{entry['entry_id']}", "name": entry["entry_id"],
             "type": "business_container_artifact", "document_type": "finance_bookkeeping_entry",
-            "status": "posted_internal", "target": {"storage_path": str(path), "entry_hash": entry["entry_hash"]},
+            "status": "posted_internal", "target": target,
         })
         tree["folders"] = folders
         tree["root"] = {**(tree.get("root") or {}), "id": "root", "type": "folder", "name": "Workflows", "children": folders}

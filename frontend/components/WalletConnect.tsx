@@ -30,18 +30,10 @@ export default function WalletConnect() {
       const address = accounts[0]
       setWalletAddress(address)
 
-      const token = localStorage.getItem('token')
-      if (!token) {
-        alert('🔐 Please log in first to bind your wallet')
-        return
-      }
-
       await api.patch(
         '/users/me/wallet',
         { wallet_address: address },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        { withCredentials: true },
       )
 
       console.log('✅ Wallet successfully linked to user account')

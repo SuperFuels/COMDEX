@@ -7,8 +7,9 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import sqlite3
 from typing import Any, Iterable, Mapping, Sequence
+
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 
 POLICY_PATTERN = re.compile(
@@ -53,21 +54,55 @@ class GlyphContextPacket:
 
 
 class GlyphContextDictionary:
-    """Persistent address-to-small-slot dictionary with exact reconstruction."""
+    """Exact address-to-slot dictionary with Guardian-backed persistence.
 
-    def __init__(self, path: Path, *, dictionary_id: str = "aion.context.default.v1") -> None:
+    Customer passages are durable only when the customer learning Vault is
+    configured.  The path argument remains as a compatibility namespace for
+    bounded experiments, but non-Vault operation is deliberately memory-only
+    and creates no raw business-data database.
+    """
+
+    def __init__(
+        self,
+        path: Path | None = None,
+        *,
+        dictionary_id: str = "aion.context.default.v1",
+        vault_store: AionLearningVaultStore | None = None,
+    ) -> None:
         self.path = path
         self.dictionary_id = dictionary_id
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(path) as connection:
-            connection.execute(
-                """CREATE TABLE IF NOT EXISTS glyph_context_dictionary (
-                    slot INTEGER PRIMARY KEY AUTOINCREMENT,
-                    glyph_address TEXT NOT NULL UNIQUE,
-                    kind TEXT NOT NULL,
-                    text_value TEXT NOT NULL
-                )"""
-            )
+        self.vault_store = vault_store or AionLearningVaultStore()
+        namespace = dictionary_id if self.vault_store.enabled else (
+            str(path) if path is not None else dictionary_id
+        )
+        self._state_id = "aion_inference_glyph_context_" + hashlib.sha256(
+            f"{dictionary_id}|{namespace}".encode("utf-8")
+        ).hexdigest()[:32]
+        self._records: dict[int, GlyphContextPassage] = {}
+        if self.vault_store.enabled:
+            saved = self.vault_store.get_state(self._state_id, {"records": []})
+            for item in saved.get("records", []):
+                record = GlyphContextPassage(
+                    slot=int(item["slot"]),
+                    glyph_address=str(item["glyph_address"]),
+                    kind=str(item["kind"]),
+                    text=str(item["text"]),
+                )
+                self._records[record.slot] = record
+
+    def _persist(self) -> None:
+        if not self.vault_store.enabled:
+            return
+        self.vault_store.put_state(
+            self._state_id,
+            {
+                "schema_version": "aion.glyph_context.dictionary.v2",
+                "dictionary_id": self.dictionary_id,
+                "records": [
+                    asdict(self._records[slot]) for slot in sorted(self._records)
+                ],
+            },
+        )
 
     @staticmethod
     def classify(text: str) -> str:
@@ -79,20 +114,21 @@ class GlyphContextDictionary:
             raise ValueError("context passages must not be empty")
         kind = self.classify(clean)
         address = _address(kind, clean)
-        with sqlite3.connect(self.path) as connection:
-            connection.execute(
-                "INSERT OR IGNORE INTO glyph_context_dictionary(glyph_address,kind,text_value) VALUES(?,?,?)",
-                (address, kind, clean),
-            )
-            row = connection.execute(
-                "SELECT slot,glyph_address,kind,text_value FROM glyph_context_dictionary WHERE glyph_address=?",
-                (address,),
-            ).fetchone()
-        return GlyphContextPassage(int(row[0]), str(row[1]), str(row[2]), str(row[3]))
+        for record in self._records.values():
+            if record.glyph_address == address:
+                return record
+        record = GlyphContextPassage(
+            slot=max(self._records, default=0) + 1,
+            glyph_address=address,
+            kind=kind,
+            text=clean,
+        )
+        self._records[record.slot] = record
+        self._persist()
+        return record
 
     def known_slots(self) -> set[int]:
-        with sqlite3.connect(self.path) as connection:
-            return {int(row[0]) for row in connection.execute("SELECT slot FROM glyph_context_dictionary")}
+        return set(self._records)
 
     def encode(
         self,
@@ -135,40 +171,35 @@ class GlyphContextDictionary:
         if raw.get("dictionary_id") != self.dictionary_id:
             raise ValueError("Glyph context dictionary identity mismatch")
         definitions = raw.get("definitions", ())
-        with sqlite3.connect(self.path) as connection:
-            for definition in definitions:
-                slot = int(definition["slot"])
-                address = str(definition["glyph_address"])
-                kind = str(definition["kind"])
-                text = _normalize(definition["text"])
-                if kind not in {"policy", "evidence"} or _address(kind, text) != address:
-                    raise ValueError("Glyph definition hash or kind is invalid")
-                existing = connection.execute(
-                    "SELECT glyph_address,kind,text_value FROM glyph_context_dictionary WHERE slot=?",
-                    (slot,),
-                ).fetchone()
-                if existing is not None and tuple(existing) != (address, kind, text):
-                    raise ValueError("Glyph slot collision")
-                connection.execute(
-                    "INSERT OR IGNORE INTO glyph_context_dictionary(slot,glyph_address,kind,text_value) VALUES(?,?,?,?)",
-                    (slot, address, kind, text),
-                )
-            decoded: list[str] = []
-            actual_policy_slots: set[int] = set()
-            for raw_slot in raw.get("references", ()):
-                slot = int(raw_slot)
-                row = connection.execute(
-                    "SELECT kind,text_value FROM glyph_context_dictionary WHERE slot=?",
-                    (slot,),
-                ).fetchone()
-                if row is None:
-                    raise ValueError("packet references an unknown Glyph slot")
-                if row[0] == "policy":
-                    actual_policy_slots.add(slot)
-                decoded.append(str(row[1]))
+        pending = dict(self._records)
+        for definition in definitions:
+            slot = int(definition["slot"])
+            address = str(definition["glyph_address"])
+            kind = str(definition["kind"])
+            text = _normalize(definition["text"])
+            if kind not in {"policy", "evidence"} or _address(kind, text) != address:
+                raise ValueError("Glyph definition hash or kind is invalid")
+            record = GlyphContextPassage(slot, address, kind, text)
+            existing = pending.get(slot)
+            if existing is not None and existing != record:
+                raise ValueError("Glyph slot collision")
+            pending[slot] = record
+        decoded: list[str] = []
+        actual_policy_slots: set[int] = set()
+        for raw_slot in raw.get("references", ()):
+            slot = int(raw_slot)
+            row = pending.get(slot)
+            if row is None:
+                raise ValueError("packet references an unknown Glyph slot")
+            if row.kind == "policy":
+                actual_policy_slots.add(slot)
+            decoded.append(row.text)
         declared_policy_slots = {int(slot) for slot in raw.get("policy_slots", ())}
         if actual_policy_slots != declared_policy_slots:
             raise ValueError("policy slot declaration does not match decoded context")
+        if pending != self._records:
+            self._records = pending
+            self._persist()
         return tuple(decoded)
 
     @staticmethod

@@ -314,7 +314,7 @@ def export_ledger_snapshot(
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="glyphchain-snapshot-export-") as temporary:
         backup_path = Path(temporary) / "ledger.sqlite3"
-        source_connection = sqlite3.connect(str(source))
+        source_connection = _connect_read_only(source)
         destination = sqlite3.connect(str(backup_path))
         try:
             source_connection.backup(destination)

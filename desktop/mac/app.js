@@ -3393,7 +3393,7 @@ function renderGlobalStatusBanner() {
 
 function getAionMainSidebarIcon(tabKey) {
   return {
-    boardroom: "AI",
+    boardroom: "SI",
     communications: "✉",
     dashboard: "▦",
     work_schedule: "◫",

@@ -713,23 +713,51 @@
       const canonicalWorkspaceId =
         global.AionBusinessContainerClient?.resolveBusinessId?.() ||
         global.__aionCanonicalBusinessId ||
-        state.workspaceId;
+        "";
+      if (!canonicalWorkspaceId) {
+        desktopStore.patch({
+          workspaceId: "business-not-registered",
+          loading: false,
+        });
+        render();
+        return;
+      }
       if (canonicalWorkspaceId && canonicalWorkspaceId !== state.workspaceId) {
         desktopStore.patch({ workspaceId: canonicalWorkspaceId });
       }
       const workspaceId = encodeURIComponent(canonicalWorkspaceId);
 
-      const requests = await Promise.allSettled([
-        apiGetOptional(deps, "/api/local-node/status", state.status),
+      // Business-data discovery must observe the journey being qualified, not
+      // content-free background Node telemetry.  Several legacy Local Node GET
+      // handlers still initialise SQLite stores as a side effect.  Suppress
+      // those passive polls while discovery is active; explicit Node actions
+      // remain available and therefore still fail the journey if they write to
+      // an unsafe location.
+      const discoveryMode = window.aionDesktop?.businessDataDiscoveryEnabled === true;
+      const passiveNodeRequests = discoveryMode
+        ? [
+            Promise.resolve(state.status),
+            Promise.resolve({ items: state.runs || [] }),
+            Promise.resolve({ items: state.approvals || [] }),
+            Promise.resolve({ items: state.audit || [] }),
+            Promise.resolve(state.scheduler),
+            Promise.resolve(null),
+            Promise.resolve(null),
+          ]
+        : [
+            apiGetOptional(deps, "/api/local-node/status", state.status),
         // The repository may contain years of large workflow payloads.  The
         // desktop only renders the recent activity list, so do not hydrate the
         // renderer with the unbounded archive at startup.
-        apiGetOptional(deps, `/api/local-node/runs?limit=50&compact=true&workspace_id=${workspaceId}`, { items: state.runs || [] }),
-        apiGetOptional(deps, `/api/local-node/approvals?workspace_id=${workspaceId}`, { items: state.approvals || [] }),
-        apiGetOptional(deps, "/api/local-node/audit", { items: state.audit || [] }),
-        apiGetOptional(deps, "/api/local-node/scheduler/status", state.scheduler),
-        apiGetOptional(deps, "/api/local-node/dashboard/summary", null),
-        apiGetOptional(deps, "/api/local-node/marketing/stream", null),
+            apiGetOptional(deps, `/api/local-node/runs?limit=50&compact=true&workspace_id=${workspaceId}`, { items: state.runs || [] }),
+            apiGetOptional(deps, `/api/local-node/approvals?workspace_id=${workspaceId}`, { items: state.approvals || [] }),
+            apiGetOptional(deps, "/api/local-node/audit", { items: state.audit || [] }),
+            apiGetOptional(deps, "/api/local-node/scheduler/status", state.scheduler),
+            apiGetOptional(deps, "/api/local-node/dashboard/summary", null),
+            apiGetOptional(deps, "/api/local-node/marketing/stream", null),
+          ];
+      const requests = await Promise.allSettled([
+        ...passiveNodeRequests,
         apiGetOptional(
           deps,
           `/api/aion/business/brand-foundation/${workspaceId}`,

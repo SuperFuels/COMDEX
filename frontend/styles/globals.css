@@ -9,10 +9,12 @@
 /* 1) (Optional) Import Canva Sans if you self-host it */
 /* @import url('/fonts/canvasans.css'); */
 
-/* 2) Tailwind’s layers */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* 2) Tailwind v4, compatibility theme, form reset and generated safelist */
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+@source inline("border-border bg-background text-foreground bg-primary text-primary");
 
 /* 3) CSS VARIABLES (light & dark – HEX palette mapped to HSL where needed) */
 :root {

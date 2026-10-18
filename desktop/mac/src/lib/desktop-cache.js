@@ -16,11 +16,12 @@
   }
 
   function writeJsonStorage(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (_) {
-      // ignore storage failure
-    }
+    // Business-bearing JSON belongs in Guardian-backed APIs, not browser
+    // storage. Keep this compatibility function as an intentional no-op while
+    // old callers are migrated.
+    void key;
+    void value;
+    return false;
   }
 
   function readTextStorage(key, fallback) {
@@ -34,9 +35,11 @@
 
   function writeTextStorage(key, value) {
     try {
-      localStorage.setItem(key, String(value ?? ""));
+      if (!global.AionDesktopPreferences?.isAllowedKey?.(key)) return false;
+      global.AionDesktopPreferences.set(key, String(value ?? ""));
+      return true;
     } catch (_) {
-      // ignore storage failure
+      return false;
     }
   }
 
@@ -515,73 +518,11 @@
 
   function persistCache(state) {
     const normalized = normalizeSeed(state);
-
-    writeJsonStorage(contracts.CACHE_KEYS.status, normalized.status);
-    writeJsonStorage(contracts.CACHE_KEYS.runs, normalized.runs);
-    writeJsonStorage(contracts.CACHE_KEYS.approvals, normalized.approvals);
-    writeJsonStorage(contracts.CACHE_KEYS.audit, normalized.audit);
-    writeJsonStorage(contracts.CACHE_KEYS.scheduler, normalized.scheduler);
-    writeJsonStorage(
-      contracts.CACHE_KEYS.dashboardSummary,
-      normalized.dashboardSummary,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.marketingSummary,
-      normalized.marketingSummary,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.boardroomSnapshot,
-      normalized.boardroomSnapshot,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.liveAgentsSnapshot,
-      normalized.liveAgentsSnapshot,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.operationsFlowSnapshot,
-      normalized.operationsFlowSnapshot,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.recoveryPayload,
-      normalized.recoveryPayload,
-    );
-
-    writeJsonStorage(
-      contracts.CACHE_KEYS.brandFoundationState,
-      normalizeBrandFoundationState(
-        normalized.brandFoundationState,
-        normalized.marketingForm,
-      ),
-    );
-
-    writeJsonStorage(
-      contracts.CACHE_KEYS.containerBindings,
-      normalized.containerBindings,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.syncBoundary,
-      normalized.syncBoundary,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.marketingForm,
-      normalized.marketingForm,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.lastRefreshAt,
-      normalized.lastRefreshAt,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.liveAgentsView,
-      normalized.liveAgentsView,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.marketingCalendarMode,
-      normalized.marketingCalendarMode,
-    );
-    writeJsonStorage(
-      contracts.CACHE_KEYS.aionChatAttachments,
-      normalized.aionChatAttachments,
-    );
+    // The desktop store already retains this state in process memory. Durable
+    // copies are returned by Guardian-backed APIs and must never be duplicated
+    // into localStorage. Returning the normalized value keeps legacy callers
+    // synchronous while making the custody boundary explicit.
+    return normalized;
   }
 
   function clearCacheOnly() {

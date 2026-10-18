@@ -6,14 +6,35 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+
 DEFAULT_TEACHING_MEMORY_FILE = Path("data/logs/phase0_learning_memory.json")
 
 
 class TeachingMemoryStore:
-    def __init__(self, path: Path | str = DEFAULT_TEACHING_MEMORY_FILE) -> None:
-        self.path = Path(path)
+    def __init__(
+        self,
+        path: Path | str | None = None,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
+        explicit_path = path is not None
+        self.path = Path(path or DEFAULT_TEACHING_MEMORY_FILE)
+        self.vault_store = vault_store
+        if vault_store is None and not explicit_path and guardian_mode_requested():
+            self.vault_store = AionLearningVaultStore(workspace_id=workspace_id)
 
     def load(self) -> Dict[str, Any]:
+        if self.vault_store is not None:
+            data = self.vault_store.get_state("teaching_memory", {"concepts": {}})
+            if not isinstance(data, dict):
+                return {"concepts": {}}
+            data.setdefault("concepts", {})
+            if not isinstance(data["concepts"], dict):
+                data["concepts"] = {}
+            return data
         if not self.path.exists():
             return {"concepts": {}}
         try:
@@ -28,10 +49,16 @@ class TeachingMemoryStore:
             return {"concepts": {}}
 
     def save(self, mem: Dict[str, Any]) -> None:
+        if self.vault_store is not None:
+            self.vault_store.put_state("teaching_memory", mem)
+            return
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(mem, indent=2), encoding="utf-8")
 
     def clear(self) -> None:
+        if self.vault_store is not None:
+            self.vault_store.delete_state("teaching_memory")
+            return
         if self.path.exists():
             self.path.unlink()
 

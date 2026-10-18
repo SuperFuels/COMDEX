@@ -27,8 +27,19 @@ def test_phase17k_gmail_connect_calls_real_connect_url() -> None:
     source = text()
     assert "openAionPhase17KGmailOAuth" in source
     assert "/api/local-node/connectors/gmail/connect-url" in source
-    assert "window.open(connectUrl" in source
+    assert "openExternalUrl?.(connectUrl)" in source
+    assert 'window.open(connectUrl, "_blank", "noopener,noreferrer")' in source
     assert "consent_pending" in source
+
+
+def test_phase17k_gmail_connection_requests_only_mail_scopes() -> None:
+    runtime = Path("backend/modules/local_node/local_node_runtime.py").read_text()
+    start = runtime.index("def get_gmail_connect_url(")
+    end = runtime.index("def handle_gmail_oauth_callback(", start)
+    block = runtime[start:end]
+    assert "gmail.readonly" in block
+    assert "gmail.compose" in block
+    assert "calendar.events" not in block
 
 
 def test_phase17k_gmail_health_calls_local_node_source_of_truth() -> None:

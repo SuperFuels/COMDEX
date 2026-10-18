@@ -222,10 +222,13 @@ class WorkflowGlyphRegistry:
         self,
         *,
         repository: Optional[WorkflowCapsuleRepository] = None,
-        registry_path: str | Path = "data/workflow_capsules/workflow_glyph_registry.json",
+        registry_path: str | Path | None = None,
     ) -> None:
         self.repository = repository or WorkflowCapsuleRepository()
-        self.registry_path = Path(registry_path)
+        self.registry_path = Path(
+            registry_path or "data/workflow_capsules/workflow_glyph_registry.json"
+        )
+        self.memory_only = self.repository.vault is not None and registry_path is None
         self.entries: Dict[str, WorkflowGlyphRegistryEntry] = {}
 
     # ------------------------------------------------------------------
@@ -251,12 +254,24 @@ class WorkflowGlyphRegistry:
 
         for item in capsules or []:
             try:
-                capsule = item.get("capsule")
-                path = item.get("path") or (capsule.meta or {}).get("source_path")
+                canonical_key = str(item.get("canonical_key") or "").strip()
+                if not item.get("ok") or not canonical_key:
+                    continue
+                scope = str(item.get("scope") or "core")
+                capsule = self.repository.load(
+                    canonical_key,
+                    workspace_id=self.repository.default_workspace_id or None,
+                    prefer_workspace=(scope == "workspace"),
+                )
+                path = item.get("path")
                 if isinstance(capsule, WorkflowCapsule) and path:
+                    existing = discovered.get(capsule.canonical_key)
+                    if existing and existing.get("scope") == "workspace" and scope != "workspace":
+                        continue
                     discovered[capsule.canonical_key] = {
                         "capsule": capsule,
                         "path": str(path),
+                        "scope": scope,
                     }
             except Exception as e:
                 log.warning("[WorkflowGlyphRegistry] skipped repository item: %s", e)
@@ -276,7 +291,7 @@ class WorkflowGlyphRegistry:
         else:
             scan_roots.append(Path("data/workflow_capsules"))
 
-        for root in scan_roots:
+        for root in scan_roots if not discovered else []:
             if not root.exists():
                 continue
 
@@ -288,10 +303,7 @@ class WorkflowGlyphRegistry:
 
             for pattern in patterns:
                 for path in root.glob(pattern):
-                    if path.name in {
-                        "workflow_capsule_index.json",
-                        "workflow_glyph_registry.json",
-                    }:
+                    if not _is_workflow_capsule_file(path):
                         continue
 
                     try:
@@ -385,6 +397,13 @@ class WorkflowGlyphRegistry:
         }
 
     def save(self) -> Dict[str, Any]:
+        if self.memory_only:
+            return {
+                "ok": True,
+                "path": "memory://workflow-glyph-derived-registry",
+                "count": len(self.entries),
+                "derived_registry_persisted": False,
+            }
         self.registry_path.parent.mkdir(parents=True, exist_ok=True)
 
         body = {
@@ -405,9 +424,18 @@ class WorkflowGlyphRegistry:
             "ok": True,
             "path": str(self.registry_path),
             "count": len(self.entries),
+            "derived_registry_persisted": True,
         }
 
     def load(self) -> Dict[str, Any]:
+        if self.memory_only:
+            build = self.build_from_repository()
+            return {
+                "ok": bool(build.get("ok")),
+                "path": "memory://workflow-glyph-derived-registry",
+                "count": len(self.entries),
+                "derived_registry_persisted": False,
+            }
         if not self.registry_path.exists():
             self.build_from_repository()
             return self.save()
@@ -447,7 +475,7 @@ class WorkflowGlyphRegistry:
         entry = matches[0].entry
         capsule_path = getattr(entry, "capsule_path", None)
 
-        if capsule_path:
+        if capsule_path and not str(capsule_path).startswith("vault://"):
             try:
                 return self.repository.load_path(capsule_path)
             except Exception as exc:
@@ -626,7 +654,7 @@ def _dedupe_keep_order(values: Iterable[str]) -> List[str]:
 def build_workflow_glyph_registry(
     *,
     repository: Optional[WorkflowCapsuleRepository] = None,
-    registry_path: str | Path = "data/workflow_capsules/workflow_glyph_registry.json",
+    registry_path: str | Path | None = None,
 ) -> WorkflowGlyphRegistry:
     registry = WorkflowGlyphRegistry(repository=repository, registry_path=registry_path)
     registry.build_from_repository()

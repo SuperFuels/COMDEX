@@ -8,7 +8,6 @@ import Select from 'react-select'
 // ❌ remove ethers import
 // import { ethers } from 'ethers'
 import api from '@/lib/api'
-import { slugFromEmail, ensureContainersForWA } from '@/lib/containers'  // ⬅️ NEW
 
 type Role = 'buyer' | 'supplier' | 'admin'   // ⬅️ fix typo
 
@@ -85,13 +84,6 @@ export default function RegisterPage() {
       }
 
       await api.post('/auth/register', payload)
-
-      // ⬇️ NEW: align containers at registration time
-      const userSlug = slugFromEmail(email)
-      const wa = `${userSlug}@wave.tp`
-      localStorage.setItem('gnet:user_slug', userSlug)
-      localStorage.setItem('gnet:wa', wa)
-      ensureContainersForWA(wa)
 
       router.push('/login')
     } catch (err: any) {

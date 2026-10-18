@@ -9,6 +9,11 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, Iterable
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_fabric.canonical import canonical_hash, utc_now_iso
 
 
@@ -19,9 +24,27 @@ ALLOWED_DATASET_LICENSES = {"customer_owned", "consented_internal", "cc0", "cc-b
 class GovernedImprovementService:
     """Stores evidence and promotes only reviewed, reversible improvements."""
 
-    def __init__(self, root: str | Path, *, freshness_days: int = 30, minimum_retention_days: int = 1) -> None:
+    def __init__(
+        self,
+        root: str | Path,
+        *,
+        freshness_days: int = 30,
+        minimum_retention_days: int = 1,
+        workspace_id: str | None = None,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
         self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.workspace_id = str(workspace_id or "").strip()
+        self.domain_store = domain_store
+        if domain_store is None and self.workspace_id and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="governed-improvement-runtime"
+            )
+        if self.domain_store is not None and not self.workspace_id:
+            raise ValueError("workspace_id_required_for_guardian_improvement_store")
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
         self.freshness_days = max(1, int(freshness_days))
         self.minimum_retention_days = max(1, int(minimum_retention_days))
         self.corrections_path = self.root / "corrections.json"
@@ -302,14 +325,39 @@ class GovernedImprovementService:
     def _iso(cls, value: str) -> str:
         return cls._datetime(value).astimezone(UTC).isoformat()
 
+    def _domain_for_path(self, path: Path) -> str:
+        if path in {self.corrections_path, self.outcomes_path, self.changes_path}:
+            return "train_agent.runs_and_audit"
+        return "train_agent.automations"
+
     @staticmethod
-    def _records(path: Path) -> list[Dict[str, Any]]:
+    def _entity_for_path(path: Path) -> str:
+        return f"governed_improvement/{path.stem}"
+
+    def _records(self, path: Path) -> list[Dict[str, Any]]:
+        if self.domain_store is not None:
+            row = self.domain_store.get_optional(
+                self._domain_for_path(path), workspace_id=self.workspace_id,
+                entity_id=self._entity_for_path(path),
+            )
+            return list((row or {}).get("payload", {}).get("records") or [])
         if not path.exists():
             return []
         return list(json.loads(path.read_text(encoding="utf-8")).get("records") or [])
 
-    @staticmethod
-    def _save_records(path: Path, records: list[Dict[str, Any]]) -> None:
+    def _save_records(self, path: Path, records: list[Dict[str, Any]]) -> None:
+        if self.domain_store is not None:
+            domain_id = self._domain_for_path(path)
+            entity_id = self._entity_for_path(path)
+            current = self.domain_store.get_optional(
+                domain_id, workspace_id=self.workspace_id, entity_id=entity_id,
+            )
+            self.domain_store.put(
+                domain_id, workspace_id=self.workspace_id, entity_id=entity_id,
+                payload={"records": records},
+                expected_version=int(current["version"]) if current else None,
+            )
+            return
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps({"records": records}, indent=2, sort_keys=True), encoding="utf-8")
         os.chmod(temporary, 0o600)

@@ -53,14 +53,10 @@ def test_executive_department_names_are_clean_single_line_overhead_signs():
     assert "restoring the former secondary role strip" in text
 
 
-def test_team_switch_is_a_small_bottom_centre_interface_control_not_table_geometry():
+def test_team_switch_is_owned_by_the_boardroom_header_not_the_3d_room():
     text = renderer_text()
-    assert 'teamModeButton.dataset.aionBoardroomTeamSwitch = "true"' in text
-    assert 'teamModeButton.style.left = "50%"' in text
-    assert 'teamModeButton.style.bottom = "16px"' in text
-    assert 'teamModeButton.style.transform = "translateX(-50%)"' in text
-    assert '"Show Executive Team"' in text
-    assert '"Show Board Team"' in text
+    assert 'teamModeButton.dataset.aionBoardroomTeamSwitch = "true"' not in text
+    assert 'teamModeButton.style.bottom = "16px"' not in text
     assert "new THREE.BoxGeometry(4.8, 0.12, 0.92)" not in text
 
 

@@ -72,16 +72,15 @@ def _draft_package(department_id: str = "finance", context_refs=None):
     return package
 
 
-def test_profiles_enable_finance_sales_support_and_hr_and_preserve_remaining_design_gates(tmp_path, monkeypatch):
+def test_profiles_enable_all_core_boardroom_department_pilots(tmp_path, monkeypatch):
     client, _, _ = _client(tmp_path, monkeypatch)
     response = client.get("/api/aion/business/department-pilots/profiles")
     assert response.status_code == 200
     payload = response.json()
-    assert payload["enabled_department_ids"] == ["finance", "sales", "support", "hr"]
-    assert payload["design_required_department_ids"] == [
-        "marketing",
-        "operations",
+    assert payload["enabled_department_ids"] == [
+        "finance", "sales", "marketing", "support", "hr", "operations",
     ]
+    assert payload["design_required_department_ids"] == []
     sales = next(item for item in payload["profiles"] if item["department_id"] == "sales")
     assert sales["activation_state"] == "enabled"
     assert "sales.qualification" in sales["allowed_capabilities"]
@@ -92,6 +91,12 @@ def test_profiles_enable_finance_sales_support_and_hr_and_preserve_remaining_des
         item for item in payload["profiles"] if item["department_id"] == "operations"
     )
     assert operations["implementation_order"] == 6
+    assert operations["activation_state"] == "enabled"
+    marketing = next(
+        item for item in payload["profiles"] if item["department_id"] == "marketing"
+    )
+    assert marketing["activation_state"] == "enabled"
+    assert marketing["tool_permissions"]["approved_live_external"] == []
 
 
 def test_central_pilot_routes_approved_finance_package_idempotently(tmp_path, monkeypatch):
@@ -277,22 +282,20 @@ def test_real_boardroom_action_hash_binds_current_finance_context(
     assert len(restored.retrieved_evidence) == 2
 
 
-def test_unapproved_function_design_cannot_be_bypassed_by_router(tmp_path, monkeypatch):
+def test_marketing_and_operations_receive_approval_gated_boardroom_work(tmp_path, monkeypatch):
     client, repository, _ = _client(tmp_path, monkeypatch)
-    marketing = _approved_package("marketing")
-    response = client.post(
-        "/api/aion/business/department-pilots/route",
-        json={
-            "package": marketing.model_dump(mode="json"),
-            "routed_at": "2026-07-16T22:32:00+00:00",
-        },
-    )
-    assert response.status_code == 409
-    detail = response.json()["detail"]
-    assert detail["code"] == "department_pilot_design_required"
-    assert detail["department_id"] == "marketing"
-    assert "campaign planning and day-to-day operating view" in detail["design_topics"]
-    assert repository.list_for_workspace("home-fixed") == []
+    for department_id in ("marketing", "operations"):
+        package = _approved_package(department_id)
+        response = client.post(
+            "/api/aion/business/department-pilots/route",
+            json={
+                "package": package.model_dump(mode="json"),
+                "routed_at": "2026-07-16T22:32:00+00:00",
+            },
+        )
+        assert response.status_code == 200
+        assert response.json()["tasks"][0]["task"]["pilot_id"] == f"{department_id}_pilot"
+    assert len(repository.list_for_workspace("home-fixed")) == 2
 
 
 def test_finance_context_endpoint_retrieves_exact_container_and_persists_it(

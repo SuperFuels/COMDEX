@@ -178,9 +178,22 @@
 
   function load() {
     if (volatileState && typeof volatileState === 'object') return migrateSchema({ ...initialState(), ...volatileState });
+    if (global.__aionFinancePilotDiscoveryState && typeof global.__aionFinancePilotDiscoveryState === 'object') {
+      volatileState = global.__aionFinancePilotDiscoveryState;
+      return migrateSchema({ ...initialState(), ...volatileState });
+    }
     try {
       const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-      return value && typeof value === 'object' ? migrateSchema({ ...initialState(), ...value }) : initialState();
+      if (value && typeof value === 'object') {
+        volatileState = value;
+        global.__aionFinancePilotDiscoveryState = value;
+        localStorage.removeItem(STORAGE_KEY);
+        global.AionBusinessContainerClient?.syncFinanceStateNow?.(value).catch((error) => {
+          console.warn('[AION] Legacy Finance state Vault import deferred', error);
+        });
+        return migrateSchema({ ...initialState(), ...value });
+      }
+      return initialState();
     } catch { return initialState(); }
   }
 
@@ -195,45 +208,16 @@
     return value;
   }
 
-  function compactStateForLocalStorage(value) {
-    return {
-      ...value,
-      source_records: (value.source_records || []).map((item) => ({
-        ...item,
-        analysis_result: item.analysis_result ? {
-          status: item.analysis_result.status,
-          artifact_id: item.analysis_result.artifact_id,
-          candidate_facts: item.analysis_result.candidate_facts || [],
-          warnings: item.analysis_result.warnings || [],
-        } : null,
-      })),
-    };
-  }
-
-  function persistStateLocally(value) {
+  function persistStateInMemory(value) {
     volatileState = value;
-    const serialised = JSON.stringify(value);
-    try {
-      localStorage.setItem(STORAGE_KEY, serialised);
-      return true;
-    } catch (error) {
-      if (error?.name !== 'QuotaExceededError') throw error;
-      const compact = JSON.stringify(compactStateForLocalStorage(value));
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.setItem(STORAGE_KEY, compact);
-        console.warn('[AION] Finance state compacted because local storage was full; canonical evidence remains in the Business Container.');
-        return true;
-      } catch (compactError) {
-        console.warn('[AION] Finance state is using the in-memory and backend-authoritative copies because local storage is full.', compactError);
-        return false;
-      }
-    }
+    global.__aionFinancePilotDiscoveryState = value;
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    return true;
   }
 
   function save(next) {
     const value = { ...next, updated_at: now() };
-    persistStateLocally(value);
+    persistStateInMemory(value);
     global.AionBusinessContainerClient?.syncFinanceState?.(value);
     return value;
   }
@@ -285,15 +269,14 @@
       created_at: now(),
       updated_at: now(),
     };
-    let localModelStored = true;
-    try {
-      localStorage.setItem(MODEL_KEY, JSON.stringify(model));
-    } catch (error) {
-      localModelStored = false;
-      console.warn('[AION] Finance model local cache unavailable; canonical Business Container remains authoritative.', error);
-    }
+    global.__aionFinanceBusinessModel = model;
+    try { localStorage.removeItem(MODEL_KEY); } catch {}
     let foundationPacket = null;
-    try { foundationPacket = JSON.parse(localStorage.getItem('aion.businessTwin.foundationPacket.v1') || 'null'); } catch {}
+    if (globalThis.__aionFoundationPacket && typeof globalThis.__aionFoundationPacket === 'object') {
+      foundationPacket = globalThis.__aionFoundationPacket;
+    } else {
+      try { foundationPacket = JSON.parse(localStorage.getItem('aion.businessTwin.foundationPacket.v1') || 'null'); } catch {}
+    }
     const boardroomPacket = {
       schema_version: 'aion.business_twin.finance_packet.v1',
       department: 'finance',
@@ -309,12 +292,10 @@
       },
       created_at: now(),
     };
-    try {
-      localStorage.setItem(BOARDROOM_PACKET_KEY, JSON.stringify(boardroomPacket));
-    } catch (error) {
-      console.warn('[AION] Finance Boardroom packet local cache unavailable; canonical Business Container remains authoritative.', error);
-    }
-    return { ...model, local_cache_stored: localModelStored };
+    global.__aionFinanceBoardroomPacket = boardroomPacket;
+    try { localStorage.removeItem(BOARDROOM_PACKET_KEY); } catch {}
+    global.AionBusinessContainerClient?.syncFinanceState?.(state, 0);
+    return { ...model, vault_sync_requested: true };
   }
 
   function refresh() {
@@ -324,7 +305,7 @@
   }
 
   function persistWithoutContainerSync(state) {
-    persistStateLocally({ ...state, updated_at: now() });
+    persistStateInMemory({ ...state, updated_at: now() });
   }
 
   async function speakFinanceText(text, { force = false } = {}) {
@@ -929,7 +910,7 @@
             completed_at: latest.completed_at,
             business_id: sync.business_id,
             finance_model_receipt: sync.finance_model || null,
-            local_cache_stored: model.local_cache_stored !== false,
+            vault_sync_requested: model.vault_sync_requested === true,
             statements_ready: true,
             operating_model_created: completion.operating_model_created === true,
           };
@@ -965,7 +946,7 @@
       });
       return;
     } else if (action.matches('[data-aion-finance-package]')) {
-      const model = localStorage.getItem(MODEL_KEY);
+      const model = global.__aionFinanceBusinessModel;
       alert(model ? 'Finance package is ready in the Business Financial Model.' : 'Finance discovery must be completed before this package is ready.');
       return;
     }
@@ -1050,5 +1031,22 @@
     maybeSpeakCurrentFinanceQuestion();
   }, 1200);
 
-  global.AionFinancePilot = { load, save, render, buildBusinessFinancialModel, refreshXeroStatus, reset: () => { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(MODEL_KEY); localStorage.removeItem(BOARDROOM_PACKET_KEY); refresh(); } };
+  global.addEventListener('aion:finance-state-loaded', (event) => {
+    if (event?.detail && typeof event.detail === 'object') {
+      volatileState = event.detail;
+      refresh();
+    }
+  });
+
+  global.AionFinancePilot = { load, save, render, buildBusinessFinancialModel, refreshXeroStatus, reset: () => {
+    volatileState = initialState();
+    global.__aionFinancePilotDiscoveryState = volatileState;
+    global.__aionFinanceBusinessModel = null;
+    global.__aionFinanceBoardroomPacket = null;
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(MODEL_KEY);
+    localStorage.removeItem(BOARDROOM_PACKET_KEY);
+    global.AionBusinessContainerClient?.syncFinanceState?.(volatileState, 0);
+    refresh();
+  } };
 })(window);

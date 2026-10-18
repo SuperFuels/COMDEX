@@ -33,7 +33,14 @@ def test_toolbar_keeps_installed_local_models_visible_and_binds_them_on_selectio
 def test_connections_owns_the_persisted_lead_model_choice() -> None:
     assert 'data-aion-set-lead-model=' in APP
     assert '"http://127.0.0.1:8080/api/boardroom/providers/lead"' in APP
-    assert 'provider.is_lead ? "Lead model" : "Use as lead"' in APP
+    assert 'provider.is_lead ? "Lead model"' in APP
+    assert 'setLeadModel.textContent = "Selecting…"' in APP
+    assert 'new CustomEvent("tessaris-lead-model-changed"' in APP
+
+
+def test_missing_legacy_chat_stream_helper_cannot_discard_connected_models() -> None:
+    assert 'window.ensureAionChatModelStreamV2?.(' in APP
+    assert '\n      ensureAionChatModelStreamV2(' not in APP
 
 
 def test_marketing_work_uses_the_current_toolbar_selection() -> None:

@@ -40,7 +40,12 @@ from backend.modules.aion_business.runtime.department_pilot_repository import De
 from backend.modules.aion_business.runtime.commercial_adoption_service import CommercialAdoptionService
 
 
-DEFAULT_RUNTIME = Path(".runtime/aion_fabric")
+from backend.modules.aion_business.runtime.sovereign_installed_service import (
+    default_node_state_root,
+)
+
+
+DEFAULT_RUNTIME = default_node_state_root() / "fabric"
 
 
 def _print(value: Dict[str, Any]) -> None:

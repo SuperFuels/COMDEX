@@ -11,9 +11,12 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import configured_business_container_repository
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
 from backend.modules.aion_business.runtime.finance_management_report_builder import build_finance_management_report
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 KINDS = {"weekly_cash_update", "monthly_management_report", "period_close_check", "exception_cash_buffer_alert"}
@@ -36,8 +39,13 @@ def _next_run(value: str, cadence: str) -> str:
 
 
 class FinanceRecurringWorkService:
-    def __init__(self, repository: BusinessContainerRepository | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+    def __init__(self, repository: BusinessContainerRepository | None = None, *,
+                 domain_store: VaultDomainStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="finance-recurring-runtime")
 
     def create(self, workspace_id: str, *, schedule_id: str, kind: str, cadence: str,
                next_run_at: str, created_by: str, minimum_cash_reserve: float = 0) -> dict[str, Any]:
@@ -51,10 +59,17 @@ class FinanceRecurringWorkService:
                   "last_run_status": "never_run", "last_error": None, "failure_count": 0, "run_count": 0}
         record["schedule_hash"] = canonical_contract_hash(record)
         path = self._schedule_path(workspace_id, record["schedule_id"])
-        if path.exists(): raise FileExistsError(f"Finance schedule already exists: {record['schedule_id']}")
+        if self._exists(path): raise FileExistsError(f"Finance schedule already exists: {record['schedule_id']}")
         self._write(path, record); return record
 
     def list(self, workspace_id: str) -> list[dict[str, Any]]:
+        if self.domain_store is not None:
+            records = []
+            for row in self.domain_store.list("finance.recurring_records", workspace_id=workspace_id):
+                if not str(row.get("entity_id") or "").endswith("/schedule"):
+                    continue
+                record = dict(row["payload"]); self._verify(record); records.append(record)
+            return sorted(records, key=lambda record: str(record.get("created_at") or ""))
         records = []
         for path in sorted(self._dir(workspace_id).glob("*/schedule.json")):
             record = json.loads(path.read_text()); self._verify(record); records.append(record)
@@ -118,17 +133,45 @@ class FinanceRecurringWorkService:
         return results
 
     def _dir(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_finance_recurring__") / _safe(workspace_id) / "finance" / "recurring"
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/recurring"; path.mkdir(parents=True, exist_ok=True); return path
     def _schedule_path(self, workspace_id: str, schedule_id: str) -> Path:
-        path = self._dir(workspace_id) / _safe(schedule_id); path.mkdir(parents=True, exist_ok=True); return path / "schedule.json"
+        path = self._dir(workspace_id) / _safe(schedule_id)
+        if self.domain_store is None: path.mkdir(parents=True, exist_ok=True)
+        return path / "schedule.json"
     def _run_path(self, workspace_id: str, schedule_id: str, run_id: str) -> Path:
-        path = self._schedule_path(workspace_id, schedule_id).parent / "runs"; path.mkdir(exist_ok=True); return path / f"{run_id}.json"
+        path = self._schedule_path(workspace_id, schedule_id).parent / "runs"
+        if self.domain_store is None: path.mkdir(exist_ok=True)
+        return path / f"{run_id}.json"
     def _load(self, workspace_id: str, schedule_id: str) -> tuple[dict[str, Any], Path]:
         path = self._schedule_path(workspace_id, schedule_id)
-        if not path.exists(): raise FileNotFoundError(f"Finance schedule not found: {schedule_id}")
-        record = json.loads(path.read_text()); self._verify(record); return record, path
-    @staticmethod
-    def _write(path: Path, record: dict[str, Any]) -> None:
+        if not self._exists(path): raise FileNotFoundError(f"Finance schedule not found: {schedule_id}")
+        record = self._read(path); self._verify(record); return record, path
+    def _identity(self, path: Path) -> tuple[str, str]:
+        parts = path.parts
+        marker = parts.index("__tessaris_guardian_finance_recurring__")
+        workspace_id = parts[marker + 1]
+        recurring = parts.index("recurring", marker + 2)
+        return workspace_id, Path(*parts[recurring + 1:]).with_suffix("").as_posix()
+    def _exists(self, path: Path) -> bool:
+        if self.domain_store is None: return path.exists()
+        workspace_id, entity_id = self._identity(path)
+        return self.domain_store.get_optional("finance.recurring_records", workspace_id=workspace_id, entity_id=entity_id) is not None
+    def _read(self, path: Path) -> dict[str, Any]:
+        if self.domain_store is None: return json.loads(path.read_text())
+        workspace_id, entity_id = self._identity(path)
+        return dict(self.domain_store.get("finance.recurring_records", workspace_id=workspace_id, entity_id=entity_id)["payload"])
+    def _write(self, path: Path, record: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            workspace_id, entity_id = self._identity(path)
+            current = self.domain_store.get_optional("finance.recurring_records", workspace_id=workspace_id, entity_id=entity_id)
+            self.domain_store.put(
+                "finance.recurring_records", workspace_id=workspace_id, entity_id=entity_id,
+                payload=record, expected_version=int(current["version"]) if current else None,
+                actor_id="finance-recurring-runtime",
+            )
+            return
         temporary = path.with_suffix(path.suffix + ".tmp"); temporary.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n"); temporary.replace(path)
     def _save_schedule(self, path: Path, record: dict[str, Any]) -> None:
         record.pop("schedule_hash", None); record["schedule_hash"] = canonical_contract_hash(record); self._write(path, record)
@@ -173,7 +216,9 @@ class FinanceRecurringWorkService:
                 "business_container_id": workspace_id,
                 "sub_container": "finance",
                 "category": "recurring",
-                "storage_path": str(path),
+                **({"vault_domain_id": "finance.recurring_records",
+                    "vault_entity_id": self._identity(path)[1]}
+                   if self.domain_store is not None else {"storage_path": str(path)}),
                 "schedule_id": schedule["schedule_id"],
                 "run_id": run["run_id"],
                 "run_hash": run["run_hash"],

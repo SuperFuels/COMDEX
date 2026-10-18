@@ -191,6 +191,11 @@ class PreflightRequest(BaseModel):
     registered_capability: bool = False
 
 
+class WorkspaceStateRequest(BaseModel):
+    payload: dict[str, Any]
+    saved_by: str = "person:founder"
+
+
 @router.post("/{workspace_id}/bootstrap")
 def bootstrap(workspace_id: str, request: BootstrapRequest) -> dict[str, Any]:
     return _call("bootstrap_workspace", workspace_id, departments=request.departments, actor_id=request.actor_id)
@@ -199,6 +204,26 @@ def bootstrap(workspace_id: str, request: BootstrapRequest) -> dict[str, Any]:
 @router.get("/{workspace_id}")
 def workspace(workspace_id: str) -> dict[str, Any]:
     return _call("workspace", workspace_id)
+
+
+@router.get("/{workspace_id}/workspace-state/{state_id}")
+def workspace_state(workspace_id: str, state_id: str) -> dict[str, Any]:
+    return _call("workspace_state", workspace_id, state_id)
+
+
+@router.put("/{workspace_id}/workspace-state/{state_id}")
+def save_workspace_state(
+    workspace_id: str,
+    state_id: str,
+    request: WorkspaceStateRequest,
+) -> dict[str, Any]:
+    return _call(
+        "save_workspace_state",
+        workspace_id,
+        state_id,
+        payload=request.payload,
+        saved_by=request.saved_by,
+    )
 
 
 @router.post("/{workspace_id}/capsules/{department_id}/control")

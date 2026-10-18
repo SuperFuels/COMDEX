@@ -8,7 +8,7 @@ INDEX = Path("desktop/mac/src/index.html").read_text(encoding="utf-8")
 
 def test_cybersecurity_is_a_connected_specialist_route():
     assert 'departmentKey === "cybersecurity"' in APP
-    assert '["legal", "cybersecurity"].includes(entry.specialist.slug)' in APP
+    assert '["legal", "cybersecurity", "procurement", "projects"].includes(entry.specialist.slug)' in APP
     assert '"cybersecurity",' in APP
 
 

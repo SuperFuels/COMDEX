@@ -1,4 +1,5 @@
 import json
+import sqlite3
 from pathlib import Path
 
 from backend.modules.aion_cognition.native_lexical_intelligence import (
@@ -153,6 +154,35 @@ def test_mixed_exam_attempts_count_toward_the_mixed_curriculum_stage(tmp_path: P
     assert summary["model_used_for_answers"] is False
 
 
+def test_unbounded_practice_summary_preserves_delayed_retention_history(tmp_path: Path):
+    runtime = _runtime(tmp_path)
+    first = runtime.run_practice_cycle(
+        family="mixed", limit=2, seed=21, offset=0,
+        project_family="native_english_retention_window_test",
+    )
+    second = runtime.run_practice_cycle(
+        family="mixed", limit=2, seed=22, offset=2,
+        project_family="native_english_retention_window_test",
+    )
+    assert first["total"] == second["total"] == 2
+    with runtime._connect() as connection:
+        oldest = connection.execute(
+            "SELECT task_id FROM practice_attempts ORDER BY created_epoch LIMIT 1"
+        ).fetchone()[0]
+        connection.execute(
+            "UPDATE practice_attempts SET created_epoch=created_epoch-90000 WHERE task_id=?",
+            (oldest,),
+        )
+
+    recent = runtime.practice_summary(family="mixed", limit=2)
+    cumulative = runtime.practice_summary(family="mixed", limit=None)
+
+    assert recent["attempts"] == 2
+    assert recent["retention_span_seconds"] < 86400
+    assert cumulative["attempts"] == 4
+    assert cumulative["retention_span_seconds"] >= 86400
+
+
 def test_sentence_and_discourse_exams_are_held_out_and_model_free(tmp_path: Path):
     runtime = _runtime(tmp_path)
 
@@ -269,6 +299,24 @@ def test_open_advanced_tasks_remain_fresh_across_cycles(tmp_path: Path):
         assert outcome["source_disjoint"] is True
 
 
+def test_curriculum_cycle_skips_previously_recorded_task_ids(tmp_path: Path):
+    runtime = _runtime(tmp_path)
+    first = runtime.run_practice_cycle(
+        family="delayed_open_generalisation", limit=8, seed=7, offset=0,
+        project_family="native_english_delayed_open_generalisation_v4_test",
+        require_unseen_tasks=True,
+    )
+    second = runtime.run_practice_cycle(
+        family="delayed_open_generalisation", limit=8, seed=7, offset=0,
+        project_family="native_english_delayed_open_generalisation_v4_test",
+        require_unseen_tasks=True,
+    )
+
+    assert first["total"] == second["total"] == 8
+    assert not ({row["task_id"] for row in first["attempts"]}
+                & {row["task_id"] for row in second["attempts"]})
+
+
 def test_teacher_can_advance_through_sentence_and_discourse_stages(tmp_path: Path):
     runtime = _runtime(tmp_path)
     state_path = tmp_path / "data/aion/native_english_teacher/state.json"
@@ -336,6 +384,23 @@ def test_progressive_english_lesson_uses_native_lexical_authority(
     }, [])
 
     assert result["passed"] is True
-    assert result["project_family"] == "native_english_lesson_definition_match_v2"
+    assert result["project_family"] == "native_english_lesson_definition_match_v3_a"
     assert result["evidenced_subskills"] == ["lexical_grounding"]
     assert result["gate"]["source_disjoint_transfer"] is False
+
+
+def test_progressive_english_retries_when_shared_store_is_busy(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("AION_NATIVE_LEXICON_DB", str(tmp_path / "native.sqlite3"))
+
+    def busy(*args, **kwargs):
+        raise sqlite3.OperationalError("Aion SQLite transaction gate timed out")
+
+    monkeypatch.setattr(NativeLexicalIntelligence, "run_practice_cycle", busy)
+    result = native_english_runner({
+        "_repo_root": str(tmp_path),
+        "requirement": {"kind": "knowledge_test", "subskills": ["lexical_grounding"]},
+    }, [])
+
+    assert result["status"] == "learning_store_busy"
+    assert result["retryable"] is True
+    assert result["passed"] is False

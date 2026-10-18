@@ -102,26 +102,13 @@ function wsURL(token: string) {
   return `/radio/ws/rflink?${search.toString()}`;
 }
 
-function useLocalStorage<T>(key: string, initial: T) {
-  const [val, setVal] = useState<T>(() => {
-    try {
-      const v = localStorage.getItem(key);
-      return v ? (JSON.parse(v) as T) : initial;
-    } catch {
-      return initial;
-    }
-  });
-  useEffect(() => {
-    try {
-      localStorage.setItem(key, JSON.stringify(val));
-    } catch {}
-  }, [key, val]);
-  return [val, setVal] as const;
+function useProcessState<T>(_key: string, initial: T) {
+  return useState<T>(initial);
 }
 
 export default function BridgePanel() {
-  const [bridgeToken, setBridgeToken] = useLocalStorage<string>("gnet:bridgeToken", "dev-bridge");
-  const [baud, setBaud] = useLocalStorage<number>("gnet:serialBaud", 115200);
+  const [bridgeToken, setBridgeToken] = useProcessState<string>("gnet:bridgeToken", "dev-bridge");
+  const [baud, setBaud] = useProcessState<number>("gnet:serialBaud", 115200);
   const [hello, setHello] = useState<HelloMsg | null>(null);
   const [health, setHealth] = useState<any | null>(null);
 

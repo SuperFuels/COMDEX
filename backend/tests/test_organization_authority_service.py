@@ -1,9 +1,17 @@
 from __future__ import annotations
 
+import stat
+
 import pytest
 
+from backend.modules.aion_business.runtime.business_vault import provision_business_vault
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.guardian_business_container_repository import (
+    GuardianBusinessContainerRepository,
+)
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_guardian import VaultGuardian
 
 
 def _service(tmp_path):
@@ -134,3 +142,73 @@ def test_people_operations_persist_only_for_known_people_and_remain_human_gated(
     assert saved["summary"]["open_people_escalations"] == 1
     assert ops["governance"]["human_employment_decisions_required"] is True
     assert ops["governance"]["sensitive_detail_excluded_from_dashboard"] is True
+
+
+def test_policy_acknowledgement_and_review_completion_are_durable_and_idempotent(tmp_path):
+    service = _service(tmp_path)
+    model = _model(service)
+    model["people_operations"]["appraisals"] = [{
+        "id": "review.qualification",
+        "person_id": "person.worker",
+        "due_date": "2026-10-18",
+        "status": "due",
+    }]
+    service.save("acme", model)
+
+    acknowledgement = service.record_policy_acknowledgement(
+        "acme",
+        person_id="person.worker",
+        policy_id="policy.safe-working",
+        policy_version="2026.10",
+        acknowledged_by="person.worker",
+    )
+    repeated = service.record_policy_acknowledgement(
+        "acme",
+        person_id="person.worker",
+        policy_id="policy.safe-working",
+        policy_version="2026.10",
+        acknowledged_by="person.worker",
+    )
+    review = service.complete_review_action(
+        "acme",
+        review_id="review.qualification",
+        completed_by="person.owner",
+        outcome="objectives agreed",
+    )
+
+    assert acknowledgement == repeated
+    assert review["status"] == "completed"
+    assert review["outcome"] == "objectives agreed"
+    restarted = OrganizationAuthorityService(service.repository)
+    operations = restarted.get("acme")["people_operations"]
+    assert operations["policy_acknowledgements"] == [acknowledgement]
+    assert operations["appraisals"][0]["completed_by"] == "person.owner"
+
+
+def test_guardian_authority_and_audit_restart_without_application_owned_audit(tmp_path):
+    layout = provision_business_vault(
+        tmp_path / "customer-data" / "Acme.business-vault",
+        business_name="Acme",
+        business_stable_id="acme",
+        application_root=tmp_path / "application",
+        update_root=tmp_path / "updates",
+    )
+    guardian = VaultGuardian(layout, business_stable_id="acme", encryption_key=b"a" * 32)
+    repository = GuardianBusinessContainerRepository(guardian)
+    service = OrganizationAuthorityService(repository)
+
+    saved = service.save("acme", _model(service), expected_revision=0, changed_by="owner")
+    restarted = OrganizationAuthorityService(GuardianBusinessContainerRepository(guardian))
+    restored = restarted.get("acme")
+    audits = VaultDomainStore(guardian).list("security.audit", workspace_id="acme")
+    operational_audits = VaultDomainStore(guardian).list(
+        "departments.operational_audit", workspace_id="acme"
+    )
+
+    assert restored["revision"] == saved["revision"] == 1
+    assert restored["people"][0]["role_ids"] == ["role.owner_director"]
+    assert audits[0]["payload"]["event_type"] == "organization_saved"
+    assert operational_audits[0]["payload"]["event_type"] == "organization_saved"
+    assert not (tmp_path / "application").joinpath("organization_authority.jsonl").exists()
+    assert b"Alex Owner" not in guardian.database.read_bytes()
+    assert stat.S_IMODE(guardian.database.stat().st_mode) == 0o600

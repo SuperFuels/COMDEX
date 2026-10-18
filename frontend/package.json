@@ -14,32 +14,27 @@
     "@monaco-editor/react": "^4.7.0",
     "@radix-ui/react-scroll-area": "^1.2.9",
     "@radix-ui/react-select": "^2.2.5",
-    "@react-pdf-viewer/core": "^3.12.0",
-    "@react-pdf-viewer/default-layout": "^3.12.0",
     "@react-spring/three": "^10.0.1",
-    "@react-three/drei": "9.56.3",
+    "@react-three/drei": "9.122.0",
     "@react-three/fiber": "8.13.6",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@tweenjs/tween.js": "^25.0.0",
-    "@web3-react/core": "^8.2.3",
-    "@web3-react/injected-connector": "^6.0.7",
     "3d-force-graph": "^1.79.0",
     "axios": "^1.10.0",
     "chart.js": "^4.4.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "ethers": "^5.8.0",
+    "ethers": "6.17.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.0",
-    "jspdf": "^3.0.1",
-    "katex": "^0.16.27",
+    "jspdf": "^4.2.1",
+    "katex": "0.19.0",
     "lightweight-charts": "^5.0.7",
     "lucide-react": "^0.525.0",
     "monaco-editor": "^0.52.2",
     "nanoid": "^5.1.5",
-    "openai": "^5.1.0",
     "qrcode.react": "^4.2.0",
     "react-draggable": "^4.4.6",
     "react-force-graph": "^1.48.0",
@@ -58,8 +53,7 @@
     "tailwind-merge": "^3.3.1",
     "tailwind-variants": "^1.0.0",
     "tailwindcss-animate": "^1.0.7",
-    "three": "0.152.2",
-    "web3": "^4.16.0",
+    "three": "0.159.0",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.27",
     "zustand": "^5.0.8"
@@ -69,7 +63,7 @@
     "@mdx-js/loader": "^3.1.1",
     "@metamask/providers": "^22.1.0",
     "@next/mdx": "^16.1.2",
-    "@tailwindcss/postcss": "^4.1.17",
+    "@tailwindcss/postcss": "4.3.3",
     "@types/axios": "^0.14.4",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^20.17.57",
@@ -79,8 +73,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/react-select": "^5.0.0",
     "@types/react-split-pane": "^0.1.67",
-    "@types/three": "0.154.0",
-    "autoprefixer": "^10.4.21",
+    "@types/three": "0.159.0",
     "eslint": "^9.39.1",
     "eslint-config-next": "15.3.1",
     "hardhat": "^2.24.0",
@@ -90,8 +83,21 @@
     "react-dom": "^18.2.0",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.9.2"
+    "tailwindcss": "4.3.3",
+    "typescript": "^5.9.2",
+    "yaml": "^2.8.3"
+  },
+  "overrides": {
+    "@tailwindcss/typography": {
+      "postcss-selector-parser": "7.1.6"
+    },
+    "rehype-katex": {
+      "katex": "0.19.0"
+    },
+    "postcss-load-config": {
+      "yaml": "2.8.3"
+    },
+    "source-map-js": "1.2.2"
   },
   "license": "ISC"
 }

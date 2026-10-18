@@ -3,6 +3,10 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from backend.modules.aion_business.runtime.pilot_scheduled_work_service import PilotScheduledWorkService
+from backend.modules.aion_business.runtime.business_vault import provision_business_vault
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_guardian import VaultGuardian
+from backend.modules.aion_business.runtime.department_operational_store import DepartmentOperationalStore
 
 
 class _Authority:
@@ -92,3 +96,70 @@ def test_schedule_rejects_untrusted_actor_and_too_fast_loop(tmp_path):
         raise AssertionError("expected authority rejection")
     except PermissionError:
         pass
+
+
+def test_scheduled_automation_and_run_restart_from_encrypted_vault(tmp_path):
+    layout = provision_business_vault(
+        tmp_path / "vault", business_name="Company", business_stable_id="company",
+        application_root=tmp_path / "app", update_root=tmp_path / "updates",
+    )
+    guardian = VaultGuardian(layout, business_stable_id="company", encryption_key=b"s" * 32)
+    domains = VaultDomainStore(guardian)
+    completion = _Completion()
+    service = PilotScheduledWorkService(
+        domain_store=domains, authority=_Authority(), revenue=_Revenue(), completion=completion,
+        knowledge=_Knowledge(), gmail_fetcher=lambda query, limit: [{
+            "id": "private-gmail", "from": "Private Customer <private@example.test>",
+            "subject": "Private enquiry", "body": "Private customer request",
+        }],
+    )
+    created = service.create(
+        "company", title="Private sales inbox", job_type="sales_inbox_monitor",
+        cadence_minutes=5, created_by_person_id="owner-1", enabled=True,
+        department_id="future_continuity_department",
+    )
+    run = service.run(
+        "company", created["schedule_id"],
+        due_at=datetime.now(UTC).replace(microsecond=0) + timedelta(minutes=6),
+    )
+    restarted = PilotScheduledWorkService(
+        domain_store=domains, authority=_Authority(), revenue=_Revenue(), completion=_Completion(),
+        knowledge=_Knowledge(), gmail_fetcher=lambda query, limit: [],
+    )
+
+    assert restarted.list("company")["schedules"][0]["last_run_id"] == run["run_id"]
+    assert domains.get(
+        "train_agent.automations", workspace_id="company", entity_id="scheduled_work/schedules"
+    )["payload"]["schedules"][0]["title"] == "Private sales inbox"
+    assert domains.list("train_agent.runs_and_audit", workspace_id="company")
+    audits = DepartmentOperationalStore(domain_store=domains).list_audit(
+        workspace_id="company", department_id="future_continuity_department",
+        feature_id="train_agent_automations",
+    )
+    assert [row["payload"]["event_type"] for row in audits] == [
+        "automation_schedule_created", "automation_run_completed",
+    ]
+    assert b"Private sales inbox" not in guardian.database.read_bytes()
+
+
+def test_retry_is_append_only_and_links_to_terminal_run(tmp_path):
+    service, _ = _service(tmp_path)
+    created = service.create(
+        "company", title="Replayable briefing", job_type="custom_prompt",
+        prompt="Prepare a continuity briefing", cadence_minutes=15,
+        created_by_person_id="owner-1",
+    )
+    first = service.run("company", created["schedule_id"])
+    retried = service.retry(
+        "company", created["schedule_id"], first["run_id"],
+        requested_by_person_id="owner-1",
+    )
+
+    assert retried["run_id"] != first["run_id"]
+    assert retried["retry_of_run_id"] == first["run_id"]
+    assert retried["trigger"] == "manual_retry"
+    assert service._load_run("company", first["run_id"])["run_hash"] == first["run_hash"]
+    assert service.list("company")["schedules"][0]["run_count"] == 2
+    history = service.list_runs("company", created["schedule_id"])
+    assert history["summary"] == {"total": 2, "completed": 2, "failed": 0, "retries": 1}
+    assert {item["run_id"] for item in history["runs"]} == {first["run_id"], retried["run_id"]}

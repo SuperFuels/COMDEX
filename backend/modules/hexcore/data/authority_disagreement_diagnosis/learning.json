@@ -91,7 +91,7 @@
       "source": "authority_disagreement_diagnostic_cau"
     },
     "reason": "open_authority_disagreement_diagnosis",
-    "state_hash": "c85a6a607663056587d88297b591ca9608aeb3ebca3e064e96f4adcff47be2c5"
+    "state_hash": "ace3e32e264e81da3159ec1e85bbcf9bc8f9aff38c546ab1f31f605f70849976"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -55458,6 +55458,3504 @@
       "score": 15.0,
       "success": true,
       "timestamp": "2026-10-09T21:09:25.652268+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_a61f304b2fc24623",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-09T22:10:05.083068+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_c1b0ca38c60b4b23",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-09T23:12:42.634960+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_83c3313c25e04133",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T00:14:40.518533+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_ac73a54553f742e6",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T01:16:45.495941+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_ee9c93e3977f4bbf",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T02:19:08.832328+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3cb4cc6409744407",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T03:21:10.294142+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_809f1af6ced44fa7",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T04:23:22.790745+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_622eaaa2bef1424e",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T05:25:44.768922+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_f0e7001ad86f4daf",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T06:27:50.805332+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_7b9a1882f67e4a87",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T07:30:50.847509+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_78cc57330bfb498c",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T08:32:05.658956+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_1d1dc872f74d4847",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T09:32:54.888830+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_5c8c595abccd4f9e",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T10:33:27.553103+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_1bd7ce0aad4543ee",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T11:34:50.545326+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_f9e6fbdabb124872",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T12:37:28.257499+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_07f5965564294a9f",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T13:40:44.760555+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_9f2d75cd72dd4145",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T14:42:53.547980+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_58337529682d43a4",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T15:44:59.834405+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_157b63dbd5f44839",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T16:46:26.814111+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3d8f988f7ae341ee",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T17:48:29.636203+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_b0639f21bdf0465d",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T18:50:57.947413+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_08abb7d950d64521",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T19:52:42.575864+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_01a1d11a476f46ca",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T20:54:44.509242+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_cfc6e7d9a1654831",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T21:57:25.661226+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_2590be5045934c48",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T22:59:10.826932+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_6dedb6db3065431f",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T00:01:42.070414+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_7d4db9898fd741f1",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T01:04:09.797727+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_afe363eec0ff4bb4",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T02:05:56.911618+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_86b16ce96cf144a1",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T03:08:25.838681+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_1cbf30020bfd459c",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T04:10:15.589327+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_a1021befc5d8445a",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T05:11:58.326147+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_18025fbe10ae4449",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T06:14:23.321476+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_76678e15d06d419d",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T07:17:15.819927+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_d98b2ad920dc4e5d",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T08:19:45.524208+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_2abb00f974004c31",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T09:21:49.528096+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_667771990803431d",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T10:24:03.227383+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_b517eed1b7a84a53",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T11:26:02.660878+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_585ac2885d01443d",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T12:27:49.417606+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_b5d4f91ef3474ce0",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T13:30:26.041843+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_bec5dfd7f0714a44",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T14:32:38.592033+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_ff39e9fbacc54f24",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T15:35:10.655356+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_e92b20cf31124a25",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T16:37:29.573613+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3ee7cd90b8514686",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T18:05:17.776726+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_6489ea5c35a944ee",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T19:51:51.337437+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_0545f9fa297a4357",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T20:54:02.580770+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_5693a5a583f54cdf",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T21:56:56.851297+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_f1622ce42bb84aba",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T13:02:49.822364+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_0a9d3a40cec54e75",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T14:05:00.925498+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_72fce0dfe28c40ae",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T15:06:03.978970+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_ff91b091bcbe43f5",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T16:07:09.792772+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_c9b38b3366f94b79",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T17:10:10.577306+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3eae6b2f9e6247fc",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T18:10:34.445819+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_e640fbeee4df425b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T19:12:49.831442+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_0c5f4e2f833e4665",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T20:15:15.767597+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_490b6a323f45439e",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T21:17:53.969212+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_2e5890cba07e4d56",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T22:21:49.356358+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_b3e861d25b53468b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T23:25:32.907896+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_689438123863491d",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T00:28:58.007786+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_1607879e76b84bc4",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T01:32:26.202022+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_7f9feb752e414922",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T02:36:04.217409+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_1d1ead7db7ce41fc",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T03:40:00.021753+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_4c438571e38b462e",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T04:44:14.224888+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3e5ddb33fcdf4970",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T05:48:24.130356+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_5c3b665872d341c0",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T07:48:29.587803+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_ffb9ed7914214b33",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T08:51:10.471221+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_0fb606704578477b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T11:53:06.393193+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_76108d874fd44a36",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T16:15:24.857646+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_7ca4fbd10ce94103",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T17:17:23.054255+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_24b5c86c8ce6474b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T18:19:51.527504+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_74cfc4a0d77e4953",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T19:21:52.093101+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_126720cafd4d4349",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T20:24:57.317957+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_6542d508a78243f4",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T21:27:14.571541+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_a9dadf170d0b4db2",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T22:28:59.518713+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_76a243266439491f",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T23:31:02.190888+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_11058da962394dc0",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T00:33:27.619516+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_f37218da62dc4e29",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T01:35:52.160025+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_e08383b4da85401f",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T02:37:41.103286+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_c416475500624df9",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T03:40:32.840190+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3718917c24c74173",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T04:43:10.088550+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_e716b08e4f694e00",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T05:47:13.872499+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_abc6623495744a42",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T06:49:19.252730+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_5d5ca0666e9045f1",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T07:51:18.067432+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_a0b7d2aa43554bdc",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T08:55:35.675289+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_d7b1642401d54ca7",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T09:57:36.552067+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_b151819fc3774633",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T10:59:53.445162+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_59739ef40bb04f67",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T12:04:26.261177+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_bcf4bc7a2a674657",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T13:06:31.083690+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_d079500650df4380",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T14:08:41.454090+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_30271fe5115f4d48",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T15:12:57.319184+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_0d7216012b6a4579",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T16:15:25.512950+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_d8af95e76d164484",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T17:19:41.930481+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_9f77c87f08ba467b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T18:21:44.204738+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_1eebcdbfb0714299",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T19:23:40.559979+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_f280fb62fd2e4ffb",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T20:25:18.032096+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_ea2bc237aabb4886",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T21:28:08.404303+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_df4a6f47d55b4f0a",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T22:32:20.652417+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_013f78cfccc5469b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T23:34:43.156083+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_747039a41ee4467b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T00:37:37.681154+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_b4910255f6504ae3",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T01:40:28.992003+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_522cd269b7524631",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T02:42:29.066938+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3d55661e9a8d49d5",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T03:45:07.036284+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_361ce385c00245d4",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T04:47:51.436358+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_680eae5b775f418c",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T05:50:18.868942+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_d56fbc3dacb84ddc",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T06:52:06.419992+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_994676ce08ea4be3",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T07:55:20.271877+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_a63f93daddeb43d9",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T08:57:54.505427+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_6e8b308f31e44834",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T10:00:44.651507+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_5ce895d3670640af",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T11:03:41.751785+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3c562619da2d4e0e",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T12:07:25.333375+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_6b6cfef90c864814",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T13:09:33.973060+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_e52b731fbaf7450c",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T14:13:10.745006+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_848f64299aeb4a2b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T15:16:22.094028+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_2bc3fbad05fe41dd",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T16:20:32.341596+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_082ab792f0a54227",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T17:24:20.215846+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_8ae37e4df9644c0a",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T18:26:34.001616+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_a819893154434bbb",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T19:28:53.994649+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_bbfd61b92e8d40cb",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T20:31:39.287016+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_699a4fba25374a49",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T21:32:28.635773+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_d7539b544ea84a9c",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T22:34:36.985461+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_d469d334b8ae4945",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T23:38:01.230341+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_9844fcebc65b4273",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T00:40:49.567056+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3470bbbfd2f240a0",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T01:44:35.685668+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_84272d52f9cb491b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T02:46:48.560346+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_cf0ff43e736d48bd",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T03:50:14.143894+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_c02f88a3c8534709",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T04:52:17.801506+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_53e5964c55204ccb",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T05:56:10.795220+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_2a6818d4c66744e8",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T06:58:00.447880+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_9079282c11c74e84",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T08:01:30.993793+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_27306c73664e4cb2",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T09:03:48.792217+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_7f0af9e5e8e24557",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T10:07:16.132082+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_a9b7733cf4b74659",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T11:09:47.009422+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_a7fb7719180e4637",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T12:14:04.287643+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_d8321113c93c47a5",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T13:16:49.639689+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_76e85adddade4615",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T14:21:43.128945+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_25c1483ef96b40cc",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T16:38:09.636678+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_40b10ec849a649a1",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T17:40:28.473218+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_2f8a58a417dc456d",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T18:48:40.491813+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_57560cb74b4c4569",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T20:09:06.238459+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_4a17cbf7ff8d4ac0",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T21:11:55.323025+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_ea067b9f5e8a40f9",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T22:14:11.693881+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_81908dd09d974462",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T23:16:58.205844+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_e7a2d434d7dd4dcd",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T00:19:09.755168+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_c42e586decf84c9c",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T01:21:23.828833+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_4160bb635b6143a9",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T02:25:34.700916+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_afc083d88b984244",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T03:28:11.599512+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_2843fb85d47a4fa7",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T04:30:11.381958+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_4f649770a11f4a3d",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T05:32:06.753491+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_97378b9fd5ff433b",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T06:33:49.428344+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_85e1df94ea444104",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T07:36:01.818090+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_3a3e47ed2f0948ee",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T08:40:00.972701+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_babeac87e45f470c",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T10:55:58.853921+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_8120a964b5dd4cd1",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:37:35.047063+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_030fc284ae3a46f6",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:04:50.454115+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_ff8f71b930be4bd1",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T21:10:04.051662+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_4c45e28c2af0486a",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:48:49.387724+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_40fb336e31e3423c",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T02:52:26.111626+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_26e03d8afc064f40",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T03:56:37.523976+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_de1b2bc09e564798",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:40:30.372169+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "diagnostic_families": 4,
+          "diagnostic_receipts": 15,
+          "eligible_goals": 0,
+          "live_writes": 0,
+          "new_receipts": 0,
+          "precommitments": 15,
+          "unsafe_candidates_rejected": 60,
+          "wrong_internal_repair_routes": 0
+        }
+      },
+      "outcome_id": "outcome_45428f004bb947af",
+      "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:46:34.669004+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -55564,7 +59062,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 5034,
+  "revision": 5352,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -55587,7 +59085,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-10-09T21:09:25.720500+00:00",
+  "updated_at": "2026-10-18T08:46:34.741341+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

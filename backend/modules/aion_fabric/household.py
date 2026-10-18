@@ -11,6 +11,12 @@ from pathlib import Path
 from typing import Any, Dict, Iterable
 from uuid import uuid4
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
 from .identity import DeviceIdentity
 
@@ -20,15 +26,33 @@ class HouseholdIdentityRegistry:
 
     _lock = threading.RLock()
 
-    def __init__(self, runtime_dir: str | Path) -> None:
+    def __init__(
+        self,
+        runtime_dir: str | Path,
+        *,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.path = Path(runtime_dir) / "household" / "personas.json"
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_household_workspace_required")
 
     @staticmethod
     def _initial() -> Dict[str, Any]:
         return {"schema_version": "aion.household.personas.v1", "personas": [], "updated_at": utc_now_iso()}
 
     def _load(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.household_personas",
+            )
+            return dict(result["payload"]) if result else self._initial()
         if not self.path.exists():
             return self._initial()
         try:
@@ -39,8 +63,23 @@ class HouseholdIdentityRegistry:
 
     def _save(self, state: Dict[str, Any]) -> None:
         state["updated_at"] = utc_now_iso()
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.household_personas",
+            )
+            self.domain_store.put(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.household_personas",
+                payload=state,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
         temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(state))
+        os.chmod(temporary, 0o600)
         os.replace(temporary, self.path)
 
     def ensure_local_persona(self, *, mother_id: str, display_name: str = "Local owner") -> Dict[str, Any]:
@@ -161,16 +200,41 @@ class UniversalNodeAuthority:
 
     _lock = threading.RLock()
 
-    def __init__(self, runtime_dir: str | Path, *, node_id: str, identity: DeviceIdentity) -> None:
+    def __init__(
+        self,
+        runtime_dir: str | Path,
+        *,
+        node_id: str,
+        identity: DeviceIdentity,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.path = Path(runtime_dir) / "universal_node" / "authority.json"
-        self.path.parent.mkdir(parents=True, exist_ok=True)
         self.node_id = node_id
         self.identity = identity
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_universal_node_workspace_required")
+
+    @property
+    def _guardian_entity_id(self) -> str:
+        return f"aion_fabric.universal_node_authority.{self.node_id}"
 
     def _initial(self) -> Dict[str, Any]:
         return {"schema_version": "aion.universal-node.v1", "node_id": self.node_id, "trusted_mothers": [], "pending_handshakes": [], "leases": [], "used_nonces": [], "updated_at": utc_now_iso()}
 
     def _load(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id=self._guardian_entity_id,
+            )
+            value = dict(result["payload"]) if result else self._initial()
+            return value if value.get("node_id") == self.node_id else self._initial()
         if not self.path.exists():
             return self._initial()
         try:
@@ -181,8 +245,23 @@ class UniversalNodeAuthority:
 
     def _save(self, state: Dict[str, Any]) -> None:
         state["updated_at"] = utc_now_iso()
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id=self._guardian_entity_id,
+            )
+            self.domain_store.put(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id=self._guardian_entity_id,
+                payload=state,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
         temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(state))
+        os.chmod(temporary, 0o600)
         os.replace(temporary, self.path)
 
     def enroll_mother(self, *, mother_id: str, public_key: str, persona_id: str, approved_by: str) -> Dict[str, Any]:
@@ -316,3 +395,107 @@ class UniversalNodeAuthority:
     def snapshot(self) -> Dict[str, Any]:
         state = self._load()
         return {"schema_version": state["schema_version"], "node_id": self.node_id, "trusted_mothers": len([item for item in state["trusted_mothers"] if item.get("status") == "trusted"]), "pending_handshakes": len(state.get("pending_handshakes") or []), "issued_leases": len(state.get("leases") or []), "maximum_lease_hours": 24, "one_runtime_per_device": True, "new_mother_requires_local_confirmation": True, "updated_at": state.get("updated_at")}
+
+
+def _configured_security_domains(actor_id: str) -> tuple[VaultDomainStore, str]:
+    runtime = configured_business_vault_runtime()
+    workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+    if not workspace_id:
+        raise RuntimeError("aion_fabric_household_workspace_required")
+    return VaultDomainStore(runtime.guardian, actor_id=actor_id), workspace_id
+
+
+def _record_migration(
+    domains: VaultDomainStore,
+    *,
+    workspace_id: str,
+    kind: str,
+    source: Path,
+) -> None:
+    from hashlib import sha256
+
+    source_hash = sha256(source.read_bytes()).hexdigest()
+    entity_id = f"aion_fabric.{kind}_migration.{source_hash}"
+    if domains.get_optional("security.audit", workspace_id=workspace_id, entity_id=entity_id):
+        return
+    domains.put(
+        "security.audit",
+        workspace_id=workspace_id,
+        entity_id=entity_id,
+        payload={
+            "schema_version": f"aion.{kind}-migration.v1",
+            "source_sha256": source_hash,
+            "source_retained": True,
+            "copied_and_verified": True,
+            "completed_at": utc_now_iso(),
+        },
+    )
+
+
+def configured_household_identity_registry(runtime_dir: str | Path) -> HouseholdIdentityRegistry:
+    """Select encrypted household persona authority and retain verified legacy input."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        domains, workspace_id = _configured_security_domains("aion-fabric-household")
+        selected = HouseholdIdentityRegistry(
+            runtime_path, domain_store=domains, workspace_id=workspace_id,
+        )
+        source = runtime_path / "household" / "personas.json"
+        if source.exists() and domains.get_optional(
+            "security.records",
+            workspace_id=workspace_id,
+            entity_id="aion_fabric.household_personas",
+        ) is None:
+            state = HouseholdIdentityRegistry(runtime_path)._load()
+            selected._save(state)
+            if selected._load() != state or not source.exists():
+                raise RuntimeError("aion_fabric_household_migration_verification_failed")
+            _record_migration(
+                domains, workspace_id=workspace_id, kind="household", source=source,
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_household_required_in_production")
+    return HouseholdIdentityRegistry(runtime_path)
+
+
+def configured_universal_node_authority(
+    runtime_dir: str | Path,
+    *,
+    node_id: str,
+    identity: DeviceIdentity,
+) -> UniversalNodeAuthority:
+    """Select encrypted trusted-node authority and retain verified legacy input."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        domains, workspace_id = _configured_security_domains("aion-fabric-universal-node")
+        selected = UniversalNodeAuthority(
+            runtime_path,
+            node_id=node_id,
+            identity=identity,
+            domain_store=domains,
+            workspace_id=workspace_id,
+        )
+        source = runtime_path / "universal_node" / "authority.json"
+        if source.exists() and domains.get_optional(
+            "security.records",
+            workspace_id=workspace_id,
+            entity_id=selected._guardian_entity_id,
+        ) is None:
+            state = UniversalNodeAuthority(
+                runtime_path, node_id=node_id, identity=identity,
+            )._load()
+            selected._save(state)
+            if selected._load() != state or not source.exists():
+                raise RuntimeError("aion_fabric_universal_node_migration_verification_failed")
+            _record_migration(
+                domains, workspace_id=workspace_id, kind="universal-node", source=source,
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_universal_node_required_in_production")
+    return UniversalNodeAuthority(runtime_path, node_id=node_id, identity=identity)

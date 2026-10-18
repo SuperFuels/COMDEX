@@ -12,6 +12,8 @@ from backend.modules.aion_business.runtime.sovereign_update_service import (
 )
 from backend.modules.aion_fabric.canonical import canonical_bytes
 from backend.modules.aion_fabric.identity import DeviceIdentity
+from backend.modules.aion_business.runtime.business_vault import VaultBoundaryError
+from backend.modules.aion_business.runtime.node_release_contract import ReleasePreflight
 
 
 def identity():
@@ -96,3 +98,127 @@ def test_failed_first_activation_requires_manual_recovery_without_false_success(
     assert result["status"] == "rolled_back"
     assert result["manual_recovery_required"] is True
     assert service.status()["current_version"] is None
+
+
+def test_production_mode_requires_eligible_matching_release_preflight(tmp_path):
+    publisher, mother = identity(), identity()
+    service = SovereignUpdateService(
+        tmp_path / "updates",
+        mother_identity=mother,
+        trusted_signers=[publisher.public_key_b64],
+        application_root=tmp_path / "app",
+        vault_roots=[tmp_path / "customer-data" / "business-vault"],
+        require_release_preflight=True,
+    )
+    candidate = package(tmp_path, publisher, "1.0.0", "healthy")
+    with pytest.raises(PermissionError, match="release_preflight_required"):
+        service.stage(candidate)
+    rejected = ReleasePreflight(
+        schema_version="tessaris.node-release-preflight.v1",
+        eligible=False,
+        release_version="1.0.0",
+        current_version="0.9.0",
+        target_id="test",
+        required_storage_bytes=1,
+        reasons=("vault_schema_incompatible",),
+    )
+    with pytest.raises(PermissionError, match="vault_schema_incompatible"):
+        service.stage(candidate, release_preflight=rejected)
+    eligible = ReleasePreflight(
+        schema_version="tessaris.node-release-preflight.v1",
+        eligible=True,
+        release_version="1.0.0",
+        current_version="0.9.0",
+        target_id="test",
+        required_storage_bytes=1,
+        reasons=(),
+    )
+    assert service.stage(candidate, release_preflight=eligible)["status"] == "staged"
+    status = service.status()
+    assert status["release_preflight_required"] is True
+    assert status["vault_boundary_enforced"] is True
+
+
+def test_vault_bound_updater_cannot_disable_preflight_or_activate_unattested_staging(tmp_path):
+    publisher, mother = identity(), identity()
+    service = SovereignUpdateService(
+        tmp_path / "updates",
+        mother_identity=mother,
+        trusted_signers=[publisher.public_key_b64],
+        application_root=tmp_path / "app",
+        vault_roots=[tmp_path / "customer-data" / "business-vault"],
+        require_release_preflight=False,
+    )
+    assert service.status()["release_preflight_required"] is True
+    with pytest.raises(PermissionError, match="release_preflight_required"):
+        service.stage(package(tmp_path, publisher, "1.0.0", "healthy"))
+
+    forged = service.staging / "1.0.0"
+    forged.mkdir(parents=True)
+    (forged / "runtime.txt").write_text("unattested", encoding="utf-8")
+    with pytest.raises(PermissionError, match="stage_authorization"):
+        service.activate(
+            "1.0.0",
+            start_release=lambda path: True,
+            health_check=lambda path: True,
+        )
+
+
+def test_activation_rejects_tampered_stage_authorization_and_history(tmp_path):
+    publisher, mother = identity(), identity()
+    service = SovereignUpdateService(
+        tmp_path / "updates",
+        mother_identity=mother,
+        trusted_signers=[publisher.public_key_b64],
+    )
+    service.stage(package(tmp_path, publisher, "1.0.0", "healthy"))
+    authorization = service.staging / "1.0.0" / ".tessaris-stage-authorization.json"
+    value = json.loads(authorization.read_text(encoding="utf-8"))
+    value["version"] = "9.9.9"
+    authorization.write_text(json.dumps(value), encoding="utf-8")
+    with pytest.raises(PermissionError, match="stage_authorization"):
+        service.activate(
+            "1.0.0",
+            start_release=lambda path: True,
+            health_check=lambda path: True,
+        )
+
+    changed = SovereignUpdateService(
+        tmp_path / "updates-changed",
+        mother_identity=mother,
+        trusted_signers=[publisher.public_key_b64],
+    )
+    changed.stage(package(tmp_path, publisher, "1.1.0", "healthy"))
+    (changed.staging / "1.1.0" / "runtime.txt").write_text(
+        "modified-after-staging", encoding="utf-8"
+    )
+    with pytest.raises(PermissionError, match="staged_file_integrity_failed"):
+        changed.activate(
+            "1.1.0",
+            start_release=lambda path: True,
+            health_check=lambda path: True,
+        )
+
+    clean = SovereignUpdateService(
+        tmp_path / "updates-clean",
+        mother_identity=mother,
+        trusted_signers=[publisher.public_key_b64],
+    )
+    clean.stage(package(tmp_path, publisher, "2.0.0", "healthy"))
+    state = json.loads(clean.state_path.read_text(encoding="utf-8"))
+    state["history"][0]["detail"]["manifest_hash"] = "0" * 64
+    clean.state_path.write_text(json.dumps(state), encoding="utf-8")
+    with pytest.raises(RuntimeError, match="history_integrity_failed"):
+        clean.status()
+
+
+def test_update_root_cannot_overlap_business_vault(tmp_path):
+    publisher, mother = identity(), identity()
+    with pytest.raises(VaultBoundaryError, match="update_boundary_overlap"):
+        SovereignUpdateService(
+            tmp_path / "updates",
+            mother_identity=mother,
+            trusted_signers=[publisher.public_key_b64],
+            application_root=tmp_path / "app",
+            vault_roots=[tmp_path / "updates" / "customer-data"],
+        )

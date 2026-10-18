@@ -10,6 +10,8 @@ import os
 import time
 from pathlib import Path
 
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+
 _STATE_PATH = Path(__file__).resolve().parents[2] / "state" / "resonance_state.json"
 
 _DEFAULT_STATE = {
@@ -25,14 +27,35 @@ _DEFAULT_STATE = {
 # ──────────────────────────────────────────────────────────
 # 🧩 Safe loader with corruption detection + recovery
 # ──────────────────────────────────────────────────────────
-def load_phi_state():
+def _store(
+    *,
+    state_path: str | Path | None = None,
+    vault_store: AionLearningVaultStore | None = None,
+) -> tuple[Path, AionLearningVaultStore]:
+    path = Path(state_path or _STATE_PATH)
+    return path, vault_store or AionLearningVaultStore(
+        auto_configure=state_path is None
+    )
+
+
+def load_phi_state(
+    *,
+    state_path: str | Path | None = None,
+    vault_store: AionLearningVaultStore | None = None,
+):
     """Load the current Φ-state from disk safely, or restore defaults if corrupted."""
-    if not _STATE_PATH.exists():
-        return _DEFAULT_STATE.copy()
+    path, store = _store(state_path=state_path, vault_store=vault_store)
 
     try:
-        with open(_STATE_PATH, "r") as f:
-            data = json.load(f)
+        if store.enabled:
+            data = store.get_state("aion_phi_state", None)
+            if data is None:
+                return _DEFAULT_STATE.copy()
+        else:
+            if not path.exists():
+                return _DEFAULT_STATE.copy()
+            with open(path, "r") as f:
+                data = json.load(f)
 
         # Validate type and essential keys
         if not isinstance(data, dict) or not all(k in data for k in ["Φ_coherence", "Φ_entropy"]):
@@ -44,8 +67,8 @@ def load_phi_state():
         # Corrupted file - backup and restore defaults
         print(f"⚠️ Corrupted Φ-state: {e} - restoring default values.")
         try:
-            backup_path = _STATE_PATH.with_suffix(".corrupt.json")
-            os.rename(_STATE_PATH, backup_path)
+            backup_path = path.with_suffix(".corrupt.json")
+            os.rename(path, backup_path)
             print(f"🩹 Saved corrupted backup -> {backup_path}")
         except Exception as rename_err:
             print(f"⚠️ Failed to backup corrupted Φ-state: {rename_err}")
@@ -59,22 +82,33 @@ def load_phi_state():
 # ──────────────────────────────────────────────────────────
 # 💾 Atomic + robust save
 # ──────────────────────────────────────────────────────────
-def save_phi_state(phi_signature: dict, last_command: str = None):
+def save_phi_state(
+    phi_signature: dict,
+    last_command: str = None,
+    *,
+    state_path: str | Path | None = None,
+    vault_store: AionLearningVaultStore | None = None,
+):
     """Atomically save the Φ signature with metadata, ensuring no partial writes."""
-    os.makedirs(_STATE_PATH.parent, exist_ok=True)
+    path, store = _store(state_path=state_path, vault_store=vault_store)
 
     # Merge and enrich the state
     state = {**_DEFAULT_STATE, **phi_signature}
     state["last_command"] = last_command
     state["timestamp"] = time.time()
 
-    tmp_path = _STATE_PATH.with_suffix(".tmp")
+    if store.enabled:
+        store.put_state("aion_phi_state", state)
+        return state
+
+    os.makedirs(path.parent, exist_ok=True)
+    tmp_path = path.with_suffix(".tmp")
 
     try:
         # Write atomically
         with open(tmp_path, "w") as f:
             json.dump(state, f, indent=2)
-        os.replace(tmp_path, _STATE_PATH)
+        os.replace(tmp_path, path)
         return state
 
     except Exception as e:
@@ -87,9 +121,17 @@ def save_phi_state(phi_signature: dict, last_command: str = None):
 # ──────────────────────────────────────────────────────────
 # 🔁 Manual reset / reinitialization
 # ──────────────────────────────────────────────────────────
-def reset_phi_state():
+def reset_phi_state(
+    *,
+    state_path: str | Path | None = None,
+    vault_store: AionLearningVaultStore | None = None,
+):
     """Reset Φ metrics to their default balanced state."""
-    os.makedirs(_STATE_PATH.parent, exist_ok=True)
-    save_phi_state(_DEFAULT_STATE.copy(), last_command="reset")
+    save_phi_state(
+        _DEFAULT_STATE.copy(),
+        last_command="reset",
+        state_path=state_path,
+        vault_store=vault_store,
+    )
     print("🧠 Φ-state reset to defaults.")
     return _DEFAULT_STATE.copy()

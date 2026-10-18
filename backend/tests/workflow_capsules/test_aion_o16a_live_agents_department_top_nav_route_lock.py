@@ -34,5 +34,5 @@ def test_o16a_selection_updates_renderer_authority_and_runtime_state():
     assert "window.__aionLiveAgentsFocusDepartment = departmentKey" in block
     assert "state.selectedLiveAgentDepartment = departmentKey" in block
     assert "state.liveAgentsSelectedDepartment = departmentKey" in block
-    assert 'localStorage?.setItem?.("aion.liveAgents.selectedDepartment", departmentKey)' in block
-    assert 'localStorage?.setItem?.("aion.liveAgents.focusDepartment.v1", departmentKey)' in block
+    assert 'AionDesktopPreferences.set("aion.liveAgents.selectedDepartment", departmentKey)' in block
+    assert 'AionDesktopPreferences.set("aion.liveAgents.focusDepartment.v1", departmentKey)' in block

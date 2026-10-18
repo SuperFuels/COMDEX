@@ -4,16 +4,25 @@
 # Shared reinforcement + heartbeat manager + optimizer hooks
 # ───────────────────────────────────────────────
 
-import os
 import json
 import time
+from pathlib import Path
+
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 
 # ✅ Correct import path (this file exists in your tree)
 from backend.modules.aion_resonance.resonant_heartbeat_monitor import ResonanceHeartbeat
 
 
 class ResonantReinforcementMixin:
-    def __init__(self, name: str, learning_rate: float = 0.05):
+    def __init__(
+        self,
+        name: str,
+        learning_rate: float = 0.05,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        history_path: str | Path | None = None,
+    ):
         self.name = name
         self.learning_rate = float(learning_rate)
 
@@ -31,8 +40,12 @@ class ResonantReinforcementMixin:
         setattr(self.heartbeat, "sqi", self.last_sqi)
 
         # Per-engine resonance history for dashboards
-        self.history_file = f"data/telemetry/{name}_resonance_history.json"
-        os.makedirs(os.path.dirname(self.history_file), exist_ok=True)
+        self.history_file = Path(
+            history_path or f"data/telemetry/{name}_resonance_history.json"
+        )
+        self.reinforcement_vault = vault_store or AionLearningVaultStore(
+            auto_configure=history_path is None
+        )
 
         # Optional knobs that the optimizer might tune (existence-checked later)
         # Engines can define in their own __init__:
@@ -136,14 +149,41 @@ class ResonantReinforcementMixin:
             "extras":    dict(getattr(self, "optimizer_extras", {})),
         }
         try:
+            if self.reinforcement_vault.enabled:
+                event_id = f"resonance-reinforcement-{self.name}-{time.time_ns()}"
+                self.reinforcement_vault.append_event(event_id, {
+                    **record,
+                    "event_id": event_id,
+                    "event_type": "resonance_reinforcement_snapshot",
+                    "engine_name": self.name,
+                    "ts_utc": record["timestamp"],
+                })
+                return
             data = []
-            if os.path.exists(self.history_file):
-                with open(self.history_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    if not isinstance(data, list):
-                        data = []
+            if self.history_file.is_file():
+                data = json.loads(self.history_file.read_text(encoding="utf-8"))
+                if not isinstance(data, list):
+                    data = []
             data.append(record)
-            with open(self.history_file, "w", encoding="utf-8") as f:
-                json.dump(data[-500:], f, indent=2)
+            self.history_file.parent.mkdir(parents=True, exist_ok=True)
+            self.history_file.write_text(
+                json.dumps(data[-500:], indent=2), encoding="utf-8"
+            )
         except Exception as e:
             print(f"[{self.name}] ⚠ Failed to record resonance: {e}")
+
+    def get_reinforcement_history(self, limit: int = 500) -> list[dict]:
+        if self.reinforcement_vault.enabled:
+            rows = self.reinforcement_vault.list_events(
+                kind="resonance_reinforcement_snapshot"
+            )
+            rows = [row for row in rows if row.get("engine_name") == self.name]
+            return rows[-max(0, int(limit)):]
+        if not self.history_file.is_file():
+            return []
+        try:
+            value = json.loads(self.history_file.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        rows = [dict(row) for row in value if isinstance(row, dict)] if isinstance(value, list) else []
+        return rows[-max(0, int(limit)):]

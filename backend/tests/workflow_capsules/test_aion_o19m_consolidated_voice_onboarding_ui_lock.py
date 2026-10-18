@@ -45,3 +45,12 @@ def test_o19m_clears_previous_transcript_on_start():
     assert 'transcript: []' in text
     assert 'stage: "startup_intro"' in text
     assert "startAionO19MOnboarding" in text
+
+
+def test_voice_onboarding_asks_for_and_saves_a_language_style():
+    text = APP.read_text(encoding="utf-8")
+    assert 'stage = "communication_style"' in text
+    assert "Clear and simple" in text
+    assert "Detailed and professional" in text
+    assert "data-aion-language-style" in text
+    assert "setAionCommunicationStyleV1(style)" in text

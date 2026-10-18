@@ -14,6 +14,11 @@ from backend.modules.aion_business.runtime.business_container_repository import 
     BusinessContainerRepository,
 )
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -49,8 +54,23 @@ def _bounded_rows(value: Any, limit: int = 25) -> dict[str, Any]:
 class FinancePilotConversationRepository:
     """Atomic persistence for the permanent Finance terminal conversation."""
 
-    def __init__(self, base_dir: str | Path | None = None) -> None:
+    def __init__(
+        self,
+        base_dir: str | Path | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
         self.base_dir = Path(base_dir) if base_dir else AIONBusinessPaths.DEPARTMENT_PILOT_RUNTIME
+        self.domain_store = domain_store
+        if self.domain_store is None and base_dir is None and guardian_mode_requested():
+            self.domain_store = VaultDomainStore(
+                configured_business_vault_runtime().guardian,
+                actor_id="finance-pilot-conversation-runtime",
+            )
+
+    @staticmethod
+    def _entity_id() -> str:
+        return "pilot/conversation"
 
     def path(self, workspace_id: str) -> Path:
         path = self.base_dir / workspace_id / "finance" / "conversations"
@@ -58,8 +78,17 @@ class FinancePilotConversationRepository:
         return path / "finance_terminal.json"
 
     def load(self, workspace_id: str) -> dict[str, Any]:
-        path = self.path(workspace_id)
-        if not path.exists():
+        record = None
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "finance.operations_records", workspace_id=workspace_id,
+                entity_id=self._entity_id(),
+            )
+        else:
+            path = self.path(workspace_id)
+            if path.exists():
+                return json.loads(path.read_text(encoding="utf-8"))
+        if record is None:
             payload = {
                 "schema_version": "aion.finance_pilot.conversation_session.v1",
                 "workspace_id": workspace_id,
@@ -71,13 +100,28 @@ class FinancePilotConversationRepository:
             }
             payload["session_hash"] = canonical_contract_hash(payload)
             return payload
-        return json.loads(path.read_text(encoding="utf-8"))
+        return dict(record["payload"])
 
     def save(self, workspace_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         value = dict(payload)
         value["updated_at"] = str(value.get("updated_at") or _now())
         value.pop("session_hash", None)
         value["session_hash"] = canonical_contract_hash(value)
+        if self.domain_store is not None:
+            current = self.domain_store.get_optional(
+                "finance.operations_records", workspace_id=workspace_id,
+                entity_id=self._entity_id(),
+            )
+            self.domain_store.put(
+                "finance.operations_records", workspace_id=workspace_id,
+                entity_id=self._entity_id(), payload=value,
+                expected_version=int(current["version"]) if current else None,
+                idempotency_key=(
+                    "finance-pilot-conversation-"
+                    + str(value["session_hash"]).removeprefix("sha256:")[:32]
+                ),
+            )
+            return value
         path = self.path(workspace_id)
         temporary = path.with_suffix(".json.tmp")
         temporary.write_text(

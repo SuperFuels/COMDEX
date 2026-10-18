@@ -6,7 +6,18 @@ from typing import Any, Dict, Optional
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 import time
+import uuid
+
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_agents.runtime.vault_repository_backend import (
+    AgentVaultRepositoryBackend,
+    configured_agent_domain_store,
+)
+from backend.modules.workflow_capsules.repository.workflow_capsule_repository import (
+    WorkflowCapsuleRepository,
+)
 
 
 DEFAULT_FEEDBACK_PATH = Path(".runtime/workflow_capsules/feedback/workflow_capsule_feedback.jsonl")
@@ -54,12 +65,42 @@ class WorkflowCapsuleFeedbackEngine:
 
     def __init__(
         self,
-        path: Path | str = DEFAULT_FEEDBACK_PATH,
+        path: Path | str | None = None,
         *,
         learning_runtime: Optional[Any] = None,
         emit_learning_events: bool = True,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+        capsule_repository: WorkflowCapsuleRepository | None = None,
     ) -> None:
-        self.path = Path(path)
+        self.path = Path(path or DEFAULT_FEEDBACK_PATH)
+        store = domain_store or (
+            configured_agent_domain_store() if path is None else None
+        )
+        self.vault = (
+            AgentVaultRepositoryBackend(
+                store,
+                kind="workflow_capsule_feedback",
+                audit=True,
+            )
+            if store
+            else None
+        )
+        self.workspace_id = str(
+            workspace_id
+            or os.environ.get("TESSARIS_BUSINESS_STABLE_ID")
+            or ""
+        ).strip()
+        if self.vault is not None and not self.workspace_id:
+            raise ValueError("workflow_capsule_feedback_workspace_id_required")
+        self.capsule_repository = capsule_repository or (
+            WorkflowCapsuleRepository(
+                domain_store=store,
+                workspace_id=self.workspace_id,
+            )
+            if store
+            else None
+        )
         self.learning_runtime = learning_runtime
         self.emit_learning_events = bool(emit_learning_events)
 
@@ -139,9 +180,16 @@ class WorkflowCapsuleFeedbackEngine:
             capsule.finalize()
 
             if persist_capsule:
-                source_path = capsule.meta.get("source_path")
-                if source_path:
-                    capsule.save(source_path)
+                if self.capsule_repository is not None:
+                    self.capsule_repository.save(
+                        capsule,
+                        scope="workspace",
+                        workspace_id=self.workspace_id,
+                    )
+                else:
+                    source_path = capsule.meta.get("source_path")
+                    if source_path:
+                        capsule.save(source_path)
 
             mutation_applied = True
 
@@ -179,9 +227,22 @@ class WorkflowCapsuleFeedbackEngine:
             k: v for k, v in record.items() if k != "feedback_hash"
         })
 
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+        if self.vault is not None:
+            event_id = f"{str(record.get('run_id') or 'feedback')}-{uuid.uuid4().hex}"
+            self.vault.put(
+                workspace_id=self.workspace_id,
+                item_id=event_id,
+                payload=record,
+            )
+            output_path = (
+                "vault://train_agent.runs_and_audit/workflow_capsule_feedback/"
+                + event_id
+            )
+        else:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with self.path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+            output_path = str(self.path)
 
         learning_event = self._emit_learning_event(
             capsule_key=str(capsule_key or "workflow:unknown.v1"),
@@ -198,7 +259,7 @@ class WorkflowCapsuleFeedbackEngine:
 
         return {
             "ok": True,
-            "path": str(self.path),
+            "path": output_path,
             "canonical_key": capsule_key,
             "run_id": record["run_id"],
             "quality": quality,
@@ -235,6 +296,13 @@ class WorkflowCapsuleFeedbackEngine:
 
         runtime = self.learning_runtime
         if runtime is None:
+            if self.vault is not None:
+                return {
+                    "ok": True,
+                    "emitted": False,
+                    "reason": "guardian_feedback_record_is_authoritative",
+                    "path": "vault://train_agent.runs_and_audit/workflow_capsule_feedback",
+                }
             try:
                 from backend.modules.aion_learning.runtime import AionLearningRuntime
                 runtime = AionLearningRuntime()
@@ -287,4 +355,3 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return int(value)
     except Exception:
         return default
-

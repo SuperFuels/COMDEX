@@ -964,6 +964,14 @@ def render_full_lines(snapshot: Mapping[str, Any], width: int = 120) -> list[tup
         f"Expert queue: {psummary.get('expert_depth_queue', 0)}  | "
         f"Lane contracts: breadth={psummary.get('breadth_contracts', 0)}, "
         f"depth={psummary.get('depth_contracts', 0)}", width)))
+    progress_age = psummary.get("minutes_since_last_competency_progress")
+    progress_age_text = f"{float(progress_age):.1f} min" if progress_age is not None else "no verified gain yet"
+    lines.append(("good" if progress_age is not None and float(progress_age) < 120 else "warn", _clip(
+        f" Genuine competency gain: {progress_age_text} ago  | Practice projects today: "
+        f"{psummary.get('practice_projects_completed_today', 0)}  | Blocked subjects: "
+        f"{psummary.get('blocked_subject_count', 0)}  | Exhausted portfolios: "
+        f"{psummary.get('exhausted_portfolios', 0)}  | Scheduler incidents: "
+        f"{psummary.get('open_scheduler_incidents', 0)}", width)))
     invalidated = int(psummary.get("invalidated_evidence_records", 0) or 0)
     if invalidated:
         lines.append(("warn", _clip(
@@ -1680,7 +1688,9 @@ def render_lines(snapshot: Mapping[str, Any], width: int = 120) -> list[tuple[st
         f" Spaced practice: {spaced_practice.get('status', 'not started')} · rehearsals "
         f"{spaced_summary.get('total_rehearsals', 0)} across "
         f"{spaced_summary.get('subjects_practised', 0)}/"
-        f"{spaced_summary.get('subjects_with_practice_adapters', 0)} supported subjects · failures "
+        f"{spaced_summary.get('subjects_with_practice_paths', spaced_summary.get('subjects_with_practice_adapters', 0))} subjects · "
+        f"verified adapters {spaced_summary.get('subjects_with_verified_practice_adapters', spaced_summary.get('subjects_with_practice_adapters', 0))} · "
+        f"preparatory-only {spaced_summary.get('diagnostic_only_subjects', 0)} · failures "
         f"{spaced_summary.get('failed_rehearsals', 0)} · latest "
         f"{latest_practice.get('subject_name', latest_practice.get('subject_id', 'waiting'))} · "
         f"awards competence={spaced_summary.get('awards_competence', False)}", width)))

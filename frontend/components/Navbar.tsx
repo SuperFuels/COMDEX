@@ -8,14 +8,14 @@ export default function TessarisNavbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
       <div className="mx-auto flex min-h-[72px] max-w-[1240px] items-center justify-between gap-5 px-5 sm:px-8">
-        <Link href="/" aria-label="Tessaris home" className="logo-link shrink-0 !border-0 !bg-transparent !p-0 max-[440px]:w-9 max-[440px]:overflow-hidden">
+        <Link href="/" aria-label="Si by Tessaris home" className="logo-link shrink-0 !border-0 !bg-transparent !p-0">
           <Image
-            src="/tessaris-tesseract-rounded-loop.png"
-            alt="Tessaris"
-            width={174}
-            height={58}
+            src="/si-logo.png"
+            alt="Si by Tessaris"
+            width={52}
+            height={52}
             priority
-            className="block h-auto w-[142px] max-w-none border-none sm:w-[164px]"
+            className="block h-11 w-11 border-none object-contain sm:h-12 sm:w-12"
           />
         </Link>
 
@@ -27,13 +27,13 @@ export default function TessarisNavbar() {
             Pricing
           </Link>
           <Link href="/aion" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
-            AION
+            Si
           </Link>
           <Link
-            href="/register"
+            href="/waitlist"
             className="ml-1 inline-flex items-center gap-2 rounded-full !border-0 !bg-[#1748e5] px-4 py-2.5 text-sm font-extrabold !text-white shadow-[0_8px_22px_rgba(23,72,229,.2)] transition hover:!bg-[#1039bc] sm:px-5"
           >
-            <span className="hidden sm:inline">Join the launch</span>
+            <span className="hidden sm:inline">Join waitlist</span>
             <span className="sm:hidden">Join</span>
             <ArrowRight size={15} aria-hidden="true" />
           </Link>

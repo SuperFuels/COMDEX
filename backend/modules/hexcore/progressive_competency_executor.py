@@ -922,9 +922,7 @@ def _install_diverse_project_route(
 
     def routed(contract: dict[str, Any], evidence: list[dict[str, Any]]) -> dict[str, Any]:
         kind = str((contract.get("requirement") or {}).get("kind") or "")
-        if kind == "project" or (
-            subject_id == "english" and kind in {"lesson", "exercise"}
-        ):
+        if kind == "project" or subject_id == "english":
             return project_runner(contract, evidence)
         return generic_runner(contract, evidence)
 
@@ -1011,6 +1009,8 @@ class ProgressiveCompetencyExecutor:
         native_english_source = Path(__file__).with_name("native_english_competency_portfolio.py")
         native_english_hash = hashlib.sha256(native_english_source.read_bytes()).hexdigest()
         resolved = 0
+        resolution_requests = []
+        reissue_requests = []
         for blocker in list(self.system.state.get("blockers") or []):
             reason = str(blocker.get("reason") or "")
             if (
@@ -1019,13 +1019,22 @@ class ProgressiveCompetencyExecutor:
                 and blocker.get("subject_id") in RUNNERS
                 and "No verified progressive executor currently grounds" in reason
             ):
-                self.system.resolve_blocker(
-                    blocker["blocker_id"],
-                    authority_artifact=str(source.relative_to(self.system.repo_root)),
-                    artifact_hash=source_hash,
-                )
+                resolution_requests.append({
+                    "blocker_id": blocker["blocker_id"],
+                    "authority_artifact": str(source.relative_to(self.system.repo_root)),
+                    "artifact_hash": source_hash,
+                })
                 resolved += 1
-        for contract in list(self.system.state.get("contracts") or []):
+        seen_blocked_requirements = set()
+        open_requirement_keys = {
+            (
+                str(row.get("subject_id") or ""),
+                str((row.get("requirement") or {}).get("kind") or ""),
+            )
+            for row in self.system.state.get("contracts") or []
+            if row.get("status") == "open"
+        }
+        for contract in reversed(list(self.system.state.get("contracts") or [])):
             required_authority = str(contract.get("required_authority") or "")
             if contract.get("status") != "blocked_executor_capability":
                 continue
@@ -1041,6 +1050,10 @@ class ProgressiveCompetencyExecutor:
             runner = RUNNERS.get(subject_id)
             requirement = dict(contract.get("requirement") or {})
             kind = str(requirement.get("kind") or "")
+            requirement_key = (subject_id, kind)
+            if requirement_key in seen_blocked_requirements or requirement_key in open_requirement_keys:
+                continue
+            seen_blocked_requirements.add(requirement_key)
             if runner is None or not runner_has_fresh_family(
                     runner, kind, self.system.evidence_for(subject_id)):
                 continue
@@ -1063,11 +1076,10 @@ class ProgressiveCompetencyExecutor:
                 # Unit-test repositories use a temporary root while executing
                 # the installed authority module from this checkout.
                 authority_artifact = str(artifact)
-            self.system.reissue_executor_blocked_contract(
-                contract["contract_id"], executor_version=version,
-                authority_artifact=authority_artifact,
-                artifact_hash=artifact_hash,
-            )
+            reissue_requests.append({
+                "contract_id": contract["contract_id"], "executor_version": version,
+                "authority_artifact": authority_artifact, "artifact_hash": artifact_hash,
+            })
             resolved += 1
         # Early ledgers could persist a portfolio blocker after the associated
         # contract had already been closed by a concurrent evidence write. A
@@ -1090,15 +1102,20 @@ class ProgressiveCompetencyExecutor:
                 authority_artifact = str(portfolio_source.relative_to(self.system.repo_root))
             except ValueError:
                 authority_artifact = str(portfolio_source)
-            self.system.resolve_blocker(
-                blocker["blocker_id"], authority_artifact=authority_artifact,
-                artifact_hash=portfolio_hash,
-            )
-            blocker.update({
-                "resolution": "versioned_executor_portfolio_installed",
-                "executor_version": version, "requirement_kind": "project",
+            resolution_requests.append({
+                "blocker_id": blocker["blocker_id"],
+                "authority_artifact": authority_artifact,
+                "artifact_hash": portfolio_hash,
+                "updates": {
+                    "resolution": "versioned_executor_portfolio_installed",
+                    "executor_version": version, "requirement_kind": "project",
+                },
             })
             resolved += 1
+        if resolution_requests or reissue_requests:
+            self.system.apply_executor_reconciliation_batch(
+                resolutions=resolution_requests, reissues=reissue_requests,
+            )
         return resolved
 
     def _save(self) -> None:
@@ -1219,7 +1236,10 @@ class ProgressiveCompetencyExecutor:
                 ),
                 "candidate_result_retained_for_audit": True,
             }
-        if result.get("status") in {"waiting_for_elapsed_retention", "diverse_project_executor_required"}:
+        if result.get("status") in {
+            "waiting_for_elapsed_retention", "diverse_project_executor_required",
+            "learning_store_busy",
+        }:
             self.state["status"] = result["status"]
             if result["status"] == "diverse_project_executor_required":
                 self.system.add_practical_blocker(

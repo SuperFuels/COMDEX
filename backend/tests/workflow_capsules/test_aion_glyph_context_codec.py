@@ -67,3 +67,10 @@ def test_unknown_reference_and_dictionary_mismatch_fail_closed(tmp_path):
     other = GlyphContextDictionary(tmp_path / "other.sqlite3", dictionary_id="other.v1")
     with pytest.raises(ValueError, match="identity mismatch"):
         other.decode(packet)
+
+
+def test_non_vault_dictionary_is_memory_only(tmp_path):
+    raw_path = tmp_path / "must-not-be-created.sqlite3"
+    dictionary = GlyphContextDictionary(raw_path)
+    assert dictionary.encode(PASSAGES).references == (1, 2, 3)
+    assert not raw_path.exists()

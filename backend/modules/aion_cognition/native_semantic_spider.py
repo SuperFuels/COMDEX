@@ -21,6 +21,7 @@ from urllib.error import URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
+from backend.modules.aion_cognition.sqlite_connection import connect as sqlite_connect
 from backend.modules.aion_cognition.native_lexical_intelligence import (
     NativeLexicalIntelligence, STOPWORDS,
 )
@@ -71,7 +72,7 @@ class NativeSemanticSpider:
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.database_path, timeout=30)
+        connection = sqlite_connect(self.database_path, timeout=30)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA busy_timeout=30000")
         return connection
@@ -118,6 +119,8 @@ class NativeSemanticSpider:
                     created_epoch REAL NOT NULL,
                     updated_epoch REAL NOT NULL
                 );
+                CREATE INDEX IF NOT EXISTS semantic_spider_frontier_queue
+                    ON semantic_spider_frontier(status,priority DESC,created_epoch,lemma);
                 CREATE TABLE IF NOT EXISTS semantic_spider_events (
                     event_id TEXT PRIMARY KEY,
                     page_id TEXT,

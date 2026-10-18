@@ -5,7 +5,15 @@
   global.__aionBoardroomDepartmentPilotProducerInstalled = true;
 
   const LIVE_TASK_BUILD_SCHEMA = 'aion.department_task_build.live.v1';
-  const ROUTABLE_DEPARTMENT = 'finance';
+  const DEFAULT_ROUTABLE_DEPARTMENTS = ['marketing', 'sales', 'finance', 'operations', 'support', 'hr'];
+  const DEPARTMENT_CAPABILITIES = {
+    marketing: 'marketing.boardroom_projection',
+    finance: 'finance.boardroom_analysis',
+    sales: 'sales.boardroom_projection',
+    operations: 'operations.boardroom_projection',
+    support: 'support.boardroom_projection',
+    hr: 'hr.boardroom_summary',
+  };
   let routingPromise = null;
 
   function safeArray(value) {
@@ -63,20 +71,21 @@
     return result;
   }
 
-  function financeTasks(result) {
+  function departmentTasks(result, departmentId) {
     return safeArray(result.tasks).filter((task) => {
-      return String(task?.department || '').toLowerCase() === ROUTABLE_DEPARTMENT
+      return String(task?.department || '').toLowerCase() === departmentId
         && task?.approval_required === true
         && task?.live_external_side_effects_performed !== true;
     });
   }
 
-  function buildFinanceApproval(result) {
+  function buildDepartmentApproval(result, departmentId) {
     const businessId = resolveBusinessId();
     if (!businessId) throw new Error('canonical_business_identity_required');
 
-    const tasks = financeTasks(result);
-    if (!tasks.length) throw new Error('no_finance_actions_in_current_boardroom_plan');
+    const department = String(departmentId || '').toLowerCase();
+    const tasks = departmentTasks(result, department);
+    if (!tasks.length) throw new Error(`no_${department}_actions_in_current_boardroom_plan`);
 
     const resultToken = compactId(result.result_hash, `result${Date.now()}`);
     const debate = global.__aionBoardroomDebateRound || {};
@@ -89,54 +98,57 @@
 
     const actions = tasks.map((task, index) => {
       const taskToken = compactId(task.task_id, `${index + 1}`);
+      const boardBrief = String(task.board_brief || '').trim();
       return {
         schema_version: 'aion.department_pilot.assignment_action.v1',
-        action_id: `finance-action-${resultToken}-${taskToken}`,
-        title: String(task.task_title || task.title || `Finance action ${index + 1}`),
-        objective: String(task.objective || task.task_title || 'Prepare Boardroom-requested Finance analysis.'),
-        department_id: ROUTABLE_DEPARTMENT,
-        capability: String(task.capability || 'finance.boardroom_analysis'),
+        action_id: `${department}-action-${resultToken}-${taskToken}`,
+        title: String(task.task_title || task.title || `${department} action ${index + 1}`),
+        objective: [
+          String(task.objective || task.task_title || `Prepare Boardroom-requested ${department} execution output.`),
+          boardBrief ? `Signed Board brief: ${boardBrief}` : '',
+        ].filter(Boolean).join(' '),
+        department_id: department,
+        capability: DEPARTMENT_CAPABILITIES[department],
         priority: String(task.priority || 'high'),
         acceptance_criteria: [
           String(task.output_required || '').trim(),
           String(task.success_metric || '').trim(),
+          'Execute the signed Board brief; do not redefine the enterprise strategy, audience, location, offer, channel or commercial guardrails.',
           'Every material figure must retain provenance and verification state.',
         ].filter(Boolean),
         dependency_action_ids: [],
-        requested_artifact_types: ['finance_boardroom_report'],
+        requested_artifact_types: [`${department}_boardroom_report`],
         due_at: null,
       };
     });
-
-    const ignoredDepartments = Array.from(new Set(
-      safeArray(result.tasks)
-        .map((task) => String(task?.department || '').toLowerCase())
-        .filter((department) => department && department !== ROUTABLE_DEPARTMENT)
-    ));
 
     return {
       workspace_id: businessId,
       business_id: businessId,
       boardroom_session_id: sessionId,
       boardroom_decision_id: `boardroom-decision-${resultToken}`,
-      package_id: `boardroom-finance-${resultToken}`,
-      title: 'Finance actions approved by the Boardroom',
-      objective: `Complete ${actions.length} founder-approved Finance action${actions.length === 1 ? '' : 's'} from the live Boardroom plan.`,
-      department_id: ROUTABLE_DEPARTMENT,
+      package_id: `boardroom-${department}-${resultToken}`,
+      title: `${department} actions approved by the Boardroom`,
+      objective: `Complete ${actions.length} founder-approved ${department} action${actions.length === 1 ? '' : 's'} from the live Boardroom plan.`,
+      department_id: department,
       actions,
       context_refs: [],
       constraints: [
         String(result.delegation_boundary || '').trim(),
+        ...tasks.flatMap((task) => safeArray(task.decision_refs).map((line) => `Board decision: ${String(line)}`)),
+        ...tasks.map((task) => String(task.board_brief || '').trim() ? `Signed Board brief: ${String(task.board_brief).trim()}` : '').filter(Boolean),
         ...tasks.flatMap((task) => safeArray(task.blockers).map(String)),
-        'Read-only Finance work only; no accounting-system writes or external side effects.',
+        'Internal planning and evidence work only; no publishing, customer messages, spend, or other external side effects.',
       ].filter(Boolean),
       approval_id: `founder-approval-${resultToken}`,
       approved_by: resolveApprover(),
       approved_at: new Date().toISOString(),
-      approval_notes: ignoredDepartments.length
-        ? `Finance routed now. Design-gated departments not routed: ${ignoredDepartments.join(', ')}.`
-        : 'Founder approved delegation from the live Boardroom task build.',
+      approval_notes: `Founder approved ${department} delegation from the live Boardroom task build.`,
     };
+  }
+
+  function buildFinanceApproval(result) {
+    return buildDepartmentApproval(result, 'finance');
   }
 
   function updateBoardroomMessage(message, tone) {
@@ -144,29 +156,48 @@
     global.requestRender?.();
   }
 
-  async function approveAndRouteCurrentFinancePlan() {
+  async function approveAndRouteCurrentPlan() {
     if (routingPromise) return routingPromise;
     routingPromise = (async () => {
       const taskBuild = assertLiveFounderReviewedTaskBuild(
         global.__aionBoardroomDepartmentTasks,
       );
-      const request = buildFinanceApproval(taskBuild);
-      updateBoardroomMessage('Approving and routing Finance work to the Finance Pilot…', 'neutral');
-      const result = await global.AionDepartmentPilotBackend.approveBoardroomAction(request);
+      const profileRegistry = await global.AionDepartmentPilotBackend.profiles();
+      const enabledDepartments = safeArray(profileRegistry?.enabled_department_ids)
+        .map((value) => String(value || '').toLowerCase())
+        .filter((department) => DEPARTMENT_CAPABILITIES[department]);
+      const routableDepartments = (enabledDepartments.length ? enabledDepartments : DEFAULT_ROUTABLE_DEPARTMENTS)
+        .filter((department) => departmentTasks(taskBuild, department).length);
+      const stagedDepartments = Array.from(new Set(
+        safeArray(taskBuild.tasks)
+          .map((task) => String(task?.department || '').toLowerCase())
+          .filter((department) => department && !routableDepartments.includes(department))
+      ));
+      if (!routableDepartments.length) throw new Error('no_enabled_department_actions_in_current_boardroom_plan');
+
+      updateBoardroomMessage(`Approving and routing Boardroom work to ${routableDepartments.join(', ')}…`, 'neutral');
+      const routed = [];
+      for (const department of routableDepartments) {
+        const request = buildDepartmentApproval(taskBuild, department);
+        routed.push(await global.AionDepartmentPilotBackend.approveBoardroomAction(request));
+      }
+      const result = {
+        routed_departments: routableDepartments,
+        staged_departments: stagedDepartments,
+        task_count: routed.reduce((total, item) => total + Number(item?.task_count || 0), 0),
+        results: routed,
+      };
       global.__aionCanonicalBoardroomDelegation = {
         schema_version: 'aion.canonical_boardroom_delegation_result.v1',
-        status: 'finance_approved_and_routed',
+        status: 'enabled_departments_approved_and_routed',
         routed_at: new Date().toISOString(),
         result,
       };
-      const designGated = safeArray(taskBuild.tasks).filter(
-        (task) => String(task?.department || '').toLowerCase() !== ROUTABLE_DEPARTMENT,
-      ).length;
       updateBoardroomMessage(
-        `Finance approved and routed: ${result.task_count || 0} task(s) now visible in Finance and Central Pilot.${designGated ? ` ${designGated} non-Finance task(s) remain design-gated.` : ''}`,
+        `${result.task_count} Boardroom task(s) routed to ${routableDepartments.join(', ')}.${stagedDepartments.length ? ` Draft packages staged for ${stagedDepartments.join(', ')} pending their governed Pilot activation.` : ''}`,
         'success',
       );
-      global.dispatchEvent?.(new CustomEvent('aion:boardroom-finance-actions-routed', {
+      global.dispatchEvent?.(new CustomEvent('aion:boardroom-department-actions-routed', {
         detail: result,
       }));
       return result;
@@ -186,16 +217,22 @@
     return routingPromise;
   }
 
+  async function approveAndRouteCurrentFinancePlan() {
+    return approveAndRouteCurrentPlan();
+  }
+
   global.AionBoardroomDepartmentPilotProducer = Object.freeze({
     buildFinanceApproval,
+    buildDepartmentApproval,
     approveAndRouteCurrentFinancePlan,
+    approveAndRouteCurrentPlan,
   });
 
   global.document?.addEventListener?.('click', (event) => {
     const button = event.target?.closest?.('[data-aion-council-session-delegate-agents="true"]');
     if (!button) return;
     button.disabled = true;
-    approveAndRouteCurrentFinancePlan().catch(() => {}).finally(() => {
+    approveAndRouteCurrentPlan().catch(() => {}).finally(() => {
       if (button.isConnected) button.disabled = false;
     });
   }, true);

@@ -9,6 +9,8 @@ from typing import Any, Callable, Dict, Mapping
 
 from backend.modules.aion_business.runtime.aion_flow_model_bindings import AionFlowModelBindings
 from backend.modules.aion_fabric.canonical import canonical_hash, utc_now_iso
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 STACK_KINDS = {"model", "harness", "compute"}
@@ -18,9 +20,16 @@ METRICS = ("quality", "correctness", "evidence_coverage", "latency_ms", "cost", 
 class AionFlowEvaluationService:
     """Customer-owned champion/challenger evidence and reversible routing decisions."""
 
-    def __init__(self, root: str | Path = ".runtime/aion_flow/evaluations") -> None:
-        self.root = Path(root).resolve()
-        self.root.mkdir(parents=True, exist_ok=True)
+    def __init__(
+        self, root: str | Path | None = None, *, domain_store: VaultDomainStore | None = None,
+    ) -> None:
+        self.root = Path(root or ".runtime/aion_flow/evaluations").resolve()
+        self.domain_store = domain_store
+        if root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="aion-flow-evaluation-runtime")
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
 
     def create(
         self,
@@ -181,6 +190,17 @@ class AionFlowEvaluationService:
         return self._save(item)
 
     def get(self, experiment_id: str) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            entity_id = f"aion_flow/evaluations/{self._safe_id(experiment_id)}"
+            matches = [
+                row for row in self.domain_store.list_all("train_agent.runs_and_audit")
+                if row.get("entity_id") == entity_id
+            ]
+            if len(matches) != 1:
+                raise KeyError("evaluation_not_found")
+            value = dict(matches[0]["payload"])
+            value["comparison"] = self._comparison(value)
+            return value
         path = self.root / f"{self._safe_id(experiment_id)}.json"
         if not path.exists():
             raise KeyError("evaluation_not_found")
@@ -189,6 +209,22 @@ class AionFlowEvaluationService:
         return value
 
     def list(self, limit: int = 25, *, workspace_id: str | None = None) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            rows = (
+                self.domain_store.list("train_agent.runs_and_audit", workspace_id=workspace_id)
+                if workspace_id else self.domain_store.list_all("train_agent.runs_and_audit")
+            )
+            values = [
+                dict(row["payload"]) for row in rows
+                if str(row.get("entity_id") or "").startswith("aion_flow/evaluations/")
+            ]
+            values.sort(key=lambda value: str(value.get("updated_at") or ""), reverse=True)
+            items = [
+                {key: value.get(key) for key in ("experiment_id", "status", "created_at", "updated_at", "measure_scope", "swap", "routing", "drift")}
+                | {"comparison": self._comparison(value)}
+                for value in values[: max(1, min(limit, 100))]
+            ]
+            return {"schema_version": "aion.flow.evaluation.list.v1", "experiments": items}
         items = []
         for path in sorted(self.root.glob("*.json"), key=lambda value: value.stat().st_mtime, reverse=True)[: max(1, min(limit, 100))]:
             try:
@@ -277,6 +313,22 @@ class AionFlowEvaluationService:
     def _save(self, item: Mapping[str, Any]) -> Dict[str, Any]:
         safe = AionFlowModelBindings.redact_for_canvas(dict(item))
         safe.pop("comparison", None)
+        if self.domain_store is not None:
+            workspace_id = str((safe.get("authority_context") or {}).get("workspace_id") or "").strip()
+            if not workspace_id:
+                raise ValueError("evaluation_workspace_id_required")
+            entity_id = f"aion_flow/evaluations/{self._safe_id(str(safe['experiment_id']))}"
+            current = self.domain_store.get_optional(
+                "train_agent.runs_and_audit", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "train_agent.runs_and_audit", workspace_id=workspace_id,
+                entity_id=entity_id, payload=safe,
+                expected_version=int(current["version"]) if current else None,
+                actor_id="aion-flow-evaluation-runtime",
+            )
+            safe["comparison"] = self._comparison(safe)
+            return safe
         path = self.root / f"{self._safe_id(str(safe['experiment_id']))}.json"
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps(safe, indent=2, sort_keys=True), encoding="utf-8")

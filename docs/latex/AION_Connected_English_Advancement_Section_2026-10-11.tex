@@ -1,0 +1,663 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=22mm,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\definecolor{AionBlue}{HTML}{126E82}
+\definecolor{AionNavy}{HTML}{17324D}
+\definecolor{AionLight}{HTML}{EAF5F7}
+\definecolor{CodeBg}{HTML}{F4F6F7}
+\definecolor{WarningBg}{HTML}{FFF4DD}
+\definecolor{RiskRed}{HTML}{A63A3A}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=AionNavy,
+  urlcolor=AionBlue,
+  pdftitle={AION Connected English Advancement Technical Record},
+  pdfauthor={Tessaris / AION Engineering}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{AION Connected English Advancement}
+\rhead{Technical Record --- 11 October 2026}
+\cfoot{\thepage}
+
+\setlist[itemize]{leftmargin=*,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=*,itemsep=2pt,topsep=3pt}
+\renewcommand{\arraystretch}{1.18}
+
+\lstdefinestyle{aioncode}{
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{AionLight},
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+\lstset{style=aioncode}
+
+\newcommand{\statusbox}[1]{%
+  \begin{center}
+  \fcolorbox{AionBlue}{AionLight}{\parbox{0.92\textwidth}{#1}}
+  \end{center}}
+
+\newcommand{\warningbox}[1]{%
+  \begin{center}
+  \fcolorbox{RiskRed}{WarningBg}{\parbox{0.92\textwidth}{#1}}
+  \end{center}}
+
+\title{\textcolor{AionNavy}{\Huge AION Connected English Advancement}\\[4mm]
+\Large Recent Native Language, Reading, Transfer and Discourse Work}
+\author{Tessaris / AION Engineering}
+\date{Technical snapshot: 11 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This technical record documents the recent work that moved AION from lexical acquisition and
+structured word exercises toward connected English comprehension and native response
+construction. It covers the Practice Gym, Semantic Transfer Academy, online Reading Academy,
+Native Discourse and Dialogue Engine, scheduling and process isolation, SQLite storage on the
+TESSARISQ38 removable volume, quality gates, corrective learning, delayed retention, live
+measurements, test coverage and known limitations. The central invariant remains unchanged:
+Qwen may prepare lessons or sealed teacher material, but it is disconnected before AION reads,
+parses, reasons or answers. AION's student response is produced by native lexical memory,
+semantic frames, explicit discourse state and deterministic grammar rather than by routing the
+question to a next-token language model.
+\end{abstract}
+
+\statusbox{\textbf{Dated capability statement.} As measured on 11 October 2026, the SD-resident
+store contains 206,919 reference senses, 147,306 distinct lemmas, 982,850 semantic relations,
+41,255 stored morphology forms and 24,283 acquired concept records. The Semantic Transfer
+Academy records 1,042 recalled-use concepts, 160 concepts with contextual-use evidence and 156
+with productive-use evidence. The stricter lexical retention ladder contains eight fully
+mastered words. These numbers describe different evidence ladders and must not be added together
+or treated as proof of unrestricted conversational fluency.}
+
+\tableofcontents
+\newpage
+
+\section{Purpose of the Recent Work}
+
+Earlier AION English development successfully restored a large lexical substrate, a governed
+Qwen teacher, closed-book vocabulary tests and native sentence parsing. The remaining weakness
+was not dictionary size. It was the conversion chain
+
+\begin{center}
+\texttt{stored meaning $\rightarrow$ contextual selection $\rightarrow$ sentence use
+$\rightarrow$ passage model $\rightarrow$ reasoning $\rightarrow$ supported response}.
+\end{center}
+
+The recent work therefore concentrated on four measured weaknesses:
+
+\begin{itemize}
+  \item comprehension across more than one sentence;
+  \item time, order, cause and reference reasoning;
+  \item sentence transformation under ambiguous morphology;
+  \item sufficient discourse-examination volume without lowering evidence quality.
+\end{itemize}
+
+The objective was not to improve a dashboard percentage in isolation. It was to make failures
+informative, prevent scaffolded tasks from masquerading as understanding, and increase the
+amount of valid connected-language practice reaching the native student.
+
+\section{Current Runtime Topology}
+
+The English learning stack is split across supervised services and bounded subsystems.
+
+\begin{longtable}{p{0.27\textwidth} p{0.64\textwidth}}
+\toprule
+Component & Responsibility \\
+\midrule
+\endhead
+Semantic spider & Traverses the local dictionary, thesaurus and available reference sources,
+creates lexical encounters and expands the frontier of related words. \\
+Native lexical intelligence & Stores senses, morphology, semantic relations, acquired concepts,
+practice receipts and retention stages in SQLite. \\
+Practice Gym & Runs adaptive Wordwall-style discrimination, completion, construction,
+transformation, comprehension, controlled-writing and conversation activities. \\
+Semantic Transfer Academy & Tests whether learned concepts survive unfamiliar contextual use
+and advances concepts through recalled, contextual and productive evidence stages. \\
+Reading Academy & Reads source sentences, records contextual word experience, creates bounded
+comprehension work, schedules corrections and performs retention tests. \\
+Native Discourse and Dialogue Engine & Converts passages into entities, events, time, location,
+causal links, reference links and response plans; it also executes sealed discourse exams. \\
+Native language workshop & Exercises clause inference, paraphrase, delayed vocabulary, native
+generation and multi-turn dialogue. \\
+Mastery curriculum service & Schedules English teacher, semantic transfer, workshop, Practice
+Gym and discourse work without allowing those lanes to block the main service loop. \\
+Dedicated reading service & Runs bounded reading batches separately so book processing does not
+duplicate the in-process reader or destabilise the main mastery scheduler. \\
+Heartbeat supervisor & Restarts the mastery service if it exits and preserves continuous
+learning operation. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Process separation}
+
+The dedicated reader and the mastery service intentionally run as separate processes. The
+mastery service's legacy in-process reader is disabled by default with
+\texttt{AION\_READING\_ACADEMY=0}. This prevents two readers from writing to the same SD-card
+database, avoids duplicate sentence work and reduces memory and temporary-storage pressure.
+
+The mastery service uses separate worker pools for Practice Gym and discourse work. The Qwen
+teacher, semantic academy and workshop remain serialised through a single teacher pool so local
+model inference does not run concurrently against itself. Student answers do not use this pool.
+
+\section{Persistent Storage and SQLite Concurrency}
+
+The authoritative native-English database is
+
+\begin{quote}
+\path{/Volumes/TESSARISQ38/TessarisLearning/AION/native_lexical_intelligence.sqlite3}
+\end{quote}
+
+This database contains the lexical reference layer, acquired concepts, morphology, relations,
+Practice Gym exercises and attempts, remediation obligations, Reading Academy records,
+contextual evidence, discourse situation models, dialogue turns and sealed examination receipts.
+
+All recent English components now use the shared connection helper:
+
+\begin{quote}
+\path{backend/modules/aion_cognition/sqlite_connection.py}
+\end{quote}
+
+The helper provides a cross-process write gate and a bounded wait of up to 120 seconds. This
+repair addresses the earlier condition in which simultaneous teacher, reader, gym and discourse
+writes could leave lessons created while curriculum state failed to advance. SQLite remains the
+durable authority; the gate coordinates writers but does not replace SQLite transactions.
+
+\subsection{Relevant tables}
+
+\begin{longtable}{p{0.39\textwidth} p{0.52\textwidth}}
+\toprule
+Table family & Stored evidence \\
+\midrule
+\endhead
+\texttt{lexical\_senses}, \texttt{relations}, \texttt{morphology\_forms} & Verified reference
+senses, semantic edges and surface-to-lemma mappings. \\
+\texttt{acquired\_concepts} & AION-owned concept capsules, features, relations, examples and
+current retention stage. \\
+\texttt{native\_english\_practice\_*} & Sealed exercises, student attempts, adaptive progress,
+corrections, retries and cycle summaries. \\
+\texttt{native\_reading\_*} & Provenanced sources, sentence records, exercises, word experience,
+context evidence, claims, correction state and reader runtime lease. \\
+\texttt{native\_discourse\_models} & Persistent situation models for a passage and dialogue
+session. \\
+\texttt{native\_discourse\_entities} & Canonical people or objects, mention surfaces and
+properties. \\
+\texttt{native\_discourse\_events} & Subject, action, object, time, location, negation, cause,
+source sentence and parse evidence. \\
+\texttt{native\_dialogue\_turns} & Question intent, native answer, confidence, evidence, response
+plan and support checks. \\
+\texttt{native\_discourse\_exams} & Source-labelled sealed questions, expected answer, student
+answer, correctness, retention stage and provenance. \\
+\texttt{native\_discourse\_exam\_remediation} & Failed valid exams awaiting a closed-book retry. \\
+\bottomrule
+\end{longtable}
+
+\section{Practice Gym Repairs}
+
+\subsection{Why the earlier score was misleading}
+
+The Practice Gym was correctly refusing some answers, but several failures came from weaknesses
+in the exercise machinery rather than from absent knowledge. Examples included:
+
+\begin{itemize}
+  \item a copular sentence such as ``The result was previous'' yielding a blank property;
+  \item \texttt{bated} being reduced to \texttt{bat} instead of \texttt{bate};
+  \item \texttt{barded} being reduced to \texttt{bard} instead of \texttt{barde};
+  \item \texttt{lambast} being rejected when the sealed key used the lexical variant
+        \texttt{lambaste}; and
+  \item malformed dictionary artefacts entering the active correction queue.
+\end{itemize}
+
+Repeatedly retesting these faults created the appearance that AION was not learning. Some
+concepts had accumulated dozens or hundreds of retries even though the answer path was unable to
+produce the expected form.
+
+\subsection{Structural complement recovery}
+
+Reading-comprehension answers now use the semantic parser first and a bounded structural fallback
+second. When the parser index does not yet recognise a new adjective, the student may recover an
+explicit copular complement from patterns such as
+
+\begin{lstlisting}
+subject + is/was/remains/becomes + property
+\end{lstlisting}
+
+The fallback examines only the presented sentence. It does not inspect the sealed answer key.
+An equivalent bounded fallback recovers explicit manner words following verbs such as
+\texttt{worked}, \texttt{acted}, \texttt{moved} or \texttt{spoke}.
+
+\subsection{Meaning-guided morphological disambiguation}
+
+An inflected surface can map to more than one base form:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Surface & Candidate lemmas & Required distinction \\
+\midrule
+\texttt{bated} & \texttt{bat}, \texttt{bate} & strike versus soak/soften \\
+\texttt{barded} & \texttt{bard}, \texttt{barde} & culinary covering versus caparison \\
+\texttt{lambasted} & \texttt{lambast}, \texttt{lambaste} & lexical spelling variants \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The student now retrieves every verified morphology candidate and scores those candidates against
+the acquired semantic cue. This is a native memory operation: it uses the meaning attached to the
+exercise and the locally stored morphology table, not the expected answer. The grader also accepts
+a meaning-equivalent verb variant when subject, negation and object are preserved.
+
+\subsection{Semantic role-aware production grading}
+
+Native sentence production is not accepted merely because the target string appears somewhere in
+the answer. The grader checks that the target occupies a plausible grammatical and semantic role:
+
+\begin{itemize}
+  \item verbs must appear as the action;
+  \item adjectives must appear as a property or complement;
+  \item adverbs must modify an appropriate action; and
+  \item nouns must follow an allowed predicate derived from their meaning class.
+\end{itemize}
+
+This is why a sentence such as ``Amara inspected the heave'' is rejected while ``Amara observed
+the heave'' can pass. The purpose is not stylistic polish; it is to stop a mechanically grammatical
+frame from being counted as meaningful usage.
+
+\section{Discourse and Connected-Meaning Repairs}
+
+\subsection{Situation model}
+
+For each passage, the discourse engine constructs an explicit model:
+
+\begin{equation}
+M = \{E, V, R, T, L, N, C, P\},
+\end{equation}
+
+where $E$ is the entity set, $V$ the event set, $R$ reference relations, $T$ temporal
+expressions, $L$ locations, $N$ negation state, $C$ causal links and $P$ source-backed
+propositions. A response is planned from this model as
+
+\begin{center}
+\texttt{intent $\rightarrow$ selected event $\rightarrow$ supported proposition
+$\rightarrow$ grammar realisation $\rightarrow$ evidence check}.
+\end{center}
+
+If no supported proposition is available, the correct native behaviour is clarification or
+abstention rather than invention.
+
+\subsection{Passage-level rather than book-level exhaustion}
+
+The original discourse scheduler treated a \emph{source plus question family} as exhausted after
+one examination. A whole novel could therefore supply only one entity question, one action
+question and so forth. Once these combinations were consumed, the service continued waking every
+minute but produced zero new examinations.
+
+The repaired design tracks exhaustion at passage/question level. Database uniqueness is enforced
+by passage signature, family and retention stage. Later passages from the same book can therefore
+generate new work without repeating the same examination.
+
+\subsection{New sequence examinations}
+
+The constrained contract builder now creates explicit \texttt{sequence\_first} and
+\texttt{sequence\_next} examinations when at least two safe events are available. These questions
+exercise event ordering rather than single-field retrieval. Their answer is formed from the
+selected event's subject, action and object.
+
+\subsection{Family balancing}
+
+Compiled challenges are grouped by family and interleaved before a family repeats. Selection
+prefers under-represented connected-meaning families, including sequence, time, coreference and
+cause. This prevents a batch of four easy entity questions from being reported as broad discourse
+practice.
+
+\subsection{Source-quality filters}
+
+The discourse selector now excludes sources whose titles identify them as dictionaries,
+thesauruses, lexicons or glossaries. These remain valuable to lexical acquisition but are not
+appropriate evidence for narrative passage comprehension. Source selection is also balanced per
+book rather than drawing nearly every passage from the most recently processed source.
+
+\subsection{Contract validity gates}
+
+Literary text exposed an important failure mode: a parser and a grader could agree on the same bad
+frame. For example, sentence-initial common words were sometimes treated as names, an overlong
+prepositional phrase was treated as a location, or \texttt{it} was treated as a complete object.
+The following gates were added:
+
+\begin{itemize}
+  \item an entity answer must resemble a grounded proper entity and must not be an ordinary
+        lexical word in the local dictionary;
+  \item a sequence event must have a safe entity and a substantive action;
+  \item a location must begin with a location preposition, remain within a bounded phrase length,
+        and contain a noun whose stored meaning indicates a place, area, building, room, region or
+        related spatial category;
+  \item a direct object cannot be only a pronoun or a detached particle;
+  \item cause questions require a represented causal event with an action and usable subject; and
+  \item malformed, index-like or non-prose passages remain excluded.
+\end{itemize}
+
+Twenty-six low-quality historical/current discourse receipts were removed from the valid score by
+the migration gate. They remain available for audit with an invalid status; they were not deleted.
+This reduced the headline count while making the remaining evidence more credible.
+
+\subsection{Evidence-label correction}
+
+A compiled role-safe key is sealed before the student answers, but it originates from a compiled
+parse of the passage. It is therefore no longer labelled as an independently authored answer key.
+Results explicitly report \texttt{role\_safe\_compiled\_key=true} and
+\texttt{independent\_answer\_key=false}. Truly independent evaluation requires a separately
+authored or separately verified answer authority.
+
+\section{Reading Academy and Source Handling}
+
+The reader has processed 26,448 of 27,884 available sentences in the dated snapshot. It records
+390,644 word encounters, 222,917 acquired-word uses, 16,086 successful word contexts and 1,978
+concepts verified in context. Its verified contextual accuracy is 92.25\% across 4,359 attempts.
+
+The reader distinguishes exposure from competence:
+
+\begin{itemize}
+  \item seeing a word increments sourced experience;
+  \item parsing a word records a contextual use;
+  \item answering a related question records bounded practice;
+  \item a source-disjoint transfer success provides stronger contextual evidence; and
+  \item delayed retention is required before the strict mastery ladder advances.
+\end{itemize}
+
+Online EPUB material is extracted into structured sentences, after which raw downloads are
+deleted. The dated storage metrics record equal raw bytes downloaded and deleted and zero
+temporary files retained. The database and compacted evidence remain; the source document need
+not remain on the Mac.
+
+\warningbox{\textbf{Resource-safety state at the time of documentation.} The dedicated reader
+process is supervised, but its state file reports \texttt{paused\_resource\_pressure}. It measured
+15,632,982,016 free bytes against a configured 16,106,127,360-byte (15 GiB) minimum. The pause is
+intentional and protects macOS from the earlier temporary-memory emergency. The spider, Practice
+Gym, Semantic Transfer Academy, discourse engine and other English work continue. The reader will
+resume automatically when free space rises above the safety floor.}
+
+The state is written to
+
+\begin{quote}
+\path{/Volumes/TESSARISQ38/TessarisLearning/AION/native_reading_service_state.json}.
+\end{quote}
+
+\section{Teacher--Student Boundary}
+
+The implementation preserves the following order:
+
+\begin{enumerate}
+  \item Qwen receives the goal, curriculum and allowed source material.
+  \item Qwen prepares or selects bounded teacher material.
+  \item The answer key is sealed.
+  \item The teacher interaction ends.
+  \item AION parses and answers using native memory and rules.
+  \item The sealed key is compared with AION's answer.
+  \item A valid success creates reinforcement evidence.
+  \item A valid failure creates a correction obligation and later closed-book retry.
+\end{enumerate}
+
+Qwen is not permitted to polish AION's answer, infer on behalf of the student, see the student
+answer before grading, or award competence. Practice rewards affect scheduling but do not count as
+mastery. This distinction is recorded in API results with fields including
+\texttt{model\_used=false}, \texttt{qwen\_used\_for\_student\_answers=false} and
+\texttt{counts\_as\_mastery=false}.
+
+\section{Correction and Retention Behaviour}
+
+Wrong answers create a verified remedial obligation containing the failed exercise, the student's
+answer, the verified answer, an explanation, retry count and due time. The same failed concept is
+not hammered repeatedly in a single cycle. It cools down, receives a varied closed-book retry and
+returns to harder transfer only after the correction clears.
+
+The strict lexical stage ladder in the current database is:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Stage & Acquired concept records \\
+\midrule
+Grounded & 18,844 \\
+Recalled & 4,624 \\
+Productive & 61 \\
+Retention 7 days & 689 \\
+Retention 30 days & 39 \\
+Retention 90 days & 18 \\
+Mastered & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The Semantic Transfer Academy maintains a related but distinct evidence ladder. It currently
+reports 1,042 recalled-use concepts, 160 concepts with contextual-use evidence and 156 with
+productive-use evidence. The difference is intentional: productive contextual evidence is not
+the same as completing every long-delay retention gate.
+
+\section{Dated Measurements}
+
+\subsection{Practice Gym}
+
+\begin{longtable}{p{0.44\textwidth} r}
+\toprule
+Metric & Value \\
+\midrule
+\endhead
+Cycles & 1,903 \\
+Attempts & 38,553 \\
+Lifetime accuracy under evolving graders & 79.16\% \\
+Most recent one-hour accuracy & 100.0\% \\
+Transfer-ready concepts & 2,766 \\
+Nearly ready concepts & 4 \\
+Corrections currently due & 0 \\
+Corrections cleared & 52 \\
+\bottomrule
+\end{longtable}
+
+Lifetime family accuracy must be interpreted with care because it includes historical failures
+from older parsers and deliberately stricter grading introduced later. It is an audit trail, not a
+single stationary benchmark.
+
+\subsection{Semantic Transfer Academy}
+
+\begin{longtable}{p{0.44\textwidth} r}
+\toprule
+Metric & Value \\
+\midrule
+\endhead
+Eligible acquired concepts & 24,283 \\
+Total verified attempts & 2,945 \\
+Overall accuracy & 85.03\% \\
+Free-transfer attempts & 1,251 \\
+Lifetime free-transfer accuracy & 65.07\% \\
+Latest 25 free transfers & 25/25 \\
+Recalled-use concepts & 1,042 \\
+Contextual-use concepts & 160 \\
+Productive-use concepts & 156 \\
+Focused-cohort graduates & 151 \\
+\bottomrule
+\end{longtable}
+
+\subsection{Valid discourse evidence after migration}
+
+At the migration checkpoint, 56 discourse exams remained valid, with 50 correct
+(89.29\%). Four failed valid exams had remediation due. The family ledger contained action,
+cause, coreference, entity, location, object, time and the first sequence exams. This count is
+lower than the pre-migration dashboard because low-quality self-agreeing parses were invalidated.
+
+\section{Testing and Verification}
+
+The connected-English regression selection contains 82 passing tests across:
+
+\begin{itemize}
+  \item Practice Gym construction, role grading, adaptive cohorts, cooling and retesting;
+  \item discourse entities, events, references, cause, sequence, clarification and correction;
+  \item invalid teacher drafts and compiled-contract fallback;
+  \item source balancing and reference-book exclusion;
+  \item fake-entity, pronoun-object and false-location rejection;
+  \item lexical intelligence and delayed retention;
+  \item semantic transfer progression and remedial learning;
+  \item Reading Academy provenance, context evidence and resource behaviour; and
+  \item progress-panel health and claim boundaries.
+\end{itemize}
+
+The verified command scope was:
+
+\begin{lstlisting}
+pytest -q \
+  backend/tests/test_native_english_practice_gym.py \
+  backend/tests/test_native_discourse_dialogue.py \
+  backend/tests/test_native_english_progress.py \
+  backend/tests/test_native_english_transfer.py \
+  backend/tests/test_native_reading_academy.py \
+  backend/tests/test_native_semantic_transfer_academy.py \
+  backend/tests/test_native_lexical_intelligence.py
+\end{lstlisting}
+
+All 82 tests passed after the final quality migration. A clean \texttt{git diff --check} also
+passed for the modified English implementation and test files.
+
+\section{Files Changed or Operationally Relevant}
+
+\begin{longtable}{p{0.49\textwidth} p{0.42\textwidth}}
+\toprule
+File & Responsibility or recent change \\
+\midrule
+\endhead
+\path{backend/modules/aion_cognition/native_english_practice_gym.py} & Structural complement
+recovery, meaning-guided morphology, semantic role grading, invalid-material retirement and
+bounded correction scheduling. \\
+\path{backend/modules/aion_cognition/native_discourse_dialogue.py} & Situation models,
+passage-level contract reuse, sequence tests, source balancing, validity gates, honest answer-key
+labels and historical receipt migration. \\
+\path{backend/modules/aion_cognition/native_english_transfer.py} & Native clause parsing,
+semantic roles, morphology and question answering used by gym and discourse paths. \\
+\path{backend/modules/aion_cognition/native_reading_academy.py} & Source ingestion, reading,
+context evidence, corrections, claims, retention and storage compaction. \\
+\path{backend/modules/aion_cognition/native_semantic_transfer_academy.py} & Guided,
+corrective, free-transfer and productive-use progression. \\
+\path{backend/modules/aion_cognition/native_english_teacher.py} & Teacher-cycle scheduling,
+workshop and discourse dispatch with Qwen confined to authorship. \\
+\path{backend/modules/aion_cognition/native_english_progress.py} & Read-only dashboard
+aggregation and bounded capability reporting. \\
+\path{backend/modules/aion_cognition/sqlite_connection.py} & Cross-process SQLite write gate and
+busy-wait policy. \\
+\path{backend/AION/system/aion_mastery_curriculum_service.py} & Independent Practice Gym and
+discourse workers, staggered startup and disabled duplicate reader. \\
+\path{backend/AION/system/aion_native_reading_service.py} & Dedicated bounded reader, 15 GiB
+free-space floor and SD-resident state reporting. \\
+\path{backend/api/aion_english_intelligence_router.py} & Progress panel, native chat, transfer
+lab, discourse controls and status API. \\
+\path{backend/tests/test_native_english_practice_gym.py} & Regression coverage for practice,
+meaning-guided morphology and strict production grading. \\
+\path{backend/tests/test_native_discourse_dialogue.py} & Regression coverage for dialogue,
+discourse contracts, source quality and sequence reasoning. \\
+\bottomrule
+\end{longtable}
+
+\section{Operational Controls}
+
+The principal environment controls are:
+
+\begin{longtable}{p{0.42\textwidth} p{0.49\textwidth}}
+\toprule
+Variable & Meaning \\
+\midrule
+\endhead
+\texttt{AION\_NATIVE\_DISCOURSE} & Enables the independent native discourse lane. \\
+\texttt{AION\_NATIVE\_DISCOURSE\_INTERVAL} & Minimum scheduling interval; bounded to at least
+30 seconds. \\
+\texttt{AION\_DISCOURSE\_EXAM\_BATCH} & Number of discourse challenges per cycle; bounded to
+1--12. \\
+\texttt{AION\_ENGLISH\_PRACTICE\_GYM} & Enables adaptive Practice Gym cycles. \\
+\texttt{AION\_ENGLISH\_PRACTICE\_GYM\_INTERVAL} & Practice scheduling interval; bounded to at
+least 20 seconds. \\
+\texttt{AION\_ENGLISH\_PRACTICE\_GYM\_BATCH} & Practice batch size; bounded to 1--100. \\
+\texttt{AION\_READING\_ACADEMY} & Legacy in-process reader; intentionally disabled in the
+heartbeat environment. \\
+\texttt{AION\_NATIVE\_READING\_ENABLED} & Enables the dedicated reader launch service. \\
+\texttt{AION\_READING\_ACADEMY\_BATCH} & Dedicated reader batch size; currently 40. \\
+\texttt{AION\_READING\_ACADEMY\_INTERVAL} & Dedicated reader interval; currently 60 seconds. \\
+\texttt{AION\_READING\_MIN\_FREE\_BYTES} & Storage safety threshold; configured to 15 GiB. \\
+\bottomrule
+\end{longtable}
+
+The relevant macOS launch agent is
+
+\begin{quote}
+\path{~/Library/LaunchAgents/com.tessaris.aion.native-reading.plist}.
+\end{quote}
+
+The mastery curriculum is supervised by the heartbeat process rather than by a second duplicate
+mastery launch agent. Restarting the mastery child causes the heartbeat to launch it again with
+the configured repository and reader-isolation environment.
+
+\section{What AION Can and Cannot Yet Claim}
+
+The implementation now supports a substantial English foundation:
+
+\begin{itemize}
+  \item large-scale stored lexical and relation knowledge;
+  \item contextual word selection and delayed correction;
+  \item native controlled sentence construction and transformation;
+  \item extraction of entities, actions, objects, time, location and negation;
+  \item some cross-sentence reference, cause and sequence reasoning;
+  \item evidence-backed answers and explicit abstention; and
+  \item model-free student responses under sealed tests.
+\end{itemize}
+
+It does not yet establish unrestricted fluent English conversation. The main remaining technical
+limits are:
+
+\begin{itemize}
+  \item complex literary syntax can still produce incorrect semantic frames;
+  \item discourse answer keys compiled from the same parse are sealed but not fully independent;
+  \item only a small number of concepts have completed the longest retention ladder;
+  \item natural multi-turn dialogue has much less evidence than structured definition-style
+        conversation;
+  \item source-disjoint delayed discourse examinations need substantially more volume; and
+  \item reading is presently constrained by the Mac free-space safety floor.
+\end{itemize}
+
+The next high-value evaluation is a five-to-ten-turn conversation about a genuinely unseen short
+passage. It should require pronoun resolution, event order, cause, clarification, an owner-supplied
+correction and a delayed closed-book retest. The answer authority should be created independently
+of AION's parse so that parser--grader self-agreement cannot produce a false pass.
+
+\section{Conclusion}
+
+The recent work has shifted AION's English programme away from counting dictionary entries and
+toward auditable connected-language competence. The system now supplies more valid discourse
+work, repairs morphology and property extraction failures, learns from verified corrections,
+balances question families, filters unsuitable sources and invalidates misleading evidence.
+
+The most important result is not a higher percentage. It is a stronger evidence boundary. AION
+may now claim a sizeable native vocabulary, strong structured practice, growing contextual and
+productive use, and an emerging situation-model response path. It may not yet claim broad fluent
+English. Continued improvement should prioritise independent passage examinations, connected
+event reasoning, natural response planning and delayed multi-turn retention while retaining the
+rule that Qwen teaches but does not speak for AION.
+
+\end{document}

@@ -19,7 +19,11 @@ from backend.modules.aion_business.contracts.business_containers import (
     OrganizationAuthorityContainer,
 )
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -164,8 +168,19 @@ STANDARD_DEPARTMENTS = [
 
 
 class OrganizationAuthorityService:
-    def __init__(self, repository: BusinessContainerRepository | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+    def __init__(
+        self,
+        repository: BusinessContainerRepository | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        if self.domain_store is None and getattr(self.repository, "guardian", None) is not None:
+            self.domain_store = VaultDomainStore(
+                self.repository.guardian,
+                actor_id="organization-authority-runtime",
+            )
 
     def get(self, workspace_id: str) -> dict[str, Any]:
         existing = self.repository.load_optional_dict(workspace_id, "organization_authority")
@@ -174,6 +189,7 @@ class OrganizationAuthorityService:
         model = deepcopy(existing)
         model.setdefault("people_operations", {
             "leave_requests": [], "appraisals": [], "escalations": [], "onboarding_templates": [],
+            "policy_acknowledgements": [],
             "governance": {
                 "human_employment_decisions_required": True,
                 "sensitive_detail_excluded_from_dashboard": True,
@@ -206,7 +222,7 @@ class OrganizationAuthorityService:
             },
             people_operations={
                 "leave_requests": [], "appraisals": [], "escalations": [],
-                "onboarding_templates": [],
+                "onboarding_templates": [], "policy_acknowledgements": [],
                 "governance": {
                     "human_employment_decisions_required": True,
                     "sensitive_detail_excluded_from_dashboard": True,
@@ -239,7 +255,105 @@ class OrganizationAuthorityService:
             "revision": validated["revision"], "changed_by": changed_by,
             "summary": validated["summary"],
         })
+        previous_roles = {
+            str(item.get("id")): sorted(item.get("role_ids") or [])
+            for item in (current or {}).get("people", []) if isinstance(item, dict)
+        }
+        for person in validated.get("people", []):
+            person_id = str(person.get("id") or "")
+            role_ids = sorted(person.get("role_ids") or [])
+            if previous_roles.get(person_id, []) != role_ids:
+                self._audit(workspace_id, "organization_role_changed", {
+                    "person_id": person_id,
+                    "previous_role_ids": previous_roles.get(person_id, []),
+                    "role_ids": role_ids,
+                    "revision": validated["revision"],
+                    "changed_by": changed_by,
+                })
         return validated
+
+    def record_policy_acknowledgement(
+        self,
+        workspace_id: str,
+        *,
+        person_id: str,
+        policy_id: str,
+        policy_version: str,
+        acknowledged_by: str,
+    ) -> dict[str, Any]:
+        model = self.get(workspace_id)
+        if not any(item.get("id") == person_id for item in model.get("people", [])):
+            raise ValueError("organization_person_not_found")
+        policy_id = str(policy_id or "").strip()
+        policy_version = str(policy_version or "").strip()
+        if not policy_id or not policy_version:
+            raise ValueError("policy_identity_required")
+        acknowledgements = model.setdefault("people_operations", {}).setdefault(
+            "policy_acknowledgements", []
+        )
+        stable_key = f"{person_id}:{policy_id}:{policy_version}"
+        acknowledgement_id = "policy-ack." + sha256(stable_key.encode("utf-8")).hexdigest()[:16]
+        existing = next(
+            (item for item in acknowledgements if item.get("id") == acknowledgement_id), None
+        )
+        if existing is not None:
+            return existing
+        acknowledgement = {
+            "id": acknowledgement_id,
+            "person_id": person_id,
+            "policy_id": policy_id,
+            "policy_version": policy_version,
+            "acknowledged_at": _now(),
+            "acknowledged_by": str(acknowledged_by or person_id),
+            "status": "acknowledged",
+        }
+        acknowledgements.append(acknowledgement)
+        saved = self.save(
+            workspace_id,
+            model,
+            expected_revision=int(model.get("revision") or 0),
+            changed_by=acknowledged_by,
+        )
+        stored = next(
+            item for item in saved["people_operations"]["policy_acknowledgements"]
+            if item["id"] == acknowledgement_id
+        )
+        self._audit(workspace_id, "policy_acknowledged", stored)
+        return stored
+
+    def complete_review_action(
+        self,
+        workspace_id: str,
+        *,
+        review_id: str,
+        completed_by: str,
+        outcome: str = "completed",
+    ) -> dict[str, Any]:
+        model = self.get(workspace_id)
+        reviews = model.setdefault("people_operations", {}).setdefault("appraisals", [])
+        review = next((item for item in reviews if item.get("id") == review_id), None)
+        if review is None:
+            raise ValueError("people_review_not_found")
+        if str(review.get("status") or "") == "completed":
+            return review
+        review.update({
+            "status": "completed",
+            "completed_at": _now(),
+            "completed_by": str(completed_by or "current_user"),
+            "outcome": str(outcome or "completed")[:200],
+        })
+        saved = self.save(
+            workspace_id,
+            model,
+            expected_revision=int(model.get("revision") or 0),
+            changed_by=completed_by,
+        )
+        stored = next(
+            item for item in saved["people_operations"]["appraisals"]
+            if item["id"] == review_id
+        )
+        self._audit(workspace_id, "people_review_completed", stored)
+        return stored
 
     def access_decision(self, workspace_id: str, *, person_id: str, capability: str,
                         department_id: str | None = None, amount: float | None = None,
@@ -417,6 +531,7 @@ class OrganizationAuthorityService:
         result: dict[str, Any] = {
             "leave_requests": [], "appraisals": [], "escalations": [],
             "onboarding_templates": [deepcopy(item) for item in (source.get("onboarding_templates") or []) if isinstance(item, dict)],
+            "policy_acknowledgements": [],
             "governance": {
                 "human_employment_decisions_required": True,
                 "sensitive_detail_excluded_from_dashboard": True,
@@ -429,6 +544,12 @@ class OrganizationAuthorityService:
                 if not isinstance(item, dict) or item.get("person_id") not in people_ids:
                     continue
                 result[key].append(deepcopy(item))
+        for item in source.get("policy_acknowledgements") or []:
+            if not isinstance(item, dict) or item.get("person_id") not in people_ids:
+                continue
+            if not item.get("id") or not item.get("policy_id") or not item.get("policy_version"):
+                continue
+            result["policy_acknowledgements"].append(deepcopy(item))
         return result
 
     @staticmethod
@@ -589,13 +710,25 @@ class OrganizationAuthorityService:
             f"{summary['assigned_cards']} company cards assigned."
         )
 
-    @staticmethod
-    def _audit(workspace_id: str, event_type: str, payload: dict[str, Any]) -> None:
-        path = AIONBusinessPaths.audit_file(workspace_id, "organization_authority")
+    def _audit(self, workspace_id: str, event_type: str, payload: dict[str, Any]) -> None:
         record = {"event_type": event_type, "occurred_at": _now(), **payload}
         record["event_hash"] = "sha256:" + sha256(
             json.dumps(record, sort_keys=True, separators=(",", ":")).encode("utf-8")
         ).hexdigest()
+        if self.domain_store is not None:
+            digest = record["event_hash"].removeprefix("sha256:")
+            for domain_id in ("security.audit", "departments.operational_audit"):
+                self.domain_store.put(
+                    domain_id,
+                    workspace_id=workspace_id,
+                    entity_id=f"organization_authority/events/{digest}",
+                    payload=record,
+                    expected_version=None,
+                    idempotency_key=f"organization-authority-audit-{domain_id}-{digest}",
+                    actor_id="organization-authority-runtime",
+                )
+            return
+        path = AIONBusinessPaths.audit_file(workspace_id, "organization_authority")
         with path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(record, sort_keys=True) + "\n")
 

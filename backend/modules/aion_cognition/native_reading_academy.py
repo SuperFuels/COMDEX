@@ -18,6 +18,13 @@ import time
 import math
 from typing import Any, Mapping
 
+from backend.modules.aion_cognition.sqlite_connection import (
+    begin_batch as sqlite_begin_batch,
+    connect as sqlite_connect,
+    connect_read_only as sqlite_read_connect,
+    end_batch as sqlite_end_batch,
+)
+
 from backend.modules.aion_cognition.native_english_transfer import NativeEnglishTransfer, _normal
 from backend.modules.aion_cognition.native_lexical_intelligence import NativeLexicalIntelligence
 from backend.modules.aion_cognition.native_wordwall_learning import NativeWordwallLearning
@@ -44,6 +51,16 @@ FUNCTION_WORDS = frozenset({
     "my", "no", "not", "of", "on", "or", "our", "ours", "she", "so", "than",
     "that", "the", "their", "theirs", "them", "they", "this", "those", "to",
     "was", "we", "were", "will", "with", "you", "your", "yours",
+})
+CONTEXT_TARGET_STOPWORDS = FUNCTION_WORDS | frozenset({
+    "all", "also", "already", "any", "certainly", "each", "either", "else",
+    "even", "every", "few", "just", "many", "more", "most", "much", "only",
+    "other", "quite", "rather", "some", "still", "such", "very",
+    # These extremely frequent, semantically light items remain part of the
+    # sentence parse, but spending a scarce sealed context exam on them does
+    # little to advance productive vocabulary.  Prefer content-bearing words.
+    "come", "get", "go", "like", "look", "make", "nothing", "one", "say",
+    "see", "take", "thing", "think", "two", "want", "way",
 })
 WORD_PATTERN = re.compile(r"[A-Za-z][A-Za-z'-]*")
 SENTENCE_PATTERN = re.compile(r"(?<=[.!?])(?:[\"'’”)]*)\s+(?=[A-Z0-9\"'“‘(])")
@@ -92,6 +109,16 @@ class NativeReadingAcademy:
         for directory in self.library_directories:
             directory.mkdir(parents=True, exist_ok=True)
         self._initialize()
+        # Reading evidence is reproducible from its source and arrives in many
+        # small transactions. FULL synchronisation on an SD card turned a
+        # 40-sentence cycle into several minutes of fsync waits. NORMAL keeps
+        # rollback-journal consistency while allowing the newest in-flight
+        # transaction to be replayed after an abrupt power loss.
+        reading_sync = os.getenv("AION_READING_SQLITE_SYNCHRONOUS", "NORMAL").upper()
+        if reading_sync not in {"OFF", "NORMAL", "FULL", "EXTRA"}:
+            reading_sync = "NORMAL"
+        with self._connect() as connection:
+            connection.execute(f"PRAGMA synchronous={reading_sync}")
         self.online_enabled = (
             os.getenv("AION_ONLINE_READING", "0") not in {"0", "false", "False"}
             if online_enabled is None else bool(online_enabled)
@@ -103,7 +130,14 @@ class NativeReadingAcademy:
         )
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.database_path, timeout=30)
+        connection = sqlite_connect(self.database_path, timeout=30)
+        connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA busy_timeout=30000")
+        connection.execute("PRAGMA foreign_keys=ON")
+        return connection
+
+    def _read_connect(self) -> sqlite3.Connection:
+        connection = sqlite_read_connect(self.database_path, timeout=30)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA busy_timeout=30000")
         connection.execute("PRAGMA foreign_keys=ON")
@@ -143,6 +177,7 @@ class NativeReadingAcademy:
                     answer_reason TEXT NOT NULL, answer TEXT NOT NULL,
                     correct INTEGER NOT NULL, confidence REAL NOT NULL,
                     model_used INTEGER NOT NULL DEFAULT 0,
+                    target_concept_id TEXT NOT NULL DEFAULT '',
                     status TEXT NOT NULL, due_epoch REAL,
                     created_epoch REAL NOT NULL, attempted_epoch REAL NOT NULL,
                     FOREIGN KEY(sentence_id) REFERENCES native_reading_sentences(sentence_id)
@@ -160,6 +195,10 @@ class NativeReadingAcademy:
                     created_epoch REAL NOT NULL,
                     FOREIGN KEY(sentence_id) REFERENCES native_reading_sentences(sentence_id)
                 );
+                CREATE INDEX IF NOT EXISTS native_reading_claim_signature
+                    ON native_reading_claims(
+                        lower(subject),lower(action),lower(object),negated,source_id
+                    );
                 CREATE TABLE IF NOT EXISTS native_reading_word_experience(
                     lemma TEXT NOT NULL, concept_id TEXT NOT NULL DEFAULT '',
                     source_id TEXT NOT NULL, encounters INTEGER NOT NULL DEFAULT 0,
@@ -169,6 +208,29 @@ class NativeReadingAcademy:
                     first_seen_epoch REAL NOT NULL, last_seen_epoch REAL NOT NULL,
                     PRIMARY KEY(lemma,source_id)
                 );
+                CREATE TABLE IF NOT EXISTS native_reading_context_evidence(
+                    evidence_id TEXT PRIMARY KEY,
+                    concept_id TEXT NOT NULL,
+                    lemma TEXT NOT NULL,
+                    source_id TEXT NOT NULL,
+                    sentence_id TEXT NOT NULL,
+                    family TEXT NOT NULL,
+                    context_signature TEXT NOT NULL,
+                    answer TEXT NOT NULL,
+                    expected_answer TEXT NOT NULL,
+                    correct INTEGER NOT NULL,
+                    independently_retested INTEGER NOT NULL DEFAULT 0,
+                    created_epoch REAL NOT NULL,
+                    UNIQUE(concept_id,source_id,sentence_id,family,independently_retested),
+                    FOREIGN KEY(sentence_id) REFERENCES native_reading_sentences(sentence_id),
+                    FOREIGN KEY(concept_id) REFERENCES acquired_concepts(concept_id)
+                );
+                CREATE INDEX IF NOT EXISTS native_reading_context_concept
+                    ON native_reading_context_evidence(concept_id,correct,created_epoch);
+                CREATE INDEX IF NOT EXISTS native_reading_context_signature
+                    ON native_reading_context_evidence(
+                        concept_id,correct,independently_retested,context_signature
+                    );
                 CREATE TABLE IF NOT EXISTS native_reading_cycles(
                     cycle_id TEXT PRIMARY KEY, sentences_read INTEGER NOT NULL,
                     exercises_attempted INTEGER NOT NULL, exercises_correct INTEGER NOT NULL,
@@ -179,6 +241,9 @@ class NativeReadingAcademy:
                     singleton INTEGER PRIMARY KEY CHECK(singleton=1),
                     busy INTEGER NOT NULL DEFAULT 0,
                     lease_epoch REAL,
+                    owner_pid INTEGER NOT NULL DEFAULT 0,
+                    active_deep_test_ratio REAL NOT NULL DEFAULT 0.12,
+                    active_online_enabled INTEGER NOT NULL DEFAULT 0,
                     updated_epoch REAL NOT NULL
                 );
                 INSERT OR IGNORE INTO native_reading_runtime(singleton,busy,updated_epoch)
@@ -223,20 +288,53 @@ class NativeReadingAcademy:
                     connection.execute(
                         f"ALTER TABLE native_reading_sentences ADD COLUMN {name} {definition}"
                     )
+            exercise_columns = {
+                row[1] for row in connection.execute("PRAGMA table_info(native_reading_exercises)")
+            }
+            for name, definition in (
+                ("target_concept_id", "TEXT NOT NULL DEFAULT ''"),
+                ("retry_count", "INTEGER NOT NULL DEFAULT 0"),
+            ):
+                if name not in exercise_columns:
+                    connection.execute(
+                        f"ALTER TABLE native_reading_exercises ADD COLUMN {name} {definition}"
+                    )
+            runtime_columns = {
+                row[1] for row in connection.execute("PRAGMA table_info(native_reading_runtime)")
+            }
+            for name, definition in (
+                ("owner_pid", "INTEGER NOT NULL DEFAULT 0"),
+                ("active_deep_test_ratio", "REAL NOT NULL DEFAULT 0.12"),
+                ("active_online_enabled", "INTEGER NOT NULL DEFAULT 0"),
+            ):
+                if name not in runtime_columns:
+                    connection.execute(
+                        f"ALTER TABLE native_reading_runtime ADD COLUMN {name} {definition}"
+                    )
 
     def _acquire_cycle_lease(self) -> bool:
         now = time.time()
         with self._connect() as connection:
             connection.execute("BEGIN IMMEDIATE")
             state = connection.execute(
-                "SELECT busy,lease_epoch FROM native_reading_runtime WHERE singleton=1"
+                "SELECT busy,lease_epoch,owner_pid FROM native_reading_runtime WHERE singleton=1"
             ).fetchone()
             if bool(state["busy"]) and float(state["lease_epoch"] or 0) > now - 1800:
-                return False
+                owner_pid = int(state["owner_pid"] or 0)
+                owner_alive = False
+                if owner_pid:
+                    try:
+                        os.kill(owner_pid, 0)
+                        owner_alive = True
+                    except (ProcessLookupError, PermissionError):
+                        owner_alive = False
+                if owner_alive:
+                    return False
             connection.execute(
                 """UPDATE native_reading_runtime
-                   SET busy=1,lease_epoch=?,updated_epoch=? WHERE singleton=1""",
-                (now, now),
+                   SET busy=1,lease_epoch=?,owner_pid=?,active_deep_test_ratio=?,
+                       active_online_enabled=?,updated_epoch=? WHERE singleton=1""",
+                (now, os.getpid(), self.deep_test_ratio, int(self.online_enabled), now),
             )
         return True
 
@@ -244,8 +342,9 @@ class NativeReadingAcademy:
         with self._connect() as connection:
             connection.execute(
                 """UPDATE native_reading_runtime
-                   SET busy=0,lease_epoch=NULL,updated_epoch=? WHERE singleton=1""",
-                (time.time(),),
+                   SET busy=0,lease_epoch=NULL,owner_pid=0,updated_epoch=?
+                   WHERE singleton=1 AND owner_pid=?""",
+                (time.time(), os.getpid()),
             )
 
     @staticmethod
@@ -417,13 +516,20 @@ class NativeReadingAcademy:
         return ingested
 
     def seed_public_domain_starter(self) -> list[dict[str, Any]]:
-        starter = Path(__file__).with_name("reading_library") / "public_domain_starter.json"
-        if not starter.is_file():
-            return []
-        try:
-            sources = json.loads(starter.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            return []
+        library = Path(__file__).with_name("reading_library")
+        sources: list[dict[str, Any]] = []
+        for starter in (
+            library / "public_domain_starter.json",
+            library / "cross_subject_curriculum.json",
+        ):
+            if not starter.is_file():
+                continue
+            try:
+                payload = json.loads(starter.read_text(encoding="utf-8"))
+                if isinstance(payload, list):
+                    sources.extend(row for row in payload if isinstance(row, dict))
+            except (OSError, json.JSONDecodeError):
+                continue
         outcomes = []
         for source in sources:
             try:
@@ -485,8 +591,127 @@ class NativeReadingAcademy:
             "compacted": True,
         }
 
-    @staticmethod
-    def _exercise(parsed: Mapping[str, Any], cycle_number: int) -> dict[str, str] | None:
+    def _context_exercise(
+        self, parsed: Mapping[str, Any], cycle_number: int,
+    ) -> dict[str, str] | None:
+        """Build a sealed meaning-in-context test for an acquired concept.
+
+        The dictionary/spider establishes the concept capsule.  Reading must
+        prove that Aion can recognise that same concept inside real prose.  We
+        therefore ask for a surface word through semantic features while the
+        expected word and target concept id remain sealed from the student.
+        """
+        candidates: list[dict[str, str]] = []
+        seen: set[str] = set()
+        for raw in parsed.get("tokens") or []:
+            token = dict(raw)
+            concept_id = str(token.get("concept_id") or "")
+            lemma = _normal(str(token.get("lemma") or token.get("token") or ""))
+            if (not concept_id or concept_id in seen
+                    or str(token.get("source") or "") != "acquired_concept"
+                    or not lemma or lemma in CONTEXT_TARGET_STOPWORDS):
+                continue
+            seen.add(concept_id)
+            candidates.append({
+                "concept_id": concept_id,
+                "lemma": lemma,
+                "surface": str(token.get("token") or lemma),
+                "pos": str(token.get("pos") or ""),
+            })
+        if not candidates:
+            return None
+        # A clue is valid only when it distinguishes the target from the other
+        # acquired concepts in this exact sentence.  Earlier versions selected
+        # the first three dictionary words blindly, producing traps such as a
+        # clue for "aunt" that also explicitly described "mother" or "sister".
+        sentence_words = {
+            _normal(str(token.get("lemma") or token.get("token") or ""))
+            for token in parsed.get("tokens") or []
+        }
+        generic = CONTEXT_TARGET_STOPWORDS | {
+            "act", "action", "associated", "characterized", "concept", "entity",
+            "form", "having", "kind", "meaning", "object", "person", "property",
+            "relating", "state", "term", "thing", "type", "used", "word",
+        }
+        with self._connect() as connection:
+            placeholders = ",".join("?" for _ in candidates)
+            rows = connection.execute(
+                f"""SELECT concept_id,features_json,relations_json,native_gloss
+                    FROM acquired_concepts WHERE concept_id IN ({placeholders})""",
+                tuple(item["concept_id"] for item in candidates),
+            ).fetchall()
+        concept_rows = {str(row["concept_id"]): row for row in rows}
+        if not concept_rows:
+            return None
+
+        def signature(candidate: Mapping[str, str]) -> list[str]:
+            row = concept_rows.get(str(candidate["concept_id"]))
+            if not row:
+                return []
+            try:
+                features = list(json.loads(row["features_json"] or "[]"))
+            except (json.JSONDecodeError, TypeError):
+                features = []
+            try:
+                relations = dict(json.loads(row["relations_json"] or "{}"))
+            except (json.JSONDecodeError, TypeError, ValueError):
+                relations = {}
+            values = [*(relations.get("synonym") or []),
+                      *(relations.get("hypernym") or []), *features,
+                      str(row["native_gloss"] or "")]
+            terms: list[str] = []
+            for value in values:
+                for word in WORD_PATTERN.findall(str(value).lower()):
+                    normalized = _normal(word)
+                    if (normalized and normalized not in generic
+                            and normalized != candidate["lemma"]
+                            and normalized not in terms):
+                        terms.append(normalized)
+            return terms
+
+        signatures = {item["concept_id"]: signature(item) for item in candidates}
+        ordered = candidates[cycle_number % len(candidates):] + candidates[:cycle_number % len(candidates)]
+        target: dict[str, str] | None = None
+        bridge: list[str] = []
+        for candidate in ordered:
+            other_terms = {
+                term for concept_id, terms in signatures.items()
+                if concept_id != candidate["concept_id"] for term in terms
+            }
+            distinctive = [
+                term for term in signatures.get(candidate["concept_id"], [])
+                if term not in other_terms and term not in sentence_words
+            ]
+            if distinctive:
+                target = candidate
+                bridge = distinctive[:3]
+                break
+        if not target or not bridge:
+            return None
+        meaning = ", ".join(bridge)
+        pos = target["pos"]
+        if pos == "v":
+            question = f"Which action in this sentence is associated with {meaning}?"
+        elif pos in {"a", "s", "r"}:
+            question = f"Which property in this sentence is associated with {meaning}?"
+        else:
+            question = f"Which word in this sentence is associated with {meaning}?"
+        return {
+            "family": "contextual_vocabulary",
+            "question": question,
+            "expected_answer": target["surface"],
+            "answer_reason": (
+                f"The acquired concept {target['lemma']} is linked to {meaning}; "
+                "the answer must be recovered from its use in this sentence."
+            ),
+            "target_concept_id": target["concept_id"],
+            "target_lemma": target["lemma"],
+        }
+
+    def _exercise(self, parsed: Mapping[str, Any], cycle_number: int) -> dict[str, str] | None:
+        contextual = self._context_exercise(parsed, cycle_number)
+        if contextual:
+            return contextual
         frame = dict(parsed.get("frame") or {})
         options: list[tuple[str, str, str, str]] = []
         if frame.get("subject"):
@@ -512,10 +737,12 @@ class NativeReadingAcademy:
             return None
         family, question, expected, reason = options[cycle_number % len(options)]
         return {"family": family, "question": question,
-                "expected_answer": expected, "answer_reason": reason}
+                "expected_answer": expected, "answer_reason": reason,
+                "target_concept_id": "", "target_lemma": ""}
 
     def _record_word_experience(self, *, source_id: str, sentence_id: str,
-                                parsed: Mapping[str, Any], correct: bool) -> None:
+                                parsed: Mapping[str, Any], correct: bool,
+                                target_concept_id: str = "") -> None:
         now = time.time()
         rows: dict[str, tuple[str, int]] = {}
         for token in parsed.get("tokens") or []:
@@ -527,6 +754,9 @@ class NativeReadingAcademy:
             rows[lemma] = (concept_id, parsed_use)
         with self._connect() as connection:
             for lemma, (concept_id, parsed_use) in rows.items():
+                verified_context = int(
+                    bool(correct and target_concept_id and concept_id == target_concept_id)
+                )
                 connection.execute(
                     """INSERT INTO native_reading_word_experience VALUES(?,?,?,?,?,?,?,?,?,?)
                        ON CONFLICT(lemma,source_id) DO UPDATE SET
@@ -535,9 +765,93 @@ class NativeReadingAcademy:
                        encounters=encounters+1,parsed_uses=parsed_uses+excluded.parsed_uses,
                        successful_exercises=successful_exercises+excluded.successful_exercises,
                        last_sentence_id=excluded.last_sentence_id,last_seen_epoch=excluded.last_seen_epoch""",
-                    (lemma, concept_id, source_id, 1, parsed_use, int(correct),
+                    (lemma, concept_id, source_id, 1, parsed_use, verified_context,
                      sentence_id, sentence_id, now, now),
                 )
+
+    def _record_context_evidence(
+        self, *, source_id: str, sentence_id: str, exercise: Mapping[str, Any],
+        answer: str, correct: bool, independently_retested: bool = False,
+    ) -> dict[str, Any] | None:
+        """Persist exact concept-in-context evidence and release it to transfer.
+
+        A correct first-seen reading item may supply *guided recall* evidence.
+        It can never supply contextual/productive mastery by itself; those
+        remain dependent on the source-disjoint free-transfer academy.
+        Corrected retries are retained as remediation evidence but deliberately
+        do not advance the guided counter.
+        """
+        concept_id = str(exercise.get("target_concept_id") or "")
+        if not concept_id:
+            return None
+        lemma = str(exercise.get("target_lemma") or "")
+        signature = hashlib.sha256(
+            f"{source_id}:{sentence_id}:{exercise.get('family')}".encode()
+        ).hexdigest()
+        evidence_id = _identifier(
+            "reading_context_",
+            [concept_id, source_id, sentence_id, exercise.get("family"),
+             bool(independently_retested)],
+        )
+        inserted = False
+        now = time.time()
+        with self._connect() as connection:
+            if not lemma:
+                concept = connection.execute(
+                    "SELECT lemma FROM acquired_concepts WHERE concept_id=?", (concept_id,),
+                ).fetchone()
+                lemma = str(concept[0]) if concept else ""
+            cursor = connection.execute(
+                """INSERT OR IGNORE INTO native_reading_context_evidence(
+                   evidence_id,concept_id,lemma,source_id,sentence_id,family,
+                   context_signature,answer,expected_answer,correct,
+                   independently_retested,created_epoch)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (evidence_id, concept_id, lemma, source_id, sentence_id,
+                 str(exercise.get("family") or "contextual_vocabulary"), signature,
+                 answer, str(exercise.get("expected_answer") or ""), int(correct),
+                 int(independently_retested), now),
+            )
+            inserted = cursor.rowcount > 0
+            progress_table = connection.execute(
+                """SELECT 1 FROM sqlite_master WHERE type='table'
+                   AND name='native_semantic_transfer_concept_progress'"""
+            ).fetchone()
+            if inserted and correct and not independently_retested and progress_table:
+                connection.execute(
+                    """INSERT OR IGNORE INTO native_semantic_transfer_concept_progress
+                       (concept_id,updated_epoch) VALUES(?,?)""",
+                    (concept_id, now),
+                )
+                distinct_successes = int(connection.execute(
+                    """SELECT COUNT(DISTINCT context_signature)
+                       FROM native_reading_context_evidence
+                       WHERE concept_id=? AND correct=1 AND independently_retested=0""",
+                    (concept_id,),
+                ).fetchone()[0])
+                guided = min(2, distinct_successes)
+                connection.execute(
+                    """UPDATE native_semantic_transfer_concept_progress
+                       SET guided_successes=MAX(guided_successes,?),
+                           capability_stage=CASE
+                             WHEN capability_stage='grounded' AND ? >= 2 THEN 'recalled'
+                             ELSE capability_stage END,
+                           last_attempt_epoch=?,updated_epoch=?
+                       WHERE concept_id=?""",
+                    (guided, guided, now, now, concept_id),
+                )
+                if guided >= 2:
+                    connection.execute(
+                        """UPDATE acquired_concepts SET stage='recalled',
+                           consecutive_passes=0,updated_epoch=?
+                           WHERE concept_id=? AND stage='grounded'""",
+                        (now, concept_id),
+                    )
+        return {
+            "evidence_id": evidence_id, "concept_id": concept_id,
+            "lemma": lemma, "correct": bool(correct), "inserted": inserted,
+            "independently_retested": bool(independently_retested),
+        }
 
     def _record_claim(self, *, source: Mapping[str, Any], sentence_id: str,
                       frame: Mapping[str, Any], confidence: float) -> bool:
@@ -581,12 +895,21 @@ class NativeReadingAcademy:
             return []
         with self._connect() as connection:
             rows = connection.execute(
-                """SELECT s.*,r.title,r.author,r.subject,r.license,r.source_ref,
-                          r.sentence_count AS source_sentence_count
-                   FROM native_reading_sentences s
-                   JOIN native_reading_sources r ON r.source_id=s.source_id
-                   WHERE s.status='pending'
-                   ORDER BY r.created_epoch,s.sentence_index LIMIT ?""",
+                """WITH pending AS (
+                     SELECT s.*,r.title,r.author,r.subject,r.license,r.source_ref,
+                            r.sentence_count AS source_sentence_count,
+                            r.created_epoch AS source_created_epoch,
+                            ROW_NUMBER() OVER(
+                              PARTITION BY s.source_id ORDER BY s.sentence_index
+                            ) AS source_position
+                     FROM native_reading_sentences s
+                     JOIN native_reading_sources r ON r.source_id=s.source_id
+                     WHERE s.status='pending'
+                   )
+                   SELECT * FROM pending
+                   ORDER BY source_position,
+                            CASE WHEN lower(subject) LIKE '%literature%' THEN 1 ELSE 0 END,
+                            source_created_epoch,sentence_index LIMIT ?""",
                 (int(limit),),
             ).fetchall()
         return [dict(row) for row in rows]
@@ -621,7 +944,7 @@ class NativeReadingAcademy:
             return []
         with self._connect() as connection:
             rows = connection.execute(
-                """SELECT e.*,s.text,s.sentence_index,s.paragraph_index,
+                """SELECT e.*,s.text,s.parse_json,s.sentence_index,s.paragraph_index,
                           r.title,r.author,r.subject,r.license,r.source_ref
                    FROM native_reading_exercises e
                    JOIN native_reading_sentences s ON s.sentence_id=e.sentence_id
@@ -629,9 +952,38 @@ class NativeReadingAcademy:
                    WHERE e.status IN ('correction_due','retention_scheduled')
                      AND COALESCE(e.due_epoch,0)<=?
                    ORDER BY e.due_epoch,e.created_epoch LIMIT ?""",
-                (time.time(), int(limit)),
+                (time.time(), max(500, int(limit) * 20)),
             ).fetchall()
-        return [dict(row) for row in rows]
+        # Round-robin families. Contextual concept matching is deliberately
+        # deeper and slower than role retrieval; allowing it to occupy every
+        # retry slot prevented hundreds of cheap legacy parser checks from
+        # draining. Fair scheduling advances both queues on every cycle.
+        family_order = (
+            "object_retrieval", "location_retrieval", "time_retrieval",
+            "action_retrieval", "subject_retrieval", "contextual_vocabulary",
+        )
+        buckets: dict[str, list[dict[str, Any]]] = {family: [] for family in family_order}
+        other: list[dict[str, Any]] = []
+        for row in rows:
+            item = dict(row)
+            bucket = buckets.get(str(item.get("family") or ""))
+            (bucket if bucket is not None else other).append(item)
+        selected: list[dict[str, Any]] = []
+        while len(selected) < int(limit):
+            advanced = False
+            for family in family_order:
+                if buckets[family] and len(selected) < int(limit):
+                    selected.append(buckets[family].pop(0))
+                    advanced = True
+            if not advanced:
+                break
+        if len(selected) < int(limit):
+            leftovers = [item for family in family_order for item in buckets[family]] + other
+            leftovers.sort(key=lambda item: (
+                float(item.get("due_epoch") or 0), float(item.get("created_epoch") or 0)
+            ))
+            selected.extend(leftovers[:int(limit) - len(selected)])
+        return selected
 
     @staticmethod
     def _retest_question(family: str, original: str) -> str:
@@ -649,9 +1001,15 @@ class NativeReadingAcademy:
                   discover_words: int | None = None) -> dict[str, Any]:
         if not self._acquire_cycle_lease():
             return {"status": "busy", "sentences_read": 0, "model_used": False}
+        batch_connection = self._connect()
+        sqlite_begin_batch(batch_connection)
+        succeeded = False
         try:
-            return self._run_cycle_locked(limit=limit, discover_words=discover_words)
+            outcome = self._run_cycle_locked(limit=limit, discover_words=discover_words)
+            succeeded = True
+            return outcome
         finally:
+            sqlite_end_batch(batch_connection, success=succeeded)
             self._release_cycle_lease()
 
     def _run_cycle_locked(self, *, limit: int,
@@ -668,12 +1026,48 @@ class NativeReadingAcademy:
             pending_before = int(connection.execute(
                 "SELECT COUNT(*) FROM native_reading_sentences WHERE status='pending'"
             ).fetchone()[0])
+            non_fiction_families = int(connection.execute(
+                """SELECT COUNT(DISTINCT lower(subject)) FROM native_reading_sources
+                   WHERE lower(subject) NOT LIKE '%literature%'
+                     AND lower(subject) NOT IN ('general','reference')"""
+            ).fetchone()[0])
         online_outcome: dict[str, Any] = {"status": "disabled", "imported": 0}
-        if self.online_enabled and pending_before < requested:
+        # The original importer waited for the entire local queue to drain.
+        # A long novel therefore starved science/history/engineering dialogue
+        # for days.  While the cross-subject pool is thin, admit one bounded
+        # non-fiction source every five cycles even if literature remains.
+        cross_subject_fill = (
+            self.online_enabled and non_fiction_families < 4 and cycle_number % 5 == 0
+        )
+        if cross_subject_fill:
+            try:
+                self.online.discover(limit=1)
+            except Exception as exc:
+                online_outcome = {
+                    "status": "discovery_failed", "imported": 0,
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
+        if self.online_enabled and (pending_before < requested or cross_subject_fill):
             online_outcome = self.online.harvest_once()
         if discover_words is None:
-            discover_words = max(12, min(100, requested // 4))
-        due = self._due_retests(max(1, min(40, requested // 5)))
+            # Discovery belongs primarily to the dictionary/thesaurus spider.
+            # Reading spends most of its budget interpreting acquired concepts
+            # in authentic context, while still allowing a small number of
+            # genuinely new words to enter the grounded queue.
+            discover_words = max(4, min(16, requested // 10))
+        # When corrections accumulate, devote most of the batch to resolving
+        # them while preserving one quarter for new authentic reading.  The
+        # previous one-fifth allocation could not drain a historic parser
+        # backlog faster than new examinations created obligations.
+        due_count = 0
+        with self._connect() as connection:
+            due_count = int(connection.execute(
+                """SELECT COUNT(*) FROM native_reading_exercises
+                   WHERE status IN ('correction_due','retention_scheduled')
+                     AND COALESCE(due_epoch,0)<=?""", (time.time(),),
+            ).fetchone()[0])
+        retry_slots = min(due_count, max(1, (requested * 3) // 4) if due_count else 0)
+        due = self._due_retests(retry_slots)
         candidates = self._pending(max(0, requested - len(due)))
         if not candidates and not due:
             return {"status": "library_complete", "sentences_read": 0,
@@ -700,38 +1094,100 @@ class NativeReadingAcademy:
         deep_tests_by_source: dict[str, int] = {}
         candidates_seen_by_source: dict[str, int] = {}
         for retry in due:
-            parsed = self.transfer.parse(str(retry["text"]))
-            question = self._retest_question(str(retry["family"]), str(retry["question"]))
-            native = self.transfer.answer(str(retry["text"]), question)
+            family = str(retry["family"])
+            question = self._retest_question(family, str(retry["question"]))
+            target_concept_id = str(retry.get("target_concept_id") or "")
+            direct_fields = {
+                "subject_retrieval": "subject", "action_retrieval": "action",
+                "object_retrieval": "object", "time_retrieval": "time",
+                "location_retrieval": "location",
+            }
+            if family in direct_fields:
+                try:
+                    parsed = json.loads(str(retry.get("parse_json") or "{}"))
+                except (TypeError, json.JSONDecodeError):
+                    parsed = {}
+                frame = dict(parsed.get("frame") or {})
+                # Most historic obligations already retain their semantic
+                # frame. Reuse it; only invoke the current parser when the
+                # requested role was absent and therefore genuinely needs a
+                # new parser pass.
+                if not frame.get(direct_fields[family]):
+                    parsed = self.transfer.parse(str(retry["text"]))
+                    frame = dict(parsed.get("frame") or {})
+                native = {
+                    "answer": str(frame.get(direct_fields[family]) or ""),
+                    "confidence": float(parsed.get("confidence") or 0),
+                    "semantic_evidence": {}, "model_used": False,
+                }
+            elif family == "negation_scope":
+                try:
+                    parsed = json.loads(str(retry.get("parse_json") or "{}"))
+                except (TypeError, json.JSONDecodeError):
+                    parsed = {}
+                if not parsed:
+                    parsed = self.transfer.parse(str(retry["text"]))
+                frame = dict(parsed.get("frame") or {})
+                native = {
+                    "answer": "yes" if frame.get("negated") else "no",
+                    "confidence": float(parsed.get("confidence") or 0),
+                    "semantic_evidence": {}, "model_used": False,
+                }
+            else:
+                native = self.transfer.answer(str(retry["text"]), question)
+                parsed = dict(native.get("parse") or {})
+                if not parsed:
+                    parsed = self.transfer.parse(str(retry["text"]))
             answer = str(native.get("answer") or "")
-            correct = _normal(answer) == _normal(str(retry["expected_answer"] or ""))
+            selected_concept_id = str(
+                (native.get("semantic_evidence") or {}).get("target_concept_id") or ""
+            )
+            correct = (
+                _normal(answer) == _normal(str(retry["expected_answer"] or ""))
+                and (not target_concept_id or selected_concept_id == target_concept_id)
+            )
             now = time.time()
             retry_id = _identifier("reading_exercise_", [retry["exercise_id"], question,
                                                            time.time_ns()])
             with self._connect() as connection:
                 retention_exam = retry["status"] == "retention_scheduled"
-                connection.execute(
-                    "UPDATE native_reading_exercises SET status=? WHERE exercise_id=?",
-                    ("retention_passed" if retention_exam and correct else "retested",
-                     retry["exercise_id"]),
-                )
-                next_status = (
-                    "passed" if retention_exam and correct
-                    else "retention_scheduled" if correct
-                    else "correction_due"
-                )
-                next_due = (
-                    None if retention_exam and correct
-                    else now + self.retention_delay_seconds if correct
-                    else now + self.retry_delay_seconds * 2
-                )
-                connection.execute(
-                    """INSERT INTO native_reading_exercises VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                    (retry_id, retry["sentence_id"], retry["source_id"], retry["family"],
-                     question, retry["expected_answer"], retry["answer_reason"], answer,
-                     int(correct), float(native.get("confidence") or 0), 0,
-                     next_status, next_due, now, now),
-                )
+                retry_count = int(retry.get("retry_count") or 0)
+                parked = False
+                if correct:
+                    connection.execute(
+                        "UPDATE native_reading_exercises SET status=? WHERE exercise_id=?",
+                        ("retention_passed" if retention_exam else "retested",
+                         retry["exercise_id"]),
+                    )
+                    if not retention_exam:
+                        connection.execute(
+                            """INSERT INTO native_reading_exercises(
+                               exercise_id,sentence_id,source_id,family,question,expected_answer,
+                               answer_reason,answer,correct,confidence,model_used,target_concept_id,
+                               status,due_epoch,created_epoch,attempted_epoch,retry_count)
+                               VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                            (retry_id, retry["sentence_id"], retry["source_id"],
+                             retry["family"], question, retry["expected_answer"],
+                             retry["answer_reason"], answer, 1,
+                             float(native.get("confidence") or 0), 0,
+                             target_concept_id, "retention_scheduled",
+                             now + self.retention_delay_seconds, now, now, 0),
+                        )
+                else:
+                    next_retry = retry_count + 1
+                    parked = next_retry >= 3
+                    # A failed retry updates the same obligation.  It no longer
+                    # creates an endlessly reproducing chain of due rows.
+                    connection.execute(
+                        """UPDATE native_reading_exercises
+                           SET question=?,answer=?,correct=0,confidence=?,retry_count=?,
+                               status=?,due_epoch=?,attempted_epoch=? WHERE exercise_id=?""",
+                        (question, answer, float(native.get("confidence") or 0), next_retry,
+                         "diagnostic_parked" if parked else "correction_due",
+                         None if parked else now + min(
+                             21600, self.retry_delay_seconds * (2 ** next_retry)
+                         ), now, retry["exercise_id"]),
+                    )
                 if correct:
                     connection.execute(
                         """UPDATE native_reading_sentences SET status='completed',
@@ -750,7 +1206,14 @@ class NativeReadingAcademy:
                         )
             self._record_word_experience(
                 source_id=retry["source_id"], sentence_id=retry["sentence_id"],
-                parsed=parsed, correct=correct,
+                parsed=parsed, correct=correct, target_concept_id=target_concept_id,
+            )
+            context_evidence = self._record_context_evidence(
+                source_id=str(retry["source_id"]), sentence_id=str(retry["sentence_id"]),
+                exercise={"family": retry["family"],
+                          "expected_answer": retry["expected_answer"],
+                          "target_concept_id": target_concept_id},
+                answer=answer, correct=correct, independently_retested=True,
             )
             results.append({"source": retry["title"], "sentence_id": retry["sentence_id"],
                             "sentence_index": retry["sentence_index"],
@@ -761,6 +1224,8 @@ class NativeReadingAcademy:
                             "unknown_words": self._analyse_words(parsed)[2],
                             "new_concepts_encountered": [], "retest": True,
                             "retention_exam": retention_exam,
+                            "diagnostic_parked": bool(not correct and parked),
+                            "context_evidence": context_evidence,
                             "model_used": False})
         for offset, row in enumerate(candidates):
             source_id = str(row.get("source_id") or "")
@@ -795,23 +1260,41 @@ class NativeReadingAcademy:
             if exercise:
                 # The answer key is sealed in `exercise`; only the material,
                 # question and acquired memory reach the student operation.
+                target_concept_id = str(exercise.get("target_concept_id") or "")
                 native = self.transfer.answer(str(row["text"]), exercise["question"])
                 answer = str(native.get("answer") or "")
                 confidence = float(native.get("confidence") or confidence)
-                correct = _normal(answer) == _normal(exercise["expected_answer"])
+                selected_concept_id = str(
+                    (native.get("semantic_evidence") or {}).get("target_concept_id") or ""
+                )
+                correct = (
+                    _normal(answer) == _normal(exercise["expected_answer"])
+                    and (not target_concept_id or selected_concept_id == target_concept_id)
+                )
                 exercise_id = _identifier("reading_exercise_", [row["sentence_id"],
                                                                   exercise, time.time_ns()])
                 now = time.time()
                 with self._connect() as connection:
                     connection.execute(
-                        """INSERT INTO native_reading_exercises VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        """INSERT INTO native_reading_exercises(
+                           exercise_id,sentence_id,source_id,family,question,expected_answer,
+                           answer_reason,answer,correct,confidence,model_used,target_concept_id,
+                           status,due_epoch,created_epoch,attempted_epoch)
+                           VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                         (exercise_id, row["sentence_id"], row["source_id"], exercise["family"],
                          exercise["question"], exercise["expected_answer"], exercise["answer_reason"],
                          answer, int(correct), confidence, 0,
+                         str(exercise.get("target_concept_id") or ""),
                          "retention_scheduled" if correct else "correction_due",
                          (now + self.retention_delay_seconds if correct
                           else now + self.retry_delay_seconds), now, now),
                     )
+                context_evidence = self._record_context_evidence(
+                    source_id=str(row["source_id"]), sentence_id=str(row["sentence_id"]),
+                    exercise=exercise, answer=answer, correct=correct,
+                )
+            else:
+                context_evidence = None
             summary = self._summary(parsed.get("frame") or {})
             sentence_status = (
                 "completed" if exercise and correct else
@@ -850,6 +1333,7 @@ class NativeReadingAcademy:
             self._record_word_experience(
                 source_id=row["source_id"], sentence_id=row["sentence_id"],
                 parsed=parsed, correct=bool(exercise and correct),
+                target_concept_id=str((exercise or {}).get("target_concept_id") or ""),
             )
             claims += int(self._record_claim(
                 source=row, sentence_id=row["sentence_id"],
@@ -861,7 +1345,9 @@ class NativeReadingAcademy:
                             "answer": answer, "correct": correct if exercise else None,
                             "summary": summary, "acquired_words_used": len(acquired),
                             "reference_words": len(reference), "unknown_words": unknown,
-                            "new_concepts_encountered": discovered, "model_used": False})
+                            "new_concepts_encountered": discovered,
+                            "context_evidence": context_evidence,
+                            "model_used": False})
         attempted = sum(row["correct"] is not None for row in results)
         correct_count = sum(row["correct"] is True for row in results)
         elapsed = max(0.001, time.time() - cycle_started)
@@ -892,7 +1378,7 @@ class NativeReadingAcademy:
         return {"cycle_id": cycle_id, **detail}
 
     def metrics(self) -> dict[str, Any]:
-        with self._connect() as connection:
+        with self._read_connect() as connection:
             sources = connection.execute(
                 """SELECT COUNT(*),SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END),
                           COALESCE(SUM(sentence_count),0)
@@ -911,7 +1397,8 @@ class NativeReadingAcademy:
                           SUM(CASE WHEN status='correction_due' AND due_epoch<=? THEN 1 ELSE 0 END),
                           SUM(CASE WHEN status='retention_scheduled' THEN 1 ELSE 0 END),
                           SUM(CASE WHEN status='retention_scheduled' AND due_epoch<=? THEN 1 ELSE 0 END),
-                          SUM(CASE WHEN status='retention_passed' THEN 1 ELSE 0 END)
+                          SUM(CASE WHEN status='retention_passed' THEN 1 ELSE 0 END),
+                          SUM(CASE WHEN status='diagnostic_parked' THEN 1 ELSE 0 END)
                    FROM native_reading_exercises""", (time.time(), time.time()),
             ).fetchone()
             experience = connection.execute(
@@ -939,11 +1426,25 @@ class NativeReadingAcademy:
                 "SELECT detail_json FROM native_reading_cycles ORDER BY created_epoch DESC LIMIT 1"
             ).fetchone()
             runtime = connection.execute(
-                "SELECT busy,lease_epoch FROM native_reading_runtime WHERE singleton=1"
+                """SELECT busy,lease_epoch,active_deep_test_ratio,active_online_enabled,
+                          updated_epoch
+                   FROM native_reading_runtime WHERE singleton=1"""
             ).fetchone()
             recent = connection.execute(
                 """SELECT COUNT(*),COALESCE(SUM(correct),0) FROM native_reading_exercises
                    WHERE attempted_epoch>?""", (time.time() - 3600,),
+            ).fetchone()
+            context_evidence = connection.execute(
+                """SELECT COUNT(*),COALESCE(SUM(correct),0),
+                          COUNT(DISTINCT CASE WHEN correct=1 THEN concept_id END),
+                          COUNT(DISTINCT CASE WHEN correct=1 THEN source_id END),
+                          SUM(CASE WHEN independently_retested=1 AND correct=1 THEN 1 ELSE 0 END)
+                   FROM native_reading_context_evidence"""
+            ).fetchone()
+            recent_context = connection.execute(
+                """SELECT COUNT(*),COALESCE(SUM(correct),0)
+                   FROM native_reading_context_evidence WHERE created_epoch>?""",
+                (time.time() - 3600,),
             ).fetchone()
             source_rows = connection.execute(
                 """SELECT source_id,title,author,subject,license,status,sentence_count,
@@ -954,10 +1455,23 @@ class NativeReadingAcademy:
         attempts, correct = int(exercises[0] or 0), int(exercises[1] or 0)
         latest_detail = json.loads(latest_cycle[0]) if latest_cycle else {}
         online_metrics = self.online.metrics()
-        online_metrics["enabled"] = self.online_enabled
+        # The UI often runs in a different process from the reader.  Report
+        # the configuration of the process that actually owns the live cycle,
+        # not this observer process's environment defaults.
+        # The dedicated service releases its database lease between bounded
+        # cycles.  `busy=0` means idle, not stopped; its fresh runtime heartbeat
+        # is the durable liveness signal used by an observer process.
+        active_reader = bool(runtime) and float(runtime[4] or 0) > time.time() - 1800
+        active_deep_test_ratio = (
+            float(runtime[2]) if active_reader else self.deep_test_ratio
+        )
+        active_online_enabled = (
+            bool(runtime[3]) if active_reader else self.online_enabled
+        )
+        online_metrics["enabled"] = active_online_enabled
         return {
             "cycles": int(cycles[0] or 0), "last_cycle_epoch": cycles[1],
-            "running": bool(runtime[0]) and float(runtime[1] or 0) > time.time() - 1800,
+            "running": active_reader,
             "sources": int(sources[0] or 0), "sources_completed": int(sources[1] or 0),
             "sentences_available": int(sources[2] or 0),
             "sentences_processed": (int(sentences[1] or 0) + int(sentences[2] or 0)
@@ -971,7 +1485,7 @@ class NativeReadingAcademy:
             "latest_cycle_sentences_per_second": latest_detail.get("sentences_per_second"),
             "latest_cycle_elapsed_seconds": latest_detail.get("elapsed_seconds"),
             "latest_cycle_deep_tests": int(latest_detail.get("deep_tests_selected") or 0),
-            "deep_test_ratio": self.deep_test_ratio,
+            "deep_test_ratio": active_deep_test_ratio,
             "configured_batch_size": max(
                 1, min(100, int(os.getenv("AION_READING_ACADEMY_BATCH", "40")))
             ),
@@ -985,6 +1499,7 @@ class NativeReadingAcademy:
             "retention_scheduled": int(exercises[4] or 0),
             "retention_due": int(exercises[5] or 0),
             "retention_passed": int(exercises[6] or 0),
+            "diagnostic_parked": int(exercises[7] or 0),
             "recent_attempts": int(recent[0] or 0), "recent_correct": int(recent[1] or 0),
             "recent_accuracy": (round(int(recent[1] or 0) / int(recent[0]), 4)
                                 if int(recent[0] or 0) else None),
@@ -992,6 +1507,21 @@ class NativeReadingAcademy:
             "word_encounters": int(experience[1] or 0),
             "acquired_word_uses": int(experience[2] or 0),
             "successful_word_contexts": int(experience[3] or 0),
+            "verified_context_attempts": int(context_evidence[0] or 0),
+            "verified_context_correct": int(context_evidence[1] or 0),
+            "verified_context_accuracy": (
+                round(int(context_evidence[1] or 0) / int(context_evidence[0]), 4)
+                if int(context_evidence[0] or 0) else None
+            ),
+            "concepts_verified_in_context": int(context_evidence[2] or 0),
+            "context_sources": int(context_evidence[3] or 0),
+            "context_retests_cleared": int(context_evidence[4] or 0),
+            "recent_context_attempts": int(recent_context[0] or 0),
+            "recent_context_correct": int(recent_context[1] or 0),
+            "recent_context_accuracy": (
+                round(int(recent_context[1] or 0) / int(recent_context[0]), 4)
+                if int(recent_context[0] or 0) else None
+            ),
             "provenanced_claims": int(claims[0] or 0),
             "document_imports": int(imports[0] or 0),
             "imports_ready": int(imports[1] or 0),

@@ -7,14 +7,21 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from backend.modules.aion_business.runtime.aion_flow_session_authority import AionFlowSessionAuthority, VerifiedAionFlowSession
-from backend.modules.aion_business.runtime.a2a_commerce_service import A2ACommerceService
+from backend.modules.aion_business.runtime.a2a_commerce_service import (
+    A2ACommerceConfigurationError,
+    A2ACommerceService,
+)
 
 public_router = APIRouter(tags=["agent-commerce-public"])
 internal_router = APIRouter(prefix="/api/aion/business/a2a", tags=["agent-commerce-internal"])
 _authority = AionFlowSessionAuthority()
 _MARKET_PAGE = Path(__file__).resolve().parents[1] / "static" / "tessaris-market.html"
 
-def service() -> A2ACommerceService: return A2ACommerceService()
+def service() -> A2ACommerceService:
+    try:
+        return A2ACommerceService()
+    except A2ACommerceConfigurationError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 async def require_session(request: Request) -> VerifiedAionFlowSession:
     try:

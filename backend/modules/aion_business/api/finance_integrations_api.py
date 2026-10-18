@@ -25,6 +25,10 @@ from backend.modules.aion_business.runtime.business_container_repository import 
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.finance_inbox_service import FinanceInboxService
+from backend.modules.aion_business.runtime.finance_integration_store import FinanceIntegrationStore
+from backend.modules.aion_business.runtime.provider_connection_lifecycle_service import (
+    ProviderConnectionLifecycleService,
+)
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import (
     WorkflowFileCabinetRepository,
 )
@@ -126,6 +130,78 @@ class AccountingProviderReconciliationRequest(BaseModel):
     date_window_days: int = 7
 
 
+class ProviderLifecycleQualificationRequest(BaseModel):
+    actor_id: str
+
+
+def _qualification_lifecycle() -> ProviderConnectionLifecycleService:
+    if os.getenv("TESSARIS_DISCOVERY_MODE") != "1":
+        raise HTTPException(status_code=404, detail="provider_lifecycle_qualification_disabled")
+    return ProviderConnectionLifecycleService()
+
+
+@router.get("/provider-lifecycle/{candidate}/{provider}/qualification")
+def provider_lifecycle_qualification_status(candidate: str, provider: str) -> Dict[str, Any]:
+    return {"ok": True, "connection": _qualification_lifecycle().status(
+        canonical_business_id(candidate), provider,
+    )}
+
+
+@router.post("/provider-lifecycle/{candidate}/{provider}/qualification/connect")
+def provider_lifecycle_qualification_connect(
+    candidate: str, provider: str, request: ProviderLifecycleQualificationRequest,
+) -> Dict[str, Any]:
+    """Exercise an adapter-issued grant without accepting credentials from the renderer."""
+    service = _qualification_lifecycle()
+    connection = service.connect(
+        canonical_business_id(candidate), provider,
+        authority={
+            "access_token": secrets.token_urlsafe(48),
+            "refresh_token": secrets.token_urlsafe(48),
+            "issued_by": "instrumented_provider_sandbox",
+        },
+        actor_id=request.actor_id,
+        granted_scopes=["read", "offline_access"],
+        provider_account_hash="sha256:" + sha256(
+            f"{canonical_business_id(candidate)}:{provider}:sandbox".encode()
+        ).hexdigest(),
+    )
+    return {"ok": True, "connection": connection, "sandbox_only": True}
+
+
+@router.post("/provider-lifecycle/{candidate}/{provider}/qualification/refresh")
+def provider_lifecycle_qualification_refresh(
+    candidate: str, provider: str, request: ProviderLifecycleQualificationRequest,
+) -> Dict[str, Any]:
+    service = _qualification_lifecycle()
+    try:
+        connection = service.refresh(
+            canonical_business_id(candidate), provider,
+            authority={
+                "access_token": secrets.token_urlsafe(48),
+                "refresh_token": secrets.token_urlsafe(48),
+                "issued_by": "instrumented_provider_sandbox",
+            },
+            actor_id=request.actor_id,
+        )
+    except PermissionError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "connection": connection, "sandbox_only": True}
+
+
+@router.post("/provider-lifecycle/{candidate}/{provider}/qualification/revoke")
+def provider_lifecycle_qualification_revoke(
+    candidate: str, provider: str, request: ProviderLifecycleQualificationRequest,
+) -> Dict[str, Any]:
+    return {
+        "ok": True,
+        "connection": _qualification_lifecycle().revoke(
+            canonical_business_id(candidate), provider, actor_id=request.actor_id,
+        ),
+        "sandbox_only": True,
+    }
+
+
 @router.get("/accounting/providers")
 def accounting_provider_catalog() -> Dict[str, Any]:
     """Describe implemented adapters separately from live connection state."""
@@ -183,9 +259,7 @@ def _hash(value: Any) -> str:
 
 
 def _integration_dir(business_id: str) -> Path:
-    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "xero"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    return FinanceIntegrationStore().root(business_id, "xero")
 
 
 def _connection_path(business_id: str) -> Path:
@@ -193,9 +267,7 @@ def _connection_path(business_id: str) -> Path:
 
 
 def _sage_integration_dir(business_id: str) -> Path:
-    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "sage_accounting"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    return FinanceIntegrationStore().root(business_id, "sage_accounting")
 
 
 def _sage_connection_path(business_id: str) -> Path:
@@ -203,9 +275,7 @@ def _sage_connection_path(business_id: str) -> Path:
 
 
 def _quickbooks_integration_dir(business_id: str) -> Path:
-    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "quickbooks_online"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    return FinanceIntegrationStore().root(business_id, "quickbooks_online")
 
 
 def _quickbooks_connection_path(business_id: str) -> Path:
@@ -213,9 +283,7 @@ def _quickbooks_connection_path(business_id: str) -> Path:
 
 
 def _zoho_books_integration_dir(business_id: str) -> Path:
-    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "zoho_books"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    return FinanceIntegrationStore().root(business_id, "zoho_books")
 
 
 def _zoho_books_connection_path(business_id: str) -> Path:
@@ -223,9 +291,7 @@ def _zoho_books_connection_path(business_id: str) -> Path:
 
 
 def _freeagent_integration_dir(business_id: str) -> Path:
-    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "freeagent"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    return FinanceIntegrationStore().root(business_id, "freeagent")
 
 
 def _freeagent_connection_path(business_id: str) -> Path:
@@ -233,9 +299,7 @@ def _freeagent_connection_path(business_id: str) -> Path:
 
 
 def _freshbooks_integration_dir(business_id: str) -> Path:
-    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "freshbooks"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    return FinanceIntegrationStore().root(business_id, "freshbooks")
 
 
 def _freshbooks_connection_path(business_id: str) -> Path:
@@ -243,20 +307,11 @@ def _freshbooks_connection_path(business_id: str) -> Path:
 
 
 def _read_json(path: Path, fallback: Any) -> Any:
-    try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-        return value
-    except Exception:
-        return fallback
+    return FinanceIntegrationStore().read_json(path, fallback)
 
 
 def _write_json(path: Path, payload: Any, mode: int = 0o600) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str), encoding="utf-8")
-    try:
-        path.chmod(mode)
-    except OSError:
-        pass
+    FinanceIntegrationStore().write_json(path, payload, mode=mode)
 
 
 def _record_connector_attempt(
@@ -313,7 +368,8 @@ def _record_connector_attempt(
         "type": "business_container_artifact",
         "document_type": "connector_attempt_receipt",
         "status": status,
-        "target": {"storage_path": str(path), "receipt_hash": receipt["receipt_hash"]},
+        "target": {**FinanceIntegrationStore().reference(path),
+                   "receipt_hash": receipt["receipt_hash"]},
     })
     tree["folders"] = folders
     tree["root"] = {**(tree.get("root") or {}), "id": "root", "type": "folder", "name": "Workflows", "children": folders}
@@ -1359,10 +1415,7 @@ def xero_status(candidate: str) -> Dict[str, Any]:
 def xero_connector_receipts(candidate: str) -> Dict[str, Any]:
     business_id = canonical_business_id(candidate)
     receipt_dir = _integration_dir(business_id) / "receipts"
-    receipts = [
-        _read_json(path, {})
-        for path in sorted(receipt_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)
-    ] if receipt_dir.exists() else []
+    receipts = FinanceIntegrationStore().list_json(receipt_dir)
     return {"ok": True, "business_id": business_id, "receipts": receipts}
 
 
@@ -2520,8 +2573,10 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
         raise
 
     sync_id = f"xero_sync_{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}"
-    sync_dir = _integration_dir(business_id) / "syncs" / sync_id
-    sync_dir.mkdir(parents=True, exist_ok=True)
+    integration_store = FinanceIntegrationStore()
+    sync_dir = integration_store.root(business_id, "xero") / "syncs" / sync_id
+    if integration_store.domain_store is None:
+        sync_dir.mkdir(parents=True, exist_ok=True)
     for key, payload in raw.items():
         _write_json(sync_dir / f"{key}.json", payload)
     summary = {
@@ -2546,7 +2601,12 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
         "synced_at": _now(),
         "period": {"from": from_date.isoformat(), "to": to_date.isoformat()},
         "summary": summary,
-        "source_paths": {key: f"integrations/xero/syncs/{sync_id}/{key}.json" for key in raw},
+        "source_paths": {
+            key: (integration_store.reference(sync_dir / f"{key}.json")
+                  if integration_store.domain_store is not None
+                  else f"integrations/xero/syncs/{sync_id}/{key}.json")
+            for key in raw
+        },
         "read_only": True,
         "external_writes_enabled": False,
     }
@@ -2557,7 +2617,9 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
         "provider": "xero",
         "sync_id": sync_id,
         "snapshot_hash": snapshot["snapshot_hash"],
-        "storage_path": f"business_containers/{business_id}/integrations/xero/syncs/{sync_id}/snapshot.json",
+        **(integration_store.reference(sync_dir / "snapshot.json")
+           if integration_store.domain_store is not None
+           else {"storage_path": f"business_containers/{business_id}/integrations/xero/syncs/{sync_id}/snapshot.json"}),
         "tenant_id": tenant_id,
         "period": snapshot["period"],
         "observed_at": snapshot["synced_at"],
@@ -2703,13 +2765,12 @@ async def execute_xero_bookkeeping_export(candidate: str, export_id: str,
             readback = await _xero_get(access_token, tenant_id, f"{record['endpoint']}/{resource_id}", business_id=business_id)
             record = service.verify_readback(business_id, export_id, readback)
         if record.get("status") == "resource_verified_pending_attachment":
-            file_path, document = FinanceInboxService().file_path(business_id, record["source_document_id"])
-            content = file_path.read_bytes()
+            content, document = FinanceInboxService().file_bytes(business_id, record["source_document_id"])
             expected_hash = str((record.get("attachment") or {}).get("content_hash") or "")
             actual_hash = "sha256:" + sha256(content).hexdigest()
             if actual_hash != expected_hash:
                 raise HTTPException(status_code=409, detail="finance_attachment_hash_mismatch_before_xero_upload")
-            filename = str((document.get("source") or {}).get("filename") or file_path.name)
+            filename = str((document.get("source") or {}).get("filename") or "document")
             mime_type = str((document.get("source") or {}).get("mime_type") or "application/octet-stream")
             await _xero_put_attachment(
                 access_token, tenant_id, f"{record['endpoint']}/{resource_id}", filename, content, mime_type,

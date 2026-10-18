@@ -2,7 +2,9 @@ import json
 from pathlib import Path
 
 from backend.api.aion_english_intelligence_router import panel
-from backend.modules.aion_cognition.native_english_progress import collect_native_english_progress
+from backend.modules.aion_cognition.native_english_progress import (
+    _recent_cycles, collect_native_english_progress,
+)
 from backend.modules.aion_cognition.native_lexical_intelligence import NativeLexicalIntelligence
 
 
@@ -56,3 +58,17 @@ def test_panel_is_a_live_read_only_progress_surface():
     assert "Aion Semantic Spider" in body
     assert "semantic-spider/${action}" in body
     assert 'class="leg"' in body
+
+
+def test_recent_cycles_reads_only_the_tail_records(tmp_path: Path):
+    ledger = tmp_path / "cycles.jsonl"
+    rows = [
+        {"status": "completed", "stage": {"id": f"stage-{index}"},
+         "closed_book_exam": {"score": 1.0}}
+        for index in range(30)
+    ]
+    ledger.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+
+    recent = _recent_cycles(ledger, limit=3)
+
+    assert [row["stage_id"] for row in recent] == ["stage-27", "stage-28", "stage-29"]

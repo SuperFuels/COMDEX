@@ -15,8 +15,11 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import configured_business_container_repository
+from backend.modules.aion_business.runtime.finance_operations_store import FinanceOperationsStore
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -31,9 +34,12 @@ class FinanceBankActivityService:
     SOURCES = {"bank_csv", "open_banking", "controlled_test_fixture"}
 
     def __init__(self, repository: BusinessContainerRepository | None = None,
-                 authority: OrganizationAuthorityService | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+                 authority: OrganizationAuthorityService | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 operations_store: FinanceOperationsStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
         self.authority = authority or OrganizationAuthorityService(self.repository)
+        self.operations_store = operations_store or FinanceOperationsStore(domain_store=domain_store)
 
     def prepare(self, workspace_id: str, *, source_type: str, transaction_type: str,
                 transaction_date: str, amount: float, currency: str, reference: str,
@@ -69,7 +75,7 @@ class FinanceBankActivityService:
         key = canonical_contract_hash(instruction).removeprefix("sha256:")[:20]
         record_id = f"bank-activity-{key}"
         path = self._path(workspace_id, record_id)
-        if path.exists():
+        if self.operations_store.exists(path):
             return self.load(workspace_id, record_id)
         record = {
             "schema_version": "aion.finance.bank_activity.v1", "record_id": record_id,
@@ -132,9 +138,9 @@ class FinanceBankActivityService:
 
     def load(self, workspace_id: str, record_id: str) -> dict[str, Any]:
         path = self._path(workspace_id, record_id)
-        if not path.exists():
+        if not self.operations_store.exists(path):
             raise FileNotFoundError(record_id)
-        record = json.loads(path.read_text(encoding="utf-8"))
+        record = self.operations_store.read_json(path, {})
         expected = record.get("record_hash"); payload = dict(record); payload.pop("record_hash", None)
         if not expected or canonical_contract_hash(payload) != expected:
             raise ValueError("finance_bank_activity_hash_mismatch")
@@ -143,8 +149,12 @@ class FinanceBankActivityService:
         return record
 
     def list(self, workspace_id: str) -> list[dict[str, Any]]:
-        return [self.load(workspace_id, path.stem) for path in sorted(
-            self._dir(workspace_id).glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)]
+        records = self.operations_store.list_json(self._dir(workspace_id))
+        for record in records:
+            expected = record.get("record_hash"); payload = dict(record); payload.pop("record_hash", None)
+            if not expected or canonical_contract_hash(payload) != expected:
+                raise ValueError("finance_bank_activity_hash_mismatch")
+        return records
 
     def _require(self, workspace_id: str, person_id: str, capability: str) -> dict[str, Any]:
         decision = self.authority.access_decision(workspace_id, person_id=person_id, capability=capability)
@@ -153,14 +163,11 @@ class FinanceBankActivityService:
         return decision
 
     def _dir(self, workspace_id: str) -> Path:
-        path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/bank_activity"
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+        return self.operations_store.root(workspace_id, "bank_activity")
 
     def _path(self, workspace_id: str, record_id: str) -> Path:
         return self._dir(workspace_id) / f"{_safe(record_id)}.json"
 
     def _save(self, workspace_id: str, record: dict[str, Any]) -> None:
         record.pop("record_hash", None); record["record_hash"] = canonical_contract_hash(record)
-        self._path(workspace_id, record["record_id"]).write_text(
-            json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self.operations_store.write_json(self._path(workspace_id, record["record_id"]), record)

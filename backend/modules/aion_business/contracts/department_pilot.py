@@ -10,20 +10,17 @@ from __future__ import annotations
 
 from hashlib import sha256
 import json
-from typing import Any, Dict, List, Literal, Optional
+from typing import Annotated, Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-DepartmentId = Literal[
-    "marketing",
-    "sales",
-    "finance",
-    "operations",
-    "support",
-    "hr",
-    "pilot",
-    "builder",
+# Department names are data, not a closed application enum.  Updates may add a
+# department without changing the durable schema, while the pattern prevents a
+# department identifier from becoming a filesystem or record-key escape.
+DepartmentId = Annotated[
+    str,
+    Field(min_length=1, max_length=64, pattern=r"^[a-z][a-z0-9_]{0,63}$"),
 ]
 
 VerificationState = Literal[

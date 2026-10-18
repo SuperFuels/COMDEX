@@ -18,6 +18,8 @@ from backend.modules.aion_concept.concept_learning_arena import (
     ConceptGraph,
     process_reflection_event,
 )
+from backend.modules.aion_resonance.conversation_memory import MEMORY
+from backend.modules.aion_resonance.symatic_event_store import SYMATIC_EVENTS
 
 # Initialize global concept graph instance
 concept_graph = ConceptGraph()
@@ -25,8 +27,6 @@ concept_graph = ConceptGraph()
 # ──────────────────────────────────────────────────────────
 # 📁 File Paths
 # ──────────────────────────────────────────────────────────
-MEMORY_PATH = "data/conversation_memory.json"
-SYMATIC_PATH = "data/symatic_log.json"
 
 router = APIRouter()
 active_connections: Set[WebSocket] = set()
@@ -47,9 +47,8 @@ def load_json(path: str):
 # 🧩 Fetch last reflections + symatic encodings
 # ──────────────────────────────────────────────────────────
 async def fetch_recent_activity():
-    memory = load_json(MEMORY_PATH)
-    symatic_data = load_json(SYMATIC_PATH)
-    symatic_log = symatic_data.get("log", []) if isinstance(symatic_data, dict) else []
+    memory = MEMORY.load()
+    symatic_log = SYMATIC_EVENTS.list()
 
     reflections = [
         {

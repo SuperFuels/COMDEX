@@ -69,6 +69,11 @@ def _keychain_item_exists(workspace_id: str | None, suffix: str) -> bool:
     only checks whether the named item exists.
     """
     workspace = str(workspace_id or "").strip()
+    # Qualification traces must not invoke an operating-system subprocess just
+    # to paint a passive readiness card. The real credential is still read
+    # from Keychain immediately before an approved provider action.
+    if os.getenv("TESSARIS_DISCOVERY_MODE", "0") == "1":
+        return False
     security = Path("/usr/bin/security")
     if not workspace or not security.exists():
         return False

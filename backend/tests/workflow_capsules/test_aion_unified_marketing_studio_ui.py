@@ -135,8 +135,8 @@ def test_creator_can_clear_repurpose_save_post_and_schedule_content():
 def test_clear_canvas_is_durable_and_removes_working_assets():
     assert 'desktopStore.setMarketingField("aionCampaignCanvasCleared", true);' in APP
     assert "function setAionMarketingCanvasDurablyCleared(cleared)" in APP
-    assert 'localStorage.setItem(key, "true")' in APP
-    assert 'localStorage.setItem(globalKey, "true")' in APP
+    assert 'AionDesktopPreferences.set(key, "true")' in APP
+    assert 'AionDesktopPreferences.set(globalKey, "true")' in APP
     assert 'const canvasWasCleared = Boolean(storedForm.aionCampaignCanvasCleared) || isAionMarketingCanvasDurablyCleared();' in APP
     assert 'if (!canvasWasCleared && !window.__aionMarketingCreativeLab.campaignResult' in APP
     clear_canvas = APP[APP.index("function clearAionMarketingCanvas()"):APP.index("function renderAionMarketingContentStudio()")]

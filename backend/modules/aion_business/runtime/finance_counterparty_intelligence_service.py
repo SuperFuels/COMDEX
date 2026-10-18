@@ -14,7 +14,9 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.providers.router import ProviderRouter
+from backend.modules.aion_business.runtime.finance_operations_store import FinanceOperationsStore
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -35,8 +37,11 @@ def _redact_reference(value: Any) -> str:
 class FinanceCounterpartyIntelligenceService:
     DECISIONS = {"accept_mapping", "reject_mapping", "needs_clarification"}
 
-    def __init__(self, provider_router: ProviderRouter | None = None) -> None:
+    def __init__(self, provider_router: ProviderRouter | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 operations_store: FinanceOperationsStore | None = None) -> None:
         self.provider_router = provider_router or ProviderRouter()
+        self.operations_store = operations_store or FinanceOperationsStore(domain_store=domain_store)
 
     def classify(self, workspace_id: str, transaction: dict[str, Any], accounts: list[dict[str, Any]], *,
                  preferred_provider: str | None = None, preferred_model: str | None = None) -> dict[str, Any]:
@@ -164,19 +169,17 @@ class FinanceCounterpartyIntelligenceService:
             return 0.0
 
     def _path(self, workspace_id: str) -> Path:
-        path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/counterparty_intelligence/mappings.json"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        return path
+        return self.operations_store.root(workspace_id, "counterparty_intelligence") / "mappings.json"
 
     def _load(self, workspace_id: str) -> dict[str, Any]:
         path = self._path(workspace_id)
-        if not path.exists():
+        if not self.operations_store.exists(path):
             return {"schema_version": "aion.finance.counterparty_mappings.v1", "workspace_id": workspace_id, "mappings": [], "updated_at": None}
-        value = json.loads(path.read_text(encoding="utf-8")); expected = value.pop("mappings_hash", None)
+        value = self.operations_store.read_json(path, {}); expected = value.pop("mappings_hash", None)
         if not expected or canonical_contract_hash(value) != expected:
             raise ValueError("counterparty_mapping_hash_mismatch")
         return value
 
     def _save(self, workspace_id: str, payload: dict[str, Any]) -> None:
         value = dict(payload); value.pop("mappings_hash", None); value["mappings_hash"] = canonical_contract_hash(value)
-        self._path(workspace_id).write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self.operations_store.write_json(self._path(workspace_id), value)

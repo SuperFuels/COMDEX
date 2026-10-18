@@ -15,6 +15,7 @@ from backend.modules.aion_business.runtime.finance_sales_service import FinanceS
 from backend.modules.aion_business.runtime.sales_revenue_service import SalesRevenueService
 from backend.modules.aion_business.runtime.support_case_service import SupportCaseService
 from backend.modules.aion_business.runtime.work_schedule_service import WorkScheduleService
+from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
 from backend.services.aion_mission_mode.coo_mission import CooMissionService
 
 from .compatibility import adapt_workspace
@@ -138,7 +139,13 @@ class AionBoardroomWorkspaceProvider:
 
     def work_schedule_snapshot(self, workspace_ref: str) -> dict[str, Any]:
         """Canonical jobs and appointments shared by desktop and paired phones."""
-        return WorkScheduleService(self.containers).get(workspace_ref)
+        return self._work_schedule_service().get(workspace_ref)
+
+    def _work_schedule_service(self) -> WorkScheduleService:
+        # Under Guardian mode the provider's compatibility repository is only
+        # for older container projections. Work & Schedule must enter through
+        # its declared Vault domains and encrypted object store.
+        return WorkScheduleService() if guardian_mode_requested() else WorkScheduleService(self.containers)
 
     def work_schedule_action(
         self, workspace_ref: str, operation: str, fields: Mapping[str, Any], *, actor_id: str
@@ -147,11 +154,12 @@ class AionBoardroomWorkspaceProvider:
             encoded = str(fields.get("data_base64") or "")
             if len(encoded) > 28_000_000:
                 raise ValueError("work evidence exceeds the 20 MB limit")
-            result = WorkScheduleService(self.containers).upload(
+            result = self._work_schedule_service().upload(
                 workspace_ref, str(fields.get("id") or ""),
                 filename=str(fields.get("filename") or "evidence"),
                 content_type=str(fields.get("content_type") or "application/octet-stream"),
                 data_base64=encoded, actor_id=actor_id,
+                idempotency_key=str(fields.get("idempotency_key") or ""),
             )
             return dict(result["schedule"])
         safe_fields = {
@@ -162,6 +170,7 @@ class AionBoardroomWorkspaceProvider:
                 "skills_required", "status", "notes", "evidence_count", "recurrence", "dependencies",
                 "checklist_id", "label", "done", "material_id", "name", "quantity", "unit",
                 "unit_cost", "used", "minutes", "note", "movement_type", "kind", "channel", "message",
+                "text",
             }
         }
         if len(str(safe_fields).encode("utf-8")) > 64_000:
@@ -169,8 +178,9 @@ class AionBoardroomWorkspaceProvider:
         # Older phone builds used evidence_count as a button. Preserve that
         # interaction without manufacturing a file that does not exist.
         safe_fields.pop("evidence_count", None)
-        return WorkScheduleService(self.containers).action(
+        return self._work_schedule_service().action(
             workspace_ref, operation, safe_fields, actor_id=actor_id,
+            idempotency_key=str(fields.get("idempotency_key") or ""),
         )
 
     def _mobile_support_cases(self, workspace_ref: str) -> dict[str, Any]:
@@ -448,11 +458,19 @@ class AionBoardroomWorkspaceProvider:
             intelligence = self.containers.load_optional_dict(workspace_ref, "department_intelligence") or {}
             marketing = dict((intelligence.get("departments") or {}).get("marketing") or {})
             briefing = dict(self.read_surface(workspace_ref, "briefings", persona_id=persona_id).get("data") or {})
+            try:
+                from backend.modules.aion_business.runtime.marketing_connection_service import MarketingConnectionService
+                channel_metrics = MarketingConnectionService().metrics(workspace_ref, "meta")
+            except (OSError, ValueError, PermissionError):
+                channel_metrics = {}
             data = {
                 "intelligence": self._bounded_value(marketing, depth=0),
                 "department_actions": [dict(item) for item in briefing.get("department_actions") or []
                                        if isinstance(item, Mapping) and str(item.get("department") or "").casefold() == "marketing"][:30],
             }
+            if channel_metrics:
+                data["channel_metrics"] = self._bounded_value(channel_metrics, depth=0)
+                sources[department].append("marketing_channel_metrics.meta")
         elif department == "products_services":
             operating = self.containers.load_optional_dict(workspace_ref, "business_operating_model") or {}
             data = {

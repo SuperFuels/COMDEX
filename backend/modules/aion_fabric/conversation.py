@@ -8,6 +8,12 @@ from pathlib import Path
 from typing import Any, Dict
 from uuid import uuid4
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, utc_now_iso
 
 
@@ -27,9 +33,20 @@ class ConversationMemory:
         r"^(?:open|choose|use|book|buy) (?:the|that|this|it)\b",
     )
 
-    def __init__(self, runtime_dir: str | Path) -> None:
+    def __init__(
+        self,
+        runtime_dir: str | Path,
+        *,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.path = Path(runtime_dir) / "conversation" / "memory.json"
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_conversation_workspace_required")
 
     @staticmethod
     def _initial() -> Dict[str, Any]:
@@ -45,6 +62,13 @@ class ConversationMemory:
         }
 
     def _load(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.conversation_memory",
+            )
+            return dict(result["payload"]) if result else self._initial()
         if not self.path.exists():
             return self._initial()
         try:
@@ -55,6 +79,20 @@ class ConversationMemory:
 
     def _save(self, state: Dict[str, Any]) -> None:
         state["updated_at"] = utc_now_iso()
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.conversation_memory",
+            )
+            self.domain_store.put(
+                "learning.customer_state",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.conversation_memory",
+                payload=state,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
         temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(state))
         os.replace(temporary, self.path)
@@ -220,3 +258,51 @@ class ConversationMemory:
             "private_turns_hidden": channel == "shared_tv" and any(item.get("private") for item in turns),
             "updated_at": state.get("updated_at"),
         }
+
+
+def configured_conversation_memory(runtime_dir: str | Path) -> ConversationMemory:
+    """Select encrypted conversation authority and copy legacy state once."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_conversation_workspace_required")
+        domains = VaultDomainStore(runtime.guardian, actor_id="aion-fabric-conversation")
+        selected = ConversationMemory(
+            runtime_path,
+            domain_store=domains,
+            workspace_id=workspace_id,
+        )
+        source = runtime_path / "conversation" / "memory.json"
+        if source.exists() and domains.get_optional(
+            "learning.customer_state",
+            workspace_id=workspace_id,
+            entity_id="aion_fabric.conversation_memory",
+        ) is None:
+            legacy = ConversationMemory(runtime_path)
+            state = legacy._load()
+            selected._save(state)
+            if selected._load() != state or not source.exists():
+                raise RuntimeError("aion_fabric_conversation_migration_verification_failed")
+            from hashlib import sha256
+
+            source_hash = sha256(source.read_bytes()).hexdigest()
+            domains.put(
+                "learning.audit",
+                workspace_id=workspace_id,
+                entity_id=f"aion_fabric.conversation_migration.{source_hash}",
+                payload={
+                    "schema_version": "aion.conversation-migration.v1",
+                    "source_sha256": source_hash,
+                    "source_retained": True,
+                    "copied_and_verified": True,
+                    "completed_at": utc_now_iso(),
+                },
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_conversation_required_in_production")
+    return ConversationMemory(runtime_path)

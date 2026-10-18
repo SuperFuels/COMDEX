@@ -20,10 +20,20 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.finance_sales_service import FinanceSalesService
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.sales_revenue_service import SalesRevenueService
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_object_store import VaultObjectStore
 from backend.modules.aion_business.runtime.telephony_credentials import (
     get_retell_agent_id,
     get_retell_api_key,
@@ -54,11 +64,26 @@ def _money(value: Any) -> float:
 
 
 class SalesCompletionService:
-    def __init__(self, repository: BusinessContainerRepository | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+    def __init__(self, repository: BusinessContainerRepository | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 object_store: VaultObjectStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        self.object_store = object_store
+        if repository is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="sales-completion-runtime",
+            )
+            self.object_store = runtime.objects
         self.authority = OrganizationAuthorityService(self.repository)
-        self.sales = SalesRevenueService(self.repository, self.authority)
-        self.finance = FinanceSalesService(self.repository, self.authority)
+        self.sales = SalesRevenueService(
+            self.repository, self.authority,
+            domain_store=self.domain_store, object_store=self.object_store,
+        )
+        self.finance = FinanceSalesService(
+            self.repository, self.authority, domain_store=self.domain_store,
+        )
 
     def workspace(self, workspace_id: str) -> dict[str, Any]:
         bookings = self._list(workspace_id, "bookings", "booking_hash")
@@ -128,7 +153,7 @@ class SalesCompletionService:
 
     def get_availability(self, workspace_id: str) -> dict[str, Any]:
         path = self._root(workspace_id) / "availability.json"
-        if path.exists():
+        if self._record_exists(path):
             return self._load(path, workspace_id, "availability_hash")
         return {"workspace_id": workspace_id, "status": "configuration_required", "weekly_hours": {}}
 
@@ -597,7 +622,35 @@ class SalesCompletionService:
                    "variant": str(variant or "control"), "authority_reference": authority_reference,
                    "recorded_at": _now(), "recorded_by_person_id": recorded_by_person_id}
         self._rehash(outcome, "outcome_hash"); self._save(workspace_id, "outcomes", outcome["outcome_id"], outcome)
+        self._append_outcome_audit(outcome)
         return outcome
+
+    def _append_outcome_audit(self, outcome: dict[str, Any]) -> None:
+        if self.domain_store is None:
+            return
+        authority_hash = hashlib.sha256(
+            str(outcome.get("authority_reference") or "").encode("utf-8")
+        ).hexdigest()
+        receipt = {
+            "schema_version": "aion.sales.outcome_audit.v1",
+            "workspace_id": outcome["workspace_id"],
+            "outcome_id": outcome["outcome_id"],
+            "opportunity_id_hash": hashlib.sha256(
+                str(outcome.get("opportunity_id") or "").encode("utf-8")
+            ).hexdigest(),
+            "disposition": outcome["disposition"],
+            "outcome_hash": outcome["outcome_hash"],
+            "authority_reference_hash": authority_hash,
+            "recorded_at": outcome["recorded_at"],
+        }
+        receipt["audit_hash"] = canonical_contract_hash(receipt)
+        self.domain_store.put(
+            "sales.audit", workspace_id=outcome["workspace_id"],
+            entity_id=f"outcomes/{_safe(outcome['outcome_id'])}", payload=receipt,
+            expected_version=None,
+            idempotency_key=f"sales-outcome-audit-{outcome['outcome_id']}",
+            actor_id="sales-completion-runtime",
+        )
 
     def evaluate_experiment(self, workspace_id: str, *, control_variant: str, challenger_variant: str,
                             minimum_samples: int, evaluated_by_person_id: str) -> dict[str, Any]:
@@ -630,24 +683,25 @@ class SalesCompletionService:
                  "live_send_enabled": False}
         hubspot = {"mode": "dry_run", "connector_health": "not_connected",
                    "external_writes_enabled": False}
-        try:
-            from backend.api.local_node_router import get_runtime
-            runtime = get_runtime()
-            gmail_health = runtime.get_gmail_connector_health()
-            gmail.update({
-                "requires_reauthorization": gmail_health.get("auth_status") == "reauthorization_required",
-                "connector_health": gmail_health.get("connector_health") or "unknown",
-                "auth_status": gmail_health.get("auth_status") or "unknown",
-                "live_draft_ready": gmail_health.get("auth_status") == "connected",
-            })
-            hubspot_health = runtime.get_hubspot_connector_health()
-            hubspot.update({
-                "connector_health": hubspot_health.get("connector_health") or "unknown",
-                "auth_status": hubspot_health.get("auth_status") or "unknown",
-                "mode": "connected_read_dry_write" if hubspot_health.get("auth_status") == "connected" else "dry_run",
-            })
-        except Exception:
-            pass
+        if os.getenv("TESSARIS_DISCOVERY_MODE") != "1":
+            try:
+                from backend.api.local_node_router import get_runtime
+                runtime = get_runtime()
+                gmail_health = runtime.get_gmail_connector_health()
+                gmail.update({
+                    "requires_reauthorization": gmail_health.get("auth_status") == "reauthorization_required",
+                    "connector_health": gmail_health.get("connector_health") or "unknown",
+                    "auth_status": gmail_health.get("auth_status") or "unknown",
+                    "live_draft_ready": gmail_health.get("auth_status") == "connected",
+                })
+                hubspot_health = runtime.get_hubspot_connector_health()
+                hubspot.update({
+                    "connector_health": hubspot_health.get("connector_health") or "unknown",
+                    "auth_status": hubspot_health.get("auth_status") or "unknown",
+                    "mode": "connected_read_dry_write" if hubspot_health.get("auth_status") == "connected" else "dry_run",
+                })
+            except Exception:
+                pass
         # Passive workspace rendering must never unlock a Keychain secret.
         # Credential values are read only inside the approved execution path.
         twilio = get_twilio_credential_readiness(workspace_id)
@@ -770,11 +824,15 @@ class SalesCompletionService:
         return decision
 
     def _root(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_sales_completion__") / _safe(workspace_id) / "sales" / "completion"
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "sales/completion"
         path.mkdir(parents=True, exist_ok=True); return path
 
     def _path(self, workspace_id: str, kind: str, record_id: str) -> Path:
-        path = self._root(workspace_id) / kind; path.mkdir(parents=True, exist_ok=True)
+        path = self._root(workspace_id) / kind
+        if self.domain_store is None:
+            path.mkdir(parents=True, exist_ok=True)
         return path / f"{_safe(record_id)}.json"
 
     def _save(self, workspace_id: str, kind: str, record_id: str, record: dict[str, Any]) -> None:
@@ -785,8 +843,48 @@ class SalesCompletionService:
 
     def _list(self, workspace_id: str, kind: str, hash_field: str) -> list[dict[str, Any]]:
         directory = self._root(workspace_id) / kind
+        if self.domain_store is not None:
+            prefix = f"{kind}/"
+            rows = [
+                row for row in self.domain_store.list(
+                    "sales.completion_records", workspace_id=workspace_id,
+                )
+                if str(row.get("entity_id") or "").startswith(prefix)
+                and "/" not in str(row.get("entity_id") or "")[len(prefix):]
+            ]
+            rows.sort(
+                key=lambda row: str(
+                    (row.get("payload") or {}).get("updated_at")
+                    or (row.get("payload") or {}).get("created_at")
+                    or (row.get("payload") or {}).get("prepared_at")
+                    or ""
+                ),
+                reverse=True,
+            )
+            return [
+                self._load(directory / f"{str(row['entity_id'])[len(prefix):]}.json", workspace_id, hash_field)
+                for row in rows
+            ]
         if not directory.exists(): return []
         return [self._load(path, workspace_id, hash_field) for path in sorted(directory.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)]
+
+    def _path_identity(self, path: Path) -> tuple[str, str]:
+        parts = path.parts
+        try:
+            marker = parts.index("__tessaris_guardian_sales_completion__")
+            workspace_id = parts[marker + 1]
+            completion = parts.index("completion", marker + 2)
+        except (ValueError, IndexError) as exc:
+            raise RuntimeError("sales_completion_guardian_path_identity_invalid") from exc
+        return workspace_id, Path(*parts[completion + 1:]).with_suffix("").as_posix()
+
+    def _record_exists(self, path: Path) -> bool:
+        if self.domain_store is None:
+            return path.exists()
+        workspace_id, entity_id = self._path_identity(path)
+        return self.domain_store.get_optional(
+            "sales.completion_records", workspace_id=workspace_id, entity_id=entity_id,
+        ) is not None
 
     @staticmethod
     def _exact(record: dict[str, Any], field: str, expected: str, error: str) -> None:
@@ -796,16 +894,43 @@ class SalesCompletionService:
     def _rehash(record: dict[str, Any], field: str) -> None:
         record.pop(field, None); record[field] = canonical_contract_hash(record)
 
-    @staticmethod
-    def _write(path: Path, record: dict[str, Any]) -> None:
+    def _write(self, path: Path, record: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            workspace_id, entity_id = self._path_identity(path)
+            current = self.domain_store.get_optional(
+                "sales.completion_records", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "sales.completion_records", workspace_id=workspace_id, entity_id=entity_id,
+                payload=record, expected_version=int(current["version"]) if current else None,
+                actor_id="sales-completion-runtime",
+            )
+            return
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    @staticmethod
-    def _load(path: Path, workspace_id: str, hash_field: str) -> dict[str, Any]:
-        if not path.exists(): raise FileNotFoundError(path.stem)
-        record = json.loads(path.read_text(encoding="utf-8")); expected = record.get(hash_field)
+    def _load(self, path: Path, workspace_id: str, hash_field: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            stored_workspace_id, entity_id = self._path_identity(path)
+            if canonical_business_id(stored_workspace_id) != canonical_business_id(workspace_id):
+                raise PermissionError("sales_completion_workspace_isolation_violation")
+            try:
+                record = dict(self.domain_store.get(
+                    "sales.completion_records", workspace_id=stored_workspace_id, entity_id=entity_id,
+                )["payload"])
+            except KeyError as exc:
+                raise FileNotFoundError(path.stem) from exc
+        else:
+            if not path.exists(): raise FileNotFoundError(path.stem)
+            record = json.loads(path.read_text(encoding="utf-8"))
+        expected = record.get(hash_field)
         payload = dict(record); payload.pop(hash_field, None)
         if not expected or canonical_contract_hash(payload) != expected: raise ValueError(f"sales_completion_{hash_field}_mismatch")
-        if record.get("workspace_id") != workspace_id: raise PermissionError("sales_completion_workspace_isolation_violation")
+        try:
+            record_workspace_id = canonical_business_id(record.get("workspace_id"))
+            requested_workspace_id = canonical_business_id(workspace_id)
+        except ValueError as exc:
+            raise PermissionError("sales_completion_workspace_isolation_violation") from exc
+        if record_workspace_id != requested_workspace_id:
+            raise PermissionError("sales_completion_workspace_isolation_violation")
         return record

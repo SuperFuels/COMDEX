@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Any, Dict, Iterable
 
 from backend.modules.aion_fabric.canonical import canonical_hash, utc_now_iso
+from backend.modules.aion_business.runtime.department_operational_store import (
+    DepartmentOperationalStore,
+)
 
 
 SENSITIVE_KEYS = re.compile(r"(password|secret|token|private_key|api_key|cvv|card_number|salary|medical)", re.I)
@@ -15,9 +18,26 @@ SENSITIVE_KEYS = re.compile(r"(password|secret|token|private_key|api_key|cvv|car
 class MediumBusinessOperatingService:
     """Group, division, project and delegated-authority extension for Boardroom."""
 
-    def __init__(self, root: str | Path) -> None:
-        self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
+    DEPARTMENT_ID = "business_operations"
+    FEATURE_ID = "medium_business_operating_model"
+
+    def __init__(
+        self,
+        root: str | Path | None = None,
+        *,
+        workspace_id: str | None = None,
+        operational_store: DepartmentOperationalStore | None = None,
+    ) -> None:
+        self.workspace_id = str(workspace_id or "").strip()
+        self.operational_store = operational_store or DepartmentOperationalStore()
+        self.vault_mode = self.operational_store.domain_store is not None
+        if self.vault_mode and not self.workspace_id:
+            raise ValueError("medium_business_workspace_id_required")
+        if not self.vault_mode and root is None:
+            raise ValueError("medium_business_legacy_root_required")
+        self.root = Path(root or "/__tessaris_guardian_medium_business__")
+        if not self.vault_mode:
+            self.root.mkdir(parents=True, exist_ok=True)
         self.state_path = self.root / "medium_business_operating_model.json"
         self.audit_path = self.root / "medium_business_audit.json"
 
@@ -32,11 +52,21 @@ class MediumBusinessOperatingService:
         self._validate(value)
         value.update({"schema_version": "aion.medium_business_operating_model.v1", "revision": revision + 1, "updated_at": utc_now_iso(), "changed_by": changed_by})
         value["model_hash"] = canonical_hash(value)
-        self._write(self.state_path, value)
+        self._write_state(value)
         self._audit("configuration_changed", changed_by, {"revision": value["revision"], "model_hash": value["model_hash"]})
         return value
 
     def state(self) -> Dict[str, Any]:
+        if self.vault_mode:
+            record = self.operational_store.get_optional(
+                workspace_id=self.workspace_id,
+                department_id=self.DEPARTMENT_ID,
+                feature_id=self.FEATURE_ID,
+                record_id="model",
+            )
+            if record is not None:
+                return dict(record["payload"])
+            return {"schema_version": "aion.medium_business_operating_model.v1", "revision": 0, "group": {}, "entities": [], "units": [], "locations": [], "people": [], "roles": [], "projects": [], "workflows": [], "policies": {}}
         if not self.state_path.exists():
             return {"schema_version": "aion.medium_business_operating_model.v1", "revision": 0, "group": {}, "entities": [], "units": [], "locations": [], "people": [], "roles": [], "projects": [], "workflows": [], "policies": {}}
         return json.loads(self.state_path.read_text(encoding="utf-8"))
@@ -341,13 +371,32 @@ class MediumBusinessOperatingService:
         return {"allowed": bool(allowed), "reason": reason, **extra}
 
     def _audit(self, event, actor, detail):
-        events = self._read_audit()
         record = {"event": event, "actor": actor, "detail": detail, "at": utc_now_iso()}
         record["event_hash"] = canonical_hash(record)
+        if self.vault_mode:
+            self.operational_store.append_audit(
+                workspace_id=self.workspace_id,
+                department_id=self.DEPARTMENT_ID,
+                feature_id=self.FEATURE_ID,
+                event_id=f"{record['at']}/{record['event_hash']}",
+                payload=record,
+                actor_id="medium-business-operating-runtime",
+            )
+            return
+        events = self._read_audit()
         events.append(record)
         self._write(self.audit_path, {"events": events})
 
     def _read_audit(self):
+        if self.vault_mode:
+            return [
+                dict(row["payload"])
+                for row in self.operational_store.list_audit(
+                    workspace_id=self.workspace_id,
+                    department_id=self.DEPARTMENT_ID,
+                    feature_id=self.FEATURE_ID,
+                )
+            ]
         if not self.audit_path.exists():
             return []
         return list(json.loads(self.audit_path.read_text(encoding="utf-8")).get("events") or [])
@@ -366,3 +415,16 @@ class MediumBusinessOperatingService:
         temporary.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
         os.chmod(temporary, 0o600)
         os.replace(temporary, path)
+
+    def _write_state(self, payload: Dict[str, Any]) -> None:
+        if self.vault_mode:
+            self.operational_store.put(
+                workspace_id=self.workspace_id,
+                department_id=self.DEPARTMENT_ID,
+                feature_id=self.FEATURE_ID,
+                record_id="model",
+                payload=payload,
+                actor_id="medium-business-operating-runtime",
+            )
+            return
+        self._write(self.state_path, payload)

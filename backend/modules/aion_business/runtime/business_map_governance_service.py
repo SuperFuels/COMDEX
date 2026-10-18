@@ -8,6 +8,7 @@ from typing import Any, Dict
 from uuid import uuid4
 
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_fabric.canonical import canonical_bytes, canonical_hash, utc_now_iso
 
 
@@ -407,10 +408,24 @@ class BusinessMapGovernanceService:
             "evidence_hash": canonical_hash(evidence),
             "created_at": utc_now_iso(),
         }
-        path = self.repository.base_dir / workspace_id / "business_map_governance.jsonl"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("ab") as handle:
-            handle.write(canonical_bytes(payload) + b"\n")
+        guardian = getattr(self.repository, "guardian", None)
+        if guardian is not None:
+            VaultDomainStore(
+                guardian, actor_id="business-map-governance"
+            ).put(
+                "business.map_governance",
+                workspace_id=workspace_id,
+                entity_id=payload["receipt_id"],
+                payload=payload,
+                expected_version=None,
+                idempotency_key=f"business-map-governance-{payload['receipt_id']}",
+                actor_id="business-map-governance",
+            )
+        else:
+            path = self.repository.base_dir / workspace_id / "business_map_governance.jsonl"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open("ab") as handle:
+                handle.write(canonical_bytes(payload) + b"\n")
         return payload
 
     def _save_model(self, model: Any, *, now: str | None = None) -> None:

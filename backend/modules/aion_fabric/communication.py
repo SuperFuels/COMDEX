@@ -10,9 +10,15 @@ from pathlib import Path
 from typing import Any, Callable, Dict
 from uuid import uuid4
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
-from .pilot_inbox import PilotInbox
-from .private_identity import ProductionPrivateIdentity
+from .pilot_inbox import PilotInbox, configured_pilot_inbox
+from .private_identity import ProductionPrivateIdentity, configured_private_identity
 
 
 class GovernedCommunication:
@@ -23,13 +29,19 @@ class GovernedCommunication:
 
     def __init__(
         self, runtime_dir: str | Path, *, identities: ProductionPrivateIdentity | None = None,
-        inbox: PilotInbox | None = None,
+        inbox: PilotInbox | None = None, domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
     ) -> None:
         self.root = Path(runtime_dir) / "communication"
         self.path = self.root / "state.json"
-        self.root.mkdir(parents=True, exist_ok=True)
-        self.identities = identities or ProductionPrivateIdentity(runtime_dir)
-        self.inbox = inbox or PilotInbox(runtime_dir, identities=self.identities)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_communication_workspace_required")
+        self.identities = identities or configured_private_identity(runtime_dir)
+        self.inbox = inbox or configured_pilot_inbox(runtime_dir, identities=self.identities)
         self.adapters: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {}
 
     @staticmethod
@@ -41,6 +53,13 @@ class GovernedCommunication:
         }
 
     def _read(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "departments.operational_records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.communication",
+            )
+            return dict(result["payload"]) if result else self._initial()
         if not self.path.exists():
             return self._initial()
         try:
@@ -51,6 +70,20 @@ class GovernedCommunication:
 
     def _write(self, state: Dict[str, Any]) -> None:
         state["updated_at"] = utc_now_iso()
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "departments.operational_records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.communication",
+            )
+            self.domain_store.put(
+                "departments.operational_records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.communication",
+                payload=state,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
         temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(state))
         os.chmod(temporary, 0o600)
@@ -477,3 +510,59 @@ class GovernedCommunication:
     def snapshot(self, *, persona_id: str) -> Dict[str, Any]:
         self._profile(persona_id); state = self._read()
         return {key: [dict(item) for item in state.get(key, []) if item.get("persona_id") == persona_id] for key in ("drafts", "received", "follow_ups", "receipts", "call_preparations", "invitations", "blocks", "reports")}
+
+
+def configured_communication(
+    runtime_dir: str | Path,
+    *,
+    identities: ProductionPrivateIdentity | None = None,
+    inbox: PilotInbox | None = None,
+) -> GovernedCommunication:
+    """Select encrypted communication state and retain verified legacy input."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_communication_workspace_required")
+        domains = VaultDomainStore(runtime.guardian, actor_id="aion-fabric-communication")
+        selected = GovernedCommunication(
+            runtime_path,
+            identities=identities,
+            inbox=inbox,
+            domain_store=domains,
+            workspace_id=workspace_id,
+        )
+        source = runtime_path / "communication" / "state.json"
+        if source.exists() and domains.get_optional(
+            "departments.operational_records",
+            workspace_id=workspace_id,
+            entity_id="aion_fabric.communication",
+        ) is None:
+            state = GovernedCommunication(
+                runtime_path, identities=identities, inbox=inbox,
+            )._read()
+            selected._write(state)
+            if selected._read() != state or not source.exists():
+                raise RuntimeError("aion_fabric_communication_migration_verification_failed")
+            from hashlib import sha256
+
+            source_hash = sha256(source.read_bytes()).hexdigest()
+            domains.put(
+                "departments.operational_audit",
+                workspace_id=workspace_id,
+                entity_id=f"aion_fabric.communication_migration.{source_hash}",
+                payload={
+                    "schema_version": "aion.communication-migration.v1",
+                    "source_sha256": source_hash,
+                    "source_retained": True,
+                    "copied_and_verified": True,
+                    "completed_at": utc_now_iso(),
+                },
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_communication_required_in_production")
+    return GovernedCommunication(runtime_path, identities=identities, inbox=inbox)

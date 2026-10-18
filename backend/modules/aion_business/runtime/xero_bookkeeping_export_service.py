@@ -16,9 +16,11 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
 from backend.modules.aion_business.runtime.finance_bookkeeping_service import FinanceBookkeepingService
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
 
 
@@ -44,10 +46,17 @@ class XeroBookkeepingExportService:
 
     def __init__(self, repository: BusinessContainerRepository | None = None,
                  authority: OrganizationAuthorityService | None = None,
-                 bookkeeping: FinanceBookkeepingService | None = None) -> None:
+                 bookkeeping: FinanceBookkeepingService | None = None,
+                 *, domain_store: VaultDomainStore | None = None) -> None:
         self.repository = repository or BusinessContainerRepository()
         self.authority = authority or OrganizationAuthorityService(self.repository)
         self.bookkeeping = bookkeeping or FinanceBookkeepingService(self.repository, self.authority)
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="xero-bookkeeping-export-runtime"
+            )
 
     def prepare(self, workspace_id: str, draft_id: str, *, xero_contact_id: str,
                 prepared_by_person_id: str, target_status: str = "DRAFT") -> dict[str, Any]:
@@ -254,6 +263,20 @@ class XeroBookkeepingExportService:
         return record
 
     def load(self, workspace_id: str, export_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            row = self.domain_store.get_optional(
+                "finance.integration_records", workspace_id=workspace_id,
+                entity_id=self._entity_id(export_id),
+            )
+            if row is None:
+                raise FileNotFoundError(f"Xero bookkeeping export not found: {export_id}")
+            value = dict(row["payload"])
+            expected = value.get("export_hash"); payload = dict(value); payload.pop("export_hash", None)
+            if not expected or canonical_contract_hash(payload) != expected:
+                raise ValueError("xero_bookkeeping_export_hash_mismatch")
+            if value.get("workspace_id") != workspace_id:
+                raise PermissionError("xero_bookkeeping_export_workspace_isolation_violation")
+            return value
         path = self._dir(workspace_id) / f"{_safe(export_id)}.json"
         if not path.exists():
             raise FileNotFoundError(f"Xero bookkeeping export not found: {export_id}")
@@ -266,6 +289,19 @@ class XeroBookkeepingExportService:
         return value
 
     def list(self, workspace_id: str) -> list[dict[str, Any]]:
+        if self.domain_store is not None:
+            records: list[dict[str, Any]] = []
+            for row in self.domain_store.list(
+                "finance.integration_records", workspace_id=workspace_id,
+            ):
+                if not str(row.get("entity_id") or "").startswith("xero/bookkeeping_exports/"):
+                    continue
+                value = dict(row["payload"])
+                expected = value.get("export_hash"); payload = dict(value); payload.pop("export_hash", None)
+                if not expected or canonical_contract_hash(payload) != expected:
+                    raise ValueError("xero_bookkeeping_export_hash_mismatch")
+                records.append(value)
+            return sorted(records, key=lambda item: str(item.get("prepared_at") or ""), reverse=True)
         return [self.load(workspace_id, path.stem) for path in sorted(
             self._dir(workspace_id).glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True
         )]
@@ -274,11 +310,26 @@ class XeroBookkeepingExportService:
         return next((item for item in self.list(workspace_id) if item.get("draft_id") == draft_id), None)
 
     def _dir(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_xero_bookkeeping_exports__") / workspace_id
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/xero_bookkeeping_exports"
         path.mkdir(parents=True, exist_ok=True)
         return path
 
     def _save(self, workspace_id: str, value: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            entity_id = self._entity_id(str(value["export_id"]))
+            current = self.domain_store.get_optional(
+                "finance.integration_records", workspace_id=workspace_id,
+                entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "finance.integration_records", workspace_id=workspace_id,
+                entity_id=entity_id, payload=value,
+                expected_version=int(current["version"]) if current else None,
+                actor_id="xero-bookkeeping-export-runtime",
+            )
+            return
         (self._dir(workspace_id) / f"{_safe(value['export_id'])}.json").write_text(
             json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
@@ -286,6 +337,10 @@ class XeroBookkeepingExportService:
     def _rehash_save(self, workspace_id: str, value: dict[str, Any]) -> None:
         value.pop("export_hash", None); value["export_hash"] = canonical_contract_hash(value)
         self._save(workspace_id, value)
+
+    @staticmethod
+    def _entity_id(export_id: str) -> str:
+        return f"xero/bookkeeping_exports/{_safe(export_id)}"
 
     def _project_verified(self, workspace_id: str, record: dict[str, Any]) -> None:
         draft = self.bookkeeping.load(workspace_id, record["draft_id"])

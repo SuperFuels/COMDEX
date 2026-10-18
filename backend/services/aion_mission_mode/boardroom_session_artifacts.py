@@ -190,21 +190,26 @@ def create_file_cabinet_pointer_for_boardroom_session(record: dict[str, Any]) ->
     replay = record.get("replay_locator") or {}
     session_id = str(replay.get("session_id") or record.get("artifact_id") or "boardroom_session")
 
+    pointer_target = {
+        "business_container_id": target.get("business_container_id"),
+        "sub_container": target.get("sub_container"),
+        "artifact_type": target.get("artifact_type"),
+        "artifact_id": record.get("artifact_id"),
+        "artifact_hash": record.get("artifact_hash"),
+        "receipt_hash": record.get("receipt_hash"),
+        "replay_locator_hash": record.get("replay_locator_hash"),
+    }
+    if record.get("vault_object_id"):
+        pointer_target["vault_object_id"] = record["vault_object_id"]
+    else:
+        pointer_target["storage_path"] = record.get("storage_path")
+
     pointer = {
         "id": f"boardroom_session_pointer_{session_id}",
         "name": f"Board meeting minutes — {str(replay.get('session_type') or 'board meeting').replace('_', ' ').title()}",
         "type": "business_container_artifact",
         "document_type": "boardroom_session",
-        "target": {
-            "business_container_id": target.get("business_container_id"),
-            "sub_container": target.get("sub_container"),
-            "artifact_type": target.get("artifact_type"),
-            "storage_path": record.get("storage_path"),
-            "artifact_id": record.get("artifact_id"),
-            "artifact_hash": record.get("artifact_hash"),
-            "receipt_hash": record.get("receipt_hash"),
-            "replay_locator_hash": record.get("replay_locator_hash"),
-        },
+        "target": pointer_target,
         "source_of_truth": "business_container",
         "file_cabinet_role": "index_pointer_only",
     }

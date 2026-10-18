@@ -20,6 +20,9 @@ SOURCE_FILES = (
     "backend/modules/aion_business/runtime/paths.py",
     "backend/modules/aion_business/runtime/canonical_business_identity.py",
     "backend/modules/aion_business/runtime/business_container_repository.py",
+    "backend/modules/aion_business/runtime/business_data_domain_registry.py",
+    "backend/modules/aion_business/runtime/business_vault.py",
+    "backend/modules/aion_business/runtime/business_vault_runtime.py",
     "backend/modules/aion_business/runtime/business_map_governance_service.py",
     "backend/modules/aion_business/runtime/business_knowledge_service.py",
     "backend/modules/aion_business/runtime/business_connector_onboarding_service.py",
@@ -49,6 +52,9 @@ SOURCE_FILES = (
     "backend/modules/aion_business/runtime/sovereign_installed_service.py",
     "backend/modules/aion_business/runtime/sovereign_windows_service.py",
     "backend/modules/aion_business/runtime/sovereign_update_service.py",
+    "backend/modules/aion_business/runtime/vault_domain_store.py",
+    "backend/modules/aion_business/runtime/vault_guardian.py",
+    "backend/modules/aion_business/runtime/vault_object_store.py",
     "backend/modules/aion_fabric/canonical.py",
     "backend/modules/aion_fabric/identity.py",
     "backend/modules/pilot_unified/ownership.py",
@@ -61,6 +67,21 @@ PACKAGE_FILES = (
     "Set-Up-Pilot.ps1",
     "README.md",
 )
+
+ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
+
+
+def write_reproducible_zip_file(
+    archive: zipfile.ZipFile, *, source: Path, archive_name: str | Path
+) -> None:
+    """Write one file without leaking host timestamps or ownership metadata."""
+
+    info = zipfile.ZipInfo(Path(archive_name).as_posix(), ZIP_TIMESTAMP)
+    info.compress_type = archive.compression
+    info.create_system = 3
+    mode = 0o755 if source.stat().st_mode & stat.S_IXUSR else 0o644
+    info.external_attr = (stat.S_IFREG | mode) << 16
+    archive.writestr(info, source.read_bytes())
 
 
 def build() -> Path:
@@ -118,7 +139,11 @@ def build() -> Path:
         with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
             for path in sorted(root.rglob("*")):
                 if path.is_file():
-                    archive.write(path, path.relative_to(root.parent))
+                    write_reproducible_zip_file(
+                        archive,
+                        source=path,
+                        archive_name=path.relative_to(root.parent),
+                    )
     return output
 
 

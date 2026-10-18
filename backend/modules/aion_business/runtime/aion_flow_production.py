@@ -8,6 +8,7 @@ import json
 import os
 import re
 import statistics
+import threading
 import time
 from pathlib import Path
 from typing import Any, Dict, Mapping
@@ -20,6 +21,11 @@ from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from backend.modules.aion_fabric.canonical import canonical_bytes, canonical_hash, utc_now_iso
 from backend.modules.aion_fabric.identity import DeviceIdentity, IdentityStore
 from backend.modules.aion_business.runtime.aion_flow_authority import AionFlowWorkspaceAuthority
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 OPERATION_CAPABILITIES = {
@@ -38,6 +44,7 @@ MAX_JSON_DEPTH = 32
 MAX_JSON_ITEMS = 100_000
 MAX_SCALAR_BYTES = 1024 * 1024
 SAFE_IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$")
+_GUARDIAN_FLOW_LOCK = threading.RLock()
 
 
 class AionFlowProductionService:
@@ -45,11 +52,16 @@ class AionFlowProductionService:
 
     def __init__(
         self,
-        root: str | Path = ".runtime/aion_flow/production",
+        root: str | Path | None = None,
         *,
         authority: AionFlowWorkspaceAuthority | None = None,
+        domain_store: VaultDomainStore | None = None,
     ) -> None:
-        self.root = Path(root).resolve()
+        if root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            domain_store = VaultDomainStore(runtime.guardian, actor_id="aion-flow-production-runtime")
+        self.domain_store = domain_store
+        self.root = Path(root or ".runtime/aion_flow/production").resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.state_path = self.root / "workflow-revisions.json"
         self.lock_path = self.root / "workflow-revisions.lock"
@@ -86,7 +98,7 @@ class AionFlowProductionService:
         workflow_id = str(graph["workflow_id"])
         scoped_key = self._workflow_key(workspace_id, workflow_id)
         with self._exclusive_state_lock():
-            state = self._state()
+            state = self._state(workspace_id)
             legacy_item = state["workflows"].get(workflow_id)
             if legacy_item and legacy_item.get("history") and scoped_key not in state["workflows"]:
                 raise PermissionError("workflow_scope_migration_required")
@@ -100,13 +112,13 @@ class AionFlowProductionService:
             record = {"workflow_id": workflow_id, "workspace_id": workspace_id, "organisation_id": organisation_id, "revision": revision, "base_revision": base_revision, "graph": dict(graph), "graph_hash": check["graph_hash"], "author": author, "committed_at": utc_now_iso()}
             record["record_hash"] = canonical_hash(record); record["mother_signature"] = self.identity.sign(canonical_bytes(record)); record["mother_public_key"] = self.identity.public_key_b64
             item.update({"workspace_id": workspace_id, "organisation_id": organisation_id, "revision": revision})
-            item["history"].append(record); self._write(state)
+            item["history"].append(record); self._write(workspace_id, state)
         return self._public_revision(record)
 
     def history(self, workflow_id: str, *, actor: Mapping[str, Any]) -> Dict[str, Any]:
         decision = self.authority.authorize(actor, OPERATION_CAPABILITIES["review"])
         if not decision["allowed"]: raise PermissionError(f"canonical_authority_denied:{decision['reason']}")
-        state = self._state()["workflows"]
+        state = self._state(str(decision["workspace_id"]))["workflows"]
         item = state.get(self._workflow_key(str(decision["workspace_id"]), str(workflow_id)))
         if item is None and state.get(str(workflow_id), {}).get("history"):
             raise PermissionError("workflow_scope_migration_required")
@@ -116,7 +128,7 @@ class AionFlowProductionService:
     def diff(self, workflow_id: str, left: int, right: int, *, actor: Mapping[str, Any]) -> Dict[str, Any]:
         decision = self.authority.authorize(actor, OPERATION_CAPABILITIES["review"])
         if not decision["allowed"]: raise PermissionError(f"canonical_authority_denied:{decision['reason']}")
-        state = self._state()["workflows"]
+        state = self._state(str(decision["workspace_id"]))["workflows"]
         state_item = state.get(self._workflow_key(str(decision["workspace_id"]), str(workflow_id)))
         if state_item is None and state.get(str(workflow_id), {}).get("history"):
             raise PermissionError("workflow_scope_migration_required")
@@ -387,6 +399,10 @@ class AionFlowProductionService:
 
     @contextlib.contextmanager
     def _exclusive_state_lock(self):
+        if self.domain_store is not None:
+            with _GUARDIAN_FLOW_LOCK:
+                yield
+            return
         with self.lock_path.open("a+", encoding="utf-8") as lock:
             os.chmod(self.lock_path, 0o600)
             fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
@@ -395,12 +411,31 @@ class AionFlowProductionService:
             finally:
                 fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
 
-    def _state(self) -> Dict[str, Any]:
+    def _state(self, workspace_id: str) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="aion_flow/production_revisions",
+            )
+            return dict(record["payload"]) if record else {
+                "schema_version": "aion.flow.production_revisions.v1", "workflows": {}
+            }
         if not self.state_path.exists(): return {"schema_version": "aion.flow.production_revisions.v1", "workflows": {}}
         if self.state_path.stat().st_size > MAX_STATE_BYTES: raise ValueError("workflow_revision_store_too_large")
         value = json.loads(self.state_path.read_text(encoding="utf-8"))
         if not isinstance(value, dict) or not isinstance(value.get("workflows"), dict): raise ValueError("workflow_revision_store_invalid")
         return value
 
-    def _write(self, value: Mapping[str, Any]) -> None:
+    def _write(self, workspace_id: str, value: Mapping[str, Any]) -> None:
+        if self.domain_store is not None:
+            current = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="aion_flow/production_revisions",
+            )
+            self.domain_store.put(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="aion_flow/production_revisions", payload=value,
+                expected_version=int(current["version"]) if current else None,
+            )
+            return
         temporary = self.state_path.with_suffix(".tmp"); temporary.write_text(json.dumps(dict(value), indent=2, sort_keys=True), encoding="utf-8"); os.chmod(temporary, 0o600); os.replace(temporary, self.state_path)

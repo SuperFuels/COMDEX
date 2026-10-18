@@ -19,9 +19,9 @@ def test_executive_agents_are_department_shortcuts():
     assert 'aria-label="Open ${escapeHtml(member.label)} workspace"' in APP
     assert 'setLiveAgentsWorkspace(key' in APP
     assert 'window.setAionSidebarActiveTabHardV1("live_agents")' in APP
-    assert 'localStorage.setItem("aion.forcedMainTab.v2", "live_agents")' in APP
+    assert 'AionDesktopPreferences.set("aion.forcedMainTab.v2", "live_agents")' in APP
     assert 'window.__aionO16ASelectedLiveAgentsDepartment = key' in APP
-    assert 'localStorage.setItem("aion.liveAgents.selectedDepartment", key)' in APP
+    assert 'AionDesktopPreferences.set("aion.liveAgents.selectedDepartment", key)' in APP
     assert 'activeTab: "live_agents"' in (ROOT / "desktop/mac/src/boardroom_runtime.js").read_text(encoding="utf-8")
 
 
@@ -30,7 +30,7 @@ def test_sticky_shortcut_wins_before_legacy_pointerdown_authority():
     early_pointerdown = APP.index('window.addEventListener("pointerdown"', shortcut)
     legacy_authority = APP.index('function installAionO14MLiveAgentsDepartmentAuthorityLock')
     assert shortcut < early_pointerdown < legacy_authority
-    assert 'localStorage.setItem("aion.forcedMainTab.v2", "live_agents")' in APP[shortcut:early_pointerdown]
+    assert 'AionDesktopPreferences.set("aion.forcedMainTab.v2", "live_agents")' in APP[shortcut:early_pointerdown]
 
 
 def test_board_members_open_a_governed_direct_line():
@@ -85,7 +85,6 @@ def test_shared_header_is_installed_on_primary_sidebar_pages():
     shared = APP[shared_start:shared_end]
     for route in (
         "communications",
-        "dashboard",
         "business_context",
         "operations_agents",
         "operations_flow",
@@ -99,9 +98,9 @@ def test_shared_header_is_installed_on_primary_sidebar_pages():
     assert ".desktop-workspace-main.aion-shared-executive-header-page" in STYLES
 
 
-def test_sidebar_uses_ai_mark_for_boardroom_without_a_duplicate_aion_tab():
+def test_sidebar_uses_si_mark_for_boardroom_without_a_duplicate_aion_tab():
     tabs = APP[APP.index("const APP_TABS = ["):APP.index("];", APP.index("const APP_TABS = ["))]
     icons = APP[APP.index("function getAionMainSidebarIcon"):APP.index("function renderAppTabs")]
     assert '{ key: "aion_chat", label: "Aion"' not in tabs
-    assert 'boardroom: "AI"' in icons
+    assert 'boardroom: "SI"' in icons
     assert 'aion_chat: "AI"' not in icons

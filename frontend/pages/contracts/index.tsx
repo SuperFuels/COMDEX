@@ -15,17 +15,8 @@ export default function ContractsPage() {
       setLoading(true)
       setError(null)
 
-      const token = localStorage.getItem('token')
-      if (!token) {
-        setError('Not authenticated')
-        setLoading(false)
-        return
-      }
-
       try {
-        const res = await api.get<Contract[]>('/contracts/', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        const res = await api.get<Contract[]>('/contracts/', { withCredentials: true })
         setContracts(res.data)
       } catch (err: any) {
         setError(err.response?.data?.detail || 'Failed to load contracts')

@@ -23,11 +23,17 @@ class PilotScheduleCreateRequest(BaseModel):
     max_results: int = Field(default=10, ge=1, le=25)
     enabled: bool = False
     action_policy: str = "approval_required"
+    department_id: str = "business_operations"
 
 
 class PilotScheduleEnabledRequest(BaseModel):
     enabled: bool
     changed_by_person_id: str
+
+
+class PilotScheduleRetryRequest(BaseModel):
+    run_id: str
+    requested_by_person_id: str
 
 
 def _workspace(candidate: str) -> str:
@@ -65,3 +71,18 @@ def set_pilot_scheduled_work_enabled(workspace_id: str, schedule_id: str,
 @router.post("/{workspace_id}/{schedule_id}/run")
 def run_pilot_scheduled_work(workspace_id: str, schedule_id: str) -> dict[str, Any]:
     return _call(service.run, _workspace(workspace_id), schedule_id)
+
+
+@router.get("/{workspace_id}/{schedule_id}/runs")
+def list_pilot_scheduled_work_runs(workspace_id: str, schedule_id: str) -> dict[str, Any]:
+    return _call(service.list_runs, _workspace(workspace_id), schedule_id)
+
+
+@router.post("/{workspace_id}/{schedule_id}/retry")
+def retry_pilot_scheduled_work(
+    workspace_id: str, schedule_id: str, request: PilotScheduleRetryRequest,
+) -> dict[str, Any]:
+    return _call(
+        service.retry, _workspace(workspace_id), schedule_id, request.run_id,
+        requested_by_person_id=request.requested_by_person_id,
+    )

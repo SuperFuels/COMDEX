@@ -3,7 +3,7 @@
     "embodied_physical": 3,
     "practical_apprenticeship": 7
   },
-  "generation": 35,
+  "generation": 39,
   "learning_dispatch": {
     "mission_id": "practical_secure_service",
     "reason": "lowest_evidenced_capability_blocking_practical_work",
@@ -91,10 +91,8 @@
             "work_readiness": "independent_work_with_normal_verification"
           },
           {
-            "knowledge_level": "intermediate",
-            "missing_subskills": [
-              "test_regression"
-            ],
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
             "name": "Debugging, repair and improvement",
             "overall_level": "beginner",
             "practical_level": "beginner",
@@ -244,10 +242,8 @@
         "reason": "one_or_more_required_capabilities_below_intermediate",
         "requirements": [
           {
-            "knowledge_level": "intermediate",
-            "missing_subskills": [
-              "write_equations_and_schemas"
-            ],
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
             "name": "Formalisation and knowledge markup",
             "overall_level": "unassessed",
             "practical_level": "unassessed",
@@ -309,12 +305,6 @@
           {
             "knowledge_level": "intermediate",
             "missing_subskills": [
-              "lexical_grounding",
-              "morphology",
-              "native_question_answering",
-              "reference_resolution",
-              "semantic_relations",
-              "sentence_semantics",
               "syntax"
             ],
             "name": "English natural-language cognition",
@@ -660,10 +650,8 @@
             "work_readiness": "independent_work_with_normal_verification"
           },
           {
-            "knowledge_level": "intermediate",
-            "missing_subskills": [
-              "test_regression"
-            ],
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
             "name": "Debugging, repair and improvement",
             "overall_level": "beginner",
             "practical_level": "beginner",
@@ -1090,10 +1078,8 @@
             "work_readiness": "bounded_work_with_strong_verification"
           },
           {
-            "knowledge_level": "intermediate",
-            "missing_subskills": [
-              "separate_fact_inference_opinion"
-            ],
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
             "name": "Source evaluation and epistemics",
             "overall_level": "unassessed",
             "practical_level": "unassessed",
@@ -1128,8 +1114,8 @@
       ]
     }
   ],
-  "portfolio_digest": "6d4f51c35b73807f38d87c4b7af5352c1b3dea366ddaefd54432eb1138f0482c",
+  "portfolio_digest": "ee2306eec2129aa6f74baf817b71614bdb3984eb75743188fb66543d67de0b2c",
   "procedure_id": "procedure_dual_track_practical_embodied_portfolio_v1",
   "schema_version": "aion.dual_track_intelligence.v1",
-  "updated_at": 1791580119.951263
+  "updated_at": 1792313169.8895779
 }

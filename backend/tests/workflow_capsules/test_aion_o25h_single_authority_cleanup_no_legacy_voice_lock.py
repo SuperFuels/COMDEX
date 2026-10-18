@@ -17,7 +17,8 @@ def test_o25h_single_authority_is_o25aj_now():
 def test_o25h_removes_wrong_combined_prompt_from_voice_route():
     text = read_app()
     assert "What are you looking to achieve? Before we start, what should I call you?" not in text
-    assert 'const AION_O25AJ_OPENING = "Before we start, what should I call you?";' in text
+    assert 'const AION_O25AJ_OPENING = "Hi, I’m AION, your AI business partner.' in text
+    assert "Choose Clear and simple" in text
 
 
 def test_o25h_cloud_voice_warning_is_hidden_from_visible_selected_terminal_markup():

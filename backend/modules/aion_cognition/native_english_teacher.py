@@ -21,6 +21,9 @@ from backend.modules.aion_cognition.native_english_coverage import (
 from backend.modules.aion_cognition.native_semantic_spider import NativeSemanticSpider
 from backend.modules.aion_cognition.native_semantic_transfer_academy import NativeSemanticTransferAcademy
 from backend.modules.aion_cognition.native_language_workshop import NativeLanguageWorkshop
+from backend.modules.aion_cognition.native_discourse_dialogue import NativeDiscourseDialogueEngine
+from backend.modules.aion_cognition.native_communication_academy import NativeCommunicationAcademy
+from backend.modules.aion_cognition.native_open_conversation_academy import NativeOpenConversationAcademy
 
 
 CURRICULUM: tuple[dict[str, Any], ...] = (
@@ -230,7 +233,9 @@ def _local_qwen_teacher(prompt: str) -> dict[str, Any]:
         runtime_profile=_local_qwen_runtime_profile(),
         system_prompt=(
             "You are AION's local English teacher. You may explain and create study material, "
-            "but you are never the student, examiner, answer key, or competence authority. "
+            "including sealed questions, verified answer keys and correction explanations. "
+            "You finish before AION receives a question and are never the student, grader, "
+            "native response generator, or competence authority. "
             "Return only the requested JSON object."
         ),
     )
@@ -300,9 +305,8 @@ def run_teacher_cycle(
     state = _migrate_state(_load_state(root))
     stage_index = min(max(0, int(state.get("stage_index") or 0)), len(CURRICULUM) - 1)
     stage = CURRICULUM[stage_index]
-    evidence_limit = max(200, int(stage["minimum_attempts"]) * 2)
     prior_exam = learner.practice_summary(
-        family=str(stage["family"]), limit=evidence_limit,
+        family=str(stage["family"]), limit=max(200, int(stage["minimum_attempts"]) * 2),
     )
     cycle_index = int(state.get("cycles") or 0)
     targets = _lesson_targets(learner, stage_index, cycle_index)
@@ -338,6 +342,7 @@ def run_teacher_cycle(
             seed=int(state.get("cycles") or 0) + stage_index * 101,
             offset=exam_offset,
             project_family=f"native_english_{stage['id']}_v4",
+            require_unseen_tasks=True,
         )
     else:
         exam = {
@@ -348,7 +353,13 @@ def run_teacher_cycle(
             "attempts": [],
         }
     summary = learner.practice_summary(
-        family=str(stage["family"]), limit=evidence_limit,
+        # The cumulative qualification record must include the original and
+        # delayed observations. A rolling window can contain thousands of
+        # perfect attempts yet incorrectly report too little elapsed time.
+        family=str(stage["family"]), limit=None,
+    )
+    freshness = learner.practice_summary(
+        family=str(stage["family"]), limit=int(stage["minimum_attempts"]),
     )
     from backend.modules.aion_cognition.native_english_conversation import NativeEnglishConversation
     lesson_lemmas = (
@@ -431,7 +442,8 @@ def run_teacher_cycle(
         summary["attempts"] >= int(stage["minimum_attempts"])
         and int(summary.get("unique_tasks") or 0) >= int(stage["minimum_attempts"])
         and (
-            int(summary.get("unique_tasks") or 0) / max(1, int(summary.get("attempts") or 0))
+            int(freshness.get("unique_tasks") or 0)
+            / max(1, int(freshness.get("attempts") or 0))
             >= float(stage.get("minimum_unique_ratio") or 0.0)
         )
         and float(summary.get("retention_span_seconds") or 0.0)
@@ -475,6 +487,7 @@ def run_teacher_cycle(
         "teacher_model": model, "teacher_available": teacher_error is None,
         "teacher_error": teacher_error, "lesson": lesson_record,
         "closed_book_exam": exam, "cumulative_exam": summary,
+        "recent_freshness_exam": freshness,
         "native_wordwall_learning": native_wordwall,
         "native_english_coverage": native_coverage,
         "native_conversation_improvement": native_improvement,
@@ -512,10 +525,43 @@ def run_native_language_workshop_cycle(*, repo_root: Path | str) -> dict[str, An
     """Run one connected-language workshop with Qwen confined to authorship."""
     root = Path(repo_root).resolve()
     batch_size = max(1, min(10, int(os.getenv("AION_LANGUAGE_WORKSHOP_BATCH", "5"))))
-    return NativeLanguageWorkshop(repo_root=root).run_cycle(
+    workshop = NativeLanguageWorkshop(repo_root=root).run_cycle(
         teacher_client=_local_qwen_teacher, limit=batch_size,
     )
+    discourse_batch = max(1, min(12, int(os.getenv("AION_DISCOURSE_EXAM_BATCH", "8"))))
+    discourse = NativeDiscourseDialogueEngine(repo_root=root).run_cycle(
+        teacher_client=_local_qwen_teacher, limit=discourse_batch,
+    )
+    communication = NativeCommunicationAcademy(repo_root=root).run_cycle(
+        teacher_client=_local_qwen_teacher,
+        limit=max(1, min(2, int(os.getenv("AION_COMMUNICATION_ACADEMY_BATCH", "1")))),
+    )
+    open_conversation = NativeOpenConversationAcademy(repo_root=root).run_cycle(
+        teacher_client=_local_qwen_teacher,
+        limit=max(1, min(2, int(os.getenv("AION_OPEN_CONVERSATION_BATCH", "1")))),
+    )
+    return {**workshop, "discourse_dialogue": discourse,
+            "communication_academy": communication,
+            "open_conversation_academy": open_conversation}
+
+
+def run_native_discourse_cycle(*, repo_root: Path | str) -> dict[str, Any]:
+    """Run source-backed discourse exams without waiting for the Qwen lane."""
+    root = Path(repo_root).resolve()
+    batch = max(1, min(12, int(os.getenv("AION_DISCOURSE_EXAM_BATCH", "8"))))
+    discourse = NativeDiscourseDialogueEngine(repo_root=root).run_cycle(
+        teacher_client=None, limit=batch,
+    )
+    communication = NativeCommunicationAcademy(repo_root=root).run_cycle(
+        teacher_client=None,
+        limit=max(1, min(4, int(os.getenv("AION_COMMUNICATION_ACADEMY_BATCH", "2")))),
+    )
+    # The open-conversation examination runs in the slower workshop lane. It
+    # is intentionally not duplicated here: each exam commits twenty audited
+    # turns and should not contend with the minute-by-minute discourse writer.
+    return {**discourse, "communication_academy": communication}
 
 
 __all__ = ["CURRICULUM", "GOAL", "build_teacher_prompt", "run_teacher_cycle",
-           "run_semantic_transfer_academy_cycle", "run_native_language_workshop_cycle"]
+           "run_semantic_transfer_academy_cycle", "run_native_language_workshop_cycle",
+           "run_native_discourse_cycle"]

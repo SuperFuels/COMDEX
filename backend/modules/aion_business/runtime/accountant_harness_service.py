@@ -22,9 +22,14 @@ from backend.modules.aion_business.providers.quickbooks_online_accounting_adapte
 from backend.modules.aion_business.providers.sage_accounting_adapter import SageAccountingAdapter
 from backend.modules.aion_business.providers.zoho_books_accounting_adapter import ZohoBooksAccountingAdapter
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import configured_business_container_repository
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
+from backend.modules.aion_business.runtime.finance_integration_store import FinanceIntegrationStore
+from backend.modules.aion_business.runtime.finance_operations_store import FinanceOperationsStore
 from backend.modules.aion_business.runtime.finance_transaction_reconciliation_service import FinanceTransactionReconciliationService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -46,8 +51,21 @@ class AccountantHarnessService:
         "zoho_books": ZohoBooksAccountingAdapter,
     }
 
-    def __init__(self, repository: BusinessContainerRepository | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+    def __init__(self, repository: BusinessContainerRepository | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 integration_store: FinanceIntegrationStore | None = None,
+                 operations_store: FinanceOperationsStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="accountant-harness-runtime")
+        self.integration_store = integration_store or FinanceIntegrationStore(
+            domain_store=self.domain_store,
+        )
+        self.operations_store = operations_store or FinanceOperationsStore(
+            domain_store=self.domain_store,
+        )
 
     def catalog(self) -> dict[str, Any]:
         providers = [
@@ -100,8 +118,9 @@ class AccountantHarnessService:
         if set(records) != set(CANONICAL_COLLECTIONS):
             raise ValueError("accounting_adapter_canonical_collection_mismatch")
         raw_hash = self._hash(raw)
-        sync_dir = self._integration_dir(workspace_id, provider_id) / "syncs" / sync_id
-        sync_dir.mkdir(parents=True, exist_ok=True)
+        sync_dir = self.integration_store.root(workspace_id, provider_id) / "syncs" / sync_id
+        if self.integration_store.domain_store is None:
+            sync_dir.mkdir(parents=True, exist_ok=True)
         evidence = {
             "schema_version": "aion.finance.accounting_provider_sync.v1", "sync_id": sync_id,
             "workspace_id": workspace_id, "provider": provider_id, "company_id": company_id,
@@ -110,15 +129,18 @@ class AccountantHarnessService:
             "external_write_performed": False,
         }
         evidence["sync_hash"] = canonical_contract_hash(evidence)
-        (sync_dir / "evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        (sync_dir / "raw_snapshot.json").write_text(json.dumps(raw, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8")
+        self.integration_store.write_json(sync_dir / "evidence.json", evidence)
+        self.integration_store.write_json(sync_dir / "raw_snapshot.json", raw)
         ledger = self._write_ledger(workspace_id, provider_id, sync_id, raw_hash, records, actor, occurred_at)
         self._project(workspace_id, provider_id, evidence, ledger)
         return {"sync": evidence, "ledger": ledger}
 
     def reconcile(self, workspace_id: str, *, actor: str = "finance_pilot",
                   amount_tolerance: float = 0.01, date_window_days: int = 7) -> dict[str, Any]:
-        return FinanceTransactionReconciliationService(self.repository).run(
+        return FinanceTransactionReconciliationService(
+            self.repository, domain_store=self.domain_store,
+            operations_store=self.operations_store,
+        ).run(
             workspace_id, created_by=actor, amount_tolerance=amount_tolerance,
             date_window_days=date_window_days,
         )
@@ -127,13 +149,27 @@ class AccountantHarnessService:
                       raw_hash: str, records: dict[str, list[dict[str, Any]]],
                       actor: str, occurred_at: str) -> dict[str, Any]:
         ledger_id = f"finance-ledger-{_safe(sync_id)}"
-        root = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/ledger" / ledger_id
-        root.mkdir(parents=True, exist_ok=True)
+        root = (Path("/__tessaris_guardian_finance_ledger__") / workspace_id / "finance" / "ledger" / ledger_id
+                if self.domain_store is not None
+                else AIONBusinessPaths.business_container_dir(workspace_id) / "finance/ledger" / ledger_id)
+        if self.domain_store is None:
+            root.mkdir(parents=True, exist_ok=True)
         for collection, rows in records.items():
-            with (root / f"{collection}.jsonl").open("w", encoding="utf-8") as stream:
-                for row in rows:
-                    value = dict(row); value["record_hash"] = canonical_contract_hash(value)
-                    stream.write(json.dumps(value, sort_keys=True, default=str) + "\n")
+            protected_rows = []
+            for row in rows:
+                value = dict(row); value["record_hash"] = canonical_contract_hash(value)
+                protected_rows.append(value)
+            if self.domain_store is not None:
+                self._put_ledger(
+                    workspace_id, f"ledgers/{ledger_id}/collections/{collection}",
+                    {"schema_version": "aion.finance.ledger_collection.v1",
+                     "workspace_id": workspace_id, "ledger_id": ledger_id,
+                     "collection": collection, "records": protected_rows},
+                )
+            else:
+                with (root / f"{collection}.jsonl").open("w", encoding="utf-8") as stream:
+                    for value in protected_rows:
+                        stream.write(json.dumps(value, sort_keys=True, default=str) + "\n")
         invoices = records["invoices"]
         receivables = [row for row in invoices if row.get("invoice_type") == "sales_invoice"]
         payables = [row for row in invoices if row.get("invoice_type") == "supplier_bill"]
@@ -159,7 +195,10 @@ class AccountantHarnessService:
         }
         ledger["ledger_hash"] = canonical_contract_hash(ledger)
         path = root / "ledger.json"
-        path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        if self.domain_store is not None:
+            self._put_ledger(workspace_id, f"ledgers/{ledger_id}/ledger", ledger)
+        else:
+            path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         self._index(workspace_id, ledger, path)
         return ledger
 
@@ -188,17 +227,26 @@ class AccountantHarnessService:
         ledgers.setdefault("children", []).append({
             "id": f"finance_ledger_pointer_{ledger['ledger_id']}", "name": ledger["ledger_id"],
             "type": "business_container_artifact", "document_type": "finance_ledger", "status": "read_only_provider_sourced",
-            "target": {"storage_path": str(path), "ledger_hash": ledger["ledger_hash"], "provider": ledger["provider"]},
+            "target": ({"vault_domain_id": "finance.ledger_records",
+                        "vault_entity_id": f"ledgers/{ledger['ledger_id']}/ledger"}
+                       if self.domain_store is not None else {"storage_path": str(path)})
+                      | {"ledger_hash": ledger["ledger_hash"], "provider": ledger["provider"]},
         })
         tree["folders"] = folders
         tree["root"] = {**(tree.get("root") or {}), "id": "root", "type": "folder", "name": "Workflows", "children": folders}
         WorkflowFileCabinetRepository.save(workspace_id, tree)
 
-    @staticmethod
-    def _integration_dir(workspace_id: str, provider_id: str) -> Path:
-        path = AIONBusinessPaths.business_container_dir(workspace_id) / "integrations" / _safe(provider_id)
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+    def _put_ledger(self, workspace_id: str, entity_id: str, payload: dict[str, Any]) -> None:
+        if self.domain_store is None:
+            raise RuntimeError("accountant_harness_guardian_store_not_configured")
+        current = self.domain_store.get_optional(
+            "finance.ledger_records", workspace_id=workspace_id, entity_id=entity_id,
+        )
+        self.domain_store.put(
+            "finance.ledger_records", workspace_id=workspace_id, entity_id=entity_id,
+            payload=payload, expected_version=int(current["version"]) if current else None,
+            actor_id="accountant-harness-runtime",
+        )
 
     @staticmethod
     def _hash(value: Any) -> str:

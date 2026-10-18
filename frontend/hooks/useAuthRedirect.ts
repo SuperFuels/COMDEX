@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import api from "@/lib/api";
-import { getToken, logout } from "@/utils/auth";
+import { logout } from "@/utils/auth";
 
 export type UserRole = "supplier" | "buyer" | "admin";
 
@@ -15,20 +15,8 @@ export default function useAuthRedirect(requiredRole?: UserRole): boolean {
   const [loading, setLoading] = useState(true); // 🟡 Add loading state
 
   useEffect(() => {
-    const token = getToken();
-
-    if (!token) {
-      if (!PUBLIC_PATHS.includes(pathname)) {
-        router.replace("/login");
-      }
-      setLoading(false);
-      return;
-    }
-
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
-
     api
-      .get<{ role: UserRole }>("/auth/profile")
+      .get<{ role: UserRole }>("/auth/profile", { withCredentials: true })
       .then(({ data }) => {
         const userRole = data.role;
 
@@ -55,9 +43,11 @@ export default function useAuthRedirect(requiredRole?: UserRole): boolean {
         // ✅ Authorized, let render continue
       })
       .catch((err) => {
-        console.error("[useAuthRedirect] token invalid or expired", err);
-        logout();
-        router.replace("/login");
+        console.error("[useAuthRedirect] session invalid or expired", err);
+        if (!PUBLIC_PATHS.includes(pathname)) {
+          void logout();
+          router.replace("/login");
+        }
       })
       .finally(() => setLoading(false)); // ✅ Now safe to render
   }, [pathname, requiredRole, router]);

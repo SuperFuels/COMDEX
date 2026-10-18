@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import UTC, datetime
+import json
 from typing import Any, Dict, List, Optional, Tuple
 
 from backend.modules.aion_business.contracts.ai_agents import AIAgentSpec
@@ -1322,7 +1323,11 @@ class BusinessContainerService:
             existing = self.repository.load_brand_foundation(workspace_id)
             existing.meta.updated_at = existing.meta.updated_at or _utc_now_iso()
             self.repository.save_model(existing)
-        except FileNotFoundError:
+        except (FileNotFoundError, json.JSONDecodeError):
+            # A process interruption can leave the JSON file present but
+            # empty. Treat that the same as a missing neutral foundation so a
+            # read-only Boardroom load cannot be permanently blocked before
+            # it reaches the connected advisers.
             self.repository.save_model(
                 self._default_brand_foundation_model(workspace_id, seed=seed)
             )
@@ -1672,7 +1677,7 @@ class BusinessContainerService:
 
         try:
             model = self.repository.load_brand_foundation(workspace_id)
-        except FileNotFoundError:
+        except (FileNotFoundError, KeyError):
             model = self._default_brand_foundation_model(workspace_id)
 
         if "objective" in payload:

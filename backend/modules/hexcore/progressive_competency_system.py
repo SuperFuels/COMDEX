@@ -8,6 +8,7 @@ elapsed retention, declining scaffolding and independently owned outcomes.
 from __future__ import annotations
 
 import hashlib
+import gzip
 import json
 import os
 import tempfile
@@ -152,6 +153,7 @@ def _state_transaction(method):
                 if current_digest is not None and current_digest != self._loaded_digest:
                     self.state = json.loads(self.state_path.read_text(encoding="utf-8"))
                     self._loaded_digest = current_digest
+                    self._rebuild_evidence_index()
                 return method(self, *args, **kwargs)
             finally:
                 self._lock_depth -= 1
@@ -182,6 +184,7 @@ class ProgressiveCompetencySystem:
                 if state_path.exists():
                     self.state = json.loads(state_path.read_text(encoding="utf-8"))
                     self._loaded_digest = _state_digest(state_path)
+                    self._rebuild_evidence_index()
                 else:
                     self.state = {
                         "schema_version": SCHEMA, "subjects": {}, "evidence": [], "contracts": [],
@@ -192,6 +195,7 @@ class ProgressiveCompetencySystem:
                                            "expert_unlocks": []},
                         "owner_lesson_steps": 0, "unsafe_actions": 0,
                     }
+                    self._rebuild_evidence_index()
                     self._seed_catalogue()
                     self._import_existing_evidence()
                     self.state["active_subject_id"] = "python_core"
@@ -205,6 +209,12 @@ class ProgressiveCompetencySystem:
     def _migrate(self) -> None:
         changed = False
         integrity_invalidated_subjects: set[str] = set()
+        now = time.time()
+        last_integrity_audit = float(
+            self.state.get("last_full_artifact_integrity_audit_epoch")
+            or (self.state_path.stat().st_mtime if self.state_path.exists() else 0.0)
+        )
+        run_full_integrity_audit = now - last_integrity_audit >= 3600.0
         prior_policy = self.state.get("curriculum_policy_version")
         # Catalogue definitions evolve. Persisted state must gain newly declared
         # subskills without erasing earlier evidence or user-authored subjects.
@@ -260,7 +270,8 @@ class ProgressiveCompetencySystem:
                 if row.get("kind") == "assessment":
                     row["kind"] = "exercise"
                     changed = True
-            if not row.get("imported") and row.get("verified") is True and row.get("artifact"):
+            if (run_full_integrity_audit and not row.get("imported")
+                    and row.get("verified") is True and row.get("artifact")):
                 artifact = self.repo_root / str(row["artifact"])
                 if artifact.exists() and row.get("artifact_hash") != _sha256(artifact):
                     row["verified"] = False
@@ -268,6 +279,9 @@ class ProgressiveCompetencySystem:
                     row["invalidated_at"] = _utc_timestamp()
                     integrity_invalidated_subjects.add(str(row.get("subject_id")))
                     changed = True
+        if run_full_integrity_audit:
+            self.state["last_full_artifact_integrity_audit_epoch"] = now
+            changed = True
         for blocker in self.state.get("blockers") or []:
             if "executor" in str(blocker.get("reason", "")).lower() and blocker.get("blocker_type") != "executor_capability":
                 blocker["blocker_type"] = "executor_capability"
@@ -409,11 +423,23 @@ class ProgressiveCompetencySystem:
         body.setdefault("created_at", _utc_timestamp())
         body.setdefault("recorded_epoch", time.time())
         evidence_id = "competency_evidence_" + _canonical_hash(body)[:20]
-        if evidence_id in {item["evidence_id"] for item in self.state["evidence"]}:
-            return next(item for item in self.state["evidence"] if item["evidence_id"] == evidence_id)
+        existing = self._evidence_by_id.get(evidence_id)
+        if existing is not None:
+            return existing
         body["evidence_id"] = evidence_id
         self.state["evidence"].append(body)
+        self._evidence_by_id[evidence_id] = body
+        self._evidence_by_subject.setdefault(str(body.get("subject_id")), []).append(body)
         return body
+
+    def _rebuild_evidence_index(self) -> None:
+        self._evidence_by_subject: dict[str, list[dict[str, Any]]] = {}
+        self._evidence_by_id: dict[str, dict[str, Any]] = {}
+        for row in self.state.get("evidence") or []:
+            subject_id = str(row.get("subject_id") or "")
+            self._evidence_by_subject.setdefault(subject_id, []).append(row)
+            if row.get("evidence_id"):
+                self._evidence_by_id[str(row["evidence_id"])] = row
 
     @_state_transaction
     def record_evidence(self, *, subject_id: str, kind: str, subskills: Iterable[str],
@@ -459,7 +485,13 @@ class ProgressiveCompetencySystem:
         if not evidence.get("verified"):
             return
         for contract in self.state["contracts"]:
-            if contract.get("subject_id") == subject_id and contract.get("status") == "open":
+            requirement = contract.get("requirement") or {}
+            required_subskills = set(map(str, requirement.get("subskills") or []))
+            evidenced_subskills = set(map(str, evidence.get("subskills") or []))
+            if (contract.get("subject_id") == subject_id
+                    and contract.get("status") == "open"
+                    and requirement.get("kind") == evidence.get("kind")
+                    and required_subskills <= evidenced_subskills):
                 contract["status"] = "satisfied"
                 contract["evidence_id"] = evidence["evidence_id"]
                 contract["closed_at"] = _utc_timestamp()
@@ -494,7 +526,7 @@ class ProgressiveCompetencySystem:
     @_state_transaction
     def reissue_executor_blocked_contract(
         self, contract_id: str, *, executor_version: str, authority_artifact: str,
-        artifact_hash: str,
+        artifact_hash: str, persist: bool = True,
     ) -> dict[str, Any]:
         """Reissue a parked obligation only after a new executable authority exists.
 
@@ -563,7 +595,8 @@ class ProgressiveCompetencySystem:
                     "executor_version": executor_version,
                 })
         self.state["active_subject_id"] = prior["subject_id"]
-        self._save()
+        if persist:
+            self._save()
         return dict(contract)
 
     @_state_transaction
@@ -590,11 +623,174 @@ class ProgressiveCompetencySystem:
         return body
 
     @_state_transaction
-    def resolve_blocker(self, blocker_id: str, *, authority_artifact: str, artifact_hash: str) -> None:
+    def resolve_blocker(
+        self, blocker_id: str, *, authority_artifact: str, artifact_hash: str,
+        persist: bool = True,
+    ) -> None:
         blocker = next(row for row in self.state["blockers"] if row["blocker_id"] == blocker_id)
         blocker.update({"status": "resolved", "authority_artifact": authority_artifact,
                         "artifact_hash": artifact_hash, "resolved_at": _utc_timestamp()})
+        if persist:
+            self._save()
+
+    @_state_transaction
+    def persist_pending_changes(self) -> None:
+        """Commit a caller's governed batch as one atomic ledger write."""
         self._save()
+
+    @_state_transaction
+    def apply_executor_reconciliation_batch(
+        self, *, resolutions: Iterable[Mapping[str, Any]],
+        reissues: Iterable[Mapping[str, Any]],
+    ) -> dict[str, int]:
+        """Resolve and reissue many portfolio gaps with one lock and one write."""
+        resolved = 0
+        reissued = 0
+        seen_blockers: set[str] = set()
+        for request in resolutions:
+            blocker_id = str(request["blocker_id"])
+            if blocker_id in seen_blockers:
+                continue
+            blocker = next(
+                (row for row in self.state["blockers"] if row.get("blocker_id") == blocker_id),
+                None,
+            )
+            if blocker is None or blocker.get("status") != "open":
+                continue
+            blocker.update({
+                "status": "resolved",
+                "authority_artifact": request["authority_artifact"],
+                "artifact_hash": request["artifact_hash"],
+                "resolved_at": _utc_timestamp(),
+                **dict(request.get("updates") or {}),
+            })
+            seen_blockers.add(blocker_id)
+            resolved += 1
+        for request in reissues:
+            try:
+                before = len(self.state["contracts"])
+                self.reissue_executor_blocked_contract.__wrapped__(
+                    self, str(request["contract_id"]),
+                    executor_version=str(request["executor_version"]),
+                    authority_artifact=str(request["authority_artifact"]),
+                    artifact_hash=str(request["artifact_hash"]), persist=False,
+                )
+                reissued += int(len(self.state["contracts"]) > before)
+            except (StopIteration, ValueError):
+                continue
+        if resolved or reissued:
+            self._save()
+        return {"resolved": resolved, "reissued": reissued}
+
+    @_state_transaction
+    def compact_terminal_history(
+        self, *, retained_contracts: int = 1000, retained_blockers: int = 500,
+    ) -> dict[str, Any]:
+        """Move old terminal scheduler records to an immutable compressed audit shard.
+
+        Evidence is never compacted. Open work and every contract referenced by
+        an open blocker remain in the live state. This prevents tens of
+        thousands of already-satisfied/parked contracts from making every
+        curriculum transaction progressively slower while preserving a full
+        recoverable audit trail.
+        """
+        contracts = list(self.state.get("contracts") or [])
+        blockers = list(self.state.get("blockers") or [])
+        # A historical reconciliation bug could reissue the same subject/kind
+        # obligation thousands of times. Keep only the newest live obligation
+        # for an identical requirement; older copies are terminal audit data.
+        seen_open_requirements: set[str] = set()
+        deduplicated_open_contracts = 0
+        for contract in reversed(contracts):
+            if contract.get("status") != "open":
+                continue
+            requirement = contract.get("requirement") or {}
+            key = _canonical_hash({
+                "subject_id": contract.get("subject_id"),
+                "target_level": contract.get("target_level"),
+                "kind": requirement.get("kind"),
+                "subskills": sorted(requirement.get("subskills") or []),
+                "retention_milestone_days": requirement.get("retention_milestone_days"),
+                "not_before_epoch": requirement.get("not_before_epoch"),
+            })
+            if key in seen_open_requirements:
+                contract["status"] = "superseded_duplicate_requirement"
+                contract["closed_at"] = _utc_timestamp()
+                deduplicated_open_contracts += 1
+            else:
+                seen_open_requirements.add(key)
+        referenced_contracts = {
+            str(row.get("contract_id")) for row in blockers
+            if row.get("status") == "open" and row.get("contract_id")
+        }
+        terminal_contracts = [
+            row for row in contracts
+            if row.get("status") != "open"
+            and str(row.get("contract_id") or "") not in referenced_contracts
+        ]
+        terminal_blockers = [row for row in blockers if row.get("status") != "open"]
+        archived_contracts = terminal_contracts[:-max(0, retained_contracts)] if (
+            len(terminal_contracts) > retained_contracts
+        ) else []
+        archived_blockers = terminal_blockers[:-max(0, retained_blockers)] if (
+            len(terminal_blockers) > retained_blockers
+        ) else []
+        if not archived_contracts and not archived_blockers:
+            if deduplicated_open_contracts:
+                self._save()
+            return {
+                "status": "duplicate_requirements_superseded" if deduplicated_open_contracts else "history_within_live_limits",
+                "progressed": bool(deduplicated_open_contracts),
+                "live_contracts": len(contracts), "live_blockers": len(blockers),
+                "deduplicated_open_contracts": deduplicated_open_contracts,
+            }
+
+        contract_ids = {str(row.get("contract_id")) for row in archived_contracts}
+        blocker_ids = {str(row.get("blocker_id")) for row in archived_blockers}
+        archive_payload = {
+            "schema_version": "aion.hexcore.progressive_competency_history_archive.v1",
+            "created_at": _utc_timestamp(),
+            "contracts": archived_contracts,
+            "blockers": archived_blockers,
+        }
+        identity = _canonical_hash({
+            "contracts": sorted(contract_ids), "blockers": sorted(blocker_ids),
+        })[:20]
+        archive_dir = self.state_path.parent / "history_archive"
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        archive_path = archive_dir / f"terminal_history_{identity}.json.gz"
+        temporary = archive_path.with_suffix(archive_path.suffix + ".tmp")
+        if not archive_path.exists():
+            with gzip.open(temporary, "wt", encoding="utf-8", compresslevel=6) as handle:
+                json.dump(archive_payload, handle, sort_keys=True, separators=(",", ":"))
+            os.replace(temporary, archive_path)
+
+        self.state["contracts"] = [
+            row for row in contracts if str(row.get("contract_id")) not in contract_ids
+        ]
+        self.state["blockers"] = [
+            row for row in blockers if str(row.get("blocker_id")) not in blocker_ids
+        ]
+        archive_hash = _sha256(archive_path)
+        manifest = self.state.setdefault("history_archives", [])
+        if not any(row.get("sha256") == archive_hash for row in manifest):
+            manifest.append({
+                "path": str(archive_path.relative_to(self.repo_root)),
+                "sha256": archive_hash,
+                "contracts": len(archived_contracts),
+                "blockers": len(archived_blockers),
+                "created_at": archive_payload["created_at"],
+            })
+        self._save()
+        return {
+            "status": "terminal_history_archived", "progressed": True,
+            "archived_contracts": len(archived_contracts),
+            "archived_blockers": len(archived_blockers),
+            "deduplicated_open_contracts": deduplicated_open_contracts,
+            "live_contracts": len(self.state["contracts"]),
+            "live_blockers": len(self.state["blockers"]),
+            "archive_path": str(archive_path), "archive_sha256": archive_hash,
+        }
 
     @_state_transaction
     def register_mission_gap(self, *, mission: str, subject_name: str, group: str,
@@ -715,8 +911,8 @@ class ProgressiveCompetencySystem:
         self._save()
 
     def evidence_for(self, subject_id: str) -> list[dict[str, Any]]:
-        return [row for row in self.state["evidence"]
-                if row.get("subject_id") == subject_id and row.get("verified") is True]
+        return [row for row in self._evidence_by_subject.get(subject_id, [])
+                if row.get("verified") is True]
 
     @classmethod
     def assess_snapshot(
@@ -726,6 +922,7 @@ class ProgressiveCompetencySystem:
         instance = cls.__new__(cls)
         instance.repo_root = Path(repo_root)
         instance.state = dict(state)
+        instance._rebuild_evidence_index()
         return instance.assess(subject_id)
 
     def assess(self, subject_id: str) -> dict[str, Any]:
@@ -1269,6 +1466,11 @@ class ProgressiveCompetencySystem:
             str(row.get("subject_id")) for row in self.state.get("blockers") or []
             if row.get("status") == "open"
         })
+        exhausted_portfolios = sum(
+            row.get("status") == "open"
+            and row.get("required_authority") == "genuinely_diverse_hidden_project_portfolio"
+            for row in self.state.get("blockers") or []
+        )
         return {"subjects": len(assessments), "levels": counts,
                 "advanced_or_expert": sum(LEVEL_INDEX[row["overall_level"]] >= LEVEL_INDEX["advanced"] for row in assessments),
                 "active_subject_id": self.state.get("active_subject_id"),
@@ -1288,6 +1490,8 @@ class ProgressiveCompetencySystem:
                 "practice_projects_completed_today": practice_projects_today,
                 "blocked_subjects": blocked_subjects,
                 "blocked_subject_count": len(blocked_subjects),
+                "exhausted_portfolios": exhausted_portfolios,
+                "last_competency_progress_epoch": last_progress_epoch or None,
                 "minutes_since_last_competency_progress": (
                     round(max(0.0, time.time() - last_progress_epoch) / 60.0, 1)
                     if last_progress_epoch else None

@@ -1,6 +1,14 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("aionDesktop", {
+  businessDataDiscoveryEnabled: process.env.TESSARIS_DISCOVERY_MODE === "1",
+  backendApiBase: `http://127.0.0.1:${String(process.env.TESSARIS_BACKEND_PORT || "8080")}`,
+
+  recordBusinessDataBrowserWrite(payload = {}) {
+    if (process.env.TESSARIS_DISCOVERY_MODE !== "1") return;
+    ipcRenderer.send("aion-business-data-discovery-browser-write", payload);
+  },
+
   onBackendStatus(callback) {
     if (typeof callback !== "function") return () => {};
 
@@ -25,6 +33,54 @@ contextBridge.exposeInMainWorld("aionDesktop", {
 
   async getRuntimeInfo() {
     return await ipcRenderer.invoke("desktop-runtime-info");
+  },
+
+  async getBusinessDataDiscoveryStatus(payload = {}) {
+    return await ipcRenderer.invoke("aion-business-data-discovery-status", payload);
+  },
+
+  async startBusinessDataDiscovery(payload = {}) {
+    return await ipcRenderer.invoke("aion-business-data-discovery-start", payload);
+  },
+
+  async stopBusinessDataDiscovery(payload = {}) {
+    return await ipcRenderer.invoke("aion-business-data-discovery-stop", payload);
+  },
+
+  async getBusinessVaultIdentity() {
+    return await ipcRenderer.invoke("aion-business-vault-identity-get");
+  },
+
+  async bindBusinessVaultIdentity(payload = {}) {
+    return await ipcRenderer.invoke("aion-business-vault-identity-bind", payload);
+  },
+
+  async qualifyProviderAuthorityLifecycle(payload = {}) {
+    return await ipcRenderer.invoke("aion-provider-authority-qualification", payload);
+  },
+
+  async getPhotonBillingView(tenantId = "") {
+    return await ipcRenderer.invoke("aion-photon-billing-view", tenantId);
+  },
+
+  async qualifyPhotonBilling(tenantId = "") {
+    return await ipcRenderer.invoke("aion-photon-billing-qualification", tenantId);
+  },
+
+  async qualifyImportExportMigration(payload = {}) {
+    return await ipcRenderer.invoke("aion-import-export-migration-qualification", payload);
+  },
+
+  async qualifyDiagnosticSupportHandoff(payload = {}) {
+    return await ipcRenderer.invoke("aion-diagnostic-support-qualification", payload);
+  },
+
+  async qualifyRetentionClosurePreview(payload = {}) {
+    return await ipcRenderer.invoke("aion-retention-closure-qualification", payload);
+  },
+
+  async exportPhotonBillingRecords(tenantId = "") {
+    return await ipcRenderer.invoke("aion-photon-billing-export", tenantId);
   },
 
   async getSecuritySentinelStatus() {
@@ -64,6 +120,10 @@ contextBridge.exposeInMainWorld("aionDesktop", {
 
   async openExternalUrl(url = "") {
     return await ipcRenderer.invoke("aion-open-external-url", url);
+  },
+
+  async saveOrSharePdf(payload = {}) {
+    return await ipcRenderer.invoke("aion-save-or-share-pdf", payload);
   },
 
   async openBusinessArtifact(storagePath = "") {

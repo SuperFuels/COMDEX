@@ -102,18 +102,50 @@ def test_readiness_rejects_send_scope() -> None:
     assert data["readiness"]["reason"] == "missing_required_scopes"
 
 
-def test_integration_catalog_is_public_safe_and_keeps_payments_deferred() -> None:
+def test_integration_catalog_is_public_safe_and_includes_payment_connectors() -> None:
     response = _client().get("/api/vault/integration-providers")
     data = response.json()
 
     assert response.status_code == 200
     assert data["schema_version"] == "tessaris.business_integrations.v1"
-    assert data["payments_deferred"] is True
+    assert data["payments_deferred"] is False
     providers = {item["provider_id"]: item for item in data["providers"]}
     assert {"gmail", "microsoft_outlook", "mailchimp_marketing", "resend"} <= set(providers)
+    assert {"stripe", "paypal", "square", "gocardless", "revolut", "sumup", "mollie", "braintree", "worldpay", "adyen", "checkout_com"} <= set(providers)
+    assert all(providers[name]["category"] == "payments" for name in ("stripe", "paypal", "square", "gocardless", "revolut", "sumup", "mollie", "braintree", "worldpay", "adyen", "checkout_com"))
     assert providers["gmail"]["available_to_connect"] is True
     assert "secret-value" not in response.text.lower()
     assert "bearer " not in response.text.lower()
+
+
+def test_payment_provider_readiness_is_truthful_and_secret_free(monkeypatch) -> None:
+    for key in (
+        "STRIPE_CONNECT_CLIENT_ID", "STRIPE_SECRET_KEY", "TESSARIS_PAYMENT_OAUTH_REDIRECT_URL",
+        "PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET", "PAYPAL_PARTNER_ATTRIBUTION_ID",
+        "SQUARE_APPLICATION_ID", "SQUARE_APPLICATION_SECRET",
+        "GOCARDLESS_CLIENT_ID", "GOCARDLESS_CLIENT_SECRET",
+        "REVOLUT_MERCHANT_API_SECRET", "SUMUP_CLIENT_ID", "SUMUP_CLIENT_SECRET",
+        "MOLLIE_CLIENT_ID", "MOLLIE_CLIENT_SECRET",
+        "BRAINTREE_MERCHANT_ID", "BRAINTREE_PUBLIC_KEY", "BRAINTREE_PRIVATE_KEY",
+        "WORLDPAY_API_USERNAME", "WORLDPAY_API_PASSWORD",
+        "ADYEN_API_KEY", "ADYEN_MERCHANT_ACCOUNT", "CHECKOUT_SECRET_KEY", "CHECKOUT_PUBLIC_KEY",
+    ):
+        monkeypatch.delenv(key, raising=False)
+    response = _client().get("/api/vault/payment-providers")
+    data = response.json()
+    assert response.status_code == 200
+    assert data["bank_transfer_available"] is True
+    assert data["customer_card_data_stored"] is False
+    assert {item["provider_id"] for item in data["providers"]} == {"stripe", "paypal", "square", "gocardless", "revolut", "sumup", "mollie", "braintree", "worldpay", "adyen", "checkout_com"}
+    assert all(item["connection_status"] == "developer_setup_required" for item in data["providers"])
+    assert "secret-value" not in response.text.lower()
+
+    connect = _client().get("/api/vault/payment-providers/stripe/connect-url")
+    connect_data = connect.json()
+    assert connect.status_code == 200
+    assert connect_data["ok"] is False
+    assert connect_data["reason"] == "developer_setup_required"
+    assert "connect_url" not in connect_data
 
 
 def test_telephony_status_never_returns_provider_secrets(monkeypatch) -> None:

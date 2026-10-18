@@ -23,6 +23,10 @@ from backend.modules.local_node.contracts_local_node import (
 from backend.modules.local_node.local_node_runtime import LocalNodeRuntime
 from backend.modules.aion_business.contracts.skills import SkillRunRequest
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
+from backend.modules.aion_business.runtime.sovereign_installed_service import (
+    default_node_state_root,
+    prepare_node_state_root,
+)
 from backend.workflow_capsules.aion_a2a_commercial_ticket import (
     home_fixed_plumbing_hourly_ticket,
     home_fixed_roof_discovery_ticket,
@@ -43,11 +47,14 @@ _WORKSPACE_RUNTIMES: Dict[str, LocalNodeRuntime] = {}
 def _build_runtime(workspace_id: str | None = None) -> LocalNodeRuntime:
     resolved_workspace = canonical_business_id(workspace_id or "costa-conexion")
     legacy_default = resolved_workspace == "costa-conexion"
+    workspace_state_root = prepare_node_state_root(
+        default_node_state_root() / "workspaces" / resolved_workspace
+    )
     config = LocalNodeConfig(
         node_id="node_mac_local_01" if legacy_default else f"node_mac_{resolved_workspace}",
         workspace_id=resolved_workspace,
         deployment_mode=DeploymentMode.LOCAL_FIRST,
-        base_dir=".runtime/local_node" if legacy_default else f".runtime/local_node/workspaces/{resolved_workspace}",
+        base_dir=str(workspace_state_root),
     )
     runtime = LocalNodeRuntime(config)
     runtime.start()
@@ -881,7 +888,7 @@ def handle_gmail_oauth_callback(
     ok = bool(result.get("ok"))
     title = "Gmail connected" if ok else "Gmail connection failed"
     message = (
-        "Gmail has been connected to the Tessaris Vault. You can close this window and return to Tessaris, then click Refresh Gmail Status."
+        "Gmail is now securely connected. Return to Tessaris and create the email draft again."
         if ok
         else str(result.get("message") or result.get("reason") or "Gmail could not be connected.")
     )
@@ -894,71 +901,107 @@ def handle_gmail_oauth_callback(
   <meta charset="utf-8" />
   <title>{title}</title>
   <style>
+    * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
       min-height: 100vh;
       display: grid;
       place-items: center;
-      background: #fbf2e7;
-      color: #191919;
+      padding: 28px;
+      background: #f5f7fb;
+      color: #111827;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }}
     .card {{
-      width: min(620px, calc(100vw - 48px));
-      border: 1px solid #d7cbbb;
-      background: #fffaf3;
-      padding: 34px;
-      box-shadow: 0 18px 50px rgba(0,0,0,.12);
+      width: min(680px, 100%);
+      overflow: hidden;
+      border: 1px solid #d9e2f0;
+      border-top: 6px solid #2f66e9;
+      border-radius: 18px;
+      background: #fff;
+      padding: 42px;
+      box-shadow: 0 24px 70px rgba(15,23,42,.12);
+    }}
+    .brand {{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 34px;
+      font-size: 18px;
+      font-weight: 900;
+    }}
+    .mark {{
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: #2f66e9;
+      color: #fff;
+      font-size: 20px;
     }}
     .eyebrow {{
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: .18em;
-      font-weight: 800;
-      color: #1398a6;
-      margin-bottom: 12px;
+      font-weight: 900;
+      color: #2f66e9;
+      margin-bottom: 10px;
     }}
     h1 {{
       margin: 0 0 12px;
-      font-size: 30px;
+      font-size: clamp(30px, 6vw, 46px);
+      letter-spacing: -.035em;
     }}
     p {{
-      margin: 0 0 22px;
-      font-size: 16px;
-      line-height: 1.45;
-      color: #555;
+      margin: 0 0 26px;
+      max-width: 560px;
+      font-size: 17px;
+      line-height: 1.55;
+      color: #52657a;
     }}
     .status {{
-      display: inline-block;
-      border: 1px solid #191919;
-      padding: 8px 12px;
-      font-weight: 800;
-      letter-spacing: .12em;
-      font-size: 12px;
-      margin-bottom: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #b9d7c8;
+      border-radius: 999px;
+      padding: 8px 13px;
+      background: #ecfdf3;
+      color: #067647;
+      font-weight: 900;
+      letter-spacing: .08em;
+      font-size: 11px;
+    }}
+    .status::before {{
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #12b76a;
     }}
     button {{
-      margin-top: 18px;
+      margin-top: 30px;
       width: 100%;
-      padding: 14px 18px;
-      border: 1px solid #191919;
-      background: #191919;
+      padding: 15px 18px;
+      border: 1px solid #2f66e9;
+      border-radius: 10px;
+      background: #2f66e9;
       color: white;
-      font-weight: 800;
-      letter-spacing: .08em;
+      font-size: 15px;
+      font-weight: 850;
       cursor: pointer;
     }}
+    button:hover {{ background: #1f54cf; }}
   </style>
 </head>
 <body>
   <main class="card">
-    <div class="eyebrow">TESSARIS VAULT</div>
+    <div class="brand"><span class="mark">T</span><span>Tessaris</span></div>
+    <div class="eyebrow">SECURE EMAIL CONNECTION</div>
     <h1>{title}</h1>
-    <p>
-      Gmail has been connected to the Tessaris Vault.
-      Return to the Tessaris app. The Vault will refresh automatically.
-    </p>
+    <p>{message}</p>
     <span class="status">{status}</span>
-    <button onclick="window.close()">Close window</button>
+    <button onclick="window.close()">Return to Tessaris</button>
   </main>
 
   <script>

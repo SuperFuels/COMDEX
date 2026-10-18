@@ -33,6 +33,20 @@ class SupportPollingService:
 
     def tick(self) -> dict[str, Any]:
         service = SupportCaseService(); results = {}
+        if service.domain_store is not None:
+            workspace_ids = sorted({
+                str(record.get("workspace_id") or "")
+                for record in service.domain_store.list_all("support.records")
+                if record.get("entity_id") == "configuration/polling"
+                and record.get("workspace_id")
+            })
+            for workspace_id in workspace_ids:
+                try:
+                    results[workspace_id] = service.poll_sources(workspace_id)
+                except Exception as exc:
+                    results[workspace_id] = {"ok": False, "error": str(exc)[:500]}
+            self._last_results = results
+            return results
         root = AIONBusinessPaths.BUSINESS_CONTAINERS
         if not root.exists(): return results
         for workspace in sorted(path for path in root.iterdir() if path.is_dir()):

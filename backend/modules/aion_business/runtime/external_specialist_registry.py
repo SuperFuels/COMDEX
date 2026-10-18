@@ -9,11 +9,21 @@ from backend.modules.aion_business.contracts.external_specialists import (
     ExternalSpecialistSpec,
 )
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.department_operational_store import (
+    DepartmentOperationalStore,
+)
 
 
 class ExternalSpecialistRegistry:
-    def __init__(self) -> None:
-        AIONBusinessPaths.ensure_base_dirs()
+    DEPARTMENT_ID = "business_operations"
+    FEATURE_ID = "external_specialists"
+
+    def __init__(
+        self, *, operational_store: DepartmentOperationalStore | None = None,
+    ) -> None:
+        self.operational_store = operational_store or DepartmentOperationalStore()
+        if self.operational_store.domain_store is None:
+            AIONBusinessPaths.ensure_base_dirs()
 
     def _registry_dir(self, workspace_id: str) -> Path:
         path = AIONBusinessPaths.ROOT / "external_specialists" / workspace_id
@@ -23,7 +33,20 @@ class ExternalSpecialistRegistry:
     def _registry_file(self, workspace_id: str, specialist_id: str) -> Path:
         return self._registry_dir(workspace_id) / f"{specialist_id}.json"
 
-    def save(self, spec: ExternalSpecialistSpec) -> Path:
+    def save(self, spec: ExternalSpecialistSpec) -> Path | str:
+        if self.operational_store.domain_store is not None:
+            self.operational_store.put(
+                workspace_id=spec.workspace_id,
+                department_id=self.DEPARTMENT_ID,
+                feature_id=self.FEATURE_ID,
+                record_id=spec.id,
+                payload=spec.model_dump(mode="json"),
+                actor_id="external-specialist-registry",
+            )
+            return (
+                "vault://departments.operational_records/"
+                f"{spec.workspace_id}/{self.DEPARTMENT_ID}/{self.FEATURE_ID}/{spec.id}"
+            )
         path = self._registry_file(spec.workspace_id, spec.id)
         path.write_text(
             json.dumps(spec.model_dump(mode="json"), indent=2),
@@ -32,6 +55,18 @@ class ExternalSpecialistRegistry:
         return path
 
     def load(self, workspace_id: str, specialist_id: str) -> ExternalSpecialistSpec:
+        if self.operational_store.domain_store is not None:
+            record = self.operational_store.get_optional(
+                workspace_id=workspace_id,
+                department_id=self.DEPARTMENT_ID,
+                feature_id=self.FEATURE_ID,
+                record_id=specialist_id,
+            )
+            if record is None:
+                raise FileNotFoundError(
+                    f"External specialist not found: {workspace_id}/{specialist_id}"
+                )
+            return ExternalSpecialistSpec(**record["payload"])
         path = self._registry_file(workspace_id, specialist_id)
         if not path.exists():
             raise FileNotFoundError(
@@ -41,6 +76,15 @@ class ExternalSpecialistRegistry:
         return ExternalSpecialistSpec(**data)
 
     def list_ids(self, workspace_id: str) -> List[str]:
+        if self.operational_store.domain_store is not None:
+            return sorted(
+                ExternalSpecialistSpec(**row["payload"]).id
+                for row in self.operational_store.list_feature(
+                    workspace_id=workspace_id,
+                    department_id=self.DEPARTMENT_ID,
+                    feature_id=self.FEATURE_ID,
+                )
+            )
         return sorted(p.stem for p in self._registry_dir(workspace_id).glob("*.json"))
 
     def list_all(self, workspace_id: str) -> List[ExternalSpecialistSpec]:

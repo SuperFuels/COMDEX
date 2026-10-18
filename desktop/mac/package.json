@@ -7,6 +7,8 @@
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
+    "test:photon-broker": "node --test electron/photon-billing-broker.test.cjs electron/photon-secure-session-store.test.cjs",
+    "test:business-data-tracer": "node --test electron/business-data-write-tracer.test.cjs electron/business-data-discovery-controller.test.cjs electron/business-data-browser-storage-discovery.test.cjs",
     "dist": "electron-builder --mac",
     "pack": "electron-builder --dir --mac",
     "pack:local": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir --mac"

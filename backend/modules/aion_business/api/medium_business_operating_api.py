@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.medium_business_operating_service import MediumBusinessOperatingService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
 
 
 router = APIRouter(prefix="/api/aion/business/medium", tags=["aion-medium-business"])
@@ -44,7 +45,10 @@ def _service(value: str) -> tuple[str, MediumBusinessOperatingService]:
     if not workspace_id:
         raise HTTPException(status_code=400, detail="registered_business_id_required")
     root = AIONBusinessPaths.business_container_dir(workspace_id) / "medium_business"
-    return workspace_id, MediumBusinessOperatingService(root)
+    return workspace_id, MediumBusinessOperatingService(
+        None if guardian_mode_requested() else root,
+        workspace_id=workspace_id,
+    )
 
 
 @router.get("/{workspace_id}")

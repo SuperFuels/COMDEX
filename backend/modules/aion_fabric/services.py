@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict
 from uuid import uuid4
 
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
-from .household import HouseholdIdentityRegistry
+from .household import HouseholdIdentityRegistry, configured_household_identity_registry
 
 
 class ServiceExecutionHub:
@@ -32,7 +32,7 @@ class ServiceExecutionHub:
         self.root = Path(runtime_dir) / "services"
         self.root.mkdir(parents=True, exist_ok=True)
         self.path = self.root / "proposals.json"
-        self.household = household or HouseholdIdentityRegistry(runtime_dir)
+        self.household = household or configured_household_identity_registry(runtime_dir)
         self.adapters: Dict[str, Callable[[Dict[str, Any], str], Dict[str, Any]]] = {}
 
     @staticmethod

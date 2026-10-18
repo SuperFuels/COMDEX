@@ -6,8 +6,10 @@ from hashlib import sha256
 import csv
 import io
 import json
+import os
 from pathlib import Path
 import re
+import secrets
 import shutil
 from typing import Any, Dict
 
@@ -25,6 +27,9 @@ from backend.modules.aion_business.contracts.business_containers import (
 )
 from backend.modules.aion_business.contracts.workspace import BusinessProfile, WorkspaceSpec
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_aliases, canonical_business_id
 from backend.modules.aion_business.runtime.workspace_repository import WorkspaceRepository
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
@@ -37,11 +42,25 @@ from backend.modules.aion_business.runtime.finance_completion_service import (
 from backend.modules.aion_business.runtime.finance_director_service import FinanceDirectorService
 from backend.modules.aion_business.runtime.business_knowledge_service import BusinessKnowledgeService
 from backend.modules.aion_business.runtime.business_map_governance_service import BusinessMapGovernanceService
+from backend.modules.aion_business.runtime.department_operational_store import DepartmentOperationalStore
 from backend.modules.aion_business.runtime.business_connector_onboarding_service import BusinessConnectorOnboardingService
 from backend.modules.aion_business.runtime.foundation_onboarding_session_service import (
     FoundationOnboardingSessionService,
     FoundationSessionRevisionConflict,
 )
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.work_schedule_service import WorkScheduleService
+from backend.modules.aion_business.runtime.notification_remote_access_service import (
+    NotificationRemoteAccessService,
+)
+from backend.modules.aion_fabric.canonical import canonical_bytes
+from backend.modules.aion_fabric.identity import IdentityStore
+from backend.modules.aion_fabric.private_identity import ProductionPrivateIdentity
+from backend.modules.pilot_unified.pairing import MobilePairingAuthority
 
 
 router = APIRouter(prefix="/api/aion/business/data", tags=["aion-business-data"])
@@ -73,6 +92,202 @@ FINANCE_CABINET_FOLDERS = {
     "evidence-receipts": "Evidence & Receipts",
 }
 MAX_FINANCE_ARTIFACT_BYTES = 25 * 1024 * 1024
+
+
+class FounderNotesWriteRequest(BaseModel):
+    notes: list[dict[str, Any]] = Field(default_factory=list)
+    actor_id: str = "desktop:founder-notes"
+
+
+class BusinessWorkingStateWriteRequest(BaseModel):
+    payload: dict[str, Any] = Field(default_factory=dict)
+    actor_id: str = "desktop:business-working-state"
+    expected_version: int | None = None
+
+
+class NotificationQualificationPrepareRequest(BaseModel):
+    notification_id: str
+    recipient: str
+    channel: str = "push"
+    content: str
+    actor_id: str
+
+
+class NotificationQualificationActionRequest(BaseModel):
+    actor_id: str
+
+
+_WORKING_STATE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,159}$")
+_MAX_WORKING_STATE_BYTES = 5 * 1024 * 1024
+
+
+def _founder_notes_store() -> VaultDomainStore:
+    if not guardian_mode_requested():
+        raise HTTPException(status_code=503, detail="business_vault_required_for_founder_notes")
+    return VaultDomainStore(
+        configured_business_vault_runtime().guardian,
+        actor_id="founder-notes",
+    )
+
+
+def _business_working_state_store() -> VaultDomainStore:
+    if not guardian_mode_requested():
+        raise HTTPException(status_code=503, detail="business_vault_required_for_working_state")
+    return VaultDomainStore(
+        configured_business_vault_runtime().guardian,
+        actor_id="business-working-state",
+    )
+
+
+def _working_state_id(candidate: str) -> str:
+    value = str(candidate or "").strip()
+    if not _WORKING_STATE_ID.fullmatch(value):
+        raise HTTPException(status_code=400, detail="business_working_state_id_invalid")
+    return value
+
+
+def _validate_working_state_payload(payload: dict[str, Any]) -> None:
+    encoded = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+    if len(encoded) > _MAX_WORKING_STATE_BYTES:
+        raise HTTPException(status_code=413, detail="business_working_state_too_large")
+
+
+@router.get("/founder-notes/{candidate}")
+def get_founder_notes(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    record = _founder_notes_store().get_optional(
+        "business.notes", workspace_id=business_id, entity_id="founder-notes"
+    )
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "notes": list((record or {}).get("payload", {}).get("notes") or []),
+        "version": int((record or {}).get("version") or 0),
+    }
+
+
+@router.put("/founder-notes/{candidate}")
+def put_founder_notes(candidate: str, request: FounderNotesWriteRequest) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    store = _founder_notes_store()
+    existing = store.get_optional(
+        "business.notes", workspace_id=business_id, entity_id="founder-notes"
+    )
+    actor_id = re.sub(r"[^a-zA-Z0-9_.-]+", "-", request.actor_id).strip("-._") or "founder-notes"
+    result = store.put(
+        "business.notes",
+        workspace_id=business_id,
+        entity_id="founder-notes",
+        payload={
+            "schema_version": "aion.founder_notes.v1",
+            "business_id": business_id,
+            "notes": request.notes,
+            "updated_at": _now(),
+        },
+        expected_version=int(existing["version"]) if existing else None,
+        actor_id=actor_id,
+    )
+    return {"ok": True, "business_id": business_id, "notes": request.notes, "version": result["version"]}
+
+
+@router.get("/working-state/{candidate}")
+def list_business_working_state(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    records = _business_working_state_store().list(
+        "business.working_state", workspace_id=business_id
+    )
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "states": [
+            {
+                "state_id": record["entity_id"],
+                "payload": record["payload"],
+                "version": int(record["version"]),
+            }
+            for record in sorted(records, key=lambda item: str(item["entity_id"]))
+        ],
+    }
+
+
+@router.get("/working-state/{candidate}/{state_id}")
+def get_business_working_state(candidate: str, state_id: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    safe_state_id = _working_state_id(state_id)
+    record = _business_working_state_store().get_optional(
+        "business.working_state", workspace_id=business_id, entity_id=safe_state_id
+    )
+    if record is None:
+        raise HTTPException(status_code=404, detail="business_working_state_not_found")
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "state_id": safe_state_id,
+        "payload": record["payload"],
+        "version": int(record["version"]),
+    }
+
+
+@router.put("/working-state/{candidate}/{state_id}")
+def put_business_working_state(
+    candidate: str,
+    state_id: str,
+    request: BusinessWorkingStateWriteRequest,
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    safe_state_id = _working_state_id(state_id)
+    _validate_working_state_payload(request.payload)
+    store = _business_working_state_store()
+    existing = store.get_optional(
+        "business.working_state", workspace_id=business_id, entity_id=safe_state_id
+    )
+    current_version = int((existing or {}).get("version") or 0)
+    if request.expected_version is not None and request.expected_version != current_version:
+        raise HTTPException(status_code=409, detail="business_working_state_revision_conflict")
+    actor_id = re.sub(r"[^a-zA-Z0-9_.-]+", "-", request.actor_id).strip("-._") or "business-working-state"
+    payload = {
+        "schema_version": "aion.business_working_state.v1",
+        "business_id": business_id,
+        "state_id": safe_state_id,
+        "value": deepcopy(request.payload),
+        "updated_at": _now(),
+    }
+    result = store.put(
+        "business.working_state",
+        workspace_id=business_id,
+        entity_id=safe_state_id,
+        payload=payload,
+        expected_version=current_version or None,
+        actor_id=actor_id,
+    )
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "state_id": safe_state_id,
+        "payload": payload,
+        "version": int(result["version"]),
+    }
+
+
+@router.delete("/working-state/{candidate}/{state_id}")
+def delete_business_working_state(candidate: str, state_id: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    safe_state_id = _working_state_id(state_id)
+    deleted = _business_working_state_store().delete(
+        "business.working_state",
+        workspace_id=business_id,
+        entity_id=safe_state_id,
+        reason_code="business_working_state_removed",
+        actor_id="desktop-business-working-state",
+    )
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "state_id": safe_state_id,
+        "deleted": deleted,
+    }
 
 
 def _now() -> str:
@@ -502,6 +717,7 @@ def _project_operating_model_to_business_map(repository: BusinessContainerReposi
         ],
         "job_economics": _list(model.get("job_economics")),
         "payment_terms": _list(model.get("payment_terms")),
+        "pricing_rules": _list(model.get("pricing_rules")),
         "financial_targets": _list(model.get("financial_targets")),
     }
     observed_at = _now()
@@ -558,6 +774,24 @@ class ContainerWriteRequest(BaseModel):
     payload: Dict[str, Any]
     source: str = "desktop_runtime"
     expected_revision: int | None = None
+
+
+class BusinessIdentitySettingsRequest(BaseModel):
+    trading_name: str | None = Field(default=None, max_length=240)
+    primary_email: str | None = Field(default=None, max_length=320)
+    website_url: str | None = Field(default=None, max_length=500)
+    timezone: str | None = Field(default=None, max_length=120)
+    currency: str | None = Field(default=None, max_length=12)
+    actor_id: str = Field(default="desktop:business-settings", min_length=1, max_length=160)
+
+
+class CustomDepartmentCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+    template: str = Field(..., min_length=1, max_length=40)
+    mandate: str = Field(..., min_length=1, max_length=2_000)
+    actor_id: str = Field(default="desktop:business-settings", min_length=1, max_length=160)
+    expected_revision: int | None = None
+    confirm_founder_authority: bool = False
 
 
 class BusinessMapFactsRequest(BaseModel):
@@ -650,6 +884,10 @@ class BusinessKnowledgeSearchRequest(BaseModel):
     limit: int = Field(default=8, ge=1, le=25)
 
 
+class BusinessKnowledgeSearchIndexRebuildRequest(BaseModel):
+    actor: str = Field(default="business_owner", min_length=1, max_length=160)
+
+
 class BusinessKnowledgeEntityLinkRequest(BaseModel):
     actor: str = Field(default="business_owner", min_length=1, max_length=160)
 
@@ -671,7 +909,8 @@ class BusinessKnowledgeRetentionRequest(BaseModel):
 
 
 def _repo() -> BusinessContainerRepository:
-    return BusinessContainerRepository()
+    """Use the explicit legacy/Guardian authority switch for all Business Twin records."""
+    return configured_business_container_repository()
 
 
 def _workspaces() -> WorkspaceRepository:
@@ -686,11 +925,42 @@ def _business_map_governance() -> BusinessMapGovernanceService:
     return BusinessMapGovernanceService(_repo())
 
 
+_CUSTOM_DEPARTMENT_TEMPLATES = {
+    "innovation": "Innovation Director",
+    "legal": "Legal & Compliance Director",
+    "compliance": "Compliance Director",
+    "it": "Technology Director",
+    "technical": "Technical Director",
+    "product": "Product Director",
+    "research": "Research Director",
+    "partnerships": "Partnerships Director",
+}
+_CORE_DEPARTMENTS = {"sales", "marketing", "finance", "operations", "support", "people"}
+
+
+def _custom_department_rows(payload: Dict[str, Any] | None) -> list[Dict[str, Any]]:
+    return [
+        deepcopy(item)
+        for item in _list((payload or {}).get("custom_departments"))
+        if isinstance(item, dict)
+        and item.get("core") is False
+        and str(item.get("id") or "").strip()
+        and str(item.get("name") or "").strip()
+    ]
+
+
 def _connector_onboarding() -> BusinessConnectorOnboardingService:
     return BusinessConnectorOnboardingService()
 
 
 def _ensure_workspace(business_id: str, draft: Dict[str, Any]) -> None:
+    # Guardian onboarding commits the canonical workspace identity and shape
+    # into ``business.structure`` immediately below.  The historical
+    # WorkspaceRepository mirrors that same information into departmental
+    # operational records, which both duplicates authority and widens the
+    # first-run Vault boundary.  Retain it only for explicit legacy storage.
+    if guardian_mode_requested():
+        return
     repository = _workspaces()
     try:
         repository.load(business_id)
@@ -1209,6 +1479,165 @@ def _next_revision(existing: Dict[str, Any] | None, expected: int | None) -> int
     return current + 1
 
 
+@router.get("/business-identity/{candidate}")
+def get_business_identity(candidate: str) -> Dict[str, Any]:
+    return _read_container(candidate, "business_identity")
+
+
+@router.put("/business-identity/{candidate}")
+def put_business_identity_settings(
+    candidate: str, request: BusinessIdentitySettingsRequest
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    repository = _repo()
+    existing = repository.load_optional_dict(business_id, "business_identity")
+    if existing is None:
+        raise HTTPException(status_code=404, detail="business_identity_not_found")
+    changes = {
+        key: str(value).strip()
+        for key, value in request.model_dump(exclude={"actor_id"}).items()
+        if value is not None
+    }
+    if not changes:
+        raise HTTPException(status_code=400, detail="business_identity_change_required")
+    payload = {**existing, **changes}
+    payload.update({
+        "id": f"{business_id}.business_identity",
+        "workspace_id": business_id,
+        "kind": "business_identity",
+        "meta": _meta(
+            business_id, "business_identity", "desktop_business_settings"
+        ).model_dump(mode="json"),
+    })
+    model = BusinessIdentityContainer(**payload)
+    location = repository.save_model(model)
+    data = model.model_dump(mode="json")
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "payload": data,
+        "storage_receipt": location,
+        "receipt": _receipt(
+            business_id=business_id, kind="business_identity", payload=data
+        ),
+    }
+
+
+@router.get("/custom-departments/{candidate}")
+def list_custom_departments(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    existing = _repo().load_optional_dict(
+        business_id, "department_intelligence"
+    ) or {}
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "revision": int(existing.get("revision") or 0),
+        "departments": _custom_department_rows(existing),
+    }
+
+
+@router.post("/custom-departments/{candidate}")
+def create_custom_department(
+    candidate: str, request: CustomDepartmentCreateRequest
+) -> Dict[str, Any]:
+    if not guardian_mode_requested():
+        raise HTTPException(
+            status_code=503, detail="business_vault_required_for_custom_department"
+        )
+    if request.confirm_founder_authority is not True:
+        raise HTTPException(status_code=403, detail="founder_confirmation_required")
+    business_id = canonical_business_id(candidate)
+    name = " ".join(request.name.split())
+    template = request.template.strip().casefold()
+    mandate = " ".join(request.mandate.split())
+    department_id = re.sub(
+        r"[^a-z0-9]+", "_", name.casefold()
+    ).strip("_")[:40]
+    if not department_id or department_id in _CORE_DEPARTMENTS:
+        raise HTTPException(status_code=400, detail="custom_department_name_invalid")
+    if template not in _CUSTOM_DEPARTMENT_TEMPLATES:
+        raise HTTPException(status_code=400, detail="custom_department_template_invalid")
+    repository = _repo()
+    existing = repository.load_optional_dict(business_id, "department_intelligence")
+    if existing is None:
+        raise HTTPException(status_code=404, detail="department_intelligence_not_found")
+    current_revision = int(existing.get("revision") or 0)
+    if (
+        request.expected_revision is not None
+        and request.expected_revision != current_revision
+    ):
+        raise HTTPException(
+            status_code=409, detail="department_intelligence_revision_conflict"
+        )
+    custom_departments = _custom_department_rows(existing)
+    if len(custom_departments) >= 20:
+        raise HTTPException(status_code=409, detail="custom_department_limit_reached")
+    if any(item["id"] == department_id for item in custom_departments):
+        raise HTTPException(status_code=409, detail="custom_department_already_exists")
+    created_at = _now()
+    actor_id = re.sub(r"[^A-Za-z0-9_.-]+", "-", request.actor_id).strip("-._")
+    actor_id = actor_id or "desktop-business-settings"
+    created = {
+        "id": department_id,
+        "name": name,
+        "template": template,
+        "pilot_title": _CUSTOM_DEPARTMENT_TEMPLATES[template],
+        "mandate": mandate,
+        "core": False,
+        "created_by": actor_id,
+        "created_at": created_at,
+    }
+    departments = _object(existing.get("departments"))
+    department_map = {
+        "department": department_id,
+        "name": name,
+        "mandate": mandate,
+        "template": template,
+        "pilot_title": _CUSTOM_DEPARTMENT_TEMPLATES[template],
+        "status": "configured",
+        "map_schema_version": "aion.department_map.v1",
+        "created_by": actor_id,
+        "created_at": created_at,
+    }
+    payload = {
+        **existing,
+        "id": f"{business_id}.department_intelligence",
+        "workspace_id": business_id,
+        "kind": "department_intelligence",
+        "departments": {**departments, department_id: department_map},
+        "custom_departments": [*custom_departments, created],
+        "revision": current_revision + 1,
+        "meta": _meta(
+            business_id, "department_intelligence", "desktop_business_settings"
+        ).model_dump(mode="json"),
+    }
+    model = DepartmentIntelligenceContainer(**payload)
+    repository.save_model(model)
+    audit = DepartmentOperationalStore().append_audit(
+        workspace_id=business_id,
+        department_id=department_id,
+        feature_id="configuration",
+        event_id=f"created-{created_at.replace(':', '').replace('+', '-')}",
+        payload={
+            "schema_version": "aion.custom_department_configuration.v1",
+            "operation": "created",
+            "department_id": department_id,
+            "template": template,
+            "actor_id": actor_id,
+            "created_at": created_at,
+        },
+        actor_id=actor_id,
+    )
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "department": created,
+        "revision": model.revision,
+        "audit_version": int(audit["version"]),
+    }
+
+
 @router.get("/business-map/{candidate}")
 def get_business_map(candidate: str) -> Dict[str, Any]:
     return _read_container(candidate, "business_map")
@@ -1493,6 +1922,233 @@ def search_business_knowledge(candidate: str, request: BusinessKnowledgeSearchRe
     return {"ok": True, "business_id": business_id, **result}
 
 
+@router.post("/business-knowledge/{candidate}/search-index/rebuild")
+def rebuild_business_knowledge_search_index(
+    candidate: str, request: BusinessKnowledgeSearchIndexRebuildRequest,
+) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        result = _business_knowledge().rebuild_search_index(
+            business_id, actor=request.actor,
+        )
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, **result}
+
+
+def _notification_remote_qualification_context(candidate: str) -> dict[str, Any]:
+    if os.getenv("TESSARIS_DISCOVERY_MODE") != "1":
+        raise HTTPException(status_code=404, detail="notification_remote_qualification_disabled")
+    business_id = canonical_business_id(candidate)
+    try:
+        roots = json.loads(os.getenv("TESSARIS_DISCOVERY_SECRET_STORE_ROOTS") or "[]")
+    except json.JSONDecodeError:
+        roots = []
+    if not isinstance(roots, list) or not roots:
+        raise HTTPException(status_code=503, detail="notification_remote_secret_store_required")
+    namespace = sha256(business_id.encode("utf-8")).hexdigest()[:24]
+    root = Path(str(roots[0])) / "notification-remote-access" / namespace
+    root.mkdir(parents=True, exist_ok=True, mode=0o700)
+    os.chmod(root, 0o700)
+    domains = VaultDomainStore(
+        configured_business_vault_runtime().guardian,
+        actor_id="notification-remote-access-qualification",
+    )
+    identities = ProductionPrivateIdentity(
+        root / "identity", domain_store=domains, workspace_id=business_id,
+    )
+    mother = IdentityStore(root / "mother").load_or_create()
+    phone = IdentityStore(root / "phone").load_or_create()
+    pairing = MobilePairingAuthority(
+        root / "pairing", mother_id=f"{namespace}-mother", mother_identity=mother,
+        endpoint="https://127.0.0.1:18770", ca_sha256="ab" * 32,
+        identity_registry=identities,
+    )
+    return {
+        "business_id": business_id, "root": root, "domains": domains,
+        "identities": identities, "mother": mother, "phone": phone, "pairing": pairing,
+        "service": NotificationRemoteAccessService(domain_store=domains),
+        "state_path": root / "active-session.authority.json",
+    }
+
+
+def _write_remote_qualification_state(path: Path, payload: dict[str, Any]) -> None:
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")), encoding="utf-8",
+    )
+    os.chmod(temporary, 0o600)
+    os.replace(temporary, path)
+    os.chmod(path, 0o600)
+
+
+def _read_remote_qualification_state(path: Path) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        raise HTTPException(status_code=409, detail="remote_access_session_not_open") from None
+    if not isinstance(value, dict):
+        raise HTTPException(status_code=409, detail="remote_access_session_not_open")
+    return value
+
+
+@router.post("/notification-remote/{candidate}/qualification/prepare")
+def prepare_notification_qualification(
+    candidate: str, request: NotificationQualificationPrepareRequest,
+) -> Dict[str, Any]:
+    context = _notification_remote_qualification_context(candidate)
+    try:
+        result = context["service"].prepare_notification(
+            context["business_id"], notification_id=request.notification_id,
+            recipient=request.recipient, channel=request.channel, content=request.content,
+            actor_id=request.actor_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, **result}
+
+
+@router.post("/notification-remote/{candidate}/qualification/{notification_id}/deliver")
+def deliver_notification_qualification(
+    candidate: str, notification_id: str, request: NotificationQualificationActionRequest,
+) -> Dict[str, Any]:
+    context = _notification_remote_qualification_context(candidate)
+
+    def sender(payload: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "ok": True,
+            "provider": "instrumented_notification_sandbox",
+            "provider_request_id": secrets.token_urlsafe(32),
+            "provider_status": "accepted",
+        }
+
+    try:
+        result = context["service"].deliver_notification(
+            context["business_id"], notification_id=notification_id,
+            actor_id=request.actor_id, sender=sender,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {"ok": True, **result, "sandbox_only": True}
+
+
+@router.post("/notification-remote/{candidate}/qualification/remote/open")
+def open_remote_access_qualification(
+    candidate: str, request: NotificationQualificationActionRequest,
+) -> Dict[str, Any]:
+    context = _notification_remote_qualification_context(candidate)
+    identities = context["identities"]
+    profile = next(
+        (
+            item for item in identities.snapshot().get("profiles", [])
+            if item.get("display_name") == "Journey Remote Owner" and item.get("status") == "active"
+        ),
+        None,
+    ) or identities.onboard(display_name="Journey Remote Owner", role="adult")
+    pairing = context["pairing"]
+    phone = context["phone"]
+    challenge = pairing.begin_pairing(
+        persona_id=profile["persona_id"], device_label="Journey Remote Phone",
+        phone_public_key=phone.public_key_b64, requested_scopes=("workspace.read",),
+    )
+    signed = {
+        key: challenge["phone_challenge"][key]
+        for key in (
+            "schema_version", "challenge_id", "mother_id", "mother_fingerprint",
+            "mother_descriptor_hash", "persona_id", "device_id", "device_label",
+            "requested_scopes", "nonce", "issued_at", "expires_at",
+        )
+    }
+    connected = pairing.complete_pairing(
+        challenge_id=signed["challenge_id"],
+        confirmation_code=challenge["local_confirmation"]["confirmation_code"],
+        phone_signature=phone.sign(canonical_bytes(signed)),
+    )
+    session_id = "qualification-" + secrets.token_hex(12)
+    public = context["service"].record_remote_opened(
+        context["business_id"], session_id=session_id,
+        device_id=connected["certificate"]["device_id"],
+        persona_id=profile["persona_id"], scopes=["workspace.read"],
+        certificate_fingerprint=connected["certificate"]["payload_hash"],
+        actor_id=request.actor_id,
+    )
+    _write_remote_qualification_state(context["state_path"], {
+        "session_id": session_id,
+        "certificate": connected["certificate"],
+        "lease": connected["lease"],
+        "persona_id": profile["persona_id"],
+    })
+    return {"ok": True, "session": public, "raw_authority_exposed": False}
+
+
+@router.post("/notification-remote/{candidate}/qualification/remote/revoke")
+def revoke_remote_access_qualification(
+    candidate: str, request: NotificationQualificationActionRequest,
+) -> Dict[str, Any]:
+    context = _notification_remote_qualification_context(candidate)
+    state = _read_remote_qualification_state(context["state_path"])
+    pairing = context["pairing"]
+    phone = context["phone"]
+    certificate = dict(state["certificate"])
+    lease = dict(state["lease"])
+    revocation = pairing.revoke_device(
+        device_id=certificate["device_id"], reason="owner_requested",
+    )
+    public = context["service"].record_remote_revoked(
+        context["business_id"], session_id=state["session_id"],
+        revocation=revocation, actor_id=request.actor_id,
+    )
+    validate_blocked = False
+    reconnect_blocked = False
+    try:
+        pairing.validate(
+            certificate=certificate, lease=lease, required_scope="workspace.read",
+        )
+    except PermissionError:
+        validate_blocked = True
+    renew = {
+        "purpose": "renew_mobile_lease", "device_id": certificate["device_id"],
+        "persona_id": state["persona_id"], "previous_lease_id": lease["lease_id"],
+        "requested_scopes": ["workspace.read"],
+        "nonce": "revoked-" + secrets.token_hex(16),
+    }
+    try:
+        pairing.renew_lease(renew, phone_signature=phone.sign(canonical_bytes(renew)))
+    except PermissionError:
+        reconnect_blocked = True
+    return {
+        "ok": validate_blocked and reconnect_blocked,
+        "session": public,
+        "stale_authority_blocked": validate_blocked,
+        "reconnect_without_repair_blocked": reconnect_blocked,
+        "raw_authority_exposed": False,
+    }
+
+
+@router.get("/notification-remote/{candidate}/qualification/{notification_id}/status")
+def notification_remote_qualification_status(
+    candidate: str, notification_id: str,
+) -> Dict[str, Any]:
+    context = _notification_remote_qualification_context(candidate)
+    state = _read_remote_qualification_state(context["state_path"])
+    try:
+        notification = context["service"].notification_status(
+            context["business_id"], notification_id,
+        )
+        session = context["service"].remote_status(
+            context["business_id"], state["session_id"],
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    connection = context["pairing"].connection_state(
+        device_id=state["certificate"]["device_id"],
+    )
+    return {
+        "ok": True, "notification": notification, "session": session,
+        "authority_state": connection["state"], "raw_authority_exposed": False,
+    }
+
+
 @router.post("/business-knowledge/{candidate}/entity-links/rebuild")
 def rebuild_business_knowledge_entity_links(candidate: str, request: BusinessKnowledgeEntityLinkRequest) -> Dict[str, Any]:
     try:
@@ -1554,6 +2210,18 @@ def put_department_intelligence(candidate: str, request: ContainerWriteRequest) 
         **_object((existing or {}).get("departments")),
         **_object(payload.get("departments")),
     }
+    # The general department-map editor must not erase the separately managed
+    # custom-department register when it submits only map changes. Merge by
+    # stable department ID so installed future departments remain selectable.
+    custom_by_id = {
+        str(item["id"]): item
+        for item in _custom_department_rows(existing)
+    }
+    custom_by_id.update({
+        str(item["id"]): item
+        for item in _custom_department_rows(payload)
+    })
+    payload["custom_departments"] = list(custom_by_id.values())
     payload.update({"id": f"{business_id}.department_intelligence", "workspace_id": business_id, "kind": "department_intelligence"})
     payload["revision"] = _next_revision(existing, request.expected_revision)
     payload["meta"] = _meta(business_id, "department_intelligence", request.source).model_dump(mode="json")
@@ -2231,17 +2899,33 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
     finance_model = optional("business_financial_model")
     operating_model = optional("business_operating_model")
     boardroom_operating_model = _boardroom_operating_projection(operating_model)
-    work_schedule_path = repository.base_dir / business_id / "work_schedule.json"
-    try:
-        work_schedule = json.loads(work_schedule_path.read_text(encoding="utf-8")) if work_schedule_path.is_file() else {}
-    except (OSError, TypeError, ValueError):
-        work_schedule = {}
+    business_root = None
+    if hasattr(repository, "base_dir"):
+        business_root = Path(repository.base_dir) / business_id
+        work_schedule_path = business_root / "work_schedule.json"
+        try:
+            work_schedule = (
+                json.loads(work_schedule_path.read_text(encoding="utf-8"))
+                if work_schedule_path.is_file()
+                else {}
+            )
+        except (OSError, TypeError, ValueError):
+            work_schedule = {}
+    else:
+        # Guardian mode deliberately exposes no raw business-data directory.
+        # Read the schedule through its domain service instead of weakening the
+        # Vault boundary just to satisfy this read-only Boardroom projection.
+        work_schedule = WorkScheduleService().get(business_id)
     boardroom_work_schedule = _boardroom_work_schedule_projection(work_schedule)
     evidence_refs = _list(finance_model.get("evidence_refs"))
-    department_intelligence = _runtime_department_projection(
-        business_id,
-        _object(ledger.get("departments")),
-        business_root=repository.base_dir / business_id,
+    department_intelligence = (
+        _runtime_department_projection(
+            business_id,
+            _object(ledger.get("departments")),
+            business_root=business_root,
+        )
+        if business_root is not None
+        else _object(ledger.get("departments"))
     )
     envelope = {
         "schema_version": "aion.boardroom_context_envelope.v1",

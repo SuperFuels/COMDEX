@@ -21,6 +21,17 @@ def test_canonical_business_id_is_shared_and_rejects_global_targets():
             canonical_business_id(invalid)
 
 
+def test_guardian_foundation_does_not_duplicate_workspace_into_operational_records(monkeypatch):
+    monkeypatch.setattr(api, "guardian_mode_requested", lambda: True)
+    monkeypatch.setattr(
+        api,
+        "_workspaces",
+        lambda: pytest.fail("Guardian onboarding must use business.structure"),
+    )
+
+    api._ensure_workspace("acme", {"business_name": "Acme"})
+
+
 def test_foundation_commits_identity_structure_map_and_ledger(tmp_path, monkeypatch):
     containers = tmp_path / "business_containers"
     workspaces = tmp_path / "workspaces"
@@ -182,6 +193,27 @@ def test_operating_model_calculates_stock_procurement_unit_economics_and_board_c
     assert next(item for item in facts if item["field"] == "inventory_metrics")["value"]["reorder_items"] == 1
     ledger = repository.load_department_intelligence("home-fixed")
     assert ledger.departments["procurement"]["operating_model"]["stock_value"] == 60
+
+
+def test_boardroom_context_reads_guardian_schedule_without_raw_base_dir(monkeypatch):
+    class GuardianLikeRepository:
+        def load_optional_dict(self, _business_id, kind):
+            if kind == "department_intelligence":
+                return {"revision": 2, "departments": {"finance": {"status": "ready"}}}
+            return {}
+
+    class GuardianScheduleService:
+        def get(self, workspace_id):
+            assert workspace_id == "home-fixed"
+            return {"schema_version": "aion.work-schedule.v3", "revision": 4, "items": []}
+
+    monkeypatch.setattr(api, "_repo", lambda: GuardianLikeRepository())
+    monkeypatch.setattr(api, "WorkScheduleService", GuardianScheduleService)
+
+    context = api.get_boardroom_context("home-fixed")["context"]
+
+    assert context["source_revisions"]["work_schedule"] == 4
+    assert context["department_intelligence"] == {"finance": {"status": "ready"}}
 
 
 def test_quoted_job_uses_hr_linked_labour_and_tracks_estimate_against_actual(tmp_path, monkeypatch):

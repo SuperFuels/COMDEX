@@ -1,0 +1,996 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=22mm,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\definecolor{AionBlue}{HTML}{126E82}
+\definecolor{AionNavy}{HTML}{17324D}
+\definecolor{AionLight}{HTML}{EAF5F7}
+\definecolor{CodeBg}{HTML}{F4F6F7}
+\definecolor{WarningBg}{HTML}{FFF4DD}
+\definecolor{RiskRed}{HTML}{A63A3A}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=AionNavy,
+  urlcolor=AionBlue,
+  pdftitle={AION Native Communication and Discourse Repair},
+  pdfauthor={Tessaris / AION Engineering}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{AION Native Communication and Discourse Repair}
+\rhead{Technical Record --- 14 October 2026}
+\cfoot{\thepage}
+
+\setlist[itemize]{leftmargin=*,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=*,itemsep=2pt,topsep=3pt}
+\renewcommand{\arraystretch}{1.18}
+
+\lstdefinestyle{aioncode}{
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{AionLight},
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+\lstset{style=aioncode}
+
+\newcommand{\statusbox}[1]{%
+  \begin{center}
+  \fcolorbox{AionBlue}{AionLight}{\parbox{0.92\textwidth}{#1}}
+  \end{center}}
+
+\newcommand{\warningbox}[1]{%
+  \begin{center}
+  \fcolorbox{RiskRed}{WarningBg}{\parbox{0.92\textwidth}{#1}}
+  \end{center}}
+
+\title{\textcolor{AionNavy}{\Huge AION Native Communication and Discourse Repair}\\[4mm]
+\Large Contract Safety, Multi-turn Dialogue, Live Evidence Migration and the Route to Open Conversation}
+\author{Tessaris / AION Engineering}
+\date{Technical snapshot: 14 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This record documents the work performed after the initial connected-English system was
+introduced.  It covers the Native Discourse and Dialogue Engine, the Native Communication
+Academy, strict source and answer-contract validation, removal of contaminated historical
+evidence, correction-queue control, delayed retention, cross-subject scheduling, runtime
+services, SQLite storage on the TESSARISQ38 SD volume, verification tests and the next native
+conversation architecture.  The central system boundary remains unchanged: Qwen may prepare
+sealed teaching material, but it is absent while AION interprets, reasons and answers.
+\end{abstract}
+
+\statusbox{\textbf{Capability statement.} AION now demonstrates genuine but bounded English
+comprehension.  It can form multi-sentence situation models, retrieve evidence, answer several
+semantic question families, construct connected responses and participate in structured
+multi-turn examinations without a language model in the student path.  It is not yet an
+unrestricted conversational system.  Open-ended intent recognition, robust reference
+resolution, topic changes, pragmatic language and broadly varied native expression remain
+active engineering goals.}
+
+\tableofcontents
+\newpage
+
+\section{Scope and Relationship to Earlier Documentation}
+
+This document supplements, rather than replaces, the earlier technical records:
+
+\begin{itemize}
+  \item \path{docs/latex/AION_Native_English_Intelligence_Architecture.tex}; and
+  \item \path{docs/latex/AION_Connected_English_Advancement_Section_2026-10-11.tex}.
+\end{itemize}
+
+Those records describe lexical memory, the semantic spider, Word Wall exercises, the Practice
+Gym, reading, semantic transfer and the first discourse implementation.  The present record
+focuses on the later repairs needed to make connected-English evidence trustworthy and to move
+AION from short structured answers toward sustained native communication.
+
+\section{Non-negotiable Student--Teacher Boundary}
+
+The architecture deliberately separates teaching from performance.
+
+\begin{lstlisting}
+Qwen/local teacher
+    -> proposes a sealed situation, question and verified answer contract
+    -> disconnects
+
+AION/native student
+    -> parses the passage and question
+    -> builds or updates a situation model
+    -> retrieves lexical and acquired concept evidence
+    -> selects and reasons over propositions
+    -> constructs an English response
+    -> checks support, ambiguity and confidence
+
+Sealed grader
+    -> reveals the expected meaning only after AION has answered
+    -> records success, correction or delayed retest
+\end{lstlisting}
+
+The following invariants apply:
+
+\begin{enumerate}
+  \item Qwen must not supply, rewrite or polish AION's student response.
+  \item The expected answer is withheld until after the native response exists.
+  \item A correct answer counts only when supported by the represented source evidence.
+  \item Invalid teacher material is rejected before AION sees it.
+  \item Practice rewards guide scheduling but do not, by themselves, prove mastery.
+  \item AION may request clarification or state insufficient evidence instead of guessing.
+\end{enumerate}
+
+\section{Native Discourse and Dialogue Engine}
+
+The principal implementation is:
+
+\begin{center}
+\path{backend/modules/aion_cognition/native_discourse_dialogue.py}
+\end{center}
+
+\subsection{Situation model}
+
+The engine converts connected text into an explicit representation containing:
+
+\begin{itemize}
+  \item entities and their textual mentions;
+  \item events, agents, actions and affected objects;
+  \item locations and explicit time expressions;
+  \item clause-level negation;
+  \item causal links and event order;
+  \item pronoun and reference relationships;
+  \item evidence sentences and source identifiers; and
+  \item unresolved or ambiguous relationships.
+\end{itemize}
+
+The response path is proposition-based rather than answer-string retrieval:
+
+\[
+\text{question}
+\rightarrow \text{intent}
+\rightarrow \text{selected event/relation}
+\rightarrow \text{evidence}
+\rightarrow \text{propositions}
+\rightarrow \text{surface response}.
+\]
+
+Current sealed examination families include entity, action, complete object, location, time,
+cause, coreference, first event, next event and contradiction.  Definition exercises are not
+reported as discourse comprehension.
+
+\subsection{Evidence and confidence}
+
+Each response plan contains the native answer, requested intent, propositions, evidence,
+confidence and support checks.  A response is not considered fully successful merely because
+its text resembles the answer.  It must also be grounded in the current situation model and the
+sealed answer contract.
+
+\section{Native Communication Academy}
+
+The multi-turn curriculum is implemented in:
+
+\begin{center}
+\path{backend/modules/aion_cognition/native_communication_academy.py}
+\end{center}
+
+The academy advances through the following evidence ladder:
+
+\begin{longtable}{p{0.28\textwidth}p{0.12\textwidth}p{0.50\textwidth}}
+\toprule
+Stage & Turns & Required capability \\
+\midrule
+One-sentence answer & 1 & One supported native answer \\
+Connected explanation & 2 & Answer plus connected evidence \\
+Short paragraph & 3 & Several propositions in a coherent response \\
+Passage discussion & 4 & Repeated reference to one represented passage \\
+Five-turn dialogue & 5 & Persistent state across a short conversation \\
+Ten-turn dialogue & 10 & Complete, varied and evidence-backed conversation \\
+Cross-subject dialogue & 10 & Conversation grounded in different source subjects \\
+Delayed dialogue retest & 10 & Retained performance after scheduled delay \\
+\bottomrule
+\end{longtable}
+
+Graduation requires two complete passes from distinct passages.  Advanced stages additionally
+require source diversity.  An earlier implementation silently accepted fewer turns when a
+passage did not provide enough contracts; those receipts are now retained for audit but excluded
+from capability claims.
+
+\section{Contract-Safety Repair}
+
+The most important recent discovery was that high-volume activity did not necessarily represent
+valid English testing.  Some imported pages contained indexes, headings or catalogue fragments.
+The parser then created questions with outputs such as pronouns, particles, truncated phrases or
+long lists.  Examples included prompts equivalent to ``the event involving I'' and object keys
+such as ``me'' or incomplete clause fragments.
+
+\subsection{Connected-prose gate}
+
+The \texttt{\_passage\_is\_prose} gate now rejects material that exhibits index-like structure,
+including:
+
+\begin{itemize}
+  \item too few words or no connected sentence/clause structure;
+  \item excessive title-cased fragments;
+  \item semicolon-delimited lists dominated by very short entries;
+  \item contents, index, appendix, bibliography or glossary headings;
+  \item repeated figure, table, volume, section or page-number references; and
+  \item excessively large candidate windows.
+\end{itemize}
+
+This filter is applied while reading candidates are assembled and again before a sealed contract
+can enter an examination.
+
+\subsection{Complete object phrases}
+
+The \texttt{\_object\_answer\_safe} gate now requires a bounded, complete noun phrase.  It rejects:
+
+\begin{itemize}
+  \item standalone pronouns;
+  \item particles and prepositions;
+  \item connective or function-word endings;
+  \item parser spill-over from adjacent clauses; and
+  \item phrases without a lexically supported noun head.
+\end{itemize}
+
+Valid examples include ``the damaged sensor'' and ``the loose cable.''  Invalid examples include
+``me,'' ``up the curtain'' and ``the fact that only.''
+
+Object questions are now created only when the event has a grounded subject, a usable action and
+a unique subject--action match within the passage.  The compiled question is anchored to that
+event, for example:
+
+\begin{lstlisting}
+What complete object did Leona inspect?
+\end{lstlisting}
+
+This replaces weak questions such as ``What was affected in the event involving I?''
+
+\subsection{Other role gates}
+
+Additional validation requires:
+
+\begin{itemize}
+  \item grounded named entities for agent questions;
+  \item lexically place-like heads for location phrases;
+  \item non-auxiliary, non-connective action surfaces;
+  \item bounded answers for all families; and
+  \item grounded event descriptions for sequence answers.
+\end{itemize}
+
+\section{Reference Ambiguity and the Current Ten-turn Finding}
+
+The first repaired ten-turn examination achieved nine correct turns out of ten.  The missed item
+asked what ``they'' referred to in a combined passage that contained two separate occurrences of
+``they.''  AION answered ``Gold,'' while the sealed contract expected ``Ore.''  Because the
+question did not identify which occurrence was intended, the item was ambiguous.
+
+This is not evidence that reference resolution is complete.  It identifies the next contract
+repair: every coreference question must carry a mention identifier, sentence index or sufficient
+local quotation to select one occurrence unambiguously.  Future reference contracts should use
+a form such as:
+
+\begin{lstlisting}
+In the sentence beginning "Ore minerals concentrated...",
+what does the first occurrence of "they" refer to?
+\end{lstlisting}
+
+The mention identity must remain available to the native planner even when Qwen rephrases the
+surface question.
+
+\section{Dialogue Diversity and Anti-scaffolding Controls}
+
+Several controls now prevent volume from masquerading as transfer:
+
+\begin{enumerate}
+  \item No more than two questions from one semantic family may fill a dialogue session.
+  \item A ten-turn session therefore requires several different abilities rather than ten object
+        lookups.
+  \item An identical passage signature is not reused within the same curriculum stage.
+  \item Cross-subject sessions combine three passages from three distinct subject families.
+  \item Exact passage signatures, source identities and family counts are retained as evidence.
+  \item Qwen proposals that expose the answer, change the semantic role or select an unknown
+        contract are rejected.
+  \item Native compiled contracts fill safe empty teacher slots so an invalid Qwen draft cannot
+        starve learning.
+\end{enumerate}
+
+The distinction is important:
+
+\[
+\text{repeated structured success} \neq \text{unfamiliar language transfer}.
+\]
+
+Only source-disjoint, sealed and model-free examinations contribute to the stronger transfer
+claims.
+
+\section{Corrections, Retests and Queue Control}
+
+Every failed valid contract creates a verified remedial obligation.  The correction stores the
+expected meaning and an explanation, but the later retest runs closed-book.  Delays are scheduled
+at approximately one day, seven days and thirty days.
+
+Recent queue repairs include:
+
+\begin{itemize}
+  \item verified corrections are processed before new sessions are generated;
+  \item new work pauses while a large due queue is being drained;
+  \item a failed session creates at most four immediate remedial obligations;
+  \item duplicate failures from the same semantic family do not create repeated obligations;
+  \item repeated failures are delayed rather than hammered continuously; and
+  \item retests sharing a passage reuse one in-memory situation model.
+\end{itemize}
+
+The model cache is particularly important for ten-turn retention.  Without it, the same passage
+could be parsed ten times during one retest batch.  The optimized path parses it once and executes
+all associated native plans against the same immutable model.
+
+\section{Historical Evidence Migration}
+
+The stricter contract rules were applied to the existing SD-card ledger.  No records were
+deleted.  Invalid sessions and retests were assigned explicit invalidation statuses and excluded
+from ability metrics.
+
+\begin{longtable}{p{0.46\textwidth}r p{0.34\textwidth}}
+\toprule
+Audit classification & Count & Treatment \\
+\midrule
+Invalid contract quality & 1,026 sessions & Preserved; excluded from evidence \\
+Incomplete stage & 21 sessions & Preserved; excluded from graduation \\
+Invalid teacher entity contract & 1 session & Preserved; excluded from evidence \\
+Invalid contract retests & 5,902 & Cancelled as student obligations \\
+Incomplete-stage retests & 55 & Cancelled as student obligations \\
+\bottomrule
+\end{longtable}
+
+The apparent fall in session totals was therefore a correction of the evidence ledger, not a loss
+of acquired lexical memory.  Immediately after migration, valid communication accuracy rose and
+new repaired sessions began passing.  The migration marker is stored in
+\texttt{native\_communication\_meta}, preventing the expensive full audit from rerunning at every
+dashboard request.
+
+\section{Persistence and SQLite Tables}
+
+The live learning database remains:
+
+\begin{center}
+\path{/Volumes/TESSARISQ38/TessarisLearning/AION/native_lexical_intelligence.sqlite3}
+\end{center}
+
+Relevant discourse tables include:
+
+\begin{itemize}
+  \item \texttt{native\_discourse\_models};
+  \item \texttt{native\_discourse\_entities};
+  \item \texttt{native\_discourse\_events};
+  \item \texttt{native\_dialogue\_sessions};
+  \item \texttt{native\_dialogue\_turns};
+  \item \texttt{native\_dialogue\_corrections};
+  \item \texttt{native\_discourse\_exams}; and
+  \item \texttt{native\_discourse\_exam\_remediation}.
+\end{itemize}
+
+Communication Academy tables include:
+
+\begin{itemize}
+  \item \texttt{native\_communication\_sessions};
+  \item \texttt{native\_communication\_turns};
+  \item \texttt{native\_communication\_retests}; and
+  \item \texttt{native\_communication\_meta}.
+\end{itemize}
+
+Session rows retain stage, source, subject family, passage signature, passage, target and completed
+turn counts, correct and evidence-supported turns, teacher identity, student-model-use flag,
+timestamp and validity status.  Turn rows retain the family, question, sealed expected answer,
+native answer, correctness, confidence, propositions, evidence and claim checks.
+
+SQLite connections are governed through:
+
+\begin{center}
+\path{backend/modules/aion_cognition/sqlite_connection.py}
+\end{center}
+
+The shared connection helper applies the configured busy timeout and the project's single-writer
+discipline, reducing the SD-card lock collisions seen in earlier learning builds.
+
+\section{Runtime Services and Dashboard}
+
+The relevant live processes are:
+
+\begin{longtable}{p{0.34\textwidth}p{0.56\textwidth}}
+\toprule
+Service & Responsibility \\
+\midrule
+\texttt{aion\_native\_reading\_service.py} & Continues book ingestion, reading, contextual evidence and retention \\
+\texttt{aion\_mastery\_curriculum\_service.py} & Schedules curriculum, transfer, discourse and communication work \\
+\texttt{uvicorn backend.desktop\_app:app} & Serves the local Learning Centre and evidence APIs \\
+\bottomrule
+\end{longtable}
+
+The Learning Centre endpoint is:
+
+\begin{center}
+\url{http://127.0.0.1:8080/api/aion/english-intelligence/panel}
+\end{center}
+
+Progress snapshots are cached briefly so browser polling does not repeatedly scan large SD-card
+tables.  The API publishes completed sections progressively and exposes component refresh errors;
+a temporarily cached panel must not be confused with stalled learning.
+
+\section{Dated Live Evidence Snapshot}
+
+The following measurements were observed on 14 October 2026 after the repair and evidence
+migration.  They are operational evidence, not timeless specifications.
+
+\begin{longtable}{p{0.55\textwidth}r}
+\toprule
+Measure & Value \\
+\midrule
+Valid Communication Academy sessions & 20 \\
+Valid sessions passed & 13 \\
+Valid dialogue turns & 72 \\
+Overall valid communication accuracy & 86.1\% \\
+Recent communication accuracy & 95.8\% \\
+Current communication stage & Ten-turn dialogue \\
+First repaired ten-turn result & 9/10 \\
+Discourse examinations & 4,716 \\
+Recent discourse accuracy & 97.3\% \\
+Reading sentences processed & 109,642 \\
+Reading sentences pending & 1,155 \\
+Recent reading accuracy & 91.5\% \\
+Recent contextual-vocabulary accuracy & 97.7\% \\
+Concepts verified in reading context & 4,890 \\
+Recalled-use concepts & 3,250 \\
+Contextual-use evidence, lifetime & 166 \\
+Currently strict contextual-stage concepts & 4 \\
+Productive-use concepts & 162 \\
+Recent Practice Gym attempts & 502 at 92.0\% \\
+Recent Language Workshop attempts & 30 at 100.0\% \\
+\bottomrule
+\end{longtable}
+
+\warningbox{The recent free-transfer result was 100\%, but it contained only five attempts.
+It is encouraging, not statistically sufficient.  Likewise, structured ten-turn performance
+does not yet demonstrate arbitrary open conversation.}
+
+\section{What AION Can and Cannot Currently Do}
+
+\subsection{Demonstrated capabilities}
+
+AION can currently:
+
+\begin{itemize}
+  \item interpret many ordinary sentence structures;
+  \item represent agents, actions, objects, locations, time, negation and causes;
+  \item preserve a bounded situation across connected sentences;
+  \item answer sealed questions from represented evidence;
+  \item construct short connected explanations and paragraphs;
+  \item run structured multi-turn dialogue without Qwen answering for it;
+  \item report uncertainty when its native plan lacks the requested role; and
+  \item retain corrections through scheduled closed-book retests.
+\end{itemize}
+
+\subsection{Capability boundary}
+
+The present evidence does not yet prove reliable handling of:
+
+\begin{itemize}
+  \item arbitrary open-ended user questions;
+  \item informal speech, humour, irony and implied social meaning;
+  \item multiple identical pronouns in a long combined passage;
+  \item long conversations with topic changes and interruptions;
+  \item varied natural expression across arbitrary subjects; or
+  \item questions whose relevant knowledge is absent from AION's represented memories.
+\end{itemize}
+
+The correct description is therefore \emph{genuine early, bounded English comprehension and
+structured conversation}, not fluent general-purpose conversation.
+
+\section{Next Build: Native Conversation Runtime}
+
+Current vocabulary and reading should continue, but additional dictionary volume is no longer the
+main engineering constraint.  The next system should convert connected meaning into robust open
+interaction.  This is not principally a waiting problem.  More spider pages, book sentences and
+definition exercises will strengthen lexical coverage, but they cannot by themselves create the
+state management, intent interpretation, reference resolution and response planning required for
+free conversation.  Those mechanisms must be implemented and examined directly.
+
+\subsection{System objective}
+
+The Native Conversation Runtime should accept an arbitrary owner utterance and produce a native,
+evidence-governed response without using next-token model generation in the student path.  Its
+top-level flow is:
+
+\begin{lstlisting}
+owner utterance
+  -> token, clause and discourse parse
+  -> mention and reference resolution
+  -> open intent/request frame
+  -> dialogue-state query
+  -> lexical, episodic and knowledge retrieval
+  -> reasoning and proposition selection
+  -> response plan
+  -> native grammatical realisation
+  -> evidence, ambiguity and confidence checks
+  -> transactional dialogue-state update
+\end{lstlisting}
+
+The runtime has two valid outcomes: a supported response, or an explicit clarification/unknown
+response.  An unsupported guess is not a valid third outcome.
+
+\subsection{Proposed implementation boundaries}
+
+The following modules are proposed; these paths describe the intended separation of
+responsibilities and do not imply that all files already exist:
+
+\begin{longtable}{p{0.48\textwidth}p{0.42\textwidth}}
+\toprule
+Proposed module & Responsibility \\
+\midrule
+\path{native_reference_graph.py} & Mention identities, candidate antecedents, reference scoring and ambiguity \\
+\path{native_open_intent.py} & Speech acts, requested roles, scope, assumptions and missing information \\
+\path{native_dialogue_memory.py} & Persistent turn state, topics, beliefs, corrections and unresolved obligations \\
+\path{native_knowledge_retrieval.py} & Evidence retrieval from acquired concepts, reading and episodic memories \\
+\path{native_response_realizer.py} & Proposition ordering, clause planning, morphology and surface generation \\
+\path{native_conversation_runtime.py} & End-to-end orchestration, policy checks and transactional commit \\
+\path{native_open_conversation_academy.py} & Sealed training conversations, grading, corrections and retention \\
+\bottomrule
+\end{longtable}
+
+Existing discourse and communication modules should remain the tested foundation.  The new
+runtime should call their stable parsing and evidence interfaces rather than copy their logic.
+
+\subsection{Mention-specific reference graph}
+
+Every pronoun or referring phrase requires a stable mention identifier with sentence position,
+candidate antecedents, compatibility features and confidence.  The engine must ask for
+clarification when two antecedents remain plausible.
+
+A mention record should contain at least:
+
+\begin{itemize}
+  \item a stable mention identifier and canonical entity or event identifier;
+  \item turn, sentence and token span;
+  \item surface text and mention type;
+  \item grammatical number, person and available semantic class;
+  \item discourse role, recency and current-topic salience;
+  \item candidate antecedents with positive and negative evidence; and
+  \item selected antecedent, confidence and resolution status.
+\end{itemize}
+
+Candidate resolution should be an explicit scored decision rather than a nearest-name shortcut.
+One possible bounded score is:
+
+\[
+S(a,m)=w_rR+w_gG+w_sS+w_tT+w_cC-w_kK,
+\]
+
+where $R$ is recency, $G$ grammatical compatibility, $S$ semantic compatibility, $T$ topic
+salience, $C$ clause-role compatibility and $K$ contradiction or conflict evidence.  Resolution
+is permitted only when the best candidate exceeds both an absolute threshold and the second-best
+candidate by a configured margin.  Otherwise the runtime generates a clarification request.
+
+Identical surface pronouns must remain separate mention nodes.  For example, two occurrences of
+``they'' in different source sentences cannot share one answer contract merely because their text
+is identical.  Sealed examinations must identify the intended mention without exposing its
+antecedent.
+
+\subsection{Open intent interpretation}
+
+The fixed question-family classifier should be extended into a compositional request frame:
+
+\begin{lstlisting}
+user utterance
+  -> speech act / intent
+  -> requested entity, event, property or relation
+  -> time and discourse scope
+  -> presuppositions
+  -> missing or ambiguous information
+\end{lstlisting}
+
+This frame must support questions, instructions, corrections, comparisons, explanations,
+clarification and changes of subject.
+
+The request frame should be serialisable and contain:
+
+\begin{lstlisting}
+{
+  "speech_act": "question | instruction | correction | assertion | social",
+  "requested_relation": "entity | event | property | cause | comparison | ...",
+  "arguments": [{"role": "target", "entity_id": "..."}],
+  "time_scope": {"start": null, "end": null, "relative_to": "..."},
+  "discourse_scope": ["current_turn", "previous_turn", "active_topic"],
+  "presuppositions": [],
+  "ambiguities": [],
+  "missing_requirements": [],
+  "confidence": 0.0
+}
+\end{lstlisting}
+
+Interpretation should combine lexical concepts, clause structure, dialogue state and current
+topic.  It must not depend on a finite list of complete question strings.  Existing semantic
+families can remain typed primitives inside the larger compositional frame.
+
+If a question contains two plausible targets, the runtime should preserve both hypotheses and ask
+which one the owner intends.  It must not write a guessed interpretation into persistent memory.
+
+\subsection{Persistent dialogue state}
+
+The native state should persist:
+
+\begin{itemize}
+  \item people, objects and events introduced by the user;
+  \item accepted facts and their provenance;
+  \item current and previous topics;
+  \item unresolved references and questions;
+  \item earlier AION claims and confidence; and
+  \item user corrections and belief revisions.
+\end{itemize}
+
+State updates should be transactional and evidence-labelled.  A correction must supersede the
+affected proposition without silently deleting its history.
+
+Dialogue state should be divided into four layers:
+
+\begin{enumerate}
+  \item \textbf{Turn state}: the current utterance, parse hypotheses, intent and unresolved spans.
+  \item \textbf{Situation state}: active people, objects, events, relations, time and location.
+  \item \textbf{Discourse state}: current topic, topic stack, pending questions, references and
+        conversational obligations.
+  \item \textbf{Belief state}: accepted propositions, provenance, confidence, contradictions and
+        superseding corrections.
+\end{enumerate}
+
+Every turn should follow a prepare--validate--commit pattern:
+
+\begin{lstlisting}
+prepare candidate state changes
+  -> verify evidence and references
+  -> detect contradiction or ambiguity
+  -> produce response
+  -> commit only supported changes
+  -> retain superseded facts as audit history
+\end{lstlisting}
+
+Topic changes should push the previous topic onto a recoverable stack.  Phrases such as ``going
+back to the inspection'' should reactivate the relevant topic and its entities without treating
+them as newly introduced facts.
+
+Proposed persistence tables include
+\texttt{native\_conversation\_sessions},
+\texttt{native\_conversation\_turns},
+\texttt{native\_conversation\_mentions},
+\texttt{native\_conversation\_topics},
+\texttt{native\_conversation\_propositions},
+\texttt{native\_conversation\_corrections} and
+\texttt{native\_conversation\_exams}.  All should reside in the same governed SD-card database
+unless profiling proves that a separate derived index is required.
+
+\subsection{Searchable, structured knowledge}
+
+English competence and world knowledge must remain distinguishable.  AION cannot answer an
+arbitrary question merely because it can parse its grammar.  Reading output therefore needs a
+searchable proposition index rather than retrieval of whole books or raw dictionary entries.
+
+Each durable knowledge item should contain:
+
+\begin{itemize}
+  \item subject, predicate and object/property identifiers;
+  \item time, location, negation and modality where available;
+  \item source, sentence span and acquisition method;
+  \item confidence and verification status;
+  \item links to supporting or contradicting propositions; and
+  \item the acquired lexical concepts used to interpret it.
+\end{itemize}
+
+Retrieval should begin with the request frame, expand through acquired semantic relations and
+return a small evidence bundle.  The response planner should not receive an entire book when three
+propositions answer the question.  Source text may be fetched for verification, but it must not
+replace the structured representation.
+
+\subsection{Native language realiser}
+
+The answer generator should operate over intended propositions:
+
+\[
+\text{reasoning result}
+\rightarrow \text{ordered propositions}
+\rightarrow \text{clause plan}
+\rightarrow \text{tense/reference plan}
+\rightarrow \text{word forms}
+\rightarrow \text{surface response}
+\rightarrow \text{support check}.
+\]
+
+It should produce multiple valid forms without memorising one answer template.  Grading should
+compare semantic frames, grammatical constraints and supported claims rather than exact strings.
+
+The realiser should operate in bounded stages:
+
+\begin{enumerate}
+  \item select only propositions relevant to the response goal;
+  \item order propositions by answer, evidence, qualification and conclusion;
+  \item choose sentence and clause boundaries;
+  \item assign subject, action, object, complements and connectors;
+  \item select tense, aspect, number, determiners and pronouns;
+  \item realise stored or productive morphology;
+  \item check agreement, reference integrity and unsupported additions; and
+  \item select one of several meaning-equivalent surface forms.
+\end{enumerate}
+
+Variation should come from explicit grammatical alternatives, not random word substitution.  For
+example, active/passive choice, clause combination, connective selection and evidence placement
+may vary only when the proposition graph proves that meaning is preserved.
+
+Before emission, each clause should carry a support map from surface claim back to proposition and
+evidence identifiers.  A clause lacking support is removed, qualified as inference, or replaced by
+an uncertainty statement.
+
+\subsection{Pragmatic behaviour}
+
+The runtime must learn to request clarification, distinguish fact from inference, report missing
+knowledge, recognise likely non-literal language, explain evidence and revise an earlier answer.
+These behaviours are part of English competence, not optional presentation polish.
+
+At minimum, the policy layer needs explicit outcomes for:
+
+\begin{longtable}{p{0.28\textwidth}p{0.62\textwidth}}
+\toprule
+Condition & Native behaviour \\
+\midrule
+Ambiguous reference & Name the alternatives and ask which was intended \\
+Missing evidence & State what is unknown and what information would resolve it \\
+Fact versus inference & Label the inference and cite its supporting propositions \\
+Contradictory evidence & Present the conflict and avoid silently choosing one source \\
+Owner correction & Record provenance, supersede the affected belief and acknowledge the update \\
+Non-literal cue & Preserve a literal hypothesis and a likely pragmatic hypothesis until resolved \\
+Low confidence & Give a calibrated answer or clarification rather than a confident guess \\
+Topic change & Save the old topic, establish the new one and retain a route back \\
+\bottomrule
+\end{longtable}
+
+Humour and implication should not initially be treated as unconstrained creativity.  They should
+be represented as competing literal and intended-meaning hypotheses, learned from sealed examples
+and graded on whether AION requests clarification when evidence is weak.
+
+\subsection{Turn-level safety and observability}
+
+Every native turn should expose an internal receipt containing intent, selected evidence,
+propositions, mention resolutions, confidence, ambiguities, unsupported-claim count, state changes
+and model-use flags.  The user-facing response need not display the receipt by default, but the
+Learning Centre and examination ledger must retain it for audit.
+
+The runtime must fail closed if a teacher-model process remains attached to the student response
+path.  A turn with an uncertain model-use boundary is ineligible for native capability evidence.
+
+\section{Open Conversation Academy}
+
+Qwen may create sealed conversations at scale, subject to the same student boundary.  Training
+should progress through:
+
+\begin{lstlisting}
+one supported answer
+  -> two-sentence explanation
+  -> native paragraph
+  -> passage discussion
+  -> five-turn dialogue
+  -> ten-turn dialogue
+  -> twenty-turn dialogue with topic changes
+  -> cross-subject dialogue
+  -> delayed source-disjoint retest
+\end{lstlisting}
+
+Teacher scenarios should deliberately include unfamiliar names, paraphrases, informal wording,
+ambiguous requests, corrections, disagreements, missing information and changes of topic.  The
+teacher output is validated and sealed before AION starts.
+
+\subsection{Teacher contract}
+
+For each session, Qwen may produce:
+
+\begin{itemize}
+  \item the private world state and source propositions;
+  \item a sequence of owner utterances and allowed topic changes;
+  \item intended mentions and semantic request frames;
+  \item meaning-equivalent answer criteria;
+  \item forbidden unsupported claims;
+  \item expected clarification points; and
+  \item verified corrections and later retest contracts.
+\end{itemize}
+
+The material must pass a deterministic validator before the answer key is sealed.  Qwen then
+disconnects.  AION receives only the visible conversation.  The grader opens the private contract
+after each native response and records semantic correctness, evidence support, grammar, reference
+integrity, state retention and uncertainty calibration separately.
+
+\subsection{Adaptive progression}
+
+Training should allocate work according to the failure type:
+
+\begin{itemize}
+  \item a reference error returns to mention discrimination and later uses a new surface form;
+  \item an intent error receives a simpler request-frame contrast before open re-examination;
+  \item a knowledge-retrieval error receives evidence-selection practice, not a grammar drill;
+  \item a realisation error keeps the correct proposition plan and retrains only surface grammar;
+  \item an unsupported claim receives evidence-bound response practice; and
+  \item a state-loss error receives a shorter conversation with the same memory operation.
+\end{itemize}
+
+One verified correction should be followed by a simpler closed-book retry, then an unfamiliar
+free-transfer test, then delayed source-disjoint retention.  Repeating the failed question with the
+answer visible is not learning evidence.
+
+\subsection{Curriculum mix}
+
+An initial open-conversation allocation should be approximately:
+
+\begin{itemize}
+  \item 25\% reference resolution and dialogue-state continuity;
+  \item 20\% arbitrary intent and clarification;
+  \item 20\% knowledge retrieval and evidence selection;
+  \item 20\% native response planning and realisation;
+  \item 10\% correction, contradiction and belief revision; and
+  \item 5\% implication, humour and other pragmatic language.
+\end{itemize}
+
+The mix should adapt as evidence accumulates.  Perfect elementary performance should reduce its
+own scheduling weight; it must not crowd out the ability that remains weak.
+
+\section{Acceptance Criteria for Conversational English}
+
+The system should not be described as broadly conversational until independent testing shows:
+
+\begin{itemize}
+  \item at least 90\% mention-specific reference resolution;
+  \item at least 85\% passage, causal and implication reasoning;
+  \item successful twenty-turn conversations across several subjects;
+  \item topic changes without loss or corruption of earlier state;
+  \item reliable clarification when a question has multiple valid interpretations;
+  \item unsupported-claim rate below 2\%;
+  \item correction retention after one, seven and thirty days;
+  \item transfer to speakers, wording and sources absent from training; and
+  \item an audit proving no model or cloud route occurred in AION's response path.
+\end{itemize}
+
+These thresholds should be reported with attempt counts, source diversity and confidence
+intervals.  A percentage based on a handful of attempts is not sufficient evidence.
+
+\subsection{Minimum examination design}
+
+The release examination should contain at least 1,000 independently graded turns distributed
+across new speakers, unseen wording and source-disjoint subject matter.  No single source,
+question family or template should contribute enough attempts to dominate the result.  The test
+set should include:
+
+\begin{itemize}
+  \item twenty-turn conversations in science, engineering, history, literature and everyday life;
+  \item conversations containing at least two deliberate topic changes;
+  \item multiple same-form pronouns with different antecedents;
+  \item questions with one answer, several valid answers and insufficient information;
+  \item corrections that invalidate an earlier conclusion;
+  \item informal and meaning-equivalent paraphrases;
+  \item evidence conflicts and explicit uncertainty requirements; and
+  \item delayed re-examinations after one, seven and thirty days.
+\end{itemize}
+
+\subsection{Release gate}
+
+Broad native conversation should be declared only when all criteria pass simultaneously.  A high
+grammar score cannot compensate for unsupported claims; vocabulary size cannot compensate for
+state loss; and immediate success cannot compensate for failed delayed retention.  The release
+receipt should report raw counts, accuracy, confidence calibration, source diversity, invalid
+teacher contracts, clarification precision, unsupported claims and verified model isolation.
+
+\section{Recommended Build Order}
+
+The immediate implementation sequence is:
+
+\begin{lstlisting}
+1. mention-specific pronoun and reference repair
+2. persistent transactional dialogue state
+3. compositional arbitrary-intent parsing
+4. structured knowledge retrieval from reading memory
+5. native proposition and response planner
+6. grammatical realiser with support maps
+7. open-conversation academy and adaptive corrections
+8. independent twenty-turn examinations and delayed retention
+\end{lstlisting}
+
+The reader, semantic spider, Practice Gym, Language Workshop, transfer academy and current
+communication curriculum should continue in parallel.  Their role is to supply vocabulary,
+evidence and supporting practice.  The majority of new engineering effort should move from
+acquiring more isolated words to maintaining meaning and constructing original supported answers.
+
+\section{Verification}
+
+The focused and surrounding English suites cover contract filtering, object grounding, catalogue
+rejection, situation models, references, correction storage, sealed teacher boundaries, stage
+progression, source diversity, family caps, delayed retests, reading, practice, transfer and
+online importing.
+
+The repair was verified with 67 passing tests across:
+
+\begin{itemize}
+  \item \path{backend/tests/test_native_discourse_dialogue.py};
+  \item \path{backend/tests/test_native_communication_academy.py};
+  \item \path{backend/tests/test_native_english_progress.py};
+  \item \path{backend/tests/test_native_reading_academy.py};
+  \item \path{backend/tests/test_native_english_practice_gym.py};
+  \item \path{backend/tests/test_native_semantic_transfer_academy.py}; and
+  \item \path{backend/tests/test_native_online_reading_harvester.py}.
+\end{itemize}
+
+\section{Operational Checks}
+
+After code or schema changes, operators should verify:
+
+\begin{enumerate}
+  \item the SD volume is mounted and the configured SQLite file exists;
+  \item the reader, mastery curriculum and local API processes are alive;
+  \item the dashboard reports a fresh snapshot with no component refresh errors;
+  \item reading counters continue to advance;
+  \item no invalid session contributes to capability metrics;
+  \item due retests decrease or are rescheduled according to retention policy;
+  \item recent dialogue contains varied families and unseen passage signatures;
+  \item Qwen/student-use flags remain false for every student answer; and
+  \item CPU and memory remain bounded while large retest batches run.
+\end{enumerate}
+
+Historical rows should never be deleted merely to improve a metric.  They should be assigned an
+explicit validity status so the audit trail remains recoverable.
+
+\section{Key Files and Directories}
+
+\begin{longtable}{p{0.43\textwidth}p{0.47\textwidth}}
+\toprule
+Path & Purpose \\
+\midrule
+\path{backend/modules/aion_cognition/native_discourse_dialogue.py} & Situation models, native planning, sealed discourse exams and remediation \\
+\path{backend/modules/aion_cognition/native_communication_academy.py} & Multi-turn curriculum, dialogue evidence, retention and queue controls \\
+\path{backend/modules/aion_cognition/native_english_progress.py} & Consolidated evidence report \\
+\path{backend/api/aion_english_intelligence_router.py} & Learning Centre APIs, progress cache and panel \\
+\path{backend/modules/aion_cognition/native_reading_academy.py} & Book reading, contextual evidence and retention \\
+\path{backend/modules/aion_cognition/native_semantic_transfer_academy.py} & Guided-to-free semantic transfer ladder \\
+\path{backend/modules/aion_cognition/native_english_practice_gym.py} & Adaptive structured English practice \\
+\path{backend/modules/aion_cognition/native_language_workshop.py} & Construction, transformation and connected-language practice \\
+\path{backend/modules/aion_cognition/sqlite_connection.py} & Shared SD-safe SQLite connection policy \\
+\path{backend/AION/system/aion_native_reading_service.py} & Background reading service \\
+\path{backend/AION/system/aion_mastery_curriculum_service.py} & Background curriculum and communication scheduler \\
+\path{backend/modules/aion_cognition/reading_library/} & Local reading curriculum and source metadata \\
+\bottomrule
+\end{longtable}
+
+\section{Conclusion}
+
+The recent work did not merely raise an English score.  It corrected what counts as evidence.
+Malformed pages, incomplete answer phrases, repeated sessions and impossible teacher contracts
+are now separated from genuine student performance.  AION has subsequently advanced through
+short answers, explanations, paragraphs and passage discussion to its first repaired ten-turn
+conversation.
+
+The remaining problem is no longer basic vocabulary acquisition.  It is maintaining precise
+connected meaning while interpreting arbitrary user intent and constructing varied, supported
+responses.  The Native Conversation Runtime, mention-specific reference graph and Open
+Conversation Academy are therefore the next engineering layer required to move AION from bounded
+English competence toward reliable native conversation.
+
+\end{document}

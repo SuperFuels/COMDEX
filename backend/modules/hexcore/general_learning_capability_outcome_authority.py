@@ -104,6 +104,16 @@ SCENARIOS: tuple[dict[str, Any], ...] = (
     {"family": "building_heat", "domain": "construction", "goal": "reduce heating demand", "budget": 15, "deadline": 9, "measurement": 0.75, "baseline": 0.57, "risk": "low"},
     {"family": "coastal_flood", "domain": "climate", "goal": "test evacuation thresholds", "budget": 25, "deadline": 5, "measurement": 0.84, "baseline": 0.62, "risk": "high"},
     {"family": "software_release", "domain": "software", "goal": "prevent configuration regression", "budget": 7, "deadline": 1, "measurement": 0.95, "baseline": 0.72, "risk": "medium"},
+    {"family": "school_attendance", "domain": "education", "goal": "separate timetable and transport causes", "budget": 10, "deadline": 12, "measurement": 0.79, "baseline": 0.64, "risk": "medium"},
+    {"family": "harbour_congestion", "domain": "logistics", "goal": "reduce vessel turnaround variability", "budget": 24, "deadline": 14, "measurement": 0.83, "baseline": 0.60, "risk": "medium"},
+    {"family": "forest_fire_watch", "domain": "environment", "goal": "improve early smoke detection", "budget": 19, "deadline": 4, "measurement": 0.90, "baseline": 0.67, "risk": "high"},
+    {"family": "court_case_queue", "domain": "justice", "goal": "identify avoidable hearing delays", "budget": 13, "deadline": 15, "measurement": 0.74, "baseline": 0.55, "risk": "high"},
+    {"family": "museum_preservation", "domain": "heritage", "goal": "stabilise humidity around fragile exhibits", "budget": 17, "deadline": 11, "measurement": 0.87, "baseline": 0.70, "risk": "medium"},
+    {"family": "emergency_dispatch", "domain": "public_safety", "goal": "reduce incorrect incident routing", "budget": 21, "deadline": 2, "measurement": 0.92, "baseline": 0.69, "risk": "high"},
+    {"family": "telecom_fault_triage", "domain": "telecommunications", "goal": "localise intermittent access failures", "budget": 18, "deadline": 3, "measurement": 0.85, "baseline": 0.62, "risk": "medium"},
+    {"family": "housing_repair_backlog", "domain": "housing", "goal": "prioritise safety-critical repairs", "budget": 16, "deadline": 8, "measurement": 0.80, "baseline": 0.59, "risk": "high"},
+    {"family": "factory_energy_audit", "domain": "manufacturing", "goal": "distinguish idle losses from process demand", "budget": 20, "deadline": 13, "measurement": 0.89, "baseline": 0.65, "risk": "medium"},
+    {"family": "community_food_access", "domain": "social_policy", "goal": "measure whether delivery changes access", "budget": 12, "deadline": 16, "measurement": 0.76, "baseline": 0.54, "risk": "medium"},
 )
 
 

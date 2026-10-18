@@ -2,11 +2,14 @@
 # 🌌 AION Dynamic Φ Learning Model + Self-Balancing Resonance Loop
 # Continuously refines Φ-state and adjusts personality traits.
 
-import json, os, math, random, datetime, asyncio
+import json, os, math, random, datetime, asyncio, time
+from pathlib import Path
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 from backend.modules.consciousness.personality_engine import PROFILE
 from backend.modules.aion_resonance.resonance_state import load_phi_state, save_phi_state
 
 STATE_PATH = "data/phi_trace.json"
+TRACE_VAULT = AionLearningVaultStore()
 
 # --- Learning parameters ---
 LEARNING_RATE = 0.015     # adaptive learning gain
@@ -59,9 +62,17 @@ def _reinforce_personality(phi):
 # ──────────────────────────────────────────────
 # Φ Learning Update
 # ──────────────────────────────────────────────
-def update_phi_state(phi_vector: dict, last_command: str = None) -> dict:
+def update_phi_state(
+    phi_vector: dict,
+    last_command: str = None,
+    *,
+    vault_store: AionLearningVaultStore | None = None,
+    state_path: str | Path | None = None,
+    trace_path: str | Path | None = None,
+) -> dict:
     """Adaptive update for Φ resonance with personality reinforcement."""
-    prev = load_phi_state()
+    store = vault_store or TRACE_VAULT
+    prev = load_phi_state(state_path=state_path, vault_store=store)
     updated = {}
 
     for key in ["Φ_load", "Φ_flux", "Φ_entropy", "Φ_coherence"]:
@@ -72,21 +83,34 @@ def update_phi_state(phi_vector: dict, last_command: str = None) -> dict:
         noised = _add_noise(decayed)
         updated[key] = _clamp(noised)
 
-    updated["timestamp"] = datetime.datetime.utcnow().isoformat()
+    updated["timestamp"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     updated["last_command"] = last_command or prev.get("last_command")
 
     _reinforce_personality(updated)
-    save_phi_state(updated, last_command=last_command)
+    save_phi_state(
+        updated,
+        last_command=last_command,
+        state_path=state_path,
+        vault_store=store,
+    )
 
     try:
-        os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
-        trace = []
-        if os.path.exists(STATE_PATH):
-            with open(STATE_PATH, "r") as f:
-                trace = json.load(f)
-        trace.append(updated)
-        with open(STATE_PATH, "w") as f:
-            json.dump(trace[-200:], f, indent=2)  # keep recent 200
+        if trace_path is None and store.enabled:
+            event_id = f"phi-learning-{time.time_ns()}"
+            store.append_event(event_id, {
+                **updated,
+                "event_id": event_id,
+                "event_type": "phi_learning_trace",
+                "ts_utc": updated["timestamp"],
+            })
+        else:
+            path = Path(trace_path or STATE_PATH)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            trace = []
+            if path.is_file():
+                trace = json.loads(path.read_text(encoding="utf-8"))
+            trace.append(updated)
+            path.write_text(json.dumps(trace[-200:], indent=2), encoding="utf-8")
     except Exception as e:
         print(f"[Φ-Learning] ⚠️ Trace update failed: {e}")
 

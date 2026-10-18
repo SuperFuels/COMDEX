@@ -45,6 +45,7 @@ class BoardroomAskRequest(BaseModel):
         "Analyse the business context and produce a boardroom response with "
         "position, recommendations, risks, missing inputs, and confidence."
     )
+    communication_style: str = "plain"
 
 
 class PilotDraftRequest(BaseModel):
@@ -155,7 +156,11 @@ def _provider_status() -> List[Dict[str, Any]]:
     return records
 
 
-def _selected_local_provider(workspace_id: str) -> Optional[Dict[str, Any]]:
+def _selected_local_provider(
+    workspace_id: str,
+    *,
+    verify_live: bool = True,
+) -> Optional[Dict[str, Any]]:
     """Return the selected or device-available verified local model."""
     from backend.modules.aion_inference.local_model_selection_store import load_local_model_selection
     from backend.modules.aion_inference.local_model_vault import LocalModelVault
@@ -198,7 +203,13 @@ def _selected_local_provider(workspace_id: str) -> Optional[Dict[str, Any]]:
     display_name = str((installation or {}).get("display_name") or model_id or "Local model")
     connected = False
     reason = "local_model_available_not_selected"
-    if installed and workspace_selected:
+    if installed and workspace_selected and not verify_live:
+        # Status requests must not start a potentially slow local inference.
+        # A verified, workspace-selected model is nevertheless available for
+        # Board selection; the actual Board call performs the live check.
+        connected = True
+        reason = "selected_local_model_runtime_verified_on_use"
+    if installed and workspace_selected and verify_live:
         cache_key = f"{workspace_id}:{model_id}"
         cached = _LOCAL_MODEL_PROBE_CACHE.get(cache_key) or {}
         if time.monotonic() - float(cached.get("checked_at") or 0) < _LOCAL_MODEL_PROBE_TTL_SECONDS:
@@ -239,7 +250,7 @@ def _selected_local_provider(workspace_id: str) -> Optional[Dict[str, Any]]:
         "source": "local_model_vault",
         "connected": connected,
         "installed": installed,
-        "live_verified": connected,
+        "live_verified": bool(connected and verify_live),
         "workspace_selected": workspace_selected,
         "reason": reason,
         "capabilities": {"boardroom": True, "receipt_vision": False},
@@ -250,7 +261,12 @@ def _selected_local_provider(workspace_id: str) -> Optional[Dict[str, Any]]:
     }
 
 
-def _call_selected_local_provider(provider: Dict[str, Any], prompt: str) -> Dict[str, Any]:
+def _call_selected_local_provider(
+    provider: Dict[str, Any],
+    prompt: str,
+    *,
+    max_output_tokens: int | None = None,
+) -> Dict[str, Any]:
     from backend.services.aion_mission_mode.pilot_local_model_runtime import (
         run_selected_local_chat,
         selected_local_runtime_profile,
@@ -265,7 +281,7 @@ def _call_selected_local_provider(provider: Dict[str, Any], prompt: str) -> Dict
         model_path=str(provider.get("model_path") or ""),
         finance_arithmetic=str(runtime.get("finance_arithmetic") or ""),
         chat_template_kwargs=runtime.get("chat_template_kwargs"),
-        max_output_tokens=runtime.get("max_output_tokens"),
+        max_output_tokens=max_output_tokens or runtime.get("max_output_tokens"),
         context_size=runtime.get("context_size"),
         parallel_slots=runtime.get("parallel_slots"),
     )
@@ -398,8 +414,97 @@ def _provider_context_packet(context_packet: Dict[str, Any]) -> Dict[str, Any]:
     return packet
 
 
-def _board_prompt(req: BoardroomAskRequest, provider_label: str) -> str:
+def _local_board_context_packet(context_packet: Dict[str, Any]) -> Dict[str, Any]:
+    """Keep the local 4K model focused on Board facts instead of UI/runtime state."""
+    packet = _provider_context_packet(context_packet)
+    compact: Dict[str, Any] = {}
+    for key in (
+        "business_id",
+        "current_date",
+        "round",
+        "journey_stage",
+        "next_meeting_date",
+        "business_map_confirmation",
+        "boardroom_workflow_stage",
+        "canonical_context_envelope",
+        "source_round_1_result",
+        "plan_items",
+    ):
+        value = packet.get(key)
+        if value not in (None, "", [], {}):
+            compact[key] = value
+    compact["business_context_lines"] = list(packet.get("business_context_lines") or [])[:60]
+    compact["department_context_lines"] = list(packet.get("department_context_lines") or [])[:72]
+    user_context = list(packet.get("user_added_context") or [])[:12]
+    if user_context:
+        compact["user_added_context"] = user_context
+    return compact
+
+
+def _board_prompt(req: BoardroomAskRequest, provider_label: str, *, local_model: bool = False) -> str:
     context_packet = _provider_context_packet(req.context_packet)
+    if local_model:
+        context_packet = _local_board_context_packet(req.context_packet)
+    is_department_task_build = str(req.session_type or "").strip() == "build_department_tasks"
+    is_strategy_debate = str(req.session_type or "").strip() == "debate_plan"
+    response_contract = (
+        '{"position":"string","recommendations":["string"],"risks":["string"],'
+        '"missing_inputs":["string"],"plan_changes":["string"],"confidence":0.0,'
+        '"task_drafts":[{"department":"string","owner":"string","title":"string",'
+        '"board_brief":"string","decision_refs":["string"],"objective":"string",'
+        '"inputs_needed":["string"],"blockers":["string"],'
+        '"output_required":"string","success_metric":"string"}]}'
+        if is_department_task_build else (
+        '{"position":"string","recommendations":["string"],"risks":["string"],'
+        '"missing_inputs":["string"],"plan_changes":["string"],"confidence":0.0,'
+        '"board_strategy":{"business_diagnosis":"string","strategic_objective":"string",'
+        '"priority_offers":["string"],"target_audiences":["string"],'
+        '"target_locations":["string"],"channels":["string"],'
+        '"commercial_constraints":["string"],"department_briefs":['
+        '{"department":"string","assessment":"string","mandate":"string",'
+        '"rationale":"string","audiences":["string"],"locations":["string"],'
+        '"timing":"string","deliverables":["string"],"metrics":["string"],'
+        '"constraints":["string"],"dependencies":["string"]}]}}'
+        if is_strategy_debate else
+        '{"position":"string","recommendations":["string"],"risks":["string"],'
+        '"missing_inputs":["string"],"plan_changes":["string"],"confidence":0.0}'
+        )
+    )
+    task_build_instruction = (
+        " For this department-task build, task_drafts is mandatory and must contain one concise object "
+        "for each requested function. Keep recommendations, risks, missing_inputs, and plan_changes as "
+        "flat arrays of strings; do not put task objects inside those arrays."
+        if is_department_task_build else ""
+    )
+    strategy_instruction = (
+        " For this Board strategy debate, board_strategy is mandatory. The Board owns the whole-business "
+        "diagnosis and the strategic choices: objective, priority offers, audiences, locations, channels, "
+        "commercial constraints, and the mandate for every relevant department. Department briefs must be "
+        "a readable report of what the Board thinks about that function, what it should do, why, who it targets, "
+        "where, when, its measurable outputs and constraints. They must be bounded execution instructions, "
+        "not requests for a Pilot to invent or rediscover business strategy. Include exactly one department brief "
+        "for each of Marketing, Sales, Finance, Operations, Support, and HR, even when the assessment is simply "
+        "that no immediate action is required. "
+        "Unknown facts may be listed as missing_inputs, but do not delegate Board decisions as discovery work. "
+        "Keep the JSON compact: use no more than three concise items in each strategy array, and use one short "
+        "sentence or item for each department-brief field. Do not repeat the same evidence across fields."
+        if is_strategy_debate else ""
+    )
+    word_limit = "900" if is_strategy_debate else ("1,200" if is_department_task_build else "1,200")
+    communication_style = str(req.communication_style or "plain").strip().lower()
+    if communication_style in {"professional", "executive", "detailed", "formal"}:
+        language_instruction = (
+            "Use concise professional business language. Give enough detail for an experienced manager, "
+            "but avoid academic writing, decorative wording, and unexplained technical terms."
+        )
+    else:
+        language_instruction = (
+            "Use very clear everyday English for a busy small-business owner. Use short sentences and common words. "
+            "Avoid corporate jargon, management-speak, academic language, and inflated phrases. If a business term is "
+            "unavoidable, explain it in simple words. Make every recommendation say what to do and why in a way that "
+            "can be understood on the first read."
+        )
+
     return (
         "You are acting as one connected model inside the AION Boardroom.\n"
         "Do not pretend to be another provider. Answer only as your own model/provider.\n\n"
@@ -407,18 +512,28 @@ def _board_prompt(req: BoardroomAskRequest, provider_label: str) -> str:
         f"SESSION TYPE: {req.session_type}\n"
         f"BUSINESS ID: {req.business_id}\n"
         f"OBJECTIVE: {req.objective}\n\n"
+        f"LANGUAGE STYLE: {communication_style}. {language_instruction}\n\n"
         "BUSINESS CONTEXT PACKET JSON:\n"
-        f"{json.dumps(context_packet, ensure_ascii=False, indent=2)[:24000]}\n\n"
+        f"{json.dumps(context_packet, ensure_ascii=False, indent=2)[:9000 if local_model else 24000]}\n\n"
         "FOUNDER FEEDBACK JSON:\n"
-        f"{json.dumps(req.founder_feedback, ensure_ascii=False, indent=2)[:6000]}\n\n"
-        "Return JSON only. Keep the entire response below 1,200 words. Exact schema: "
-        '{"position":"string","recommendations":["string"],"risks":["string"],'
-        '"missing_inputs":["string"],"plan_changes":["string"],"confidence":0.0}. '
-        "Every list must be a flat list of concise strings. Do not nest recommendations by role.\n"
+        f"{json.dumps(req.founder_feedback, ensure_ascii=False, indent=2)[:1200 if local_model else 6000]}\n\n"
+        f"Return JSON only. Keep the entire response below {word_limit} words. Exact schema: "
+        f"{response_contract}. "
+        "Every standard list must be a flat list of concise strings. Do not nest recommendations by role."
+        " An incomplete business picture is not a reason to refuse a Board plan. Produce a useful provisional "
+        "assessment and bounded plan from the verified evidence that exists, label assumptions and limitations "
+        "plainly, and put only the most important unanswered facts in missing_inputs. Never invent missing figures, "
+        "customers, locations, channel results, or operational facts. A missing department, financial record, or "
+        "connected channel must reduce confidence and become a focused follow-up—not erase the plan."
+        " Treat an offering marked quoted_per_job, variable, or cost_plus as intentionally variable-cost work, not as a missing fixed catalogue cost. "
+        "Do not ask the owner to invent one permanent material or labour cost for custom work. Recommend a reusable quote policy instead: apply the approved "
+        "material, labour, and subcontractor pricing rule to the actual estimated costs on each job; show the target gross margin and minimum acceptable margin; "
+        "keep the suggested customer price editable; and warn clearly before a quote is approved below the minimum margin. Distinguish gross margin from markup."
+        f"{task_build_instruction}{strategy_instruction}\n"
     )
 
 
-def _validate_board_response(content: str) -> Dict[str, Any]:
+def _validate_board_response(content: str, *, session_type: str = "") -> Dict[str, Any]:
     raw = str(content or "").strip()
     if raw.startswith("```"):
         raw = raw.removeprefix("```json").removeprefix("```").strip()
@@ -439,6 +554,33 @@ def _validate_board_response(content: str) -> Dict[str, Any]:
     confidence = parsed.get("confidence")
     if not isinstance(confidence, (int, float)) or isinstance(confidence, bool):
         raise RuntimeError("invalid_structured_response_confidence")
+    if str(session_type or "").strip() == "debate_plan":
+        strategy = parsed.get("board_strategy")
+        if not isinstance(strategy, dict):
+            raise RuntimeError("invalid_structured_response_board_strategy")
+        for key in (
+            "business_diagnosis",
+            "strategic_objective",
+            "priority_offers",
+            "target_audiences",
+            "target_locations",
+            "channels",
+            "commercial_constraints",
+            "department_briefs",
+        ):
+            if strategy.get(key) in (None, "", []):
+                raise RuntimeError(f"invalid_structured_response_board_strategy_{key}")
+        briefs = strategy.get("department_briefs")
+        if not isinstance(briefs, list):
+            raise RuntimeError("invalid_structured_response_board_strategy_department_briefs")
+        departments = {
+            str(item.get("department") or "").strip().lower()
+            for item in briefs
+            if isinstance(item, dict)
+        }
+        required_departments = {"marketing", "sales", "finance", "operations", "support", "hr"}
+        if not required_departments.issubset(departments):
+            raise RuntimeError("invalid_structured_response_board_strategy_incomplete_departments")
     return parsed
 
 
@@ -820,7 +962,11 @@ def boardroom_provider_status(workspace_id: str = "home-fixed") -> Dict[str, Any
     from backend.modules.aion_inference.lead_model_selection_store import load_lead_model_selection
 
     providers = _provider_status()
-    local_provider = _selected_local_provider(workspace_id)
+    # Status rendering must stay responsive. Starting a local inference can take
+    # tens of seconds and previously blocked every Connections control behind
+    # the health request. Runtime verification still happens when the model is
+    # actually invoked.
+    local_provider = _selected_local_provider(workspace_id, verify_live=False)
     if local_provider:
         providers.append({key: value for key, value in local_provider.items() if key not in {"runtime", "model_sha256", "model_path"}})
     lead = load_lead_model_selection(workspace_id)
@@ -840,12 +986,20 @@ def boardroom_provider_status(workspace_id: str = "home-fixed") -> Dict[str, Any
 def select_boardroom_lead_model(request: LeadModelSelectionRequest) -> Dict[str, Any]:
     from backend.modules.aion_inference.lead_model_selection_store import save_lead_model_selection
 
-    providers = {item["id"]: item for item in _provider_status()}
-    local_provider = _selected_local_provider(request.workspace_id)
-    if local_provider:
-        providers["local_model"] = local_provider
-    provider = providers.get(str(request.provider_id or "").strip().lower())
-    if not provider or provider.get("connected") is not True:
+    provider_id = str(request.provider_id or "").strip().lower()
+    if provider_id == "local_model":
+        provider = _selected_local_provider(request.workspace_id, verify_live=False)
+        selectable = bool(
+            provider
+            and provider.get("installed") is True
+            and provider.get("workspace_selected") is True
+        )
+    else:
+        # Validate only the requested provider. Scanning every hosted and local
+        # provider made this button wait behind unrelated diagnostics.
+        provider = get_ai_provider_public_record(provider_id)
+        selectable = bool(provider and provider.get("connected") is True)
+    if not selectable:
         raise HTTPException(status_code=409, detail="lead_model_must_be_connected_and_live")
     selection = save_lead_model_selection(
         request.workspace_id,
@@ -991,10 +1145,35 @@ def pilot_draft(req: PilotDraftRequest) -> Dict[str, Any]:
     }
 
 
+def _board_provider_failure_reason(exc: Exception) -> str:
+    if isinstance(exc, urllib.error.HTTPError):
+        return f"http_error_{exc.code}"
+    return str(exc) or type(exc).__name__
+
+
+def _board_provider_failure_is_transient(exc: Exception) -> bool:
+    if isinstance(exc, urllib.error.HTTPError):
+        return int(exc.code) in {408, 409, 425, 429, 500, 502, 503, 504}
+    reason = _board_provider_failure_reason(exc).lower()
+    return any(marker in reason for marker in (
+        "temporar",
+        "timeout",
+        "timed out",
+        "rate_limit",
+        "resource_pressure",
+        "runtime_unavailable",
+        "connection reset",
+        "connection refused",
+    ))
+
+
 @router.post("/ask")
 def boardroom_ask(req: BoardroomAskRequest) -> Dict[str, Any]:
     providers = {item["id"]: item for item in _provider_status()}
-    local_provider = _selected_local_provider(req.business_id)
+    # Do not gate a real Board call on the short-lived status-probe cache.
+    # The actual inference below is the authoritative live verification and
+    # returns the precise runtime failure when the selected model cannot answer.
+    local_provider = _selected_local_provider(req.business_id, verify_live=False)
     if local_provider:
         providers["local_model"] = local_provider
     responses: List[Dict[str, Any]] = []
@@ -1022,33 +1201,66 @@ def boardroom_ask(req: BoardroomAskRequest) -> Dict[str, Any]:
             })
             continue
 
-        prompt = _board_prompt(req, provider.get("label") or provider_id)
+        prompt = _board_prompt(
+            req,
+            provider.get("label") or provider_id,
+            local_model=provider_id == "local_model",
+        )
 
+        attempt_count = 0
         try:
-            if provider_id == "local_model":
-                result = _call_selected_local_provider(provider, prompt)
-            elif provider_id == "gemma":
-                result = _call_ollama(prompt)
-            elif provider_id == "gemini":
-                result = _call_gemini(prompt)
-            elif provider_id == "claude":
-                result = _call_claude(prompt)
-            elif provider_id == "meta":
-                result = _call_meta(prompt)
-            elif provider_id in {"openai", "grok", "kimi", "mistral", "deepseek"}:
-                result = _call_openai_compatible(provider_id, prompt)
-            else:
-                responses.append({
-                    "provider_id": provider_id,
-                    "label": provider.get("label"),
-                    "mode": provider.get("mode"),
-                    "status": "unavailable",
-                    "reason": "provider_call_not_implemented_yet",
-                    "content": None,
-                })
+            while True:
+                attempt_count += 1
+                try:
+                    if provider_id == "local_model":
+                        local_output_tokens = (
+                            2400
+                            if str(req.session_type or "").strip() in {"debate_plan", "build_department_tasks"}
+                            else None
+                        )
+                        if local_output_tokens:
+                            result = _call_selected_local_provider(
+                                provider,
+                                prompt,
+                                max_output_tokens=local_output_tokens,
+                            )
+                        else:
+                            result = _call_selected_local_provider(provider, prompt)
+                    elif provider_id == "gemma":
+                        result = _call_ollama(prompt)
+                    elif provider_id == "gemini":
+                        result = _call_gemini(prompt)
+                    elif provider_id == "claude":
+                        result = _call_claude(prompt)
+                    elif provider_id == "meta":
+                        result = _call_meta(prompt)
+                    elif provider_id in {"openai", "grok", "kimi", "mistral", "deepseek"}:
+                        result = _call_openai_compatible(provider_id, prompt)
+                    else:
+                        responses.append({
+                            "provider_id": provider_id,
+                            "label": provider.get("label"),
+                            "mode": provider.get("mode"),
+                            "status": "unavailable",
+                            "reason": "provider_call_not_implemented_yet",
+                            "attempt_count": attempt_count,
+                            "content": None,
+                        })
+                        result = None
+                    break
+                except Exception as exc:
+                    if attempt_count < 2 and _board_provider_failure_is_transient(exc):
+                        time.sleep(0.75)
+                        continue
+                    raise
+
+            if result is None:
                 continue
 
-            structured = _validate_board_response(str(result.get("content") or ""))
+            structured = _validate_board_response(
+                str(result.get("content") or ""),
+                session_type=str(req.session_type or ""),
+            )
 
             responses.append({
                 "provider_id": provider_id,
@@ -1057,6 +1269,7 @@ def boardroom_ask(req: BoardroomAskRequest) -> Dict[str, Any]:
                 "model": result.get("model") or provider.get("model"),
                 "status": "succeeded",
                 "reason": None,
+                "attempt_count": attempt_count,
                 "latency_ms": result.get("latency_ms"),
                 "content": result.get("content"),
                 "structured": structured,
@@ -1068,7 +1281,9 @@ def boardroom_ask(req: BoardroomAskRequest) -> Dict[str, Any]:
                 "label": provider.get("label"),
                 "mode": provider.get("mode"),
                 "status": "failed",
-                "reason": f"http_error_{exc.code}",
+                "reason": _board_provider_failure_reason(exc),
+                "retryable": _board_provider_failure_is_transient(exc),
+                "attempt_count": attempt_count,
                 "content": None,
             })
         except Exception as exc:
@@ -1077,7 +1292,9 @@ def boardroom_ask(req: BoardroomAskRequest) -> Dict[str, Any]:
                 "label": provider.get("label"),
                 "mode": provider.get("mode"),
                 "status": "failed",
-                "reason": str(exc),
+                "reason": _board_provider_failure_reason(exc),
+                "retryable": _board_provider_failure_is_transient(exc),
+                "attempt_count": attempt_count,
                 "content": None,
             })
 
@@ -1093,9 +1310,12 @@ def boardroom_ask(req: BoardroomAskRequest) -> Dict[str, Any]:
         "missing_or_unavailable": [
             r for r in responses if r.get("status") != "succeeded"
         ],
-        "synthesis_pending": True,
+        "synthesis_pending": bool(succeeded),
+        "evidence_fallback_required": not bool(succeeded),
         "note": "This endpoint calls only connected providers. Missing providers return unavailable and do not generate fake answers.",
     }
-    if succeeded:
-        _persist_board_meeting(req.business_id, result)
+    # Failed rounds are evidence too. Persist the precise provider diagnostics
+    # so the desktop does not replace a real 429/runtime failure with a generic
+    # and misleading 'connect a provider' message.
+    _persist_board_meeting(req.business_id, result)
     return result

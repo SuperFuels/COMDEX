@@ -10,6 +10,11 @@ from typing import Any, Dict
 
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 class FoundationSessionRevisionConflict(ValueError):
@@ -30,9 +35,21 @@ class FoundationOnboardingSessionService:
         "refresh_token", "private_key", "cvv", "pin", "card_number",
     }
 
-    def __init__(self, base_dir: str | Path | None = None) -> None:
+    def __init__(
+        self,
+        base_dir: str | Path | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
         self.base_dir = Path(base_dir) if base_dir else AIONBusinessPaths.ROOT / "foundation_onboarding"
-        self.base_dir.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        if self.domain_store is None and base_dir is None and guardian_mode_requested():
+            self.domain_store = VaultDomainStore(
+                configured_business_vault_runtime().guardian,
+                actor_id="foundation-onboarding",
+            )
+        if self.domain_store is None:
+            self.base_dir.mkdir(parents=True, exist_ok=True)
         self._lock = RLock()
 
     @staticmethod
@@ -72,6 +89,18 @@ class FoundationOnboardingSessionService:
 
     def get(self, workspace_id: str) -> Dict[str, Any]:
         workspace_id = canonical_business_id(workspace_id)
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "onboarding.foundation_session",
+                workspace_id=workspace_id,
+                entity_id="foundation-session",
+            )
+            if record is None:
+                return self._empty(workspace_id)
+            payload = deepcopy(record["payload"])
+            if payload.get("schema_version") != self.SCHEMA_VERSION:
+                raise ValueError("unsupported_foundation_session_schema")
+            return payload
         path = self._path(workspace_id)
         with self._lock:
             if not path.exists():
@@ -131,7 +160,18 @@ class FoundationOnboardingSessionService:
                 "browser_storage_role": "migration_cache_only",
                 "external_actions_allowed": False,
             }
-            self._atomic_write(self._path(workspace_id), record)
+            if self.domain_store is not None:
+                self.domain_store.put(
+                    "onboarding.foundation_session",
+                    workspace_id=workspace_id,
+                    entity_id="foundation-session",
+                    payload=record,
+                    expected_version=current_revision or None,
+                    idempotency_key=f"foundation-session-{workspace_id}-{revision}-{record['packet_hash'][-24:]}",
+                    actor_id=record["updated_by"],
+                )
+            else:
+                self._atomic_write(self._path(workspace_id), record)
             self._append_receipt(
                 workspace_id,
                 {
@@ -175,7 +215,18 @@ class FoundationOnboardingSessionService:
                 "updated_at": now,
                 "updated_by": str(actor_id or "local_owner")[:160],
             })
-            self._atomic_write(self._path(workspace_id), record)
+            if self.domain_store is not None:
+                self.domain_store.put(
+                    "onboarding.foundation_session",
+                    workspace_id=workspace_id,
+                    entity_id="foundation-session",
+                    payload=record,
+                    expected_version=current_revision or None,
+                    idempotency_key=f"foundation-session-reset-{workspace_id}-{record['revision']}",
+                    actor_id=record["updated_by"],
+                )
+            else:
+                self._atomic_write(self._path(workspace_id), record)
             self._append_receipt(
                 workspace_id,
                 {
@@ -222,6 +273,19 @@ class FoundationOnboardingSessionService:
         temporary.replace(path)
 
     def _append_receipt(self, workspace_id: str, receipt: Dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            revision = int(receipt.get("revision") or 0)
+            action = str(receipt.get("action") or "event")
+            self.domain_store.put(
+                "onboarding.receipts",
+                workspace_id=workspace_id,
+                entity_id=f"revision-{revision:08d}-{action}",
+                payload=receipt,
+                expected_version=None,
+                idempotency_key=f"foundation-receipt-{workspace_id}-{revision}-{action}",
+                actor_id=str(receipt.get("actor_id") or "foundation-onboarding"),
+            )
+            return
         path = self._receipt_path(workspace_id)
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(receipt, ensure_ascii=False, sort_keys=True) + "\n")

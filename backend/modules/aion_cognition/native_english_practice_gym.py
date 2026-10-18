@@ -17,6 +17,10 @@ import sqlite3
 import time
 from typing import Any, Mapping
 
+from backend.modules.aion_cognition.sqlite_connection import (
+    connect as sqlite_connect,
+    connect_read_only as sqlite_read_connect,
+)
 from backend.modules.aion_cognition.native_lexical_intelligence import (
     NativeLexicalIntelligence, _tokens,
 )
@@ -65,6 +69,7 @@ action answer cause condition confidence consequence context contrast evidence e
 goal idea information language meaning method object person place problem process property
 question reason relationship result sentence subject system time value word
 """.split())
+PRACTICE_LEMMA_RE = re.compile(r"^[a-z]+(?:-[a-z]+)?$")
 
 
 def _id(prefix: str, value: Any) -> str:
@@ -77,6 +82,30 @@ def _normal(value: str) -> str:
 
 
 def _past(word: str) -> str:
+    # Compound verbs inflect their verbal head, not the complete spelling.
+    # A spelling-only suffix produced forms such as ``custom-maked`` and
+    # ``baby-sited`` in otherwise valid transformation exercises.
+    if "-" in word:
+        prefix, head = word.rsplit("-", 1)
+        return f"{prefix}-{_past(head)}"
+    irregular = {
+        "be": "was", "begin": "began", "bring": "brought", "build": "built",
+        "buy": "bought", "catch": "caught", "choose": "chose", "come": "came",
+        "do": "did", "drink": "drank", "drive": "drove", "eat": "ate",
+        "fall": "fell", "feel": "felt", "find": "found", "fly": "flew",
+        "get": "got", "give": "gave", "go": "went", "grow": "grew",
+        "have": "had", "hear": "heard", "hold": "held", "keep": "kept",
+        "know": "knew", "leave": "left", "lose": "lost", "make": "made",
+        "meet": "met", "pay": "paid", "read": "read", "ride": "rode",
+        "ring": "rang", "rise": "rose", "run": "ran", "say": "said",
+        "see": "saw", "sell": "sold", "send": "sent", "shake": "shook",
+        "shoot": "shot", "sing": "sang", "sit": "sat", "sleep": "slept",
+        "speak": "spoke", "stand": "stood", "swim": "swam", "take": "took",
+        "teach": "taught", "tell": "told", "think": "thought", "throw": "threw",
+        "understand": "understood", "wear": "wore", "win": "won", "write": "wrote",
+    }
+    if word in irregular:
+        return irregular[word]
     if word.endswith("e"):
         return word + "d"
     if word.endswith("y") and len(word) > 2 and word[-2] not in "aeiou":
@@ -96,12 +125,34 @@ class NativeEnglishPracticeGym:
         self.transfer = NativeEnglishTransfer(repo_root=self.repo_root, lexical=self.lexical)
         self.retry_delay_seconds = max(0.01, float(retry_delay_seconds))
         self._initialize()
+        self._retire_invalid_obligations()
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.database_path, timeout=30)
+        connection = sqlite_connect(self.database_path, timeout=30)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA busy_timeout=30000")
         return connection
+
+    def _read_connect(self) -> sqlite3.Connection:
+        connection = sqlite_read_connect(self.database_path, timeout=30)
+        connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA busy_timeout=30000")
+        return connection
+
+    def _past_form(self, lemma: str) -> str:
+        """Prefer Aion's stored morphology over a spelling-only fallback."""
+        clean = str(lemma or "").strip().lower()
+        if not clean:
+            return clean
+        with self._read_connect() as connection:
+            row = connection.execute(
+                """SELECT surface FROM morphology_forms
+                   WHERE lemma=? AND feature LIKE '%past%'
+                   ORDER BY CASE WHEN feature LIKE '%participle%' THEN 1 ELSE 0 END,
+                            LENGTH(surface),surface LIMIT 1""",
+                (clean,),
+            ).fetchone()
+        return str(row[0]) if row and str(row[0]).strip() else _past(clean)
 
     def _initialize(self) -> None:
         with self._connect() as connection:
@@ -204,6 +255,36 @@ class NativeEnglishPracticeGym:
             ).fetchone()
         return self._decode(row) if row else None
 
+    @staticmethod
+    def _usable_concept(concept: Mapping[str, Any]) -> bool:
+        """Reject dictionary artefacts that cannot form ordinary exercises."""
+        lemma = str(concept.get("lemma") or "").lower()
+        pos = str(concept.get("part_of_speech") or "")
+        return bool(PRACTICE_LEMMA_RE.fullmatch(lemma) and pos in {"n", "v", "a", "s", "r"})
+
+    def _retire_invalid_obligations(self) -> int:
+        """Remove malformed dictionary entries from the active correction queue."""
+        with self._connect() as connection:
+            rows = connection.execute(
+                """SELECT r.obligation_id,a.lemma,a.part_of_speech
+                   FROM native_english_practice_remediation r
+                   JOIN acquired_concepts a ON a.concept_id=r.concept_id
+                   WHERE r.status='due'"""
+            ).fetchall()
+            invalid = [
+                str(row["obligation_id"]) for row in rows
+                if not self._usable_concept(dict(row))
+            ]
+            if invalid:
+                marks = ",".join("?" for _ in invalid)
+                connection.execute(
+                    f"""UPDATE native_english_practice_remediation
+                        SET status='invalid_material',cleared_epoch=?
+                        WHERE obligation_id IN ({marks})""",
+                    (time.time(), *invalid),
+                )
+        return len(invalid)
+
     def _candidate(self, family: str, *, exclude: set[str]) -> dict[str, Any] | None:
         marks = ",".join("?" for _ in exclude)
         exclusion = f"AND a.concept_id NOT IN ({marks})" if exclude else ""
@@ -286,6 +367,8 @@ class NativeEnglishPracticeGym:
         ranked: list[tuple[tuple[Any, ...], dict[str, Any]]] = []
         for row in rows:
             concept = self._decode(row)
+            if not self._usable_concept(concept):
+                continue
             if str(concept["concept_id"]) in cooling_concepts:
                 continue
             readiness = self._readiness_summary(
@@ -388,6 +471,7 @@ class NativeEnglishPracticeGym:
             "counts_as_mastery": False,
         }
         explanation = f"'{lemma}' is linked in Aion's acquired memory with {cue}."
+        noun_predicate, noun_predicates = self._noun_usage_plan(cue)
 
         if family == "meaning_discrimination":
             if mode == "anagram":
@@ -415,30 +499,32 @@ class NativeEnglishPracticeGym:
             elif pos == "r":
                 prompt = f"Complete the sentence with the manner associated with {cue}: {name} worked _____."
             else:
-                prompt = f"Complete the sentence with the thing associated with {cue}: {name} inspected the _____."
+                prompt = (f"Complete the sentence with the thing associated with {cue}: "
+                          f"{name} {_past(noun_predicate)} the _____.")
             answer = lemma
             choices = [lemma, *distractors]
         elif family == "sentence_construction":
             prompt = f"Construct one grammatical sentence using '{lemma}' with its acquired meaning: {cue}."
-            answer = self._construct_sentence(lemma, pos, name, obj)
+            answer = self._construct_sentence(lemma, pos, name, obj, cue=cue)
             metadata["rubric"] = {
                 "required_lemma": lemma, "required_surface": _past(lemma) if pos == "v" else lemma,
                 "minimum_sentences": 1,
+                "target_pos": pos, "allowed_noun_predicates": noun_predicates,
             }
         elif family == "sentence_transformation":
             if pos == "v":
-                surface = _past(lemma)
+                surface = self._past_form(lemma)
                 prompt = f"Make this sentence negative without changing its past time: {name} {surface} the {obj}."
                 answer = f"{name} did not {lemma} the {obj}."
                 explanation = "Past negation uses 'did not' followed by the base verb."
             else:
-                answer = self._construct_sentence(lemma, pos, name, obj)
+                answer = self._construct_sentence(lemma, pos, name, obj, cue=cue)
                 pieces = re.findall(r"[A-Za-z']+|[.!?]", answer)
                 prompt = "Unjumble every token into a grammatical sentence: " + " / ".join(reversed(pieces))
                 metadata["tokens"] = pieces
                 explanation = "The semantic roles determine subject, action, object and property order."
         elif family == "reading_comprehension":
-            material = self._construct_sentence(lemma, pos, name, obj)
+            material = self._construct_sentence(lemma, pos, name, obj, cue=cue)
             if pos == "v":
                 prompt = f"Read: {material}\nQuestion: What action did {name} perform?"
                 answer = lemma
@@ -449,26 +535,29 @@ class NativeEnglishPracticeGym:
                 prompt = f"Read: {material}\nQuestion: How did {name} work?"
                 answer = lemma
             else:
-                prompt = f"Read: {material}\nQuestion: What did {name} inspect?"
+                prompt = (f"Read: {material}\nQuestion: What did {name} "
+                          f"{noun_predicate}?")
                 answer = lemma
             choices = [answer, *distractors]
         elif family == "controlled_writing":
             prompt = f"Write two connected sentences explaining '{lemma}'. Use its acquired meaning ({cue}) and include 'because'."
-            first = self._construct_sentence(lemma, pos, name, obj)
+            first = self._construct_sentence(lemma, pos, name, obj, cue=cue)
             answer = f"{first} This use is appropriate because {cue}."
             metadata["rubric"] = {
                 "required_lemma": lemma, "required_surface": _past(lemma) if pos == "v" else lemma,
                 "minimum_sentences": 2,
                 "required_connector": "because",
+                "target_pos": pos, "allowed_noun_predicates": noun_predicates,
             }
         else:
             prompt = f"Answer in English: What does '{lemma}' mean, and how could it be used?"
-            example = self._construct_sentence(lemma, pos, name, obj)
+            example = self._construct_sentence(lemma, pos, name, obj, cue=cue)
             answer = f"{concept.get('native_gloss') or cue}. For example, {example}"
             metadata["rubric"] = {
                 "required_lemma": lemma, "required_surface": _past(lemma) if pos == "v" else lemma,
                 "minimum_feature_overlap": 0.4,
                 "minimum_sentences": 2,
+                "target_pos": pos, "allowed_noun_predicates": noun_predicates,
             }
         # Do not leak the answer through a fixed first-choice position.
         choices = list(dict.fromkeys(choices))
@@ -483,14 +572,59 @@ class NativeEnglishPracticeGym:
         }
 
     @staticmethod
-    def _construct_sentence(lemma: str, pos: str, name: str, obj: str) -> str:
+    def _noun_usage_plan(cue: str) -> tuple[str, list[str]]:
+        cue_tokens = _tokens(cue)
+        if cue_tokens & {"event", "action", "act", "movement", "process", "occurrence",
+                         "effort", "change", "motion", "throw", "lifting"}:
+            return "observe", ["observe", "notice", "describe", "record", "discuss"]
+        if cue_tokens & {"person", "worker", "member", "individual", "someone", "profession"}:
+            return "meet", ["meet", "consult", "describe", "discuss"]
+        if cue_tokens & {"place", "location", "building", "region", "room", "area"}:
+            return "visit", ["visit", "enter", "describe", "discuss"]
+        if cue_tokens & {"device", "tool", "instrument", "machine", "material", "object",
+                         "part", "surface", "structure", "equipment"}:
+            return "inspect", ["inspect", "examine", "observe", "describe"]
+        return "discuss", ["discuss", "describe", "explain", "consider", "mention"]
+
+    @classmethod
+    def _construct_sentence(cls, lemma: str, pos: str, name: str, obj: str,
+                            *, cue: str = "") -> str:
         if pos == "v":
             return f"{name} {_past(lemma)} the {obj}."
         if pos in {"a", "s"}:
             return f"The {obj} was {lemma}."
         if pos == "r":
             return f"{name} worked {lemma}."
-        return f"{name} inspected the {lemma}."
+        predicate, _ = cls._noun_usage_plan(cue)
+        return f"{name} {_past(predicate)} the {lemma}."
+
+    @staticmethod
+    def _productive_role_score(answer: str, rubric: Mapping[str, Any]) -> float:
+        """Require the target to occupy a plausible grammatical/semantic role."""
+        lemma = _normal(str(rubric.get("required_lemma") or ""))
+        surface = _normal(str(rubric.get("required_surface") or lemma))
+        pos = str(rubric.get("target_pos") or "")
+        lowered = _normal(answer)
+        if pos == "v":
+            return float(bool(re.search(
+                rf"\b(?:{re.escape(lemma)}|{re.escape(surface)})\b", lowered,
+            )))
+        if pos in {"a", "s"}:
+            return float(bool(re.search(
+                rf"\b(?:is|are|was|were|seems?|becomes?|remains?)\s+(?:not\s+)?{re.escape(lemma)}\b",
+                lowered,
+            )))
+        if pos == "r":
+            return float(bool(re.search(rf"\b{re.escape(lemma)}\b", lowered))
+                         and bool(re.search(r"\b(?:works?|worked|acts?|acted|moves?|moved|speaks?|spoke)\b", lowered)))
+        predicates = [str(item) for item in rubric.get("allowed_noun_predicates") or []]
+        predicate_surfaces = {
+            form for predicate in predicates for form in (predicate, _past(predicate))
+        }
+        return float(any(re.search(
+            rf"\b{re.escape(predicate)}\b[^.!?]*\b{re.escape(lemma)}\b",
+            lowered,
+        ) for predicate in predicate_surfaces))
 
     def _store_exercise(self, built: Mapping[str, Any]) -> dict[str, Any]:
         exercise_id = _id("native_practice_exercise_", [built, time.time_ns()])
@@ -549,28 +683,86 @@ class NativeEnglishPracticeGym:
             material, question = match.group(1).strip(), match.group(2).strip()
             parsed = self.transfer.parse(material)
             frame = dict(parsed.get("frame") or {})
+            token_rows = [dict(row) for row in parsed.get("tokens") or []]
             lowered = question.lower()
             if "action" in lowered:
-                return str(frame.get("action") or "")
+                value = str(frame.get("action") or "")
+                # Inflected surfaces can map to several legitimate lemmas
+                # (bated -> bat/bate, barded -> bard/barde). Resolve that
+                # ambiguity through acquired meaning before trusting whichever
+                # morphology row the lower parser happened to see first.
+                action_surface = re.search(
+                    r"^\s*[A-Z][A-Za-z'-]*\s+([A-Za-z][A-Za-z'-]*)\b",
+                    material,
+                )
+                if action_surface:
+                    with self._connect() as connection:
+                        rows = connection.execute(
+                            """SELECT DISTINCT lemma FROM morphology_forms
+                               WHERE surface=? AND part_of_speech='v'""",
+                            (action_surface.group(1).lower(),),
+                        ).fetchall()
+                    candidates = [str(row["lemma"]) for row in rows]
+                    if len(candidates) > 1:
+                        return self._memory_match(
+                            prompt, candidates,
+                            str(metadata.get("semantic_cue") or ""),
+                        )
+                if value:
+                    return value
+                return str(next((row.get("lemma") for row in token_rows
+                                 if row.get("pos") == "v"), ""))
             if "property" in lowered:
                 clauses = list(parsed.get("clauses") or [])
                 value = next((row.get("complement") for row in clauses
                               if row.get("complement")), None)
-                return str(value or exercise.get("lemma") or "")
+                if value:
+                    return str(value)
+                lexical_value = next((row.get("lemma") for row in token_rows
+                                      if row.get("pos") in {"a", "s"}), None)
+                if lexical_value:
+                    return str(lexical_value)
+                # Copular complements are explicit evidence even when a newly
+                # acquired adjective has not yet propagated into every parser
+                # index.  Recover the represented property from the sentence,
+                # rather than returning a blank and repeatedly failing the
+                # same sealed correction.
+                complement = re.search(
+                    r"\b(?:is|are|was|were|seems?|became|becomes?|remained|remains?)"
+                    r"\s+(?:not\s+)?([A-Za-z][A-Za-z-]*)\s*[.!?]?$",
+                    material, re.I,
+                )
+                return _normal(complement.group(1)) if complement else ""
             if lowered.startswith("how did"):
-                material_tokens = list(_tokens(material))
-                with self._connect() as connection:
-                    for token in material_tokens:
-                        row = connection.execute(
-                            """SELECT lemma FROM acquired_concepts
-                               WHERE lemma=? AND part_of_speech='r' LIMIT 1""",
-                            (token,),
-                        ).fetchone()
-                        if row:
-                            return str(row["lemma"])
-                return ""
+                for row in token_rows:
+                    if row.get("pos") == "r":
+                        return str(row.get("lemma") or row.get("token") or "")
+                manner = re.search(
+                    r"\b(?:works?|worked|acts?|acted|moves?|moved|speaks?|spoke)"
+                    r"\s+([A-Za-z][A-Za-z-]*)\s*[.!?]?$", material, re.I,
+                )
+                return _normal(manner.group(1)) if manner else ""
             if lowered.startswith("what did"):
-                return str(frame.get("object") or "")
+                value = str(frame.get("object") or "")
+                if value:
+                    return value
+                # A newly selected semantic predicate may not yet exist in the
+                # morphology table.  The noun phrase is nevertheless explicit
+                # in the sealed sentence, so recover that role structurally.
+                noun_phrase = re.search(r"\b(?:the|a|an)\s+([A-Za-z][A-Za-z-]*)\s*[.!?]?$", material)
+                if noun_phrase:
+                    return _normal(noun_phrase.group(1))
+                action_seen = False
+                for row in token_rows:
+                    action_seen = action_seen or row.get("pos") == "v"
+                    if not action_seen:
+                        continue
+                    surface = _normal(str(row.get("token") or ""))
+                    if not surface:
+                        continue
+                    if row.get("pos") == "n" or self.lexical.lookup_senses(surface, "n"):
+                        return surface
+                return ""
             return str(self.transfer.answer(
                 material, question, str(exercise.get("concept_id") or ""),
             )["answer"])
@@ -585,30 +777,41 @@ class NativeEnglishPracticeGym:
                 prompt, choices, str(metadata.get("semantic_cue") or ""),
             )
         target = re.search(r"'([^']+)'", prompt)
-        lemma = target.group(1) if target else ""
+        lemma = str(exercise.get("lemma") or (target.group(1) if target else ""))
         concept = self._concept_by_lemma(lemma)
         pos = str((concept or {}).get("part_of_speech") or "")
         variant = int(exercise.get("variant") or 0)
         name = NAMES[variant % len(NAMES)]
         obj = OBJECTS[(variant * 3) % len(OBJECTS)]
         if family == "sentence_construction":
-            return self._construct_sentence(lemma, pos, name, obj)
+            return self._construct_sentence(lemma, pos, name, obj, cue=self._cue(concept or {}))
         if family == "sentence_transformation":
             negation = re.search(
-                r"Make this sentence negative.*?: ([A-Z][a-z]+) (\w+) the (\w+)", prompt,
+                r"Make this sentence negative.*?: "
+                r"([A-Z][A-Za-z'-]*)\s+([A-Za-z][A-Za-z'-]*)\s+the\s+"
+                r"([A-Za-z][A-Za-z'-]*)",
+                prompt,
             )
             if negation:
                 surface = negation.group(2).lower()
                 with self._connect() as connection:
-                    row = connection.execute(
-                        "SELECT lemma FROM morphology_forms WHERE surface=? AND feature LIKE '%past%' LIMIT 1",
+                    rows = connection.execute(
+                        """SELECT DISTINCT lemma FROM morphology_forms
+                           WHERE surface=? AND feature LIKE '%past%'""",
                         (surface,),
-                    ).fetchone()
-                base = str(row["lemma"]) if row else (
+                    ).fetchall()
+                candidates = [str(row["lemma"]) for row in rows]
+                # Ambiguous surfaces such as bated (bat/bate) and barded
+                # (bard/barde) are resolved against the acquired semantic cue.
+                # This is native lexical disambiguation, not access to the
+                # sealed answer key.
+                base = self._memory_match(
+                    prompt, candidates, str(metadata.get("semantic_cue") or ""),
+                ) if candidates else (lemma or (
                     surface[:-3] + "y" if surface.endswith("ied") else
                     surface[:-1] if surface.endswith("ed") and surface[:-1].endswith("e") else
                     surface[:-2] if surface.endswith("ed") else surface
-                )
+                ))
                 return f"{negation.group(1)} did not {base} the {negation.group(3)}."
             tokens = re.findall(r"Unjumble.*?: (.*)", prompt)
             if tokens:
@@ -616,10 +819,10 @@ class NativeEnglishPracticeGym:
                 return " ".join(reversed(supplied)).replace(" .", ".")
         if family == "controlled_writing":
             cue = self._cue(concept or {})
-            return f"{self._construct_sentence(lemma, pos, name, obj)} This use is appropriate because {cue}."
+            return f"{self._construct_sentence(lemma, pos, name, obj, cue=cue)} This use is appropriate because {cue}."
         if family == "native_conversation":
             cue = self._cue(concept or {})
-            return f"{(concept or {}).get('native_gloss') or cue}. For example, {self._construct_sentence(lemma, pos, name, obj)}"
+            return f"{(concept or {}).get('native_gloss') or cue}. For example, {self._construct_sentence(lemma, pos, name, obj, cue=cue)}"
         return self._memory_match(
             prompt, choices, str(metadata.get("semantic_cue") or ""),
         )
@@ -632,8 +835,31 @@ class NativeEnglishPracticeGym:
             ).fetchone()
         return self._decode(row) if row else None
 
-    @staticmethod
-    def _grade(exercise: Mapping[str, Any], answer: str) -> tuple[float, bool]:
+    def _answers_equivalent(self, exercise: Mapping[str, Any], answer: str) -> bool:
+        expected = _normal(str(exercise.get("answer_key") or ""))
+        actual = _normal(answer)
+        if not expected or not actual:
+            return False
+        if expected == actual:
+            return True
+        metadata = dict(exercise.get("metadata") or {})
+        if str(metadata.get("target_pos") or "") != "v":
+            return False
+        expected_senses = self.lexical.lookup_senses(expected, "v")
+        actual_senses = self.lexical.lookup_senses(actual, "v")
+        for left in expected_senses:
+            left_tokens = _tokens(str(left.get("definition") or ""))
+            for right in actual_senses:
+                right_tokens = _tokens(str(right.get("definition") or ""))
+                if left_tokens and right_tokens:
+                    overlap = len(left_tokens & right_tokens) / max(1, min(
+                        len(left_tokens), len(right_tokens)
+                    ))
+                    if overlap >= .6:
+                        return True
+        return False
+
+    def _grade(self, exercise: Mapping[str, Any], answer: str) -> tuple[float, bool]:
         family = str(exercise["family"])
         expected = str(exercise["answer_key"])
         metadata = dict(exercise.get("metadata") or {})
@@ -655,9 +881,34 @@ class NativeEnglishPracticeGym:
             sentence_score = min(1.0, sentences / max(1, int(rubric.get("minimum_sentences") or 1)))
             connector = str(rubric.get("required_connector") or "")
             connector_score = 1.0 if not connector or connector in tokens else 0.0
-            score = round((target * .5) + (sentence_score * .3) + (connector_score * .2), 4)
+            role_score = self._productive_role_score(answer, rubric)
+            score = round((target * .35) + (role_score * .3)
+                          + (sentence_score * .2) + (connector_score * .15), 4)
             return score, score >= .8
-        correct = _normal(answer) == _normal(expected)
+        if family == "sentence_transformation":
+            # Accept a genuine lexical variant (for example lambast/lambaste)
+            # when subject, negation and object are all preserved.  Exact
+            # string grading incorrectly punished a semantically valid
+            # transformation and trapped it in the remediation queue.
+            pattern = re.compile(
+                r"^([A-Za-z][A-Za-z'-]*)\s+did\s+not\s+([A-Za-z][A-Za-z'-]*)"
+                r"\s+(?:the\s+)?(.+?)\.?$", re.I,
+            )
+            actual_parts = pattern.match(answer.strip())
+            expected_parts = pattern.match(expected.strip())
+            if actual_parts and expected_parts:
+                roles_match = (
+                    _normal(actual_parts.group(1)) == _normal(expected_parts.group(1))
+                    and _normal(actual_parts.group(3)) == _normal(expected_parts.group(3))
+                )
+                if roles_match:
+                    verb_probe = {
+                        **dict(exercise),
+                        "answer_key": expected_parts.group(2),
+                    }
+                    if self._answers_equivalent(verb_probe, actual_parts.group(2)):
+                        return 1.0, True
+        correct = self._answers_equivalent(exercise, answer)
         return (1.0 if correct else 0.0), correct
 
     def _due_obligations(self, limit: int) -> list[dict[str, Any]]:
@@ -765,7 +1016,13 @@ class NativeEnglishPracticeGym:
         scheduled_pairs: Counter[tuple[str, str]] = Counter()
         for obligation in obligations:
             concept = self._concept(str(obligation["concept_id"]))
-            if not concept:
+            if not concept or not self._usable_concept(concept):
+                with self._connect() as connection:
+                    connection.execute(
+                        """UPDATE native_english_practice_remediation
+                           SET status='invalid_material',cleared_epoch=? WHERE obligation_id=?""",
+                        (time.time(), obligation["obligation_id"]),
+                    )
                 continue
             built = self._build(
                 concept, str(obligation["family"]), int(obligation["retry_count"]) + 101,
@@ -833,7 +1090,7 @@ class NativeEnglishPracticeGym:
         return {"cycle_id": cycle_id, **detail}
 
     def metrics(self) -> dict[str, Any]:
-        with self._connect() as connection:
+        with self._read_connect() as connection:
             totals = connection.execute(
                 """SELECT COUNT(*),COALESCE(SUM(correct),0),COALESCE(SUM(reward),0)
                    FROM native_english_practice_attempts"""

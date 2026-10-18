@@ -91,7 +91,7 @@
       "source": "cross_domain_authority_factory_cau"
     },
     "reason": "open_cross_domain_authority_factory",
-    "state_hash": "1ac067fe4fb483441fd952c378069e85fd4ad83ef5679983e9c78223f01b3fc9"
+    "state_hash": "96a6e5cfd7189886968ed7a1fae0c5f42434a37ef1339defe43d25e94f0bd985"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -60680,6 +60680,3822 @@
       "score": 4.0,
       "success": true,
       "timestamp": "2026-10-09T21:09:25.193466+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_23f683d847bf4bc6",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-09T22:10:04.668703+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_e4503234196c4a7b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-09T23:12:42.228628+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_b619079116a34410",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T00:14:40.075377+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_9e96755e214d4fd3",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T01:16:45.188329+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_862db878f5f14f31",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T02:19:08.411415+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_af339667f90245f3",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T03:21:09.888595+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f71612c81c1a42e3",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T04:23:22.371979+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_12022a6785494f81",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T05:25:44.509804+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_92684c7de8ae4dc6",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T06:27:50.541521+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_a8cf1c1ec4c24fe2",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T07:30:50.585933+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_0f7a1a2ac50546da",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T08:32:05.272225+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_67fac8a31c4d43eb",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T09:32:54.621464+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_b5bdfd20c8d14575",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T10:33:27.137208+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f0a68ff902274360",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T11:34:50.117736+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_3899ae3c6aac4e35",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T12:37:27.835020+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f2fa253535264916",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T13:40:44.267746+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_e6c003372b5d4498",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T14:42:53.151604+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_3802adefe8914e11",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T15:44:59.511198+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_66189a9ffb694e46",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T16:46:26.401040+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_30b076ab3c944151",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T17:48:29.374785+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_647bac26e7964641",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T18:50:57.428275+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_edb4274eaaf74cdb",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T19:52:42.115992+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_ca6770d7d019416b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T20:54:44.033069+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_aea4600718374b1e",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T21:57:24.492058+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_4a83a2a974bb4870",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-10T22:59:10.330330+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_25075d0be9a2454d",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T00:01:41.651825+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_0c814468443945d9",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T01:04:09.529180+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_447978e06996433e",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T02:05:56.657187+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_2cfeb8c4e78b4e50",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T03:08:25.403644+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_c9b00c83af8e4727",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T04:10:15.330900+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_089553395e6248ac",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T05:11:57.900075+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_39718ff98d2e4170",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T06:14:22.905214+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_2cbf413bb47640f9",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T07:17:15.418168+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_632c0e8868b4430a",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T08:19:45.131416+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_52c72b7cc3094a85",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T09:21:49.083645+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_bc0cef8e2b044fa7",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T10:24:02.779350+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f31e57d5907f491b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T11:26:02.267003+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_1b76d8dd153f4c4f",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T12:27:49.152624+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_161b67d2e833482f",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T13:30:25.649610+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_c7228a44365248c1",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T14:32:38.113523+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_09d2115a2c1f4de6",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T15:35:10.378279+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_19751c59436b4fcc",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T16:37:29.146366+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_80cfce3866ff4817",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T18:05:09.703421+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_a2b6bd536e284a3c",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T19:51:50.886730+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_48b2db541d2c41ac",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T20:54:02.166047+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_6aba3756d72e4796",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-11T21:56:56.061055+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_ccd2ddc049c34f92",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T13:02:49.280870+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_896a07c3e5e948c4",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T14:05:00.500744+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_58f08b8851d24e11",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T15:06:03.422704+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f9fe86ff2f584ddd",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T16:07:09.089962+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_cbf8be848d494459",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T17:10:10.163425+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_a1140ffc76274093",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T18:10:34.066363+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_e7b5cba6cdd946fb",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T19:12:49.308257+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7b31755ee2584126",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T20:15:15.239171+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_4654373bf2ab43b7",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T21:17:53.703307+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_0e2f2565d7294a53",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T22:21:48.933630+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_8f1be48b8c6b42b9",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-12T23:25:32.477029+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7957ca7ecafe41c3",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T00:28:57.605244+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_d285ad9e1fb74e52",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T01:32:25.722239+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_2c20045951494b3f",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T02:36:03.945264+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_0ed497a8f9a74871",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T03:39:59.737937+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_881a35c1241240f5",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T04:44:13.783223+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_bd38d2c5321e46ae",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T05:48:23.706168+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_eafe2d40c9b9418f",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T07:48:29.307755+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_ef8be08e815f445e",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T08:51:10.031411+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_c17ae9a1e2f14565",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T11:53:05.951383+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_03e99d7cf15048bf",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T16:15:23.790802+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_018184d83d1b4533",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T17:17:22.559199+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_3e3b391009b0488b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T18:19:51.020475+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_b7be95250a5b4996",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T19:21:51.589008+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_8a53cef041f847e8",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T20:24:56.894922+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_32dd0ac0956d496a",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T21:27:14.100490+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_e78290c25ae84731",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T22:28:59.083621+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_9e54457b030d4a9e",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-13T23:31:01.654590+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_e9f9d8b30a8e4692",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T00:33:27.182307+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_ea305f54768f4f84",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T01:35:51.759999+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_b29813e5ffe94a87",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T02:37:40.665783+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_eca943cc863046dd",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T03:40:32.417761+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f7846a59f07d4a88",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T04:43:09.658924+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7cafcba5238b49af",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T05:47:13.433095+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_b2f73c6e8f124f7a",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T06:49:18.810715+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f14e6e44b1a74eed",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T07:51:17.625096+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f234f85783444025",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T08:55:35.217400+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_ca27e2364e0b4d20",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T09:57:36.115686+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_19987fa2c94f4ac6",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T10:59:53.024021+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_096ace368d8345dd",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T12:04:25.837101+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_345fd83f2eef417d",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T13:06:30.609538+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_c977cc5e43f247f6",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T14:08:41.034728+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_0129bfc44d854718",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T15:12:56.883128+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_0ad98e72a77a42c7",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T16:15:25.201262+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_c674c3c589ab4a0e",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T17:19:41.505802+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f6441261578348c6",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T18:21:43.758439+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_bb8061c12b394686",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T19:23:39.992892+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_03f3a6f09fdb47a5",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T20:25:17.732995+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_a90ec71319b04ddd",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T21:28:07.956558+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_43d137a152c34851",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T22:32:20.189977+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_e85f199d8f9840e4",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-14T23:34:42.688352+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_376effc4006f48f2",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T00:37:37.247286+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_78e6d8fa9f33458b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T01:40:28.553897+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_565eeb37a8c74d99",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T02:42:28.630931+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_9895acf276db468a",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T03:45:06.732869+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_132141bf48e14a20",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T04:47:50.970953+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7ff43ba884ef49aa",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T05:50:18.395101+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7dd4890d928e47b3",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T06:52:06.134345+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_5ff09eafdb8a49b7",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T07:55:19.975919+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_b1f1fab7c4c24d4a",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T08:57:54.211294+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_6904b25a329146bb",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T10:00:44.194190+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_aa93c06864e74704",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T11:03:41.301397+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_2ca0be1aaacb45fa",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T12:07:24.859541+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_923ac0d46d814e2b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T13:09:33.435424+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_8398a41563184b0b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T14:13:10.276909+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_ced88653958946d8",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T15:16:21.615012+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7ecf7a0180014aaf",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T16:20:32.046736+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_8e97f308528e4631",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T17:24:19.661309+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_baee886042be4c88",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T18:26:33.701012+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_e61bf626a2ef4a40",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T19:28:53.550988+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_9b3aa651ef584ec0",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T20:31:38.828158+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f1c5e465347f4b7d",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T21:32:28.172780+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_91b5ea56f19e4fcb",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T22:34:36.530085+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_35bc0095ab2f4396",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-15T23:38:00.649759+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7191c5bd34fa4f43",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T00:40:49.159401+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_8d56fd264e614e22",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T01:44:35.241320+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_3d1a0f849ec44f7d",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T02:46:48.117956+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_181713ba0cca406a",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T03:50:13.719339+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_b820945fb1524087",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T04:52:17.374103+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_571378ceceee49c5",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T05:56:10.498882+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_af8ca84ae2bc4260",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T06:58:00.178808+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_fb706fe999ab4395",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T08:01:30.595752+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_34dd7ac4e67d42c8",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T09:03:48.491608+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_cdcbb0eee9cb4644",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T10:07:15.688067+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_d2609f381ca64aec",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T11:09:46.570636+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_6ee358a5be0b4a7f",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T12:14:04.000586+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_bbae6d4c766f400f",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T13:16:49.345103+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_67128022517a496b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T14:21:42.664105+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_c56c24408dfa4da9",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T16:38:09.030929+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_e7acb3e712bb47ec",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T17:40:27.807261+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_2465ca8e4c2f4468",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T18:48:38.723949+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_4e4d74a197394727",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T20:09:05.720085+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_bc8af3fa4eeb4b4a",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T21:11:54.882860+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_2aad6d1a24b14d27",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T22:14:11.234319+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_33248302aea94b82",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-16T23:16:57.913565+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_59165ae44803445b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T00:19:09.246998+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_a325fd8357364d4d",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T01:21:23.398762+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_5ebe630e5c0949f2",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T02:25:34.271387+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f7cf9a574f264d37",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T03:28:11.137175+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_9526f5035d78428a",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T04:30:11.094619+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_a5060f052a14491e",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T05:32:06.317336+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_c9fa43f13cbd4533",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T06:33:48.982252+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7f11a72b664e43cb",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T07:36:01.523780+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_6cf2cacbd3794035",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T08:40:00.411422+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_2aea840e9d164c95",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T10:55:49.917699+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_f8c27ffe3c3d455b",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:37:26.270889+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_9a99e4c354af42f4",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:04:50.180649+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_c8c9016341b74843",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-17T21:10:03.114980+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_7eee1bc590484587",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:48:48.960633+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_b97a6e69928e423f",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-18T02:52:25.683482+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_5c81811314a74cb3",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-18T03:56:37.101540+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_29aa1c3525e84f8d",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:40:29.918955+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "credential_accesses": 0,
+          "eligible_goals": 0,
+          "inadequate_candidates_rejected": 8,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "new_authorities": 0,
+          "new_precommitments": 0,
+          "premature_installs": 0,
+          "retained_authorities": 4,
+          "source_disjoint_receipts": 4
+        }
+      },
+      "outcome_id": "outcome_d682983c7af54c21",
+      "procedure_id": "procedure_open_cross_domain_authority_factory_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 4.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:46:34.380663+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -60770,7 +64586,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 5048,
+  "revision": 5366,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -60793,7 +64609,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-10-09T21:09:25.267245+00:00",
+  "updated_at": "2026-10-18T08:46:34.460507+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

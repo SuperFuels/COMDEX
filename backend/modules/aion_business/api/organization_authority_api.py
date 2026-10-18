@@ -32,6 +32,18 @@ class AccessDecisionRequest(BaseModel):
     subject_person_id: str | None = None
 
 
+class PolicyAcknowledgementRequest(BaseModel):
+    person_id: str
+    policy_id: str
+    policy_version: str
+    acknowledged_by: str = "current_user"
+
+
+class ReviewCompletionRequest(BaseModel):
+    completed_by: str = "current_user"
+    outcome: str = "completed"
+
+
 def _workspace(value: str) -> str:
     workspace_id = canonical_business_id(value)
     if not workspace_id:
@@ -85,6 +97,41 @@ def access_decision(workspace_id: str, request: AccessDecisionRequest) -> dict[s
         subject_person_id=request.subject_person_id,
     )
     return {"ok": True, "workspace_id": key, "decision": decision}
+
+
+@router.post("/{workspace_id}/policy-acknowledgements")
+def record_policy_acknowledgement(
+    workspace_id: str, request: PolicyAcknowledgementRequest,
+) -> dict[str, Any]:
+    key = _workspace(workspace_id)
+    try:
+        acknowledgement = OrganizationAuthorityService().record_policy_acknowledgement(
+            key,
+            person_id=request.person_id,
+            policy_id=request.policy_id,
+            policy_version=request.policy_version,
+            acknowledged_by=request.acknowledged_by,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {"ok": True, "workspace_id": key, "acknowledgement": acknowledgement}
+
+
+@router.post("/{workspace_id}/reviews/{review_id}/complete")
+def complete_review(
+    workspace_id: str, review_id: str, request: ReviewCompletionRequest,
+) -> dict[str, Any]:
+    key = _workspace(workspace_id)
+    try:
+        review = OrganizationAuthorityService().complete_review_action(
+            key,
+            review_id=review_id,
+            completed_by=request.completed_by,
+            outcome=request.outcome,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    return {"ok": True, "workspace_id": key, "review": review}
 
 
 @router.get("/{workspace_id}/viewer-projection/{person_id}")

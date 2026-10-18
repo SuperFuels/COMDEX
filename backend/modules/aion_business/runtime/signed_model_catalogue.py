@@ -6,6 +6,11 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Iterable
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_fabric.canonical import canonical_bytes, canonical_hash, utc_now_iso
 from backend.modules.aion_fabric.identity import DeviceIdentity
 
@@ -17,9 +22,23 @@ MODEL_LIFECYCLE_STATES = ("experimental", "qualified", "blocked", "unavailable",
 class SignedModelCatalogue:
     """Customer-owned model qualification, rollout and rollback authority."""
 
-    def __init__(self, root: str | Path, *, trusted_issuers: Iterable[str]) -> None:
+    def __init__(
+        self, root: str | Path, *, trusted_issuers: Iterable[str],
+        workspace_id: str | None = None,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
         self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.workspace_id = str(workspace_id or "").strip()
+        self.domain_store = domain_store
+        if domain_store is None and self.workspace_id and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="signed-model-catalogue-runtime"
+            )
+        if self.domain_store is not None and not self.workspace_id:
+            raise ValueError("workspace_id_required_for_guardian_model_catalogue")
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
         self.catalogue_path = self.root / "model_catalogue.json"
         self.private_scores_path = self.root / "customer_private_outcomes.json"
         self.trusted_issuers = set(trusted_issuers)
@@ -354,15 +373,46 @@ class SignedModelCatalogue:
         if self._require(state, model_ref).get("status") != "qualified": raise PermissionError("qualified_model_required")
 
     def _state(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            row = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=self.workspace_id,
+                entity_id="model_catalogue/state",
+            )
+            return dict(row["payload"]) if row is not None else {
+                "schema_version": "aion.model_catalogue.v1", "models": {}, "routes": {}
+            }
         if not self.catalogue_path.exists(): return {"schema_version": "aion.model_catalogue.v1", "models": {}, "routes": {}}
         return json.loads(self.catalogue_path.read_text(encoding="utf-8"))
 
     def _private(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            row = self.domain_store.get_optional(
+                "train_agent.runs_and_audit", workspace_id=self.workspace_id,
+                entity_id="model_catalogue/customer_private_outcomes",
+            )
+            return dict(row["payload"]) if row is not None else {
+                "schema_version": "aion.customer_private_model_outcomes.v1", "outcomes": []
+            }
         if not self.private_scores_path.exists(): return {"schema_version": "aion.customer_private_model_outcomes.v1", "outcomes": []}
         return json.loads(self.private_scores_path.read_text(encoding="utf-8"))
 
-    @staticmethod
-    def _write(path: Path, payload: Dict[str, Any], *, mode: int = 0o644) -> None:
+    def _write(self, path: Path, payload: Dict[str, Any], *, mode: int = 0o644) -> None:
+        if self.domain_store is not None:
+            private = path == self.private_scores_path
+            domain_id = "train_agent.runs_and_audit" if private else "train_agent.automations"
+            entity_id = (
+                "model_catalogue/customer_private_outcomes" if private
+                else "model_catalogue/state"
+            )
+            current = self.domain_store.get_optional(
+                domain_id, workspace_id=self.workspace_id, entity_id=entity_id,
+            )
+            self.domain_store.put(
+                domain_id, workspace_id=self.workspace_id, entity_id=entity_id,
+                payload=payload,
+                expected_version=int(current["version"]) if current else None,
+            )
+            return
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary = path.with_suffix(path.suffix + ".tmp")
         temporary.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")

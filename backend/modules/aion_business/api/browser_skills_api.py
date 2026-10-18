@@ -10,6 +10,13 @@ import re
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 
 router = APIRouter(
     prefix="/api/aion/business",
@@ -17,6 +24,7 @@ router = APIRouter(
 )
 
 BASE = Path(".runtime/AION_BUSINESS")
+DOMAIN_ID = "train_agent.automations"
 
 
 def _utc_now() -> str:
@@ -83,6 +91,70 @@ def _chain_path(workspace_id: str, chain_id: str) -> Path:
     return _chain_dir(workspace_id) / f"{_safe_id(chain_id, 'browser_chain')}.json"
 
 
+def _guardian_store() -> VaultDomainStore | None:
+    if not guardian_mode_requested():
+        return None
+    return VaultDomainStore(
+        configured_business_vault_runtime().guardian,
+        actor_id="browser-skills-api",
+    )
+
+
+def _entity(kind: str, record_id: str) -> str:
+    return f"browser_automation/{kind}/{_safe_id(record_id, kind)}"
+
+
+def _guardian_save(
+    store: VaultDomainStore, workspace_id: str, kind: str, record_id: str,
+    payload: Dict[str, Any], *, idempotency_key: str | None = None,
+) -> Dict[str, Any]:
+    workspace = canonical_business_id(workspace_id)
+    entity_id = _entity(kind, record_id)
+    current = store.get_optional(DOMAIN_ID, workspace_id=workspace, entity_id=entity_id)
+    store.put(
+        DOMAIN_ID, workspace_id=workspace, entity_id=entity_id, payload=payload,
+        expected_version=int(current["version"]) if current else None,
+        idempotency_key=idempotency_key,
+    )
+    return payload
+
+
+def _import_legacy(
+    store: VaultDomainStore, workspace_id: str, kind: str, folder: Path,
+) -> None:
+    workspace = canonical_business_id(workspace_id)
+    for path in sorted(folder.glob("*.json")) if folder.is_dir() else []:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        record_id = _safe_id(
+            payload.get("skill_id") or payload.get("chain_id") or payload.get("id") or path.stem,
+            kind,
+        )
+        entity_id = _entity(kind, record_id)
+        if store.get_optional(DOMAIN_ID, workspace_id=workspace, entity_id=entity_id) is None:
+            _guardian_save(
+                store, workspace, kind, record_id,
+                {**payload, "legacy_source_retained": True},
+                idempotency_key=f"browser-automation-import-{kind}-{record_id}",
+            )
+
+
+def _guardian_list(
+    store: VaultDomainStore, workspace_id: str, kind: str, folder: Path,
+) -> List[Dict[str, Any]]:
+    workspace = canonical_business_id(workspace_id)
+    _import_legacy(store, workspace, kind, folder)
+    prefix = f"browser_automation/{kind}/"
+    return [
+        dict(row["payload"])
+        for row in store.list(DOMAIN_ID, workspace_id=workspace)
+        if str(row.get("entity_id") or "").startswith(prefix)
+        and not bool((row.get("payload") or {}).get("__deleted__"))
+    ]
+
+
 class BrowserSkillPayload(BaseModel):
     skill: Dict[str, Any] = Field(default_factory=dict)
 
@@ -93,7 +165,11 @@ class BrowserChainPayload(BaseModel):
 
 @router.get("/browser-skills/{workspace_id}")
 def list_browser_skills(workspace_id: str) -> Dict[str, Any]:
-    items = _list_json(_skill_dir(workspace_id))
+    store = _guardian_store()
+    items = (
+        _guardian_list(store, workspace_id, "skills", _skill_dir(workspace_id))
+        if store else _list_json(_skill_dir(workspace_id))
+    )
     return {
         "ok": True,
         "workspace_id": workspace_id,
@@ -120,7 +196,11 @@ def save_browser_skill(workspace_id: str, request: BrowserSkillPayload) -> Dict[
     skill.setdefault("created_at", now)
     skill["updated_at"] = now
 
-    saved = _write_json(_skill_path(workspace_id, skill_id), skill)
+    store = _guardian_store()
+    saved = (
+        _guardian_save(store, workspace_id, "skills", skill_id, skill)
+        if store else _write_json(_skill_path(workspace_id, skill_id), skill)
+    )
 
     return {
         "ok": True,
@@ -132,7 +212,18 @@ def save_browser_skill(workspace_id: str, request: BrowserSkillPayload) -> Dict[
 
 @router.get("/browser-skills/{workspace_id}/{skill_id}")
 def get_browser_skill(workspace_id: str, skill_id: str) -> Dict[str, Any]:
-    item = _read_json(_skill_path(workspace_id, skill_id))
+    store = _guardian_store()
+    if store:
+        _import_legacy(store, workspace_id, "skills", _skill_dir(workspace_id))
+        row = store.get_optional(
+            DOMAIN_ID, workspace_id=canonical_business_id(workspace_id),
+            entity_id=_entity("skills", skill_id),
+        )
+        if row is None or bool((row.get("payload") or {}).get("__deleted__")):
+            raise HTTPException(status_code=404, detail="Browser skill not found")
+        item = dict(row["payload"])
+    else:
+        item = _read_json(_skill_path(workspace_id, skill_id))
     return {
         "ok": True,
         "workspace_id": workspace_id,
@@ -143,6 +234,14 @@ def get_browser_skill(workspace_id: str, skill_id: str) -> Dict[str, Any]:
 
 @router.delete("/browser-skills/{workspace_id}/{skill_id}")
 def delete_browser_skill(workspace_id: str, skill_id: str) -> Dict[str, Any]:
+    store = _guardian_store()
+    if store:
+        _guardian_save(
+            store, workspace_id, "skills", skill_id,
+            {"__deleted__": True, "skill_id": skill_id, "workspace_id": workspace_id,
+             "deleted_at": _utc_now()},
+        )
+        return {"ok": True, "workspace_id": workspace_id, "skill_id": skill_id, "deleted": True}
     path = _skill_path(workspace_id, skill_id)
 
     if path.exists():
@@ -158,7 +257,11 @@ def delete_browser_skill(workspace_id: str, skill_id: str) -> Dict[str, Any]:
 
 @router.get("/browser-chains/{workspace_id}")
 def list_browser_chains(workspace_id: str) -> Dict[str, Any]:
-    items = _list_json(_chain_dir(workspace_id))
+    store = _guardian_store()
+    items = (
+        _guardian_list(store, workspace_id, "chains", _chain_dir(workspace_id))
+        if store else _list_json(_chain_dir(workspace_id))
+    )
     return {
         "ok": True,
         "workspace_id": workspace_id,
@@ -185,7 +288,11 @@ def save_browser_chain(workspace_id: str, request: BrowserChainPayload) -> Dict[
     chain.setdefault("created_at", now)
     chain["updated_at"] = now
 
-    saved = _write_json(_chain_path(workspace_id, chain_id), chain)
+    store = _guardian_store()
+    saved = (
+        _guardian_save(store, workspace_id, "chains", chain_id, chain)
+        if store else _write_json(_chain_path(workspace_id, chain_id), chain)
+    )
 
     return {
         "ok": True,
@@ -197,7 +304,18 @@ def save_browser_chain(workspace_id: str, request: BrowserChainPayload) -> Dict[
 
 @router.get("/browser-chains/{workspace_id}/{chain_id}")
 def get_browser_chain(workspace_id: str, chain_id: str) -> Dict[str, Any]:
-    item = _read_json(_chain_path(workspace_id, chain_id))
+    store = _guardian_store()
+    if store:
+        _import_legacy(store, workspace_id, "chains", _chain_dir(workspace_id))
+        row = store.get_optional(
+            DOMAIN_ID, workspace_id=canonical_business_id(workspace_id),
+            entity_id=_entity("chains", chain_id),
+        )
+        if row is None or bool((row.get("payload") or {}).get("__deleted__")):
+            raise HTTPException(status_code=404, detail="Browser chain not found")
+        item = dict(row["payload"])
+    else:
+        item = _read_json(_chain_path(workspace_id, chain_id))
     return {
         "ok": True,
         "workspace_id": workspace_id,
@@ -208,6 +326,14 @@ def get_browser_chain(workspace_id: str, chain_id: str) -> Dict[str, Any]:
 
 @router.delete("/browser-chains/{workspace_id}/{chain_id}")
 def delete_browser_chain(workspace_id: str, chain_id: str) -> Dict[str, Any]:
+    store = _guardian_store()
+    if store:
+        _guardian_save(
+            store, workspace_id, "chains", chain_id,
+            {"__deleted__": True, "chain_id": chain_id, "workspace_id": workspace_id,
+             "deleted_at": _utc_now()},
+        )
+        return {"ok": True, "workspace_id": workspace_id, "chain_id": chain_id, "deleted": True}
     path = _chain_path(workspace_id, chain_id)
 
     if path.exists():

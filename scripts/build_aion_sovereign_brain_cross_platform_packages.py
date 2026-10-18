@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import gzip
 import json
 import shutil
 import stat
@@ -12,17 +13,32 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from scripts.build_aion_sovereign_brain_bootstrap import DIST, PACKAGING, build
+from scripts.build_aion_sovereign_brain_bootstrap import (
+    DIST,
+    PACKAGING,
+    build,
+    write_reproducible_zip_file,
+)
 
 
 def _sha(path: Path) -> str:
     digest = hashlib.sha256(); digest.update(path.read_bytes()); return digest.hexdigest()
 
 
+def _normalized_tar_info(info: tarfile.TarInfo) -> tarfile.TarInfo:
+    info.mtime = 0
+    info.uid = 0
+    info.gid = 0
+    info.uname = "root"
+    info.gname = "root"
+    return info
+
+
 def build_cross_platform() -> dict:
     bootstrap = build()
     release = json.loads((PACKAGING / "release_manifest.json").read_text())
     version = release["version"]
+    DIST.mkdir(parents=True, exist_ok=True)
     outputs = {}
     with tempfile.TemporaryDirectory(prefix="aion-cross-platform-") as temporary:
         root = Path(temporary)
@@ -41,9 +57,16 @@ def build_cross_platform() -> dict:
                         "publisher_signature": False, "contains_customer_data": False}
         (windows / "platform-manifest.json").write_text(json.dumps(windows_meta, indent=2, sort_keys=True))
         windows_output = DIST / f"Pilot-AION-Brain-Windows-x64-{version}-unsigned.zip"
-        with zipfile.ZipFile(windows_output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        with zipfile.ZipFile(
+            windows_output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9
+        ) as archive:
             for path in sorted(windows.rglob("*")):
-                if path.is_file(): archive.write(path, path.relative_to(windows.parent))
+                if path.is_file():
+                    write_reproducible_zip_file(
+                        archive,
+                        source=path,
+                        archive_name=path.relative_to(windows.parent),
+                    )
         outputs["windows"] = windows_output
 
         linux = root / f"pilot-aion-brain-linux-x64-{version}"
@@ -58,7 +81,14 @@ def build_cross_platform() -> dict:
                       "contains_customer_data": False}
         (linux / "platform-manifest.json").write_text(json.dumps(linux_meta, indent=2, sort_keys=True))
         linux_output = DIST / f"pilot-aion-brain-linux-x64-{version}-unsigned.tar.gz"
-        with tarfile.open(linux_output, "w:gz") as archive: archive.add(linux, arcname=linux.name)
+        with linux_output.open("wb") as raw_output:
+            with gzip.GzipFile(fileobj=raw_output, mode="wb", mtime=0) as compressed:
+                with tarfile.open(fileobj=compressed, mode="w") as archive:
+                    archive.add(
+                        linux,
+                        arcname=linux.name,
+                        filter=_normalized_tar_info,
+                    )
         outputs["linux"] = linux_output
 
     result = {key: {"path": str(path), "sha256": _sha(path)} for key, path in outputs.items()}

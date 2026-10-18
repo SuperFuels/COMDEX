@@ -80,3 +80,33 @@ def test_sales_invoice_validation_fails_closed(monkeypatch, tmp_path):
                                                             "unit_amount": 1, "tax_rate": 0}],
         )
 
+
+def test_verified_payment_is_exactly_once_and_conflicts_fail_closed(monkeypatch, tmp_path):
+    _, _, service, _, invoice = prepared_invoice(monkeypatch, tmp_path)
+    request = {
+        "provider": "sandbox",
+        "provider_event_id": "evt-sales-payment-1",
+        "provider_payment_reference": "payment-reference-secret-1",
+        "amount": 242,
+        "currency": "EUR",
+        "occurred_at": "2026-10-17T12:00:00+00:00",
+    }
+    with pytest.raises(PermissionError, match="posted_sales_invoice_required"):
+        service.record_verified_payment("acme", invoice["invoice_id"], **request)
+    approved = service.approve_invoice(
+        "acme", invoice["invoice_id"], approved_by_person_id="person.owner",
+        approved_invoice_hash=invoice["invoice_hash"],
+    )
+    service.post_internal("acme", approved["invoice_id"], posted_by_person_id="person.owner")
+    first = service.record_verified_payment("acme", approved["invoice_id"], **request)
+    assert first["idempotent_replay"] is False
+    assert first["invoice"]["status"] == "paid"
+    assert first["invoice"]["amount_paid"] == 242
+    assert first["invoice"]["amount_due"] == 0
+    replay = service.record_verified_payment("acme", approved["invoice_id"], **request)
+    assert replay["idempotent_replay"] is True
+    assert len(replay["invoice"]["verified_payments"]) == 1
+    with pytest.raises(ValueError, match="verified_payment_event_conflict"):
+        service.record_verified_payment(
+            "acme", approved["invoice_id"], **{**request, "amount": 1},
+        )

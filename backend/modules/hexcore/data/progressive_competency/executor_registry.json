@@ -5,469 +5,469 @@
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "accounting_corporate_finance",
-      "updated_epoch": 1791582389.3086069
+      "updated_epoch": 1792315302.39671
     },
     "advanced_python": {
       "adapter_id": "progressive:advanced_python",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "advanced_python",
-      "updated_epoch": 1791582389.308609
+      "updated_epoch": 1792315302.396713
     },
     "adversary_emulation_penetration_testing": {
       "adapter_id": "progressive:adversary_emulation_penetration_testing",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "adversary_emulation_penetration_testing",
-      "updated_epoch": 1791582389.30861
+      "updated_epoch": 1792315302.396714
     },
     "algorithms_data_structures": {
       "adapter_id": "progressive:algorithms_data_structures",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "algorithms_data_structures",
-      "updated_epoch": 1791582389.30861
+      "updated_epoch": 1792315302.396714
     },
     "application_web_api_security": {
       "adapter_id": "progressive:application_web_api_security",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "application_web_api_security",
-      "updated_epoch": 1791582389.30861
+      "updated_epoch": 1792315302.396715
     },
     "architecture_operations": {
       "adapter_id": "progressive:architecture_operations",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "architecture_operations",
-      "updated_epoch": 1791582389.3086112
+      "updated_epoch": 1792315302.396715
     },
     "capability_communication": {
       "adapter_id": "progressive:capability_communication",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_communication",
-      "updated_epoch": 1791582389.3086112
+      "updated_epoch": 1792315302.396715
     },
     "capability_creativity_invention": {
       "adapter_id": "progressive:capability_creativity_invention",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_creativity_invention",
-      "updated_epoch": 1791582389.3086112
+      "updated_epoch": 1792315302.396715
     },
     "capability_critical_reasoning": {
       "adapter_id": "progressive:capability_critical_reasoning",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_critical_reasoning",
-      "updated_epoch": 1791582389.3086112
+      "updated_epoch": 1792315302.396716
     },
     "capability_cross_domain_synthesis": {
       "adapter_id": "progressive:capability_cross_domain_synthesis",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_cross_domain_synthesis",
-      "updated_epoch": 1791582389.308612
+      "updated_epoch": 1792315302.396716
     },
     "capability_debugging_repair": {
       "adapter_id": "progressive:capability_debugging_repair",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_debugging_repair",
-      "updated_epoch": 1791582389.308612
+      "updated_epoch": 1792315302.396716
     },
     "capability_decomposition": {
       "adapter_id": "progressive:capability_decomposition",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_decomposition",
-      "updated_epoch": 1791582389.308612
+      "updated_epoch": 1792315302.396716
     },
     "capability_execution": {
       "adapter_id": "progressive:capability_execution",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_execution",
-      "updated_epoch": 1791582389.308612
+      "updated_epoch": 1792315302.396717
     },
     "capability_formalisation": {
       "adapter_id": "progressive:capability_formalisation",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_formalisation",
-      "updated_epoch": 1791582389.308612
+      "updated_epoch": 1792315302.396717
     },
     "capability_information_ingestion": {
       "adapter_id": "progressive:capability_information_ingestion",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_information_ingestion",
-      "updated_epoch": 1791582389.308613
+      "updated_epoch": 1792315302.396717
     },
     "capability_learning_strategy": {
       "adapter_id": "progressive:capability_learning_strategy",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_learning_strategy",
-      "updated_epoch": 1791582389.308613
+      "updated_epoch": 1792315302.396718
     },
     "capability_mathematical_reasoning": {
       "adapter_id": "progressive:capability_mathematical_reasoning",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_mathematical_reasoning",
-      "updated_epoch": 1791582389.308613
+      "updated_epoch": 1792315302.396718
     },
     "capability_real_world_grounding": {
       "adapter_id": "progressive:capability_real_world_grounding",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_real_world_grounding",
-      "updated_epoch": 1791582389.308613
+      "updated_epoch": 1792315302.396718
     },
     "capability_research_frontier": {
       "adapter_id": "progressive:capability_research_frontier",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_research_frontier",
-      "updated_epoch": 1791582389.308613
+      "updated_epoch": 1792315302.3967192
     },
     "capability_retention_compounding": {
       "adapter_id": "progressive:capability_retention_compounding",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_retention_compounding",
-      "updated_epoch": 1791582389.3086138
+      "updated_epoch": 1792315302.3967192
     },
     "capability_safety_governance": {
       "adapter_id": "progressive:capability_safety_governance",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_safety_governance",
-      "updated_epoch": 1791582389.3086138
+      "updated_epoch": 1792315302.3967192
     },
     "capability_scientific_reasoning": {
       "adapter_id": "progressive:capability_scientific_reasoning",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_scientific_reasoning",
-      "updated_epoch": 1791582389.3086138
+      "updated_epoch": 1792315302.3967192
     },
     "capability_source_criticism": {
       "adapter_id": "progressive:capability_source_criticism",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_source_criticism",
-      "updated_epoch": 1791582389.3086138
+      "updated_epoch": 1792315302.3967202
     },
     "capability_systems_thinking": {
       "adapter_id": "progressive:capability_systems_thinking",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "capability_systems_thinking",
-      "updated_epoch": 1791582389.3086138
+      "updated_epoch": 1792315302.3967202
     },
     "cloud_devops_sre": {
       "adapter_id": "progressive:cloud_devops_sre",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "cloud_devops_sre",
-      "updated_epoch": 1791582389.308615
+      "updated_epoch": 1792315302.3967202
     },
     "cloud_identity_container_security": {
       "adapter_id": "progressive:cloud_identity_container_security",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "cloud_identity_container_security",
-      "updated_epoch": 1791582389.308615
+      "updated_epoch": 1792315302.3967202
     },
     "cryptography_protocol_security": {
       "adapter_id": "progressive:cryptography_protocol_security",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "cryptography_protocol_security",
-      "updated_epoch": 1791582389.308615
+      "updated_epoch": 1792315302.396721
     },
     "cybersecurity": {
       "adapter_id": "progressive:cybersecurity",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "cybersecurity",
-      "updated_epoch": 1791582389.308615
+      "updated_epoch": 1792315302.396721
     },
     "data_statistics": {
       "adapter_id": "progressive:data_statistics",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "data_statistics",
-      "updated_epoch": 1791582389.308616
+      "updated_epoch": 1792315302.396721
     },
     "detection_threat_hunting_incident_response": {
       "adapter_id": "progressive:detection_threat_hunting_incident_response",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "detection_threat_hunting_incident_response",
-      "updated_epoch": 1791582389.308616
+      "updated_epoch": 1792315302.396721
     },
     "distributed_systems": {
       "adapter_id": "progressive:distributed_systems",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "distributed_systems",
-      "updated_epoch": 1791582389.308616
+      "updated_epoch": 1792315302.3967218
     },
     "elections_polling_public_opinion": {
       "adapter_id": "progressive:elections_polling_public_opinion",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "elections_polling_public_opinion",
-      "updated_epoch": 1791582389.308616
+      "updated_epoch": 1792315302.3967218
     },
     "english": {
       "adapter_id": "progressive:english",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "english",
-      "updated_epoch": 1791582389.308616
+      "updated_epoch": 1792315302.3967218
     },
     "event_evidence_resolution_research": {
       "adapter_id": "progressive:event_evidence_resolution_research",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "event_evidence_resolution_research",
-      "updated_epoch": 1791582389.3086169
+      "updated_epoch": 1792315302.3967218
     },
     "exploit_analysis_reverse_engineering": {
       "adapter_id": "progressive:exploit_analysis_reverse_engineering",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "exploit_analysis_reverse_engineering",
-      "updated_epoch": 1791582389.3086169
+      "updated_epoch": 1792315302.396723
     },
     "financial_mathematics": {
       "adapter_id": "progressive:financial_mathematics",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "financial_mathematics",
-      "updated_epoch": 1791582389.3086169
+      "updated_epoch": 1792315302.396723
     },
     "hardware_embedded_ot_security": {
       "adapter_id": "progressive:hardware_embedded_ot_security",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "hardware_embedded_ot_security",
-      "updated_epoch": 1791582389.3086169
+      "updated_epoch": 1792315302.396723
     },
     "information_intelligence_attention": {
       "adapter_id": "progressive:information_intelligence_attention",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "information_intelligence_attention",
-      "updated_epoch": 1791582389.3086169
+      "updated_epoch": 1792315302.396723
     },
     "integrated_engineering_capstone": {
       "adapter_id": "progressive:integrated_engineering_capstone",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "integrated_engineering_capstone",
-      "updated_epoch": 1791582389.308618
+      "updated_epoch": 1792315302.396723
     },
     "javascript_typescript": {
       "adapter_id": "progressive:javascript_typescript",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "javascript_typescript",
-      "updated_epoch": 1791582389.308618
+      "updated_epoch": 1792315302.396724
     },
     "machine_learning_ai": {
       "adapter_id": "progressive:machine_learning_ai",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "machine_learning_ai",
-      "updated_epoch": 1791582389.308618
+      "updated_epoch": 1792315302.396724
     },
     "markets_investing": {
       "adapter_id": "progressive:markets_investing",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "markets_investing",
-      "updated_epoch": 1791582389.308618
+      "updated_epoch": 1792315302.396724
     },
     "mathematics": {
       "adapter_id": "progressive:mathematics",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "mathematics",
-      "updated_epoch": 1791582389.308618
+      "updated_epoch": 1792315302.396724
     },
     "network_wireless_security": {
       "adapter_id": "progressive:network_wireless_security",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "network_wireless_security",
-      "updated_epoch": 1791582389.308619
+      "updated_epoch": 1792315302.396724
     },
     "networking": {
       "adapter_id": "progressive:networking",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "networking",
-      "updated_epoch": 1791582389.308619
+      "updated_epoch": 1792315302.396725
     },
     "networks_talent_coordination": {
       "adapter_id": "progressive:networks_talent_coordination",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "networks_talent_coordination",
-      "updated_epoch": 1791582389.308619
+      "updated_epoch": 1792315302.396725
     },
     "operating_systems": {
       "adapter_id": "progressive:operating_systems",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "operating_systems",
-      "updated_epoch": 1791582389.308619
+      "updated_epoch": 1792315302.396725
     },
     "power_institutions_legitimacy": {
       "adapter_id": "progressive:power_institutions_legitimacy",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "power_institutions_legitimacy",
-      "updated_epoch": 1791582389.308619
+      "updated_epoch": 1792315302.396725
     },
     "prediction_market_design_compliance": {
       "adapter_id": "progressive:prediction_market_design_compliance",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "prediction_market_design_compliance",
-      "updated_epoch": 1791582389.30862
+      "updated_epoch": 1792315302.3967261
     },
     "prediction_market_microstructure": {
       "adapter_id": "progressive:prediction_market_microstructure",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "prediction_market_microstructure",
-      "updated_epoch": 1791582389.30862
+      "updated_epoch": 1792315302.3967261
     },
     "probabilistic_forecasting_calibration": {
       "adapter_id": "progressive:probabilistic_forecasting_calibration",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "probabilistic_forecasting_calibration",
-      "updated_epoch": 1791582389.30862
+      "updated_epoch": 1792315302.3967261
     },
     "probability_statistics": {
       "adapter_id": "progressive:probability_statistics",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "probability_statistics",
-      "updated_epoch": 1791582389.30862
+      "updated_epoch": 1792315302.3967261
     },
     "python": {
       "adapter_id": "progressive:python",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "python",
-      "updated_epoch": 1791582389.30862
+      "updated_epoch": 1792315302.3967261
     },
     "python_core": {
       "adapter_id": "progressive:python_core",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "python_core",
-      "updated_epoch": 1791582389.3086212
+      "updated_epoch": 1792315302.396727
     },
     "research_communication": {
       "adapter_id": "progressive:research_communication",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "research_communication",
-      "updated_epoch": 1791582389.3086212
+      "updated_epoch": 1792315302.396727
     },
     "resilience_geography_long_horizon": {
       "adapter_id": "progressive:resilience_geography_long_horizon",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "resilience_geography_long_horizon",
-      "updated_epoch": 1791582389.3086212
+      "updated_epoch": 1792315302.396727
     },
     "rust": {
       "adapter_id": "progressive:rust",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "rust",
-      "updated_epoch": 1791582389.3086212
+      "updated_epoch": 1792315302.396727
     },
     "scientific_method": {
       "adapter_id": "progressive:scientific_method",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "scientific_method",
-      "updated_epoch": 1791582389.3086212
+      "updated_epoch": 1792315302.396728
     },
     "secure_engineering": {
       "adapter_id": "progressive:secure_engineering",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "secure_engineering",
-      "updated_epoch": 1791582389.3086221
+      "updated_epoch": 1792315302.396728
     },
     "security_architecture_operations": {
       "adapter_id": "progressive:security_architecture_operations",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "security_architecture_operations",
-      "updated_epoch": 1791582389.3086221
+      "updated_epoch": 1792315302.396728
     },
     "security_engineering": {
       "adapter_id": "progressive:security_engineering",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "security_engineering",
-      "updated_epoch": 1791582389.3086221
+      "updated_epoch": 1792315302.396729
     },
     "security_research_disclosure": {
       "adapter_id": "progressive:security_research_disclosure",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "security_research_disclosure",
-      "updated_epoch": 1791582389.3086221
+      "updated_epoch": 1792315302.396729
     },
     "software_engineering": {
       "adapter_id": "progressive:software_engineering",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "software_engineering",
-      "updated_epoch": 1791582389.3086221
+      "updated_epoch": 1792315302.396729
     },
     "sql_databases": {
       "adapter_id": "progressive:sql_databases",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "sql_databases",
-      "updated_epoch": 1791582389.3086221
+      "updated_epoch": 1792315302.396729
     },
     "strategic_assets_capital_allocation": {
       "adapter_id": "progressive:strategic_assets_capital_allocation",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "strategic_assets_capital_allocation",
-      "updated_epoch": 1791582389.308623
+      "updated_epoch": 1792315302.3967302
     },
     "technology_industry_platforms": {
       "adapter_id": "progressive:technology_industry_platforms",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "technology_industry_platforms",
-      "updated_epoch": 1791582389.308623
+      "updated_epoch": 1792315302.3967302
     },
     "testing_debugging": {
       "adapter_id": "progressive:testing_debugging",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "testing_debugging",
-      "updated_epoch": 1791582389.308623
+      "updated_epoch": 1792315302.3967302
     }
   },
   "events": [
@@ -3937,5 +3937,5 @@
     }
   },
   "schema_version": "aion.hexcore.progressive_executor_registry.v1",
-  "updated_epoch": 1791582389.308639
+  "updated_epoch": 1792315302.3967628
 }

@@ -186,7 +186,7 @@
   }
 
   function writeState(next) {
-    try { global.localStorage?.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+    try { global.AionBusinessContainerClient?.writeBusinessWorkingStateString?.(STORAGE_KEY, JSON.stringify(next)); } catch {}
     return next;
   }
 

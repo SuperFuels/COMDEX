@@ -6,7 +6,7 @@ PRODUCER = ROOT / "desktop" / "mac" / "src" / "aion_boardroom_department_pilot_p
 INDEX = ROOT / "desktop" / "mac" / "src" / "index.html"
 
 
-def test_real_boardroom_founder_delegation_routes_only_enabled_finance_pilot():
+def test_real_boardroom_founder_delegation_routes_every_enabled_department_pilot():
     source = PRODUCER.read_text(encoding="utf-8")
 
     assert "aion.department_task_build.live.v1" in source
@@ -16,8 +16,17 @@ def test_real_boardroom_founder_delegation_routes_only_enabled_finance_pilot():
     assert "data-aion-council-session-delegate-agents" in source
     assert "AionDepartmentPilotBackend.approveBoardroomAction" in source
     assert "finance.boardroom_analysis" in source
-    assert "non-Finance task(s) remain design-gated" in source
-    assert "aion:boardroom-finance-actions-routed" in source
+    assert "sales.boardroom_projection" in source
+    assert "marketing.boardroom_projection" in source
+    assert "operations.boardroom_projection" in source
+    assert "support.boardroom_projection" in source
+    assert "hr.boardroom_summary" in source
+    assert "enabled_department_ids" in source
+    assert "staged_departments" in source
+    assert "aion:boardroom-department-actions-routed" in source
+    assert "Signed Board brief" in source
+    assert "do not redefine the enterprise strategy" in source
+    assert "task.decision_refs" in source
 
 
 def test_boardroom_producer_remains_modular_and_loads_after_legacy_app():

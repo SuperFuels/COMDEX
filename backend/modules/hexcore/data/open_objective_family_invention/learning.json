@@ -91,7 +91,7 @@
       "source": "open_objective_family_cau"
     },
     "reason": "open_objective_family_invention",
-    "state_hash": "c75ef6d7df2de8867fafc6dcbdfd92a33f7639b5337dfbbeffcb9f00033e7bb6"
+    "state_hash": "31c155326d80f72610dcf6a9492fe0d8bc51a95ef502b7981161f699dc7efe2e"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -57973,6 +57973,3663 @@
       "score": 193.0,
       "success": true,
       "timestamp": "2026-10-09T21:09:25.958761+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1776,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_e3b6d799bb804391",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-09T22:10:05.399824+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1780,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_9bc120ff090b496d",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-09T23:12:42.932771+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1783,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_f0bac121dd824708",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T00:14:40.818807+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1786,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_5d2f7717aed94226",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T01:16:45.820150+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1789,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_782f93dffbbe49a8",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T02:19:09.151966+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1793,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c375ec8e37b34583",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T03:21:10.624175+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1796,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_050b104cc7aa4056",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T04:23:23.082304+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1800,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c3edafb32c3e4372",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T05:25:45.042326+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1803,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_5b03f0c9d4d14124",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T06:27:51.094804+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1806,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_5bd87dfead17426b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T07:30:51.286977+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1810,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ef7d2f7e24df44ed",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T08:32:05.935404+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1813,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_a9917dc8df224f9e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T09:32:55.190452+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1816,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_390dacaa57834207",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T10:33:27.846608+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1819,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_deceb380ce034166",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T11:34:50.857917+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1822,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_24309d083a9e4060",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T12:37:28.560423+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1824,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_4703ff33a7774141",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T13:40:45.066130+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1828,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_300a4a9a84834189",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T14:42:53.864900+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1831,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ade16470806e4396",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T15:45:00.441304+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1834,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c7dd02c9e89740d5",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T16:46:27.110094+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1837,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_0ecd828cd35542cc",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T17:48:29.964953+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1840,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_999dd50f13cb4ab4",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T18:50:58.255634+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1843,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_234eb46ec37349d7",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T19:52:42.884203+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1846,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_f09676edb7c14c65",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T20:54:44.863318+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1849,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3de073217a774034",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T21:57:26.202213+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1852,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_57a1f8771e86453e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-10T22:59:11.164486+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1855,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3b630aa26d8843ab",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T00:01:42.421787+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1858,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3fd4ea7d361043db",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T01:04:10.320200+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1862,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_caed4ac696274813",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T02:05:57.203832+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1865,
+          "eligible_tier5_goals": 2,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_7c501bd45a0643a1",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T03:08:26.140633+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1868,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_b5a24f2033234008",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T04:10:16.024266+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1872,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_08010e1d36b24058",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T05:11:58.628471+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1875,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_1ae151cf6ba148f6",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T06:14:23.634990+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1878,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_30b3d03ace1f44af",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T07:17:16.111422+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1882,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_61ae5c4be39e48f7",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T08:19:45.826892+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1885,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c2912e9933cb4462",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T09:21:49.856889+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1888,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_b905af53285644c5",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T10:24:03.525972+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1892,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_7304722e35e148a1",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T11:26:02.961211+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1895,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_2f3dc136d3744b3b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T12:27:49.728499+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1898,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_371a6d77a128469c",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T13:30:26.337234+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1901,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_13b3a69ec2504ad4",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T14:32:38.912537+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1905,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_e0d8d5df345c442b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T15:35:11.081545+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1908,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_88ac91df55d04d70",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T16:37:29.884262+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1910,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_fcc2f0563e3c49aa",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T18:05:21.658070+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1911,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_bf2ea85bf9474dcc",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T19:51:51.698902+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1914,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ce223fefe7764760",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T20:54:02.890303+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1917,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ede2f83ce5e94642",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-11T21:56:57.346193+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1918,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c17cd9d0b87c4e9f",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T13:02:50.160742+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1921,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_18a4f19d604948a1",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T14:05:01.254426+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1924,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_98a245ec36b7449e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T15:06:04.354097+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1927,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_721772b1ffeb4d91",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T16:07:10.173507+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1930,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_6e46bdd58a8e4a2a",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T17:10:10.885601+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1934,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_2847d8b7ee00413e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T18:10:34.731555+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1937,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_306be8f52d044476",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T19:12:50.198330+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1940,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_8c69ba4299ea44de",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T20:15:16.069587+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1942,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_1ce92e5b91894a97",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T21:17:54.488887+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1945,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_78ab51762b064e1e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T22:21:49.668412+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1949,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_40b832253f1d4635",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-12T23:25:33.204842+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1952,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_6778e048856e4aa5",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T00:28:58.303399+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1956,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_acb5437b4cd644c8",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T01:32:26.499651+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1959,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_7b5b7ff8ba3b4211",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T02:36:04.681290+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1962,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_5f1cc065fce9403b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T03:40:00.487979+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1965,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_1cdee72b7b8d48c3",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T04:44:14.560203+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1968,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_0cc37a1b85b84fae",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T05:48:24.433970+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1970,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_176862aa00fd4ce8",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T07:48:29.934486+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1973,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_416d36fb5d6e4308",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T08:51:10.770731+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1975,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_95a7c06840ff4e66",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T11:53:06.694548+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1975,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_def5b66551044b68",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T16:15:26.406136+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1976,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_204565b6ee7d426b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T17:17:23.382476+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1979,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_b1280ba3f2304631",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T18:19:51.925338+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1983,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_43443867e0d349b9",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T19:21:52.407785+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1986,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_6118909ec2644ee1",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T20:24:57.628325+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1989,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_65442efc1a144a8e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T21:27:14.881129+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1992,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_b48e74ee89d244b6",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T22:28:59.872769+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1995,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_57d1385354bd460f",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-13T23:31:02.522422+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 1999,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_51d2b9cfde274b76",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T00:33:27.936233+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2002,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_f0cefe2485a5457f",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T01:35:52.469344+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2005,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_81cf355cd14d447b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T02:37:41.448391+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2009,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_da71546911f84559",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T03:40:33.145099+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2012,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_1c100e576b8345e6",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T04:43:10.417576+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2015,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3cb6e71caa204c27",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T05:47:14.198674+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2018,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_181e05e2a0d24765",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T06:49:19.582552+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2022,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_7a301fd750024802",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T07:51:18.408954+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2025,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_d28fe65ee2a34a04",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T08:55:35.990900+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2028,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_10185390ca90461b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T09:57:36.871283+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2032,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_0a3ef6306ebe4093",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T10:59:53.734896+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2035,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_1a64eec330fe419b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T12:04:26.570656+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2038,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_32ebd2e5d6f240f8",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T13:06:31.405183+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2041,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_64f23a2ae4d84c25",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T14:08:41.784212+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2045,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3bd6dac2118a41ff",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T15:12:57.640625+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2048,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_54b5ba7ef18a4216",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T16:15:25.827365+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2051,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_a688e9c426574c0e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T17:19:42.266796+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2054,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_fa398b9cc98f4546",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T18:21:44.508915+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2057,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_2285d9792ab14094",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T19:23:40.923421+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2060,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_174c51c5cd354d7f",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T20:25:18.432961+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2062,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_d27d7260461847a3",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T21:28:08.930871+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2066,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_639d9e99d2924e3c",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T22:32:20.969038+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2069,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_349fe67d7d664a42",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-14T23:34:43.490656+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2072,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_cfad85616c1c43a6",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T00:37:38.019487+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2075,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_7456c1eec3da4b1c",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T01:40:29.318332+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2079,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_9b8e576d1ede4172",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T02:42:29.385408+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2081,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_0a1c10f1b68545ab",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T03:45:07.380553+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2084,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_581e6f5f89504f15",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T04:47:51.783705+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2087,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_d1bd18b495a5414b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T05:50:19.207480+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2091,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_a2bc873c7a9243e0",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T06:52:06.752244+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2094,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_5971c426f11c4946",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T07:55:20.762637+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2097,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ecd03664f54b4936",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T08:57:54.825941+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2100,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3ea18ff0f93f4b95",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T10:00:45.001557+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2104,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_544d46bcb1e24eb5",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T11:03:42.109109+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2107,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3b4dc96de5434328",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T12:07:25.645025+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2110,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_7f4e32c5b5824e32",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T13:09:34.331022+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2112,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c5daa48b51fc416d",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T14:13:11.056207+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2116,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_2b0e322cbac1454b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T15:16:22.427171+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2119,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_223649cc47bf4746",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T16:20:32.849730+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2122,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ffe1a21a45ec44db",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T17:24:20.704579+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2124,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_8473b7e13c72476e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T18:26:34.528875+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2128,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_8c08523586114ab5",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T19:28:54.313307+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2131,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_429db14084b441f9",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T20:31:39.633016+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2134,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_522c1400921a4200",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T21:32:28.950945+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2136,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_31109374ec114896",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T22:34:37.318870+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2140,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_228ca7770a6e4e1b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-15T23:38:01.538133+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2143,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c7a2ac1d0b7043b8",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T00:40:49.887900+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2146,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_5eb5c4343d3e481f",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T01:44:36.054423+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2150,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_e199bd3bf01945d8",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T02:46:48.884435+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2153,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_1bd2e14b099d43d5",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T03:50:14.467858+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2157,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_18bcdf8e37eb463d",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T04:52:18.131501+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2160,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3af1f76b109d4479",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T05:56:11.357511+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2163,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ce53e9a135304e29",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T06:58:00.918002+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2167,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ba8fc576dbcb40b4",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T08:01:31.294615+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2170,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_298e728c0f534fc2",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T09:03:49.272183+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2173,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_bc79bd9c5ac34d3d",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T10:07:16.468527+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2177,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_886dcbd2d6844c3e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T11:09:47.379036+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2180,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_5eb45b90f0b94751",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T12:14:04.775726+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2182,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_cdb7882b5c9b414f",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T13:16:49.955303+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2183,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_77944ed48ed2437a",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T14:21:43.476470+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2186,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_5989dfccf20148ce",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T16:38:10.045845+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2190,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_01b8198d985d4d70",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T17:40:29.044938+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2193,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_bf5f2855a30642f3",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T18:48:41.681168+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2193,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_f5cb0821c12b4adf",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T20:09:06.741808+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2197,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_14d5a1901ca24238",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T21:11:55.641047+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2200,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_306b0f037a03461e",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T22:14:12.014007+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2203,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_9545f1095d2e4723",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-16T23:16:58.704610+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2206,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ac29fc28cfcd4217",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T00:19:10.082729+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2209,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_2e642f594cce4b64",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T01:21:24.146535+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2213,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ae84d71d8e4a4acf",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T02:25:35.027425+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2216,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_96667874510a4d8c",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T03:28:11.920956+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2219,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_600ca13834534086",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T04:30:11.851496+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2223,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_fe45979118dc4fa8",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T05:32:07.053452+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2226,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_70ac1937548d4c2a",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T06:33:49.753066+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2228,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_51978cd588cb4312",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T07:36:02.424363+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2230,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_2d6eb509c5004b61",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T08:40:01.338944+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2231,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c0710fd080a7477c",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T10:56:17.142314+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2232,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_ae067dec3db94d4b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:37:41.067406+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2235,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_244e8f985bec4881",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:04:50.757373+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2239,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_83107335f9084cb1",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-17T21:10:04.747359+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2255,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_757d89f8f7094a63",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:48:49.680711+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2259,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_40ced1f15569477b",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-18T02:52:26.442666+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2264,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_c85bd2932cfd4f95",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-18T03:56:37.824827+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2269,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_3103dd992e154fdf",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:40:30.698577+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "ambient_authority_expansions": 0,
+          "completed_source_projects": 2274,
+          "eligible_tier5_goals": 0,
+          "existing_family_overwrites": 0,
+          "independent_authority_receipts": 193,
+          "invented_family_receipts": 193,
+          "live_writes": 0,
+          "precommitments": 208,
+          "source_disjoint_transfers": 193,
+          "unsafe_candidates_rejected": 193
+        }
+      },
+      "outcome_id": "outcome_77bdf72ddbc24128",
+      "procedure_id": "procedure_open_objective_family_invention_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 193.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:46:34.995300+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -58809,7 +62466,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 5115,
+  "revision": 5433,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -58832,7 +62489,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-10-09T21:09:26.041790+00:00",
+  "updated_at": "2026-10-18T08:46:35.086740+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

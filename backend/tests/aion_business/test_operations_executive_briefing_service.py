@@ -93,12 +93,24 @@ def test_morning_briefing_publishes_real_and_custom_pilot_minutes_and_deduplicat
     turns = provider.containers.runtime["executive_channel_conversations"]["turns"]
     assert len(turns) == 7
     assert {item["department_id"] for item in turns} == {"sales", "marketing", "finance", "support", "people", "legal", "operations"}
-    assert all(item["message_type"] == "morning_minutes" for item in turns if item["department_id"] != "operations")
-    assert turns[-1]["message_type"] == "executive_briefing_summary"
+    assert all(item["message_type"] == "daily_close_minutes" for item in turns if item["department_id"] != "operations")
+    assert turns[-1]["message_type"] == "executive_daily_close_summary"
+    assert result["status"]["schedule"]["local_time"] == "18:00"
     assert all(item["record_hash"] for item in turns)
     again = service.run_morning_briefing("home-fixed", person_id="founder")
     assert again["deduplicated"] is True
     assert len(provider.containers.runtime["executive_channel_conversations"]["turns"]) == 7
+    assert again["status"]["briefings"][-1]["meeting_id"] == result["briefing"]["meeting_id"]
+
+
+def test_legacy_character_array_counts_as_one_action_in_channel_summary():
+    provider = FakeProvider()
+    provider.containers.runtime["executive_channel_conversations"] = {
+        "turns": [{"department_id": "people", "metadata": {"actions": list("Follow up")}}],
+    }
+    status = OperationsExecutiveBriefingService(provider).status("home-fixed")
+    people = next(item for item in status["channels"] if item["department_id"] == "people")
+    assert people["open_action_count"] == 1
 
 
 def test_channel_turn_records_coo_instruction_and_department_answer():
@@ -169,3 +181,21 @@ def test_explicit_distinct_critic_enables_two_model_challenge():
     result = service.run_morning_briefing("home-fixed", person_id="founder")
     assert result["briefing"]["reasoning_mode"] == "two_model_challenge"
     assert result["briefing"]["critic_review"]["departments"]["sales"]["challenge"] == "Check conversion evidence"
+
+
+def test_string_list_fields_are_normalised_as_single_items_not_characters():
+    parsed = OperationsExecutiveBriefingService._parse_position({
+        "summary": "Evidence reviewed.",
+        "yesterday_results": "No result supplied",
+        "today_plan": "Review the queue",
+        "outstanding": [],
+        "risks": "Cash evidence missing",
+        "target_variance": "Unknown",
+        "decisions_needed": "Confirm the target",
+        "actions": "Prepare the next step",
+    })
+    assert parsed["yesterday_results"] == ["No result supplied"]
+    assert parsed["today_plan"] == ["Review the queue"]
+    assert parsed["risks"] == ["Cash evidence missing"]
+    assert parsed["decisions_needed"] == ["Confirm the target"]
+    assert parsed["actions"] == ["Prepare the next step"]

@@ -16,9 +16,14 @@ from typing import Any, Iterable
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import configured_business_container_repository
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
 from backend.modules.aion_business.runtime.finance_bank_activity_service import FinanceBankActivityService
+from backend.modules.aion_business.runtime.finance_integration_store import FinanceIntegrationStore
+from backend.modules.aion_business.runtime.finance_operations_store import FinanceOperationsStore
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -103,8 +108,21 @@ class FinanceLedgerService:
         "projects": "Projects",
     }
 
-    def __init__(self, repository: BusinessContainerRepository | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+    def __init__(self, repository: BusinessContainerRepository | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 integration_store: FinanceIntegrationStore | None = None,
+                 operations_store: FinanceOperationsStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="finance-ledger-runtime")
+        self.integration_store = integration_store or FinanceIntegrationStore(
+            domain_store=self.domain_store,
+        )
+        self.operations_store = operations_store or FinanceOperationsStore(
+            domain_store=self.domain_store,
+        )
 
     def build(self, workspace_id: str, *, created_by: str = "finance_pilot",
               created_at: str | None = None) -> dict[str, Any]:
@@ -114,11 +132,11 @@ class FinanceLedgerService:
         sync_id = str(evidence_ref.get("sync_id") or xero.get("sync_id") or "")
         if not sync_id:
             raise FileNotFoundError("A completed Xero sync is required before building the Finance ledger.")
-        sync_dir = AIONBusinessPaths.business_container_dir(workspace_id) / "integrations/xero/syncs" / sync_id
+        sync_dir = self.integration_store.root(workspace_id, "xero") / "syncs" / sync_id
         snapshot_path = sync_dir / "snapshot.json"
-        if not snapshot_path.exists():
+        if not self.integration_store.exists(snapshot_path):
             raise FileNotFoundError(f"Xero snapshot not found: {sync_id}")
-        snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+        snapshot = self.integration_store.read_json(snapshot_path, {})
         expected_snapshot_hash = snapshot.get("snapshot_hash")
         unhashed = dict(snapshot); unhashed.pop("snapshot_hash", None)
         if not expected_snapshot_hash or expected_snapshot_hash != self._hash(unhashed):
@@ -137,7 +155,10 @@ class FinanceLedgerService:
             "tracking_categories": [self._tracking(item, sync_id) for item in raw["tracking_categories"]],
             "projects": [self._project_record(item, sync_id) for item in raw["projects"]],
         }
-        canonical_bank_activity = FinanceBankActivityService(self.repository).ledger_records(workspace_id)
+        canonical_bank_activity = FinanceBankActivityService(
+            self.repository, domain_store=self.domain_store,
+            operations_store=self.operations_store,
+        ).ledger_records(workspace_id)
         controlled_test_bank_activity = [
             item for item in canonical_bank_activity
             if (item.get("source_ref") or {}).get("verification_status") == "controlled_test_fixture"
@@ -198,14 +219,30 @@ class FinanceLedgerService:
         }
         ledger["ledger_hash"] = canonical_contract_hash(ledger)
         path = self._dir(workspace_id, ledger_id) / "ledger.json"
-        path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self._put(workspace_id, f"ledgers/{ledger_id}/ledger", ledger)
         self._index(workspace_id, ledger, path)
         self._project(workspace_id, model, ledger, path)
         return ledger
 
     def latest(self, workspace_id: str, *, include_records: bool = False,
                limits: dict[str, int] | None = None) -> dict[str, Any] | None:
-        root = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/ledger"
+        if self.domain_store is not None:
+            rows = [
+                row for row in self.domain_store.list("finance.ledger_records", workspace_id=workspace_id)
+                if str(row.get("entity_id") or "").endswith("/ledger")
+            ]
+            rows.sort(key=lambda row: str((row.get("payload") or {}).get("created_at") or ""), reverse=True)
+            if not rows: return None
+            ledger = dict(rows[0]["payload"]); self._verify(ledger)
+            if include_records:
+                bounded = limits or {}
+                ledger["records"] = {
+                    name: self.records(workspace_id, ledger["ledger_id"], name,
+                                       limit=min(max(int(bounded.get(name, 200)), 1), 1000))
+                    for name in self.COLLECTIONS
+                }
+            return ledger
+        root = AIONBusinessPaths.BUSINESS_CONTAINERS / _safe(workspace_id) / "finance/ledger"
         paths = sorted(root.glob("*/ledger.json"), key=lambda item: item.stat().st_mtime, reverse=True) if root.exists() else []
         if not paths:
             return None
@@ -222,6 +259,19 @@ class FinanceLedgerService:
                 offset: int = 0) -> list[dict[str, Any]]:
         if collection not in self.COLLECTIONS:
             raise ValueError("invalid_finance_ledger_collection")
+        if self.domain_store is not None:
+            stored = self.domain_store.get_optional(
+                "finance.ledger_records", workspace_id=workspace_id,
+                entity_id=f"ledgers/{_safe(ledger_id)}/collections/{collection}",
+            )
+            rows = list((stored or {}).get("payload", {}).get("records") or [])
+            result = []
+            for record in rows[offset:offset + min(max(limit, 1), 1000)]:
+                expected = record.get("record_hash"); payload = dict(record); payload.pop("record_hash", None)
+                if not expected or canonical_contract_hash(payload) != expected:
+                    raise ValueError("finance_ledger_record_hash_mismatch")
+                result.append(record)
+            return result
         path = self._dir(workspace_id, ledger_id) / f"{collection}.jsonl"
         if not path.exists():
             return []
@@ -238,22 +288,50 @@ class FinanceLedgerService:
             result.append(record)
         return result
 
-    def _dir(self, workspace_id: str, ledger_id: str) -> Path:
-        path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/ledger" / _safe(ledger_id)
-        path.mkdir(parents=True, exist_ok=True)
+    def _dir(self, workspace_id: str, ledger_id: str, *, create: bool = False) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_finance_ledger__") / _safe(workspace_id) / "finance" / "ledger" / _safe(ledger_id)
+        path = AIONBusinessPaths.BUSINESS_CONTAINERS / _safe(workspace_id) / "finance/ledger" / _safe(ledger_id)
+        if create:
+            AIONBusinessPaths.ensure_base_dirs()
+            path.mkdir(parents=True, exist_ok=True)
         return path
 
     def _write_jsonl(self, workspace_id: str, sync_id: str, collection: str,
                      records: Iterable[dict[str, Any]]) -> None:
         ledger_id = f"finance-ledger-{_safe(sync_id)}"
-        path = self._dir(workspace_id, ledger_id) / f"{collection}.jsonl"
+        if self.domain_store is not None:
+            self._put(
+                workspace_id, f"ledgers/{ledger_id}/collections/{collection}",
+                {"schema_version": "aion.finance.ledger_collection.v1",
+                 "workspace_id": workspace_id, "ledger_id": ledger_id,
+                 "collection": collection, "records": list(records)},
+            )
+            return
+        path = self._dir(workspace_id, ledger_id, create=True) / f"{collection}.jsonl"
         path.write_text("".join(json.dumps(item, sort_keys=True) + "\n" for item in records), encoding="utf-8")
 
-    @staticmethod
-    def _read_collection(path: Path, root: str) -> list[dict[str, Any]]:
-        if not path.exists():
+    def _put(self, workspace_id: str, entity_id: str, payload: dict[str, Any]) -> None:
+        if self.domain_store is None:
+            if not entity_id.endswith("/ledger"):
+                raise RuntimeError("finance_ledger_legacy_put_invalid")
+            ledger_id = entity_id.split("/")[1]
+            path = self._dir(workspace_id, ledger_id, create=True) / "ledger.json"
+            path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            return
+        current = self.domain_store.get_optional(
+            "finance.ledger_records", workspace_id=workspace_id, entity_id=entity_id,
+        )
+        self.domain_store.put(
+            "finance.ledger_records", workspace_id=workspace_id, entity_id=entity_id,
+            payload=payload, expected_version=int(current["version"]) if current else None,
+            actor_id="finance-ledger-runtime",
+        )
+
+    def _read_collection(self, path: Path, root: str) -> list[dict[str, Any]]:
+        if not self.integration_store.exists(path):
             return []
-        value = json.loads(path.read_text(encoding="utf-8"))
+        value = self.integration_store.read_json(path, {})
         records = value.get(root) if isinstance(value, dict) else []
         if root == "Projects" and isinstance(value, dict) and not records:
             records = value.get("items") or []
@@ -339,14 +417,22 @@ class FinanceLedgerService:
         ledgers = next((item for item in children if item.get("id") == "folder_finance_ledgers"), None)
         if ledgers is None:
             ledgers = {"id": "folder_finance_ledgers", "name": "Ledgers", "type": "folder", "children": []}; children.append(ledgers)
+        target = ({"vault_domain_id": "finance.ledger_records",
+                   "vault_entity_id": f"ledgers/{ledger['ledger_id']}/ledger",
+                   "ledger_hash": ledger["ledger_hash"], "record_counts": ledger["record_counts"]}
+                  if self.domain_store is not None else
+                  {"storage_path": str(path), "ledger_hash": ledger["ledger_hash"], "record_counts": ledger["record_counts"]})
         ledgers.setdefault("children", []).append({"id": f"finance_ledger_pointer_{ledger['ledger_id']}", "name": ledger["ledger_id"],
             "type": "business_container_artifact", "document_type": "finance_ledger", "status": "read_only_provider_sourced",
-            "target": {"storage_path": str(path), "ledger_hash": ledger["ledger_hash"], "record_counts": ledger["record_counts"]}})
+            "target": target})
         tree["folders"] = folders; tree["root"] = {**(tree.get("root") or {}), "id": "root", "type": "folder", "name": "Workflows", "children": folders}
         WorkflowFileCabinetRepository.save(workspace_id, tree)
 
     def _project(self, workspace_id: str, model: dict[str, Any], ledger: dict[str, Any], path: Path) -> None:
-        model["ledger"] = {"ledger_id": ledger["ledger_id"], "ledger_hash": ledger["ledger_hash"], "storage_path": str(path),
+        model["ledger"] = {"ledger_id": ledger["ledger_id"], "ledger_hash": ledger["ledger_hash"],
+                           **({"vault_domain_id": "finance.ledger_records",
+                               "vault_entity_id": f"ledgers/{ledger['ledger_id']}/ledger"}
+                              if self.domain_store is not None else {"storage_path": str(path)}),
                            "source_sync_id": ledger["source_sync_id"], "record_counts": ledger["record_counts"],
                            "summaries": ledger["summaries"], "read_only": True}
         model["revision"] = int(model.get("revision") or 0) + 1

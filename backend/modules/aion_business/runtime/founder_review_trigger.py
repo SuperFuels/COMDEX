@@ -10,8 +10,13 @@ from pydantic import BaseModel, Field
 from backend.modules.aion_business.providers.resend_actions import ResendActions
 from backend.modules.aion_business.providers.resend_adapter import ResendAdapter
 from backend.modules.aion_business.runtime.audit_log import AuditLog
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.role_repository import RoleRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_business.runtime.workspace_repository import WorkspaceRepository
 from backend.modules.aion_business.workflows.weekly_founder_review import (
     WeeklyFounderReviewWorkflow,
@@ -49,8 +54,9 @@ class FounderReviewTrigger:
     - provide a clean runtime surface for later scheduler wiring
     - write audit events when trigger fires / completes / fails
 
-    Storage layout:
-    .runtime/AION_BUSINESS/founder_review_triggers/<workspace_id>.json
+    Guardian mode stores the authoritative trigger definition and run marker in
+    ``train_agent.automations``.  The legacy JSON layout remains readable only
+    for explicit legacy/test construction and one-time migration.
     """
 
     def __init__(
@@ -61,6 +67,7 @@ class FounderReviewTrigger:
         workflow: Optional[WeeklyFounderReviewWorkflow] = None,
         audit_log: Optional[AuditLog] = None,
         resend_actions: Optional[ResendActions] = None,
+        domain_store: VaultDomainStore | None = None,
     ):
         self.workspace_repository = workspace_repository or WorkspaceRepository()
         self.role_repository = role_repository or RoleRepository()
@@ -69,9 +76,17 @@ class FounderReviewTrigger:
         self.resend_actions = resend_actions or ResendActions(
             resend_adapter=ResendAdapter()
         )
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="founder-review-trigger-runtime"
+            )
         self._ensure_dirs()
 
     def _ensure_dirs(self) -> None:
+        if self.domain_store is not None:
+            return
         AIONBusinessPaths.ensure_base_dirs()
         self._trigger_root().mkdir(parents=True, exist_ok=True)
 
@@ -79,9 +94,39 @@ class FounderReviewTrigger:
         return AIONBusinessPaths.ROOT / "founder_review_triggers"
 
     def _trigger_file(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_founder_review__") / f"{workspace_id}.json"
         return self._trigger_root() / f"{workspace_id}.json"
 
+    @staticmethod
+    def _entity_id() -> str:
+        return "founder_review/triggers/config"
+
+    def _stored_config(self, workspace_id: str) -> dict[str, Any] | None:
+        if self.domain_store is None:
+            return None
+        row = self.domain_store.get_optional(
+            "train_agent.automations",
+            workspace_id=workspace_id,
+            entity_id=self._entity_id(),
+        )
+        return dict(row["payload"]) if row is not None else None
+
     def save_config(self, config: FounderReviewTriggerConfig) -> Path:
+        if self.domain_store is not None:
+            current = self.domain_store.get_optional(
+                "train_agent.automations",
+                workspace_id=config.workspace_id,
+                entity_id=self._entity_id(),
+            )
+            self.domain_store.put(
+                "train_agent.automations",
+                workspace_id=config.workspace_id,
+                entity_id=self._entity_id(),
+                payload=config.model_dump(mode="json"),
+                expected_version=int(current["version"]) if current else None,
+            )
+            return self._trigger_file(config.workspace_id)
         path = self._trigger_file(config.workspace_id)
         path.write_text(
             json.dumps(config.model_dump(mode="json"), indent=2),
@@ -90,6 +135,13 @@ class FounderReviewTrigger:
         return path
 
     def load_config(self, workspace_id: str) -> FounderReviewTriggerConfig:
+        if self.domain_store is not None:
+            data = self._stored_config(workspace_id)
+            if data is None:
+                raise FileNotFoundError(
+                    f"Founder review trigger config not found: {workspace_id}"
+                )
+            return FounderReviewTriggerConfig(**data)
         path = self._trigger_file(workspace_id)
         if not path.exists():
             raise FileNotFoundError(
@@ -110,8 +162,12 @@ class FounderReviewTrigger:
         send_to_emails: Optional[List[str]] = None,
         from_email: Optional[str] = None,
     ) -> FounderReviewTriggerConfig:
-        path = self._trigger_file(workspace_id)
-        if path.exists():
+        exists = (
+            self._stored_config(workspace_id) is not None
+            if self.domain_store is not None
+            else self._trigger_file(workspace_id).exists()
+        )
+        if exists:
             return self.load_config(workspace_id)
 
         config = FounderReviewTriggerConfig(

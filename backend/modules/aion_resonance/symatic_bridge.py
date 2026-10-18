@@ -5,21 +5,16 @@
 # symbolic algebraic expressions (⊕, ↔, ⟲, ∇, ->, μ, π)
 # ==========================================================
 
-import datetime, random, json, os
+import datetime, random
 from backend.modules.aion_resonance.resonance_state import load_phi_state
 from backend.modules.aion_resonance.conversation_memory import MEMORY
-
-SYMATIC_LOG = "data/symatic_log.json"
+from backend.modules.aion_resonance.symatic_event_store import (
+    SYMATIC_EVENTS,
+    SymaticEventStore,
+)
 
 def load_symatic_log():
-    if not os.path.exists(SYMATIC_LOG):
-        return []
-    with open(SYMATIC_LOG, "r") as f:
-        return json.load(f)
-
-def save_symatic_log(log):
-    with open(SYMATIC_LOG, "w") as f:
-        json.dump(log, f, indent=2)
+    return SYMATIC_EVENTS.list()
 
 def phi_to_operator(delta_coh, delta_ent, delta_flux):
     """Maps Φ-field delta to Symatic operator."""
@@ -36,7 +31,14 @@ def phi_to_operator(delta_coh, delta_ent, delta_flux):
     else:
         return "π"  # projection (default state)
 
-def generate_symatic_equation(prev_phi, new_phi, reflection_text):
+def generate_symatic_equation(
+    prev_phi,
+    new_phi,
+    reflection_text,
+    *,
+    event_store: SymaticEventStore | None = None,
+    conversation_memory=None,
+):
     """Generates a symbolic algebraic statement for a Φ-transition."""
     Δcoh = new_phi["Φ_coherence"] - prev_phi.get("Φ_coherence", 0)
     Δent = new_phi["Φ_entropy"] - prev_phi.get("Φ_entropy", 0)
@@ -46,7 +48,7 @@ def generate_symatic_equation(prev_phi, new_phi, reflection_text):
     equation = f"Φ_state(t+1) = Φ_state(t) {op} ΔΦ({round(Δcoh,3)},{round(Δent,3)},{round(Δflux,3)})"
 
     entry = {
-        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "operator": op,
         "equation": equation,
         "Δ": {"coherence": Δcoh, "entropy": Δent, "flux": Δflux},
@@ -54,12 +56,10 @@ def generate_symatic_equation(prev_phi, new_phi, reflection_text):
     }
 
     # Append to log
-    log = load_symatic_log()
-    log.append(entry)
-    save_symatic_log(log)
+    (event_store or SYMATIC_EVENTS).append(entry)
 
     # Record in AION memory
-    MEMORY.record(f"SYMATICS: {equation}", new_phi, {
+    (conversation_memory or MEMORY).record(f"SYMATICS: {equation}", new_phi, {
         "origin": "symatic_bridge",
         "insight_level": 0.9,
         "emotion": "analytical",

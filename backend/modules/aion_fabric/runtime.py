@@ -13,6 +13,11 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable
 from uuid import uuid4
 
+from backend.modules.aion_business.runtime.sovereign_installed_service import (
+    default_node_state_root,
+    prepare_node_state_root,
+)
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
 from .contracts import (
     Capability,
@@ -28,7 +33,7 @@ from .contracts import (
 )
 from .delta import DeltaPacket, GlyphDeltaStream, new_delta_packet
 from .identity import DeviceIdentity, IdentityStore
-from .store import FabricStore
+from .guardian_store import configured_fabric_store
 from .discovery import DiscoveryRun, SafeDiscoveryEngine, profile_from_observation
 from .field_operator import FieldActionProposal, GovernedFieldOperator
 from .schema import DeviceSchemaResolver
@@ -42,12 +47,17 @@ from .agent import AionTVAgent
 from .planning import AionObjectivePlanner
 from .perception import PhoneVisualPerception
 from .navigation import PhoneVerifiedNavigation
-from .conversation import ConversationMemory
+from .conversation import ConversationMemory, configured_conversation_memory
 from .entertainment import EntertainmentIntelligence
-from .household import HouseholdIdentityRegistry, UniversalNodeAuthority
+from .household import (
+    HouseholdIdentityRegistry,
+    UniversalNodeAuthority,
+    configured_household_identity_registry,
+    configured_universal_node_authority,
+)
 from .services import ServiceExecutionHub
 from .education import EducationLearningCentre
-from .live_context import LiveContextStore
+from .live_context import LiveContextStore, configured_live_context_store
 from .moments import PilotMomentStore
 from .screen_fusion import ScreenUnderstandingFusion
 from .provider_metadata import ProviderMetadataResolver
@@ -56,7 +66,7 @@ from .live_news import LiveNewsIntelligence
 from .scene_explanation import SpoilerAwareSceneExplanation
 from .live_translation import LocalLiveTranslation
 from .sports import LiveSportsInterpreter
-from .private_saves import PrivateProgrammeSaves
+from .private_saves import PrivateProgrammeSaves, configured_private_programme_saves
 from .live_events import LiveEventIntelligence
 from .live_engagement import HouseholdLiveEngagement
 from .fact_check_benchmark import LiveFactCheckBenchmark
@@ -64,7 +74,10 @@ from .live_media_authority import LiveMediaAuthority
 from .contextual_companion import ContextualCompanion
 from .saved_followthrough import SavedItemFollowThrough
 from .entertainment_execution import VerifiedEntertainmentExecution
-from .entertainment_personalization import PrivateEntertainmentPersonalization
+from .entertainment_personalization import (
+    PrivateEntertainmentPersonalization,
+    configured_private_entertainment_personalization,
+)
 from .verified_navigation import UniversalVerifiedNavigation
 from .perception_timeline import MultiFrameScreenPerception
 from .provider_telemetry import TrustedProviderTelemetry
@@ -74,12 +87,12 @@ from .tv_reliability import TelevisionReliabilityQualification
 from .programme_companion import EvidenceBackedProgrammeCompanion
 from .programme_origins import ProgrammeOriginEvidence
 from .gaming import GovernedGamingExperience
-from .private_identity import ProductionPrivateIdentity
-from .pilot_inbox import PilotInbox
-from .communication import GovernedCommunication
-from .calendar_planning import GovernedCalendarPlanning
-from .guardian import PilotGuardian
-from .google_oauth import PersonaGoogleOAuth
+from .private_identity import ProductionPrivateIdentity, configured_private_identity
+from .pilot_inbox import PilotInbox, configured_pilot_inbox
+from .communication import GovernedCommunication, configured_communication
+from .calendar_planning import GovernedCalendarPlanning, configured_calendar_planning
+from .guardian import PilotGuardian, configured_pilot_guardian
+from .google_oauth import PersonaGoogleOAuth, configured_google_oauth
 
 
 def _physical_memory_bytes() -> int:
@@ -115,7 +128,7 @@ class AionFabricRuntime:
     base_dir: Path
     profile: DeviceProfile
     identity: DeviceIdentity
-    store: FabricStore
+    store: Any
     role: NodeRole
     _scan_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
     _audit_cache_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
@@ -264,7 +277,7 @@ class AionFabricRuntime:
 
     @property
     def conversation_memory(self) -> ConversationMemory:
-        return ConversationMemory(self.base_dir)
+        return configured_conversation_memory(self.base_dir)
 
     @property
     def entertainment(self) -> EntertainmentIntelligence:
@@ -272,11 +285,11 @@ class AionFabricRuntime:
 
     @property
     def entertainment_personalization(self) -> PrivateEntertainmentPersonalization:
-        return PrivateEntertainmentPersonalization(self.base_dir)
+        return configured_private_entertainment_personalization(self.base_dir)
 
     @property
     def household(self) -> HouseholdIdentityRegistry:
-        return HouseholdIdentityRegistry(self.base_dir)
+        return configured_household_identity_registry(self.base_dir)
 
     @property
     def local_persona(self) -> Dict[str, Any]:
@@ -284,7 +297,9 @@ class AionFabricRuntime:
 
     @property
     def universal_node(self) -> UniversalNodeAuthority:
-        return UniversalNodeAuthority(self.base_dir, node_id=self.profile.node_id, identity=self.identity)
+        return configured_universal_node_authority(
+            self.base_dir, node_id=self.profile.node_id, identity=self.identity,
+        )
 
     @property
     def service_hub(self) -> ServiceExecutionHub:
@@ -300,31 +315,35 @@ class AionFabricRuntime:
 
     @property
     def private_identity(self) -> ProductionPrivateIdentity:
-        return ProductionPrivateIdentity(self.base_dir)
+        return configured_private_identity(self.base_dir)
 
     @property
     def pilot_inbox(self) -> PilotInbox:
-        return PilotInbox(self.base_dir, identities=self.private_identity)
+        return configured_pilot_inbox(self.base_dir, identities=self.private_identity)
 
     @property
     def communication(self) -> GovernedCommunication:
-        return GovernedCommunication(self.base_dir, identities=self.private_identity, inbox=self.pilot_inbox)
+        return configured_communication(
+            self.base_dir, identities=self.private_identity, inbox=self.pilot_inbox,
+        )
 
     @property
     def calendar_planning(self) -> GovernedCalendarPlanning:
-        return GovernedCalendarPlanning(self.base_dir, identities=self.private_identity)
+        return configured_calendar_planning(self.base_dir, identities=self.private_identity)
 
     @property
     def guardian(self) -> PilotGuardian:
-        return PilotGuardian(self.base_dir, identities=self.private_identity, inbox=self.pilot_inbox)
+        return configured_pilot_guardian(
+            self.base_dir, identities=self.private_identity, inbox=self.pilot_inbox,
+        )
 
     @property
     def google_oauth(self) -> PersonaGoogleOAuth:
-        return PersonaGoogleOAuth(self.base_dir, identities=self.private_identity)
+        return configured_google_oauth(self.base_dir, identities=self.private_identity)
 
     @property
     def live_context(self) -> LiveContextStore:
-        return LiveContextStore(self.base_dir)
+        return configured_live_context_store(self.base_dir)
 
     @property
     def pilot_moments(self) -> PilotMomentStore:
@@ -368,7 +387,7 @@ class AionFabricRuntime:
 
     @property
     def private_saves(self) -> PrivateProgrammeSaves:
-        return PrivateProgrammeSaves(self.base_dir)
+        return configured_private_programme_saves(self.base_dir)
 
     @property
     def live_events(self) -> LiveEventIntelligence:
@@ -417,16 +436,17 @@ class AionFabricRuntime:
     @classmethod
     def bootstrap(
         cls,
-        base_dir: str | Path = ".runtime/aion_fabric",
+        base_dir: str | Path | None = None,
         *,
         profile: DeviceProfile | None = None,
         prefer_mother: bool = True,
     ) -> "AionFabricRuntime":
-        root = Path(base_dir)
-        root.mkdir(parents=True, exist_ok=True)
+        root = prepare_node_state_root(
+            Path(base_dir) if base_dir is not None else default_node_state_root() / "fabric"
+        )
         profile = profile or inspect_host()
         identity = IdentityStore(root / "identity").load_or_create()
-        store = FabricStore(root / "fabric.sqlite3")
+        store = configured_fabric_store(root / "fabric.sqlite3")
         role = select_role(profile, mother_present=False, prefer_mother=prefer_mother)
         runtime = cls(root, profile, identity, store, role)
         store.save_node(

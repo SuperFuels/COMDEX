@@ -16,9 +16,18 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.finance_bookkeeping_service import FinanceBookkeepingService
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -41,10 +50,19 @@ class FinanceSalesService:
 
     def __init__(self, repository: BusinessContainerRepository | None = None,
                  authority: OrganizationAuthorityService | None = None,
-                 bookkeeping: FinanceBookkeepingService | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+                 bookkeeping: FinanceBookkeepingService | None = None, *,
+                 domain_store: VaultDomainStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="finance-sales-runtime",
+            )
         self.authority = authority or OrganizationAuthorityService(self.repository)
-        self.bookkeeping = bookkeeping or FinanceBookkeepingService(self.repository, self.authority)
+        self.bookkeeping = bookkeeping or FinanceBookkeepingService(
+            self.repository, self.authority, domain_store=self.domain_store,
+        )
 
     def catalog(self, workspace_id: str) -> dict[str, Any]:
         operating = self.repository.load_optional_dict(workspace_id, "business_operating_model") or {}
@@ -71,7 +89,7 @@ class FinanceSalesService:
         key = canonical_contract_hash({"name": name.casefold(), "email": email}).removeprefix("sha256:")[:20]
         customer_id = f"customer-{key}"
         existing = self._customer_path(workspace_id, customer_id)
-        if existing.exists():
+        if self._record_exists(existing):
             return self.load_customer(workspace_id, customer_id)
         record = {
             "schema_version": "aion.finance.customer.v1", "customer_id": customer_id,
@@ -153,7 +171,7 @@ class FinanceSalesService:
         }).removeprefix("sha256:")[:20]
         invoice_id = f"sales-invoice-{identity}"
         path = self._invoice_path(workspace_id, invoice_id)
-        if path.exists():
+        if self._record_exists(path):
             return self.load_invoice(workspace_id, invoice_id)
         invoice_number = f"TESS-{issued.strftime('%Y%m%d')}-{identity[:8].upper()}"
         invoice = {
@@ -265,15 +283,15 @@ class FinanceSalesService:
         return self._load(self._customer_path(workspace_id, customer_id), workspace_id, "customer_hash")
 
     def list_customers(self, workspace_id: str) -> list[dict[str, Any]]:
-        return [self.load_customer(workspace_id, path.stem) for path in sorted(
-            self._customers_dir(workspace_id).glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)]
+        return [self.load_customer(workspace_id, path.stem) for path in self._sorted(
+            self._customers_dir(workspace_id))]
 
     def load_invoice(self, workspace_id: str, invoice_id: str) -> dict[str, Any]:
         return self._load(self._invoice_path(workspace_id, invoice_id), workspace_id, "invoice_hash")
 
     def list_invoices(self, workspace_id: str) -> list[dict[str, Any]]:
-        return [self.load_invoice(workspace_id, path.stem) for path in sorted(
-            self._invoices_dir(workspace_id).glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)]
+        return [self.load_invoice(workspace_id, path.stem) for path in self._sorted(
+            self._invoices_dir(workspace_id))]
 
     def mark_verified_provider(self, workspace_id: str, invoice_id: str, *, provider: str,
                                export_summary: dict[str, Any]) -> dict[str, Any]:
@@ -284,6 +302,77 @@ class FinanceSalesService:
         self._rehash(invoice, "invoice_hash"); self._write(self._invoice_path(workspace_id, invoice_id), invoice)
         self._project(workspace_id, invoice)
         return invoice
+
+    def record_verified_payment(
+        self, workspace_id: str, invoice_id: str, *, provider: str,
+        provider_event_id: str, provider_payment_reference: str,
+        amount: float, currency: str, occurred_at: str,
+    ) -> dict[str, Any]:
+        """Apply a verified provider receipt exactly once and retain reconciliation evidence."""
+
+        invoice = self.load_invoice(workspace_id, invoice_id)
+        provider = str(provider or "").strip().lower()
+        provider_event_id = str(provider_event_id or "").strip()
+        provider_payment_reference = str(provider_payment_reference or "").strip()
+        currency = str(currency or "").strip().upper()
+        paid_amount = _money(amount)
+        if not provider or not provider_event_id or not provider_payment_reference or not occurred_at:
+            raise ValueError("verified_payment_receipt_required")
+        if paid_amount <= 0 or currency != str(invoice.get("currency") or "").upper():
+            raise ValueError("verified_payment_amount_or_currency_invalid")
+        event_hash = canonical_contract_hash({"provider": provider, "event_id": provider_event_id})
+        reference_hash = canonical_contract_hash(provider_payment_reference)
+        receipt_contract = {
+            "provider": provider, "provider_event_hash": event_hash,
+            "provider_payment_reference_hash": reference_hash,
+            "amount": paid_amount, "currency": currency, "occurred_at": str(occurred_at),
+        }
+        receipt_hash = canonical_contract_hash(receipt_contract)
+        prior = next(
+            (row for row in invoice.get("verified_payments") or []
+             if row.get("provider_event_hash") == event_hash),
+            None,
+        )
+        if prior:
+            if prior.get("receipt_hash") != receipt_hash:
+                raise ValueError("verified_payment_event_conflict")
+            return {"invoice": invoice, "payment": prior, "idempotent_replay": True}
+        if invoice.get("status") not in {"posted_internal", "partially_paid", "verified_in_xero"}:
+            raise PermissionError("posted_sales_invoice_required")
+        amount_due = _money(invoice.get("amount_due"))
+        if paid_amount > amount_due:
+            raise ValueError("verified_payment_exceeds_amount_due")
+        payment = {
+            "schema_version": "aion.finance.verified_payment.v1",
+            **receipt_contract,
+            "invoice_id": invoice_id, "workspace_id": workspace_id,
+            "recorded_at": _now(), "receipt_hash": receipt_hash,
+        }
+        invoice.setdefault("verified_payments", []).append(payment)
+        invoice["amount_paid"] = _money(_money(invoice.get("amount_paid")) + paid_amount)
+        invoice["amount_due"] = _money(amount_due - paid_amount)
+        invoice["status"] = "paid" if invoice["amount_due"] == 0 else "partially_paid"
+        invoice["collection_status"] = "paid" if invoice["amount_due"] == 0 else "partially_paid"
+        self._rehash(invoice, "invoice_hash")
+        self._write(self._invoice_path(workspace_id, invoice_id), invoice)
+        if self.domain_store is not None:
+            entity_id = f"verified_provider_payments/{event_hash.removeprefix('sha256:')}"
+            current = self.domain_store.get_optional(
+                "finance.reconciliation_records", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            if current and (current.get("payload") or {}).get("receipt_hash") != receipt_hash:
+                raise ValueError("verified_payment_event_conflict")
+            if current is None:
+                self.domain_store.put(
+                    "finance.reconciliation_records", workspace_id=workspace_id, entity_id=entity_id,
+                    payload=payment, expected_version=None, actor_id="finance-sales-runtime",
+                )
+        else:
+            path = self._root(workspace_id) / "verified_provider_payments" / f"{event_hash.removeprefix('sha256:')}.json"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(payment, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self._project(workspace_id, invoice)
+        return {"invoice": invoice, "payment": payment, "idempotent_replay": False}
 
     def _bookkeeping_draft(self, invoice: dict[str, Any]) -> dict[str, Any]:
         lines = [{"account_code": "control.trade_receivables", "account_name": "Trade Receivables",
@@ -338,14 +427,20 @@ class FinanceSalesService:
         return decision
 
     def _root(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_finance_sales__") / _safe(workspace_id) / "finance" / "sales"
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "finance/sales"
         path.mkdir(parents=True, exist_ok=True); return path
 
     def _customers_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "customers"; path.mkdir(parents=True, exist_ok=True); return path
+        path = self._root(workspace_id) / "customers"
+        if self.domain_store is None: path.mkdir(parents=True, exist_ok=True)
+        return path
 
     def _invoices_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "invoices"; path.mkdir(parents=True, exist_ok=True); return path
+        path = self._root(workspace_id) / "invoices"
+        if self.domain_store is None: path.mkdir(parents=True, exist_ok=True)
+        return path
 
     def _customer_path(self, workspace_id: str, customer_id: str) -> Path:
         return self._customers_dir(workspace_id) / f"{_safe(customer_id)}.json"
@@ -357,19 +452,75 @@ class FinanceSalesService:
     def _rehash(record: dict[str, Any], field: str) -> None:
         record.pop(field, None); record[field] = canonical_contract_hash(record)
 
-    @staticmethod
-    def _write(path: Path, record: dict[str, Any]) -> None:
+    def _path_identity(self, path: Path) -> tuple[str, str]:
+        parts = path.parts
+        try:
+            marker = parts.index("__tessaris_guardian_finance_sales__")
+            workspace_id = parts[marker + 1]
+            sales = parts.index("sales", marker + 2)
+        except (ValueError, IndexError) as exc:
+            raise RuntimeError("finance_sales_guardian_path_identity_invalid") from exc
+        return workspace_id, Path(*parts[sales + 1:]).with_suffix("").as_posix()
+
+    def _record_exists(self, path: Path) -> bool:
+        if self.domain_store is None:
+            return path.exists()
+        workspace_id, entity_id = self._path_identity(path)
+        return self.domain_store.get_optional(
+            "finance.sales_records", workspace_id=workspace_id, entity_id=entity_id,
+        ) is not None
+
+    def _sorted(self, directory: Path) -> list[Path]:
+        if self.domain_store is not None:
+            workspace_id, prefix = self._path_identity(directory)
+            prefix = prefix.rstrip("/") + "/"
+            rows = [
+                row for row in self.domain_store.list(
+                    "finance.sales_records", workspace_id=workspace_id,
+                )
+                if str(row.get("entity_id") or "").startswith(prefix)
+                and "/" not in str(row.get("entity_id") or "")[len(prefix):]
+            ]
+            rows.sort(
+                key=lambda row: str((row.get("payload") or {}).get("prepared_at") or (row.get("payload") or {}).get("created_at") or ""),
+                reverse=True,
+            )
+            return [directory / f"{str(row['entity_id'])[len(prefix):]}.json" for row in rows]
+        return sorted(directory.glob("*.json"), key=lambda path: path.stat().st_mtime, reverse=True)
+
+    def _write(self, path: Path, record: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            workspace_id, entity_id = self._path_identity(path)
+            current = self.domain_store.get_optional(
+                "finance.sales_records", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "finance.sales_records", workspace_id=workspace_id, entity_id=entity_id,
+                payload=record, expected_version=int(current["version"]) if current else None,
+                actor_id="finance-sales-runtime",
+            )
+            return
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    @staticmethod
-    def _load(path: Path, workspace_id: str, hash_field: str) -> dict[str, Any]:
-        if not path.exists():
-            raise FileNotFoundError(path.stem)
-        record = json.loads(path.read_text(encoding="utf-8"))
+    def _load(self, path: Path, workspace_id: str, hash_field: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            stored_workspace_id, entity_id = self._path_identity(path)
+            if canonical_business_id(stored_workspace_id) != canonical_business_id(workspace_id):
+                raise PermissionError("finance_sales_workspace_isolation_violation")
+            try:
+                record = dict(self.domain_store.get(
+                    "finance.sales_records", workspace_id=stored_workspace_id, entity_id=entity_id,
+                )["payload"])
+            except KeyError as exc:
+                raise FileNotFoundError(path.stem) from exc
+        else:
+            if not path.exists():
+                raise FileNotFoundError(path.stem)
+            record = json.loads(path.read_text(encoding="utf-8"))
         expected = record.get(hash_field); payload = dict(record); payload.pop(hash_field, None)
         if not expected or canonical_contract_hash(payload) != expected:
             raise ValueError(f"finance_sales_{hash_field}_mismatch")
-        if record.get("workspace_id") != workspace_id:
+        if canonical_business_id(record.get("workspace_id")) != canonical_business_id(workspace_id):
             raise PermissionError("finance_sales_workspace_isolation_violation")
         return record

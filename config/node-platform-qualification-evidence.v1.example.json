@@ -1,0 +1,87 @@
+{
+  "qualification_id": "replace-with-opaque-run-id",
+  "profile": "desktop",
+  "clean_machine": false,
+  "started_at": "2026-10-17T18:00:00+00:00",
+  "completed_at": "2026-10-17T19:00:00+00:00",
+  "qualified_by": "replace-with-release-lab-identity",
+  "cases": {
+    "clean_install": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/clean_install.json",
+      "note_code": "not-run"
+    },
+    "first_run_vault_and_recovery": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/first_run_vault_and_recovery.json",
+      "note_code": "not-run"
+    },
+    "service_restart_after_reboot": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/service_restart_after_reboot.json",
+      "note_code": "not-run"
+    },
+    "bounded_business_workflow": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/bounded_business_workflow.json",
+      "note_code": "not-run"
+    },
+    "signed_update": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/signed_update.json",
+      "note_code": "not-run"
+    },
+    "automatic_rollback": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/automatic_rollback.json",
+      "note_code": "not-run"
+    },
+    "vault_preserved_across_update": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/vault_preserved_across_update.json",
+      "note_code": "not-run"
+    },
+    "backup_restore_on_clean_machine": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/backup_restore_on_clean_machine.json",
+      "note_code": "not-run"
+    },
+    "authority_move_and_old_node_fencing": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/authority_move_and_old_node_fencing.json",
+      "note_code": "not-run"
+    },
+    "uninstall_preserves_vault": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/uninstall_preserves_vault.json",
+      "note_code": "not-run"
+    },
+    "reinstall_reconnects_vault": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/reinstall_reconnects_vault.json",
+      "note_code": "not-run"
+    },
+    "export_without_entitlement": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/export_without_entitlement.json",
+      "note_code": "not-run"
+    },
+    "commercial_expiry_preserves_ownership": {
+      "status": "not-run",
+      "evidence_file": "replace-with-local-evidence/commercial_expiry_preserves_ownership.json",
+      "note_code": "not-run"
+    }
+  },
+  "platform_trust": {
+    "artifact_signature_valid": false,
+    "service_identity_separate": false,
+    "native_credential_store_verified": false,
+    "no_public_inbound_admin_port": false
+  },
+  "vault_boundary": {
+    "roots_separate": false,
+    "updater_cannot_open_vault": false,
+    "guardian_cannot_write_application": false,
+    "restore_hashes_and_invariants_match": false
+  }
+}

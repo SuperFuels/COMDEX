@@ -31,6 +31,8 @@ from statistics import mean
 
 from filelock import FileLock, Timeout
 
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+
 QUIET = os.getenv("AION_QUIET_MODE", "0") == "1"
 log = logging.getLogger(__name__)
 
@@ -55,6 +57,8 @@ except Exception:
 ADAPTED_QTENSOR_PATH = Path("data/qtensor/langfield_resonance_adapted.qdata.json")
 CACHE_PATH = Path(__file__).resolve().parents[3] / "data/memory/resonant_memory_cache.json"
 LOCK_PATH = Path(str(CACHE_PATH) + ".lock")
+RMC_ENTITY_ID = "resonant_memory_cache"
+RMC_MAX_BYTES = 8 * 1024 * 1024
 
 if not QUIET:
     print(f"[RMC] Using cache path: {CACHE_PATH.resolve()}")
@@ -191,7 +195,23 @@ def _abs(p: Path) -> Path:
 # 🧠 ResonantMemoryCache
 # ================================================================
 class ResonantMemoryCache:
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
+        allow_legacy_files: bool | None = None,
+        cache_path: str | Path | None = None,
+    ):
+        self.vault_store = vault_store or AionLearningVaultStore(
+            workspace_id=workspace_id,
+        )
+        self.allow_legacy_files = (
+            os.getenv("TESSARIS_ALLOW_LEGACY_RESONANT_MEMORY_FILES", "0") == "1"
+            if allow_legacy_files is None
+            else bool(allow_legacy_files)
+        )
+        self.cache_path = _abs(Path(cache_path) if cache_path is not None else CACHE_PATH)
         self.cache: Dict[str, Any] = {}
         self.last_update: Optional[float] = None
 
@@ -203,27 +223,30 @@ class ResonantMemoryCache:
 
     # ------------------------------------------------------------
     def load(self):
-        """Auto-recover and load existing cache safely (no silent re-init)."""
-        global CACHE_PATH
-        CACHE_PATH = _abs(CACHE_PATH)  # lock to absolute path
+        """Load Guardian state, or an explicitly enabled legacy cache."""
+        if self.vault_store.enabled:
+            raw = self.vault_store.get_state(RMC_ENTITY_ID, {})
+        elif not self.allow_legacy_files:
+            raw = {}
+        else:
+            # Create once if missing, with proper schema. This branch is only
+            # for controlled migration/development compatibility.
+            if not self.cache_path.exists():
+                fallback = {
+                    "timestamp": 0,
+                    "entries": 0,
+                    "cache": {},
+                    "meta": {
+                        "schema": "ResonantMemoryCache.v2",
+                        "desc": "Unified photon + semantic Φ-ψ-η-Λ resonance cache",
+                    },
+                }
+                self.cache_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(self.cache_path, "w", encoding="utf-8") as f:
+                    json.dump(fallback, f, indent=2)
+                log.warning(f"[RMC] Creating legacy cache (first run) -> {self.cache_path}")
 
-        # Create once if missing, with proper schema
-        if not CACHE_PATH.exists():
-            fallback = {
-                "timestamp": 0,
-                "entries": 0,
-                "cache": {},
-                "meta": {
-                    "schema": "ResonantMemoryCache.v2",
-                    "desc": "Unified photon + semantic Φ-ψ-η-Λ resonance cache",
-                },
-            }
-            CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
-            with open(CACHE_PATH, "w", encoding="utf-8") as f:
-                json.dump(fallback, f, indent=2)
-            log.warning(f"[RMC] Creating new cache (first run) -> {CACHE_PATH}")
-
-        raw = _auto_recover_json(CACHE_PATH, fallback={})
+            raw = _auto_recover_json(self.cache_path, fallback={})
 
         # Supported formats:
         # 1) Structured v2: {"timestamp":..., "entries":..., "cache": {...}, "meta":...}
@@ -287,7 +310,23 @@ class ResonantMemoryCache:
             },
         }
 
-        ok = atomic_write_json(CACHE_PATH, data, make_backup=True)
+        canonical = json.dumps(
+            data,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        if len(canonical) > RMC_MAX_BYTES:
+            raise ValueError("resonant_memory_cache_too_large")
+
+        if self.vault_store.enabled:
+            self.vault_store.put_state(RMC_ENTITY_ID, data)
+            ok = True
+        elif self.allow_legacy_files:
+            ok = atomic_write_json(self.cache_path, data, make_backup=True)
+        else:
+            ok = False
         if ok:
             self._last_save_ts = now
         return ok
@@ -511,25 +550,8 @@ class ResonantMemoryCache:
         return self.cache.get(key, default)
 
     def export(self):
-        """Export unified cache with schema + timestamp under a file lock."""
-        data = {
-            "timestamp": self.last_update or time.time(),
-            "entries": len(self.cache),
-            "cache": self.cache,
-            "meta": {
-                "schema": "ResonantMemoryCache.v2",
-                "desc": "Unified photon + semantic Φ-ψ-η-Λ resonance cache",
-            },
-        }
-        lock = FileLock(str(LOCK_PATH))
-        try:
-            with lock.acquire(timeout=30):
-                atomic_write_json(CACHE_PATH, data, make_backup=True)
-                if not QUIET:
-                    log.info(f"[RMC] ✅ Exported unified cache -> {CACHE_PATH}")
-        except Timeout:
-            if not QUIET:
-                log.warning("[RMC] ⚠ Cache locked - export skipped.")
+        """Persist the unified cache through the configured custody boundary."""
+        return self.save(force=True)
 
     # ------------------------------------------------------------
     # 🌀 Phase 53 - Harmonic Resonance Tracking

@@ -18,13 +18,14 @@ import uuid
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
-from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
-
-
 SCHEMA = "tessaris.agent-commerce.v1"
 A2A_PROTOCOL_VERSION = "1.0.0"
 EXTENSION_URI = "urn:tessaris:agent-commerce:v1"
 _LOCK = threading.RLock()
+
+
+class A2ACommerceConfigurationError(RuntimeError):
+    """Raised when the legacy mixed-authority store was not explicitly selected."""
 
 
 def _now() -> datetime:
@@ -52,7 +53,36 @@ def _safe_id(value: str, label: str = "identifier") -> str:
 
 class A2ACommerceService:
     def __init__(self, root: str | Path | None = None, public_base_url: str | None = None) -> None:
-        self.root = Path(root or AIONBusinessPaths.ROOT / "a2a_commerce")
+        # The historical store combines platform security state, pre-business
+        # customer intake and several businesses' records.  It must never be
+        # selected implicitly by the production application because no single
+        # customer Vault can legitimately own that complete dataset.  An
+        # explicit root remains available for controlled migration and isolated
+        # tests without deleting or rewriting an existing source tree.
+        configured_root = str(os.environ.get("TESSARIS_A2A_LEGACY_ROOT") or "").strip()
+        if root is None and not configured_root:
+            raise A2ACommerceConfigurationError(
+                "a2a_commerce_partitioned_storage_required"
+            )
+        if root is None:
+            application_root = Path(
+                os.environ.get("TESSARIS_APPLICATION_ROOT")
+                or Path(__file__).resolve().parents[4]
+            ).expanduser().resolve(strict=False)
+            self.root = Path(configured_root).expanduser().resolve(strict=False)
+            try:
+                self.root.relative_to(application_root)
+            except ValueError:
+                pass
+            else:
+                raise A2ACommerceConfigurationError(
+                    "a2a_legacy_root_inside_application"
+                )
+        else:
+            # Explicit injection is reserved for isolated tests and controlled
+            # migration tooling. Production callers must use partitioned
+            # storage rather than this legacy mixed-authority implementation.
+            self.root = Path(root).expanduser().resolve(strict=False)
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.public_base_url = str(public_base_url or os.environ.get("TESSARIS_A2A_PUBLIC_BASE_URL") or "http://127.0.0.1:8080").rstrip("/")
 

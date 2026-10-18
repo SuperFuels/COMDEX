@@ -12,10 +12,15 @@ from typing import Any, Callable, Iterable, Mapping
 
 from backend.modules.aion_fabric.canonical import canonical_bytes, canonical_hash, utc_now_iso
 from backend.modules.aion_fabric.identity import DeviceIdentity
+from backend.modules.aion_business.runtime.business_vault import validate_vault_separation
+from backend.modules.aion_business.runtime.node_release_contract import ReleasePreflight
 
 
 UPDATE_SCHEMA = "aion.sovereign_update.v1"
 STATE_SCHEMA = "aion.sovereign_update_state.v1"
+STAGE_AUTHORIZATION_SCHEMA = "aion.sovereign_update_stage_authorization.v1"
+STAGE_AUTHORIZATION_FILE = ".tessaris-stage-authorization.json"
+STAGED_MANIFEST_FILE = ".tessaris-update-manifest.json"
 SAFE_VERSION = re.compile(r"^[0-9A-Za-z][0-9A-Za-z._-]{0,39}$")
 MAX_FILES = 20_000
 MAX_FILE_BYTES = 128 * 1024 * 1024
@@ -31,6 +36,9 @@ class SovereignUpdateService:
         *,
         mother_identity: DeviceIdentity,
         trusted_signers: Iterable[str],
+        application_root: str | Path | None = None,
+        vault_roots: Iterable[str | Path] = (),
+        require_release_preflight: bool = False,
     ) -> None:
         self.root = Path(root).resolve()
         self.releases = self.root / "releases"
@@ -38,6 +46,16 @@ class SovereignUpdateService:
         self.state_path = self.root / "update-state.json"
         self.identity = mother_identity
         self.trusted_signers = frozenset(str(value) for value in trusted_signers if value)
+        self.vault_roots = tuple(Path(value).expanduser().resolve() for value in vault_roots)
+        self.require_release_preflight = bool(require_release_preflight or self.vault_roots)
+        if self.vault_roots and application_root is None:
+            raise ValueError("update_application_root_required_for_vault_boundary")
+        for vault_root in self.vault_roots:
+            validate_vault_separation(
+                vault_root,
+                application_root=Path(application_root).expanduser().resolve(),
+                update_root=self.root,
+            )
         self.releases.mkdir(parents=True, exist_ok=True)
         self.staging.mkdir(parents=True, exist_ok=True)
         try:
@@ -45,7 +63,12 @@ class SovereignUpdateService:
         except OSError:
             pass
 
-    def stage(self, package: str | Path) -> dict[str, Any]:
+    def stage(
+        self,
+        package: str | Path,
+        *,
+        release_preflight: ReleasePreflight | None = None,
+    ) -> dict[str, Any]:
         source = Path(package).resolve()
         if not source.is_file() or source.stat().st_size > MAX_PACKAGE_BYTES:
             raise ValueError("update_package_missing_or_too_large")
@@ -56,6 +79,7 @@ class SovereignUpdateService:
                 raise ValueError("update_manifest_missing_or_invalid") from exc
             self._verify_manifest(manifest)
             version = str(manifest["version"])
+            self._verify_release_preflight(version, release_preflight)
             target = self.staging / version
             if target.exists():
                 shutil.rmtree(target)
@@ -79,7 +103,26 @@ class SovereignUpdateService:
                 os.chmod(destination, 0o700 if bool(record.get("executable")) else 0o600)
             if records:
                 raise ValueError("update_declared_file_missing")
-        receipt = self._append_history("staged", version, {"manifest_hash": canonical_hash(self._unsigned(manifest))})
+        staged_manifest_path = target / STAGED_MANIFEST_FILE
+        staged_manifest_path.write_bytes(canonical_bytes(manifest))
+        os.chmod(staged_manifest_path, 0o600)
+        manifest_hash = canonical_hash(self._unsigned(manifest))
+        self._write_stage_authorization(
+            target,
+            version=version,
+            manifest_hash=manifest_hash,
+            release_preflight=release_preflight,
+        )
+        receipt = self._append_history(
+            "staged",
+            version,
+            {
+                "manifest_hash": manifest_hash,
+                "release_preflight_required": self.require_release_preflight,
+                "release_preflight_verified": release_preflight is not None,
+                "vault_boundary_enforced": bool(self.vault_roots),
+            },
+        )
         return {"version": version, "status": "staged", "path": str(target), "receipt": receipt}
 
     def activate(
@@ -95,6 +138,12 @@ class SovereignUpdateService:
         candidate = self.staging / version
         if not candidate.is_dir():
             raise KeyError("staged_update_not_found")
+        stage_authorization = self._verify_stage_authorization(candidate, version=version)
+        self._verify_staged_release(
+            candidate,
+            version=version,
+            stage_authorization=stage_authorization,
+        )
         state = self._state()
         previous_version = state.get("current_version")
         previous = self.releases / str(previous_version) if previous_version else None
@@ -106,7 +155,14 @@ class SovereignUpdateService:
         started = self._safe(start_release, installed)
         healthy = started and self._safe(health_check, installed)
         if healthy:
-            receipt = self._append_history("activated", version, {"previous_version": previous_version})
+            receipt = self._append_history(
+                "activated",
+                version,
+                {
+                    "previous_version": previous_version,
+                    "stage_authorization_hash": canonical_hash(stage_authorization),
+                },
+            )
             return {"version": version, "status": "activated", "healthy": True, "rolled_back_to": None, "receipt": receipt}
 
         if stop_release:
@@ -119,7 +175,11 @@ class SovereignUpdateService:
             self._write_pointer({**self._state(), "current_version": None, "previous_version": version})
         receipt = self._append_history(
             "rolled_back", version,
-            {"rolled_back_to": previous_version, "previous_runtime_healthy": rollback_started},
+            {
+                "rolled_back_to": previous_version,
+                "previous_runtime_healthy": rollback_started,
+                "stage_authorization_hash": canonical_hash(stage_authorization),
+            },
         )
         return {
             "version": version,
@@ -139,11 +199,18 @@ class SovereignUpdateService:
             "previous_version": state.get("previous_version"),
             "history": list(state.get("history") or []),
             "trusted_signer_count": len(self.trusted_signers),
+            "release_preflight_required": self.require_release_preflight,
+            "vault_boundary_enforced": bool(self.vault_roots),
+            "vault_count": len(self.vault_roots),
         }
 
     def _verify_manifest(self, manifest: Mapping[str, Any]) -> None:
         if manifest.get("schema_version") != UPDATE_SCHEMA:
             raise ValueError("update_schema_not_supported")
+        if manifest.get("customer_data_included") is not False:
+            raise ValueError("update_customer_data_boundary_invalid")
+        if manifest.get("customer_credentials_included") is not False:
+            raise ValueError("update_credentials_boundary_invalid")
         version = str(manifest.get("version") or "")
         if not SAFE_VERSION.fullmatch(version):
             raise ValueError("update_version_invalid")
@@ -168,6 +235,142 @@ class SovereignUpdateService:
             total += size
         if total > MAX_PACKAGE_BYTES:
             raise ValueError("update_unpacked_size_exceeded")
+
+    def _verify_release_preflight(
+        self,
+        package_version: str,
+        release_preflight: ReleasePreflight | None,
+    ) -> None:
+        if release_preflight is None:
+            if self.require_release_preflight:
+                raise PermissionError("update_release_preflight_required")
+            return
+        if release_preflight.release_version != package_version:
+            raise ValueError("update_release_preflight_version_mismatch")
+        if not release_preflight.eligible:
+            reasons = ",".join(release_preflight.reasons) or "unspecified"
+            raise PermissionError(f"update_release_preflight_rejected:{reasons}")
+
+    def _write_stage_authorization(
+        self,
+        target: Path,
+        *,
+        version: str,
+        manifest_hash: str,
+        release_preflight: ReleasePreflight | None,
+    ) -> None:
+        unsigned = {
+            "schema_version": STAGE_AUTHORIZATION_SCHEMA,
+            "version": version,
+            "update_manifest_hash": manifest_hash,
+            "release_preflight_required": self.require_release_preflight,
+            "release_preflight_verified": release_preflight is not None,
+            "release_preflight_hash": (
+                canonical_hash(release_preflight.payload())
+                if release_preflight is not None
+                else None
+            ),
+        }
+        authorization = {
+            **unsigned,
+            "mother_signature": self.identity.sign(canonical_bytes(unsigned)),
+        }
+        path = target / STAGE_AUTHORIZATION_FILE
+        path.write_bytes(canonical_bytes(authorization))
+        os.chmod(path, 0o600)
+
+    def _verify_stage_authorization(
+        self, candidate: Path, *, version: str
+    ) -> dict[str, Any]:
+        path = candidate / STAGE_AUTHORIZATION_FILE
+        try:
+            authorization = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise PermissionError("update_stage_authorization_missing_or_invalid") from exc
+        expected_keys = {
+            "schema_version",
+            "version",
+            "update_manifest_hash",
+            "release_preflight_required",
+            "release_preflight_verified",
+            "release_preflight_hash",
+            "mother_signature",
+        }
+        if not isinstance(authorization, dict) or set(authorization) != expected_keys:
+            raise PermissionError("update_stage_authorization_invalid")
+        if (
+            authorization.get("schema_version") != STAGE_AUTHORIZATION_SCHEMA
+            or authorization.get("version") != version
+            or not re.fullmatch(
+                r"[0-9a-f]{64}", str(authorization.get("update_manifest_hash") or "")
+            )
+            or bool(authorization.get("release_preflight_required"))
+            != self.require_release_preflight
+            or (
+                self.require_release_preflight
+                and authorization.get("release_preflight_verified") is not True
+            )
+        ):
+            raise PermissionError("update_stage_authorization_invalid")
+        preflight_hash = authorization.get("release_preflight_hash")
+        if authorization.get("release_preflight_verified") is True:
+            if not re.fullmatch(r"[0-9a-f]{64}", str(preflight_hash or "")):
+                raise PermissionError("update_stage_authorization_invalid")
+        elif preflight_hash is not None:
+            raise PermissionError("update_stage_authorization_invalid")
+        signature = str(authorization.get("mother_signature") or "")
+        unsigned = {
+            key: value
+            for key, value in authorization.items()
+            if key != "mother_signature"
+        }
+        if not DeviceIdentity.verify(
+            self.identity.public_key_b64, canonical_bytes(unsigned), signature
+        ):
+            raise PermissionError("update_stage_authorization_signature_invalid")
+        return authorization
+
+    def _verify_staged_release(
+        self,
+        candidate: Path,
+        *,
+        version: str,
+        stage_authorization: Mapping[str, Any],
+    ) -> None:
+        manifest_path = candidate / STAGED_MANIFEST_FILE
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise PermissionError("update_staged_manifest_missing_or_invalid") from exc
+        self._verify_manifest(manifest)
+        if (
+            str(manifest.get("version") or "") != version
+            or canonical_hash(self._unsigned(manifest))
+            != stage_authorization.get("update_manifest_hash")
+        ):
+            raise PermissionError("update_staged_manifest_authorization_mismatch")
+        declared = {str(item["path"]): item for item in manifest["files"]}
+        observed: set[str] = set()
+        for path in candidate.rglob("*"):
+            if path.is_symlink():
+                raise PermissionError("update_staged_file_integrity_failed")
+            if not path.is_file():
+                continue
+            relative = path.relative_to(candidate).as_posix()
+            if relative in {STAGE_AUTHORIZATION_FILE, STAGED_MANIFEST_FILE}:
+                continue
+            record = declared.get(relative)
+            if record is None:
+                raise PermissionError("update_staged_file_undeclared")
+            raw = path.read_bytes()
+            if (
+                len(raw) != int(record["bytes"])
+                or hashlib.sha256(raw).hexdigest() != record["sha256"]
+            ):
+                raise PermissionError("update_staged_file_integrity_failed")
+            observed.add(relative)
+        if observed != set(declared):
+            raise PermissionError("update_staged_file_missing")
 
     @staticmethod
     def _unsigned(manifest: Mapping[str, Any]) -> dict[str, Any]:
@@ -201,7 +404,38 @@ class SovereignUpdateService:
         value = json.loads(self.state_path.read_text(encoding="utf-8"))
         if value.get("schema_version") != STATE_SCHEMA or not isinstance(value.get("history"), list):
             raise RuntimeError("update_state_invalid")
+        self._verify_history(value["history"])
         return value
+
+    def _verify_history(self, history: list[Any]) -> None:
+        previous_hash = "genesis"
+        for item in history:
+            if not isinstance(item, dict):
+                raise RuntimeError("update_history_invalid")
+            receipt_hash = str(item.get("receipt_hash") or "")
+            signature = str(item.get("mother_signature") or "")
+            unsigned_receipt = {
+                key: value
+                for key, value in item.items()
+                if key not in {"receipt_hash", "mother_signature"}
+            }
+            signed_receipt = {
+                key: value
+                for key, value in item.items()
+                if key != "mother_signature"
+            }
+            if (
+                item.get("schema_version") != "aion.sovereign_update_receipt.v1"
+                or item.get("previous_hash") != previous_hash
+                or canonical_hash(unsigned_receipt) != receipt_hash
+                or not DeviceIdentity.verify(
+                    self.identity.public_key_b64,
+                    canonical_bytes(signed_receipt),
+                    signature,
+                )
+            ):
+                raise RuntimeError("update_history_integrity_failed")
+            previous_hash = receipt_hash
 
     def _write_pointer(self, state: Mapping[str, Any]) -> None:
         temporary = self.state_path.with_suffix(".tmp")

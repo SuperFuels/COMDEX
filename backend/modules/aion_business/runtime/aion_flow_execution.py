@@ -12,6 +12,11 @@ from backend.modules.aion_fabric.canonical import canonical_hash, utc_now_iso
 from backend.modules.workflow_capsules.connectors.workflow_connector_adapter import (
     WorkflowConnectorAdapter,
 )
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 TERMINAL_STATES = {"verified", "failed", "cancelled", "compensated"}
@@ -22,14 +27,41 @@ ALLOWED_CONTROL_ACTIONS = {"pause", "cancel", "resume", "recover"}
 class AionFlowRunRepository:
     """Small customer-owned run journal; payloads are canonical JSON, never credentials."""
 
-    def __init__(self, root: Path | str | None = None) -> None:
+    def __init__(self, root: Path | str | None = None, *, domain_store: VaultDomainStore | None = None) -> None:
+        if root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            domain_store = VaultDomainStore(runtime.guardian, actor_id="aion-flow-execution-runtime")
+        self.domain_store = domain_store
         self.root = Path(root or ".runtime/aion_flow/runs")
-        self.root.mkdir(parents=True, exist_ok=True)
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
         self.prepared_root = self.root.parent / "prepared"
-        self.prepared_root.mkdir(parents=True, exist_ok=True)
+        if self.domain_store is None:
+            self.prepared_root.mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _workspace(value: Mapping[str, Any]) -> str:
+        authority = value.get("authority_context") or {}
+        actor = (value.get("authorization_context") or {}).get("actor") or {}
+        return str(authority.get("workspace_id") or actor.get("workspace_id") or "unscoped")
+
+    def _put(self, domain_id: str, workspace_id: str, entity_id: str, payload: Mapping[str, Any]) -> None:
+        current = self.domain_store.get_optional(
+            domain_id, workspace_id=workspace_id, entity_id=entity_id
+        )
+        self.domain_store.put(
+            domain_id, workspace_id=workspace_id, entity_id=entity_id,
+            payload=payload, expected_version=int(current["version"]) if current else None,
+        )
 
     def save(self, run: Mapping[str, Any]) -> Dict[str, Any]:
         safe = _redact(dict(run))
+        if self.domain_store is not None:
+            self._put(
+                "train_agent.runs_and_audit", self._workspace(safe),
+                f"aion_flow/runs/{_safe_id(str(safe['run_id']))}", safe,
+            )
+            return safe
         path = self.root / f"{safe['run_id']}.json"
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps(safe, sort_keys=True, indent=2), encoding="utf-8")
@@ -37,6 +69,14 @@ class AionFlowRunRepository:
         return safe
 
     def get(self, run_id: str) -> Dict[str, Any] | None:
+        if self.domain_store is not None:
+            entity_id = f"aion_flow/runs/{_safe_id(run_id)}"
+            match = next(
+                (record for record in self.domain_store.list_all("train_agent.runs_and_audit")
+                 if record["entity_id"] == entity_id),
+                None,
+            )
+            return dict(match["payload"]) if match else None
         path = self.root / f"{_safe_id(run_id)}.json"
         if not path.exists():
             return None
@@ -44,6 +84,14 @@ class AionFlowRunRepository:
         return value if isinstance(value, dict) else None
 
     def list(self, limit: int = 50) -> list[Dict[str, Any]]:
+        if self.domain_store is not None:
+            values = [
+                dict(record["payload"])
+                for record in self.domain_store.list_all("train_agent.runs_and_audit")
+                if str(record["entity_id"]).startswith("aion_flow/runs/")
+            ]
+            values.sort(key=lambda item: str(item.get("updated_at") or item.get("created_at") or ""), reverse=True)
+            return values[:limit]
         items = []
         for path in sorted(self.root.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)[:limit]:
             try:
@@ -58,6 +106,12 @@ class AionFlowRunRepository:
         safe = _redact(dict(prepared))
         preparation_id = str(safe.get("preparation_id") or f"prep_{uuid.uuid4().hex}")
         safe["preparation_id"] = preparation_id
+        if self.domain_store is not None:
+            self._put(
+                "train_agent.automations", self._workspace(safe),
+                f"aion_flow/prepared/{_safe_id(preparation_id)}", safe,
+            )
+            return safe
         path = self.prepared_root / f"{_safe_id(preparation_id)}.json"
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps(safe, sort_keys=True, indent=2), encoding="utf-8")
@@ -65,6 +119,14 @@ class AionFlowRunRepository:
         return safe
 
     def get_prepared(self, preparation_id: str) -> Dict[str, Any] | None:
+        if self.domain_store is not None:
+            entity_id = f"aion_flow/prepared/{_safe_id(preparation_id)}"
+            match = next(
+                (record for record in self.domain_store.list_all("train_agent.automations")
+                 if record["entity_id"] == entity_id),
+                None,
+            )
+            return dict(match["payload"]) if match else None
         path = self.prepared_root / f"{_safe_id(preparation_id)}.json"
         if not path.exists():
             return None

@@ -3643,37 +3643,6 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
       teamModeButton: null,
     };
 
-    const teamModeButton = document.createElement("button");
-    teamModeButton.type = "button";
-    teamModeButton.dataset.aionBoardroomTeamSwitch = "true";
-    teamModeButton.style.position = "absolute";
-    teamModeButton.style.left = "50%";
-    teamModeButton.style.bottom = "16px";
-    teamModeButton.style.transform = "translateX(-50%)";
-    teamModeButton.style.zIndex = "12";
-    teamModeButton.style.padding = "10px 18px";
-    teamModeButton.style.border = "1px solid rgba(15, 23, 42, 0.28)";
-    teamModeButton.style.borderRadius = "4px";
-    teamModeButton.style.background = "rgba(255, 255, 255, 0.94)";
-    teamModeButton.style.color = "#0f172a";
-    teamModeButton.style.font = "800 12px Inter, ui-sans-serif, system-ui, sans-serif";
-    teamModeButton.style.letterSpacing = "0.08em";
-    teamModeButton.style.textTransform = "uppercase";
-    teamModeButton.style.boxShadow = "0 8px 24px rgba(15, 23, 42, 0.16)";
-    teamModeButton.style.cursor = "pointer";
-    teamModeButton.style.backdropFilter = "blur(10px)";
-    teamModeButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (!current) return;
-      const nextMode = current.options.boardroomTeamMode === "board" ? "executive" : "board";
-      current.options.boardroomTeamMode = nextMode;
-      global.__aionSpatialBoardroomTeamMode = nextMode;
-      rebuildWorld(current.options.snapshot, current.options);
-    });
-    container.appendChild(teamModeButton);
-    current.teamModeButton = teamModeButton;
-
     loadAionBoardroomAssetsOnce(() => {
       if (!current) return;
       rebuildWorld(current.options.snapshot, current.options);

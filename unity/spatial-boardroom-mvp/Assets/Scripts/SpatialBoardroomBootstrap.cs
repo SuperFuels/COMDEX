@@ -475,6 +475,10 @@ namespace Tessaris.SpatialBoardroom
                 case "meeting_overview": FocusOverview(); break;
                 case "caption": meetingCaption = boardroomEvent.text; break;
                 case "board_members_snapshot": ApplyBoardMembers(boardroomEvent.members); break;
+                case "team_mode":
+                    if (string.Equals(boardroomEvent.mode, "executive", StringComparison.OrdinalIgnoreCase)) ShowExecutiveTeam();
+                    else ShowBoardTeam();
+                    break;
             }
         }
 
@@ -596,13 +600,7 @@ namespace Tessaris.SpatialBoardroom
 
             GUI.Label(new Rect(28, 24, 540, 35), "TESSARIS · SPATIAL BOARDROOM", titleStyle);
 
-            var switchLabel = showingBoardTeam ? "SWITCH TO EXECUTIVE TEAM" : "SWITCH TO BOARD";
-            if (GUI.Button(new Rect(Screen.width - 292, 24, 264, 42), switchLabel, buttonStyle))
-            {
-                if (showingBoardTeam) ShowExecutiveTeam();
-                else ShowBoardTeam();
-            }
-            GUI.Label(new Rect(Screen.width - 292, 72, 264, 28),
+            GUI.Label(new Rect(Screen.width - 292, 24, 264, 28),
                 showingBoardTeam ? "BOARD · CONNECTED AI" : "EXECUTIVE TEAM · DEPARTMENTS", captionStyle);
 
             if (showingBoardTeam)
@@ -956,6 +954,7 @@ namespace Tessaris.SpatialBoardroom
         public string type;
         public string role;
         public string text;
+        public string mode;
         public TessarisBoardroomMember[] members;
     }
 
@@ -988,6 +987,7 @@ namespace Tessaris.SpatialBoardroom
         private string endpoint;
         private string actionsEndpoint;
         private string token;
+        private string initialMode;
         private string lastEventId;
 
         private void Start()
@@ -1008,6 +1008,11 @@ namespace Tessaris.SpatialBoardroom
                 ApplyWebQuery(Application.absoluteURL);
             }
 
+            if (!string.IsNullOrWhiteSpace(initialMode))
+            {
+                EventReceived?.Invoke(new TessarisBoardroomEvent { type = "team_mode", mode = initialMode });
+            }
+
             if (!string.IsNullOrWhiteSpace(endpoint) && IsLoopback(endpoint) && !string.IsNullOrWhiteSpace(token))
             {
                 StartCoroutine(Poll());
@@ -1026,6 +1031,7 @@ namespace Tessaris.SpatialBoardroom
                 if (key == "tessaris-endpoint") endpoint = value;
                 if (key == "tessaris-actions") actionsEndpoint = value;
                 if (key == "tessaris-session") token = value;
+                if (key == "tessaris-mode") initialMode = value;
             }
         }
 

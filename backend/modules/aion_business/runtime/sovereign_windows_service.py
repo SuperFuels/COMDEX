@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from http.server import ThreadingHTTPServer
-
 try:  # Imported only on Windows packages containing pywin32.
     import servicemanager
     import win32event
@@ -12,7 +10,12 @@ try:  # Imported only on Windows packages containing pywin32.
 except ImportError:  # Permit packaging and source inspection on other platforms.
     servicemanager = win32event = win32service = win32serviceutil = None
 
-from backend.modules.aion_business.runtime.sovereign_installed_service import build_handler, default_brain_root
+from backend.modules.aion_business.runtime.sovereign_installed_service import (
+    create_health_server,
+    default_brain_root,
+    default_health_endpoint_path,
+    remove_endpoint_record,
+)
 
 
 if win32serviceutil is not None:
@@ -24,7 +27,12 @@ if win32serviceutil is not None:
         def __init__(self, args):
             super().__init__(args)
             self.stop_event = win32event.CreateEvent(None, 0, 0, None)
-            self.server = ThreadingHTTPServer(("127.0.0.1", 8776), build_handler(default_brain_root()))
+            self.server, self.endpoint, self.endpoint_path = create_health_server(
+                root=default_brain_root(),
+                host="127.0.0.1",
+                port=0,
+                endpoint_path=default_health_endpoint_path(),
+            )
 
         def SvcStop(self):  # noqa: N802
             self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
@@ -33,8 +41,14 @@ if win32serviceutil is not None:
 
         def SvcDoRun(self):  # noqa: N802
             servicemanager.LogInfoMsg("Tessaris Pilot AION Brain service started")
-            self.server.serve_forever()
-            self.server.server_close()
+            try:
+                self.server.serve_forever()
+            finally:
+                self.server.server_close()
+                remove_endpoint_record(
+                    self.endpoint_path,
+                    instance_id=str(self.endpoint["instance_id"]),
+                )
 
 
 def main() -> int:

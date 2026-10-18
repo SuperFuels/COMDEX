@@ -17,14 +17,17 @@ from backend.modules.aion_business.runtime.organization_authority_service import
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.support_case_service import SupportCaseService
 from backend.modules.aion_business.runtime.telephony_credentials import get_retell_api_key
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str: return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 class SupportVoiceService:
-    def __init__(self) -> None:
-        self.support = SupportCaseService()
+    def __init__(self, support: SupportCaseService | None = None, *,
+                 domain_store: VaultDomainStore | None = None) -> None:
+        self.support = support or SupportCaseService(domain_store=domain_store)
+        self.domain_store = domain_store or self.support.domain_store
         self.authority = OrganizationAuthorityService(self.support.repository)
 
     def status(self, workspace_id: str) -> dict[str, Any]:
@@ -161,9 +164,12 @@ class SupportVoiceService:
                                       if call.get("recording_url") else None,
                 "received_at": _now()}
         safe["event_hash"] = canonical_contract_hash(safe)
-        path = self._root(workspace_id) / "events"; path.mkdir(parents=True, exist_ok=True)
-        (path / f"{re.sub(r'[^a-zA-Z0-9_.-]', '-', call_id)}-{int(time.time()*1000)}.json").write_text(
-            json.dumps(safe, indent=2, sort_keys=True), encoding="utf-8")
+        path = self._root(workspace_id) / "events"
+        if self.domain_store is None: path.mkdir(parents=True, exist_ok=True)
+        self._write_record(
+            path / f"{re.sub(r'[^a-zA-Z0-9_.-]', '-', call_id)}-{int(time.time()*1000)}.json",
+            safe,
+        )
         return safe
 
     def _prompt(self, workspace_id: str) -> str:
@@ -202,20 +208,45 @@ ABSOLUTE RULES:
         return decision
 
     def _root(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_support_voice__") / workspace_id / "support" / "voice"
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "support/voice"
         path.mkdir(parents=True, exist_ok=True); return path
 
     def _deployment_path(self, workspace_id: str) -> Path: return self._root(workspace_id) / "retell_deployment.json"
     def _load_deployment(self, workspace_id: str) -> dict[str, Any]:
         path = self._deployment_path(workspace_id)
-        if not path.exists(): return {"workspace_id": workspace_id, "status": "deployment_required"}
-        record = json.loads(path.read_text(encoding="utf-8")); expected = record.get("deployment_hash")
+        if not self._exists(path): return {"workspace_id": workspace_id, "status": "deployment_required"}
+        record = self._read_record(path); expected = record.get("deployment_hash")
         copy = dict(record); copy.pop("deployment_hash", None)
         if record.get("workspace_id") != workspace_id or not hmac.compare_digest(str(expected or ""), canonical_contract_hash(copy)):
             raise ValueError("support_voice_deployment_integrity_failed")
         return record
     def _write_deployment(self, workspace_id: str, record: dict[str, Any]) -> None:
-        path = self._deployment_path(workspace_id); temp = path.with_suffix(".tmp")
+        self._write_record(self._deployment_path(workspace_id), record)
+    def _identity(self, path: Path) -> tuple[str, str]:
+        parts = path.parts; marker = parts.index("__tessaris_guardian_support_voice__")
+        workspace_id = parts[marker + 1]; voice = parts.index("voice", marker + 2)
+        return workspace_id, "voice/" + Path(*parts[voice + 1:]).with_suffix("").as_posix()
+    def _exists(self, path: Path) -> bool:
+        if self.domain_store is None: return path.exists()
+        workspace_id, entity_id = self._identity(path)
+        return self.domain_store.get_optional("support.records", workspace_id=workspace_id, entity_id=entity_id) is not None
+    def _read_record(self, path: Path) -> dict[str, Any]:
+        if self.domain_store is None: return json.loads(path.read_text(encoding="utf-8"))
+        workspace_id, entity_id = self._identity(path)
+        return dict(self.domain_store.get("support.records", workspace_id=workspace_id, entity_id=entity_id)["payload"])
+    def _write_record(self, path: Path, record: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            workspace_id, entity_id = self._identity(path)
+            current = self.domain_store.get_optional("support.records", workspace_id=workspace_id, entity_id=entity_id)
+            self.domain_store.put(
+                "support.records", workspace_id=workspace_id, entity_id=entity_id,
+                payload=record, expected_version=int(current["version"]) if current else None,
+                actor_id="support-voice-runtime",
+            )
+            return
+        temp = path.with_suffix(".tmp")
         temp.write_text(json.dumps(record, indent=2, sort_keys=True), encoding="utf-8"); temp.replace(path)
     @staticmethod
     def _rehash(record: dict[str, Any]) -> None:

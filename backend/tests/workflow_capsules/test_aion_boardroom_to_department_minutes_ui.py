@@ -70,6 +70,43 @@ def test_boardroom_ask_fails_visibly_instead_of_silently():
     assert "Live Boardroom ask failed:" in APP
 
 
+def test_boardroom_keeps_a_provisional_plan_when_live_advisers_fail():
+    assert "function buildAionEvidenceLimitedBoardFallbackV1" in APP
+    assert "provisional_evidence_plan_ready_for_founder_feedback" in APP
+    assert "Missing information reduces confidence but does not stop the first meeting." in APP
+    assert "Always produce a provisional plan from what is known." in APP
+    assert "describeAionBoardProviderFailureV1" in APP
+
+
+def test_boardroom_ask_refreshes_authoritative_lead_before_empty_selection_failure():
+    start = APP.index("async function runAionLiveVisibleAskBoardResultV1")
+    end = APP.index("function runAionVisibleAskBoardResultV1", start)
+    live_ask = APP[start:end]
+    assert "await window.aionLoadOriginalBusinessMapV2()" in live_ask
+    assert "/api/boardroom/providers/status?workspace_id=" in live_ask
+    assert "requested_providers: requestedProviderIds" in live_ask
+    assert live_ask.index("await window.aionLoadOriginalBusinessMapV2()") < live_ask.index("No connected Board members are selected")
+
+
+def test_connected_models_automatically_join_board_and_environment_fallback_does_not():
+    start = APP.index("function getAionLiveSelectedBoardroomProviderIdsV2")
+    end = APP.index("function getAionLiveBoardroomContextV2", start)
+    selection = APP[start:end]
+    assert 'String(item?.source || "") !== "env"' in selection
+    assert "const selected = [...connected]" in selection
+    assert "selected.unshift(leadProviderId)" in selection
+
+    spatial_start = APP.index("function connectedVaultProvidersO15C")
+    spatial_end = APP.index("function uniqueByProviderO15C", spatial_start)
+    assert 'String(provider?.source || "") !== "env"' in APP[spatial_start:spatial_end]
+
+    member_start = APP.index("function getAionSpatialBoardroomMembersV1")
+    member_end = APP.index("async function syncAionConnectedModelsToBoardroomV1", member_start)
+    spatial_members = APP[member_start:member_end]
+    assert "getAionLiveSelectedBoardroomProviderIdsV2()" in spatial_members
+    assert "__aionOriginalBusinessMapStateV2?.providers" in spatial_members
+
+
 def test_boardroom_sequence_requires_debate_and_founder_ratification_before_tasks():
     assert "function ratifyBoardDirection()" in APP
     assert 'aion.boardroom.founderRatification.v1' in APP
@@ -97,15 +134,39 @@ def test_discovery_workspace_buttons_route_through_the_department_pilot_authorit
     assert 'event.stopImmediatePropagation?.();' in APP
 
 
-def test_boardroom_analysis_uses_a_light_reading_surface_with_coloured_gates():
+def test_boardroom_analysis_uses_formal_black_and_white_document_layout():
     visible_start = APP.index("function renderAionVisibleAskBoardResultHtmlV1")
     visible_end = APP.index("/* END AION PATCH: Visible Ask Board Result v1 */", visible_start)
     visible = APP[visible_start:visible_end]
-    assert "background:#ffffff;" in visible
-    assert "color:#29465b;" in visible
+    styles = (ROOT / "desktop" / "mac" / "src" / "styles.css").read_text(encoding="utf-8")
 
-    inbox_start = APP.index("function renderAionDiscoveryQuestionInboxHtmlV1")
-    inbox_end = APP.index("function installAionDiscoveryQuestionInboxBindingsV1", inbox_start)
-    inbox = APP[inbox_start:inbox_end]
-    assert "background:#f7fbfd;" in inbox
-    assert "background:#fffbeb" in inbox
+    assert 'class="aion-board-legal-document"' in visible
+    assert "aion-board-document-sections" in visible
+    assert "Appendix A — Adviser responses and technical record" in visible
+    assert 'replace(/\\*\\*/g, "")' in visible
+    assert 'data-aion-board-appendix="true"' in visible
+    assert '<section data-aion-board-appendix="true"' in visible
+    assert "aion-board-document-appendix-heading" in visible
+    assert '<details data-aion-board-appendix="true"' not in visible
+    assert ".aion-board-legal-document" in styles
+    assert "background: #fff !important;" in styles
+    assert "display: block !important;" in styles
+
+
+def test_boardroom_distinguishes_activation_validation_from_missing_discovery():
+    start = APP.index("function buildAionBoardroomPushbackGateV1")
+    end = APP.index("function renderAionBoardroomPushbackGateHtmlV1", start)
+    gate = APP[start:end]
+    assert "providerBlockingInputs" in gate
+    assert "provider_validation_inputs" in gate
+    assert "current market demand validation" in gate
+    assert "verification of historical revenue" in gate
+    assert "providerRisks.length" not in gate
+
+
+def test_resolved_founder_inputs_do_not_keep_showing_partially_resolved():
+    start = APP.index("function renderAionFounderFeedbackGateResolutionHtmlV1")
+    end = APP.index("/* END AION PATCH: Founder feedback gate resolution v1 */", start)
+    panel = APP[start:end]
+    assert "const anyRemaining" in panel
+    assert "Structured planning inputs are resolved" in panel

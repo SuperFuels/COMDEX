@@ -15,6 +15,7 @@ import sqlite3
 import time
 from typing import Any, Mapping, Sequence
 
+from backend.modules.aion_cognition.sqlite_connection import connect as sqlite_connect
 from backend.modules.aion_cognition.native_lexical_intelligence import (
     NativeLexicalIntelligence,
     _normalise_lemma,
@@ -82,7 +83,7 @@ class NativeWordwallLearning:
         self._repair_grounded_capsules()
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.database_path, timeout=30)
+        connection = sqlite_connect(self.database_path, timeout=30)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA busy_timeout=30000")
         return connection
@@ -153,22 +154,36 @@ class NativeWordwallLearning:
                 """
             )
 
-    def _repair_grounded_capsules(self) -> None:
-        """Keep pre-competence capsules aligned with the current feature extractor."""
+    def _repair_grounded_capsules(self, *, limit: int = 32) -> int:
+        """Repair a bounded capsule batch without monopolising the SD database."""
         with self._connect() as connection:
             rows = connection.execute(
                 "SELECT concept_id,lemma,reference_definition FROM acquired_concepts "
-                "WHERE stage='grounded'"
+                "WHERE stage='grounded' AND ("
+                "trim(COALESCE(features_json,'')) IN ('', '[]', '{}', 'null') "
+                "OR trim(COALESCE(native_gloss,'')) = ''"
+                ") ORDER BY updated_epoch ASC LIMIT ?",
+                (max(1, min(512, int(limit))),),
             ).fetchall()
-            for row in rows:
-                features = _clean_features(str(row["reference_definition"]), str(row["lemma"]))
-                connection.execute(
-                    "UPDATE acquired_concepts SET features_json=?,native_gloss=?,updated_epoch=? "
-                    "WHERE concept_id=?",
-                    (json.dumps(features), self._native_gloss(
-                        str(row["lemma"]), str(row["reference_definition"]), features,
-                    ), time.time(), row["concept_id"]),
-                )
+        prepared = []
+        for row in rows:
+            features = _clean_features(str(row["reference_definition"]), str(row["lemma"]))
+            prepared.append((
+                json.dumps(features),
+                self._native_gloss(
+                    str(row["lemma"]), str(row["reference_definition"]), features,
+                ),
+                time.time(), row["concept_id"],
+            ))
+        if prepared:
+            with self._connect() as connection:
+                for values in prepared:
+                    connection.execute(
+                        "UPDATE acquired_concepts SET features_json=?,native_gloss=?,updated_epoch=? "
+                        "WHERE concept_id=?",
+                        values,
+                    )
+        return len(rows)
 
     def _native_gloss(self, lemma: str, definition: str, features: Sequence[str]) -> str:
         # Stored as AION's inspectable concept statement.  It is assembled from
@@ -433,6 +448,10 @@ class NativeWordwallLearning:
         self, *, limit: int = 12, preferred_lemmas: Sequence[str] = (),
         teacher_lesson_id: str = "",
     ) -> dict[str, Any]:
+        # Old capsules are upgraded incrementally; a one-off unbounded repair
+        # used to hold the removable-media write lock long enough to stall the
+        # reader, teacher and dashboard together.
+        self._repair_grounded_capsules(limit=max(8, min(32, int(limit) * 2)))
         authority = dict(self.lexical.authority_provider())
         if not authority.get("allow_learn"):
             return {"status": "blocked", "authority": authority, "model_used": False}

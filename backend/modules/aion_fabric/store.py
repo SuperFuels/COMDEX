@@ -5,6 +5,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, Iterable
 
+from backend.modules.local_node.private_sqlite import connect_private_sqlite
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
 from .contracts import CapabilityCapsule, DeviceProfile, EnrollmentState, NodeRecord, NodeRole
 from .delta import DeltaPacket, GlyphDeltaStream, apply_state_delta
@@ -13,6 +15,16 @@ from .field_operator import FieldActionProposal
 from .schema import ControlSurface, DeviceSchema, DocumentationArtifact
 from .probe import ReadOnlyProbeReceipt
 from .webos import WebOsActionReceipt, WebOsIntegrationReceipt, WebOsPairingReceipt
+
+
+class _ClosingSQLiteConnection(sqlite3.Connection):
+    """Commit or roll back a context-managed connection, then close its file handles."""
+
+    def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> bool:
+        try:
+            return bool(super().__exit__(exc_type, exc_value, traceback))
+        finally:
+            self.close()
 
 
 class FabricStore:
@@ -38,7 +50,11 @@ class FabricStore:
         self._initialize()
 
     def connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.path, timeout=30.0)
+        connection = connect_private_sqlite(
+            self.path,
+            timeout=30.0,
+            factory=_ClosingSQLiteConnection,
+        )
         connection.row_factory = sqlite3.Row
         return connection
 

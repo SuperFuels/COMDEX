@@ -10,7 +10,7 @@ const ESCROW_CONTRACT_ADDRESS = '0xC4e695966B04fB8ee57d09Fa39A81a8b9582279b'
  * Returns an instance of the escrow contract
  */
 export function getEscrowContract(
-  signerOrProvider: ethers.Signer | ethers.providers.Provider
+  signerOrProvider: ethers.Signer | ethers.Provider
 ): ethers.Contract {
   return new ethers.Contract(
     ESCROW_CONTRACT_ADDRESS,
@@ -24,10 +24,12 @@ export function getEscrowContract(
  */
 export async function releaseToSeller(
   signer: ethers.Signer
-): Promise<ethers.ContractReceipt> {
+): Promise<ethers.ContractTransactionReceipt> {
   const contract = getEscrowContract(signer)
   const tx = await contract.releaseToSeller()
-  return tx.wait()
+  const receipt = await tx.wait()
+  if (!receipt) throw new Error('Transaction was not mined')
+  return receipt
 }
 
 /**
@@ -35,18 +37,20 @@ export async function releaseToSeller(
  */
 export async function refundToBuyer(
   signer: ethers.Signer
-): Promise<ethers.ContractReceipt> {
+): Promise<ethers.ContractTransactionReceipt> {
   const contract = getEscrowContract(signer)
   const tx = await contract.refundToBuyer()
-  return tx.wait()
+  const receipt = await tx.wait()
+  if (!receipt) throw new Error('Transaction was not mined')
+  return receipt
 }
 
 /**
  * Anyone can view current balance of the escrow contract
  */
 export async function getEscrowBalance(
-  provider: ethers.providers.Provider
-): Promise<ethers.BigNumber> {
+  provider: ethers.Provider
+): Promise<bigint> {
   const contract = getEscrowContract(provider)
   return contract.getBalance()
 }

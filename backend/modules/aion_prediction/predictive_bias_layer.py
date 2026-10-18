@@ -15,7 +15,7 @@ Outputs:
   - data/prediction/temporal_model.json
 """
 
-import os, json, math, random, time
+import os, json, math, random, time, uuid
 from pathlib import Path
 from collections import deque, defaultdict, Counter
 from typing import Dict, List, Tuple
@@ -25,28 +25,46 @@ from itertools import islice
 # ─────────────────────────────────────────────
 
 from backend.modules.aion_prediction.temporal_coherence_memory import TemporalCoherenceMemory
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 # ─────────────────────────────────────────────
 # Setup directories
 # ─────────────────────────────────────────────
 DATA_DIR = Path("data")
 ANALYSIS_DIR = DATA_DIR / "analysis"
-PRED_DIR = DATA_DIR / "prediction"; PRED_DIR.mkdir(parents=True, exist_ok=True)
-PB_DIR = DATA_DIR / "predictive"; PB_DIR.mkdir(parents=True, exist_ok=True)
+PRED_DIR = DATA_DIR / "prediction"
+PB_DIR = DATA_DIR / "predictive"
 
 EVENTS_PATH = ANALYSIS_DIR / "pal_events.jsonl"
 MODEL_PATH = PRED_DIR / "temporal_model.json"
 STATE_PATH = PB_DIR / "predictive_bias_state.json"
 LOG_PATH = PB_DIR / "predictive_transitions.jsonl"
 
-# Ensure directories exist
-for path in [DATA_DIR, ANALYSIS_DIR, PRED_DIR, PB_DIR]:
-    path.mkdir(parents=True, exist_ok=True)
 # ─────────────────────────────────────────────
 # Predictive Bias Core
 # ─────────────────────────────────────────────
 class PredictiveBias:
-    def __init__(self, window_size: int = 5):
+    def __init__(
+        self,
+        window_size: int = 5,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+        events_path: str | Path | None = None,
+        model_path: str | Path | None = None,
+        state_path: str | Path | None = None,
+        log_path: str | Path | None = None,
+    ):
         self.window_size = window_size
+        explicit_paths = any(
+            path is not None
+            for path in (events_path, model_path, state_path, log_path)
+        )
+        self.vault_store = vault_store or AionLearningVaultStore(
+            auto_configure=not explicit_paths
+        )
+        self.events_path = Path(events_path or EVENTS_PATH)
+        self.model_path = Path(model_path or MODEL_PATH)
+        self.state_path = Path(state_path or STATE_PATH)
+        self.log_path = Path(log_path or LOG_PATH)
         self.sequence_buffer = deque(maxlen=window_size)
         self.transitions: Dict[Tuple[str, str], float] = defaultdict(float)
         self.counts: Dict[Tuple[str, str], int] = defaultdict(int)   # 👈 ADD THIS LINE
@@ -54,7 +72,24 @@ class PredictiveBias:
         self.prediction_confidence: float = 0.0
         self.last_prediction: str = None
         self.last_symbol: str = None
-        self.tcm = TemporalCoherenceMemory(window_size=window_size)
+        self.tcm = TemporalCoherenceMemory(
+            window_size=window_size,
+            vault_store=self.vault_store,
+            model_path=self.model_path,
+        )
+
+    def _append_prediction_event(self, event_type: str, payload: dict) -> None:
+        row = dict(payload)
+        row.setdefault("timestamp", time.time())
+        row["event_type"] = event_type
+        if self.vault_store.enabled:
+            event_id = f"{event_type}-{uuid.uuid4()}"
+            row["event_id"] = event_id
+            self.vault_store.append_event(event_id, row)
+            return
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.log_path, "a") as f:
+            f.write(json.dumps(row) + "\n")
 
     # ─────────────────────────────────────────────
     # Observe event stream (Markov learning)
@@ -67,8 +102,9 @@ class PredictiveBias:
 
     from itertools import islice
 
-    def train_from_events(self, path=EVENTS_PATH, keep_last=10000):
+    def train_from_events(self, path=None, keep_last=10000):
         """Train transition graph from PAL event log (adaptive streaming; keeps only last N events)."""
+        path = Path(path or self.events_path)
         if not path.exists():
             print(f"⚠️ No PAL events found at {path}")
             return
@@ -133,14 +169,10 @@ class PredictiveBias:
         self.counts: Dict[Tuple[str, str], int] = defaultdict(int)
         self.counts[key] += 1
 
-        # Log the update to predictive_transitions.jsonl
-        with open(LOG_PATH, "a") as f:
-            f.write(json.dumps({
-                "prev": prev_symbol,
-                "next": next_symbol,
-                "reward": reward,
-                "timestamp": time.time()
-            }) + "\n")
+        self._append_prediction_event(
+            "predictive_transition",
+            {"prev": prev_symbol, "next": next_symbol, "reward": reward},
+        )
 
         # Optional diagnostic output
         if getattr(self, "verbose", False):
@@ -198,15 +230,16 @@ class PredictiveBias:
         # Temporal feedback logging
         # ─────────────────────────────────────────────
         try:
-            with open(LOG_PATH, "a") as f:
-                f.write(json.dumps({
-                    "timestamp": time.time(),
+            self._append_prediction_event(
+                "predictive_evaluation",
+                {
                     "predicted": self.last_prediction,
                     "actual": actual_choice,
                     "temporal_pred": getattr(self.tcm, "last_prediction", None),
                     "success": success,
-                    "confidence": self.prediction_confidence
-                }) + "\n")
+                    "confidence": self.prediction_confidence,
+                },
+            )
         except Exception as e:
             print(f"⚠️ Failed to log predictive result: {e}")
 
@@ -229,8 +262,13 @@ class PredictiveBias:
     # ─────────────────────────────────────────────
     # Save temporal model (Markov graph)
     # ─────────────────────────────────────────────
-    def save_temporal_model(self, path=MODEL_PATH):
+    def save_temporal_model(self, path=None):
         out = {k: dict(v) for k, v in self.markov_graph.items()}
+        if self.vault_store.enabled and path is None:
+            self.vault_store.put_state("predictive_temporal_model", {"markov_graph": out})
+            return
+        path = Path(path or self.model_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w") as f:
             json.dump(out, f, indent=2)
         print(f"🧮 Temporal model saved -> {path}")
@@ -254,15 +292,25 @@ class PredictiveBias:
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         }
 
-        # Persist to disk
-        with open(STATE_PATH, "w") as f:
-            json.dump(data, f, indent=2)
+        if self.vault_store.enabled:
+            self.vault_store.put_state("predictive_bias_state", data)
+        else:
+            self.state_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.state_path, "w") as f:
+                json.dump(data, f, indent=2)
 
-        print(f"💾 PredictiveBias saved -> {STATE_PATH.name} ({len(self.transitions)} transitions)")
+        location = "vault://learning.customer_state/predictive_bias_state" if self.vault_store.enabled else self.state_path.name
+        print(f"💾 PredictiveBias saved -> {location} ({len(self.transitions)} transitions)")
 
     def load_state(self):
         """Load predictive bias state safely with tuple-key decoding and auto-heal."""
-        if not STATE_PATH.exists():
+        if self.vault_store.enabled:
+            data = self.vault_store.get_state("predictive_bias_state", None)
+            if data is None:
+                print("⚠️ No predictive state found - creating fresh baseline.")
+                self.save_state()
+                return
+        elif not self.state_path.exists():
             print("⚠️ No predictive state found - creating fresh baseline.")
             self.save_state()
             return
@@ -276,8 +324,9 @@ class PredictiveBias:
             return out
 
         try:
-            with open(STATE_PATH, "r") as f:
-                data = json.load(f)
+            if not self.vault_store.enabled:
+                with open(self.state_path, "r") as f:
+                    data = json.load(f)
 
             self.window_size = data.get("window_size", self.window_size)
             self.transitions = _decode_keys(data.get("transitions", {}))
@@ -288,9 +337,10 @@ class PredictiveBias:
 
         except json.JSONDecodeError as e:
             print(f"⚠️ Corrupted predictive_bias_state.json detected: {e}")
-            backup = STATE_PATH.with_suffix(".corrupt.json")
-            STATE_PATH.rename(backup)
-            print(f"🩹 Backup saved -> {backup.name}, regenerating fresh state...")
+            if not self.vault_store.enabled:
+                backup = self.state_path.with_suffix(".corrupt.json")
+                self.state_path.rename(backup)
+                print(f"🩹 Backup saved -> {backup.name}, regenerating fresh state...")
             self.save_state()
         except Exception as e:
             print(f"⚠️ Unexpected error loading predictive state: {e}")

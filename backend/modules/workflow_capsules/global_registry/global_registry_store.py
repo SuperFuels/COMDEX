@@ -3,7 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 import json
+import os
 import re
+
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_agents.runtime.vault_repository_backend import (
+    AgentVaultRepositoryBackend,
+    configured_agent_domain_store,
+)
 
 from backend.modules.workflow_capsules.global_registry.industry_pack_schema import (
     IndustryWorkflowPack,
@@ -37,10 +44,58 @@ class GlobalWorkflowRegistryStore:
         self,
         *,
         global_root: Union[str, Path] = "data/workflow_capsules/global_registry",
-        local_root: Union[str, Path] = ".runtime/workflow_capsules/local_bindings",
+        local_root: Union[str, Path, None] = None,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
     ) -> None:
         self.global_root = Path(global_root)
-        self.local_root = Path(local_root)
+        self.local_root = Path(
+            local_root or ".runtime/workflow_capsules/local_bindings"
+        )
+        store = domain_store or (
+            configured_agent_domain_store() if local_root is None else None
+        )
+        self.vault = (
+            AgentVaultRepositoryBackend(
+                store,
+                kind="workflow_capsule_local_bindings",
+            )
+            if store
+            else None
+        )
+        self.workspace_id = str(
+            workspace_id
+            or os.environ.get("TESSARIS_BUSINESS_STABLE_ID")
+            or ""
+        ).strip()
+        if self.vault is not None and not self.workspace_id:
+            raise ValueError("workflow_capsule_local_binding_workspace_id_required")
+
+    @staticmethod
+    def _binding_from_data(data: Dict[str, object]) -> LocalWorkflowBinding:
+        return LocalWorkflowBinding(
+            binding_key=str(data.get("binding_key") or ""),
+            workspace_id=str(data.get("workspace_id") or ""),
+            business_id=str(data.get("business_id") or ""),
+            pattern_key=str(data.get("pattern_key") or ""),
+            workflow_canonical_key=str(data.get("workflow_canonical_key") or ""),
+            connector_bindings=dict(data.get("connector_bindings") or {}),
+            vault_bindings=dict(data.get("vault_bindings") or {}),
+            business_context=dict(data.get("business_context") or {}),
+            enabled=bool(data.get("enabled") is True),
+            meta=dict(data.get("meta") or {}),
+        )
+
+    @staticmethod
+    def _binding_item_id(binding_key: str) -> str:
+        return _safe_filename(binding_key)
+
+    def _vault_binding_path(self, binding_key: str) -> str:
+        return (
+            "vault://train_agent.automations/"
+            "workflow_capsule_local_bindings/"
+            + self._binding_item_id(binding_key)
+        )
 
     @property
     def industry_pack_root(self) -> Path:
@@ -163,6 +218,35 @@ class GlobalWorkflowRegistryStore:
         overwrite: bool = True,
     ) -> Dict[str, object]:
         binding.finalize()
+        if self.vault is not None:
+            if binding.workspace_id != self.workspace_id:
+                raise ValueError("workflow_capsule_local_binding_workspace_mismatch")
+            item_id = self._binding_item_id(binding.binding_key)
+            if not overwrite and self.vault.exists(
+                workspace_id=self.workspace_id,
+                item_id=item_id,
+            ):
+                return {
+                    "ok": False,
+                    "reason": "local_binding_already_exists",
+                    "binding_key": binding.binding_key,
+                    "path": self._vault_binding_path(binding.binding_key),
+                }
+            self.vault.put(
+                workspace_id=self.workspace_id,
+                item_id=item_id,
+                payload=binding.to_dict(),
+            )
+            return {
+                "ok": True,
+                "binding_key": binding.binding_key,
+                "workspace_id": binding.workspace_id,
+                "business_id": binding.business_id,
+                "pattern_key": binding.pattern_key,
+                "workflow_canonical_key": binding.workflow_canonical_key,
+                "path": self._vault_binding_path(binding.binding_key),
+                "checksum": binding.meta.get("checksum"),
+            }
         path = self.local_binding_path(binding.binding_key)
 
         if path.exists() and not overwrite:
@@ -191,23 +275,18 @@ class GlobalWorkflowRegistryStore:
         }
 
     def load_local_binding(self, binding_key: str) -> Optional[LocalWorkflowBinding]:
+        if self.vault is not None:
+            data = self.vault.get(
+                workspace_id=self.workspace_id,
+                item_id=self._binding_item_id(binding_key),
+            )
+            return self._binding_from_data(data) if data is not None else None
         path = self.local_binding_path(binding_key)
         if not path.exists():
             return None
 
         data = json.loads(path.read_text(encoding="utf-8"))
-        return LocalWorkflowBinding(
-            binding_key=str(data.get("binding_key") or ""),
-            workspace_id=str(data.get("workspace_id") or ""),
-            business_id=str(data.get("business_id") or ""),
-            pattern_key=str(data.get("pattern_key") or ""),
-            workflow_canonical_key=str(data.get("workflow_canonical_key") or ""),
-            connector_bindings=dict(data.get("connector_bindings") or {}),
-            vault_bindings=dict(data.get("vault_bindings") or {}),
-            business_context=dict(data.get("business_context") or {}),
-            enabled=bool(data.get("enabled") is True),
-            meta=dict(data.get("meta") or {}),
-        )
+        return self._binding_from_data(data)
 
     def require_local_binding(self, binding_key: str) -> LocalWorkflowBinding:
         binding = self.load_local_binding(binding_key)
@@ -221,14 +300,27 @@ class GlobalWorkflowRegistryStore:
         workspace_id: Optional[str] = None,
         business_id: Optional[str] = None,
     ) -> List[Dict[str, object]]:
-        if not self.local_binding_root.exists():
-            return []
-
         rows: List[Dict[str, object]] = []
-        for path in sorted(self.local_binding_root.glob("*.json")):
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
+        if self.vault is not None:
+            selected_workspace = str(workspace_id or self.workspace_id)
+            if selected_workspace != self.workspace_id:
+                return []
+            sources = [
+                (data, self._vault_binding_path(str(data.get("binding_key") or "")))
+                for data in self.vault.list(workspace_id=self.workspace_id)
+            ]
+        else:
+            if not self.local_binding_root.exists():
+                return []
+            sources = []
+            for path in sorted(self.local_binding_root.glob("*.json")):
+                try:
+                    sources.append((json.loads(path.read_text(encoding="utf-8")), str(path)))
+                except Exception as exc:
+                    rows.append({"ok": False, "path": str(path), "error": str(exc)})
 
+        for data, source_path in sources:
+            try:
                 if workspace_id and data.get("workspace_id") != workspace_id:
                     continue
                 if business_id and data.get("business_id") != business_id:
@@ -243,11 +335,11 @@ class GlobalWorkflowRegistryStore:
                         "pattern_key": data.get("pattern_key"),
                         "workflow_canonical_key": data.get("workflow_canonical_key"),
                         "enabled": data.get("enabled") is True,
-                        "path": str(path),
+                        "path": source_path,
                         "checksum": (data.get("meta") or {}).get("checksum"),
                     }
                 )
             except Exception as exc:
-                rows.append({"ok": False, "path": str(path), "error": str(exc)})
+                rows.append({"ok": False, "path": source_path, "error": str(exc)})
 
         return rows

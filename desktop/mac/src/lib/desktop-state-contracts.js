@@ -1,7 +1,9 @@
 (function (global) {
   var DEFAULT_API_BASE = "http://127.0.0.1:8080";
   var DEFAULT_WEB_BASE = "http://127.0.0.1:3000";
-  var DEFAULT_WORKSPACE_ID = "costa-conexion";
+  // A clean installation has no business authority until onboarding creates
+  // one. Never bind a new customer to a demo or developer workspace.
+  var DEFAULT_WORKSPACE_ID = "business-not-registered";
   var DEFAULT_NODE_ID = "node_mac_local_01";
 
   var LIVE_AGENTS_VIEWS = {

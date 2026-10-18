@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sqlite3
 from pathlib import Path
 from typing import Any
 
@@ -41,10 +42,23 @@ FAMILY_SUBSKILLS: dict[str, tuple[str, ...]] = {
     ),
 }
 
+# A single fixed family per requirement kind made the progressive ledger stop
+# after the first successful knowledge test.  These are genuinely different
+# closed-book slices (different offsets and task material), retained as a
+# finite portfolio so repeated execution can never manufacture competence.
+NON_PROJECT_VARIANTS = ("a", "b", "c", "d", "e", "f")
+NON_PROJECT_KINDS = (
+    "lesson", "knowledge_test", "exercise", "debugging", "transfer", "retention",
+)
+
 
 def _version() -> str:
-    return "native_english_portfolio_v2_" + hashlib.sha256(
-        json.dumps(FAMILIES, sort_keys=True).encode("utf-8")
+    return "native_english_portfolio_v3_" + hashlib.sha256(
+        json.dumps({
+            "projects": FAMILIES,
+            "subskills": FAMILY_SUBSKILLS,
+            "non_project_variants": NON_PROJECT_VARIANTS,
+        }, sort_keys=True).encode("utf-8")
     ).hexdigest()[:12]
 
 
@@ -58,7 +72,7 @@ def native_english_runner(contract: dict[str, Any], evidence: list[dict[str, Any
         selected = next((row for row in FAMILIES if row[0] not in used), None)
         if selected is None:
             return {"status": "diverse_project_executor_required", "passed": False,
-                    "reason": "Native English closed-book portfolio v2 is exhausted."}
+                    "reason": "Native English closed-book project portfolio is exhausted."}
         family_id, task_family, offset, subskills = selected
     else:
         priority = (
@@ -69,18 +83,47 @@ def native_english_runner(contract: dict[str, Any], evidence: list[dict[str, Any
             "mixed"
         )
         task_family = priority
-        offset = 3101 + len(evidence) * 37
         subskills = FAMILY_SUBSKILLS[task_family]
-        family_id = f"native_english_{kind}_{task_family}_v2"
-        if family_id in used:
+        candidates = [
+            f"native_english_{kind}_{task_family}_v3_{variant}"
+            for variant in NON_PROJECT_VARIANTS
+        ]
+        family_id = next((candidate for candidate in candidates if candidate not in used), None)
+        if family_id is None:
             return {"status": "diverse_project_executor_required", "passed": False,
-                    "reason": f"Native English {kind} family {family_id} is already evidenced."}
+                    "reason": (
+                        f"Native English {kind} portfolio for {task_family} is exhausted; "
+                        "a new source-disjoint portfolio version is required."
+                    )}
+        variant_index = candidates.index(family_id)
+        family_index = list(FAMILY_SUBSKILLS).index(task_family)
+        kind_index = NON_PROJECT_KINDS.index(kind) if kind in NON_PROJECT_KINDS else 0
+        offset = 3101 + family_index * 1009 + kind_index * 211 + variant_index * 37
     root = Path(str(contract.get("_repo_root") or Path.cwd())).resolve()
-    learner = NativeLexicalIntelligence(repo_root=root)
-    outcome = learner.run_practice_cycle(
-        family=task_family, limit=20, seed=offset, offset=offset,
-        project_family=family_id,
-    )
+    # The progressive scheduler must rotate rather than wait minutes behind a
+    # reader or teacher transaction. The same contract remains open and is
+    # retried; no sealed family is consumed while the store is occupied.
+    learner = NativeLexicalIntelligence(repo_root=root, gate_timeout=5.0)
+    try:
+        outcome = learner.run_practice_cycle(
+            family=task_family, limit=20, seed=offset, offset=offset,
+            project_family=family_id,
+        )
+    except sqlite3.OperationalError as exc:
+        detail = str(exc).lower()
+        if not any(marker in detail for marker in ("locked", "busy", "gate timed out")):
+            raise
+        # The reader, spider and English academies legitimately share the
+        # removable learning store. Contention is not evidence of failure and
+        # must not consume the sealed family or block the whole subject.
+        return {
+            "status": "learning_store_busy",
+            "passed": False,
+            "reason": "Native English learning store is busy; keep this contract open and retry it.",
+            "retryable": True,
+            "project_family": family_id,
+            "portfolio_version": _version(),
+        }
     requires_source_disjoint = kind in {"project", "transfer"}
     accepted = bool(
         outcome["total"] >= 12 and outcome["score"] >= .75
@@ -116,20 +159,14 @@ def native_english_runner(contract: dict[str, Any], evidence: list[dict[str, Any
 native_english_runner.aion_portfolio_version = _version()  # type: ignore[attr-defined]
 native_english_runner.aion_portfolio_families = {  # type: ignore[attr-defined]
     "project": frozenset(row[0] for row in FAMILIES),
-    "lesson": frozenset({
-        "native_english_lesson_definition_match_v2",
-        "native_english_lesson_synonym_choice_v2",
-        "native_english_lesson_sentence_semantics_v2",
-        "native_english_lesson_discourse_reasoning_v2",
-        "native_english_lesson_mixed_v2",
-    }),
-    "exercise": frozenset({
-        "native_english_exercise_definition_match_v2",
-        "native_english_exercise_synonym_choice_v2",
-        "native_english_exercise_sentence_semantics_v2",
-        "native_english_exercise_discourse_reasoning_v2",
-        "native_english_exercise_mixed_v2",
-    }),
+    **{
+        kind: frozenset(
+            f"native_english_{kind}_{family}_v3_{variant}"
+            for family in FAMILY_SUBSKILLS
+            for variant in NON_PROJECT_VARIANTS
+        )
+        for kind in NON_PROJECT_KINDS
+    },
 }
 
 

@@ -9,11 +9,19 @@ const {
   systemPreferences,
   dialog,
   screen,
+  ShareMenu,
+  safeStorage,
 } = require("electron");
+
+// Preserve the immutable launch environment before any compatibility module
+// can load a developer dotenv file or otherwise alter process.env. Discovery
+// custody values must reach the managed backend exactly as launched.
+const TESSARIS_DESKTOP_LAUNCH_ENV = { ...process.env };
 
 // AION O25N desktop backend local voice env lock
 function aionO25NLocalVoiceBackendEnv() {
   return {
+    ...TESSARIS_DESKTOP_LAUNCH_ENV,
     ...process.env,
     PYTHONPATH: process.env.PYTHONPATH || process.cwd(),
     AION_VOICE_WORKER_ENABLED: "true",
@@ -56,6 +64,22 @@ const { spawn } = require("child_process");
 const http = require("http");
 const net = require("net");
 const { pathToFileURL } = require("url");
+const { createPhotonBillingBroker, PhotonBillingBrokerError } = require("./photon-billing-broker");
+const { createPhotonSecureSessionStore } = require("./photon-secure-session-store");
+const {
+  createBusinessVaultSecureConfigStore,
+  matchesCustodyAttestation,
+} = require("./business-vault-secure-config-store");
+const {
+  createBusinessDataDiscoveryController,
+} = require("./business-data-discovery-controller");
+const {
+  resolveDiscoveryAutostart,
+  resolveDesktopRuntimeConfiguration,
+} = require("./desktop-runtime-config");
+const {
+  createProviderAuthorityQualificationStore,
+} = require("./provider-authority-qualification-store");
 
 let mainWindow = null;
 let sentinelWindow = null;
@@ -84,13 +108,23 @@ let mainWindowStateWriteTimer = null;
 // development copy as distinct launchable applications. Electron's standard
 // lock is bundle-scoped in that case, so both copies can otherwise appear in
 // the Dock at once. This shared PID lock is deliberately outside either bundle.
-const TESSARIS_DESKTOP_INSTANCE_PATH = path.join(
+const DEFAULT_TESSARIS_DESKTOP_INSTANCE_PATH = path.join(
   os.homedir(),
   "Library",
   "Application Support",
   "Tessaris",
   "desktop-instance.pid",
 );
+const DESKTOP_RUNTIME_CONFIGURATION = resolveDesktopRuntimeConfiguration(
+  process.env,
+  DEFAULT_TESSARIS_DESKTOP_INSTANCE_PATH,
+);
+const DESKTOP_DISCOVERY_AUTOSTART = resolveDiscoveryAutostart(process.env);
+if (DESKTOP_RUNTIME_CONFIGURATION.userDataPath) {
+  app.setPath("userData", DESKTOP_RUNTIME_CONFIGURATION.userDataPath);
+}
+const TESSARIS_DESKTOP_INSTANCE_PATH =
+  DESKTOP_RUNTIME_CONFIGURATION.instanceLockPath;
 
 function isTessarisProcessAlive(pid) {
   if (!Number.isInteger(pid) || pid <= 0) return false;
@@ -159,9 +193,46 @@ app.on("second-instance", () => {
 
 const DEV_PROJECT_ROOT = "/Users/kevinrobinson/dev/COMDEX";
 const BACKEND_HOST = "127.0.0.1";
-const BACKEND_PORT = 8080;
+const BACKEND_PORT = DESKTOP_RUNTIME_CONFIGURATION.backendPort;
 const BACKEND_HEALTH_PATH = "/health";
 const BACKEND_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}${BACKEND_HEALTH_PATH}`;
+const PHOTON_SESSION_PATH = process.env.TESSARIS_PHOTON_SESSION_PATH || "";
+function discoveryPhotonAuthorityPublicKeyPath() {
+  if (!DESKTOP_RUNTIME_CONFIGURATION.discoveryMode) return "";
+  try {
+    const roots = JSON.parse(process.env.TESSARIS_DISCOVERY_SECRET_STORE_ROOTS || "[]");
+    if (!Array.isArray(roots) || !roots[0]) return "";
+    return path.join(
+      path.resolve(String(roots[0])), "photon-qualification", "keys",
+      "wallet-authority-public.pem",
+    );
+  } catch {
+    return "";
+  }
+}
+const PHOTON_AUTHORITY_PUBLIC_KEY_PATH = process.env.TESSARIS_PHOTON_AUTHORITY_PUBLIC_KEY_PATH
+  || discoveryPhotonAuthorityPublicKeyPath();
+const BUSINESS_VAULT_SECURE_CONFIG_PATH = process.env.TESSARIS_BUSINESS_VAULT_SECURE_CONFIG_PATH
+  || path.join(os.homedir(), ".tessaris", "security", "business-vault-bootstrap.enc.json");
+if (DESKTOP_RUNTIME_CONFIGURATION.discoveryMode
+    && !process.env.TESSARIS_BUSINESS_VAULT_SECURE_CONFIG_PATH) {
+  throw new Error("desktop_discovery_business_vault_secure_config_required");
+}
+const businessVaultSecureConfigStore = createBusinessVaultSecureConfigStore({
+  safeStorage,
+  filePath: BUSINESS_VAULT_SECURE_CONFIG_PATH,
+});
+const photonSecureSessionStore = createPhotonSecureSessionStore({
+  safeStorage,
+  filePath: path.join(os.homedir(), ".tessaris", "security", "photon-desktop-session.enc.json"),
+});
+const photonBillingBroker = createPhotonBillingBroker({
+  sessionPath: PHOTON_SESSION_PATH,
+  sessionLoader: PHOTON_SESSION_PATH ? null : () => photonSecureSessionStore.load(),
+  authorityPublicKeyPath: PHOTON_AUTHORITY_PUBLIC_KEY_PATH,
+  allowLoopback: process.env.TESSARIS_PHOTON_ALLOW_LOOPBACK === "1",
+});
+const REQUIRED_DESKTOP_BACKEND_CONTRACT = 2;
 const PILOT_HOST = "127.0.0.1";
 const PILOT_PORT = 8765;
 const PILOT_DASHBOARD_URL = `http://${PILOT_HOST}:${PILOT_PORT}/`;
@@ -184,6 +255,117 @@ const APPLICATION_ACCOUNT_DESCRIPTOR_PATH = path.join(
     || path.join(os.homedir(), ".tessaris", "security", "application-account-recovery"),
   "account-descriptor.json",
 );
+
+function createDesktopBusinessDataDiscoveryController() {
+  if (process.env.TESSARIS_DISCOVERY_MODE !== "1") return null;
+  let vaultRoots;
+  try {
+    vaultRoots = JSON.parse(process.env.TESSARIS_DISCOVERY_VAULT_ROOTS || "[]");
+  } catch {
+    throw new Error("discovery_vault_roots_invalid");
+  }
+  if (!Array.isArray(vaultRoots) || vaultRoots.length === 0) {
+    throw new Error("discovery_vault_roots_required");
+  }
+  let secretStoreRoots;
+  try {
+    secretStoreRoots = JSON.parse(process.env.TESSARIS_DISCOVERY_SECRET_STORE_ROOTS || "[]");
+  } catch {
+    throw new Error("discovery_secret_store_roots_invalid");
+  }
+  if (!Array.isArray(secretStoreRoots)) throw new Error("discovery_secret_store_roots_invalid");
+  return createBusinessDataDiscoveryController({
+    manifestPath: process.env.TESSARIS_DISCOVERY_MANIFEST_PATH,
+    scenarioCataloguePath: process.env.TESSARIS_DISCOVERY_SCENARIO_CATALOGUE_PATH,
+    traceRoot: process.env.TESSARIS_DISCOVERY_TRACE_ROOT,
+    sourceRoot: process.env.TESSARIS_DISCOVERY_SOURCE_ROOT,
+    applicationRoot: process.env.TESSARIS_DISCOVERY_APPLICATION_ROOT,
+    updateRoot: process.env.TESSARIS_DISCOVERY_UPDATE_ROOT,
+    vaultRoots,
+    secretStoreRoots,
+    pathFingerprintKey: Buffer.from(
+      process.env.TESSARIS_DISCOVERY_FINGERPRINT_KEY_BASE64 || "",
+      "base64",
+    ),
+    controlToken: process.env.TESSARIS_DISCOVERY_CONTROL_TOKEN,
+    surface: "electron_main",
+    maxEvents: Number.parseInt(process.env.TESSARIS_DISCOVERY_MAX_EVENTS || "100000", 10),
+    externalClassProbe: ({ sessionId, expectedClasses }) => {
+      if (expectedClasses.includes("secret_store")
+          && !businessVaultSecureConfigStore.load()) {
+        throw new Error("discovery_business_vault_secret_store_not_provisioned");
+      }
+      if (sessionId === "billing-photon") {
+        const allowed = new Set([
+          "billing_control_plane", "provider_api", "secret_store", "customer_export",
+        ]);
+        if (expectedClasses.some((item) => !allowed.has(item))) {
+          throw new Error("discovery_photon_external_class_unexpected");
+        }
+        // These are discovery capabilities, not claims of successful I/O.
+        // The provider-sandbox fragment separately records each exercised
+        // interaction and the aggregate gate requires both surfaces.
+        return [...expectedClasses];
+      }
+      if (sessionId === "logs-diagnostics-support"
+          && expectedClasses.length === 1
+          && expectedClasses[0] === "customer_export") {
+        return ["customer_export"];
+      }
+      if (sessionId === "retention-closure") {
+        const allowed = new Set(["customer_export", "backup_destination"]);
+        if (expectedClasses.some((item) => !allowed.has(item))) {
+          throw new Error("discovery_retention_closure_external_class_unexpected");
+        }
+        return [...expectedClasses];
+      }
+      return expectedClasses.includes("secret_store") ? ["secret_store"] : [];
+    },
+  });
+}
+
+const desktopBusinessDataDiscoveryController = createDesktopBusinessDataDiscoveryController();
+const desktopBusinessDataDiscoveryToken = process.env.TESSARIS_DISCOVERY_CONTROL_TOKEN || "";
+const desktopProviderAuthorityQualificationStore = process.env.TESSARIS_DISCOVERY_MODE === "1"
+  ? createProviderAuthorityQualificationStore({
+      safeStorage,
+      root: JSON.parse(process.env.TESSARIS_DISCOVERY_SECRET_STORE_ROOTS || "[]")[0],
+    })
+  : null;
+
+function businessVaultBootstrapConfig() {
+  return businessVaultSecureConfigStore.loadOrProvision({
+    defaultVaultBase: process.env.TESSARIS_BUSINESS_VAULT_BASE_PATH
+      || path.join(os.homedir(), "Tessaris Businesses"),
+  });
+}
+
+function businessVaultBackendEnvironment(projectRoot) {
+  const config = businessVaultBootstrapConfig();
+  return {
+    TESSARIS_BUSINESS_CONTAINER_BACKEND: "guardian",
+    TESSARIS_BUSINESS_VAULT_PATH: config.vault_path,
+    TESSARIS_BUSINESS_NAME: config.business_name,
+    TESSARIS_BUSINESS_STABLE_ID: config.business_stable_id,
+    TESSARIS_BUSINESS_VAULT_KEY_B64: config.vault_key_b64,
+    TESSARIS_APPLICATION_ROOT: projectRoot,
+    TESSARIS_UPDATE_ROOT: process.env.TESSARIS_UPDATE_ROOT
+      || path.join(app.getPath("userData"), "updates"),
+  };
+}
+
+process.on("exit", () => {
+  if (!desktopBusinessDataDiscoveryController) return;
+  try {
+    const status = desktopBusinessDataDiscoveryController.status({ token: desktopBusinessDataDiscoveryToken });
+    if (status.active) {
+      desktopBusinessDataDiscoveryController.stop({
+        token: desktopBusinessDataDiscoveryToken,
+        scenarioCompleted: false,
+      });
+    }
+  } catch {}
+});
 
 function pilotRequestJson(requestPath, { method = "GET", body = null, timeoutMs = 1800 } = {}) {
   return new Promise((resolve, reject) => {
@@ -469,7 +651,7 @@ async function runPilotControl(action = "") {
   return { ok: true, result, status: await getPilotControlStatus() };
 }
 
-const AION_CUSTOM_DEPARTMENT_WORKSPACE_ID = process.env.TESSARIS_FOUNDER_WORKSPACE_ID || "costa-conexion";
+const AION_CUSTOM_DEPARTMENT_WORKSPACE_ID = process.env.TESSARIS_FOUNDER_WORKSPACE_ID || "business-not-registered";
 function normalizeAionCustomDepartmentWorkspaceId(value = "") {
   const workspaceId = String(value || AION_CUSTOM_DEPARTMENT_WORKSPACE_ID).trim().toLowerCase();
   return /^[a-z0-9][a-z0-9_.-]{0,119}$/.test(workspaceId)
@@ -477,35 +659,29 @@ function normalizeAionCustomDepartmentWorkspaceId(value = "") {
     : AION_CUSTOM_DEPARTMENT_WORKSPACE_ID;
 }
 
-function readAionCustomDepartments(workspaceId = AION_CUSTOM_DEPARTMENT_WORKSPACE_ID) {
+async function readAionCustomDepartments(workspaceId = AION_CUSTOM_DEPARTMENT_WORKSPACE_ID) {
   const safeWorkspaceId = normalizeAionCustomDepartmentWorkspaceId(workspaceId);
-  const departmentFile = path.join(
-    DEV_PROJECT_ROOT,
-    ".runtime",
-    "AION_BUSINESS",
-    "business_containers",
-    safeWorkspaceId,
-    "department_intelligence.json",
+  const response = await httpGet(
+    `http://${BACKEND_HOST}:${BACKEND_PORT}/api/aion/business/data/custom-departments/${encodeURIComponent(safeWorkspaceId)}`,
   );
-  try {
-    const raw = JSON.parse(fs.readFileSync(departmentFile, "utf8"));
-    const items = Array.isArray(raw?.custom_departments) ? raw.custom_departments : [];
-    return items
-      .filter((item) => item && item.core === false && typeof item.id === "string" && typeof item.name === "string")
-      .map((item) => ({
-        id: item.id,
-        name: item.name,
-        template: item.template,
-        pilot_title: item.pilot_title,
-        mandate: item.mandate,
-        parent_department_id: item.parent_department_id || item.parent_id || null,
-        core: false,
-        created_at: item.created_at,
-      }));
-  } catch (error) {
-    if (error?.code === "ENOENT") return [];
-    throw error;
+  if (response.status === 404) return [];
+  if (response.status < 200 || response.status >= 300) {
+    throw new Error(`Custom departments unavailable (HTTP ${response.status})`);
   }
+  const raw = JSON.parse(response.body || "{}");
+  const items = Array.isArray(raw?.departments) ? raw.departments : [];
+  return items
+    .filter((item) => item && item.core === false && typeof item.id === "string" && typeof item.name === "string")
+    .map((item) => ({
+      id: item.id,
+      name: item.name,
+      template: item.template,
+      pilot_title: item.pilot_title,
+      mandate: item.mandate,
+      parent_department_id: item.parent_department_id || item.parent_id || null,
+      core: false,
+      created_at: item.created_at,
+    }));
 }
 
 const SPATIAL_BOARDROOM_APP_CANDIDATES = [
@@ -570,6 +746,7 @@ function enqueueSpatialBoardroomEvent(payload = {}) {
   const event = {
     id: `${Date.now()}-${crypto.randomBytes(5).toString("hex")}`,
     type: String(payload.type || "caption").slice(0, 64),
+    mode: String(payload.mode || "").trim().toLowerCase().replace(/[^a-z_-]/g, "").slice(0, 32),
     role: String(payload.role || "").slice(0, 80),
     text: String(payload.text || "").slice(0, 1200),
     members: Array.isArray(payload.members)
@@ -900,13 +1077,65 @@ async function playAionSystemVoiceInMain(payload = {}) {
   });
 }
 
-async function isBackendHealthy() {
+async function backendHealth() {
   try {
     const res = await httpGet(BACKEND_URL);
-    return res.status >= 200 && res.status < 300;
+    let body = {};
+    try { body = JSON.parse(res.body || "{}"); } catch (_) {}
+    let custodyCompatible = false;
+    try {
+      custodyCompatible = matchesCustodyAttestation(
+        body.business_vault_custody,
+        businessVaultBootstrapConfig(),
+      );
+    } catch (_) {
+      custodyCompatible = false;
+    }
+    return {
+      responding: res.status >= 200 && res.status < 300,
+      compatible:
+        res.status >= 200 &&
+        res.status < 300 &&
+        Number(body.desktop_contract || 0) >= REQUIRED_DESKTOP_BACKEND_CONTRACT &&
+        custodyCompatible,
+      body,
+    };
   } catch (_) {
-    return false;
+    return { responding: false, compatible: false, body: {} };
   }
+}
+
+async function isBackendHealthy() {
+  return (await backendHealth()).compatible;
+}
+
+function collectProcessOutput(command, args = []) {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { stdio: ["ignore", "pipe", "ignore"] });
+    let output = "";
+    child.stdout.on("data", (chunk) => { output += chunk.toString("utf8"); });
+    child.once("error", () => resolve(""));
+    child.once("exit", () => resolve(output.trim()));
+  });
+}
+
+async function stopIncompatibleTessarisBackend() {
+  const pids = (await collectProcessOutput("/usr/sbin/lsof", [
+    "-nP", `-iTCP:${BACKEND_PORT}`, "-sTCP:LISTEN", "-t",
+  ])).split(/\s+/).map(Number).filter((value) => Number.isInteger(value) && value > 0);
+
+  for (const pid of pids) {
+    const command = await collectProcessOutput("/bin/ps", ["-p", String(pid), "-o", "command="]);
+    const isTessarisBackend = command.includes("uvicorn") && command.includes("backend.desktop_app:app");
+    if (!isTessarisBackend) continue;
+    try { process.kill(pid, "SIGTERM"); } catch (_) {}
+  }
+
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    if (!(await backendHealth()).responding) return true;
+    await wait(100);
+  }
+  return !(await backendHealth()).responding;
 }
 
 async function waitForBackendReady({ attempts = 30, delayMs = 1000, processRef = null } = {}) {
@@ -1135,6 +1364,7 @@ function runtimeInfo() {
     rendererPath,
     projectRoot,
     pythonBin,
+    apiBase: `http://${BACKEND_HOST}:${BACKEND_PORT}`,
     backendUrl: BACKEND_URL,
     backendManaged: backendSpawnedByApp,
     backendPid: backendProc?.pid ?? null,
@@ -1809,9 +2039,18 @@ async function ensureBackendRunning() {
   }
 
   backendStartPromise = (async () => {
-    if (await isBackendHealthy()) {
+    const existingHealth = await backendHealth();
+    if (existingHealth.compatible) {
       console.log(`[backend] already healthy on ${BACKEND_HOST}:${BACKEND_PORT}`);
       return { ok: true, mode: "existing" };
+    }
+
+    if (existingHealth.responding) {
+      console.log(`[backend] replacing incompatible Tessaris backend on ${BACKEND_HOST}:${BACKEND_PORT}`);
+      const stopped = await stopIncompatibleTessarisBackend();
+      if (!stopped) {
+        throw new Error("An outdated local Tessaris service is still using the backend port. Close the older Tessaris copy and reopen the app.");
+      }
     }
 
     if (backendProc) {
@@ -1834,6 +2073,22 @@ async function ensureBackendRunning() {
     console.log(`[backend] project root: ${projectRoot}`);
     console.log(`[backend] python bin: ${pythonBin}`);
 
+    const backendEnvironment = {
+      ...aionO25NLocalVoiceBackendEnv(),
+      ...businessVaultBackendEnvironment(projectRoot),
+    };
+    if (DESKTOP_RUNTIME_CONFIGURATION.discoveryMode) {
+      const requiredDiscoveryEnvironment = [
+        "TESSARIS_DISCOVERY_FINGERPRINT_KEY_BASE64",
+        "TESSARIS_DISCOVERY_VAULT_ROOTS",
+        "TESSARIS_DISCOVERY_TRACE_ROOT",
+        "TESSARIS_DISCOVERY_ACCESS_TOKEN",
+      ];
+      const missing = requiredDiscoveryEnvironment.filter((key) => !backendEnvironment[key]);
+      if (missing.length) {
+        throw new Error(`desktop_discovery_backend_environment_missing:${missing.join(",")}`);
+      }
+    }
     const proc = spawn(pythonBin, [
       "-m",
       "uvicorn",
@@ -1841,10 +2096,10 @@ async function ensureBackendRunning() {
       "--host",
       "127.0.0.1",
       "--port",
-      "8080",
+      String(BACKEND_PORT),
     ], {
       cwd: projectRoot,
-      env: aionO25NLocalVoiceBackendEnv(),
+      env: backendEnvironment,
       stdio: "pipe",
     });
 
@@ -2822,6 +3077,15 @@ function readMainWindowState() {
 
 function writeMainWindowState() {
   if (!app.isReady()) return;
+  if (desktopBusinessDataDiscoveryController) {
+    try {
+      if (desktopBusinessDataDiscoveryController.status({
+        token: desktopBusinessDataDiscoveryToken,
+      }).active) return;
+    } catch {
+      return;
+    }
+  }
   try {
     const statePath = mainWindowStatePath();
     fs.mkdirSync(path.dirname(statePath), { recursive: true, mode: 0o700 });
@@ -3001,6 +3265,11 @@ function positionSentinelWindow() {
 }
 
 function createSentinelWindow() {
+  // The always-on-top companion is useful in the installed desktop app, but it
+  // steals accessibility focus from the main window during an isolated data
+  // discovery qualification run. Discovery already has its own process,
+  // profile and trace controls, so keep the companion out of that process.
+  if (DESKTOP_RUNTIME_CONFIGURATION.discoveryMode) return null;
   if (sentinelWindow && !sentinelWindow.isDestroyed()) return sentinelWindow;
   sentinelWindow = new BrowserWindow({
     width: 112, height: 132, transparent: true, frame: false, resizable: false,
@@ -3091,6 +3360,338 @@ ipcMain.handle("desktop-runtime-info", async () => {
   return runtimeInfo();
 });
 
+ipcMain.handle("aion-business-data-discovery-status", async (_event, payload = {}) => {
+  if (!desktopBusinessDataDiscoveryController) return { enabled: false };
+  return desktopBusinessDataDiscoveryController.status(payload);
+});
+
+ipcMain.handle("aion-business-data-discovery-start", async (_event, payload = {}) => {
+  if (!desktopBusinessDataDiscoveryController) throw new Error("discovery_mode_disabled");
+  return desktopBusinessDataDiscoveryController.start(payload);
+});
+
+ipcMain.handle("aion-business-data-discovery-stop", async (_event, payload = {}) => {
+  if (!desktopBusinessDataDiscoveryController) throw new Error("discovery_mode_disabled");
+  return desktopBusinessDataDiscoveryController.stop(payload);
+});
+
+ipcMain.handle("aion-business-vault-identity-get", async () => {
+  const binding = businessVaultSecureConfigStore.loadIdentityBinding();
+  return binding
+    ? { registered: true, business_id: binding.business_id, business_name: binding.business_name }
+    : { registered: false, business_id: "", business_name: "" };
+});
+
+ipcMain.handle("aion-business-vault-identity-bind", async (_event, payload = {}) => {
+  const binding = businessVaultSecureConfigStore.bindIdentity({
+    businessId: String(payload?.business_id || ""),
+    businessName: String(payload?.business_name || ""),
+  });
+  return { registered: true, business_id: binding.business_id, business_name: binding.business_name };
+});
+
+ipcMain.handle("aion-provider-authority-qualification", async (_event, payload = {}) => {
+  if (!desktopProviderAuthorityQualificationStore) throw new Error("discovery_mode_disabled");
+  return desktopProviderAuthorityQualificationStore.exercise({
+    candidate: String(payload?.candidate || ""),
+    provider: String(payload?.provider || ""),
+  });
+});
+
+ipcMain.on("aion-business-data-discovery-browser-write", (event, payload = {}) => {
+  if (!desktopBusinessDataDiscoveryController || !mainWindow || mainWindow.isDestroyed()) return;
+  if (event.sender.id !== mainWindow.webContents.id) return;
+  desktopBusinessDataDiscoveryController.recordRendererStorage(payload);
+});
+
+ipcMain.handle("aion-photon-billing-view", async (_event, rawTenantId = "") => {
+  try {
+    return await photonBillingBroker.getView(rawTenantId);
+  } catch (error) {
+    const code = error instanceof PhotonBillingBrokerError
+      ? error.code
+      : "photon_billing_view_unavailable";
+    return {
+      connected: false,
+      error: code,
+      customer_content_included: false,
+      local_model_tokens_billed: false,
+    };
+  }
+});
+
+ipcMain.handle("aion-photon-billing-qualification", async (_event, rawTenantId = "") => {
+  if (process.env.TESSARIS_DISCOVERY_MODE !== "1") {
+    return { ok: false, error: "discovery_mode_disabled" };
+  }
+  const tenantId = String(rawTenantId || "").trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/.test(tenantId)) {
+    return { ok: false, error: "photon_requested_tenant_invalid" };
+  }
+  try {
+    const response = await fetch(
+      `http://${BACKEND_HOST}:${BACKEND_PORT}/api/aion/business/data/photon/${encodeURIComponent(tenantId)}/qualification/run`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "X-Tessaris-Discovery-Token": process.env.TESSARIS_DISCOVERY_ACCESS_TOKEN || "",
+        },
+        cache: "no-store",
+      },
+    );
+    if (!response.ok) throw new Error(`photon_qualification_${response.status}`);
+    const qualification = await response.json();
+    if (!qualification || qualification.ok !== true || qualification.sandbox_only !== true
+        || !qualification.session || !qualification.wallet_public_key_path) {
+      throw new Error("photon_qualification_response_invalid");
+    }
+    photonSecureSessionStore.saveFromTrustedMainProcess(qualification.session);
+    const qualificationSecretRoots = JSON.parse(
+      process.env.TESSARIS_DISCOVERY_SECRET_STORE_ROOTS || "[]",
+    );
+    if (!Array.isArray(qualificationSecretRoots) || !qualificationSecretRoots[0]) {
+      throw new Error("photon_qualification_secret_store_missing");
+    }
+    const mainProofRoot = path.join(
+      path.resolve(String(qualificationSecretRoots[0])), "photon-qualification",
+    );
+    fs.mkdirSync(mainProofRoot, { recursive: true, mode: 0o700 });
+    const mainProofPath = path.join(mainProofRoot, "electron-main-boundary.json");
+    fs.writeFileSync(mainProofPath, JSON.stringify({
+      schema_version: "tessaris.photon-electron-boundary-proof.v1",
+      encrypted_session_saved: true,
+      bearer_exposed_to_renderer: false,
+      customer_content_included: false,
+      local_model_tokens_billed: false,
+    }), { encoding: "utf8", mode: 0o600, flag: "w" });
+    fs.chmodSync(mainProofPath, 0o600);
+    const qualificationBroker = createPhotonBillingBroker({
+      sessionLoader: () => photonSecureSessionStore.load(),
+      authorityPublicKeyPath: String(qualification.wallet_public_key_path),
+      allowLoopback: true,
+    });
+    const view = await qualificationBroker.getView(tenantId);
+    return {
+      ok: true,
+      sandbox_only: true,
+      view,
+      exact_once: {
+        grant_replay: qualification.grant_replay?.replay === true,
+        reversal_replay: qualification.reversal_replay?.replay === true,
+      },
+      receipt_exported: Boolean(qualification.billing_record?.record_hash),
+      ledger_healthy: qualification.ledger_integrity?.healthy === true,
+      encrypted_session_saved: true,
+      bearer_exposed_to_renderer: false,
+      customer_content_included: false,
+      local_model_tokens_billed: false,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof PhotonBillingBrokerError
+        ? error.code
+        : String(error?.message || "photon_qualification_unavailable"),
+      bearer_exposed_to_renderer: false,
+      customer_content_included: false,
+      local_model_tokens_billed: false,
+    };
+  }
+});
+
+ipcMain.handle("aion-import-export-migration-qualification", async (_event, payload = {}) => {
+  if (process.env.TESSARIS_DISCOVERY_MODE !== "1") {
+    return { ok: false, error: "discovery_mode_disabled", customer_content_included: false };
+  }
+  const workspaceId = String(payload?.workspace_id || "").trim();
+  const migrationId = String(payload?.migration_id || "journey25").trim();
+  const exportId = String(payload?.export_id || "journey25-whole-business").trim();
+  const passphrase = String(payload?.passphrase || "");
+  const safe = /^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/;
+  if (!safe.test(workspaceId) || !safe.test(migrationId) || !safe.test(exportId)
+      || passphrase.length < 16 || passphrase.length > 512) {
+    return { ok: false, error: "portable_transfer_qualification_input_invalid", customer_content_included: false };
+  }
+  try {
+    const response = await fetch(
+      `http://${BACKEND_HOST}:${BACKEND_PORT}/api/aion/business/discovery-runtime/import-export-migration/qualify`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "X-Tessaris-Discovery-Token": process.env.TESSARIS_DISCOVERY_ACCESS_TOKEN || "",
+        },
+        body: JSON.stringify({
+          workspace_id: workspaceId,
+          migration_id: migrationId,
+          export_id: exportId,
+          passphrase,
+        }),
+        cache: "no-store",
+      },
+    );
+    const result = await response.json();
+    if (!response.ok || result?.ok !== true || result?.customer_content_in_response !== false) {
+      throw new Error(String(result?.detail || `portable_transfer_qualification_${response.status}`));
+    }
+    return result;
+  } catch (error) {
+    return {
+      ok: false,
+      error: String(error?.message || "portable_transfer_qualification_unavailable"),
+      customer_content_included: false,
+    };
+  }
+});
+
+ipcMain.handle("aion-diagnostic-support-qualification", async (_event, payload = {}) => {
+  if (process.env.TESSARIS_DISCOVERY_MODE !== "1") {
+    return { ok: false, error: "discovery_mode_disabled", customer_content_in_response: false };
+  }
+  const workspaceId = String(payload?.workspace_id || "").trim();
+  const handoffId = String(payload?.handoff_id || "journey27").trim();
+  const approvedBy = String(payload?.approved_by || "").trim();
+  const safe = /^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/;
+  if (!safe.test(workspaceId) || !safe.test(handoffId) || !safe.test(approvedBy)) {
+    return { ok: false, error: "diagnostic_support_input_invalid", customer_content_in_response: false };
+  }
+  try {
+    const response = await fetch(
+      `http://${BACKEND_HOST}:${BACKEND_PORT}/api/aion/business/discovery-runtime/logs-diagnostics-support/qualify`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "X-Tessaris-Discovery-Token": process.env.TESSARIS_DISCOVERY_ACCESS_TOKEN || "",
+        },
+        body: JSON.stringify({
+          workspace_id: workspaceId,
+          handoff_id: handoffId,
+          customer_approved: true,
+          approved_by: approvedBy,
+        }),
+        cache: "no-store",
+      },
+    );
+    const result = await response.json();
+    if (!response.ok || result?.ok !== true || result?.customer_content_in_response !== false) {
+      throw new Error(String(result?.detail || `diagnostic_support_qualification_${response.status}`));
+    }
+    const secretRoots = JSON.parse(process.env.TESSARIS_DISCOVERY_SECRET_STORE_ROOTS || "[]");
+    if (!Array.isArray(secretRoots) || !secretRoots[0]) {
+      throw new Error("diagnostic_support_secret_store_missing");
+    }
+    const brokerRoot = path.join(secretRoots[0], "diagnostic-support-qualification");
+    fs.mkdirSync(brokerRoot, { recursive: true, mode: 0o700 });
+    const brokerReceipt = path.join(brokerRoot, "electron-main-broker.json");
+    fs.writeFileSync(brokerReceipt, `${JSON.stringify({
+      schema_version: "tessaris.diagnostic-support-broker.v1",
+      handoff_id: handoffId,
+      customer_approved: result?.handoff?.customer_approved === true,
+      customer_content_included: false,
+      bearer_exposed_to_renderer: false,
+    }, null, 2)}\n`, { encoding: "utf8", mode: 0o600, flag: "w" });
+    fs.chmodSync(brokerReceipt, 0o600);
+    return result;
+  } catch (error) {
+    return {
+      ok: false,
+      error: String(error?.message || "diagnostic_support_qualification_unavailable"),
+      customer_content_in_response: false,
+    };
+  }
+});
+
+ipcMain.handle("aion-retention-closure-qualification", async (_event, payload = {}) => {
+  if (process.env.TESSARIS_DISCOVERY_MODE !== "1") {
+    return { ok: false, error: "discovery_mode_disabled", customer_content_in_response: false };
+  }
+  const workspaceId = String(payload?.workspace_id || "").trim();
+  const closureId = String(payload?.closure_id || "journey28").trim();
+  const safe = /^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/;
+  if (!safe.test(workspaceId) || !safe.test(closureId)) {
+    return { ok: false, error: "retention_closure_input_invalid", customer_content_in_response: false };
+  }
+  try {
+    const response = await fetch(
+      `http://${BACKEND_HOST}:${BACKEND_PORT}/api/aion/business/discovery-runtime/retention-closure/qualify`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "X-Tessaris-Discovery-Token": process.env.TESSARIS_DISCOVERY_ACCESS_TOKEN || "",
+        },
+        body: JSON.stringify({
+          workspace_id: workspaceId,
+          closure_id: closureId,
+          reauthentication_verified: true,
+          confirmation_phrase: `PREVIEW CLOSE ${workspaceId}`,
+        }),
+        cache: "no-store",
+      },
+    );
+    const result = await response.json();
+    if (!response.ok || result?.ok !== true || result?.customer_content_in_response !== false) {
+      throw new Error(String(result?.detail || `retention_closure_qualification_${response.status}`));
+    }
+    return result;
+  } catch (error) {
+    return {
+      ok: false,
+      error: String(error?.message || "retention_closure_qualification_unavailable"),
+      customer_content_in_response: false,
+    };
+  }
+});
+
+function photonCsvCell(value) {
+  const text = String(value ?? "");
+  return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+ipcMain.handle("aion-photon-billing-export", async (_event, rawTenantId = "") => {
+  try {
+    const view = await photonBillingBroker.getView(rawTenantId);
+    const fields = [
+      "receipt_id", "paid_at", "currency", "amount_minor", "refunded_minor",
+      "disputed_minor", "photons_granted", "photons_reversed",
+      "photons_dispute_reversed", "commercial_hold", "provider_state",
+      "price_book_version", "record_hash", "document_kind", "tax_invoice",
+    ];
+    const csv = [
+      fields.join(","),
+      ...view.billing_records.map((record) => fields.map((field) => photonCsvCell(record[field])).join(",")),
+    ].join("\r\n") + "\r\n";
+    const owner = BrowserWindow.getFocusedWindow() || mainWindow || undefined;
+    const result = await dialog.showSaveDialog(owner, {
+      title: "Export Photon billing receipts",
+      defaultPath: `photon-billing-receipts-${String(view.tenant_id).replace(/[^A-Za-z0-9._-]/g, "-")}.csv`,
+      filters: [{ name: "CSV", extensions: ["csv"] }],
+    });
+    if (result.canceled || !result.filePath) {
+      return { ok: false, canceled: true, customer_content_included: false };
+    }
+    fs.writeFileSync(result.filePath, csv, { encoding: "utf8", mode: 0o600, flag: "w" });
+    return {
+      ok: true,
+      record_count: view.billing_records.length,
+      customer_content_included: false,
+      local_model_tokens_billed: false,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof PhotonBillingBrokerError ? error.code : "photon_billing_export_unavailable",
+      customer_content_included: false,
+      local_model_tokens_billed: false,
+    };
+  }
+});
+
 ipcMain.handle("aion-flow-sign-request", async (_event, payload = {}) => {
   return signAionFlowRequest(payload);
 });
@@ -3099,7 +3700,7 @@ ipcMain.handle("aion-custom-departments-list", async (_event, payload = {}) => {
   const workspaceId = normalizeAionCustomDepartmentWorkspaceId(payload.workspace_id);
   return {
     workspace_id: workspaceId,
-    departments: readAionCustomDepartments(workspaceId),
+    departments: await readAionCustomDepartments(workspaceId),
   };
 });
 
@@ -3150,22 +3751,28 @@ ipcMain.handle("aion-spatial-boardroom-embed", async (_event, payload = {}) => {
     };
   }
   const bridge = await ensureSpatialBoardroomBridge();
+  // A newly loaded WebGL room must not replay mode changes belonging to the
+  // previous room instance. Re-seed it with the current snapshot below.
+  bridge.events = [];
   const members = Array.isArray(payload.members)
     ? payload.members.map(sanitizeSpatialBoardroomMember).filter((member) => member?.connected).slice(0, 16)
     : [];
   if (!members.some((member) => member.id === "aion")) {
     members.unshift({ id: "aion", label: "AION", role: "Pilot", connected: true });
   }
+  const mode = String(payload.mode || "").trim().toLowerCase() === "executive" ? "executive" : "board";
   enqueueSpatialBoardroomEvent({ type: "board_members_snapshot", members });
   enqueueSpatialBoardroomEvent({
     type: "caption",
     text: `Connected Board intelligence: ${members.map((member) => member.label).join(", ")}. Select a member to open their Tessaris chat.`,
   });
+  enqueueSpatialBoardroomEvent({ type: "team_mode", mode });
   const origin = `http://127.0.0.1:${bridge.port}`;
   const query = new URLSearchParams({
     "tessaris-endpoint": `${origin}/events`,
     "tessaris-actions": `${origin}/actions`,
     "tessaris-session": bridge.token,
+    "tessaris-mode": mode,
   });
   return {
     ok: true,
@@ -3215,6 +3822,33 @@ ipcMain.handle("aion-open-external-url", async (_event, rawUrl = "") => {
   }
   await shell.openExternal(parsed.toString());
   return { ok: true };
+});
+
+ipcMain.handle("aion-save-or-share-pdf", async (_event, payload = {}) => {
+  const value = String(payload.url || "").trim();
+  const mode = payload.mode === "share" ? "share" : "save";
+  const suggestedName = path.basename(String(payload.filename || "quotation.pdf")).replace(/[^A-Za-z0-9._ -]/g, "_") || "quotation.pdf";
+  let parsed;
+  try { parsed = new URL(value); } catch { return { ok:false, error:"invalid_url" }; }
+  if (!['http:', 'https:'].includes(parsed.protocol) || !['127.0.0.1', 'localhost'].includes(parsed.hostname) || !parsed.pathname.startsWith('/api/aion/business/work-schedule/')) {
+    return { ok:false, error:"unsupported_document_source" };
+  }
+  const response = await fetch(parsed.toString());
+  if (!response.ok) return { ok:false, error:`document_http_${response.status}` };
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (!bytes.length || bytes.length > 25 * 1024 * 1024) return { ok:false, error:"document_size_invalid" };
+  if (mode === "save") {
+    const selected = await dialog.showSaveDialog({ title:"Save quotation PDF", defaultPath:path.join(app.getPath('documents'), suggestedName), filters:[{ name:'PDF document', extensions:['pdf'] }] });
+    if (selected.canceled || !selected.filePath) return { ok:false, cancelled:true };
+    fs.writeFileSync(selected.filePath, bytes);
+    return { ok:true, path:selected.filePath };
+  }
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tessaris-quote-'));
+  const filePath = path.join(directory, suggestedName);
+  fs.writeFileSync(filePath, bytes);
+  const shareMenu = new ShareMenu({ texts:[String(payload.text || 'Quotation')], filePaths:[filePath] });
+  shareMenu.popup({ window:BrowserWindow.getFocusedWindow() || undefined });
+  return { ok:true, path:filePath };
 });
 
 ipcMain.handle("aion-open-business-artifact", async (_event, rawStoragePath = "") => {
@@ -3366,6 +4000,17 @@ app.on("before-quit", async (event) => {
 app.whenReady().then(async () => {
   await ensureMacDockVisible();
   installAionMicrophonePermissionPolicy();
+  if (DESKTOP_DISCOVERY_AUTOSTART) {
+    if (!desktopBusinessDataDiscoveryController) {
+      throw new Error("desktop_discovery_autostart_controller_unavailable");
+    }
+    businessVaultBootstrapConfig();
+    desktopBusinessDataDiscoveryController.start({
+      token: desktopBusinessDataDiscoveryToken,
+      sessionId: DESKTOP_DISCOVERY_AUTOSTART.sessionId,
+      scenario: DESKTOP_DISCOVERY_AUTOSTART.scenario,
+    });
+  }
   // AION O25P: start backend before loading renderer.
   // The renderer contains many eager backend fetchers; loading it before
   // backend readiness causes request storms and white-screen/freeze behaviour.

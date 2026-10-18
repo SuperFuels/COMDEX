@@ -8,16 +8,37 @@ from typing import Any, Dict, Iterable
 
 from backend.modules.aion_fabric.canonical import canonical_bytes, canonical_hash, utc_now_iso
 from backend.modules.aion_fabric.identity import DeviceIdentity
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 class CapabilityPackageAuthority:
     """Signed, least-authority capability packages around an immutable customer brain."""
 
-    def __init__(self, root: str | Path, *, trusted_publishers: Iterable[str]) -> None:
-        self.root = Path(root)
+    def __init__(
+        self,
+        root: str | Path | None = None,
+        *,
+        trusted_publishers: Iterable[str],
+        workspace_id: str | None = None,
+        domain_store: VaultDomainStore | None = None,
+    ) -> None:
+        self.root = Path(root or ".runtime/aion_flow/capability_packages")
         self.root.mkdir(parents=True, exist_ok=True)
         self.state_path = self.root / "capability_packages.json"
         self.trusted_publishers = set(trusted_publishers)
+        self.workspace_id = str(workspace_id or "").strip()
+        self.domain_store = domain_store
+        if root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="aion-flow-capability-runtime",
+            )
+        if self.domain_store is not None and not self.workspace_id:
+            raise ValueError("workspace_id_required_for_guardian_capabilities")
 
     @staticmethod
     def package_ref(manifest: Dict[str, Any]) -> str:
@@ -229,11 +250,34 @@ class CapabilityPackageAuthority:
         return record
 
     def _state(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=self.workspace_id,
+                entity_id="aion_flow/capability_packages",
+            )
+            if record is None:
+                return {"schema_version": "aion.capability_packages.v1", "packages": {}}
+            value = dict(record["payload"])
+            if value.get("schema_version") != "aion.capability_packages.v1":
+                raise RuntimeError("capability_package_state_invalid")
+            return value
         if not self.state_path.exists():
             return {"schema_version": "aion.capability_packages.v1", "packages": {}}
         return json.loads(self.state_path.read_text(encoding="utf-8"))
 
     def _write(self, state: Dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            current = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=self.workspace_id,
+                entity_id="aion_flow/capability_packages",
+            )
+            self.domain_store.put(
+                "train_agent.automations", workspace_id=self.workspace_id,
+                entity_id="aion_flow/capability_packages", payload=state,
+                expected_version=int(current["version"]) if current else None,
+                actor_id="aion-flow-capability-runtime",
+            )
+            return
         temporary = self.state_path.with_suffix(".tmp")
         temporary.write_text(json.dumps(state, indent=2, sort_keys=True), encoding="utf-8")
         os.chmod(temporary, 0o600)

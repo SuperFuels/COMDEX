@@ -33,13 +33,13 @@ export default function SwapPanel({
       setError('Please install MetaMask.')
       return
     }
-    const provider = new ethers.providers.Web3Provider(
+    const provider = new ethers.BrowserProvider(
       (window as any).ethereum,
       { name: 'localhost', chainId: 31337 }
     )
     provider.send('eth_requestAccounts', [])
-      .then(() => {
-        const signer = provider.getSigner()
+      .then(async () => {
+        const signer = await provider.getSigner()
         setTokenContract(
           new ethers.Contract(tokenAddress, (gluAbi as any).abi, signer)
         )
@@ -64,7 +64,7 @@ export default function SwapPanel({
     setLoading(true)
     try {
       // 1 GLU ≈ 1 USD
-      const amountGlu = ethers.utils.parseUnits(
+      const amountGlu = ethers.parseUnits(
         (qty * pricePerKg).toString(),
         18
       )
@@ -141,4 +141,3 @@ export default function SwapPanel({
     </div>
   )
 }
-

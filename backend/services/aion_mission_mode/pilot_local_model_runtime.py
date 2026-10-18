@@ -215,10 +215,20 @@ def _runtime_ready(endpoint: str, timeout_seconds: float = 1.0) -> bool:
 
 def _runtime_matches_profile(endpoint: str, runtime_profile: Mapping[str, Any]) -> bool:
     """Do not reuse a healthy server whose context was divided too aggressively."""
-    try:
-        with urlopen(Request(f"{endpoint}/props", method="GET"), timeout=2.0) as response:  # nosec B310
-            props = json.loads(response.read().decode("utf-8"))
-    except (URLError, OSError, json.JSONDecodeError):
+    props: dict[str, Any] | None = None
+    # llama-server can take a few seconds to wake from --sleep-idle-seconds.
+    # A single short /props timeout previously made the harness treat a healthy
+    # existing server as mismatched, then reject a restart on low disk space.
+    # Retry the read before considering replacement; this does not run a model
+    # prompt or weaken the required profile comparison.
+    for _attempt in range(4):
+        try:
+            with urlopen(Request(f"{endpoint}/props", method="GET"), timeout=3.0) as response:  # nosec B310
+                props = json.loads(response.read().decode("utf-8"))
+            break
+        except (URLError, OSError, json.JSONDecodeError):
+            sleep(0.5)
+    if not isinstance(props, Mapping):
         return False
     settings = props.get("default_generation_settings")
     reported_context = props.get("n_ctx")
@@ -264,11 +274,19 @@ def ensure_selected_local_runtime(runtime_profile: Mapping[str, Any]) -> dict[st
             "--ctx-size", str(int(runtime_profile.get("context_size") or 4_096)),
             "--parallel", str(int(runtime_profile.get("parallel_slots") or 1)),
             "--threads", "6",
-            "--sleep-idle-seconds", str(max(
-                10, int(os.environ.get("AION_LOCAL_MODEL_IDLE_SLEEP_SECONDS", "30"))
-            )),
             "--jinja", "--alias", str(runtime_profile.get("model_id") or "local-model"),
         ]
+        # Do not idle-unload the selected Board adviser by default.  On an
+        # external model volume, waking Qwen can take well over a minute while
+        # /health already reports ready; a concurrent Board request then
+        # mistakes the waking server for a mismatched runtime and tries to bind
+        # a second process to the same port.  Operators can opt back into idle
+        # unloading explicitly when memory pressure matters more than latency.
+        idle_sleep_seconds = int(os.environ.get("AION_LOCAL_MODEL_IDLE_SLEEP_SECONDS", "0"))
+        if idle_sleep_seconds > 0:
+            command[command.index("--jinja"):command.index("--jinja")] = [
+                "--sleep-idle-seconds", str(max(10, idle_sleep_seconds)),
+            ]
         _SERVER_PROCESS = subprocess.Popen(  # noqa: S603 - executable resolved by shutil.which
             command, stdout=log_handle, stderr=subprocess.STDOUT, start_new_session=True,
         )

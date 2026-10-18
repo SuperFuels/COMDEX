@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 
 import pytest
@@ -40,3 +41,23 @@ def test_visual_picker_api_requires_explicit_local_vault_intent(tmp_path, monkey
     with pytest.raises(HTTPException) as error:
         vault_router.create_aion_flow_binding(payload, x_aion_vault_intent="")
     assert error.value.status_code == 403
+
+
+def test_guardian_binding_credentials_use_external_security_root(tmp_path, monkeypatch):
+    monkeypatch.setenv("TESSARIS_BUSINESS_CONTAINER_BACKEND", "guardian")
+    monkeypatch.setenv("TESSARIS_BUSINESS_VAULT_PATH", str(tmp_path / "vault"))
+    monkeypatch.setenv("TESSARIS_BUSINESS_NAME", "Acme")
+    monkeypatch.setenv("TESSARIS_BUSINESS_STABLE_ID", "acme")
+    monkeypatch.setenv(
+        "TESSARIS_BUSINESS_VAULT_KEY_B64",
+        base64.b64encode(b"v" * 32).decode("ascii"),
+    )
+    monkeypatch.setenv("TESSARIS_APPLICATION_ROOT", str(tmp_path / "app"))
+    monkeypatch.setenv("TESSARIS_UPDATE_ROOT", str(tmp_path / "updates"))
+    monkeypatch.setenv("TESSARIS_DATA_ROOT", str(tmp_path / "application-data"))
+    monkeypatch.setenv("TESSARIS_SECURITY_ROOT", str(tmp_path / "security"))
+
+    bindings = vault_router._aion_flow_bindings("acme")
+    assert bindings.root == (tmp_path / "security" / "aion-flow-model-bindings")
+    assert bindings.domain_store is not None
+    assert not str(bindings.root).startswith(str(tmp_path / "application-data"))

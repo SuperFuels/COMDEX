@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import platform
+import secrets
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -11,6 +12,7 @@ from typing import Any, Dict
 
 
 SERVICE_SCHEMA = "aion.sovereign_installed_service.v1"
+ENDPOINT_SCHEMA = "tessaris.node-health-endpoint.v1"
 
 
 def default_brain_root() -> Path:
@@ -25,6 +27,114 @@ def default_brain_root() -> Path:
         return base / "Tessaris" / "Pilot Brain"
     base = Path(os.environ.get("XDG_DATA_HOME") or (Path.home() / ".local" / "share"))
     return base / "tessaris" / "pilot-brain"
+
+
+def default_node_state_root() -> Path:
+    """Return disposable node state outside the app and Business Vault roots."""
+
+    configured = os.environ.get("TESSARIS_NODE_STATE_ROOT")
+    if configured:
+        return Path(configured).expanduser()
+    system = platform.system()
+    if system == "Darwin":
+        return Path.home() / "Library" / "Application Support" / "Tessaris Node"
+    if system == "Windows":
+        base = Path(
+            os.environ.get("PROGRAMDATA")
+            or os.environ.get("LOCALAPPDATA")
+            or (Path.home() / "AppData" / "Local")
+        )
+        return base / "Tessaris Node"
+    runtime_root = os.environ.get("XDG_RUNTIME_DIR")
+    if runtime_root:
+        return Path(runtime_root) / "tessaris-node"
+    state_root = Path(os.environ.get("XDG_STATE_HOME") or (Path.home() / ".local" / "state"))
+    return state_root / "tessaris" / "node"
+
+
+def prepare_node_state_root(root: str | Path | None = None) -> Path:
+    """Create an owner-only Node state root outside application/update/Vault roots."""
+
+    candidate = Path(root) if root is not None else default_node_state_root()
+    resolved = candidate.expanduser().resolve(strict=False)
+    protected_values = (
+        os.environ.get("TESSARIS_APPLICATION_ROOT"),
+        os.environ.get("TESSARIS_UPDATE_ROOT"),
+        os.environ.get("TESSARIS_BUSINESS_VAULT_ROOT"),
+        os.environ.get("TESSARIS_BUSINESS_VAULT_PATH"),
+    )
+    for value in protected_values:
+        if not str(value or "").strip():
+            continue
+        protected = Path(str(value)).expanduser().resolve(strict=False)
+        try:
+            overlap = (
+                os.path.commonpath((str(resolved), str(protected))) == str(resolved)
+                or os.path.commonpath((str(resolved), str(protected))) == str(protected)
+            )
+        except ValueError:
+            overlap = False
+        if overlap:
+            raise ValueError("node_state_root_overlaps_protected_root")
+    resolved.mkdir(parents=True, exist_ok=True)
+    try:
+        resolved.chmod(0o700)
+    except OSError:
+        pass
+    return resolved
+
+
+def default_health_endpoint_path() -> Path:
+    return default_node_state_root() / "health-endpoint.json"
+
+
+def _write_endpoint_record(path: Path, *, host: str, port: int) -> dict[str, Any]:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        path.parent.chmod(0o700)
+    except OSError:
+        pass
+    record = {
+        "schema_version": ENDPOINT_SCHEMA,
+        "host": host,
+        "port": int(port),
+        "pid": os.getpid(),
+        "instance_id": secrets.token_hex(16),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "content_free": True,
+    }
+    temporary = path.with_name(f".{path.name}.{record['instance_id']}.tmp")
+    temporary.write_text(
+        json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+    try:
+        temporary.chmod(0o600)
+    except OSError:
+        pass
+    temporary.replace(path)
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
+    return record
+
+
+def remove_endpoint_record(path: str | Path, *, instance_id: str) -> None:
+    """Remove only the locator created by this exact service instance."""
+
+    endpoint_path = Path(path)
+    try:
+        current = json.loads(endpoint_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    if current.get("instance_id") != instance_id:
+        return
+    try:
+        endpoint_path.unlink()
+    except FileNotFoundError:
+        pass
 
 
 def public_status(root: str | Path) -> Dict[str, Any]:
@@ -81,24 +191,63 @@ def build_handler(root: str | Path):
     return Handler
 
 
-def serve(*, root: str | Path, host: str = "127.0.0.1", port: int = 8776) -> None:
+def create_health_server(
+    *,
+    root: str | Path,
+    host: str = "127.0.0.1",
+    port: int = 0,
+    endpoint_path: str | Path | None = None,
+) -> tuple[ThreadingHTTPServer, dict[str, Any], Path]:
     if host not in {"127.0.0.1", "localhost", "::1"}:
         raise ValueError("Installed brain health service must remain on loopback")
+    if not isinstance(port, int) or port < 0 or port > 65535:
+        raise ValueError("Installed brain health service port is invalid")
+    record_path = Path(endpoint_path) if endpoint_path is not None else default_health_endpoint_path()
+    brain_root = Path(root).expanduser().resolve()
+    if record_path.expanduser().resolve().is_relative_to(brain_root):
+        raise ValueError("Node endpoint state must remain outside the Business Vault root")
     server = ThreadingHTTPServer((host, port), build_handler(root))
+    try:
+        record = _write_endpoint_record(
+            record_path,
+            host=host,
+            port=int(server.server_port),
+        )
+    except Exception:
+        server.server_close()
+        raise
+    return server, record, record_path
+
+
+def serve(
+    *,
+    root: str | Path,
+    host: str = "127.0.0.1",
+    port: int = 0,
+    endpoint_path: str | Path | None = None,
+) -> None:
+    server, endpoint, record_path = create_health_server(
+        root=root,
+        host=host,
+        port=port,
+        endpoint_path=endpoint_path,
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
         server.server_close()
+        remove_endpoint_record(record_path, instance_id=str(endpoint["instance_id"]))
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pilot-brain-service")
     parser.add_argument("--root", type=Path, default=default_brain_root())
-    parser.add_argument("--port", type=int, default=8776)
+    parser.add_argument("--port", type=int, default=0)
+    parser.add_argument("--port-file", type=Path, default=default_health_endpoint_path())
     args = parser.parse_args(argv)
-    serve(root=args.root, port=args.port)
+    serve(root=args.root, port=args.port, endpoint_path=args.port_file)
     return 0
 
 

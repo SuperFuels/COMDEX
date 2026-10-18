@@ -7,6 +7,7 @@ counterexample and safety outcomes to the progressive competency ledger.
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 from pathlib import Path
 import subprocess
@@ -670,6 +671,29 @@ class ProgressiveOutcomeAuthorityFabric:
 
     def _qualify(self) -> None:
         for subject_id,(source,mutations,family) in SUBJECT_SUITES.items():
+            suite_hash = hashlib.sha256(json.dumps({
+                "source": source, "mutations": mutations, "family": family,
+            }, sort_keys=True).encode("utf-8")).hexdigest()
+            existing = (self.state.get("adapters") or {}).get(subject_id) or {}
+            legacy_verified = (
+                not existing.get("suite_hash")
+                and existing.get("status") == "verified_available"
+                and set(existing.get("supported_subskills") or []) == set(mutations)
+                and int(existing.get("counterexamples_rejected") or 0)
+                    == int(existing.get("counterexamples_total") or -1)
+                and int(existing.get("counterexamples_total") or 0) > 0
+            )
+            if legacy_verified:
+                existing["suite_hash"] = suite_hash
+                continue
+            if (
+                existing.get("status") == "verified_available"
+                and existing.get("suite_hash") == suite_hash
+                and set(existing.get("supported_subskills") or []) == set(mutations)
+                and int(existing.get("counterexamples_rejected") or 0)
+                    == int(existing.get("counterexamples_total") or -1)
+            ):
+                continue
             candidate=_execute(source)
             counterexamples={skill:_execute(source.replace(old,new,1))
                              for skill,(old,new) in mutations.items()}
@@ -682,6 +706,7 @@ class ProgressiveOutcomeAuthorityFabric:
                 "candidate_passed":candidate["returncode"]==0,
                 "counterexamples_rejected":sum(row["returncode"]!=0 for row in counterexamples.values()),
                 "counterexamples_total":len(counterexamples),
+                "suite_hash":suite_hash,
             }
         self._save()
 

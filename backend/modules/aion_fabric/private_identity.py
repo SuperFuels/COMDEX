@@ -10,6 +10,12 @@ from pathlib import Path
 from typing import Any, Dict
 from uuid import uuid4
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
 from .identity import DeviceIdentity
 
@@ -22,10 +28,21 @@ class ProductionPrivateIdentity:
     SHARED_SCREEN_IDLE_MINUTES = 5
     SHARED_SCREEN_PRESENCE_SECONDS = 300
 
-    def __init__(self, runtime_dir: str | Path) -> None:
+    def __init__(
+        self,
+        runtime_dir: str | Path,
+        *,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.root = Path(runtime_dir) / "private_identity"
         self.path = self.root / "state.json"
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_private_identity_workspace_required")
 
     @staticmethod
     def _initial() -> Dict[str, Any]:
@@ -38,6 +55,13 @@ class ProductionPrivateIdentity:
         }
 
     def _read(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_identity",
+            )
+            return dict(result["payload"]) if result else self._initial()
         if not self.path.exists():
             return self._initial()
         try:
@@ -48,6 +72,20 @@ class ProductionPrivateIdentity:
 
     def _write(self, state: Dict[str, Any]) -> None:
         state["updated_at"] = utc_now_iso()
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_identity",
+            )
+            self.domain_store.put(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.private_identity",
+                payload=state,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
         temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(state))
         os.chmod(temporary, 0o600)
@@ -553,3 +591,51 @@ class ProductionPrivateIdentity:
             "trusted_device_count": len([item for item in state.get("devices", []) if item.get("status") == "trusted"]),
             "biometric": {"native_signed_possession_implemented": True, "platform_attestation_field_qualified": False},
         }
+
+
+def configured_private_identity(runtime_dir: str | Path) -> ProductionPrivateIdentity:
+    """Select encrypted identity authority and retain verified legacy input."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_private_identity_workspace_required")
+        domains = VaultDomainStore(runtime.guardian, actor_id="aion-fabric-private-identity")
+        selected = ProductionPrivateIdentity(
+            runtime_path,
+            domain_store=domains,
+            workspace_id=workspace_id,
+        )
+        source = runtime_path / "private_identity" / "state.json"
+        if source.exists() and domains.get_optional(
+            "security.records",
+            workspace_id=workspace_id,
+            entity_id="aion_fabric.private_identity",
+        ) is None:
+            legacy = ProductionPrivateIdentity(runtime_path)
+            state = legacy._read()
+            selected._write(state)
+            if selected._read() != state or not source.exists():
+                raise RuntimeError("aion_fabric_private_identity_migration_verification_failed")
+            from hashlib import sha256
+
+            source_hash = sha256(source.read_bytes()).hexdigest()
+            domains.put(
+                "security.audit",
+                workspace_id=workspace_id,
+                entity_id=f"aion_fabric.private_identity_migration.{source_hash}",
+                payload={
+                    "schema_version": "aion.private-identity-migration.v1",
+                    "source_sha256": source_hash,
+                    "source_retained": True,
+                    "copied_and_verified": True,
+                    "completed_at": utc_now_iso(),
+                },
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_private_identity_required_in_production")
+    return ProductionPrivateIdentity(runtime_path)

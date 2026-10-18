@@ -106,7 +106,7 @@ def test_business_internal_subtabs_lock_active_tab_to_business_context():
     assert "function getAionBusinessContextSubtab()" in APP
     assert 'function setAionBusinessContextSubtab(rawKey = "key_business_info")' in APP
     assert "state.activeBusinessContextSubtab = key" in APP
-    assert 'window.localStorage?.setItem("aion.activeBusinessContextSubtab", key)' in APP
+    assert 'window.AionDesktopPreferences.set("aion.activeBusinessContextSubtab", key)' in APP
     assert 'if (typeof render === "function") render()' in APP
     assert "window.__aionBusinessContextSubtab = key" in APP
     assert "window.__aionBusinessContextSubtab ||" in APP

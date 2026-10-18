@@ -258,6 +258,36 @@ def test_focused_cohort_keeps_recalled_concept_in_advanced_queue(tmp_path: Path)
     assert metrics["advanced_transfer_share"] == 0.75
 
 
+def test_noun_and_property_rotation_never_emits_one_item_comparison(tmp_path: Path):
+    academy = _academy(tmp_path)
+
+    for part_of_speech in ("n", "a", "s"):
+        candidate = {"part_of_speech": part_of_speech, "free_families": []}
+        observed = {
+            academy._next_transfer_family(candidate, cycle) for cycle in range(12)
+        }
+        assert "comparison" not in observed
+        assert len(observed) >= 4
+
+
+def test_contextual_metric_counts_concepts_that_advanced_to_productive(tmp_path: Path):
+    academy = _academy(tmp_path)
+    concept = academy._candidates(1)[0]
+    now = time.time()
+    for index, family in enumerate((
+        "semantic_patient", "cause_inference", "paraphrase", "negation_scope",
+    )):
+        academy._record_progress(
+            concept_id=concept["concept_id"], evidence_tier="free_transfer",
+            family=family, correct=True, now=now + index,
+        )
+
+    metrics = academy.metrics()
+    assert metrics["productive_use_concepts"] == 1
+    assert metrics["currently_contextual_use_concepts"] == 0
+    assert metrics["contextual_use_concepts"] == 1
+
+
 def test_next_transfer_family_prefers_unseen_family_for_pos():
     candidate = {
         "part_of_speech": "v",

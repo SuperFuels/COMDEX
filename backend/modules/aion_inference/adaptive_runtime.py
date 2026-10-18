@@ -9,10 +9,10 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import sqlite3
 import threading
 from typing import Any, Iterable, Mapping, Optional
 
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 from .semantic_gateway import SemanticGateway
 from .verified_calculations import VerifiedCalculationRouter
 from .learned_atomsheets import LearnedAtomSheetStore
@@ -105,48 +105,53 @@ class ContextSelector:
 
 
 class ReplayStore:
-    def __init__(self, path: Path) -> None:
+    """Encrypted customer replay state, with memory-only experiment fallback."""
+
+    def __init__(
+        self,
+        path: Path | None = None,
+        *,
+        vault_store: AionLearningVaultStore | None = None,
+    ) -> None:
         self.path = path
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(path) as connection:
-            connection.execute(
-                """CREATE TABLE IF NOT EXISTS verified_replay (
-                    glyph_address TEXT PRIMARY KEY,
-                    contract_sha256 TEXT NOT NULL,
-                    payload_json TEXT NOT NULL,
-                    hit_count INTEGER NOT NULL DEFAULT 0,
-                    created_at TEXT NOT NULL,
-                    last_used_at TEXT NOT NULL
-                )"""
+        self.vault_store = vault_store or AionLearningVaultStore()
+        self._state_id = "aion_inference_verified_replay_v1"
+        saved = self.vault_store.get_state(self._state_id, {"entries": {}})
+        self._entries: dict[str, dict[str, Any]] = {
+            str(key): dict(value)
+            for key, value in dict(saved.get("entries", {})).items()
+        }
+
+    def _persist(self) -> None:
+        if self.vault_store.enabled:
+            self.vault_store.put_state(
+                self._state_id,
+                {
+                    "schema_version": "aion.inference.verified-replay.v2",
+                    "entries": self._entries,
+                },
             )
 
     def get(self, glyph_address: str, contract_sha256: str) -> Optional[Mapping[str, Any]]:
-        with sqlite3.connect(self.path) as connection:
-            row = connection.execute(
-                "SELECT payload_json FROM verified_replay WHERE glyph_address=? AND contract_sha256=?",
-                (glyph_address, contract_sha256),
-            ).fetchone()
-            if row is None:
-                return None
-            connection.execute(
-                "UPDATE verified_replay SET hit_count=hit_count+1,last_used_at=? WHERE glyph_address=?",
-                (_utc_now(), glyph_address),
-            )
-        return json.loads(row[0])
+        row = self._entries.get(glyph_address)
+        if row is None or row.get("contract_sha256") != contract_sha256:
+            return None
+        row["hit_count"] = int(row.get("hit_count", 0)) + 1
+        row["last_used_at"] = _utc_now()
+        self._persist()
+        return dict(row["payload"])
 
     def put(self, glyph_address: str, contract_sha256: str, payload: Mapping[str, Any]) -> None:
         now = _utc_now()
-        with sqlite3.connect(self.path) as connection:
-            connection.execute(
-                """INSERT INTO verified_replay
-                   (glyph_address,contract_sha256,payload_json,hit_count,created_at,last_used_at)
-                   VALUES (?,?,?,?,?,?)
-                   ON CONFLICT(glyph_address) DO UPDATE SET
-                     contract_sha256=excluded.contract_sha256,
-                     payload_json=excluded.payload_json,
-                     last_used_at=excluded.last_used_at""",
-                (glyph_address, contract_sha256, json.dumps(dict(payload), sort_keys=True), 0, now, now),
-            )
+        existing = self._entries.get(glyph_address, {})
+        self._entries[glyph_address] = {
+            "contract_sha256": contract_sha256,
+            "payload": dict(payload),
+            "hit_count": int(existing.get("hit_count", 0)),
+            "created_at": existing.get("created_at") or now,
+            "last_used_at": now,
+        }
+        self._persist()
 
 
 @dataclass(frozen=True)
@@ -166,25 +171,38 @@ class AdaptiveRuntimeResult:
 
 
 class AdaptiveInferenceRuntime:
-    def __init__(self, *, replay_path: Path, trace_path: Path, learned_store: Optional[LearnedAtomSheetStore] = None) -> None:
+    def __init__(
+        self,
+        *,
+        replay_path: Path | None = None,
+        trace_path: Path | None = None,
+        learned_store: Optional[LearnedAtomSheetStore] = None,
+        vault_store: AionLearningVaultStore | None = None,
+    ) -> None:
         self.semantic = SemanticGateway()
         self.calculations = VerifiedCalculationRouter()
         self.context_selector = ContextSelector()
         self.workflows = WorkflowCatalog()
         self.model_route_predictor = ModelRoutePredictor()
-        self.replay = ReplayStore(replay_path)
+        self.vault_store = vault_store or AionLearningVaultStore()
+        self.replay = ReplayStore(replay_path, vault_store=self.vault_store)
         self.trace_path = trace_path
         self.learned_store = learned_store
         self._trace_lock = threading.Lock()
         self._trace_parent = "0" * 64
-        trace_path.parent.mkdir(parents=True, exist_ok=True)
-        if trace_path.exists() and trace_path.stat().st_size:
-            last_line = trace_path.read_text(encoding="utf-8").splitlines()[-1]
-            last_event = json.loads(last_line)
-            self._trace_parent = str(
-                last_event.get("trace_receipt_sha256")
-                or hashlib.sha256(last_line.encode("utf-8")).hexdigest()
-            )
+        if self.vault_store.enabled:
+            traces = self.vault_store.list_events(kind="aion_inference_trace")
+            if traces:
+                self._trace_parent = str(traces[-1]["trace_receipt_sha256"])
+        elif trace_path is not None:
+            trace_path.parent.mkdir(parents=True, exist_ok=True)
+            if trace_path.exists() and trace_path.stat().st_size:
+                last_line = trace_path.read_text(encoding="utf-8").splitlines()[-1]
+                last_event = json.loads(last_line)
+                self._trace_parent = str(
+                    last_event.get("trace_receipt_sha256")
+                    or hashlib.sha256(last_line.encode("utf-8")).hexdigest()
+                )
 
     @staticmethod
     def _seal_receipt(receipt: Mapping[str, Any]) -> dict[str, Any]:
@@ -197,6 +215,7 @@ class AdaptiveInferenceRuntime:
     def _trace(self, result: AdaptiveRuntimeResult) -> None:
         with self._trace_lock:
             event = {
+                "event_type": "aion_inference_trace",
                 "timestamp": _utc_now(),
                 "schema_version": result.schema_version,
                 "route": result.route,
@@ -206,10 +225,15 @@ class AdaptiveInferenceRuntime:
                 "parent_trace_receipt_sha256": self._trace_parent,
                 "trace_chain_integrity": "sha256_ancestry_not_authentication",
             }
+            event["ts_utc"] = event["timestamp"]
             digest = _canonical_sha256(event)
             event["trace_receipt_sha256"] = digest
-            with self.trace_path.open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps(event, sort_keys=True) + "\n")
+            if self.vault_store.enabled:
+                event_id = f"aion-inference-trace-{digest}"
+                self.vault_store.append_event(event_id, {**event, "event_id": event_id})
+            elif self.trace_path is not None:
+                with self.trace_path.open("a", encoding="utf-8") as handle:
+                    handle.write(json.dumps(event, sort_keys=True) + "\n")
             self._trace_parent = digest
 
     def _verified_result(

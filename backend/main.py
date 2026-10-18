@@ -11,38 +11,22 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 os.environ["PYTHONPATH"] = ROOT_DIR
 
-# ✅ ADD THIS RIGHT HERE (before any backend imports)
 from pathlib import Path
+from backend.modules.aion_business.runtime.legacy_runtime_data_root import (
+    ensure_legacy_runtime_data_root,
+)
 
-def _ensure_data_root():
-    root = Path(ROOT_DIR)
-    data = root / "data"
-    target = root / ".runtime" / "COMDEX_MOVE" / "data"
-
-    if data.is_symlink() and not data.exists():
-        target.mkdir(parents=True, exist_ok=True)
-        data.unlink()
-        data.symlink_to(target)
-
-    if not data.exists():
-        data.mkdir(parents=True, exist_ok=True)
-
-    (data / "personality").mkdir(parents=True, exist_ok=True)
-    (data / "memory").mkdir(parents=True, exist_ok=True)
-    (data / "goals").mkdir(parents=True, exist_ok=True)
-    (data / "aion_field").mkdir(parents=True, exist_ok=True)
-    (data / "knowledge").mkdir(parents=True, exist_ok=True)
-    (data / "akg").mkdir(parents=True, exist_ok=True)
-    (data / "telemetry").mkdir(parents=True, exist_ok=True)
-
-_ensure_data_root()
-
-# ✅ Force a single DATA_ROOT for everything (bridge + generators + producers)
-from pathlib import Path
-
-DATA_DIR = str((Path(ROOT_DIR) / "data").resolve())
-os.environ.setdefault("TESSARIS_DATA_ROOT", DATA_DIR)
-os.environ.setdefault("DATA_ROOT", DATA_DIR)
+# Transitional legacy writers must never bootstrap customer-bearing folders in
+# the replaceable application tree. Guardian-backed services remain the target;
+# this external root only contains writers still awaiting migration.
+DATA_DIR = str(
+    ensure_legacy_runtime_data_root(
+        application_root=ROOT_DIR,
+        environment=os.environ,
+    )
+)
+os.environ["TESSARIS_DATA_ROOT"] = DATA_DIR
+os.environ["DATA_ROOT"] = DATA_DIR
 
 from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
 from backend.api.workflow_architect_router import router as workflow_architect_router

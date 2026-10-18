@@ -58,8 +58,10 @@ export type PilotMobileConnection = {
 
 type StoredRecord = StoredDeviceKey | PilotMobileConnection | StoredInboxCursor;
 
-const DATABASE = "pilot-private-device";
-const STORE = "keys";
+// Browser databases are not a qualified private-key boundary. Until the
+// desktop/mobile secure-store bridge is available, pairing material is
+// intentionally process-local and the phone must reconnect after a reload.
+const processRecords = new Map<string, StoredRecord>();
 
 function bytesToBase64(bytes: Uint8Array): string {
   let binary = "";
@@ -85,55 +87,24 @@ function canonical(value: unknown): string {
   return JSON.stringify(value) ?? "null";
 }
 
-function openDatabase(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DATABASE, 1);
-    request.onupgradeneeded = () => request.result.createObjectStore(STORE, { keyPath: "id" });
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(new Error("Pilot could not open protected phone storage"));
-  });
-}
-
 async function readStoredKey(): Promise<StoredDeviceKey | undefined> {
-  const database = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const request = database.transaction(STORE, "readonly").objectStore(STORE).get("pilot-device-key-v1");
-    request.onsuccess = () => { resolve(request.result as StoredDeviceKey | undefined); database.close(); };
-    request.onerror = () => reject(new Error("Pilot could not read this phone key"));
-  });
+  return processRecords.get("pilot-device-key-v1") as StoredDeviceKey | undefined;
 }
 
 async function writeStoredKey(record: StoredDeviceKey): Promise<void> {
-  const database = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const transaction = database.transaction(STORE, "readwrite");
-    transaction.objectStore(STORE).put(record);
-    transaction.oncomplete = () => { database.close(); resolve(); };
-    transaction.onerror = () => reject(new Error("Pilot could not protect this phone key"));
-  });
+  processRecords.set(record.id, record);
 }
 
 async function readRecord<T extends StoredRecord>(id: string): Promise<T | undefined> {
-  const database = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const request = database.transaction(STORE, "readonly").objectStore(STORE).get(id);
-    request.onsuccess = () => { resolve(request.result as T | undefined); database.close(); };
-    request.onerror = () => reject(new Error("Pilot could not read this protected connection"));
-  });
+  return processRecords.get(id) as T | undefined;
 }
 
 async function writeRecord(record: StoredRecord): Promise<void> {
-  const database = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const transaction = database.transaction(STORE, "readwrite");
-    transaction.objectStore(STORE).put(record);
-    transaction.oncomplete = () => { database.close(); resolve(); };
-    transaction.onerror = () => reject(new Error("Pilot could not protect this connection"));
-  });
+  processRecords.set(record.id, record);
 }
 
 export async function ensurePilotDeviceKey(): Promise<{ publicKey: string; created: boolean }> {
-  if (!window.isSecureContext || !window.crypto?.subtle || !window.indexedDB) {
+  if (!window.isSecureContext || !window.crypto?.subtle) {
     throw new Error("Open Pilot through its trusted secure address to connect this phone");
   }
   const existing = await readStoredKey();

@@ -12,6 +12,8 @@ full research-stack boot while preserving the endpoints used by the renderer.
 from __future__ import annotations
 
 import os
+import base64
+import json
 import logging
 from pathlib import Path
 from threading import Event, Thread
@@ -19,10 +21,29 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+_DESKTOP_PROCESS_SCOPED_ENV = {
+    key: value
+    for key, value in os.environ.items()
+    if key.startswith("TESSARIS_DISCOVERY_")
+    or key.startswith("TESSARIS_BUSINESS_VAULT_")
+    or key in {
+        "TESSARIS_BUSINESS_CONTAINER_BACKEND",
+        "TESSARIS_BUSINESS_NAME",
+        "TESSARIS_BUSINESS_STABLE_ID",
+        "TESSARIS_APPLICATION_ROOT",
+        "TESSARIS_UPDATE_ROOT",
+        "TESSARIS_AION_FLOW_SESSION_KEY_PATH",
+        "TESSARIS_AION_FLOW_REPLAY_STORE_PATH",
+    }
+}
+
 # The packaged desktop backend is launched from its bundled backend directory.
 # The desktop app owns this local configuration.  Prefer its validated values
 # over malformed credentials inherited from a parent shell.
-load_dotenv(Path(__file__).resolve().parents[1] / ".env.local", override=True)
+# The desktop launcher supplies the isolated Vault, discovery and secret-store
+# boundaries. A developer .env file may fill ordinary missing settings, but it
+# must never replace those process-scoped security values.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env.local", override=False)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -66,12 +87,17 @@ from backend.modules.aion_business.runtime.pilot_operating_team_service import P
 from backend.modules.aion_business.runtime.work_schedule_service import WorkScheduleService
 from backend.modules.aion_business.runtime.cybersecurity_guard_service import CybersecurityGuardScheduler
 from backend.modules.aion_business.runtime.request_body_limits import ScopedRequestBodyLimitMiddleware
+from backend.modules.aion_business.runtime.desktop_custody_attestation import desktop_custody_attestation
 from backend.modules.aion_voice.api import router as voice_router
 from backend.modules.aion_workflow.workflow_approval_repository import WorkflowApprovalRepository
 from backend.modules.aion_workflow.workflow_dry_run import dry_run_workflow_glyph
 from backend.modules.aion_workflow.workflow_glyph_repository import WorkflowGlyphRepository
 from backend.modules.aion_workflow.workflow_resume import resume_workflow_after_approval
 
+# Historical modules imported above may load developer dotenv files of their
+# own. Reassert the launcher's validated, process-scoped custody boundary
+# before constructing any desktop services or discovery controllers.
+os.environ.update(_DESKTOP_PROCESS_SCOPED_ENV)
 
 app = FastAPI(
     title="Tessaris Desktop Backend",
@@ -79,6 +105,7 @@ app = FastAPI(
     docs_url=None,
     redoc_url=None,
 )
+DESKTOP_BACKEND_CONTRACT = 2
 app.add_middleware(ScopedRequestBodyLimitMiddleware)
 
 _desktop_pilot_scheduler_thread: Thread | None = None
@@ -88,6 +115,13 @@ _cybersecurity_guard_scheduler = CybersecurityGuardScheduler()
 
 
 def _run_due_desktop_pilot_work() -> None:
+    from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
+
+    # The legacy scheduler discovers tenants by walking the application tree.
+    # In Guardian mode that tree is neither authoritative nor safe to inspect:
+    # a Vault-native workspace index must drive the scheduler instead.
+    if guardian_mode_requested():
+        return
     root = AIONBusinessPaths.BUSINESS_CONTAINERS
     if not root.exists():
         return
@@ -116,12 +150,23 @@ def _desktop_pilot_scheduler_loop() -> None:
 @app.on_event("startup")
 def start_support_channel_poller() -> None:
     global _desktop_pilot_scheduler_thread
+    from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
     from backend.modules.aion_business.runtime.support_polling_service import SUPPORT_POLLER
-    SUPPORT_POLLER.start()
-    from backend.modules.aion_business.runtime.creative_render_polling_service import CREATIVE_RENDER_POLLER
-    CREATIVE_RENDER_POLLER.start()
+    discovery_session = os.getenv("TESSARIS_DISCOVERY_AUTOSTART_SESSION", "").strip()
+    discovery_isolated = os.getenv("TESSARIS_DISCOVERY_MODE", "0") == "1"
+    if not discovery_isolated or discovery_session.startswith("support-"):
+        SUPPORT_POLLER.start()
+    # The historical creative poller scans a plaintext ~/Tessaris workspace.
+    # Guardian mode must never recreate or inspect that legacy authority. A
+    # Guardian-native render-job index is required before unattended polling is
+    # re-enabled for sovereign business installations.
+    if not guardian_mode_requested():
+        from backend.modules.aion_business.runtime.creative_render_polling_service import CREATIVE_RENDER_POLLER
+        CREATIVE_RENDER_POLLER.start()
     _cybersecurity_guard_scheduler.start()
-    if _desktop_pilot_scheduler_thread is None or not _desktop_pilot_scheduler_thread.is_alive():
+    if (not discovery_isolated or discovery_session in {"scheduled-automation", "work-schedule"}) and (
+        _desktop_pilot_scheduler_thread is None or not _desktop_pilot_scheduler_thread.is_alive()
+    ):
         _desktop_pilot_scheduler_stop.clear()
         _desktop_pilot_scheduler_thread = Thread(
             target=_desktop_pilot_scheduler_loop,
@@ -133,10 +178,12 @@ def start_support_channel_poller() -> None:
 @app.on_event("shutdown")
 def stop_support_channel_poller() -> None:
     global _desktop_pilot_scheduler_thread
+    from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
     from backend.modules.aion_business.runtime.support_polling_service import SUPPORT_POLLER
     SUPPORT_POLLER.stop()
-    from backend.modules.aion_business.runtime.creative_render_polling_service import CREATIVE_RENDER_POLLER
-    CREATIVE_RENDER_POLLER.stop()
+    if not guardian_mode_requested():
+        from backend.modules.aion_business.runtime.creative_render_polling_service import CREATIVE_RENDER_POLLER
+        CREATIVE_RENDER_POLLER.stop()
     _cybersecurity_guard_scheduler.stop()
     _desktop_pilot_scheduler_stop.set()
     if _desktop_pilot_scheduler_thread is not None:
@@ -192,12 +239,162 @@ for router in (
     app.include_router(router)
 
 
+if os.getenv("TESSARIS_DISCOVERY_MODE", "0") == "1":
+    from backend.modules.aion_business.api.business_data_discovery_runtime_api import (
+        create_business_data_external_surface_router,
+        create_business_data_discovery_runtime_router,
+    )
+    from backend.modules.aion_business.runtime.business_data_discovery_runtime_controller import (
+        BusinessDataDiscoveryRuntimeController,
+    )
+    from backend.modules.aion_business.runtime.business_data_external_surface_controller import (
+        BusinessDataExternalSurfaceController,
+    )
+    from backend.modules.aion_business.runtime.business_data_discovery_environment import (
+        parse_discovery_autostart,
+        parse_discovery_vault_roots,
+    )
+
+    try:
+        # The Electron discovery controller has always used the explicit
+        # ``*_BASE64`` spelling.  Keep the older ``*_B64`` name as a
+        # command-line compatibility alias, but do not require the managed
+        # desktop launcher to translate or duplicate a custody secret.
+        discovery_fingerprint_key_b64 = os.getenv(
+            "TESSARIS_DISCOVERY_FINGERPRINT_KEY_BASE64"
+        ) or os.environ["TESSARIS_DISCOVERY_FINGERPRINT_KEY_B64"]
+        discovery_fingerprint_key = base64.b64decode(
+            discovery_fingerprint_key_b64, validate=True
+        )
+        discovery_vault_roots = parse_discovery_vault_roots(
+            os.environ["TESSARIS_DISCOVERY_VAULT_ROOTS"]
+        )
+        discovery_controller = BusinessDataDiscoveryRuntimeController(
+            manifest_path=os.getenv(
+                "TESSARIS_DISCOVERY_MANIFEST",
+                str(Path(__file__).resolve().parents[1] / "config" / "business-data-manifest.v1.json"),
+            ),
+            trace_root=os.environ["TESSARIS_DISCOVERY_TRACE_ROOT"],
+            source_root=Path(__file__).resolve().parents[1],
+            application_root=os.environ["TESSARIS_DISCOVERY_APPLICATION_ROOT"],
+            update_root=os.environ["TESSARIS_DISCOVERY_UPDATE_ROOT"],
+            vault_roots=discovery_vault_roots,
+            secret_store_roots=json.loads(
+                os.getenv("TESSARIS_DISCOVERY_SECRET_STORE_ROOTS", "[]")
+            ),
+            path_fingerprint_key=discovery_fingerprint_key,
+        )
+        discovery_external_controller = BusinessDataExternalSurfaceController(
+            manifest_path=os.getenv(
+                "TESSARIS_DISCOVERY_MANIFEST",
+                str(Path(__file__).resolve().parents[1] / "config" / "business-data-manifest.v1.json"),
+            ),
+            scenario_catalogue_path=os.getenv(
+                "TESSARIS_DISCOVERY_SCENARIO_CATALOGUE",
+                str(Path(__file__).resolve().parents[1] / "config" / "business-data-discovery-scenarios.v1.json"),
+            ),
+            trace_root=os.environ["TESSARIS_DISCOVERY_TRACE_ROOT"],
+            fingerprint_key=discovery_fingerprint_key,
+        )
+        app.include_router(create_business_data_discovery_runtime_router(
+            controller=discovery_controller,
+            access_token=os.environ["TESSARIS_DISCOVERY_ACCESS_TOKEN"],
+        ))
+        app.include_router(create_business_data_external_surface_router(
+            controller=discovery_external_controller,
+            access_token=os.environ["TESSARIS_DISCOVERY_ACCESS_TOKEN"],
+        ))
+        # Journey 24 mounts a loopback-only, sandbox Photon control plane. Its
+        # authority stays under the discovery secret-store boundary and never
+        # becomes live provider configuration.
+        from backend.modules.aion_business.api.photon_control_plane_api import (
+            create_photon_control_plane_router,
+        )
+        from backend.modules.aion_business.api.photon_discovery_qualification_api import (
+            create_photon_discovery_qualification_router,
+        )
+        from backend.modules.aion_business.api.business_vault_portable_transfer_qualification_api import (
+            create_business_vault_portable_transfer_qualification_router,
+        )
+        from backend.modules.aion_business.api.business_vault_recovery_qualification_api import (
+            create_business_vault_recovery_qualification_router,
+        )
+        from backend.modules.aion_business.api.diagnostic_support_qualification_api import (
+            create_diagnostic_support_qualification_router,
+        )
+        from backend.modules.aion_business.api.business_retention_closure_qualification_api import (
+            create_business_retention_closure_qualification_router,
+        )
+        from backend.modules.aion_business.runtime.photon_discovery_qualification import (
+            build_photon_discovery_qualification_context,
+        )
+        discovery_secret_roots = json.loads(
+            os.getenv("TESSARIS_DISCOVERY_SECRET_STORE_ROOTS", "[]")
+        )
+        if not discovery_secret_roots:
+            raise ValueError("photon_discovery_secret_store_required")
+        photon_context = build_photon_discovery_qualification_context(
+            secret_store_root=discovery_secret_roots[0],
+            export_root=(
+                Path(discovery_secret_roots[0]).resolve()
+                / "photon-qualification" / "customer-exports"
+            ),
+        )
+        app.include_router(create_photon_control_plane_router(
+            service=photon_context.service,
+            authority_public_key=photon_context.access_private_key.public_key(),
+        ))
+        app.include_router(create_photon_discovery_qualification_router(
+            context=photon_context,
+            access_token=os.environ["TESSARIS_DISCOVERY_ACCESS_TOKEN"],
+            endpoint=f"http://127.0.0.1:{os.getenv('TESSARIS_BACKEND_PORT', '8080')}",
+        ))
+        portable_transfer_root = Path(discovery_secret_roots[0]).resolve() / "portable-transfer-qualification"
+        app.include_router(create_business_vault_portable_transfer_qualification_router(
+            source_root=portable_transfer_root / "legacy-source",
+            export_root=portable_transfer_root / "customer-exports",
+            access_token=os.environ["TESSARIS_DISCOVERY_ACCESS_TOKEN"],
+        ))
+        app.include_router(create_business_vault_recovery_qualification_router(
+            staging_root=Path(discovery_secret_roots[0]).resolve() / "backup-recovery-qualification",
+            access_token=os.environ["TESSARIS_DISCOVERY_ACCESS_TOKEN"],
+        ))
+        app.include_router(create_diagnostic_support_qualification_router(
+            staging_root=Path(discovery_secret_roots[0]).resolve() / "diagnostic-support-qualification",
+            access_token=os.environ["TESSARIS_DISCOVERY_ACCESS_TOKEN"],
+        ))
+        app.include_router(create_business_retention_closure_qualification_router(
+            customer_export_path=(
+                Path(discovery_secret_roots[0]).resolve()
+                / "portable-transfer-qualification" / "customer-exports"
+                / "journey25-whole-business.tessaris-export"
+            ),
+            backup_snapshot_path=(
+                Path(discovery_secret_roots[0]).resolve()
+                / "backup-recovery-qualification" / "backup-destination"
+                / "journey26.tessaris-snapshot"
+            ),
+            access_token=os.environ["TESSARIS_DISCOVERY_ACCESS_TOKEN"],
+        ))
+        app.state.photon_discovery_qualification = photon_context
+        discovery_autostart = parse_discovery_autostart(dict(os.environ))
+        if discovery_autostart is not None:
+            discovery_controller.start(
+                session_id=discovery_autostart[0],
+                scenario=discovery_autostart[1],
+            )
+    except (KeyError, ValueError) as exc:
+        raise RuntimeError("Tessaris discovery mode is enabled but its secure configuration is invalid") from exc
+
+
 @app.get("/health", tags=["health"])
 def health() -> dict[str, Any]:
     return {
         "status": "ok",
         "mode": "tessaris_desktop",
+        "desktop_contract": DESKTOP_BACKEND_CONTRACT,
         "embedding_device": os.getenv("AION_EMBEDDING_DEVICE", "automatic"),
+        "business_vault_custody": desktop_custody_attestation(os.environ),
     }
 
 

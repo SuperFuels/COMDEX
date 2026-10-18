@@ -23,6 +23,7 @@ CORE_CHANNELS = ("sales", "marketing", "finance", "support", "people")
 EXECUTIVE_CHANNEL_STORE_KEY = "executive_channel_conversations"
 EXECUTIVE_MESSAGE_TYPES = frozenset({
     "morning_minutes", "executive_briefing_summary", "coo_instruction",
+    "daily_close_minutes", "executive_daily_close_summary",
     "department_update", "delegated_people_action", "delegated_people_response",
 })
 _ROLE_CARDS: dict[str, dict[str, str]] = {
@@ -53,6 +54,18 @@ def _clean_text(value: Any, limit: int = 4_000) -> str:
     return " ".join(str(value or "").split())[:limit]
 
 
+def _text_list(value: Any, *, limit: int = 12, item_limit: int = 500) -> list[str]:
+    if isinstance(value, str):
+        candidates = [value]
+    elif isinstance(value, (list, tuple)):
+        candidates = list(value)
+        if len(candidates) >= 4 and all(len(str(item or "")) <= 1 for item in candidates):
+            candidates = ["".join(str(item or "") for item in candidates)]
+    else:
+        candidates = []
+    return [text for item in candidates[:limit] if (text := _clean_text(item, item_limit))]
+
+
 def _bounded(value: Any, *, depth: int = 0) -> Any:
     if depth > 5:
         return "[bounded]"
@@ -73,7 +86,7 @@ def _bounded(value: Any, *, depth: int = 0) -> Any:
 
 
 class OperationsExecutiveBriefingService:
-    """Run and retain role-separated executive briefings without live actions."""
+    """Coordinate an always-on executive network and retain its daily close."""
 
     def __init__(self, provider: Any) -> None:
         self.provider = provider
@@ -111,7 +124,7 @@ class OperationsExecutiveBriefingService:
         meetings = [dict(item) for item in runtime.get("executive_briefings") or [] if isinstance(item, Mapping)]
         local_now = self._local_now(config)
         today = local_now.date().isoformat()
-        scheduled_time = str(config.get("local_time") or "08:00")
+        scheduled_time = str(config.get("local_time") or "18:00")
         due_by_clock = local_now.strftime("%H:%M") >= scheduled_time
         latest = meetings[-1] if meetings else None
         return {
@@ -121,6 +134,7 @@ class OperationsExecutiveBriefingService:
             "today": today,
             "briefing_due": bool(config.get("enabled", True) and due_by_clock and not any(item.get("local_date") == today for item in meetings)),
             "latest_briefing": latest,
+            "briefings": meetings[-30:],
             "channels": [
                 self._channel_summary(runtime, channel, role)
                 for channel, role in self._channel_roles(workspace_id).items()
@@ -327,8 +341,8 @@ class OperationsExecutiveBriefingService:
             roles = self._channel_roles(workspace_id)
             for department, role in roles.items():
                 goal = (
-                    "Give the executive morning update: yesterday's evidenced results, today's plan, "
-                    "outstanding tasks, issues, target variance, dependencies and decisions needed from the COO."
+                    "Close the current operating day for the executive network: report evidenced results, "
+                    "work still in motion, issues, target variance, dependencies and decisions needed from the COO."
                 )
                 positions[department] = self._department_position(
                     workspace_id, department, question=goal, context=[],
@@ -344,7 +358,7 @@ class OperationsExecutiveBriefingService:
                 self._append(
                     runtime, department=department, role="assistant",
                     sender=f"{role['title']} Pilot",
-                    content=content, message_type="morning_minutes",
+                    content=content, message_type="daily_close_minutes",
                     evidence=position.get("source_ids") or [],
                     metadata={**position, "meeting_id": meeting_id, "local_date": local_date,
                               "critic_challenge": challenge, "board_context": board_context},
@@ -353,7 +367,7 @@ class OperationsExecutiveBriefingService:
             executive_actions = []
             board_feedback = []
             for department, position in positions.items():
-                for index, action in enumerate(position.get("actions") or []):
+                for index, action in enumerate(_text_list(position.get("actions"))):
                     executive_actions.append({
                         "action_id": f"{meeting_id}-{department}-{index + 1}",
                         "meeting_id": meeting_id, "department_id": department,
@@ -361,7 +375,7 @@ class OperationsExecutiveBriefingService:
                         "created_at": created_at, "external_execution_allowed": False,
                     })
                 variance = _clean_text(position.get("target_variance"), 1_000)
-                risks = [_clean_text(item, 500) for item in position.get("risks") or []]
+                risks = _text_list(position.get("risks"))
                 if (variance and variance.casefold() not in {"unknown", "on evidence supplied"}) or risks:
                     board_feedback.append({
                         "meeting_id": meeting_id, "department_id": department,
@@ -370,14 +384,14 @@ class OperationsExecutiveBriefingService:
                     })
 
             summary = (
-                f"Executive morning briefing {local_now.strftime('%d/%m/%Y')} completed across {len(roles)} departments. "
+                f"Executive operating close {local_now.strftime('%d/%m/%Y')} completed across {len(roles)} departments. "
                 f"{len(executive_actions)} evidenced action(s) are open and {len(board_feedback)} variance or risk item(s) "
                 "are staged for COO, CEO and Board visibility. Open a department channel for its minutes. "
                 "No external action was executed."
             )
             self._append(
                 runtime, department="operations", role="assistant", sender="Operations Pilot",
-                content=summary, message_type="executive_briefing_summary",
+                content=summary, message_type="executive_daily_close_summary",
                 metadata={"meeting_id": meeting_id, "local_date": local_date,
                           "action_count": len(executive_actions), "board_feedback": board_feedback},
             )
@@ -471,7 +485,7 @@ class OperationsExecutiveBriefingService:
             value = self._parse_json(raw)
             departments = value.get("departments") if isinstance(value.get("departments"), Mapping) else {}
             return {"reasoning_mode": "two_model_challenge", "departments": _bounded(departments),
-                    "executive_risks": [_clean_text(item, 300) for item in list(value.get("executive_risks") or [])[:12]],
+                    "executive_risks": _text_list(value.get("executive_risks"), item_limit=300),
                     "critic_model_selection": self._public_selection(selection),
                     "disclosure": "A separately accepted model challenged the departmental positions."}
         except Exception as exc:
@@ -501,7 +515,7 @@ class OperationsExecutiveBriefingService:
             raise ValueError("department_position_missing_summary")
         result: dict[str, Any] = {"summary": summary}
         for key in ("yesterday_results", "today_plan", "outstanding", "risks", "decisions_needed", "actions"):
-            result[key] = [_clean_text(item, 500) for item in list(value.get(key) or [])[:12] if _clean_text(item, 500)]
+            result[key] = _text_list(value.get(key))
         result["target_variance"] = _clean_text(value.get("target_variance"), 1_000)
         return result
 
@@ -545,7 +559,7 @@ class OperationsExecutiveBriefingService:
                     ("Outstanding", "outstanding"), ("Risks", "risks"),
                     ("Actions", "actions"), ("COO decisions", "decisions_needed"))
         for label, key in sections:
-            values = [_clean_text(item, 500) for item in list(position.get(key) or []) if _clean_text(item, 500)]
+            values = _text_list(position.get(key))
             if values:
                 lines.append(f"{label}: " + "; ".join(values))
         variance = _clean_text(position.get("target_variance"), 1_000)
@@ -605,7 +619,7 @@ class OperationsExecutiveBriefingService:
     @staticmethod
     def _config(runtime: Mapping[str, Any]) -> dict[str, Any]:
         saved = runtime.get("executive_briefing_config") if isinstance(runtime.get("executive_briefing_config"), Mapping) else {}
-        return {"enabled": saved.get("enabled", True), "local_time": str(saved.get("local_time") or "08:00")[:5],
+        return {"enabled": saved.get("enabled", True), "local_time": str(saved.get("local_time") or "18:00")[:5],
                 "timezone": str(saved.get("timezone") or "Europe/Madrid")[:80],
                 "critic_model_selection": dict(saved.get("critic_model_selection") or {})}
 
@@ -629,4 +643,4 @@ class OperationsExecutiveBriefingService:
         return {"department_id": department, "display_name": role.get("name") or role["title"],
                 "message_count": len(turns), "latest_at": latest.get("created_at"),
                 "latest_type": latest.get("message_type"),
-                "open_action_count": sum(len((item.get("metadata") or {}).get("actions") or []) for item in turns[-20:])}
+                "open_action_count": sum(len(_text_list((item.get("metadata") or {}).get("actions"))) for item in turns[-20:])}

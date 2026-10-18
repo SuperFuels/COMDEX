@@ -15,9 +15,9 @@ from backend.modules.local_node.contracts_local_node import (
 )
 
 from uuid import uuid4
-from backend.modules.local_node.local_queue_store import LocalQueueStore
-from backend.modules.local_node.local_approval_store import LocalApprovalStore
-from backend.modules.local_node.local_audit_store import LocalAuditStore
+from backend.modules.local_node.guardian_business_stores import (
+    configured_local_node_business_stores,
+)
 from backend.modules.local_node.local_node_health import LocalNodeHealth
 from backend.modules.local_node.local_node_control import LocalNodeControl
 from backend.modules.local_node.node_state_store import NodeStateStore
@@ -25,8 +25,9 @@ from backend.modules.local_node.workflow_runner_host import WorkflowRunnerHost
 from backend.modules.local_node.sync_cursor_store import SyncCursorStore
 from backend.modules.local_node.local_sync_endpoints import LocalSyncEndpoints
 from backend.modules.local_node.local_scheduler_host import LocalSchedulerHost
-from backend.modules.local_node.train_task_store import TrainTaskStore
-from backend.modules.local_node.train_task_approval_store import TrainTaskApprovalStore
+from backend.modules.local_node.guardian_train_task_stores import (
+    configured_local_node_train_task_stores,
+)
 from backend.modules.local_node.tool_registry import ToolRegistryStore
 from backend.modules.local_node.external_tool_discovery import ExternalToolDiscoveryService
 from backend.modules.local_node.connector_registry import ConnectorRegistryStore
@@ -57,6 +58,11 @@ from backend.modules.aion_agents.runtime.manual_trigger_service import (
 from backend.modules.aion_agents.runtime.marketing_operator_seed import (
     seed_marketing_operator_bundle,
 )
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 try:
     from backend.modules.aion_business.runtime.business_container_service import (
@@ -173,13 +179,17 @@ class LocalNodeRuntime:
         self.config = config
         self.base_dir = str(config.base_dir)
 
-        self.queue_store = LocalQueueStore(self.base_dir)
-        self.approval_store = LocalApprovalStore(self.base_dir)
-        self.audit_store = LocalAuditStore(self.base_dir)
+        (
+            self.queue_store,
+            self.approval_store,
+            self.audit_store,
+        ) = configured_local_node_business_stores(config)
         self.node_state_store = NodeStateStore(self.base_dir)
         self.sync_cursor_store = SyncCursorStore(self.base_dir)
-        self.train_task_store = TrainTaskStore(self.base_dir)
-        self.train_task_approval_store = TrainTaskApprovalStore(self.base_dir)
+        (
+            self.train_task_store,
+            self.train_task_approval_store,
+        ) = configured_local_node_train_task_stores(config)
         self.external_tool_discovery = ExternalToolDiscoveryService(self.base_dir)
         self.pilot_authority_policy = PilotAuthorityPolicyStore(self.base_dir)
 
@@ -249,20 +259,31 @@ class LocalNodeRuntime:
         self._seed_default_agent_bundle()
 
     def _init_agent_runtime(self) -> None:
+        agent_domain_store = None
+        if guardian_mode_requested():
+            agent_domain_store = VaultDomainStore(
+                configured_business_vault_runtime().guardian,
+                actor_id="local-node-agent-runtime",
+            )
         self.workflow_definition_repository = WorkflowDefinitionRepository(
             base_dir=self.base_dir,
+            domain_store=agent_domain_store,
         )
         self.workflow_run_repository = WorkflowRunRepository(
             base_dir=self.base_dir,
+            domain_store=agent_domain_store,
         )
         self.agent_definition_repository = AgentDefinitionRepository(
             base_dir=self.base_dir,
+            domain_store=agent_domain_store,
         )
         self.approval_request_repository = ApprovalRequestRepository(
             base_dir=self.base_dir,
+            domain_store=agent_domain_store,
         )
         self.trigger_definition_repository = TriggerDefinitionRepository(
             base_dir=self.base_dir,
+            domain_store=agent_domain_store,
         )
 
         self.workflow_execution_runtime = WorkflowExecutionRuntime(
@@ -567,7 +588,6 @@ class LocalNodeRuntime:
             "profile",
             "https://www.googleapis.com/auth/gmail.readonly",
             "https://www.googleapis.com/auth/gmail.compose",
-            "https://www.googleapis.com/auth/calendar.events",
         ]
 
         health = self.connector_registry.gmail_health()
@@ -3376,9 +3396,17 @@ class LocalNodeRuntime:
         now_epoch = int(time.time())
 
         if not expires_at and not force:
-            # Conservative default: if we do not know exact expiry, use current access token.
-            # If Google rejects it, caller will fail safely.
-            return token_payload
+            # Older OAuth callbacks stored expires_in and stored_at but did not
+            # calculate expires_at. Derive it here instead of repeatedly using
+            # an expired access token while the dashboard says "connected".
+            try:
+                from datetime import datetime
+                stored_epoch = int(datetime.fromisoformat(stored_at.replace("Z", "+00:00")).timestamp())
+            except Exception:
+                stored_epoch = 0
+            derived_expiry = stored_epoch + expires_in if stored_epoch and expires_in else 0
+            if access_token and derived_expiry and now_epoch < (derived_expiry - 120):
+                return token_payload
 
         try:
             expires_at_int = int(expires_at)
@@ -3623,9 +3651,11 @@ class LocalNodeRuntime:
         to: str,
         subject: str,
         body: str,
+        html_body: str = "",
         cc: str = "",
         bcc: str = "",
         thread_id: str = "",
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
         import base64
         from email.message import EmailMessage
@@ -3653,6 +3683,25 @@ class LocalNodeRuntime:
             msg["Bcc"] = bcc
 
         msg.set_content(body)
+        if str(html_body or "").strip():
+            msg.add_alternative(str(html_body), subtype="html")
+
+        attached_names: List[str] = []
+        for attachment in list(attachments or [])[:10]:
+            filename = str(attachment.get("filename") or "attachment").strip()[:240]
+            content_type = str(attachment.get("content_type") or "application/octet-stream").strip().lower()
+            encoded = str(attachment.get("data_base64") or "")
+            try:
+                content = base64.b64decode(encoded, validate=True)
+            except Exception as exc:
+                raise ValueError("Invalid Gmail draft attachment") from exc
+            if not content or len(content) > 20 * 1024 * 1024:
+                raise ValueError("Gmail draft attachment must be between 1 byte and 20 MB")
+            maintype, _, subtype = content_type.partition("/")
+            if not maintype or not subtype:
+                maintype, subtype = "application", "octet-stream"
+            msg.add_attachment(content, maintype=maintype, subtype=subtype, filename=filename)
+            attached_names.append(filename)
 
         raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
 
@@ -3665,24 +3714,54 @@ class LocalNodeRuntime:
         if thread_id:
             payload["message"]["threadId"] = thread_id
 
-        result = self._gmail_api_post_json(
-            "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
-            access_token,
-            payload,
-        )
+        try:
+            result = self._gmail_api_post_json(
+                "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
+                access_token,
+                payload,
+            )
+        except RuntimeError as error:
+            if not any(marker in str(error).lower() for marker in ("401", "unauthenticated", "invalid credentials")):
+                raise
+            refreshed = self._refresh_gmail_access_token_if_needed(force=True)
+            refreshed_token = str(refreshed.get("access_token") or "")
+            if not refreshed_token or refreshed_token == access_token:
+                raise
+            result = self._gmail_api_post_json(
+                "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
+                refreshed_token,
+                payload,
+            )
 
         draft_id = result.get("id")
         message = result.get("message") or {}
         message_id = message.get("id")
+        try:
+            profile = self._gmail_api_get_json(
+                "https://gmail.googleapis.com/gmail/v1/users/me/profile",
+                access_token,
+            )
+            account_email = str(profile.get("emailAddress") or "").strip()
+        except Exception:
+            account_email = ""
+        from urllib.parse import quote
+        mailbox = f"?authuser={quote(account_email)}" if account_email else "u/0/"
 
         return {
             "ok": True,
             "draft_id": draft_id,
             "message_id": message_id,
             "thread_id": message.get("threadId") or thread_id,
-            "gmail_url": "https://mail.google.com/mail/u/0/#drafts",
+            # Open the exact draft we just created. Opening only #drafts made an
+            # older connector-test draft look like the result of this action.
+            "gmail_url": (
+                f"https://mail.google.com/mail/{mailbox}#drafts?compose={message_id}"
+                if message_id else "https://mail.google.com/mail/u/0/#drafts"
+            ),
+            "account_email": account_email,
             "to": to,
             "subject": subject,
+            "attachments": attached_names,
             "created": True,
             "sent": False,
             "external_write": True,
@@ -3696,8 +3775,10 @@ class LocalNodeRuntime:
         to: str,
         subject: str,
         body: str,
+        html_body: str = "",
         cc: str = "",
         bcc: str = "",
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
         import base64
         from email.message import EmailMessage
@@ -3716,9 +3797,37 @@ class LocalNodeRuntime:
         if bcc:
             msg["Bcc"] = bcc
         msg.set_content(body)
+        if str(html_body or "").strip():
+            msg.add_alternative(str(html_body), subtype="html")
+        attached_names: List[str] = []
+        for attachment in list(attachments or [])[:10]:
+            filename = str(attachment.get("filename") or "attachment").strip()[:240]
+            content_type = str(attachment.get("content_type") or "application/octet-stream").strip().lower()
+            encoded = str(attachment.get("data_base64") or "")
+            try:
+                content = base64.b64decode(encoded, validate=True)
+            except Exception as exc:
+                raise ValueError("Invalid Gmail attachment") from exc
+            if not content or len(content) > 20 * 1024 * 1024:
+                raise ValueError("Gmail attachment must be between 1 byte and 20 MB")
+            maintype, _, subtype = content_type.partition("/")
+            if not maintype or not subtype:
+                maintype, subtype = "application", "octet-stream"
+            msg.add_attachment(content, maintype=maintype, subtype=subtype, filename=filename)
+            attached_names.append(filename)
         raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
-        result = self._gmail_api_post_json("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", access_token, {"raw": raw})
-        return {"ok": True, "message_id": result.get("id"), "thread_id": result.get("threadId"), "gmail_url": "https://mail.google.com/mail/u/0/#sent", "to": to, "subject": subject, "sent": True, "external_write": True, "tool_id": "tool.gmail.send_message.v1", "action_type": "gmail_send_message"}
+        send_payload = {"raw": raw}
+        try:
+            result = self._gmail_api_post_json("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", access_token, send_payload)
+        except RuntimeError as error:
+            if not any(marker in str(error).lower() for marker in ("401", "unauthenticated", "invalid credentials")):
+                raise
+            refreshed = self._refresh_gmail_access_token_if_needed(force=True)
+            refreshed_token = str(refreshed.get("access_token") or "")
+            if not refreshed_token or refreshed_token == access_token:
+                raise
+            result = self._gmail_api_post_json("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", refreshed_token, send_payload)
+        return {"ok": True, "message_id": result.get("id"), "thread_id": result.get("threadId"), "gmail_url": "https://mail.google.com/mail/u/0/#sent", "to": to, "subject": subject, "attachments": attached_names, "sent": True, "external_write": True, "tool_id": "tool.gmail.send_message.v1", "action_type": "gmail_send_message"}
 
     def _create_google_calendar_event(
         self,
@@ -5949,7 +6058,7 @@ class LocalNodeRuntime:
         trigger_path = None
 
         try:
-            if workflow_id:
+            if workflow_id and self.workflow_definition_repository.vault is None:
                 workflow_path = str(
                     self.workflow_definition_repository._workflow_path(  # type: ignore[attr-defined]
                         self.config.workspace_id,
@@ -5960,7 +6069,7 @@ class LocalNodeRuntime:
             workflow_path = None
 
         try:
-            if agent_id:
+            if agent_id and self.agent_definition_repository.vault is None:
                 agent_path = str(
                     self.agent_definition_repository._path(  # type: ignore[attr-defined]
                         self.config.workspace_id,
@@ -5971,7 +6080,7 @@ class LocalNodeRuntime:
             agent_path = None
 
         try:
-            if trigger_id:
+            if trigger_id and self.trigger_definition_repository.vault is None:
                 trigger_path = str(
                     self.trigger_definition_repository._path(  # type: ignore[attr-defined]
                         self.config.workspace_id,
@@ -6632,38 +6741,6 @@ class LocalNodeRuntime:
 
     def _list_recent_audit_items(self, limit: int = 8) -> List[Any]:
         limit = max(1, min(int(limit or 8), 1000))
-
-        db_path = Path(self.base_dir) / "audit.sqlite3"
-
-        if db_path.exists():
-            try:
-                import json
-                import sqlite3
-
-                with sqlite3.connect(str(db_path)) as conn:
-                    rows = conn.execute(
-                        """
-                        SELECT payload_json
-                        FROM audit_events
-                        ORDER BY rowid DESC
-                        LIMIT ?
-                        """,
-                        (limit,),
-                    ).fetchall()
-
-                items: List[Dict[str, Any]] = []
-
-                for row in rows:
-                    try:
-                        value = json.loads(row[0])
-                        if isinstance(value, dict):
-                            items.append(value)
-                    except Exception:
-                        continue
-
-                return items
-            except Exception:
-                pass
 
         if hasattr(self.audit_store, "list_recent"):
             try:

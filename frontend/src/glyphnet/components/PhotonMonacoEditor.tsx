@@ -11,36 +11,13 @@ type PhotonMonacoEditorProps = {
 export default function PhotonMonacoEditor({
   docId = "devtools",
 }: PhotonMonacoEditorProps) {
-  const storageKey = `photon.devtools.${docId}`;
-
   const [code, setCode] = useState<string>("");
   const [translated, setTranslated] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [running, setRunning] = useState(false);
 
-  // Load last code from localStorage
-  useEffect(() => {
-    try {
-      const saved =
-        typeof window !== "undefined"
-          ? window.localStorage.getItem(storageKey)
-          : null;
-      if (saved) setCode(saved);
-    } catch {
-      // ignore
-    }
-  }, [storageKey]);
-
-  // Persist edits
-  useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(storageKey, code);
-      }
-    } catch {
-      // ignore
-    }
-  }, [code, storageKey]);
+  // Code remains in this editor process until a Guardian-backed developer
+  // workspace is available.
 
   // --- Photon language + theme for Monaco ---
   function definePhotonLang(monaco: any) {

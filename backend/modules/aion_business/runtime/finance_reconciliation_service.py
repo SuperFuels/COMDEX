@@ -11,6 +11,7 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.finance_integration_store import FinanceIntegrationStore
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
 
@@ -57,8 +58,10 @@ def _period(value: Any) -> dict[str, str | None]:
 
 
 class FinanceReconciliationService:
-    def __init__(self, repository: BusinessContainerRepository | None = None) -> None:
+    def __init__(self, repository: BusinessContainerRepository | None = None, *,
+                 integration_store: FinanceIntegrationStore | None = None) -> None:
         self.repository = repository or BusinessContainerRepository()
+        self.integration_store = integration_store or FinanceIntegrationStore()
 
     def run(self, workspace_id: str, *, artifact_periods: dict[str, Any] | None = None,
             tolerance: float = 0.01, created_at: str | None = None,
@@ -146,11 +149,11 @@ class FinanceReconciliationService:
         sync_id = ref.get("sync_id") or xero.get("sync_id")
         values: dict[str, float] = {}
         if sync_id:
-            sync_dir = AIONBusinessPaths.business_container_dir(workspace_id) / "integrations/xero/syncs" / str(sync_id)
+            sync_dir = self.integration_store.root(workspace_id, "xero") / "syncs" / str(sync_id)
             for name in ("profit_and_loss.json", "balance_sheet.json", "bank_summary.json"):
                 path = sync_dir / name
-                if path.exists():
-                    self._walk_xero(json.loads(path.read_text(encoding="utf-8")), values)
+                if self.integration_store.exists(path):
+                    self._walk_xero(self.integration_store.read_json(path, {}), values)
         return values, _period(xero.get("period") or ref.get("period")), ref
 
     def _walk_xero(self, value: Any, output: dict[str, float]) -> None:

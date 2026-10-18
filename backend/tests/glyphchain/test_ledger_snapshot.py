@@ -64,7 +64,19 @@ def _database(path: Path, *, height: int = 1) -> dict:
         PRAGMA user_version=1;
         """
     )
-    payload = {"proof_id": f"proof-{height}", "document_hash": "ab" * 32}
+    payload = {
+        "schema_version": "glyphchain.document-proof.v1",
+        "proof_id": f"proof-{height}",
+        "document_id_commitment": "11" * 32,
+        "document_hash": "ab" * 32,
+        "signed_copy_hash": "22" * 32,
+        "signatures_root": "33" * 32,
+        "audit_root": "44" * 32,
+        "issuer_key_id": "snapshot-test-key",
+        "completed_at_ms": 1_700_000_000_000 + height,
+        "policy_version": "snapshot-test-v1",
+        "verification_version": "sha256-merkle-ed25519-v1",
+    }
     tx_id, tx_hash = compute_tx_identity("origin-device", height, "DOCUMENT_PROOF_V1", payload)
     txs_root = merkle_root([hash_leaf(bytes.fromhex(tx_hash))]).hex()
     state_root = f"{height:064x}"

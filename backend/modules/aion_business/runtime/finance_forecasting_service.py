@@ -15,9 +15,12 @@ from typing import Any
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import configured_business_container_repository
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
 from backend.modules.aion_business.runtime.finance_management_report_builder import build_finance_management_report
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 def _now() -> str:
@@ -70,9 +73,14 @@ class FinanceForecastingService:
         container_repository: BusinessContainerRepository | None = None,
         *,
         artifact_root: Path | None = None,
+        domain_store: VaultDomainStore | None = None,
     ) -> None:
-        self.container_repository = container_repository or BusinessContainerRepository()
+        self.container_repository = container_repository or configured_business_container_repository()
         self.artifact_root = artifact_root
+        self.domain_store = domain_store
+        if container_repository is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="finance-forecasting-runtime")
 
     def run(
         self,
@@ -237,6 +245,8 @@ class FinanceForecastingService:
         }
 
     def _scenario_dir(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_finance_scenarios__") / workspace_id
         root = self.artifact_root or AIONBusinessPaths.business_container_dir(workspace_id)
         path = root / "finance" / "scenarios"
         path.mkdir(parents=True, exist_ok=True)
@@ -244,6 +254,22 @@ class FinanceForecastingService:
 
     def _store(self, workspace_id: str, record: dict[str, Any]) -> Path:
         path = self._scenario_dir(workspace_id) / f"{record['scenario_id']}.json"
+        if self.domain_store is not None:
+            entity_id = f"scenarios/{record['scenario_id']}"
+            existing = self.domain_store.get_optional(
+                "finance.operations_records", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            if existing is not None:
+                self._verify(dict(existing["payload"]))
+                if existing["payload"].get("scenario_hash") != record.get("scenario_hash"):
+                    raise ValueError(f"scenario_id_conflict:{record['scenario_id']}")
+                return path
+            self.domain_store.put(
+                "finance.operations_records", workspace_id=workspace_id,
+                entity_id=entity_id, payload=record, expected_version=None,
+                actor_id="finance-forecasting-runtime",
+            )
+            return path
         if path.exists():
             existing = json.loads(path.read_text(encoding="utf-8"))
             self._verify(existing)
@@ -268,6 +294,12 @@ class FinanceForecastingService:
             storage_path = str(path.relative_to(AIONBusinessPaths.ROOT))
         except ValueError:
             pass
+        target = (
+            {"vault_domain_id": "finance.operations_records",
+             "vault_entity_id": f"scenarios/{record['scenario_id']}"}
+            if self.domain_store is not None
+            else {"storage_path": storage_path}
+        )
         pointer = {
             "id": f"finance_scenario_pointer_{record['scenario_id']}",
             "name": record["name"],
@@ -276,11 +308,10 @@ class FinanceForecastingService:
             "source_of_truth": "business_container",
             "file_cabinet_role": "index_pointer_only",
             "status": record["status"],
-            "target": {
+            "target": target | {
                 "business_container_id": workspace_id,
                 "sub_container": "finance",
                 "category": "scenarios",
-                "storage_path": storage_path,
                 "scenario_id": record["scenario_id"],
                 "scenario_hash": record["scenario_hash"],
             },
@@ -314,7 +345,9 @@ class FinanceForecastingService:
             "assumptions": record["assumptions"],
             "variant_summaries": {key: value["summary"] for key, value in record["variants"].items()},
             "scenario_hash": record["scenario_hash"],
-            "storage_path": str(path),
+            "storage_path": "" if self.domain_store is not None else str(path),
+            "vault_domain_id": "finance.operations_records" if self.domain_store is not None else "",
+            "vault_entity_id": f"scenarios/{record['scenario_id']}" if self.domain_store is not None else "",
         }
         finance.setdefault("scenarios", {})[record["scenario_id"]] = summary
         finance["latest_scenario"] = summary
@@ -341,6 +374,17 @@ class FinanceForecastingService:
         self.container_repository.save_dict(workspace_id, "boardroom_snapshot", snapshot)
 
     def list(self, workspace_id: str) -> list[dict[str, Any]]:
+        if self.domain_store is not None:
+            records = [
+                dict(item["payload"])
+                for item in self.domain_store.list(
+                    "finance.operations_records", workspace_id=workspace_id,
+                )
+                if str(item.get("entity_id") or "").startswith("scenarios/")
+            ]
+            for record in records:
+                self._verify(record)
+            return sorted(records, key=lambda item: str(item.get("created_at") or ""), reverse=True)
         path = self._scenario_dir(workspace_id)
         records = []
         for item in sorted(path.glob("*.json"), key=lambda candidate: candidate.stat().st_mtime, reverse=True):

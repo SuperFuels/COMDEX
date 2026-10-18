@@ -77,7 +77,7 @@ def build_macos_pkg() -> Path:
                 "ProgramArguments": [
                     service_python,
                     "-m", "backend.modules.aion_business.runtime.sovereign_installed_service",
-                    "--port", "8776",
+                    "--port", "0",
                 ],
                 "WorkingDirectory": "/Library/Application Support/Tessaris/AION",
                 "RunAtLoad": True,

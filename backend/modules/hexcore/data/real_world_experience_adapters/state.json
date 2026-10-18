@@ -386,24 +386,24 @@
       "adapter_id": "tessaris_business_outcome_v1",
       "authority": "versioned Tessaris business containers and later owner-confirmed operating metrics",
       "authority_probe": {
-        "observed_at": "2026-10-09T21:45:36.996201+00:00",
+        "observed_at": "2026-10-18T09:20:50.542527+00:00",
         "reachable": true,
-        "snapshot_sha256": "63117da7d2c8b93ff8923c7cbfee2ff797a1bd2efbfd0d6ae811a7163ce87c4c",
+        "snapshot_sha256": "024fa9a52fb2938cb64ef4938e74e182f662fb387e32fcf61fbdac1d24d4d178",
         "sources": [
           {
-            "mtime": 1791148460.6766307,
+            "mtime": 1792286377.2002091,
             "path": ".runtime/AION_BUSINESS/business_containers/home-fixed/business_financial_model.json",
-            "sha256": "bcc9f5c1bf5838f3e0e48c0e808b7539e563dbfad8b8f92229a3c364de8e2078"
+            "sha256": "3a822561734c560da6c628591bc51b0eb98354ea8da0ec3b70d7e6671f64b04d"
           },
           {
-            "mtime": 1791148460.6717486,
+            "mtime": 1792286377.1873786,
             "path": ".runtime/AION_BUSINESS/business_containers/home-fixed/business_operating_model.json",
-            "sha256": "b6b764880f7e9d5f113b60e5a05596237ed34b173fe38360914884ec6dd34275"
+            "sha256": "ab06c237590a83ab99cfee7c32999fa99e1108f5ed7f8d48915f4330376ec70a"
           },
           {
-            "mtime": 1791525696.2001135,
+            "mtime": 1792308581.6848886,
             "path": ".runtime/AION_BUSINESS/business_containers/home-fixed/operational_runtime_summary.json",
-            "sha256": "16397fa08e245f2df2e50675ab633683430e8cd96047e61d42e21ff13909ffd5"
+            "sha256": "13b09fe17e29a65776b61ed7768554a279084d1dcf91cfca19ac521e86a64860"
           }
         ],
         "workspace": "home-fixed"
@@ -889,15 +889,15 @@
       "authority": "independently published market candles observed after a frozen paper order",
       "authority_probe": {
         "authority": "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=60",
-        "candle_epoch": 1791576000,
-        "close": 82437.6,
+        "candle_epoch": 1792310400,
+        "close": 81636.0,
         "interval_minutes": 60,
         "market_available": true,
-        "observed_at": "2026-10-09T21:45:37.082858+00:00",
-        "previous_candle_epoch": 1791572400,
-        "previous_close": 82252.4,
+        "observed_at": "2026-10-18T09:20:50.649739+00:00",
+        "previous_candle_epoch": 1792306800,
+        "previous_close": 81576.9,
         "reachable": true,
-        "snapshot_sha256": "5ac9a65514e7e0445f224235ab9976e7bbef17787037e3080797c8fa9ffa6c22",
+        "snapshot_sha256": "30fdf52be5abc4c272e52d696be4ad136eac999d98dbaabb4be424a362d89857",
         "symbol": "XBTUSD"
       },
       "experience_entry_subjects": {
@@ -983,40 +983,7 @@
       "title": "Delayed paper-traded market strategy"
     },
     {
-      "active_contract": {
-        "adapter_id": "public_forecasting_competition_v1",
-        "anchor_cycle": 9348,
-        "anchor_outcome_sha256": "a7ee20e181e4429c070a86f8362836c6f980f4232e46862521c7153ac258a19a",
-        "commitment_sha256": "a5294897323d731c9a920f2cfe45564f49a93bf25980bdf2099be6ce3d611a2d",
-        "contract_id": "real_public_forecast__madrid_weather_v1__1795",
-        "created_at": "2026-10-09T21:22:49.486005+00:00",
-        "created_epoch": 1791580969.485996,
-        "external_writes": 0,
-        "forecast": {
-          "temperature_max": 18.8,
-          "temperature_min": 8.8,
-          "wind_max": 15.0
-        },
-        "not_before_epoch": 1791581869.485996,
-        "owner_interventions": 0,
-        "scoring_rule": "temperature inside frozen interval and wind no greater than frozen ceiling",
-        "selection_rule": "first reachable Madrid public sensor row after not_before_epoch",
-        "sequence": 1795,
-        "subject_evidence": [
-          {
-            "actual": "intermediate",
-            "ready": true,
-            "required": "intermediate",
-            "subject_id": "data_statistics"
-          },
-          {
-            "actual": "intermediate",
-            "ready": true,
-            "required": "intermediate",
-            "subject_id": "scientific_method"
-          }
-        ]
-      },
+      "active_contract": {},
       "adapter_id": "public_forecasting_competition_v1",
       "authority": "official public data release after timestamped forecast commitment",
       "authority_probe": {
@@ -1071,7 +1038,7 @@
       },
       "risk": "read_only_public_data",
       "safe_early_experience": true,
-      "status": "waiting_for_later_public_forecast_outcome",
+      "status": "real_forecast_outcome_recorded_waiting_for_new_anchor",
       "strategic_priority": 1,
       "title": "Public delayed forecasting challenge"
     },
@@ -1142,14 +1109,14 @@
   ],
   "completed_contracts": {
     "paper_market_strategy_v1": {
-      "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0437",
-      "capsule_sha256": "15630c5aaabbedcfb4ea9b681c75d89aac73012b986a17ffbadc9b685328c7f7",
-      "completed_at": "2026-10-09T21:02:31.229052+00:00"
+      "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0527",
+      "capsule_sha256": "a31f75a38dcae69ba6935e398a407b8d1ca9825960d2757a0bf5700d3a9668bf",
+      "completed_at": "2026-10-18T09:01:44.204979+00:00"
     },
     "public_forecasting_competition_v1": {
-      "capsule_id": "real_forecast_outcome__madrid_weather_v1__1794",
-      "capsule_sha256": "5db302bcb8dd76c3db9b35d42063c0b82032923c44cbfa0c38265a869c62f434",
-      "completed_at": "2026-10-09T21:08:19.215783+00:00"
+      "capsule_id": "real_forecast_outcome__madrid_weather_v1__2124",
+      "capsule_sha256": "18b42f0cbbf02fcbe42017cc5ef15119976da10ddd1a493d1833d743c5a462a3",
+      "completed_at": "2026-10-18T09:17:01.520913+00:00"
     }
   },
   "completed_history": {
@@ -3338,6 +3305,456 @@
         "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0437",
         "capsule_sha256": "15630c5aaabbedcfb4ea9b681c75d89aac73012b986a17ffbadc9b685328c7f7",
         "completed_at": "2026-10-09T21:02:31.229052+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0438",
+        "capsule_sha256": "8e14989dfb1a68dde2d11fc8e361139c647c11440a4919500897f29fa763ce61",
+        "completed_at": "2026-10-09T23:04:35.337556+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0439",
+        "capsule_sha256": "c227f207d9340ba564679744375bfe77655b2f61b1dd990bf2fa9085d5a683c4",
+        "completed_at": "2026-10-10T01:00:49.197165+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0440",
+        "capsule_sha256": "0bdb549e3f63c8db734593472a5edb8f2bec23b0bd548f169d914ffc1b83c845",
+        "completed_at": "2026-10-10T03:00:39.905808+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0441",
+        "capsule_sha256": "652e0ffdd6ef1d165fe62f313d72ab5a86c661a8cdc591227f81cb1a25a71a1b",
+        "completed_at": "2026-10-10T05:00:53.277250+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0442",
+        "capsule_sha256": "e9cc75ca14d3b8a7948f28ba1e59f336bb2fdb06fa5b16519d596fe36739eba1",
+        "completed_at": "2026-10-10T07:00:26.299621+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0443",
+        "capsule_sha256": "21b14370d0bf0b16a1d3ee4ec4308f2f19dfaa3d8d2cc74639863ce6e2ad8419",
+        "completed_at": "2026-10-10T09:00:17.593488+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0444",
+        "capsule_sha256": "3a0050efac1c9f4cb3ee26a2232be3373700d4fca7c62dae2831b0a38d1cd077",
+        "completed_at": "2026-10-10T11:02:48.996722+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0445",
+        "capsule_sha256": "1f81bb37fc30160312b62397c1e11960640d8069997f9110854bbf7b94685da1",
+        "completed_at": "2026-10-10T13:01:24.437011+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0446",
+        "capsule_sha256": "b5f6fffad3a1c364a179b507e912809dd722fe25b0a5eda952d750860347a0be",
+        "completed_at": "2026-10-10T15:01:21.944943+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0447",
+        "capsule_sha256": "81ff98d516633425b868e60fc79666d6afd851f142794a3c7e0cdd84eb07ba76",
+        "completed_at": "2026-10-10T17:01:49.278925+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0448",
+        "capsule_sha256": "f12058f5c48f6533ece7b4f4d49af8cec4f9fe028d083024a1e166ee01b675ad",
+        "completed_at": "2026-10-10T19:01:01.221253+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0449",
+        "capsule_sha256": "dc1ce09372a68eaf1753bc22c6b5fb5063c376e1d89e2d940e98fc7759997d5b",
+        "completed_at": "2026-10-10T21:01:29.783902+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0450",
+        "capsule_sha256": "c416323dc9ce1865952ebd37328dced9612d02c276d15544d92405a16e7c4351",
+        "completed_at": "2026-10-10T23:04:22.605019+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0451",
+        "capsule_sha256": "1306c731713f3d732ff22d17d8a68123e3db6c1162704894077621276c5fb38f",
+        "completed_at": "2026-10-11T01:02:14.416658+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0452",
+        "capsule_sha256": "29140efe0d7dc7481e04aa0d99ac56623c43df933b3ce0d67ff1b29dabc9fb6c",
+        "completed_at": "2026-10-11T03:00:45.188300+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0453",
+        "capsule_sha256": "c15e058249819c7e31036d837198cf9f1219fc5c96d05598ccbdd5e17caec344",
+        "completed_at": "2026-10-11T05:03:02.957256+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0454",
+        "capsule_sha256": "dd9b7acd417fd86d6075a66d938041407900be65242af39ff2dfd5429e940f1e",
+        "completed_at": "2026-10-11T07:00:29.763650+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0455",
+        "capsule_sha256": "edf90940c635109fef87320ebccf0d354dbff60f870e6392d35e249372e7dbba",
+        "completed_at": "2026-10-11T09:01:07.814581+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0456",
+        "capsule_sha256": "91d198c07ed11a858368f2a858c357bac6c9392de1bdfe7564e7d6a8042e439a",
+        "completed_at": "2026-10-11T11:03:44.328298+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0457",
+        "capsule_sha256": "2b27ee646272df2bd689453369b99f0783dd7b7fe9abc075177ead4ad824f1de",
+        "completed_at": "2026-10-11T13:00:52.905856+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0458",
+        "capsule_sha256": "5936c13426842d5e26261e1d97cd879e944bab978c06ee4cc8494927ba9f90f4",
+        "completed_at": "2026-10-11T15:01:39.386086+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0459",
+        "capsule_sha256": "7ddc9ce3467a7b1ac635a1c5375bd3a3176e6b2de88a4977e4d167be6a068d25",
+        "completed_at": "2026-10-11T17:00:40.291290+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0460",
+        "capsule_sha256": "9e335bd11bf04588215dc1908bcebebaab4062fb787348c302f7c53b99e6c787",
+        "completed_at": "2026-10-11T19:54:04.749566+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0461",
+        "capsule_sha256": "752aba571631f3694703e988bcfc17f09f36dbd0a060e2cfdec725b47d5c14b3",
+        "completed_at": "2026-10-11T21:01:20.195047+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0462",
+        "capsule_sha256": "96cb95b6ee7d320d5f8d951f1c59430fc7ab88c16ac7ec573f6810115d066541",
+        "completed_at": "2026-10-12T13:00:04.830606+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0463",
+        "capsule_sha256": "6be823815b30a9eb0b7b79fb95a5e5a30aa53513aaec89e20069fd406b258378",
+        "completed_at": "2026-10-12T15:01:59.338829+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0464",
+        "capsule_sha256": "ae8cad6c02f26c2753aa1a8d5345a766ad7fcc67a71ccff46a2f9502414a04fa",
+        "completed_at": "2026-10-12T17:00:38.946029+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0465",
+        "capsule_sha256": "6f2b036f769755b8179c1677d8b6f3adc8e9cbed9b9f5b727cb881087b8bae4d",
+        "completed_at": "2026-10-12T19:01:23.132721+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0466",
+        "capsule_sha256": "a74e27469631ef066bd2f0dca3dd8134957521010db63d8fbc3cc8e0a88cd0e7",
+        "completed_at": "2026-10-12T21:02:42.887185+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0467",
+        "capsule_sha256": "24978bd46ccb4848d257609dce0c853278d6f9c92c58e38f4916d2547eb01b4f",
+        "completed_at": "2026-10-12T23:00:58.884870+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0468",
+        "capsule_sha256": "660c7add33fd059fc04633b3edb6a71a82e28f1296e34ce3783d7aa86a512fbe",
+        "completed_at": "2026-10-13T01:01:57.125051+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0469",
+        "capsule_sha256": "be13752d8cc3baa713b6cb9ebfc1df0cddc4b642a84a955f34a8408f2f8dc525",
+        "completed_at": "2026-10-13T03:01:30.949299+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0470",
+        "capsule_sha256": "60a587d209b50293f22ae4b73c1aa8a0a5b8f211c81a792c22b7ec524d5bf5d4",
+        "completed_at": "2026-10-13T05:02:29.679920+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0471",
+        "capsule_sha256": "2a4071fee614a6e864305348ab3d4acf125f92acfd0ed0905dc887e2583592ef",
+        "completed_at": "2026-10-13T07:51:08.573148+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0472",
+        "capsule_sha256": "f090df8d26bc6382facbfd20c6d0ca720bfe035b9ed52ce6b6fbd23de6af1f15",
+        "completed_at": "2026-10-13T09:01:23.807246+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0473",
+        "capsule_sha256": "98df1069db1519f8c8ecdf7282ad488a72fbc74d61a49477fa567a0323ec7f48",
+        "completed_at": "2026-10-13T16:58:07.665358+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0474",
+        "capsule_sha256": "56b9c3df83fa3e74d9375145ac6937b4d1d62f928c55e29a28238302bd62c4e0",
+        "completed_at": "2026-10-13T18:01:01.317012+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0475",
+        "capsule_sha256": "67f4c565cdd0e5f48b4fa5992fdc79b5ce048f8205e7e3bdfce3752691a00205",
+        "completed_at": "2026-10-13T20:03:04.528561+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0476",
+        "capsule_sha256": "43da3e3d4c9313e939862f2bbe22a8a7d16a5b445cf5ecce2f31be14b2b77c8d",
+        "completed_at": "2026-10-13T22:02:44.743527+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0477",
+        "capsule_sha256": "1e504b8fa644ba586eec7350a6b1e7b616f532beb7f557e97928c1a90777fc76",
+        "completed_at": "2026-10-14T00:00:58.995076+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0478",
+        "capsule_sha256": "eb170b9df99b6ebdb431dcf09e6691b8d2e3d430c304a6fbc0fa66826b8e6a36",
+        "completed_at": "2026-10-14T02:01:02.588020+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0479",
+        "capsule_sha256": "449fa700c195245e08c0d276b6592bf1ce8f544f8f2034e697177a60e72c2a97",
+        "completed_at": "2026-10-14T04:01:44.928405+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0480",
+        "capsule_sha256": "ed5dd81087796a73fb70436b99a5d6db0f802c1a6f5992b92de3d16d17f31f30",
+        "completed_at": "2026-10-14T06:01:08.387853+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0481",
+        "capsule_sha256": "a10e46adc300f487f0fc3f4ab7f9b63ac7d1b6668bc1f1ad0ba96a0fe4c39a33",
+        "completed_at": "2026-10-14T08:01:22.607036+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0482",
+        "capsule_sha256": "2e41f9db3ebb87e6c12a568a6dcaa17045365d7acb7034a96758e022e1332912",
+        "completed_at": "2026-10-14T10:03:28.459166+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0483",
+        "capsule_sha256": "7fffb26ed6df7fa0f57edf26dafb8a8370df3ba02c5555cb84e3e5557745ac04",
+        "completed_at": "2026-10-14T12:06:18.880285+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0484",
+        "capsule_sha256": "6a0ccded47ffd9b9292ce2c05fbba8b143669544e2d1fdd8d41907478b83ab1f",
+        "completed_at": "2026-10-14T14:02:47.156624+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0485",
+        "capsule_sha256": "f376a669ef99fd1421e15f1ddab0b865624bae9daa6c62bdce2c00cd26549caf",
+        "completed_at": "2026-10-14T16:01:16.464015+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0486",
+        "capsule_sha256": "7234a3e720488a219579c4ad57ecd8e53082a88c5592cf5fb594b823e16a05d3",
+        "completed_at": "2026-10-14T18:01:37.925682+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0487",
+        "capsule_sha256": "0ef1a67fcc38a8d473a95f757d11497c941eea6eedac95602d875f40112e3390",
+        "completed_at": "2026-10-14T20:01:29.098071+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0488",
+        "capsule_sha256": "3db266cb13cc96dbcc2a35f5654c1d76b52102acff9aeb4807007b417c20d824",
+        "completed_at": "2026-10-14T22:01:20.171218+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0489",
+        "capsule_sha256": "d4039b6c8fdf312ddeff90ad39dbe28833c656669dadd175e19f799204ba3abd",
+        "completed_at": "2026-10-15T00:02:32.008258+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0490",
+        "capsule_sha256": "ee155b76bb9d97d3a51922b6cce7054f7089471583929a1fd293d35e960df71b",
+        "completed_at": "2026-10-15T02:00:45.262732+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0491",
+        "capsule_sha256": "54790367e1259c439bd19dfd6b89da6b4386c8930f6f5508640374b28245345f",
+        "completed_at": "2026-10-15T04:03:47.463773+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0492",
+        "capsule_sha256": "201798d7a236da85e203ce17636ecf15c32d556814901f52e0617243ba396b66",
+        "completed_at": "2026-10-15T06:01:58.112766+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0493",
+        "capsule_sha256": "90b2777add3b9aca38f1dfbd4a14186c08e581161369dca4df20953f6257224c",
+        "completed_at": "2026-10-15T08:02:42.672080+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0494",
+        "capsule_sha256": "5460eaddcdde446ca972744da5160a74858c32c7f3cb225c7611130ce18cd401",
+        "completed_at": "2026-10-15T10:03:57.869252+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0495",
+        "capsule_sha256": "3d32b1953c40597fcc7af66b9f598f3528521c1a77c76221f9140f1ef42c70a3",
+        "completed_at": "2026-10-15T12:02:16.730281+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0496",
+        "capsule_sha256": "28f40ec330ba21fc84b787622a54cacbbfc611e889e8eaf30cdf613b5cd5f302",
+        "completed_at": "2026-10-15T14:00:34.338594+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0497",
+        "capsule_sha256": "82633f769b04385ed093928449bd3a6809eb27942a6944f51ea220eb12835cdc",
+        "completed_at": "2026-10-15T16:03:21.966005+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0498",
+        "capsule_sha256": "c990fd0cde65c3450273cdec1a5eeb70696eb892fa12f5d09256455eed1121e5",
+        "completed_at": "2026-10-15T18:03:15.715653+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0499",
+        "capsule_sha256": "a7b33bdd933714620e1285ef0e7f641f03d46737175c9111348a8765a77cb7aa",
+        "completed_at": "2026-10-15T20:01:38.348003+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0500",
+        "capsule_sha256": "433a13afff6d3916cd8526a6c89c358ef2fe6c54cc7723459bd25097b453fcba",
+        "completed_at": "2026-10-15T22:01:27.605056+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0501",
+        "capsule_sha256": "4822dafc025fa3c0263215f4df9da61c7482935f2d96eeb4a66f282f876fae94",
+        "completed_at": "2026-10-16T00:02:04.234037+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0502",
+        "capsule_sha256": "4d3271db8f7b9125efeb7fcc003752595b3dd5cc80c86376e7c6aee3bbdb7bcd",
+        "completed_at": "2026-10-16T02:01:11.609817+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0503",
+        "capsule_sha256": "2bb1c73480bbb6b97c187ada16760f7543073aed6a83b43db9c5235a6850dfa4",
+        "completed_at": "2026-10-16T04:02:01.471202+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0504",
+        "capsule_sha256": "fd87167bd87acbcbae74037f39ff7187c678806253daf4a61a80d337949fed52",
+        "completed_at": "2026-10-16T06:03:12.261596+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0505",
+        "capsule_sha256": "740fcc06f6c5f654844138805cf122260f691f154558140d668bc295a568531b",
+        "completed_at": "2026-10-16T08:03:22.285309+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0506",
+        "capsule_sha256": "c32a2204efa12450dc7a6ca091b53ac4d500272ad617598859aba1af5170b0a2",
+        "completed_at": "2026-10-16T10:01:13.179729+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0507",
+        "capsule_sha256": "d8c06b84efde6b1f7ec10023c70377deefd7a843b8d7fa70bf9228560b03328d",
+        "completed_at": "2026-10-16T12:00:26.823161+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0508",
+        "capsule_sha256": "dd2d775e1376c71d9e85ff66465f90eeb5802f085eb8d5a994893ecd9c34445b",
+        "completed_at": "2026-10-16T14:23:51.227536+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0509",
+        "capsule_sha256": "45fde895f8a0792f50c151152e91d8a2e311311dc5227696be3f5df02c5caf47",
+        "completed_at": "2026-10-16T16:40:10.829386+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0510",
+        "capsule_sha256": "f2ee9b1bdc813b7fc6c6d475b4b33290c962f735f9d68fdc5edc79de71932a53",
+        "completed_at": "2026-10-16T18:00:57.902533+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0511",
+        "capsule_sha256": "ddc7c775f7d3e7685959734ec4bd8bf5a4e3059adf1c849ed937ceaeccef8b59",
+        "completed_at": "2026-10-16T20:11:16.825080+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0512",
+        "capsule_sha256": "b8bcd88b3ac2d145d93674efb94e1c6a8cd83882a9f6398f24805e2a6ce33429",
+        "completed_at": "2026-10-16T22:00:47.567609+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0513",
+        "capsule_sha256": "63bfa5282281ff79c901900054f1766a28ec416d8675c65da49233d6f349c601",
+        "completed_at": "2026-10-17T00:01:58.066951+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0514",
+        "capsule_sha256": "b98e8579db2a619328eddd479db8532b11f5a2c985cf76a2ad4d5c73700ff297",
+        "completed_at": "2026-10-17T02:03:25.505131+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0515",
+        "capsule_sha256": "ed99d64905fb4932c254cb341b6184aa6411def149dd75cbbfb00aea632066b3",
+        "completed_at": "2026-10-17T04:03:00.991629+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0516",
+        "capsule_sha256": "4ac9bf96d747748de7a6288e61248fce8d859dd65a438274680a94d53e8c8384",
+        "completed_at": "2026-10-17T06:00:33.865231+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0517",
+        "capsule_sha256": "5b4c03378805530aee822ce147a7a0a2766834569f284ed19cbbfcf5850a5dab",
+        "completed_at": "2026-10-17T08:00:14.777691+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0518",
+        "capsule_sha256": "091edba0dcc3cdc703747242b4dae646b69c29974fc779ce6f4495ca7f841180",
+        "completed_at": "2026-10-17T12:05:51.727978+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0519",
+        "capsule_sha256": "fb29c191fe9ed3a60fa9046596cc614e415e967891474c05adf76bb36385f645",
+        "completed_at": "2026-10-17T14:50:05.203883+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0520",
+        "capsule_sha256": "6045875bce6638f0de9d83d2e009498afbd98a93395b0fd5487529ac5d3db4da",
+        "completed_at": "2026-10-17T16:21:49.607623+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0521",
+        "capsule_sha256": "ee4c1ea19896f67a5672fa0df9c534bef9217211727b8c2b05c06f761228a57b",
+        "completed_at": "2026-10-17T18:18:02.697318+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0522",
+        "capsule_sha256": "feb9b3ea75f779d0fce806b724ef185e26082050e98ebe8f3b5ff4c1b267171d",
+        "completed_at": "2026-10-17T20:19:56.533647+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0523",
+        "capsule_sha256": "a54ef86dc9263fd35f9104cba2daf4bee75c7e6ae2c9a364d9b2148861b3237d",
+        "completed_at": "2026-10-17T22:58:12.948074+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0524",
+        "capsule_sha256": "f69168d4826cd8bfa3526d95ac97415b7bfb7852ce0eac82789d383d758d3429",
+        "completed_at": "2026-10-18T01:35:50.897917+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0525",
+        "capsule_sha256": "df79d5af60aa00212a406423738fb51c51b0005de6c6ee7572a13c71aab462e3",
+        "completed_at": "2026-10-18T03:00:23.851794+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0526",
+        "capsule_sha256": "3907e0b1c07b5553e4df876ed6a539213009bc1dc1134d780ea4185f1694f099",
+        "completed_at": "2026-10-18T07:30:47.267554+00:00"
+      },
+      {
+        "capsule_id": "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0527",
+        "capsule_sha256": "a31f75a38dcae69ba6935e398a407b8d1ca9825960d2757a0bf5700d3a9668bf",
+        "completed_at": "2026-10-18T09:01:44.204979+00:00"
       }
     ],
     "public_forecasting_competition_v1": [
@@ -12310,44 +12727,1660 @@
         "capsule_id": "real_forecast_outcome__madrid_weather_v1__1794",
         "capsule_sha256": "5db302bcb8dd76c3db9b35d42063c0b82032923c44cbfa0c38265a869c62f434",
         "completed_at": "2026-10-09T21:08:19.215783+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1795",
+        "capsule_sha256": "8b3beeafd78c9fa816c65903d9aee3417a48bc99fbcf17762ac064b37e98d51b",
+        "completed_at": "2026-10-09T21:49:49.583773+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1796",
+        "capsule_sha256": "f8657164820e2a0c409b58ce04fac9f8cdfb521198d3d4de3a73e5a90b5c7f98",
+        "completed_at": "2026-10-09T22:16:40.809462+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1797",
+        "capsule_sha256": "c68fa0d487cdd30d68362cd80fab8c1bf66f46c46c4241bebac34c137bcff38c",
+        "completed_at": "2026-10-09T22:45:03.053876+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1798",
+        "capsule_sha256": "05830e7d4b233f632149b0ddac6cb5445482aa7b814031309d13702a7ee4d8c0",
+        "completed_at": "2026-10-09T23:14:32.761682+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1799",
+        "capsule_sha256": "181b81288b8c56b3e4b4d7b82673a3b4169d334726540f1daf677ff6341d1f17",
+        "completed_at": "2026-10-09T23:40:46.968279+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1800",
+        "capsule_sha256": "b8e1c1a35ffa123987efdbb440c368e1fff80c989f5e34cda8ea770cf4824142",
+        "completed_at": "2026-10-10T00:09:00.352502+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1801",
+        "capsule_sha256": "c05087818fd811a65403a4540e1f1f47337cb987c526155e188278456eed183c",
+        "completed_at": "2026-10-10T00:36:39.990167+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1802",
+        "capsule_sha256": "bd6dfbea28480e8f76af174ce57730161f03760c61dde859851cbba3bedc5a10",
+        "completed_at": "2026-10-10T01:05:10.076617+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1803",
+        "capsule_sha256": "b355577c3df3b10e0dd6ba9c2707d608a00e0bae9f4a752dbcb02fc2be1f674b",
+        "completed_at": "2026-10-10T01:33:17.658368+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1804",
+        "capsule_sha256": "1ce0a262f0bf735c2151e37ed81c5900a3a2d4271351e5c9230afcea128ec492",
+        "completed_at": "2026-10-10T02:00:36.685247+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1805",
+        "capsule_sha256": "d1b817de0cfbd78bc8f185827a4c80e4ff01657eb7437041f949a5c888a37294",
+        "completed_at": "2026-10-10T02:28:32.073490+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1806",
+        "capsule_sha256": "f646364891ef7981ff221ac9e639d5af6d3afe599a607c7d19fd698ea9669372",
+        "completed_at": "2026-10-10T02:57:06.756257+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1807",
+        "capsule_sha256": "3adf1f3c729f5087df50e352ea1921e8948d517470adc9d2da9089da18a2c542",
+        "completed_at": "2026-10-10T03:25:01.947150+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1808",
+        "capsule_sha256": "ee80244011394ca8fb68205fcd69fa817f0320860f96570b928b2a33bf62a90d",
+        "completed_at": "2026-10-10T03:52:03.408373+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1809",
+        "capsule_sha256": "87e313f6b5a537a87139e4cc627847abefdb601d31cac01fd8cff57e47b39207",
+        "completed_at": "2026-10-10T04:20:30.379856+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1810",
+        "capsule_sha256": "11b54446b7f6a88ac5130ca5c575e050342f4fe955792403896bf2eeb843f621",
+        "completed_at": "2026-10-10T04:47:42.302672+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1811",
+        "capsule_sha256": "9873f811ec19afaeb9b84a82693350f3326bdc09ef6006b3830b812f0fd7bd3f",
+        "completed_at": "2026-10-10T05:16:19.926777+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1812",
+        "capsule_sha256": "d3d196d8b1a84d0b77e2f9e6e1ab0e5c533e0aab8e4600e10bb5cabc56b40a38",
+        "completed_at": "2026-10-10T05:45:09.270098+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1813",
+        "capsule_sha256": "cab25c89b1805f3f21a742cbb248d48085acb11aabea2b9a900546fdcceb4b5e",
+        "completed_at": "2026-10-10T06:11:15.972439+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1814",
+        "capsule_sha256": "5ed98ebce902704a3a1cfc84815952fe0a951f7210019e9beeec147f73c92456",
+        "completed_at": "2026-10-10T06:39:33.731679+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1815",
+        "capsule_sha256": "c86cd1d08bd11d41134de08dbab40c8a1beffc0a50a1cca27f7f5a4525b266eb",
+        "completed_at": "2026-10-10T07:07:03.969935+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1816",
+        "capsule_sha256": "190fcc0b2697c125a9c963239426d1303489b9d69c199d50cfdf592af232bf5d",
+        "completed_at": "2026-10-10T07:34:44.183526+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1817",
+        "capsule_sha256": "6ad23e33464e520afc33d4b3c6346b6ec3de86e9d671888a63a3ed644d9ef08b",
+        "completed_at": "2026-10-10T08:04:48.966304+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1818",
+        "capsule_sha256": "7d68c32c4deee9591672a974eaf1c3fe8c7fe683d12ccc2a0cd3b5df8d1feafb",
+        "completed_at": "2026-10-10T08:33:46.723120+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1819",
+        "capsule_sha256": "8ef9ebc531c2c7f39494dba2aea82f354836865076a9fe2a602986a153d93b77",
+        "completed_at": "2026-10-10T09:00:17.599577+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1820",
+        "capsule_sha256": "929aa73bbf61305b0d0f59b8c0c104c3686cc076c9359cf16590bdbe9e02d87d",
+        "completed_at": "2026-10-10T09:27:50.150810+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1821",
+        "capsule_sha256": "dc569a0f1ac68d512ab2bf64765e3fce29892c214bed32a3443f2f4a90c230a0",
+        "completed_at": "2026-10-10T10:00:27.026560+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1822",
+        "capsule_sha256": "2bf6f0c0818844f69457e1c79fdaaefda2e6737d261feb98a272b24dfa8120da",
+        "completed_at": "2026-10-10T10:28:58.569489+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1823",
+        "capsule_sha256": "cd3a1c7505f506cf70b1400e636a8144ac4c22d86bb9bf67ed6ae7c7d3a9d496",
+        "completed_at": "2026-10-10T11:06:51.938282+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1824",
+        "capsule_sha256": "29dfff5c87e0c304f16c412fa7b61fbd258bcb47cb8ca3374011005b59747bf5",
+        "completed_at": "2026-10-10T11:36:32.151665+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1825",
+        "capsule_sha256": "9f84b2bbb0f4b1387c82bf3367daff0fb59d5c34f71388c87b98f6db0f5804c9",
+        "completed_at": "2026-10-10T12:08:22.018777+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1826",
+        "capsule_sha256": "780d46baa56541a16a64199397f69dcdcd85f57745f188a40b597b226cf246b8",
+        "completed_at": "2026-10-10T12:36:33.013420+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1827",
+        "capsule_sha256": "db6e48034b6b6f316d3f80909bde94f09c7d8586db9636c8695f6de642463ce3",
+        "completed_at": "2026-10-10T13:06:58.746842+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1828",
+        "capsule_sha256": "624627b88626d390433fee97d397faae1f5a6c526c7f94d098cad7855e6e51a3",
+        "completed_at": "2026-10-10T13:42:35.879390+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1829",
+        "capsule_sha256": "f3e23ebf21259f790295477b5a6f6dad4e053019b92cf5a529ac434999ab6e8c",
+        "completed_at": "2026-10-10T14:13:26.706888+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1830",
+        "capsule_sha256": "c3ce235e8e8f07dfe8a895c485b4a1678e60ead8063db94e1dc5ee6e3569cff0",
+        "completed_at": "2026-10-10T14:42:02.421443+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1831",
+        "capsule_sha256": "3809ace7860d92749b763af383a5db75521fe1dedbdd22132f76d25ce31f0d16",
+        "completed_at": "2026-10-10T15:11:09.642451+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1832",
+        "capsule_sha256": "acfb6301292ce8719daeec1b328cf0b6a69375aa8d78421b2a06187a2033d754",
+        "completed_at": "2026-10-10T15:40:21.212087+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1833",
+        "capsule_sha256": "a01079afdbd768ec52a3d2b0ff1870a0155fe21c5597fe6b42d7ce5e8eee6c33",
+        "completed_at": "2026-10-10T16:09:07.508222+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1834",
+        "capsule_sha256": "7827dbef38e1f376c84b93ea4e98b514dcd9e735a72046ed9f686553892fcfc7",
+        "completed_at": "2026-10-10T16:39:48.642315+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1835",
+        "capsule_sha256": "9816b1c21de1279ec2e8782e8f961c8189f6faddc87463f5b0dc521881b1b569",
+        "completed_at": "2026-10-10T17:09:52.355722+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1836",
+        "capsule_sha256": "29d6ebb8a31b3a9c38e2de031554472e2e0604ff17fedb85a6057d04aa1a9dc6",
+        "completed_at": "2026-10-10T17:38:09.724637+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1837",
+        "capsule_sha256": "324ae49fd7ef6bd83d0c71317ecdea5f8d526d22dcac8c2d4d7f78640ff01bb2",
+        "completed_at": "2026-10-10T18:07:39.497170+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1838",
+        "capsule_sha256": "09c02863cceba964af3b008e0909cb3605497ce168249c7e14777ef551e18cdb",
+        "completed_at": "2026-10-10T18:35:42.436724+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1839",
+        "capsule_sha256": "52c3adfec16a33d2d3e52995b94e3a3d389e4a87b2cc53bbde1b41269b05fd84",
+        "completed_at": "2026-10-10T19:04:58.672390+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1840",
+        "capsule_sha256": "cf32653766a6817a6f7db2cde7b2ea01fa049eb8557664fed24551c50d72201c",
+        "completed_at": "2026-10-10T19:42:49.414823+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1841",
+        "capsule_sha256": "6eef07638bfd939dc5beb363646e90db97823bddbcd91e09d4bd9ee390c4f92e",
+        "completed_at": "2026-10-10T20:12:55.314159+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1842",
+        "capsule_sha256": "3f59a682c906dc89fa2455310c633a822fa1ed2981ec9b77990c6cc7ee2541c9",
+        "completed_at": "2026-10-10T20:47:07.196102+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1843",
+        "capsule_sha256": "73237de84713dd33d0f564c8dc04add7fc01529d8db0b56b22616929400bfe75",
+        "completed_at": "2026-10-10T21:16:41.129042+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1844",
+        "capsule_sha256": "7b61d2ff793a2b534adebfd1527fd640b010d9c23986601cdea73eb33959be2b",
+        "completed_at": "2026-10-10T21:47:48.170664+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1845",
+        "capsule_sha256": "b6c83ae78a278a2b618539c54fa5c2ba44f6cb97c62d86f7e9f823211a33e3d9",
+        "completed_at": "2026-10-10T22:19:05.532768+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1846",
+        "capsule_sha256": "eeadd088092dbbd2b439a1eb8bcac30910c13fc59b8fcb5d611719831fa76cc6",
+        "completed_at": "2026-10-10T22:56:39.653656+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1847",
+        "capsule_sha256": "d53bc39f316f803665fc7c2eaa275c373a00f2faf40ea7395c3afe620e4210c5",
+        "completed_at": "2026-10-10T23:25:21.934700+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1848",
+        "capsule_sha256": "c8234ef10b6d94dbd125a9c761c9aefe9f854f708b4902a15a47f389673dfa01",
+        "completed_at": "2026-10-10T23:53:47.650984+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1849",
+        "capsule_sha256": "b6bd1cad74633de63cb5a0e266629edb02ea759e8962eb67da652248a26771e2",
+        "completed_at": "2026-10-11T00:22:27.884410+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1850",
+        "capsule_sha256": "8d994bf725e592f7cbecc9da5797b1bdeb9f90ddcf5bfef472f6d917610e6808",
+        "completed_at": "2026-10-11T00:50:42.370865+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1851",
+        "capsule_sha256": "dd0ff77be7498887228e99aa113bb68012da0bec90024d613459c5ecc4521fdf",
+        "completed_at": "2026-10-11T01:18:25.447664+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1852",
+        "capsule_sha256": "35bc9dbf36fbd063dc16dbb52e6d31896bdd02b919b3f80a9154bc8989739fe4",
+        "completed_at": "2026-10-11T01:46:46.011432+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1853",
+        "capsule_sha256": "1dcbb309642d6a1359619c925623b42460068ec2be661d5bffc2192a43182c07",
+        "completed_at": "2026-10-11T02:14:33.442552+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1854",
+        "capsule_sha256": "d51493cb7ad0a016759c9202aaef0fe2036168b6433c2ee3081bc98328a4d28b",
+        "completed_at": "2026-10-11T02:42:32.483927+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1855",
+        "capsule_sha256": "ab06201a0788c4f80cc011576653fb8d5ec8910f50531dbd93dc81a58cae1bc2",
+        "completed_at": "2026-10-11T03:12:48.991413+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1856",
+        "capsule_sha256": "872a8c0f6d7ca47c2475b205491ff4ea1ff4982cef10ca1e2be8058cfa6bcf58",
+        "completed_at": "2026-10-11T03:40:13.138496+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1857",
+        "capsule_sha256": "76e7ef329edb3077ffce750a780e2b21359d5f7ab4b5ab696068244079eed823",
+        "completed_at": "2026-10-11T04:07:20.869244+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1858",
+        "capsule_sha256": "134a402dbbba8c3cc50b53fa8a9d68f8c09885789a8073127f66f01d30d8778e",
+        "completed_at": "2026-10-11T04:35:11.646089+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1859",
+        "capsule_sha256": "bf586fc0da835b4699ba09eb70ca885dbb2d24765dd442dd75c1c8e492db3640",
+        "completed_at": "2026-10-11T05:03:02.962638+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1860",
+        "capsule_sha256": "cc457a82c7c2b7134824c89c861b432e9637888a35bff86e91782d0afa098c04",
+        "completed_at": "2026-10-11T05:31:35.104182+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1861",
+        "capsule_sha256": "9d31e63701703917d47f28d0c495b2b9527e46fb0b92be5e9280b364e912d1c1",
+        "completed_at": "2026-10-11T06:00:15.962123+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1862",
+        "capsule_sha256": "457c4fae5cb160c267cae7a1dd3dfcfa33ebe6fe19bab927e98209ee1efe12a0",
+        "completed_at": "2026-10-11T06:25:55.870643+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1863",
+        "capsule_sha256": "086c37886e8abda5a376a7e7df3386aa01774f19178772d31d0ea937cc381953",
+        "completed_at": "2026-10-11T06:53:23.144808+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1864",
+        "capsule_sha256": "112af45df0c1fb8a4d8ec7ff5b8af930fec80158ce5e9317d507c853e332aafa",
+        "completed_at": "2026-10-11T07:22:11.727928+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1865",
+        "capsule_sha256": "6b2a20907b228283b43340da5784f9b3e312f1feaf255ce89be045000decc577",
+        "completed_at": "2026-10-11T07:48:03.824841+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1866",
+        "capsule_sha256": "89a26d0b13c84bce8b3e2b52d0d7d31aa1ee2f9f38eb5fc7e78460b359be946d",
+        "completed_at": "2026-10-11T08:17:20.417919+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1867",
+        "capsule_sha256": "d8e8395b676b4fdbd59f6e93e8f4c6467a7a25643478ed5b17ab5f69ff12ca5f",
+        "completed_at": "2026-10-11T08:46:05.994037+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1868",
+        "capsule_sha256": "20b8a0ce155b3ab80fd5b1f163bf983af172f822c4cd0669f6afe3cf6267794e",
+        "completed_at": "2026-10-11T09:15:40.487831+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1869",
+        "capsule_sha256": "964b45351b4bc67aae70c3418a0b88b291d885c657a588a8c36f6675304749a4",
+        "completed_at": "2026-10-11T09:44:16.519243+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1870",
+        "capsule_sha256": "0ffa129e2be28ebab73e79d7e859a11f2c3b031696303a82e72bc12d80fe6c9d",
+        "completed_at": "2026-10-11T10:11:38.666766+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1871",
+        "capsule_sha256": "72c034835b8dced9567bcd00b65bd45ff05eba258bd36ffabacfbc79eb09a5fd",
+        "completed_at": "2026-10-11T10:39:25.252249+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1872",
+        "capsule_sha256": "3d26108bcce3a39985ce4ffed107fa7c8548bc0a6af8df2cad7f9d9ae580460e",
+        "completed_at": "2026-10-11T11:06:57.514180+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1873",
+        "capsule_sha256": "7fa2c715becd806d60c3f379f306426b27b04ba872feb44da1b2ec1f1fb88a45",
+        "completed_at": "2026-10-11T11:34:36.542900+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1874",
+        "capsule_sha256": "45eede666c2470323ba129c16888797778d88008d0b1faa71f1af48429e01b46",
+        "completed_at": "2026-10-11T12:01:37.904713+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1875",
+        "capsule_sha256": "603b54f4c56f2c568001063e922ea6e71194d1c0bf6183aedf99d6e45073bbaf",
+        "completed_at": "2026-10-11T12:29:35.836000+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1876",
+        "capsule_sha256": "3fdb716fae4b8505c82911dd0ab04b49ec038025629a0e8378ccea43b2186ce7",
+        "completed_at": "2026-10-11T12:57:13.129567+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1877",
+        "capsule_sha256": "0c42adb0d8f4af5a0930e5f2ab9284e638d556034ae7eb8034ce7a3bfc6b8179",
+        "completed_at": "2026-10-11T13:25:45.315358+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1878",
+        "capsule_sha256": "4d3b05d7f513d57a64d0fb8c6598321a2081fb6c4f0bd775fd673d63d5133d73",
+        "completed_at": "2026-10-11T13:55:31.305345+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1879",
+        "capsule_sha256": "73cf69bef86eb3e86692aefe5ddcab85fa1294f1639ae8f3f1675f10d2363bf8",
+        "completed_at": "2026-10-11T14:24:09.758288+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1880",
+        "capsule_sha256": "693bbfea974971797921bee2cd55e84deca1ac189b12e01e93eea0388c90c66c",
+        "completed_at": "2026-10-11T14:52:36.676955+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1881",
+        "capsule_sha256": "c899ca71013f0bbd4f4aa3adb76f2df7eddaa61b59d5f944134734ad9ba00169",
+        "completed_at": "2026-10-11T15:22:31.989602+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1882",
+        "capsule_sha256": "929feb43a47afb9750b9e2b8067a88b3ba249865990d7944bd7cd6412a06e848",
+        "completed_at": "2026-10-11T15:50:13.876543+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1883",
+        "capsule_sha256": "0cb56b59f87843a50f5c135ffdaa02004f0cafc54b3f318b280b15072d220784",
+        "completed_at": "2026-10-11T16:20:32.189980+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1884",
+        "capsule_sha256": "87cbc7f52dfe274933a57f87ef956055a0209f3cf459c1e072d506190840d807",
+        "completed_at": "2026-10-11T16:49:41.887912+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1885",
+        "capsule_sha256": "d0d662857aa040d9d199884282ad971007404e9c95de5c446d8697c3d83c0e24",
+        "completed_at": "2026-10-11T17:18:12.752733+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1886",
+        "capsule_sha256": "0a4a5930c1d7e7eae99a2beb11f6fb8d4f45d5565d37cca2b1d2759a2c734db8",
+        "completed_at": "2026-10-11T18:24:51.850465+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1887",
+        "capsule_sha256": "24c09d22f29ce22469df853b0b0e058c50eed7f7f72e70798a3953bfd3631961",
+        "completed_at": "2026-10-11T19:56:48.849571+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1888",
+        "capsule_sha256": "125af0d5552aa36c5f59489fb8348034304e7ec3aadea6193de851c6f8029151",
+        "completed_at": "2026-10-11T20:25:02.508745+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1889",
+        "capsule_sha256": "910be49ba982a73ecdd079901bb4bddd5cf28fea55d1eae3127f7897e4667584",
+        "completed_at": "2026-10-11T20:55:57.551337+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1890",
+        "capsule_sha256": "33e5d656a27ec28d0f2fd03676884e20a8056c99043aee59173697fa737efd9b",
+        "completed_at": "2026-10-11T21:25:30.808173+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1891",
+        "capsule_sha256": "72c9be9a678fe609c55c13dec5216b934f608e9444ed70beba6fc3ee55989fb7",
+        "completed_at": "2026-10-11T21:59:24.538437+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1892",
+        "capsule_sha256": "6eff91a8a2b2a557abdbdc5de76fa2d5c429fb92c136ae706ac9b837d6e5e4a2",
+        "completed_at": "2026-10-12T13:04:44.812895+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1893",
+        "capsule_sha256": "34bbf8949523524d240d959f13378b4ba7a4b40711170adddcbb302a60167418",
+        "completed_at": "2026-10-12T13:32:42.633976+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1894",
+        "capsule_sha256": "ed88df003bfebbb24bf2f658885a909b92cf473bb774e97123c07c35f8f0ec6b",
+        "completed_at": "2026-10-12T14:01:39.674834+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1895",
+        "capsule_sha256": "4074baaf867ba7f2108f1a4d25b73f10805648485ea6901b71206b26e8f8acd8",
+        "completed_at": "2026-10-12T14:31:00.126917+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1896",
+        "capsule_sha256": "7f7ece7d82d767ed7c00f78caaf3273c85a204283e2a12efb176cdf1e7e7db1e",
+        "completed_at": "2026-10-12T15:00:45.160925+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1897",
+        "capsule_sha256": "bdb9eccdce18c4ac0ee9068be58d86ab9823480aaac9659fba812ff50775b398",
+        "completed_at": "2026-10-12T15:30:48.460758+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1898",
+        "capsule_sha256": "72730f5662773052d6cbb044d75c8406f8b5d2a7db75c81aa7cd8b1c11ee1101",
+        "completed_at": "2026-10-12T16:00:22.136237+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1899",
+        "capsule_sha256": "e1a7ec6d492d0a2a5c3b4dffe534040f23ee4e813eaa1544e9c47086c568db53",
+        "completed_at": "2026-10-12T16:29:34.037461+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1900",
+        "capsule_sha256": "4b7d9ab5cef21a5d4701560318d2ee5af3ad13767705a7d46d7300812b5ec6f4",
+        "completed_at": "2026-10-12T17:03:17.851885+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1901",
+        "capsule_sha256": "64a47cc358af1fb0d83b22809cd6076e569978b39e73e42307ee3bfdade3cd96",
+        "completed_at": "2026-10-12T17:32:22.825753+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1902",
+        "capsule_sha256": "ccdc8e601802f57d99a395703f9ad9bbfcb02163ddfacb8cb80c2dbd174e1206",
+        "completed_at": "2026-10-12T18:00:45.693739+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1903",
+        "capsule_sha256": "316f0b141391a8e967e089ca21859502543437da87a357cdd378f3ddbd551bda",
+        "completed_at": "2026-10-12T18:29:47.370500+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1904",
+        "capsule_sha256": "0489fb32ab4495ee7a8cbed04d96082e0fdbaf4d48e96ec5627b4033edb94d22",
+        "completed_at": "2026-10-12T18:59:20.175517+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1905",
+        "capsule_sha256": "1d67132994652c7f019e84a26b24b75225317ab109ff4f298aba06c6f0ce8233",
+        "completed_at": "2026-10-12T19:31:30.432700+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1906",
+        "capsule_sha256": "4180d7ae240c80e372c3896fca111de6419fc89e94bb89bd4cb12c74dcfe8f2f",
+        "completed_at": "2026-10-12T20:00:15.679514+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1907",
+        "capsule_sha256": "3f9a599b91a694a15236e06c6192256b40987f5801221ccb6ece8205fa5a6d5a",
+        "completed_at": "2026-10-12T20:31:53.665760+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1908",
+        "capsule_sha256": "1c0e1aa39c65c5fedafe54aff78c62eae85a2eb90e54d64cffd2993f2b0a9647",
+        "completed_at": "2026-10-12T21:06:04.428872+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1909",
+        "capsule_sha256": "6eaf22788465c76368b72c2e81a432107d207c6b776b6258f3079b29fcc5a2f1",
+        "completed_at": "2026-10-12T21:34:31.135239+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1910",
+        "capsule_sha256": "1d56f7ff8854c345821f9e25a2b3123178524d708f2c2b6662831eda343c413c",
+        "completed_at": "2026-10-12T22:03:52.376140+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1911",
+        "capsule_sha256": "0829160b06a25624917c05a70df0f0327b70aa29562d60b8dd523ff0c2eb45f6",
+        "completed_at": "2026-10-12T22:32:52.330224+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1912",
+        "capsule_sha256": "60554afc8dcaab71d58d4d3e9fd95e62f469b595f834b60697e11f3479fb35f9",
+        "completed_at": "2026-10-12T23:00:58.896284+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1913",
+        "capsule_sha256": "ea1ac696d25de7b3376d52486d88e2a1f21c93d5df2b56ae6ab86d61ce4ebd69",
+        "completed_at": "2026-10-12T23:28:29.467428+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1914",
+        "capsule_sha256": "1592cff0b3aa705176a66ef42b0a553e40b27f64b731e673321e275e33604b53",
+        "completed_at": "2026-10-12T23:56:24.715180+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1915",
+        "capsule_sha256": "1ddccee5b0f9ce81cac7d3a6362d4eab5e765a8c6e5d47ecfa34a54fb89b68c3",
+        "completed_at": "2026-10-13T00:25:19.902442+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1916",
+        "capsule_sha256": "9a44716fe367bb9e0babc5133cb8a4448bf0ac0be6c8d3c3ec063dbe236290ac",
+        "completed_at": "2026-10-13T00:52:47.957395+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1917",
+        "capsule_sha256": "607d260eb0075e86b514a36ccc5d5cefb08427d4bd71fbb1c34a02c046bf6ecb",
+        "completed_at": "2026-10-13T01:20:45.664612+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1918",
+        "capsule_sha256": "790260141f6d18fa7ad21cda171e648726b5b1fe5046911f596a2b8a7931899a",
+        "completed_at": "2026-10-13T01:49:15.139127+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1919",
+        "capsule_sha256": "f7b048c1bfc1efdae43ed67678113a969bddf07cd77eb85d026821cd6bc948af",
+        "completed_at": "2026-10-13T02:17:17.893388+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1920",
+        "capsule_sha256": "4174327e429b0084eeb6d73c3e6f414bd8c744addff0d30ee5afde0f84dedc23",
+        "completed_at": "2026-10-13T02:44:51.635846+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1921",
+        "capsule_sha256": "61dda53f348d7208bcacb7e6e89abd5b61a88c6c6f793a7b3ec87527ad15f406",
+        "completed_at": "2026-10-13T03:13:20.968584+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1922",
+        "capsule_sha256": "bd8172d6809ce76e3d868e765c3bd43f2eef8ff266f852d69252ed0cc53d5387",
+        "completed_at": "2026-10-13T03:41:49.037268+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1923",
+        "capsule_sha256": "58ca903d7682a726345501900ca1ca549f2db7448f9f830a0a307062d4efc4cd",
+        "completed_at": "2026-10-13T04:10:08.344114+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1924",
+        "capsule_sha256": "5f70d2370bceb654d5ed460daab52d70697789078b1df4647907ab02677b6847",
+        "completed_at": "2026-10-13T04:47:13.338714+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1925",
+        "capsule_sha256": "2136d508ba34938e8ebe768eddd9f2febbd206a899567de4ca645d65c6ca64ba",
+        "completed_at": "2026-10-13T05:15:27.071257+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1926",
+        "capsule_sha256": "7d9887a4b1e07da2fa8ea1ba573824b1891a076d5dcd75835c2b41573ebf06c1",
+        "completed_at": "2026-10-13T05:43:42.056768+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1927",
+        "capsule_sha256": "0ac483bbcb525bb80b8c936f9162fa82ed3eff8548365c0103152b7b25db9928",
+        "completed_at": "2026-10-13T06:11:35.169441+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1928",
+        "capsule_sha256": "04cfdcb1a85645c158ee2109d1e976718c2d6b1c9e4a6c5cd57931d437c31204",
+        "completed_at": "2026-10-13T08:11:41.849893+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1929",
+        "capsule_sha256": "787febccb4e0f0390ba4bcd5473fd3c87eedc83f6598a774064c9c273402f8df",
+        "completed_at": "2026-10-13T08:40:16.444712+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1930",
+        "capsule_sha256": "d689ae2c98ba42138097077a32b45fb8e82a220cd4046dff6b5608e84d6e03c3",
+        "completed_at": "2026-10-13T09:09:38.479419+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1931",
+        "capsule_sha256": "4c52de57b6ffed4b8dffe0a33d322b0af6c8374db1ae2baf102b42acddcf67a8",
+        "completed_at": "2026-10-13T17:01:00.545503+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1932",
+        "capsule_sha256": "ef7c85858d6a33d58da69dc551e7ebc1d9e361c230bce5852d8ef0f1c2b09200",
+        "completed_at": "2026-10-13T17:33:48.699237+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1933",
+        "capsule_sha256": "c38b600c2e641fd67f9f4e0f97b60b63495be6154ed61f8d5b269b52c645876a",
+        "completed_at": "2026-10-13T18:02:19.013921+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1934",
+        "capsule_sha256": "6d01efefa22c37e3fd9b19a80f484a8d9dfcb68ae1ba55a1df5a3ea7dd176add",
+        "completed_at": "2026-10-13T18:32:06.977113+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1935",
+        "capsule_sha256": "c8cbf55cbc3c698b4a72413d994d05babe8320e85e934640901897ca268d8743",
+        "completed_at": "2026-10-13T19:04:06.650238+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1936",
+        "capsule_sha256": "d73a4478a5ae3cfe4c07908b84c662f026f91c73f0a0362c6b6dcac5fb89a962",
+        "completed_at": "2026-10-13T19:31:21.616976+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1937",
+        "capsule_sha256": "44e489754ccb8053d9d54dd5035fda25dd2b941bf40098dff282db462d278093",
+        "completed_at": "2026-10-13T20:00:19.828373+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1938",
+        "capsule_sha256": "7c8821447174f244e7a863457aa1519049b8cf5817d5791245049772588a6614",
+        "completed_at": "2026-10-13T20:29:10.295611+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1939",
+        "capsule_sha256": "f6fe71b1a51d625d3444bc5734b838b699d527cc06f0289b6654f41eb51bcc7c",
+        "completed_at": "2026-10-13T20:57:57.356746+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1940",
+        "capsule_sha256": "d0e1e795fdbab5581ccfec4a1f833b9c602f269fd1a5031d2adc5a964f65268c",
+        "completed_at": "2026-10-13T21:28:59.056225+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1941",
+        "capsule_sha256": "0c6ac1d559440b77fdde5f7077474fb687ff2e62d48bc5c38e384787a2589b1a",
+        "completed_at": "2026-10-13T21:56:28.397703+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1942",
+        "capsule_sha256": "61ca68f3ae8754b2ff599b972f165f8529537918848288d0dc4ce69bf8b52359",
+        "completed_at": "2026-10-13T22:25:18.817297+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1943",
+        "capsule_sha256": "64ffd78d157f073ba65e10e72507798ad7bd43bb764ffd9b484cfa19372f2e8a",
+        "completed_at": "2026-10-13T22:53:13.560255+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1944",
+        "capsule_sha256": "f7b53cc6de5e03c5ad5eff47e7f46ab591b415251a12fc65b75a2dcbc191cf01",
+        "completed_at": "2026-10-13T23:21:41.568328+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1945",
+        "capsule_sha256": "96eac430ca9cd5b8ceee33bf724225301704349e1fb7d422d5b32f046bbfc754",
+        "completed_at": "2026-10-13T23:50:39.274989+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1946",
+        "capsule_sha256": "e7950a567e6b7ed088b86c8aa61b61f6a41910393ed8766557cc7cdd4ebb835f",
+        "completed_at": "2026-10-14T00:19:11.365906+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1947",
+        "capsule_sha256": "7f9248b6750cac395ebc066f70cc21c243424733cfe7f5d238f0bb76d5bf8ece",
+        "completed_at": "2026-10-14T00:48:21.567722+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1948",
+        "capsule_sha256": "43b5b04fd6970b2777daecffa0562c886ac93bba3ec810ecd9ca482ce1d225d5",
+        "completed_at": "2026-10-14T01:16:47.444061+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1949",
+        "capsule_sha256": "76dc79ea7b75fca91613fcad6869e4758e5ad6a7c38e89efee455daae59d94d4",
+        "completed_at": "2026-10-14T01:44:54.153215+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1950",
+        "capsule_sha256": "1ca2cd84163f290c44cf8ad8b30583d09a6a42760212c13db9f62ebe5d1ed306",
+        "completed_at": "2026-10-14T02:13:03.032749+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1951",
+        "capsule_sha256": "e11bb129889a40affa96edb76272a726bf90fba6e96937791fb3f32f36332922",
+        "completed_at": "2026-10-14T02:42:25.346524+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1952",
+        "capsule_sha256": "a330220919959ccf7dd9f3b0aeb853f163672e295ec73fc9eebd5d6473beffc0",
+        "completed_at": "2026-10-14T03:11:03.990617+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1953",
+        "capsule_sha256": "eb26df6d1b92b3153bc26897bccb2ddd3a148c1c691eb4e8a2dbf543c5ddc01a",
+        "completed_at": "2026-10-14T03:39:32.282941+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1954",
+        "capsule_sha256": "a2413cb08f44e567972af2c48bd9c970f95a6fe5b4d55235f507f342425014bd",
+        "completed_at": "2026-10-14T04:07:47.614510+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1955",
+        "capsule_sha256": "1a4f662f329545afc186f0b80da05b02fe2ba653f591d38ae56164efb72cf4ad",
+        "completed_at": "2026-10-14T04:36:13.753808+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1956",
+        "capsule_sha256": "433274409b3590302183f7461dda8c59cd05d46ba010185c02c2d2cb66aadb42",
+        "completed_at": "2026-10-14T05:05:35.061037+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1957",
+        "capsule_sha256": "fb7f1d6900fa14398f8385de9d82b694d9269da22423d2d588ba6f34597d0f58",
+        "completed_at": "2026-10-14T05:33:12.087851+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1958",
+        "capsule_sha256": "2c14855eeaa21aa492ebef7ff4c5b6ce9b2c1149d9020f5e43aac38c9eb077c5",
+        "completed_at": "2026-10-14T06:02:15.179001+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1959",
+        "capsule_sha256": "0db210073b049fffdacef564cd91e8fada259486d826f69b08b92dacf18e0cb4",
+        "completed_at": "2026-10-14T06:31:41.554358+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1960",
+        "capsule_sha256": "3e29f893cee40ca44c7099111cd13526ceb2c08246b62338decff927fb8abdd1",
+        "completed_at": "2026-10-14T07:01:02.273420+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1961",
+        "capsule_sha256": "dfd3d40e91a8ad091f9f52a25397483c57716c1a578471eba542085dd3b9e4db",
+        "completed_at": "2026-10-14T07:29:55.355590+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1962",
+        "capsule_sha256": "438045b313b628fcf62ef97fd2e8c2799080e117592ae084824764172f6d6561",
+        "completed_at": "2026-10-14T07:58:09.375391+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1963",
+        "capsule_sha256": "d7cbc71b50fdf290492c710a36657517680e98363318001b65066d74c4fd7102",
+        "completed_at": "2026-10-14T08:26:44.502514+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1964",
+        "capsule_sha256": "504929d6278d118f062367f9b3fb587c26375530f8443e93211476c405bd3f1a",
+        "completed_at": "2026-10-14T08:57:27.457487+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1965",
+        "capsule_sha256": "db376ec4701ce5a8519d33db644e7a79e015da354848a822a6fe45498e84d15a",
+        "completed_at": "2026-10-14T09:24:23.945694+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1966",
+        "capsule_sha256": "d9d44d85e7aad92e21d637fa03205801f72d0736aaefbe78773cbc6f77b1292d",
+        "completed_at": "2026-10-14T09:53:18.646893+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1967",
+        "capsule_sha256": "2087259193578d6e45230b5ac7da1076a043d2e515bbecf34e116fbe8c664dbf",
+        "completed_at": "2026-10-14T10:20:11.976602+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1968",
+        "capsule_sha256": "0ff321d64742f9441d36fd20f7fe4d6dad431d3f1c844516daa5ee1efa8478f2",
+        "completed_at": "2026-10-14T10:48:59.400395+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1969",
+        "capsule_sha256": "78ea3d73066dbf7d751cebbff93c1354f1876bae412dd1726be96174b296444c",
+        "completed_at": "2026-10-14T11:18:20.892479+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1970",
+        "capsule_sha256": "68d2de11b18505da79e2e187eda0a2edfb5f39f1f4ed8d7d41c9e2ad4a21f545",
+        "completed_at": "2026-10-14T11:47:22.695265+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1971",
+        "capsule_sha256": "0616f0a14ac9c0845bb3082285c1d34538707a5e1ff41a146ec3ba3679601c22",
+        "completed_at": "2026-10-14T12:15:52.530394+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1972",
+        "capsule_sha256": "81a4abe7650a42e4b39239160e61b850db08b5b21b9acca242347c6a5300a8c0",
+        "completed_at": "2026-10-14T12:44:53.579036+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1973",
+        "capsule_sha256": "ef804bb8a66797f9a954139f416c83bbbc5073d5072e6d4c37ab18aa3f4f79b3",
+        "completed_at": "2026-10-14T13:13:30.692550+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1974",
+        "capsule_sha256": "f275e9115ac838e0d752e006f33aea2b5767607ce9af52edf0854f8e0928851e",
+        "completed_at": "2026-10-14T13:42:15.335180+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1975",
+        "capsule_sha256": "560372baec9708d3b9986eb2a22f7c20695096cc21862d951dca03bf335f279f",
+        "completed_at": "2026-10-14T14:10:38.407254+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1976",
+        "capsule_sha256": "52e2feb79e964138a15409814cfbd695860128093a405f419c57cdfd11ed700b",
+        "completed_at": "2026-10-14T14:39:19.340299+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1977",
+        "capsule_sha256": "68c6a8fdb29ee21c735ae8604aac0b7a5caa6b9b022278174ba9d326b8d17b2c",
+        "completed_at": "2026-10-14T15:08:13.884454+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1978",
+        "capsule_sha256": "d8570e02468212a28c62ad2779b5bd113470932b8764bc485a3e6724af567781",
+        "completed_at": "2026-10-14T15:49:07.111681+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1979",
+        "capsule_sha256": "a20995bb998e9fabf85b68300dfbe45c73a56c953a444bdf3d6fd50cb71f93ac",
+        "completed_at": "2026-10-14T16:20:13.512745+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1980",
+        "capsule_sha256": "17f52df07bab3ec7b92526ba9f50f5c3a1748e4629d8feea6f6ce5dbac2c6653",
+        "completed_at": "2026-10-14T16:49:29.702345+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1981",
+        "capsule_sha256": "b0c8c3f84e8edebe4895a6682bac2a3bc37e44ec9243060e2d9f71c0bc60ff57",
+        "completed_at": "2026-10-14T17:21:33.684210+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1982",
+        "capsule_sha256": "5a4fcfddb5ce2c53ad40e400e531418da5c0ce6b20351a472b30b48bf91e15b7",
+        "completed_at": "2026-10-14T17:48:54.886673+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1983",
+        "capsule_sha256": "6d37113ce94bc35c0bbe9682e9f0db298088e70aaad4ec53bfc1caba28c04229",
+        "completed_at": "2026-10-14T18:19:02.637172+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1984",
+        "capsule_sha256": "254787ad3d9ef0d35742460d1f443e3977857aabe2c60781e5c972a98857be03",
+        "completed_at": "2026-10-14T18:48:50.152756+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1985",
+        "capsule_sha256": "95c00ae055a5d21a5089230fc9ca8d231e5d0b7e648c562c13f23e0d6482b712",
+        "completed_at": "2026-10-14T19:20:00.836389+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1986",
+        "capsule_sha256": "83155fcc1b2ed7770d3b221fbe8a30693f0caa10f9b44863da7293304594753c",
+        "completed_at": "2026-10-14T19:50:04.972024+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1987",
+        "capsule_sha256": "ca0ad6c98537f8cc0d5a91389068ef561e63229b2660a739d6f008ce3ae55187",
+        "completed_at": "2026-10-14T20:40:49.285119+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1988",
+        "capsule_sha256": "9cb12c618f25ba25999e38aa1f31e190f6d13b75a12e090d9db4f6abbebb2c13",
+        "completed_at": "2026-10-14T21:11:52.950687+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1989",
+        "capsule_sha256": "920c4f4f17e3da14c28afdc68e0a632bfdcfc3d64ce5e3f120d938db660eba03",
+        "completed_at": "2026-10-14T21:42:38.385597+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1990",
+        "capsule_sha256": "77df7f4e4cd4f55ce63f17567b0bfa3d3ddc13e4a574434039017f4fbf4ac0c0",
+        "completed_at": "2026-10-14T22:10:54.824152+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1991",
+        "capsule_sha256": "c001f89e77d95f99d1ec2fc303978520e3b08fed990957e0bd49e67b747de768",
+        "completed_at": "2026-10-14T22:39:55.843765+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1992",
+        "capsule_sha256": "b731a92896f0303211c85bae9f38adaf768977095faa95c0c5f3a1330e78e857",
+        "completed_at": "2026-10-14T23:09:17.081490+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1993",
+        "capsule_sha256": "2c94bbff130500e05a7d76e72ace9f6830c06dbdcfef34ecf36d51bb8f632901",
+        "completed_at": "2026-10-14T23:38:01.856868+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1994",
+        "capsule_sha256": "bce8be3b2ed8c4edfda462c210a49c7f3edefde6293db2319d3a4a849905c55f",
+        "completed_at": "2026-10-15T00:06:27.813909+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1995",
+        "capsule_sha256": "861f4032d8081aefeebf010822e2ecd6369d3c96fdb83dd3a8e3c6b067075d4c",
+        "completed_at": "2026-10-15T00:36:35.492055+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1996",
+        "capsule_sha256": "1f3fe6432af636018e8d2f0728087b0e574f37d61d90b2a4a47a9cddeb7e338d",
+        "completed_at": "2026-10-15T01:04:25.570835+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1997",
+        "capsule_sha256": "dca1a5ab19f0bd073fcfe6c7cad9e5495f05d6a1805f11a0eed44b5570b113c6",
+        "completed_at": "2026-10-15T01:32:47.238452+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1998",
+        "capsule_sha256": "f93bbfac65f88790eff516ec1f997ca43cd0264e958fa517bd15410d5f8d49ba",
+        "completed_at": "2026-10-15T02:02:01.248618+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__1999",
+        "capsule_sha256": "7b3c62622c995c8739756dbeb4af163e53adcf725541031793e1888e854c866b",
+        "completed_at": "2026-10-15T02:30:24.210704+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2000",
+        "capsule_sha256": "017c249bdf2e72e76b23d57167d29c85f1cde122422627006f82b06dc7977143",
+        "completed_at": "2026-10-15T02:59:28.377485+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2001",
+        "capsule_sha256": "21b3dc7f248037f3161bbde304a4cd13fdd07c6af52c888e9073367f6003e3b9",
+        "completed_at": "2026-10-15T03:29:15.606544+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2002",
+        "capsule_sha256": "1646c2c26fea6a18aa45d89d31b98649891111e3f720cfa99c4004607075da76",
+        "completed_at": "2026-10-15T04:06:24.375840+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2003",
+        "capsule_sha256": "ee6043b18e3836c63ad652b7937ef5f10b02f12e75b19ba715cab72bf1893dab",
+        "completed_at": "2026-10-15T04:35:53.594960+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2004",
+        "capsule_sha256": "dc8ec23f955d3afc9b34a03213e5da60ac2f997d7e4945d302e839ae7a4164a0",
+        "completed_at": "2026-10-15T05:06:38.509788+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2005",
+        "capsule_sha256": "23d3d5b38b235a0d17a86086c9539be0f29b16e326e5b26c6e47ab2b49f6e798",
+        "completed_at": "2026-10-15T05:34:06.234621+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2006",
+        "capsule_sha256": "2cc460adfa9cdeb2a176e87091a25e560a340ddd21a7cfcf0dc1792ad8a712fa",
+        "completed_at": "2026-10-15T06:03:11.400073+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2007",
+        "capsule_sha256": "d0d4c152eb43d18e9577832ba7d32c7c4adf405707a38267b43b93c305ceefd6",
+        "completed_at": "2026-10-15T06:31:23.853345+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2008",
+        "capsule_sha256": "0ef45b38ab1fb4a6872cf616febdefd28600cc0389db39c15e7193e04a0db858",
+        "completed_at": "2026-10-15T07:11:12.331562+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2009",
+        "capsule_sha256": "5d5d9d6d48102b6eca518b51d2a183d00e8e8bef920399eea37158959ecdb784",
+        "completed_at": "2026-10-15T07:40:03.617891+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2010",
+        "capsule_sha256": "29374b831c5bff3242571645c6508a10b56111f18dcfd27e9a989b0d62f0b811",
+        "completed_at": "2026-10-15T08:09:19.334679+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2011",
+        "capsule_sha256": "d7c5e7a3455a23b6f4bc3c56a14611717e07cd1800cf49df9cefca5738a8b702",
+        "completed_at": "2026-10-15T08:36:13.408166+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2012",
+        "capsule_sha256": "3190de574b3b933076acffb72f9f825d5d1f349b22254a55b20871c7c322ec01",
+        "completed_at": "2026-10-15T09:04:15.325201+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2013",
+        "capsule_sha256": "e4c646b602f9184b7f237c6d6ac559f70677d2217aa6b4dde31db6ed2f559672",
+        "completed_at": "2026-10-15T09:33:24.596641+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2014",
+        "capsule_sha256": "04ebc91c7061a041b2857af902429b617b52ae6b6d94355e56f8445e6ccd952e",
+        "completed_at": "2026-10-15T10:02:42.946487+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2015",
+        "capsule_sha256": "a64b05335623bcdfc450df359878d59c6ad90a2911e4f80287a8327875ad0df6",
+        "completed_at": "2026-10-15T10:30:38.284308+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2016",
+        "capsule_sha256": "b23f2b2557f04ba3b7a6369d40b4750fba6f2eee9e0ea4407c02ecde40f8243b",
+        "completed_at": "2026-10-15T10:58:43.087073+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2017",
+        "capsule_sha256": "38bcf62753091797e0facaf1371622b81373c7106ec28169111f62e9cddb8c41",
+        "completed_at": "2026-10-15T11:28:03.977980+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2018",
+        "capsule_sha256": "7285e1abd070ff9c50df58fc3d82cf25f84588cef89572b5ea3b98e0548d97f9",
+        "completed_at": "2026-10-15T11:55:38.430119+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2019",
+        "capsule_sha256": "2014b033683c8a314935624cfc80cc72c0aa81a8e30ba79770748621bf477fd5",
+        "completed_at": "2026-10-15T12:34:02.969553+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2020",
+        "capsule_sha256": "e8778fc81de629f587ca3ef9ca1af5cc86f04179f11c26c07f546dde05907762",
+        "completed_at": "2026-10-15T13:02:57.710212+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2021",
+        "capsule_sha256": "2d5f72a6d794ec35ccdfe0df289d9f9d809e3d96c59e3da28a45f0746416f6f9",
+        "completed_at": "2026-10-15T13:33:47.982236+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2022",
+        "capsule_sha256": "ea609119bb7de3407e24a8b0d8bccd849fdd88185bd4ba6b33f13bcd105adc7b",
+        "completed_at": "2026-10-15T14:06:39.679586+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2023",
+        "capsule_sha256": "e0f0d65a0deda0df8540e954c0c0d238549e3f43feb812a48825e70600e34ade",
+        "completed_at": "2026-10-15T14:35:20.184823+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2024",
+        "capsule_sha256": "2d07bb461f8081ac9f0cf5610a0c657860ab3e0cb1b9cb5ec6d3b17b28856112",
+        "completed_at": "2026-10-15T15:02:55.717181+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2025",
+        "capsule_sha256": "f78f2e560dfde1a266fac0c0d86e33bcf6d23c18f01552b59992f10528399f4b",
+        "completed_at": "2026-10-15T15:33:34.801235+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2026",
+        "capsule_sha256": "3d66230018e140c9c8e2eb676cc624e4f7cb9b1a0dd4ea8857dcd34b72072dd5",
+        "completed_at": "2026-10-15T16:02:07.294488+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2027",
+        "capsule_sha256": "728a66e5cdb199b47306a9c4dac9cf6e6515054740714ec70ba86c24731ebb1c",
+        "completed_at": "2026-10-15T16:31:53.222581+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2028",
+        "capsule_sha256": "8554886faa1c0cd24683e696be3f2eef6f19c2a34eacc7f44ffe77a3b46a3bb8",
+        "completed_at": "2026-10-15T16:59:55.155344+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2029",
+        "capsule_sha256": "eab83f1b8b751009b4b7266e0c0c139b29e7209574b4eb82100fd5cdc7f00afa",
+        "completed_at": "2026-10-15T17:31:47.276893+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2030",
+        "capsule_sha256": "24b75d0946c896dc86de6571ad242ebe4ac42acfc575ecc3a9a1a987639e8d45",
+        "completed_at": "2026-10-15T17:57:58.896052+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2031",
+        "capsule_sha256": "d88caf42cae0da25a4d27eae08941b4df2eb0b571f753e4a6411b669efb49d83",
+        "completed_at": "2026-10-15T18:38:07.033138+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2032",
+        "capsule_sha256": "aed3127de07a614403592d60f35b2655618774116b54801ada0fba4e0723df41",
+        "completed_at": "2026-10-15T19:06:03.959806+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2033",
+        "capsule_sha256": "2d597dde1f193fb7b552fbc06418f010b63d9cae4d49c31f24cccee7b3a85dbf",
+        "completed_at": "2026-10-15T19:33:47.205801+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2034",
+        "capsule_sha256": "f322e532db600f11f0092acad6bee54b93b4005eb9345f7a91c46511a6954c88",
+        "completed_at": "2026-10-15T20:02:52.666380+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2035",
+        "capsule_sha256": "1f3fa11d28140f61ba35e5835ea64a5b84581a03ece40d6b7fbc05d7b53e036f",
+        "completed_at": "2026-10-15T20:30:39.233498+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2036",
+        "capsule_sha256": "9e6733b7954ab390a8cf4457a83e0c2e55205535d2fd66fdd3c9c3e507a01187",
+        "completed_at": "2026-10-15T21:00:51.859912+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2037",
+        "capsule_sha256": "e62b327f107b176dea8c5e07edc8b7b27b663d8c7b469bc84e07781e7a3e16c9",
+        "completed_at": "2026-10-15T21:34:29.632819+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2038",
+        "capsule_sha256": "a387bd70a7d773ad64326b7dd11fe6c300caf8ba7a9ad704fd104517d213cb46",
+        "completed_at": "2026-10-15T22:10:35.545543+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2039",
+        "capsule_sha256": "4d109a20e4ee4bcac25c56b08821c924b9feb5b3c4cdb56ddbc48bbc420cb543",
+        "completed_at": "2026-10-15T22:39:21.818414+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2040",
+        "capsule_sha256": "1e016108f143a21f42c470f23d2d948a2af661c1443d9c691c35e78e85ea9807",
+        "completed_at": "2026-10-15T23:08:40.858944+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2041",
+        "capsule_sha256": "c31616b800b4b267cc830fd7ecc849c9be5b83532984043c91ab0f34f322808a",
+        "completed_at": "2026-10-15T23:34:24.308018+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2042",
+        "capsule_sha256": "a2e31fe2edd528d4ba8fca1f22ca44b84f6c4669e464312b8ddabf682af74fbb",
+        "completed_at": "2026-10-16T00:02:04.239038+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2043",
+        "capsule_sha256": "ed0653213f013341d51be27edf155b932a3ae4e810dcf17cec48cd732abd4e71",
+        "completed_at": "2026-10-16T00:30:19.396684+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2044",
+        "capsule_sha256": "88ad0f89ee4b4a35bc16cfa6e0fea89be4a75aed50fe6e5249c5e008702ce052",
+        "completed_at": "2026-10-16T01:00:33.001152+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2045",
+        "capsule_sha256": "7a68acc052db293d97ea63c45def97294243b1916a7b7b55f53ca908db8b2362",
+        "completed_at": "2026-10-16T01:27:15.127630+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2046",
+        "capsule_sha256": "700906b818f8ccea933d587a5a5b88a89e78885c89e744d67124e854221c680a",
+        "completed_at": "2026-10-16T01:54:58.185929+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2047",
+        "capsule_sha256": "0b26690d57c410b848ada83d6a8e00695b35fe94833bbb9e7617063006cfeccd",
+        "completed_at": "2026-10-16T02:22:37.953577+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2048",
+        "capsule_sha256": "e8327f95d1e0a3f661050b66d9b6cf3211d1222d8093823f64d652bdb28dbfd2",
+        "completed_at": "2026-10-16T02:51:29.131642+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2049",
+        "capsule_sha256": "cb873a09c96ed55b6c664fb08f16a7503a99a197d71b3ea216d5e721e8eea690",
+        "completed_at": "2026-10-16T03:20:53.908765+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2050",
+        "capsule_sha256": "f3a844a8e5b2e75ca91365a3f609a3eeb2ccd990045f8d84cb1a38de4ae85e98",
+        "completed_at": "2026-10-16T03:46:28.948982+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2051",
+        "capsule_sha256": "aa40dd45c89519db3f51c299706b2cc5efbbd798c74546750059ecf889c0a73e",
+        "completed_at": "2026-10-16T04:14:29.782635+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2052",
+        "capsule_sha256": "d7ab3352ed2f555ba0940e74eed5b4ab073fa076a9514e44be31a9c16646e550",
+        "completed_at": "2026-10-16T04:42:51.141217+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2053",
+        "capsule_sha256": "49699aa2f8195b81fd108cc4d2a9410c76b6b2ffb3c4fbb621b6a049801295be",
+        "completed_at": "2026-10-16T05:11:39.871410+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2054",
+        "capsule_sha256": "e156b73f4075b077155f2234d74f158aad100cff2343c10e77978f56db6a773f",
+        "completed_at": "2026-10-16T05:38:45.138245+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2055",
+        "capsule_sha256": "799fe3e0af09069c0c2dc45eae2a546d62efc914216e15859556c1006e70bd93",
+        "completed_at": "2026-10-16T06:06:44.426700+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2056",
+        "capsule_sha256": "14a41d72fa0776685725a02ba81044a7812ec9643f911a26d0a80561c30fad18",
+        "completed_at": "2026-10-16T06:34:45.695998+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2057",
+        "capsule_sha256": "c4f44387a63b25d9d92dd0b347cd7fa3abda8fa9fa49192bc3b68198ac70b61c",
+        "completed_at": "2026-10-16T07:02:43.752572+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2058",
+        "capsule_sha256": "0b3e84ee2739be4649f80d1719b0fb3b153440166f2dde6b5c7cbb86f4df94fe",
+        "completed_at": "2026-10-16T07:32:08.467936+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2059",
+        "capsule_sha256": "0135a4cef941305a8cdacf89c28ccd44a0cd53a1389f834f238719c05cbb5da5",
+        "completed_at": "2026-10-16T07:58:55.226464+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2060",
+        "capsule_sha256": "80e2a2420c6fbf764d34e5d3353298ee7a491ad2658b7b7f8d30b3b050905544",
+        "completed_at": "2026-10-16T08:26:43.990501+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2061",
+        "capsule_sha256": "644d962f0b3843cc70128b61eccffcc77c8f8bc20375f2f21c52f47e3b510b70",
+        "completed_at": "2026-10-16T08:54:19.724696+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2062",
+        "capsule_sha256": "28d10fde6b6c7f6e636949c4714492ea14fab63f5542cb43a98ea0503ce44c47",
+        "completed_at": "2026-10-16T09:23:15.038599+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2063",
+        "capsule_sha256": "531507633417af53b94c768a86bc3f109958a0b7e3a4f2bcf5246b9d76dc887d",
+        "completed_at": "2026-10-16T09:52:43.690453+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2064",
+        "capsule_sha256": "0f1661c88bffb38f066c86654514165d4b34d3c4abb5b6da3835ae84b5ecf409",
+        "completed_at": "2026-10-16T10:18:57.057886+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2065",
+        "capsule_sha256": "054d926c6807fc9b1fd9372d15e72d4c03f3ecbe2d734589509ec90847e0375c",
+        "completed_at": "2026-10-16T10:46:29.665470+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2066",
+        "capsule_sha256": "42b55f6d805847d66d82f68313c3c708aba2dd283e75ed50cee295ef968b865a",
+        "completed_at": "2026-10-16T11:14:45.388641+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2067",
+        "capsule_sha256": "0041b450bcd2bec25b2d5d77b231d9309c82ff872b5e1366d1cc47215e4951a0",
+        "completed_at": "2026-10-16T11:44:29.052783+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2068",
+        "capsule_sha256": "5bd16cbf7b7b146b5c950457f3051ca584b210156dd54d64d9cd6879e85525a4",
+        "completed_at": "2026-10-16T12:10:19.854710+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2069",
+        "capsule_sha256": "b97405620b74ff3f189d71335e3dbc186cb2c69d65b37dce0ac42f35d417ee3c",
+        "completed_at": "2026-10-16T12:49:20.137908+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2070",
+        "capsule_sha256": "32adce441259b9278acea3729f53e5ae67fa4d74b33e4880d83365e58509ef6d",
+        "completed_at": "2026-10-16T13:19:13.377098+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2071",
+        "capsule_sha256": "88aa37f1bcf1a2398232c6fa83728c9f3cbcae8fcc1ef955bbbf36c779311681",
+        "completed_at": "2026-10-16T14:27:00.359587+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2072",
+        "capsule_sha256": "68e6abd142c2935ab4876419d906db783dd562ea056ff7d009742c55dabc6f64",
+        "completed_at": "2026-10-16T14:55:39.789651+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2073",
+        "capsule_sha256": "90459e4b661783e4f84b25a3f5e0f780bfc949c6ff53b4fde352bc63fb8dfb91",
+        "completed_at": "2026-10-16T16:42:57.658897+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2074",
+        "capsule_sha256": "89d168fc193c2018452f63e1a83dd321efc4217cc4f923995b9a4a9d05613e7a",
+        "completed_at": "2026-10-16T17:12:33.576416+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2075",
+        "capsule_sha256": "26e362d91fc0df2efffab4618a72e5d468b873cdea0f75b86523f45d8a0f27f8",
+        "completed_at": "2026-10-16T17:39:26.715472+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2076",
+        "capsule_sha256": "96cd50680362262657f1f92d239187b84192cea617ae5cfb7a8a6c482c1298aa",
+        "completed_at": "2026-10-16T18:07:24.604826+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2077",
+        "capsule_sha256": "20ace94d8668b22a63da846a9042fac4bf07cf6ad2437910efc639c7dfa12303",
+        "completed_at": "2026-10-16T18:39:49.130905+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2078",
+        "capsule_sha256": "80dfdd5a2f3bbddbc69c8565fe9413c85444c9b900534ee28413b1a239a8a3ef",
+        "completed_at": "2026-10-16T20:12:36.742983+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2079",
+        "capsule_sha256": "0dca84c491625f50e623c7013495a2fbbaf59225754fddb16fbbe5620211e586",
+        "completed_at": "2026-10-16T20:42:46.464646+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2080",
+        "capsule_sha256": "16020be10eebdaae04e6b3dd9e0f966608abca7cf59f89d95ac72213ff89247b",
+        "completed_at": "2026-10-16T21:13:46.505586+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2081",
+        "capsule_sha256": "2a0ac7bd3802cfb02f66eca5d291ee493e0ad5a78c44936d443465c746334ca5",
+        "completed_at": "2026-10-16T21:41:22.604944+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2082",
+        "capsule_sha256": "5e2c7c58fbc3c5da7d7a77cc2100154027ce77400e62d24c467ae15db2d7dcae",
+        "completed_at": "2026-10-16T22:11:42.118416+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2083",
+        "capsule_sha256": "68988a1593f6b9e4f22ff182e5d67604b6dcd9241dc4730f14e1da3e34dcf29b",
+        "completed_at": "2026-10-16T22:40:31.622975+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2084",
+        "capsule_sha256": "905dd94ed98e34b90645df8f5679d43f853e2017b1e27897f138f6fd50d1bd08",
+        "completed_at": "2026-10-16T23:09:10.711829+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2085",
+        "capsule_sha256": "96c860f39e40fd21298af1a0462ec8a2080a378d293fb3dc032ecbc7e39a1fe8",
+        "completed_at": "2026-10-16T23:38:19.059591+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2086",
+        "capsule_sha256": "3c8d15103f7c2d58ac9a4bb47941927bfd126341cbf4ebb1e1ce84f3c0815565",
+        "completed_at": "2026-10-17T00:07:25.102150+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2087",
+        "capsule_sha256": "dbe89f1ef2f7ee1980b77d34733cf45af0d7341e330446e7679f2ded375eb8e7",
+        "completed_at": "2026-10-17T00:36:14.043551+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2088",
+        "capsule_sha256": "36243e8cfde9e9d0ed6e8a4c1e32d6c4cad8f8905b88ba3c89228a3889b82068",
+        "completed_at": "2026-10-17T01:05:13.761755+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2089",
+        "capsule_sha256": "57a7ca94a25f485f969acaec037c031cb893842f554af147fc42228a380c0b52",
+        "completed_at": "2026-10-17T01:33:35.367257+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2090",
+        "capsule_sha256": "54d13dbc572fe26aeffacc9b04a3f9a3229af1b258ed672783323ed4594d5997",
+        "completed_at": "2026-10-17T02:03:25.510219+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2091",
+        "capsule_sha256": "00a44ddbfcadd9c7a3ac011256c790d5cdfda73fe66e9123e4392646dad12a77",
+        "completed_at": "2026-10-17T02:32:51.135727+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2092",
+        "capsule_sha256": "dc1e707a17cc225d23359ac6bd1f5526b18fc5e595d524c3a2cec1d4e07fecaf",
+        "completed_at": "2026-10-17T02:58:31.060829+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2093",
+        "capsule_sha256": "6fc67ea5c48aa1bd9c39bbd2a936dd49fb3ca48e069d9c4f1559eaf2e5800a4d",
+        "completed_at": "2026-10-17T03:27:13.519842+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2094",
+        "capsule_sha256": "70cd1de7f75887dc61aed042873fa5fa3b1dfcd424d12411917841813d6d828a",
+        "completed_at": "2026-10-17T03:55:28.631343+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2095",
+        "capsule_sha256": "3bdf735410391cd8583b9bfc208485d483369c1e552055059fa7a0109c5ff09e",
+        "completed_at": "2026-10-17T04:25:45.235561+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2096",
+        "capsule_sha256": "0f54bb2cabcd325591f8495e409cc765437460b3c9b6ee314c25209f51ce7b25",
+        "completed_at": "2026-10-17T04:52:39.330791+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2097",
+        "capsule_sha256": "f7bafb9a1529de7bb1ab97329835726577f37cf047864675a8f14abd2ed88e6e",
+        "completed_at": "2026-10-17T05:21:24.344155+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2098",
+        "capsule_sha256": "472ec5445ffa7e15cef094443389f8f500fee3a1bbef279bf740a86f55ce0843",
+        "completed_at": "2026-10-17T05:51:53.224217+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2099",
+        "capsule_sha256": "5111ece2fb2b05cb3a6b10ddccdcd9029178e044c6353984f5b7e9402224bfea",
+        "completed_at": "2026-10-17T06:18:02.621035+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2100",
+        "capsule_sha256": "ed2b207b4747bb31336c669016d689e9d29bbeaaa248003d1ecbd7233077c900",
+        "completed_at": "2026-10-17T06:47:31.001799+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2101",
+        "capsule_sha256": "0925b43c6ff31a895351ba99d9b3a805788a8d0ad4472e55d863964fbe71db4d",
+        "completed_at": "2026-10-17T07:17:25.441291+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2102",
+        "capsule_sha256": "51d44e8a16a43587002edcaaba2391bf5eed0a27c89de364f950732b620d75c8",
+        "completed_at": "2026-10-17T07:49:56.032379+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2103",
+        "capsule_sha256": "36da0997cde4ae3b31c5feae64235e56e0e0a2f2cde519865b528f9535e75600",
+        "completed_at": "2026-10-17T08:17:25.328354+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2104",
+        "capsule_sha256": "21c886a36a20556bd423ac6f0ef97880f53656b263d5e70a2814622dc22bec46",
+        "completed_at": "2026-10-17T08:47:08.421614+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2105",
+        "capsule_sha256": "8c22f06a352852924dc37864678e8b7090e218a019302ee7488dc94aac3822eb",
+        "completed_at": "2026-10-17T14:02:35.588395+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2106",
+        "capsule_sha256": "db314ec14cdc0d83dd8611918f4653c5475b775e2bc0475554d06b6979d5c4ed",
+        "completed_at": "2026-10-17T16:04:42.539794+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2107",
+        "capsule_sha256": "7d5f19b9bdabfbd18ec0b68e2a84e667eb4bfe074d672f711658a0ab159570ca",
+        "completed_at": "2026-10-17T18:40:34.971679+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2108",
+        "capsule_sha256": "98033fd392f4a07f85e2969d736c4c08a8f03c8218ca05fcca4d86bae7826639",
+        "completed_at": "2026-10-17T20:02:17.615732+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2109",
+        "capsule_sha256": "fe6cc470b07e5571332b6411d3cac61cd977f14fb18f3b65546e804b54a0f3f1",
+        "completed_at": "2026-10-17T20:31:33.634836+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2110",
+        "capsule_sha256": "aba0d028436fb735f848572b7a715e4b4eac64a59d348b44350630f7bd829a6a",
+        "completed_at": "2026-10-17T20:58:43.332235+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2111",
+        "capsule_sha256": "47dbe7c5d1fa43e986b6bd40fc4e1623fc1c79e05a97ebf318899610508d232d",
+        "completed_at": "2026-10-17T22:58:12.953762+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2112",
+        "capsule_sha256": "2a7b8403318ed4003cbb178e84da2cd53824f613fd0ee6e5ce2399f6c7cc9f82",
+        "completed_at": "2026-10-18T01:35:50.903018+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2113",
+        "capsule_sha256": "be32990b1b7201b3747de05a4414b3fe391a27d5f174d2c32590b848d175684a",
+        "completed_at": "2026-10-18T01:55:55.668866+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2114",
+        "capsule_sha256": "8b5108d5fc05962d029d9385fcbe18d4242e9f097555060e6b2521d245ac7055",
+        "completed_at": "2026-10-18T02:21:46.363162+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2115",
+        "capsule_sha256": "3af3293363d63cc2875380961ad42214f5155ba895546930dc9a0de1f3e307ef",
+        "completed_at": "2026-10-18T02:50:14.749414+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2116",
+        "capsule_sha256": "9cb70813f2f211e8d93130fa9800abea41cb5c678157be583fd0f6d4ef22f7cb",
+        "completed_at": "2026-10-18T03:15:02.171235+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2117",
+        "capsule_sha256": "8faf82e974b56580acb0066ae008248cdbe3ecc2ca26a146618cccc595d56290",
+        "completed_at": "2026-10-18T03:41:43.807271+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2118",
+        "capsule_sha256": "3d3d8e071830979c99a09e87c71a02e4b4d653807ea60198f5ec49c983c39586",
+        "completed_at": "2026-10-18T04:07:54.893525+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2119",
+        "capsule_sha256": "9b93c38262f377fb8abb068db4fd6034a14bd19eaca319f9c19ad9ee8aea23ef",
+        "completed_at": "2026-10-18T04:36:23.391088+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2120",
+        "capsule_sha256": "dc68abfe2ee1fad7831350b105b7b7618e117fe52d24c86ebae8a12d1fdc2f91",
+        "completed_at": "2026-10-18T07:33:56.366026+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2121",
+        "capsule_sha256": "1cc2972ff95602965e988c2230ecc7e6b65ec73f58e58b1c1c99948fb890b2d6",
+        "completed_at": "2026-10-18T08:01:05.425773+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2122",
+        "capsule_sha256": "98d9e6e19dc201912d35274ca34d306005fcc56d9a7153f0cb0ed73a1b172be3",
+        "completed_at": "2026-10-18T08:27:38.084201+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2123",
+        "capsule_sha256": "60a58b3a7bbac25d0e4f6b441b4fff59b732f845308e0093516a03de33d77307",
+        "completed_at": "2026-10-18T08:54:35.528891+00:00"
+      },
+      {
+        "capsule_id": "real_forecast_outcome__madrid_weather_v1__2124",
+        "capsule_sha256": "18b42f0cbbf02fcbe42017cc5ef15119976da10ddd1a493d1833d743c5a462a3",
+        "completed_at": "2026-10-18T09:17:01.520913+00:00"
       }
     ]
   },
   "contracts": {
-    "public_forecasting_competition_v1": {
-      "adapter_id": "public_forecasting_competition_v1",
-      "anchor_cycle": 9348,
-      "anchor_outcome_sha256": "a7ee20e181e4429c070a86f8362836c6f980f4232e46862521c7153ac258a19a",
-      "commitment_sha256": "a5294897323d731c9a920f2cfe45564f49a93bf25980bdf2099be6ce3d611a2d",
-      "contract_id": "real_public_forecast__madrid_weather_v1__1795",
-      "created_at": "2026-10-09T21:22:49.486005+00:00",
-      "created_epoch": 1791580969.485996,
-      "external_writes": 0,
-      "forecast": {
-        "temperature_max": 18.8,
-        "temperature_min": 8.8,
-        "wind_max": 15.0
-      },
-      "not_before_epoch": 1791581869.485996,
-      "owner_interventions": 0,
-      "scoring_rule": "temperature inside frozen interval and wind no greater than frozen ceiling",
-      "selection_rule": "first reachable Madrid public sensor row after not_before_epoch",
-      "sequence": 1795,
-      "subject_evidence": [
-        {
-          "actual": "intermediate",
-          "ready": true,
-          "required": "intermediate",
-          "subject_id": "data_statistics"
-        },
-        {
-          "actual": "intermediate",
-          "ready": true,
-          "required": "intermediate",
-          "subject_id": "scientific_method"
-        }
-      ]
-    },
     "upstream_software_problem_and_repair_v1": {
       "adapter_id": "upstream_software_problem_and_repair_v1",
       "commitment_sha256": "5620a57e10d30853f416f39cb4e8082c91f10f9d869a01cb702285f86762ebb6",
@@ -12398,10 +14431,10 @@
     }
   },
   "created_at": "2026-08-21T14:09:11.833299+00:00",
-  "cycles": 49999,
+  "cycles": 56028,
   "outcome_sequences": {
-    "paper_market_strategy_v1": 437,
-    "public_forecasting_competition_v1": 1795
+    "paper_market_strategy_v1": 527,
+    "public_forecasting_competition_v1": 2124
   },
   "retired_contracts": [
     {
@@ -12414,7 +14447,7 @@
     }
   ],
   "schema_version": "aion.hexcore.real_world_experience_adapters.v1",
-  "updated_at": "2026-10-09T21:45:37.086542+00:00",
+  "updated_at": "2026-10-18T09:20:50.657083+00:00",
   "verified_outcomes": [
     "real_forecast_outcome__madrid_weather_v1",
     "real_forecast_outcome__madrid_weather_v1__0001",
@@ -14647,6 +16680,426 @@
     "real_forecast_outcome__madrid_weather_v1__1792",
     "real_forecast_outcome__madrid_weather_v1__1793",
     "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0437",
-    "real_forecast_outcome__madrid_weather_v1__1794"
+    "real_forecast_outcome__madrid_weather_v1__1794",
+    "real_forecast_outcome__madrid_weather_v1__1795",
+    "real_forecast_outcome__madrid_weather_v1__1796",
+    "real_forecast_outcome__madrid_weather_v1__1797",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0438",
+    "real_forecast_outcome__madrid_weather_v1__1798",
+    "real_forecast_outcome__madrid_weather_v1__1799",
+    "real_forecast_outcome__madrid_weather_v1__1800",
+    "real_forecast_outcome__madrid_weather_v1__1801",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0439",
+    "real_forecast_outcome__madrid_weather_v1__1802",
+    "real_forecast_outcome__madrid_weather_v1__1803",
+    "real_forecast_outcome__madrid_weather_v1__1804",
+    "real_forecast_outcome__madrid_weather_v1__1805",
+    "real_forecast_outcome__madrid_weather_v1__1806",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0440",
+    "real_forecast_outcome__madrid_weather_v1__1807",
+    "real_forecast_outcome__madrid_weather_v1__1808",
+    "real_forecast_outcome__madrid_weather_v1__1809",
+    "real_forecast_outcome__madrid_weather_v1__1810",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0441",
+    "real_forecast_outcome__madrid_weather_v1__1811",
+    "real_forecast_outcome__madrid_weather_v1__1812",
+    "real_forecast_outcome__madrid_weather_v1__1813",
+    "real_forecast_outcome__madrid_weather_v1__1814",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0442",
+    "real_forecast_outcome__madrid_weather_v1__1815",
+    "real_forecast_outcome__madrid_weather_v1__1816",
+    "real_forecast_outcome__madrid_weather_v1__1817",
+    "real_forecast_outcome__madrid_weather_v1__1818",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0443",
+    "real_forecast_outcome__madrid_weather_v1__1819",
+    "real_forecast_outcome__madrid_weather_v1__1820",
+    "real_forecast_outcome__madrid_weather_v1__1821",
+    "real_forecast_outcome__madrid_weather_v1__1822",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0444",
+    "real_forecast_outcome__madrid_weather_v1__1823",
+    "real_forecast_outcome__madrid_weather_v1__1824",
+    "real_forecast_outcome__madrid_weather_v1__1825",
+    "real_forecast_outcome__madrid_weather_v1__1826",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0445",
+    "real_forecast_outcome__madrid_weather_v1__1827",
+    "real_forecast_outcome__madrid_weather_v1__1828",
+    "real_forecast_outcome__madrid_weather_v1__1829",
+    "real_forecast_outcome__madrid_weather_v1__1830",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0446",
+    "real_forecast_outcome__madrid_weather_v1__1831",
+    "real_forecast_outcome__madrid_weather_v1__1832",
+    "real_forecast_outcome__madrid_weather_v1__1833",
+    "real_forecast_outcome__madrid_weather_v1__1834",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0447",
+    "real_forecast_outcome__madrid_weather_v1__1835",
+    "real_forecast_outcome__madrid_weather_v1__1836",
+    "real_forecast_outcome__madrid_weather_v1__1837",
+    "real_forecast_outcome__madrid_weather_v1__1838",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0448",
+    "real_forecast_outcome__madrid_weather_v1__1839",
+    "real_forecast_outcome__madrid_weather_v1__1840",
+    "real_forecast_outcome__madrid_weather_v1__1841",
+    "real_forecast_outcome__madrid_weather_v1__1842",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0449",
+    "real_forecast_outcome__madrid_weather_v1__1843",
+    "real_forecast_outcome__madrid_weather_v1__1844",
+    "real_forecast_outcome__madrid_weather_v1__1845",
+    "real_forecast_outcome__madrid_weather_v1__1846",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0450",
+    "real_forecast_outcome__madrid_weather_v1__1847",
+    "real_forecast_outcome__madrid_weather_v1__1848",
+    "real_forecast_outcome__madrid_weather_v1__1849",
+    "real_forecast_outcome__madrid_weather_v1__1850",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0451",
+    "real_forecast_outcome__madrid_weather_v1__1851",
+    "real_forecast_outcome__madrid_weather_v1__1852",
+    "real_forecast_outcome__madrid_weather_v1__1853",
+    "real_forecast_outcome__madrid_weather_v1__1854",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0452",
+    "real_forecast_outcome__madrid_weather_v1__1855",
+    "real_forecast_outcome__madrid_weather_v1__1856",
+    "real_forecast_outcome__madrid_weather_v1__1857",
+    "real_forecast_outcome__madrid_weather_v1__1858",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0453",
+    "real_forecast_outcome__madrid_weather_v1__1859",
+    "real_forecast_outcome__madrid_weather_v1__1860",
+    "real_forecast_outcome__madrid_weather_v1__1861",
+    "real_forecast_outcome__madrid_weather_v1__1862",
+    "real_forecast_outcome__madrid_weather_v1__1863",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0454",
+    "real_forecast_outcome__madrid_weather_v1__1864",
+    "real_forecast_outcome__madrid_weather_v1__1865",
+    "real_forecast_outcome__madrid_weather_v1__1866",
+    "real_forecast_outcome__madrid_weather_v1__1867",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0455",
+    "real_forecast_outcome__madrid_weather_v1__1868",
+    "real_forecast_outcome__madrid_weather_v1__1869",
+    "real_forecast_outcome__madrid_weather_v1__1870",
+    "real_forecast_outcome__madrid_weather_v1__1871",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0456",
+    "real_forecast_outcome__madrid_weather_v1__1872",
+    "real_forecast_outcome__madrid_weather_v1__1873",
+    "real_forecast_outcome__madrid_weather_v1__1874",
+    "real_forecast_outcome__madrid_weather_v1__1875",
+    "real_forecast_outcome__madrid_weather_v1__1876",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0457",
+    "real_forecast_outcome__madrid_weather_v1__1877",
+    "real_forecast_outcome__madrid_weather_v1__1878",
+    "real_forecast_outcome__madrid_weather_v1__1879",
+    "real_forecast_outcome__madrid_weather_v1__1880",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0458",
+    "real_forecast_outcome__madrid_weather_v1__1881",
+    "real_forecast_outcome__madrid_weather_v1__1882",
+    "real_forecast_outcome__madrid_weather_v1__1883",
+    "real_forecast_outcome__madrid_weather_v1__1884",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0459",
+    "real_forecast_outcome__madrid_weather_v1__1885",
+    "real_forecast_outcome__madrid_weather_v1__1886",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0460",
+    "real_forecast_outcome__madrid_weather_v1__1887",
+    "real_forecast_outcome__madrid_weather_v1__1888",
+    "real_forecast_outcome__madrid_weather_v1__1889",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0461",
+    "real_forecast_outcome__madrid_weather_v1__1890",
+    "real_forecast_outcome__madrid_weather_v1__1891",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0462",
+    "real_forecast_outcome__madrid_weather_v1__1892",
+    "real_forecast_outcome__madrid_weather_v1__1893",
+    "real_forecast_outcome__madrid_weather_v1__1894",
+    "real_forecast_outcome__madrid_weather_v1__1895",
+    "real_forecast_outcome__madrid_weather_v1__1896",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0463",
+    "real_forecast_outcome__madrid_weather_v1__1897",
+    "real_forecast_outcome__madrid_weather_v1__1898",
+    "real_forecast_outcome__madrid_weather_v1__1899",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0464",
+    "real_forecast_outcome__madrid_weather_v1__1900",
+    "real_forecast_outcome__madrid_weather_v1__1901",
+    "real_forecast_outcome__madrid_weather_v1__1902",
+    "real_forecast_outcome__madrid_weather_v1__1903",
+    "real_forecast_outcome__madrid_weather_v1__1904",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0465",
+    "real_forecast_outcome__madrid_weather_v1__1905",
+    "real_forecast_outcome__madrid_weather_v1__1906",
+    "real_forecast_outcome__madrid_weather_v1__1907",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0466",
+    "real_forecast_outcome__madrid_weather_v1__1908",
+    "real_forecast_outcome__madrid_weather_v1__1909",
+    "real_forecast_outcome__madrid_weather_v1__1910",
+    "real_forecast_outcome__madrid_weather_v1__1911",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0467",
+    "real_forecast_outcome__madrid_weather_v1__1912",
+    "real_forecast_outcome__madrid_weather_v1__1913",
+    "real_forecast_outcome__madrid_weather_v1__1914",
+    "real_forecast_outcome__madrid_weather_v1__1915",
+    "real_forecast_outcome__madrid_weather_v1__1916",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0468",
+    "real_forecast_outcome__madrid_weather_v1__1917",
+    "real_forecast_outcome__madrid_weather_v1__1918",
+    "real_forecast_outcome__madrid_weather_v1__1919",
+    "real_forecast_outcome__madrid_weather_v1__1920",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0469",
+    "real_forecast_outcome__madrid_weather_v1__1921",
+    "real_forecast_outcome__madrid_weather_v1__1922",
+    "real_forecast_outcome__madrid_weather_v1__1923",
+    "real_forecast_outcome__madrid_weather_v1__1924",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0470",
+    "real_forecast_outcome__madrid_weather_v1__1925",
+    "real_forecast_outcome__madrid_weather_v1__1926",
+    "real_forecast_outcome__madrid_weather_v1__1927",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0471",
+    "real_forecast_outcome__madrid_weather_v1__1928",
+    "real_forecast_outcome__madrid_weather_v1__1929",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0472",
+    "real_forecast_outcome__madrid_weather_v1__1930",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0473",
+    "real_forecast_outcome__madrid_weather_v1__1931",
+    "real_forecast_outcome__madrid_weather_v1__1932",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0474",
+    "real_forecast_outcome__madrid_weather_v1__1933",
+    "real_forecast_outcome__madrid_weather_v1__1934",
+    "real_forecast_outcome__madrid_weather_v1__1935",
+    "real_forecast_outcome__madrid_weather_v1__1936",
+    "real_forecast_outcome__madrid_weather_v1__1937",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0475",
+    "real_forecast_outcome__madrid_weather_v1__1938",
+    "real_forecast_outcome__madrid_weather_v1__1939",
+    "real_forecast_outcome__madrid_weather_v1__1940",
+    "real_forecast_outcome__madrid_weather_v1__1941",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0476",
+    "real_forecast_outcome__madrid_weather_v1__1942",
+    "real_forecast_outcome__madrid_weather_v1__1943",
+    "real_forecast_outcome__madrid_weather_v1__1944",
+    "real_forecast_outcome__madrid_weather_v1__1945",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0477",
+    "real_forecast_outcome__madrid_weather_v1__1946",
+    "real_forecast_outcome__madrid_weather_v1__1947",
+    "real_forecast_outcome__madrid_weather_v1__1948",
+    "real_forecast_outcome__madrid_weather_v1__1949",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0478",
+    "real_forecast_outcome__madrid_weather_v1__1950",
+    "real_forecast_outcome__madrid_weather_v1__1951",
+    "real_forecast_outcome__madrid_weather_v1__1952",
+    "real_forecast_outcome__madrid_weather_v1__1953",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0479",
+    "real_forecast_outcome__madrid_weather_v1__1954",
+    "real_forecast_outcome__madrid_weather_v1__1955",
+    "real_forecast_outcome__madrid_weather_v1__1956",
+    "real_forecast_outcome__madrid_weather_v1__1957",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0480",
+    "real_forecast_outcome__madrid_weather_v1__1958",
+    "real_forecast_outcome__madrid_weather_v1__1959",
+    "real_forecast_outcome__madrid_weather_v1__1960",
+    "real_forecast_outcome__madrid_weather_v1__1961",
+    "real_forecast_outcome__madrid_weather_v1__1962",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0481",
+    "real_forecast_outcome__madrid_weather_v1__1963",
+    "real_forecast_outcome__madrid_weather_v1__1964",
+    "real_forecast_outcome__madrid_weather_v1__1965",
+    "real_forecast_outcome__madrid_weather_v1__1966",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0482",
+    "real_forecast_outcome__madrid_weather_v1__1967",
+    "real_forecast_outcome__madrid_weather_v1__1968",
+    "real_forecast_outcome__madrid_weather_v1__1969",
+    "real_forecast_outcome__madrid_weather_v1__1970",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0483",
+    "real_forecast_outcome__madrid_weather_v1__1971",
+    "real_forecast_outcome__madrid_weather_v1__1972",
+    "real_forecast_outcome__madrid_weather_v1__1973",
+    "real_forecast_outcome__madrid_weather_v1__1974",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0484",
+    "real_forecast_outcome__madrid_weather_v1__1975",
+    "real_forecast_outcome__madrid_weather_v1__1976",
+    "real_forecast_outcome__madrid_weather_v1__1977",
+    "real_forecast_outcome__madrid_weather_v1__1978",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0485",
+    "real_forecast_outcome__madrid_weather_v1__1979",
+    "real_forecast_outcome__madrid_weather_v1__1980",
+    "real_forecast_outcome__madrid_weather_v1__1981",
+    "real_forecast_outcome__madrid_weather_v1__1982",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0486",
+    "real_forecast_outcome__madrid_weather_v1__1983",
+    "real_forecast_outcome__madrid_weather_v1__1984",
+    "real_forecast_outcome__madrid_weather_v1__1985",
+    "real_forecast_outcome__madrid_weather_v1__1986",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0487",
+    "real_forecast_outcome__madrid_weather_v1__1987",
+    "real_forecast_outcome__madrid_weather_v1__1988",
+    "real_forecast_outcome__madrid_weather_v1__1989",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0488",
+    "real_forecast_outcome__madrid_weather_v1__1990",
+    "real_forecast_outcome__madrid_weather_v1__1991",
+    "real_forecast_outcome__madrid_weather_v1__1992",
+    "real_forecast_outcome__madrid_weather_v1__1993",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0489",
+    "real_forecast_outcome__madrid_weather_v1__1994",
+    "real_forecast_outcome__madrid_weather_v1__1995",
+    "real_forecast_outcome__madrid_weather_v1__1996",
+    "real_forecast_outcome__madrid_weather_v1__1997",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0490",
+    "real_forecast_outcome__madrid_weather_v1__1998",
+    "real_forecast_outcome__madrid_weather_v1__1999",
+    "real_forecast_outcome__madrid_weather_v1__2000",
+    "real_forecast_outcome__madrid_weather_v1__2001",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0491",
+    "real_forecast_outcome__madrid_weather_v1__2002",
+    "real_forecast_outcome__madrid_weather_v1__2003",
+    "real_forecast_outcome__madrid_weather_v1__2004",
+    "real_forecast_outcome__madrid_weather_v1__2005",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0492",
+    "real_forecast_outcome__madrid_weather_v1__2006",
+    "real_forecast_outcome__madrid_weather_v1__2007",
+    "real_forecast_outcome__madrid_weather_v1__2008",
+    "real_forecast_outcome__madrid_weather_v1__2009",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0493",
+    "real_forecast_outcome__madrid_weather_v1__2010",
+    "real_forecast_outcome__madrid_weather_v1__2011",
+    "real_forecast_outcome__madrid_weather_v1__2012",
+    "real_forecast_outcome__madrid_weather_v1__2013",
+    "real_forecast_outcome__madrid_weather_v1__2014",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0494",
+    "real_forecast_outcome__madrid_weather_v1__2015",
+    "real_forecast_outcome__madrid_weather_v1__2016",
+    "real_forecast_outcome__madrid_weather_v1__2017",
+    "real_forecast_outcome__madrid_weather_v1__2018",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0495",
+    "real_forecast_outcome__madrid_weather_v1__2019",
+    "real_forecast_outcome__madrid_weather_v1__2020",
+    "real_forecast_outcome__madrid_weather_v1__2021",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0496",
+    "real_forecast_outcome__madrid_weather_v1__2022",
+    "real_forecast_outcome__madrid_weather_v1__2023",
+    "real_forecast_outcome__madrid_weather_v1__2024",
+    "real_forecast_outcome__madrid_weather_v1__2025",
+    "real_forecast_outcome__madrid_weather_v1__2026",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0497",
+    "real_forecast_outcome__madrid_weather_v1__2027",
+    "real_forecast_outcome__madrid_weather_v1__2028",
+    "real_forecast_outcome__madrid_weather_v1__2029",
+    "real_forecast_outcome__madrid_weather_v1__2030",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0498",
+    "real_forecast_outcome__madrid_weather_v1__2031",
+    "real_forecast_outcome__madrid_weather_v1__2032",
+    "real_forecast_outcome__madrid_weather_v1__2033",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0499",
+    "real_forecast_outcome__madrid_weather_v1__2034",
+    "real_forecast_outcome__madrid_weather_v1__2035",
+    "real_forecast_outcome__madrid_weather_v1__2036",
+    "real_forecast_outcome__madrid_weather_v1__2037",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0500",
+    "real_forecast_outcome__madrid_weather_v1__2038",
+    "real_forecast_outcome__madrid_weather_v1__2039",
+    "real_forecast_outcome__madrid_weather_v1__2040",
+    "real_forecast_outcome__madrid_weather_v1__2041",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0501",
+    "real_forecast_outcome__madrid_weather_v1__2042",
+    "real_forecast_outcome__madrid_weather_v1__2043",
+    "real_forecast_outcome__madrid_weather_v1__2044",
+    "real_forecast_outcome__madrid_weather_v1__2045",
+    "real_forecast_outcome__madrid_weather_v1__2046",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0502",
+    "real_forecast_outcome__madrid_weather_v1__2047",
+    "real_forecast_outcome__madrid_weather_v1__2048",
+    "real_forecast_outcome__madrid_weather_v1__2049",
+    "real_forecast_outcome__madrid_weather_v1__2050",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0503",
+    "real_forecast_outcome__madrid_weather_v1__2051",
+    "real_forecast_outcome__madrid_weather_v1__2052",
+    "real_forecast_outcome__madrid_weather_v1__2053",
+    "real_forecast_outcome__madrid_weather_v1__2054",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0504",
+    "real_forecast_outcome__madrid_weather_v1__2055",
+    "real_forecast_outcome__madrid_weather_v1__2056",
+    "real_forecast_outcome__madrid_weather_v1__2057",
+    "real_forecast_outcome__madrid_weather_v1__2058",
+    "real_forecast_outcome__madrid_weather_v1__2059",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0505",
+    "real_forecast_outcome__madrid_weather_v1__2060",
+    "real_forecast_outcome__madrid_weather_v1__2061",
+    "real_forecast_outcome__madrid_weather_v1__2062",
+    "real_forecast_outcome__madrid_weather_v1__2063",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0506",
+    "real_forecast_outcome__madrid_weather_v1__2064",
+    "real_forecast_outcome__madrid_weather_v1__2065",
+    "real_forecast_outcome__madrid_weather_v1__2066",
+    "real_forecast_outcome__madrid_weather_v1__2067",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0507",
+    "real_forecast_outcome__madrid_weather_v1__2068",
+    "real_forecast_outcome__madrid_weather_v1__2069",
+    "real_forecast_outcome__madrid_weather_v1__2070",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0508",
+    "real_forecast_outcome__madrid_weather_v1__2071",
+    "real_forecast_outcome__madrid_weather_v1__2072",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0509",
+    "real_forecast_outcome__madrid_weather_v1__2073",
+    "real_forecast_outcome__madrid_weather_v1__2074",
+    "real_forecast_outcome__madrid_weather_v1__2075",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0510",
+    "real_forecast_outcome__madrid_weather_v1__2076",
+    "real_forecast_outcome__madrid_weather_v1__2077",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0511",
+    "real_forecast_outcome__madrid_weather_v1__2078",
+    "real_forecast_outcome__madrid_weather_v1__2079",
+    "real_forecast_outcome__madrid_weather_v1__2080",
+    "real_forecast_outcome__madrid_weather_v1__2081",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0512",
+    "real_forecast_outcome__madrid_weather_v1__2082",
+    "real_forecast_outcome__madrid_weather_v1__2083",
+    "real_forecast_outcome__madrid_weather_v1__2084",
+    "real_forecast_outcome__madrid_weather_v1__2085",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0513",
+    "real_forecast_outcome__madrid_weather_v1__2086",
+    "real_forecast_outcome__madrid_weather_v1__2087",
+    "real_forecast_outcome__madrid_weather_v1__2088",
+    "real_forecast_outcome__madrid_weather_v1__2089",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0514",
+    "real_forecast_outcome__madrid_weather_v1__2090",
+    "real_forecast_outcome__madrid_weather_v1__2091",
+    "real_forecast_outcome__madrid_weather_v1__2092",
+    "real_forecast_outcome__madrid_weather_v1__2093",
+    "real_forecast_outcome__madrid_weather_v1__2094",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0515",
+    "real_forecast_outcome__madrid_weather_v1__2095",
+    "real_forecast_outcome__madrid_weather_v1__2096",
+    "real_forecast_outcome__madrid_weather_v1__2097",
+    "real_forecast_outcome__madrid_weather_v1__2098",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0516",
+    "real_forecast_outcome__madrid_weather_v1__2099",
+    "real_forecast_outcome__madrid_weather_v1__2100",
+    "real_forecast_outcome__madrid_weather_v1__2101",
+    "real_forecast_outcome__madrid_weather_v1__2102",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0517",
+    "real_forecast_outcome__madrid_weather_v1__2103",
+    "real_forecast_outcome__madrid_weather_v1__2104",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0518",
+    "real_forecast_outcome__madrid_weather_v1__2105",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0519",
+    "real_forecast_outcome__madrid_weather_v1__2106",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0520",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0521",
+    "real_forecast_outcome__madrid_weather_v1__2107",
+    "real_forecast_outcome__madrid_weather_v1__2108",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0522",
+    "real_forecast_outcome__madrid_weather_v1__2109",
+    "real_forecast_outcome__madrid_weather_v1__2110",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0523",
+    "real_forecast_outcome__madrid_weather_v1__2111",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0524",
+    "real_forecast_outcome__madrid_weather_v1__2112",
+    "real_forecast_outcome__madrid_weather_v1__2113",
+    "real_forecast_outcome__madrid_weather_v1__2114",
+    "real_forecast_outcome__madrid_weather_v1__2115",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0525",
+    "real_forecast_outcome__madrid_weather_v1__2116",
+    "real_forecast_outcome__madrid_weather_v1__2117",
+    "real_forecast_outcome__madrid_weather_v1__2118",
+    "real_forecast_outcome__madrid_weather_v1__2119",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0526",
+    "real_forecast_outcome__madrid_weather_v1__2120",
+    "real_forecast_outcome__madrid_weather_v1__2121",
+    "real_forecast_outcome__madrid_weather_v1__2122",
+    "real_forecast_outcome__madrid_weather_v1__2123",
+    "real_paper_market_outcome__xbtusd_hourly_momentum_v1__0527",
+    "real_forecast_outcome__madrid_weather_v1__2124"
   ]
 }

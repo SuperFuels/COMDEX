@@ -29,6 +29,17 @@ class ActorRequest(BaseModel):
     acting_person_id: str = "desktop_user"
 
 
+class MetricsSyncRequest(BaseModel):
+    acting_person_id: str = "desktop_user"
+    days: int = Field(default=28, ge=1, le=90)
+
+
+class PlatformCredentialRequest(BaseModel):
+    acting_person_id: str = "desktop_user"
+    client_id: str = Field(min_length=1, max_length=500)
+    client_secret: str = Field(min_length=1, max_length=2000)
+
+
 def _authorize(workspace_id: str, person_id: str) -> None:
     model = authority.get(workspace_id)
     # Until sign-in is bound to HR identities, an empty single-user workspace has
@@ -48,6 +59,27 @@ def list_connections(workspace_id: str):
     return {"workspace_id": workspace_id, "connections": service.catalog(workspace_id),
             "permission_tiers": ["analytics", "organic", "advertising"],
             "external_writes_enabled": False}
+
+
+@router.get("/{workspace_id}/platform/{provider}")
+def platform_status(workspace_id: str, provider: str):
+    try:
+        return service.platform_status(provider)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/{workspace_id}/platform/{provider}")
+def configure_platform(workspace_id: str, provider: str, payload: PlatformCredentialRequest):
+    try:
+        _authorize(workspace_id, payload.acting_person_id)
+        return service.configure_platform(
+            provider, client_id=payload.client_id, client_secret=payload.client_secret,
+        )
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.post("/{workspace_id}/{provider}/connect")
@@ -70,7 +102,12 @@ async def callback(provider: str, state: str = "", code: str = "", error: str = 
         result = await service.complete(provider, state=state, code=code)
         return HTMLResponse(f"<h2>{escape(result['label'])} connected</h2><p>Return to Tessaris to select the account and run the read-only exam.</p>")
     except Exception as exc:
-        return HTMLResponse(f"<h2>Connection failed</h2><p>{type(exc).__name__}</p><p>No content was published and no spend occurred.</p>", status_code=400)
+        detail = str(exc).strip() or type(exc).__name__
+        return HTMLResponse(
+            f"<h2>Connection failed</h2><p>{escape(detail)}</p>"
+            "<p>No content was published and no spend occurred.</p>",
+            status_code=400,
+        )
 
 
 @router.post("/{workspace_id}/{provider}/select")
@@ -90,6 +127,27 @@ async def exam(workspace_id: str, provider: str, payload: ActorRequest):
     try:
         _authorize(workspace_id, payload.acting_person_id)
         return await service.exam(workspace_id, provider, acting_person_id=payload.acting_person_id)
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/{workspace_id}/{provider}/metrics")
+def metrics(workspace_id: str, provider: str):
+    try:
+        return service.metrics(workspace_id, provider)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/{workspace_id}/{provider}/metrics/sync")
+async def sync_metrics(workspace_id: str, provider: str, payload: MetricsSyncRequest):
+    try:
+        _authorize(workspace_id, payload.acting_person_id)
+        return await service.sync_metrics(
+            workspace_id, provider, days=payload.days, acting_person_id=payload.acting_person_id,
+        )
     except HTTPException:
         raise
     except ValueError as exc:

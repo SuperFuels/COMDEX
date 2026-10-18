@@ -117,24 +117,8 @@ function Gx1AdapterPad() {
   const [manifestText, setManifestText] = useState<string>("");
   const [datasetText, setDatasetText] = useState<string>("");
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const m = window.localStorage.getItem("gx1_adapter_manifest") || "";
-    const d = window.localStorage.getItem("gx1_adapter_dataset") || "";
-    if (!manifestText && m) setManifestText(m);
-    if (!datasetText && d) setDatasetText(d);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("gx1_adapter_manifest", manifestText);
-  }, [manifestText]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("gx1_adapter_dataset", datasetText);
-  }, [datasetText]);
+  // Genomic adapter inputs can contain sensitive customer data and therefore
+  // remain process-local until the genomic Vault workspace is connected.
 
   function generatePilot() {
     setManifestText(PILOT_MANIFEST_JSON.trim() + "\n");

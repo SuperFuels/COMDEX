@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sqlite3
+import stat
 from dataclasses import replace
 from concurrent.futures import ThreadPoolExecutor
 
@@ -51,6 +53,34 @@ def test_concurrent_audit_appends_keep_one_linear_chain(tmp_path):
         list(workers.map(lambda number: store.append_audit("concurrent_test", {"number": number}), range(80)))
     assert store.counts()["audit_ledger"] == 80
     assert store.verify_audit_chain() is True
+
+
+def test_context_managed_store_connection_closes_after_use(tmp_path):
+    store = FabricStore(tmp_path / "closed-connection.sqlite3")
+    connection = store.connect()
+    with connection as db:
+        assert db.execute("SELECT 1").fetchone()[0] == 1
+
+    with pytest.raises(sqlite3.ProgrammingError, match="closed database"):
+        connection.execute("SELECT 1")
+
+
+def test_fabric_database_and_parent_are_owner_only(tmp_path):
+    path = tmp_path / "fabric" / "fabric.sqlite3"
+    FabricStore(path)
+
+    assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
+    assert stat.S_IMODE(path.stat().st_mode) == 0o600
+
+
+def test_fabric_store_refuses_symlink_database_target(tmp_path):
+    target = tmp_path / "target.sqlite3"
+    target.touch()
+    link = tmp_path / "fabric.sqlite3"
+    link.symlink_to(target)
+
+    with pytest.raises(ValueError, match="private_sqlite_symlink_target_forbidden"):
+        FabricStore(link)
 
 
 def test_audit_retention_is_bounded_and_preserves_chain_checkpoint(tmp_path):

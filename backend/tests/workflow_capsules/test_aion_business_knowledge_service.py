@@ -7,7 +7,11 @@ import pytest
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from backend.modules.aion_business.runtime.business_knowledge_service import BusinessKnowledgeService
+from backend.modules.aion_business.runtime.business_vault import provision_business_vault
 from backend.modules.aion_business.runtime.department_context_assembler import _project_container
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_guardian import VaultGuardian
+from backend.modules.aion_business.runtime.vault_object_store import VaultObjectStore
 
 
 def _minimal_docx_bytes() -> bytes:
@@ -42,6 +46,11 @@ def test_company_knowledge_requires_owner_approval_and_keeps_provenance(tmp_path
     claim_ids = [claim["claim_id"] for claim in result["claims"]]
     approved = service.approve("test-business", claim_ids=claim_ids, actor="owner")
     assert approved["approved_count"] == len(claim_ids)
+    assert approved["receipts"][0]["action"] == "claims_owner_approved"
+    replay = service.approve("test-business", claim_ids=claim_ids, actor="owner")
+    assert replay["approved_count"] == 0
+    assert replay["idempotent_replay"] is True
+    assert replay["receipts"] == []
 
     recalled = service.search("test-business", query="Alloy fasteners", actor_scope="sales")
     assert recalled["matches"]
@@ -222,3 +231,65 @@ def test_legal_hold_prevents_retention_revocation(tmp_path: Path):
     statuses = {item["source_id"]: item["status"] for item in service.summary("test-business")["sources"]}
     assert statuses[held["source"]["source_id"]] == "awaiting_owner_review"
     assert statuses[expired["source"]["source_id"]] == "revoked"
+
+
+def test_business_knowledge_and_originals_restart_from_encrypted_vault(tmp_path: Path):
+    layout = provision_business_vault(
+        tmp_path / "vault", business_name="Acme", business_stable_id="acme",
+        application_root=tmp_path / "app", update_root=tmp_path / "updates",
+    )
+    guardian = VaultGuardian(layout, business_stable_id="acme", encryption_key=b"k" * 32)
+    domains = VaultDomainStore(guardian)
+    objects = VaultObjectStore(
+        layout, guardian=guardian, business_stable_id="acme", encryption_key=b"o" * 32,
+    )
+    service = BusinessKnowledgeService(domain_store=domains, object_store=objects)
+    result = service.ingest_text(
+        "acme", title="Private operating policy",
+        text="Private customer escalation code is ORCHID-742.", scopes=["support"],
+    )
+    source = result["source"]
+    assert "raw_local_path" not in source
+    assert source["vault_reference"].startswith("vault://business.knowledge_files/acme/")
+    service.approve("acme", [item["claim_id"] for item in result["claims"]], actor="owner")
+    assert domains.list("business.knowledge_audit", workspace_id="acme")
+
+    restarted = BusinessKnowledgeService(domain_store=domains, object_store=objects)
+    recalled = restarted.search("acme", "ORCHID-742", actor_scope="support")
+    assert recalled["match_count"] == 1
+    _metadata, original = objects.get_bytes(object_id=source["vault_object_id"])
+    assert original == b"Private customer escalation code is ORCHID-742."
+    assert b"ORCHID-742" not in guardian.database.read_bytes()
+    assert not (tmp_path / "acme" / "business_knowledge").exists()
+
+
+def test_search_index_rebuild_verifies_originals_and_persists_no_derived_cache(tmp_path: Path):
+    layout = provision_business_vault(
+        tmp_path / "vault", business_name="Acme", business_stable_id="acme",
+        application_root=tmp_path / "app", update_root=tmp_path / "updates",
+    )
+    guardian = VaultGuardian(layout, business_stable_id="acme", encryption_key=b"k" * 32)
+    domains = VaultDomainStore(guardian)
+    objects = VaultObjectStore(
+        layout, guardian=guardian, business_stable_id="acme", encryption_key=b"o" * 32,
+    )
+    service = BusinessKnowledgeService(domain_store=domains, object_store=objects)
+    ingested = service.ingest_text(
+        "acme", title="Service standard",
+        text="Emergency callouts receive a response within sixty minutes.",
+        scopes=["operations", "support"],
+    )
+    service.approve(
+        "acme", [claim["claim_id"] for claim in ingested["claims"]], actor="owner",
+    )
+
+    rebuilt = service.rebuild_search_index("acme", actor="owner")
+
+    assert rebuilt["derived_index_persisted"] is False
+    assert rebuilt["index_location"] == "memory_only"
+    assert rebuilt["approved_claim_count"] == 1
+    assert rebuilt["verified_source_count"] == 1
+    assert rebuilt["verified_sources"][0]["source_hash"] == ingested["source"]["source_hash"]
+    assert rebuilt["receipt"]["action"] == "search_index_rebuilt_from_authoritative_sources"
+    assert not list(tmp_path.rglob("*search*index*"))
+    assert domains.list("business.knowledge_audit", workspace_id="acme")

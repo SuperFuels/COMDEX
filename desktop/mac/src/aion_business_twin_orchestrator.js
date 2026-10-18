@@ -183,7 +183,7 @@
       }
 
       try {
-        root?.localStorage?.setItem(
+        root?.AionBusinessContainerClient?.writeBusinessWorkingStateString?.(
           MANIFEST_STORAGE_KEY,
           JSON.stringify(safeManifest)
         );
@@ -271,7 +271,7 @@
       }
 
       try {
-        root?.localStorage?.setItem(
+        root?.AionDesktopPreferences?.set?.(
           "aion.businessTwin.financeFirstRouted.v1",
           "false"
         );

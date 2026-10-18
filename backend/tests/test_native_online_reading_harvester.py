@@ -69,3 +69,35 @@ def test_opds_catalog_discovers_a_supported_book(tmp_path: Path):
         "title": "Example Book", "author": "A. Writer",
     }]
     assert harvester.metrics()["sources_discovered"] == 1
+
+
+def test_catalog_skips_existing_books_and_discovers_the_next_title(tmp_path: Path):
+    feed = b'''<?xml version="1.0"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <entry><title>First Book</title><content type="text">A. Writer</content>
+      <link rel="subsection" href="/ebooks/1.opds"/></entry>
+      <entry><title>Second Book</title><content type="text">B. Writer</content>
+      <link rel="subsection" href="/ebooks/2.opds"/></entry>
+    </feed>'''
+
+    def fetch(url: str, max_bytes: int):
+        if url.endswith(".opds") and not url.endswith("search.opds"):
+            number = "1" if url.endswith("1.opds") else "2"
+            detail = f'''<?xml version="1.0"?>
+            <feed xmlns="http://www.w3.org/2005/Atom"><entry>
+              <link rel="http://opds-spec.org/acquisition" type="application/epub+zip"
+                    href="https://example.test/{number}.epub.noimages"/>
+            </entry></feed>'''.encode()
+            return detail, "application/atom+xml", url
+        return feed, "application/atom+xml", "https://example.test/search.opds"
+
+    harvester = NativeOnlineReadingHarvester(
+        database_path=tmp_path / "native.sqlite3",
+        extractor=NativeDocumentExtractor(repo_root=tmp_path),
+        ingest=lambda **kwargs: {}, fetcher=fetch,
+        catalog_url="https://example.test/search.opds",
+    )
+
+    assert harvester.discover(limit=1)[0]["title"] == "First Book"
+    assert harvester.discover(limit=1)[0]["title"] == "Second Book"
+    assert harvester.metrics()["sources_discovered"] == 2

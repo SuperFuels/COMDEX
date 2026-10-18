@@ -141,15 +141,6 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
       if (changed) forceReopen();
     });
 
-    // React to cross-tab localStorage changes of the mode
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "gnet:transportMode") {
-        const { changed } = computeBase();
-        if (changed) forceReopen();
-      }
-    };
-    if (typeof window !== "undefined") window.addEventListener("storage", onStorage);
-
     // Always compute initial base before opening
     computeBase();
 
@@ -349,7 +340,6 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
       }
       msgBufRef.current = [];
 
-      if (typeof window !== "undefined") window.removeEventListener("storage", onStorage);
       stopHealth();
 
       setReconnecting(false);

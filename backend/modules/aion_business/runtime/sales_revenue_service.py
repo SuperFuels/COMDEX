@@ -19,6 +19,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import sys
 import time
 from typing import Any
 import urllib.error
@@ -26,7 +27,11 @@ import urllib.request
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
+from backend.modules.aion_business.runtime.department_operational_store import DepartmentOperationalStore
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.telephony_credentials import (
@@ -34,6 +39,12 @@ from backend.modules.aion_business.runtime.telephony_credentials import (
     get_retell_api_key,
     get_retell_from_number,
 )
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_object_store import VaultObjectStore
 
 
 PIPELINE_STAGES = (
@@ -64,6 +75,7 @@ WORK_LIFECYCLE_STAGES = (
 
 WORK_EVENT_KINDS = (
     "enquiry_received", "qualification_update", "inbound_message", "outbound_draft",
+    "outbound_message",
     "call", "booking_prepared", "booking_confirmed", "note", "photo", "document",
     "voice_instruction", "quote_draft", "quote_approved", "quote_sent",
     "customer_reply", "supplier_request", "material_quote", "job_scheduled",
@@ -198,8 +210,16 @@ class SalesRevenueService:
     """Own contacts, opportunities, qualification and conversation evidence."""
 
     def __init__(self, repository: BusinessContainerRepository | None = None,
-                 authority: OrganizationAuthorityService | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+                 authority: OrganizationAuthorityService | None = None, *,
+                 domain_store: VaultDomainStore | None = None,
+                 object_store: VaultObjectStore | None = None) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        self.object_store = object_store
+        if repository is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="sales-runtime")
+            self.object_store = runtime.objects
         self.authority = authority or OrganizationAuthorityService(self.repository)
 
     def workspace(self, workspace_id: str) -> dict[str, Any]:
@@ -308,6 +328,7 @@ class SalesRevenueService:
         result = self.create_enquiry(
             workspace_id, name=str(payload.get("name") or "").strip(),
             email=payload.get("email"), phone=payload.get("phone"), company_name=payload.get("company_name"),
+            address=payload.get("address"),
             enquiry=str(payload.get("enquiry") or payload.get("message") or "").strip(),
             source="external_agent" if machine_request else "public_agent_intent" if public_agent_intent else "website",
             source_reference=f"{endpoint_id}:{event_id}", attribution=attribution,
@@ -598,7 +619,7 @@ class SalesRevenueService:
             )
             path = self._telephony_events_dir(workspace_id) / f"retell-readback-{_safe(call_id)}.json"
             previous = None
-            if path.exists():
+            if self._record_exists(path):
                 previous = self._load(path, workspace_id, "event_hash")
             comparable_previous = {key: value for key, value in (previous or {}).items()
                                    if key not in {"synced_at", "synced_by_person_id", "event_hash"}}
@@ -1170,7 +1191,10 @@ class SalesRevenueService:
                             preferred_channel: str, next_action: str | None,
                             next_action_due: str | None, tags: list[str] | None,
                             owner_person_id: str, address: str | None,
-                            updated_by_person_id: str) -> dict[str, Any]:
+                            updated_by_person_id: str,
+                            contact_name: str | None = None,
+                            email: str | None = None,
+                            phone: str | None = None) -> dict[str, Any]:
         """Maintain the small native relationship record shared across departments."""
         access = self._require(workspace_id, updated_by_person_id, "sales.manage")
         record = self.load_opportunity(workspace_id, opportunity_id)
@@ -1210,6 +1234,21 @@ class SalesRevenueService:
             "updated_by_person_id": updated_by_person_id,
         }
         contact = self.load_contact(workspace_id, record["contact_id"])
+        clean_name = re.sub(
+            r"\s+", " ", str(contact_name if contact_name is not None else contact.get("name") or "").strip()
+        )[:180]
+        clean_email = _clean_email(email if email is not None else contact.get("email"))
+        clean_phone = _clean_phone(phone if phone is not None else contact.get("phone"))
+        if not clean_name:
+            raise ValueError("customer_name_required")
+        if not clean_email and not clean_phone:
+            raise ValueError("sales_contact_method_required")
+        duplicate = self._find_contact(workspace_id, email=clean_email, phone=clean_phone)
+        if duplicate and duplicate.get("contact_id") != contact.get("contact_id"):
+            raise ValueError("customer_contact_method_already_in_use")
+        contact["name"] = clean_name
+        contact["email"] = clean_email
+        contact["phone"] = clean_phone
         contact["address"] = address
         contact["updated_at"] = _now()
         self._rehash(contact, "contact_hash")
@@ -1221,7 +1260,8 @@ class SalesRevenueService:
             details={"relationship_status": relationship_status, "priority": priority,
                      "preferred_channel": preferred_channel, "next_action": next_action,
                      "next_action_due": due, "tags": clean_tags,
-                     "owner_person_id": owner_person_id, "address_recorded": bool(address)},
+                     "owner_person_id": owner_person_id, "address_recorded": bool(address),
+                     "contact_details_updated": True},
             lifecycle_stage=None, source="customer_record", provider="tessaris",
             source_reference=None, attachments=[],
             action={"status": "recorded", "external_action_performed": False},
@@ -1272,6 +1312,139 @@ class SalesRevenueService:
         self._project(workspace_id, record)
         return {"opportunity": record, "event": event, "work_feed": record["work_feed"]}
 
+    def record_message_delivery(
+        self,
+        workspace_id: str,
+        opportunity_id: str,
+        *,
+        provider: str,
+        provider_message_id: str,
+        provider_thread_id: str | None,
+        channel: str,
+        recipient: str,
+        subject: str,
+        content_sha256: str,
+        delivery_status: str,
+        linked_draft_event_id: str | None,
+        sent_at: str | None,
+        recorded_by_person_id: str,
+    ) -> dict[str, Any]:
+        """Record an executed provider send exactly once without retaining credentials.
+
+        The external adapter performs the send.  This boundary accepts only the
+        provider's evidence receipt and a hash of the reviewed content; OAuth
+        material is deliberately outside the contract.
+        """
+        access = self._require(workspace_id, recorded_by_person_id, "sales.manage")
+        record = self.load_opportunity(workspace_id, opportunity_id)
+        provider = re.sub(r"[^a-z0-9_.-]+", "-", str(provider or "").strip().lower())[:80]
+        provider_message_id = str(provider_message_id or "").strip()[:500]
+        provider_thread_id = str(provider_thread_id or "").strip()[:500] or None
+        channel = str(channel or "").strip().lower()[:40]
+        recipient = str(recipient or "").strip()[:500]
+        subject = str(subject or "").strip()[:300]
+        content_sha256 = str(content_sha256 or "").strip().lower()
+        delivery_status = str(delivery_status or "").strip().lower()
+        linked_draft_event_id = str(linked_draft_event_id or "").strip()[:160] or None
+        sent_at = str(sent_at or "").strip()[:80] or _now()
+        if not provider or not provider_message_id or not channel or not recipient or not subject:
+            raise ValueError("message_delivery_provider_identity_and_route_required")
+        if not re.fullmatch(r"[a-f0-9]{64}", content_sha256):
+            raise ValueError("message_delivery_content_sha256_required")
+        if delivery_status not in {"sent", "delivered", "accepted"}:
+            raise ValueError("message_delivery_status_not_verified")
+        if linked_draft_event_id and not any(
+            str(item.get("event_id") or "") == linked_draft_event_id
+            and item.get("kind") == "outbound_draft"
+            for item in (record.get("work_feed") or {}).get("events") or []
+        ):
+            raise ValueError("message_delivery_linked_draft_not_found")
+        evidence = {
+            "provider": provider,
+            "provider_message_id": provider_message_id,
+            "provider_thread_id": provider_thread_id,
+            "channel": channel,
+            "recipient": recipient,
+            "subject": subject,
+            "content_sha256": content_sha256,
+            "delivery_status": delivery_status,
+            "linked_draft_event_id": linked_draft_event_id,
+            "sent_at": sent_at,
+        }
+        delivery_fingerprint = canonical_contract_hash(evidence)
+        for item in (record.get("work_feed") or {}).get("events") or []:
+            details = item.get("details") if isinstance(item.get("details"), dict) else {}
+            if (
+                item.get("kind") == "outbound_message"
+                and details.get("provider") == provider
+                and details.get("provider_message_id") == provider_message_id
+            ):
+                if details.get("delivery_fingerprint") != delivery_fingerprint:
+                    raise ValueError("message_delivery_receipt_conflict")
+                return {
+                    "opportunity": record,
+                    "event": item,
+                    "work_feed": record["work_feed"],
+                    "deduplicated": True,
+                }
+        event = self._append_work_event_record(
+            record,
+            kind="outbound_message",
+            title="Customer message delivered",
+            summary=f"{subject} delivered through {provider}.",
+            details={**evidence, "delivery_fingerprint": delivery_fingerprint},
+            lifecycle_stage=None,
+            source="communications",
+            provider=provider,
+            source_reference=f"{provider}:{provider_message_id}",
+            attachments=[],
+            action={
+                "status": "executed",
+                "external_action_performed": True,
+                "receipt_reference": f"{provider}:{provider_message_id}",
+            },
+            recorded_by_person_id=recorded_by_person_id,
+        )
+        event["authority_decision"] = access
+        self._rehash(event, "event_hash")
+        self._activity(record, "customer_message_delivery_recorded", recorded_by_person_id, {
+            "event_id": event["event_id"],
+            "provider": provider,
+            "provider_message_id": provider_message_id,
+            "delivery_status": delivery_status,
+        })
+        self._save_opportunity(workspace_id, record)
+        operational = DepartmentOperationalStore(domain_store=self.domain_store)
+        if operational.domain_store is not None:
+            operational.append_audit(
+                workspace_id=workspace_id,
+                department_id="communications",
+                feature_id="provider_delivery",
+                event_id=f"{provider}-{hashlib.sha256(provider_message_id.encode()).hexdigest()[:24]}",
+                payload={
+                    "schema_version": "aion.communications.provider_delivery.v1",
+                    "opportunity_id": opportunity_id,
+                    "sales_event_id": event["event_id"],
+                    "provider": provider,
+                    "provider_message_id_sha256": hashlib.sha256(provider_message_id.encode()).hexdigest(),
+                    "provider_thread_id_sha256": (
+                        hashlib.sha256(provider_thread_id.encode()).hexdigest()
+                        if provider_thread_id else None
+                    ),
+                    "content_sha256": content_sha256,
+                    "delivery_status": delivery_status,
+                    "recorded_at": _now(),
+                },
+                actor_id="sales-communications-runtime",
+            )
+        self._project(workspace_id, record)
+        return {
+            "opportunity": record,
+            "event": event,
+            "work_feed": record["work_feed"],
+            "deduplicated": False,
+        }
+
     def store_work_feed_attachment(self, workspace_id: str, opportunity_id: str, *,
                                    filename: str, content: bytes, media_type: str | None,
                                    recorded_by_person_id: str) -> dict[str, Any]:
@@ -1292,9 +1465,21 @@ class SalesRevenueService:
         digest = hashlib.sha256(content).hexdigest()
         attachment_id = f"customer-file-{digest[:20]}"
         directory = self._opportunity_attachments_dir(workspace_id, opportunity_id)
-        path = directory / f"{attachment_id}{extension}"
-        if not path.exists():
-            path.write_bytes(content)
+        vault_object_id = "sales-" + hashlib.sha256(
+            f"{workspace_id}\0{opportunity_id}\0{attachment_id}".encode("utf-8")
+        ).hexdigest()[:48]
+        if self.object_store is not None:
+            self._audit_file_access("put")
+            self.object_store.put_bytes(
+                object_id=vault_object_id, data=content, original_name=clean_name,
+                content_type=clean_media_type,
+                idempotency_key=f"sales-attachment-{vault_object_id}",
+                actor_id="sales-runtime", recorded_at=_now(),
+            )
+        else:
+            path = directory / f"{attachment_id}{extension}"
+            if not path.exists():
+                path.write_bytes(content)
         metadata = {
             "workspace_id": workspace_id,
             "opportunity_id": opportunity_id,
@@ -1307,12 +1492,16 @@ class SalesRevenueService:
             "recorded_by_person_id": recorded_by_person_id,
             "stored_at": _now(),
         }
+        if self.object_store is not None:
+            metadata["vault_object_id"] = vault_object_id
         self._rehash(metadata, "attachment_hash")
         self._write(directory / f"{attachment_id}.json", metadata)
         return metadata
 
     def work_feed_attachment_path(self, workspace_id: str, opportunity_id: str,
                                   attachment_id: str) -> tuple[Path, dict[str, Any]]:
+        if self.object_store is not None:
+            raise RuntimeError("guardian_sales_attachment_has_no_plaintext_path")
         self.load_opportunity(workspace_id, opportunity_id)
         directory = self._opportunity_attachments_dir(workspace_id, opportunity_id)
         metadata = self._load(directory / f"{_safe(attachment_id)}.json", workspace_id, "attachment_hash")
@@ -1320,6 +1509,27 @@ class SalesRevenueService:
         if not matches:
             raise FileNotFoundError("customer_work_attachment_not_found")
         return matches[0], metadata
+
+    def work_feed_attachment_bytes(self, workspace_id: str, opportunity_id: str,
+                                   attachment_id: str) -> tuple[bytes, dict[str, Any]]:
+        self.load_opportunity(workspace_id, opportunity_id)
+        directory = self._opportunity_attachments_dir(workspace_id, opportunity_id)
+        metadata = self._load(directory / f"{_safe(attachment_id)}.json", workspace_id, "attachment_hash")
+        if self.object_store is not None:
+            object_id = str(metadata.get("vault_object_id") or "")
+            if not object_id:
+                raise FileNotFoundError("customer_work_attachment_not_found")
+            self._audit_file_access("get")
+            _object_metadata, data = self.object_store.get_bytes(object_id=object_id)
+            return data, metadata
+        path, metadata = self.work_feed_attachment_path(workspace_id, opportunity_id, attachment_id)
+        return path.read_bytes(), metadata
+
+    @staticmethod
+    def _audit_file_access(operation: str) -> None:
+        """Declare encrypted Sales file access without exposing customer identity."""
+
+        sys.audit("tessaris.vault_domain_access", "sales.files", operation)
 
     def list_sales_agents(self, workspace_id: str) -> list[dict[str, Any]]:
         return [self._load(path, workspace_id, "agent_hash")
@@ -1600,7 +1810,7 @@ class SalesRevenueService:
 
     def ensure_default_playbook(self, workspace_id: str) -> dict[str, Any]:
         path = self._playbook_path(workspace_id, "inbound-enquiry")
-        if path.exists():
+        if self._record_exists(path):
             record = self._load(path, workspace_id, "playbook_hash")
             if not isinstance(record.get("agent_setup"), dict):
                 record["agent_setup"] = json.loads(json.dumps(DEFAULT_AGENT_SETUP))
@@ -2023,44 +2233,50 @@ class SalesRevenueService:
             self.repository.save_dict(workspace_id, "boardroom_snapshot", boardroom)
 
     def _root(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_sales__") / _safe(workspace_id) / "sales" / "revenue_spine"
         path = AIONBusinessPaths.business_container_dir(workspace_id) / "sales/revenue_spine"
         path.mkdir(parents=True, exist_ok=True); return path
 
     def _contacts_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "contacts"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "contacts")
 
     def _companies_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "companies"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "companies")
 
     def _opportunities_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "opportunities"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "opportunities")
 
     def _opportunity_attachments_dir(self, workspace_id: str, opportunity_id: str) -> Path:
         path = self._root(workspace_id) / "opportunity_attachments" / _safe(opportunity_id)
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+        return self._storage_dir(path)
 
     def _playbooks_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "playbooks"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "playbooks")
 
     def _sales_agents_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "call_centre/agents"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "call_centre/agents")
 
     def _sales_agent_contracts_dir(self, workspace_id: str, agent_id: str) -> Path:
         path = self._root(workspace_id) / "call_centre/contracts" / _safe(agent_id)
-        path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(path)
 
     def _intakes_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "intake_endpoints"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "intake_endpoints")
 
     def _simulations_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "simulations"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "simulations")
 
     def _call_drafts_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "telephony/call_drafts"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "telephony/call_drafts")
 
     def _telephony_events_dir(self, workspace_id: str) -> Path:
-        path = self._root(workspace_id) / "telephony/events"; path.mkdir(parents=True, exist_ok=True); return path
+        return self._storage_dir(self._root(workspace_id) / "telephony/events")
+
+    def _storage_dir(self, path: Path) -> Path:
+        if self.domain_store is None:
+            path.mkdir(parents=True, exist_ok=True)
+        return path
 
     def _contact_path(self, workspace_id: str, record_id: str) -> Path:
         return self._contacts_dir(workspace_id) / f"{_safe(record_id)}.json"
@@ -2091,23 +2307,75 @@ class SalesRevenueService:
     def _call_draft_path(self, workspace_id: str, record_id: str) -> Path:
         return self._call_drafts_dir(workspace_id) / f"{_safe(record_id)}.json"
 
-    @staticmethod
-    def _sorted(path: Path) -> list[Path]:
+    def _path_identity(self, path: Path) -> tuple[str, str]:
+        parts = path.parts
+        try:
+            marker = parts.index("__tessaris_guardian_sales__")
+            workspace_id = parts[marker + 1]
+            spine = parts.index("revenue_spine", marker + 2)
+        except (ValueError, IndexError) as exc:
+            raise RuntimeError("sales_guardian_path_identity_invalid") from exc
+        relative = Path(*parts[spine + 1:]).with_suffix("").as_posix()
+        return workspace_id, relative
+
+    def _record_exists(self, path: Path) -> bool:
+        if self.domain_store is None:
+            return path.exists()
+        workspace_id, entity_id = self._path_identity(path)
+        return self.domain_store.get_optional(
+            "sales.records", workspace_id=workspace_id, entity_id=entity_id,
+        ) is not None
+
+    def _sorted(self, path: Path) -> list[Path]:
+        if self.domain_store is not None:
+            workspace_id, prefix = self._path_identity(path)
+            prefix = prefix.rstrip("/") + "/"
+            records = [
+                record for record in self.domain_store.list("sales.records", workspace_id=workspace_id)
+                if str(record.get("entity_id") or "").startswith(prefix)
+                and "/" not in str(record.get("entity_id") or "")[len(prefix):]
+            ]
+            records.sort(
+                key=lambda record: str((record.get("payload") or {}).get("updated_at") or (record.get("payload") or {}).get("created_at") or ""),
+                reverse=True,
+            )
+            return [path / f"{str(record['entity_id'])[len(prefix):]}.json" for record in records]
         return sorted(path.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)
 
     @staticmethod
     def _rehash(record: dict[str, Any], field: str) -> None:
         record.pop(field, None); record[field] = canonical_contract_hash(record)
 
-    @staticmethod
-    def _write(path: Path, record: dict[str, Any]) -> None:
+    def _write(self, path: Path, record: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            workspace_id, entity_id = self._path_identity(path)
+            current = self.domain_store.get_optional(
+                "sales.records", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "sales.records", workspace_id=workspace_id, entity_id=entity_id,
+                payload=record, expected_version=int(current["version"]) if current else None,
+                actor_id="sales-runtime",
+            )
+            return
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    @staticmethod
-    def _load(path: Path, workspace_id: str, hash_field: str) -> dict[str, Any]:
-        if not path.exists(): raise FileNotFoundError(path.stem)
-        record = json.loads(path.read_text(encoding="utf-8")); expected = record.get(hash_field)
+    def _load(self, path: Path, workspace_id: str, hash_field: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            stored_workspace_id, entity_id = self._path_identity(path)
+            if canonical_business_id(stored_workspace_id) != canonical_business_id(workspace_id):
+                raise PermissionError("sales_workspace_isolation_violation")
+            try:
+                record = dict(self.domain_store.get(
+                    "sales.records", workspace_id=stored_workspace_id, entity_id=entity_id,
+                )["payload"])
+            except KeyError as exc:
+                raise FileNotFoundError(path.stem) from exc
+        else:
+            if not path.exists(): raise FileNotFoundError(path.stem)
+            record = json.loads(path.read_text(encoding="utf-8"))
+        expected = record.get(hash_field)
         payload = dict(record); payload.pop(hash_field, None)
         if not expected or canonical_contract_hash(payload) != expected:
             raise ValueError(f"sales_{hash_field}_mismatch")
@@ -2121,6 +2389,14 @@ class SalesRevenueService:
         return record
 
     def _audit(self, workspace_id: str, activity: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            event_id = str(activity.get("activity_id") or f"event-{secrets.token_hex(12)}")
+            self.domain_store.put(
+                "sales.audit", workspace_id=workspace_id,
+                entity_id=f"{_now()}/{_safe(event_id)}-{secrets.token_hex(4)}",
+                payload=activity, expected_version=None, actor_id="sales-runtime",
+            )
+            return
         path = self._root(workspace_id) / "audit.jsonl"
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(activity, sort_keys=True) + "\n")

@@ -1,7 +1,7 @@
 """Department activation profiles.
 
-Finance and the lightweight HR/authority foundation are activated. Remaining
-departments stay design-gated until their purpose and safe execution are defined.
+Every core business function can receive approval-gated Boardroom research and
+planning work. External writes remain separately permissioned per department.
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ DEPARTMENT_PILOT_PROFILES: dict[str, dict[str, Any]] = {
     "marketing": {
         "pilot_id": "marketing_pilot",
         "display_name": "Marketing Pilot",
-        "activation_state": "design_required",
+        "activation_state": "enabled",
         "implementation_order": 3,
         "design_topics": [
             "campaign planning and day-to-day operating view",
@@ -75,6 +75,25 @@ DEPARTMENT_PILOT_PROFILES: dict[str, dict[str, Any]] = {
             "publishing and advertising approval boundaries",
             "relationship to Sales funnels and recognised outcomes",
         ],
+        "allowed_capabilities": [
+            "marketing.discovery", "marketing.strategy", "marketing.content_draft",
+            "marketing.channel_analysis", "marketing.attribution",
+            "marketing.boardroom_projection",
+        ],
+        "tool_permissions": {
+            "safe_internal": [
+                "marketing_strategy_builder", "marketing_content_drafter",
+                "marketing_channel_analyser", "marketing_boardroom_projection",
+            ],
+            "read_only_external": [
+                "meta.insights.read", "youtube.analytics.read", "linkedin.analytics.read",
+                "tiktok.analytics.read", "x.analytics.read", "google_business.read",
+            ],
+            "staged_external": [
+                "social.post.draft", "social.campaign.draft", "advertising.campaign.draft",
+            ],
+            "approved_live_external": [],
+        },
     },
     "support": {
         "pilot_id": "support_pilot",
@@ -132,7 +151,7 @@ DEPARTMENT_PILOT_PROFILES: dict[str, dict[str, Any]] = {
     "operations": {
         "pilot_id": "operations_pilot",
         "display_name": "Operations Pilot",
-        "activation_state": "design_required",
+        "activation_state": "enabled",
         "implementation_order": 6,
         "design_topics": [
             "full operating-system scope before implementation",
@@ -141,6 +160,19 @@ DEPARTMENT_PILOT_PROFILES: dict[str, dict[str, Any]] = {
             "cross-functional dependencies and exception management",
         ],
         "implementation_note": "Design and implement after the other specialist functions.",
+        "allowed_capabilities": [
+            "operations.discovery", "operations.capacity_analysis",
+            "operations.delivery_planning", "operations.boardroom_projection",
+        ],
+        "tool_permissions": {
+            "safe_internal": [
+                "operations_capacity_analyser", "operations_workflow_planner",
+                "operations_boardroom_projection",
+            ],
+            "read_only_external": ["operations.jobs.read", "operations.schedule.read"],
+            "staged_external": ["operations.job.draft", "operations.schedule.draft"],
+            "approved_live_external": [],
+        },
     },
 }
 
@@ -148,6 +180,63 @@ DEPARTMENT_PILOT_PROFILES: dict[str, dict[str, Any]] = {
 def get_department_pilot_profile(department_id: str) -> dict[str, Any] | None:
     profile = DEPARTMENT_PILOT_PROFILES.get(str(department_id or "").strip().lower())
     return dict(profile) if profile else None
+
+
+def get_workspace_department_pilot_profile(
+    workspace_id: str,
+    department_id: str,
+    *,
+    container_repository: Any | None = None,
+) -> dict[str, Any] | None:
+    """Resolve a core or founder-installed department without a code release."""
+
+    department_key = str(department_id or "").strip().lower()
+    profile = get_department_pilot_profile(department_key)
+    if profile is not None:
+        return profile
+    if not workspace_id or not department_key:
+        return None
+    if container_repository is None:
+        from backend.modules.aion_business.runtime.business_container_repository_factory import (
+            configured_business_container_repository,
+        )
+
+        container_repository = configured_business_container_repository()
+    intelligence = container_repository.load_optional_dict(
+        workspace_id, "department_intelligence"
+    ) or {}
+    custom = next(
+        (
+            item
+            for item in list(intelligence.get("custom_departments") or [])
+            if isinstance(item, dict)
+            and str(item.get("id") or "").strip().lower() == department_key
+            and item.get("core") is False
+        ),
+        None,
+    )
+    if custom is None:
+        return None
+    display_name = str(custom.get("name") or department_key.replace("_", " ").title())
+    return {
+        "pilot_id": f"{department_key}_pilot",
+        "display_name": f"{display_name} Pilot",
+        "activation_state": "enabled",
+        "implementation_order": 900,
+        "design_topics": [],
+        "custom_department": True,
+        "allowed_capabilities": [
+            "department.internal_planning",
+            "department.records",
+            "department.boardroom_projection",
+        ],
+        "tool_permissions": {
+            "safe_internal": ["department_operational_records"],
+            "read_only_external": [],
+            "staged_external": [],
+            "approved_live_external": [],
+        },
+    }
 
 
 def list_department_pilot_profiles() -> list[dict[str, Any]]:

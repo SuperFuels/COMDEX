@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import os
 import hashlib
+import secrets
 from pathlib import Path
 from typing import Any, Dict, Optional
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
@@ -20,11 +22,35 @@ router = APIRouter(prefix="/api/vault", tags=["vault"])
 _STORE = InMemoryVaultCredentialStore()
 
 
-def _aion_flow_bindings():
+def _aion_flow_bindings(workspace_id: str = "home-fixed"):
     from backend.modules.aion_business.runtime.aion_flow_model_bindings import AionFlowModelBindings
+    from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
+    from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime
+    from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
     data_root = Path(os.environ.get("TESSARIS_DATA_ROOT") or os.environ.get("DATA_ROOT") or "data").resolve()
-    return AionFlowModelBindings(data_root / "aion_flow" / "credential_bindings")
+    domain_store = None
+    credential_root = data_root / "aion_flow" / "credential_bindings"
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        domain_store = VaultDomainStore(
+            runtime.guardian, actor_id="aion-flow-model-binding-api",
+        )
+        credential_root = Path(
+            os.environ.get("TESSARIS_AION_FLOW_CREDENTIAL_STORE_PATH")
+            or (
+                Path(os.environ["TESSARIS_SECURITY_ROOT"])
+                / "aion-flow-model-bindings"
+                if os.environ.get("TESSARIS_SECURITY_ROOT")
+                else Path.home()
+                / ".tessaris/security/aion-flow-model-bindings"
+            )
+        ).expanduser().resolve()
+    return AionFlowModelBindings(
+        credential_root,
+        workspace_id=workspace_id,
+        domain_store=domain_store,
+    )
 
 
 class VaultCredentialSeedRequest(BaseModel):
@@ -47,6 +73,7 @@ class ConnectorReadinessRequest(BaseModel):
 
 
 class AionFlowBindingCreateRequest(BaseModel):
+    workspace_id: str = Field(default="home-fixed", min_length=1, max_length=160)
     binding_id: str = Field(min_length=1, max_length=80)
     provider: str = Field(min_length=1, max_length=80)
     label: str = Field(default="", max_length=100)
@@ -59,10 +86,10 @@ class LocalModelSelectionRequest(BaseModel):
 
 
 @router.get("/aion-flow/bindings")
-def list_aion_flow_bindings(provider: str = "") -> Dict[str, Any]:
+def list_aion_flow_bindings(provider: str = "", workspace_id: str = "home-fixed") -> Dict[str, Any]:
     """Return safe binding metadata for the visual picker; never secret material."""
 
-    return {"ok": True, **_aion_flow_bindings().public_bindings(provider=provider)}
+    return {"ok": True, **_aion_flow_bindings(workspace_id).public_bindings(provider=provider)}
 
 
 @router.post("/aion-flow/bindings")
@@ -75,7 +102,7 @@ def create_aion_flow_binding(
     if x_aion_vault_intent != "create-aion-flow-binding-v1":
         raise HTTPException(status_code=403, detail="explicit_vault_intent_required")
     try:
-        binding = _aion_flow_bindings().create(
+        binding = _aion_flow_bindings(payload.workspace_id).create(
             binding_id=payload.binding_id,
             provider=payload.provider,
             secret=payload.secret,
@@ -259,6 +286,149 @@ def list_integration_providers(
         "connected_count": sum(bool(item["connected"]) for item in providers),
         "configured_count": sum(bool(item["configured"]) for item in providers),
     }
+
+
+_PAYMENT_PROVIDER_DOCS = {
+    "stripe": "https://docs.stripe.com/connect/oauth-reference",
+    "paypal": "https://developer.paypal.com/platforms/seller-onboarding",
+    "square": "https://developer.squareup.com/docs/oauth-api/overview",
+    "gocardless": "https://docs.gocardless.com/getting-started/partners/connecting-your-users-accounts",
+    "revolut": "https://developer.revolut.com/docs/api/merchant",
+    "sumup": "https://developer.sumup.com/tools/authorization/oauth",
+    "mollie": "https://docs.mollie.com/docs/authentication-via-oauth",
+    "braintree": "https://developer.paypal.com/braintree/docs/guides/extend/oauth/overview",
+    "worldpay": "https://docs.worldpay.com/access/products/get-started",
+    "adyen": "https://docs.adyen.com/platforms/onboard-users",
+    "checkout_com": "https://www.checkout.com/docs/docs/Integrate/partner-accreditation-guide.pdf",
+}
+
+
+@router.get("/payment-providers")
+def list_payment_providers() -> Dict[str, Any]:
+    """Expose payment-connector readiness without returning credentials."""
+
+    catalog = get_business_integration_catalog()
+    providers = []
+    for item in catalog["providers"]:
+        if item.get("category") != "payments":
+            continue
+        missing = list(item.get("missing_setup") or [])
+        providers.append({
+            **item,
+            "developer_setup_ready": bool(item.get("configured")),
+            "missing_setup": missing,
+            "docs_url": _PAYMENT_PROVIDER_DOCS.get(str(item.get("provider_id")), ""),
+            "connection_status": "ready_to_connect" if item.get("configured") else "developer_setup_required",
+        })
+    return {
+        "ok": True,
+        "schema_version": "tessaris.payment_connections.v1",
+        "providers": providers,
+        "bank_transfer_available": True,
+        "customer_card_data_stored": False,
+    }
+
+
+@router.get("/payment-providers/{provider_id}/connect-url")
+def payment_provider_connect_url(provider_id: str) -> Dict[str, Any]:
+    """Create the provider-owned onboarding URL once platform credentials exist.
+
+    Token exchange and webhook verification belong on Tessaris's HTTPS service;
+    this local endpoint deliberately never accepts or exposes provider secrets.
+    """
+
+    provider = str(provider_id or "").strip().lower()
+    catalog = {item["provider_id"]: item for item in get_business_integration_catalog()["providers"]}
+    item = catalog.get(provider)
+    if not item or item.get("category") != "payments":
+        raise HTTPException(status_code=404, detail="payment_provider_not_found")
+    if not item.get("configured"):
+        return {
+            "ok": False,
+            "provider_id": provider,
+            "reason": "developer_setup_required",
+            "missing_setup": item.get("missing_setup") or item.get("required_setup") or [],
+            "docs_url": _PAYMENT_PROVIDER_DOCS.get(provider, ""),
+        }
+
+    redirect_base = os.getenv("TESSARIS_PAYMENT_OAUTH_REDIRECT_URL", "").strip()
+    redirect_uri = f"{redirect_base.rstrip('/')}/{provider}"
+    state = secrets.token_urlsafe(32)
+    if provider == "stripe":
+        query = urlencode({
+            "response_type": "code",
+            "client_id": os.getenv("STRIPE_CONNECT_CLIENT_ID", ""),
+            "scope": "read_write",
+            "redirect_uri": redirect_uri,
+            "state": state,
+        })
+        connect_url = f"https://connect.stripe.com/oauth/authorize?{query}"
+    elif provider == "square":
+        query = urlencode({
+            "client_id": os.getenv("SQUARE_APPLICATION_ID", ""),
+            "scope": "MERCHANT_PROFILE_READ ORDERS_READ ORDERS_WRITE PAYMENTS_READ PAYMENTS_WRITE",
+            "session": "false",
+            "redirect_uri": redirect_uri,
+            "state": state,
+        })
+        connect_url = f"https://connect.squareup.com/oauth2/authorize?{query}"
+    elif provider == "gocardless":
+        query = urlencode({
+            "client_id": os.getenv("GOCARDLESS_CLIENT_ID", ""),
+            "redirect_uri": redirect_uri,
+            "response_type": "code",
+            "scope": "read_write",
+            "state": state,
+        })
+        connect_url = f"https://connect.gocardless.com/oauth/authorize?{query}"
+    elif provider == "sumup":
+        query = urlencode({
+            "response_type": "code",
+            "client_id": os.getenv("SUMUP_CLIENT_ID", ""),
+            "redirect_uri": redirect_uri,
+            "scope": "payments",
+            "state": state,
+        })
+        connect_url = f"https://api.sumup.com/authorize?{query}"
+    elif provider == "mollie":
+        query = urlencode({
+            "client_id": os.getenv("MOLLIE_CLIENT_ID", ""),
+            "redirect_uri": redirect_uri,
+            "response_type": "code",
+            "scope": "payments.read payments.write payment-links.read payment-links.write",
+            "state": state,
+        })
+        connect_url = f"https://www.mollie.com/oauth2/authorize?{query}"
+    elif provider == "revolut":
+        return {
+            "ok": False,
+            "provider_id": provider,
+            "reason": "revolut_merchant_account_required",
+            "docs_url": _PAYMENT_PROVIDER_DOCS["revolut"],
+        }
+    elif provider in {"braintree", "worldpay", "adyen", "checkout_com"}:
+        reasons = {
+            "braintree": "braintree_production_oauth_approval_required",
+            "worldpay": "worldpay_implementation_manager_setup_required",
+            "adyen": "adyen_platform_account_required",
+            "checkout_com": "checkout_partner_accreditation_required",
+        }
+        return {
+            "ok": False,
+            "provider_id": provider,
+            "reason": reasons[provider],
+            "docs_url": _PAYMENT_PROVIDER_DOCS[provider],
+        }
+    else:
+        # PayPal merchant onboarding is created through Partner Referrals and
+        # requires an approved partner account; there is no safe static URL.
+        return {
+            "ok": False,
+            "provider_id": provider,
+            "reason": "paypal_partner_referral_required",
+            "docs_url": _PAYMENT_PROVIDER_DOCS["paypal"],
+        }
+    return {"ok": True, "provider_id": provider, "connect_url": connect_url, "state": state}
 
 
 # AION PATCH: Vault AI Provider Keys v1

@@ -22,7 +22,14 @@ from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 import uuid
+
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_agents.runtime.vault_repository_backend import (
+    AgentVaultRepositoryBackend,
+    configured_agent_domain_store,
+)
 
 
 SCHEMA_VERSION = "aion.workflow_capsule_approval.v1"
@@ -91,11 +98,50 @@ class WorkflowCapsuleApprovalStore:
     def __init__(
         self,
         *,
-        approval_dir: Path | str = DEFAULT_APPROVAL_DIR,
-        approval_log: Path | str = DEFAULT_APPROVAL_LOG,
+        approval_dir: Path | str | None = None,
+        approval_log: Path | str | None = None,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
     ) -> None:
-        self.approval_dir = Path(approval_dir)
-        self.approval_log = Path(approval_log)
+        explicit_legacy = approval_dir is not None or approval_log is not None
+        self.approval_dir = Path(approval_dir or DEFAULT_APPROVAL_DIR)
+        self.approval_log = Path(approval_log or DEFAULT_APPROVAL_LOG)
+        store = domain_store or (
+            configured_agent_domain_store() if not explicit_legacy else None
+        )
+        self.vault = (
+            AgentVaultRepositoryBackend(
+                store,
+                kind="workflow_capsule_approvals",
+                audit=True,
+            )
+            if store
+            else None
+        )
+        self.event_vault = (
+            AgentVaultRepositoryBackend(
+                store,
+                kind="workflow_capsule_approval_events",
+                audit=True,
+            )
+            if store
+            else None
+        )
+        self.workspace_id = str(
+            workspace_id
+            or os.environ.get("TESSARIS_BUSINESS_STABLE_ID")
+            or ""
+        ).strip()
+        if self.vault is not None and not self.workspace_id:
+            raise ValueError("workflow_capsule_approval_workspace_id_required")
+
+    @staticmethod
+    def _vault_path(approval_id: str) -> str:
+        return (
+            "vault://train_agent.runs_and_audit/"
+            "workflow_capsule_approvals/"
+            + _safe_id(approval_id)
+        )
 
     def approval_path(self, approval_id: str) -> Path:
         return self.approval_dir / f"{_safe_id(approval_id)}.json"
@@ -137,10 +183,20 @@ class WorkflowCapsuleApprovalStore:
             "run_id": run_id,
             "canonical_key": canonical_key,
             "status": "pending",
-            "path": str(self.approval_path(approval_id)),
+            "path": (
+                self._vault_path(approval_id)
+                if self.vault is not None
+                else str(self.approval_path(approval_id))
+            ),
         }
 
     def get(self, approval_id: str) -> Optional[Dict[str, Any]]:
+        if self.vault is not None:
+            data = self.vault.get(
+                workspace_id=self.workspace_id,
+                item_id=_safe_id(approval_id),
+            )
+            return dict(data) if data is not None else None
         path = self.approval_path(approval_id)
         if not path.exists():
             return None
@@ -157,15 +213,29 @@ class WorkflowCapsuleApprovalStore:
         key_norm = str(canonical_key or "").strip()
         limit = max(1, min(int(limit or 100), 500))
 
-        if not self.approval_dir.exists():
-            return []
-
         items: List[Dict[str, Any]] = []
-        for path in sorted(self.approval_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-            except Exception:
-                continue
+        if self.vault is not None:
+            candidates = self.vault.list(workspace_id=self.workspace_id)
+            candidates = sorted(
+                candidates,
+                key=lambda item: str(item.get("created_at") or ""),
+                reverse=True,
+            )
+        else:
+            if not self.approval_dir.exists():
+                return []
+            candidates = []
+            for path in sorted(
+                self.approval_dir.glob("*.json"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            ):
+                try:
+                    candidates.append(json.loads(path.read_text(encoding="utf-8")))
+                except Exception:
+                    continue
+
+        for data in candidates:
 
             if status_norm and str(data.get("status") or "").strip().lower() != status_norm:
                 continue
@@ -233,6 +303,13 @@ class WorkflowCapsuleApprovalStore:
         }
 
     def _write_item(self, data: Dict[str, Any]) -> None:
+        if self.vault is not None:
+            self.vault.put(
+                workspace_id=self.workspace_id,
+                item_id=_safe_id(str(data["approval_id"])),
+                payload=data,
+            )
+            return
         self.approval_dir.mkdir(parents=True, exist_ok=True)
         path = self.approval_path(str(data["approval_id"]))
         tmp = path.with_suffix(".tmp")
@@ -243,12 +320,19 @@ class WorkflowCapsuleApprovalStore:
         tmp.replace(path)
 
     def _append_log(self, event_type: str, data: Dict[str, Any]) -> None:
-        self.approval_log.parent.mkdir(parents=True, exist_ok=True)
         row = {
             "schema_version": LOG_SCHEMA_VERSION,
             "ts": _utc_now_iso(),
             "event_type": event_type,
             "approval": data,
         }
+        if self.event_vault is not None:
+            self.event_vault.put(
+                workspace_id=self.workspace_id,
+                item_id=f"{_safe_id(str(data['approval_id']))}-{uuid.uuid4().hex}",
+                payload=row,
+            )
+            return
+        self.approval_log.parent.mkdir(parents=True, exist_ok=True)
         with self.approval_log.open("a", encoding="utf-8") as f:
             f.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")

@@ -32,10 +32,11 @@ def test_vault_keeps_single_phase17k_handler_source() -> None:
 def test_oauth_success_page_is_terminal_not_reconnect_loop() -> None:
     text = ROUTER.read_text()
     block = text[text.find("html = f"):text.find("@router.post", text.find("html = f"))]
-    assert "Return to the Tessaris app" in block
+    assert "Return to Tessaris" in block
     assert "aion:gmail_oauth_connected" in block
     assert "setTimeout(function" not in block
-    assert '<button onclick="window.close()">Close window</button>' in block
+    assert '<button onclick="window.close()">Return to Tessaris</button>' in block
+    assert "#2f66e9" in block
 
 def test_consolidation_test_is_in_focused_suite() -> None:
     assert "test_aion_vault_gmail_consolidated_ui_lock.py" in SUITE.read_text()

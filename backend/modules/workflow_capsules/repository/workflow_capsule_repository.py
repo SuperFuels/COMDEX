@@ -4,7 +4,14 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 import json
 import logging
+import os
 import re
+
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_agents.runtime.vault_repository_backend import (
+    AgentVaultRepositoryBackend,
+    configured_agent_domain_store,
+)
 
 from backend.modules.workflow_capsules.foundations.workflow_capsule_schema import (
     WorkflowCapsule,
@@ -37,14 +44,68 @@ class WorkflowCapsuleRepository:
 
     def __init__(
         self,
-        root: Union[str, Path] = "data/workflow_capsules",
+        root: Union[str, Path, None] = None,
         *,
         core_dir: str = "core",
         workspace_dir: str = "workspace",
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
     ) -> None:
-        self.root = Path(root)
+        self.root = Path(root or "data/workflow_capsules")
         self.core_dir = core_dir
         self.workspace_dir = workspace_dir
+        store = domain_store or (
+            configured_agent_domain_store() if root is None else None
+        )
+        self.vault = (
+            AgentVaultRepositoryBackend(
+                store,
+                kind="workflow_capsule_workspace_capsules",
+            )
+            if store
+            else None
+        )
+        self.default_workspace_id = str(
+            workspace_id
+            or os.environ.get("TESSARIS_BUSINESS_STABLE_ID")
+            or ""
+        ).strip()
+        if self.vault is not None and not self.default_workspace_id:
+            raise ValueError("workflow_capsule_workspace_id_required")
+
+    def _workspace(self, workspace_id: Optional[str]) -> str:
+        value = str(workspace_id or self.default_workspace_id or "").strip()
+        if self.vault is not None and not value:
+            raise ValueError("workflow_capsule_workspace_id_required")
+        return value
+
+    @staticmethod
+    def _vault_item_id(canonical_key: str) -> str:
+        return _safe_filename(canonical_key)
+
+    def _vault_path(self, canonical_key: str) -> str:
+        return (
+            "vault://train_agent.automations/"
+            "workflow_capsule_workspace_capsules/"
+            + self._vault_item_id(canonical_key)
+        )
+
+    @staticmethod
+    def _capsule_from_payload(
+        payload: Dict[str, object],
+        *,
+        verify_checksum: bool,
+    ) -> WorkflowCapsule:
+        capsule = WorkflowCapsule.from_dict(payload)
+        if verify_checksum:
+            expected = capsule.meta.get("checksum")
+            actual = capsule.checksum()
+            if expected and expected != actual:
+                raise ValueError(
+                    "Workflow capsule checksum mismatch: "
+                    f"expected={expected} actual={actual}"
+                )
+        return capsule
 
     # ---------------------------------------------------------------------
     # Paths
@@ -90,6 +151,38 @@ class WorkflowCapsuleRepository:
         Core capsules should generally be treated as built-ins.
         Workspace capsules can be user/workspace-editable.
         """
+
+        if scope not in {"core", "workspace"}:
+            raise ValueError("scope must be core or workspace")
+
+        if scope == "workspace" and self.vault is not None:
+            workspace = self._workspace(workspace_id)
+            item_id = self._vault_item_id(capsule.canonical_key)
+            if not overwrite and self.vault.exists(
+                workspace_id=workspace,
+                item_id=item_id,
+            ):
+                return {
+                    "ok": False,
+                    "reason": "capsule_already_exists",
+                    "canonical_key": capsule.canonical_key,
+                    "path": self._vault_path(capsule.canonical_key),
+                }
+            capsule.finalize()
+            self.vault.put(
+                workspace_id=workspace,
+                item_id=item_id,
+                payload=capsule.to_dict(),
+            )
+            return {
+                "ok": True,
+                "canonical_key": capsule.canonical_key,
+                "display_name": capsule.display_name,
+                "scope": scope,
+                "workspace_id": workspace,
+                "path": self._vault_path(capsule.canonical_key),
+                "checksum": capsule.meta.get("checksum"),
+            }
 
         path = self.capsule_path(
             capsule.canonical_key,
@@ -160,6 +253,22 @@ class WorkflowCapsuleRepository:
 
         candidates: List[Path] = []
 
+        workspace = self._workspace(workspace_id) if self.vault is not None else workspace_id
+        vault_capsule: Optional[WorkflowCapsule] = None
+        if self.vault is not None:
+            payload = self.vault.get(
+                workspace_id=str(workspace),
+                item_id=self._vault_item_id(canonical_key),
+            )
+            if payload is not None:
+                vault_capsule = self._capsule_from_payload(
+                    payload,
+                    verify_checksum=verify_checksum,
+                )
+
+        if prefer_workspace and vault_capsule is not None:
+            return vault_capsule
+
         workspace_path = self.capsule_path(
             canonical_key,
             scope="workspace",
@@ -167,12 +276,12 @@ class WorkflowCapsuleRepository:
         )
         core_path = self.capsule_path(canonical_key, scope="core")
 
-        if prefer_workspace and workspace_id:
+        if self.vault is None and prefer_workspace and workspace_id:
             candidates.append(workspace_path)
 
         candidates.append(core_path)
 
-        if not prefer_workspace and workspace_id:
+        if self.vault is None and not prefer_workspace and workspace_id:
             candidates.append(workspace_path)
 
         # Fast path: deterministic filename resolution.
@@ -182,15 +291,18 @@ class WorkflowCapsuleRepository:
                 if capsule.canonical_key == canonical_key:
                     return capsule
 
+        if not prefer_workspace and vault_capsule is not None:
+            return vault_capsule
+
         # Compatibility path: scan all capsule files and match internal canonical_key.
         scan_paths = self.iter_capsule_paths(
             include_core=True,
-            include_workspace=bool(workspace_id),
+            include_workspace=bool(workspace_id) and self.vault is None,
             workspace_id=workspace_id,
         )
 
         # Workspace-first ordering when requested.
-        if prefer_workspace and workspace_id:
+        if self.vault is None and prefer_workspace and workspace_id:
             scan_paths = sorted(
                 scan_paths,
                 key=lambda x: 0 if f"/{self.workspace_dir}/" in str(x) else 1,
@@ -247,7 +359,7 @@ class WorkflowCapsuleRepository:
         if include_core and self.core_root.exists():
             paths.extend(sorted(self.core_root.glob("*.workflow.wiki.phn")))
 
-        if include_workspace:
+        if include_workspace and self.vault is None:
             if workspace_id:
                 safe_workspace = _safe_filename(workspace_id)
                 ws_root = self.workspace_root / safe_workspace
@@ -268,6 +380,30 @@ class WorkflowCapsuleRepository:
     ) -> List[Dict[str, object]]:
         rows: List[Dict[str, object]] = []
 
+        if include_workspace and self.vault is not None:
+            workspace = self._workspace(workspace_id)
+            for payload in self.vault.list(workspace_id=workspace):
+                try:
+                    capsule = self._capsule_from_payload(
+                        payload,
+                        verify_checksum=verify_checksum,
+                    )
+                    rows.append(
+                        {
+                            "ok": True,
+                            "canonical_key": capsule.canonical_key,
+                            "display_name": capsule.display_name,
+                            "meaning": capsule.meaning,
+                            "tags": list(capsule.tags or []),
+                            "display_glyph": capsule.display_glyph,
+                            "path": self._vault_path(capsule.canonical_key),
+                            "checksum": capsule.meta.get("checksum"),
+                            "scope": "workspace",
+                        }
+                    )
+                except Exception as exc:
+                    rows.append({"ok": False, "path": "vault://", "error": str(exc)})
+
         for path in self.iter_capsule_paths(
             include_core=include_core,
             include_workspace=include_workspace,
@@ -285,6 +421,11 @@ class WorkflowCapsuleRepository:
                         "display_glyph": capsule.display_glyph,
                         "path": str(path),
                         "checksum": capsule.meta.get("checksum"),
+                        "scope": (
+                            "workspace"
+                            if f"/{self.workspace_dir}/" in str(path)
+                            else "core"
+                        ),
                     }
                 )
             except Exception as exc:
@@ -354,6 +495,12 @@ class WorkflowCapsuleRepository:
                     row.get("path"),
                 )
 
+                if (
+                    existing.get("scope") == "workspace"
+                    and row.get("scope") != "workspace"
+                ):
+                    continue
+
             index[key] = row
 
         return index
@@ -373,6 +520,14 @@ class WorkflowCapsuleRepository:
             "items": index,
         }
 
+        if self.vault is not None:
+            return {
+                "ok": True,
+                "path": "memory://workflow-capsule-derived-index",
+                "count": len(index),
+                "derived_index_persisted": False,
+            }
+
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -381,4 +536,5 @@ class WorkflowCapsuleRepository:
             "ok": True,
             "path": str(path),
             "count": len(index),
+            "derived_index_persisted": True,
         }

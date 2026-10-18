@@ -6,30 +6,21 @@
 # and adjusts belief state based on reflective tone.
 # ==========================================================
 
-import json, os, random, datetime
+import random, datetime
 from statistics import mean
 from backend.modules.aion_resonance.resonance_state import load_phi_state, save_phi_state
 from backend.modules.aion_resonance.conversation_memory import MEMORY
 from backend.modules.aion_resonance.phi_reinforce import (
     reinforce_from_memory,
-    _save_json,
-    REINFORCE_PATH,
+    save_reinforce_state,
 )
-
-MEMORY_PATH = "data/conversation_memory.json"
 
 # ----------------------------------------------------------
 # Helpers
 # ----------------------------------------------------------
 
 def load_memory():
-    if not os.path.exists(MEMORY_PATH):
-        return []
-    try:
-        with open(MEMORY_PATH, "r") as f:
-            return json.load(f)
-    except Exception:
-        return []
+    return MEMORY.load()
 
 # ----------------------------------------------------------
 # Belief Influence Mechanism
@@ -57,7 +48,7 @@ def adjust_beliefs_from_tone(baseline, tone):
 
     baseline["beliefs"] = beliefs
     baseline["last_update"] = datetime.datetime.utcnow().isoformat()
-    _save_json(REINFORCE_PATH, baseline)
+    save_reinforce_state(baseline)
     return baseline
 
 # ----------------------------------------------------------

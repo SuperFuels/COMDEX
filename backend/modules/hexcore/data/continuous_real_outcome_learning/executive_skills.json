@@ -4697,46 +4697,742 @@
       "created_at": "2026-10-09T21:32:52.108316+00:00",
       "method": "operational_incident",
       "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-09T22:02:27.992362+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T00:04:13.521539+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T02:05:50.558555+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T04:06:20.028936+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T06:07:02.340422+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T07:49:25.350809+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T07:49:27.805540+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T07:59:05.235048+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T08:08:35.572697+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T09:32:44.954586+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T09:32:47.750622+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T09:43:18.414768+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T10:14:27.627052+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T11:10:57.524269+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T11:11:02.173197+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T11:22:02.237197+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T11:22:04.924695+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T11:22:07.561400+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T11:31:52.631600+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T13:11:53.800331+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T13:11:56.726118+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T13:11:59.694775+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T13:22:16.064730+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T13:22:18.728232+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T13:22:21.343631+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T13:37:33.868264+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T15:25:07.831080+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T16:14:08.616947+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T16:14:11.322853+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T18:12:08.786381+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T20:18:02.802356+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-10T22:13:26.847959+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T00:18:03.446282+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T02:19:30.767752+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T04:20:49.051674+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T06:21:08.538875+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T08:12:48.775115+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T10:16:17.477104+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T12:15:55.891513+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T14:18:48.061573+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T16:14:17.767789+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T18:14:26.185664+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T20:19:17.122004+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-11T22:15:37.788983+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T12:58:59.163876+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T15:05:41.286579+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T17:06:33.462830+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T18:05:07.309369+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T18:14:51.787507+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T18:14:54.715810+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T18:14:57.622959+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T20:15:53.048063+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-12T22:18:10.951423+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T00:10:40.051198+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T02:12:37.976293+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T04:14:26.204305+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T06:41:46.351601+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T08:16:38.478831+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T15:58:23.036909+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T16:14:59.820832+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T16:15:02.784724+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T17:05:55.443661+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T19:06:52.547444+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T21:03:07.024899+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-13T22:58:08.112083+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T01:02:00.360728+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T03:05:49.347869+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T05:00:07.724131+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T07:04:55.939375+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T08:59:17.952020+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T11:03:32.549025+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T12:59:13.641236+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T15:03:17.044979+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T17:02:37.244620+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T19:03:24.522118+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T21:07:15.291364+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-14T23:03:43.514916+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T00:59:10.978350+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T03:04:13.379809+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T04:59:29.472507+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T07:05:20.330683+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T08:59:25.924854+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T11:03:37.094731+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T13:07:30.739335+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T15:08:05.576552+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T17:05:03.969263+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T19:00:09.137086+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T21:05:26.924870+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-15T23:01:52.404352+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T01:03:13.055103+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T03:04:48.210632+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T05:06:07.831340+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T07:07:39.692220+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T09:08:35.488376+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T11:00:48.252913+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T13:03:14.478887+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T15:08:41.378251+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T17:05:32.587277+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T19:09:02.074421+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T21:06:59.584157+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-16T23:04:16.572332+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T01:10:03.944250+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T03:03:46.009450+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T05:07:04.658216+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T07:02:30.873387+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T09:23:39.251443+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T11:29:14.657907+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T13:25:53.188642+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T15:32:11.437135+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T17:09:39.082258+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T19:27:30.453964+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T21:10:36.868817+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-17T23:02:16.652150+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-18T01:40:18.437968+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-18T03:39:53.219052+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
+    },
+    {
+      "composition_id": "worksys_d00a9e6a5d164b91",
+      "created_at": "2026-10-18T07:36:52.142702+00:00",
+      "method": "operational_incident",
+      "objective_hash": "77ef3fe7e89ac32612da9843961d181aa57fe586e25f8b694ca41dcb14883e27"
     }
   ],
   "method_outcomes": {
     "operational_incident": {
-      "attempts": 783,
-      "score_sum": 783.0,
-      "verified": 783
+      "attempts": 899,
+      "score_sum": 899.0,
+      "verified": 899
     }
   },
-  "revision": 1566,
+  "revision": 1798,
   "schema_version": "aion.hexcore.executive_skills.v1",
   "skill_outcomes": {
     "handover": {
-      "attempts": 783,
-      "verified": 783
+      "attempts": 899,
+      "verified": 899
     },
     "incident_response": {
-      "attempts": 783,
-      "verified": 783
+      "attempts": 899,
+      "verified": 899
     },
     "progress_control": {
-      "attempts": 783,
-      "verified": 783
+      "attempts": 899,
+      "verified": 899
     },
     "quality_assurance": {
-      "attempts": 783,
-      "verified": 783
+      "attempts": 899,
+      "verified": 899
     },
     "retrospective": {
-      "attempts": 783,
-      "verified": 783
+      "attempts": 899,
+      "verified": 899
     },
     "risk_management": {
-      "attempts": 783,
-      "verified": 783
+      "attempts": 899,
+      "verified": 899
     },
     "stakeholder_authority": {
-      "attempts": 783,
-      "verified": 783
+      "attempts": 899,
+      "verified": 899
     }
   },
-  "updated_at": "2026-10-09T21:32:54.587938+00:00"
+  "updated_at": "2026-10-18T07:36:55.370449+00:00"
 }

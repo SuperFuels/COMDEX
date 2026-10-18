@@ -7,10 +7,43 @@ import json
 from pathlib import Path
 
 import pytest
+from fastapi import HTTPException
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from backend.modules.aion_business.runtime.a2a_commerce_service import A2ACommerceService
+from backend.modules.aion_business.api.a2a_commerce_api import service as api_service
+from backend.modules.aion_business.runtime.a2a_commerce_service import (
+    A2ACommerceConfigurationError,
+    A2ACommerceService,
+)
+
+
+def test_legacy_mixed_authority_store_is_never_selected_implicitly(monkeypatch):
+    monkeypatch.delenv("TESSARIS_A2A_LEGACY_ROOT", raising=False)
+    with pytest.raises(
+        A2ACommerceConfigurationError,
+        match="partitioned_storage_required",
+    ):
+        A2ACommerceService()
+
+
+def test_configured_legacy_root_must_remain_outside_application(tmp_path, monkeypatch):
+    application = tmp_path / "application"
+    monkeypatch.setenv("TESSARIS_APPLICATION_ROOT", str(application))
+    monkeypatch.setenv("TESSARIS_A2A_LEGACY_ROOT", str(application / "a2a"))
+    with pytest.raises(
+        A2ACommerceConfigurationError,
+        match="legacy_root_inside_application",
+    ):
+        A2ACommerceService()
+
+
+def test_api_fails_closed_until_partitioned_storage_is_available(monkeypatch):
+    monkeypatch.delenv("TESSARIS_A2A_LEGACY_ROOT", raising=False)
+    with pytest.raises(HTTPException) as exc_info:
+        api_service()
+    assert exc_info.value.status_code == 503
+    assert exc_info.value.detail == "a2a_commerce_partitioned_storage_required"
 
 
 def _canonical(value):

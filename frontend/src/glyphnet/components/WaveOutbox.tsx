@@ -45,9 +45,9 @@ export default function WaveOutbox() {
   const [result, setResult] = useState<any>(null);
   const [busy, setBusy] = useState(false);
 
-  // Mic devices + selection (persisted)
+  // Mic devices + process-local selection
   const [mics, setMics] = useState<MediaDeviceInfo[]>([]);
-  const [selectedMicId, setSelectedMicId] = useState<string>(() => localStorage.getItem("gnet:micDeviceId") || "");
+  const [selectedMicId, setSelectedMicId] = useState<string>("");
 
   // PTT state
   const [micReady, setMicReady] = useState(false);
@@ -159,7 +159,6 @@ export default function WaveOutbox() {
       // If a stored device no longer exists, clear it
       if (selectedMicId && !onlyMics.some((d) => d.deviceId === selectedMicId)) {
         setSelectedMicId("");
-        localStorage.removeItem("gnet:micDeviceId");
       }
     } catch {
       // ignore
@@ -174,8 +173,6 @@ export default function WaveOutbox() {
 
   function handleSelectMic(id: string) {
     setSelectedMicId(id);
-    if (id) localStorage.setItem("gnet:micDeviceId", id);
-    else localStorage.removeItem("gnet:micDeviceId");
 
     // If a stream is already open, close it so next press uses the new device
     try { streamRef.current?.getTracks().forEach((t) => t.stop()); } catch {}

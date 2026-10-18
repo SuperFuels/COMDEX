@@ -37,27 +37,12 @@ export default function QuoteModal({
 
     setLoading(true)
     try {
-      const token = localStorage.getItem('token')
-      if (!token) throw new Error('Not authenticated')
-
-      // Decode buyer email from the JWT sub claim
-      const payload    = JSON.parse(atob(token.split('.')[1]))
-      const buyerEmail = payload.sub as string
-
-      const totalPrice = quantity * pricePerKg
       const body = {
-        buyer_email:    buyerEmail,
-        supplier_email: supplierEmail,
-        product_title:  productTitle,
-        quantity_kg:    quantity,
-        total_price:    totalPrice,
+        product_id: productId,
+        quantity_kg: quantity,
       }
 
-      const res = await api.post(
-        '/deals/',
-        body,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const res = await api.post('/deals/', body, { withCredentials: true })
 
       const deal = res.data
       onClose()                             // close the modal
@@ -114,4 +99,3 @@ export default function QuoteModal({
     </div>
   )
 }
-

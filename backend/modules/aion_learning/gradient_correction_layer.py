@@ -7,27 +7,45 @@ resonance deltas and emit corrective gradients back to PredictiveBias
 and SQI engines.
 """
 
-import json, math, time
+import json, math, time, uuid
 from pathlib import Path
 from typing import Dict, List
 import numpy as np
 from backend.modules.aion_learning.resonance_state_manager import ResonanceStateManager
+from backend.modules.aion_business.runtime.business_vault_runtime import guardian_mode_requested
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
 from backend.quant.telemetry.resonance_telemetry import ResonanceTelemetry
 
 # ─────────────────────────────────────────────
 # Logging setup
 # ─────────────────────────────────────────────
 DATA_DIR = Path("data/analysis")
-DATA_DIR.mkdir(parents=True, exist_ok=True)
 RESONANCE_LOG = DATA_DIR / "resonance_delta.jsonl"
 
 
 class GradientCorrectionLayer:
-    def __init__(self, decay_rate: float = 0.98):
+    def __init__(
+        self,
+        decay_rate: float = 0.98,
+        *,
+        resonance_log: Path | str | None = None,
+        vault_store: AionLearningVaultStore | None = None,
+        workspace_id: str | None = None,
+    ):
+        explicit_log = resonance_log is not None
+        self.resonance_log = Path(resonance_log or RESONANCE_LOG)
+        self.vault_store = vault_store
+        if vault_store is None and not explicit_log and guardian_mode_requested():
+            self.vault_store = AionLearningVaultStore(workspace_id=workspace_id)
         self.decay_rate = decay_rate
         self.last_delta = 0.0
         self.avg_strength = 0.0
-        self.state_mgr = ResonanceStateManager()
+        self.state_mgr = ResonanceStateManager(
+            path=self.resonance_log.parent / "resonance_state.json"
+            if explicit_log else None,
+            vault_store=self.vault_store,
+            workspace_id=workspace_id,
+        )
         self.avg_strength = self.state_mgr.state.get("avg_strength", 0.0)
         self.decay_rate = self.state_mgr.state.get("decay_rate", 0.98)
         self.update_counter = 0
@@ -68,8 +86,16 @@ class GradientCorrectionLayer:
             "predicted_vec": predicted_vec,
             "actual_vec": actual_vec,
         }
-        with open(RESONANCE_LOG, "a") as f:
-            f.write(json.dumps(entry) + "\n")
+        if self.vault_store is not None:
+            event_id = f"gradient-correction-{uuid.uuid4()}"
+            self.vault_store.append_event(
+                event_id,
+                {"event_id": event_id, "event_type": "gradient_correction", **entry},
+            )
+        else:
+            self.resonance_log.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.resonance_log, "a") as f:
+                f.write(json.dumps(entry) + "\n")
 
     # ─────────────────────────────────────────────
     # Main API call

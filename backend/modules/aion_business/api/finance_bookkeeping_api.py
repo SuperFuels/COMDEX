@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 from pydantic import BaseModel
 
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
@@ -54,6 +55,23 @@ def drafts(workspace_id: str) -> dict[str, Any]:
 @router.get("/{workspace_id}/ledger-summary")
 def ledger_summary(workspace_id: str) -> dict[str, Any]:
     return _call(service.ledger_summary, _workspace(workspace_id))
+
+
+@router.get("/{workspace_id}/journal-export.csv")
+def journal_export(workspace_id: str) -> Response:
+    key = _workspace(workspace_id)
+    content, evidence = _call(service.journal_csv_export, key)
+    filename = f"{key}-bookkeeping-journal.csv"
+    return Response(
+        content=content,
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "X-Tessaris-Export-SHA256": evidence["sha256"],
+            "X-Tessaris-Export-Total-Debits": f'{evidence["total_debits"]:.2f}',
+            "X-Tessaris-Export-Total-Credits": f'{evidence["total_credits"]:.2f}',
+        },
+    )
 
 
 @router.post("/{workspace_id}/documents/{document_id}/prepare")

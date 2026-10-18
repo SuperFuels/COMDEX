@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from backend.modules.aion_business.contracts.tasks import LearningRecord
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.department_operational_store import BusinessOperationsRecordRepository, DepartmentOperationalStore
 
 
 class LearningRepository:
@@ -16,17 +17,21 @@ class LearningRepository:
     .runtime/AION_BUSINESS/learning/<workspace_id>/<learning_id>.json
     """
 
-    def __init__(self, base_dir: Optional[Path] = None):
+    def __init__(self, base_dir: Optional[Path] = None, *, operational_store: DepartmentOperationalStore | None = None):
         if base_dir is not None:
             raise ValueError(
                 "LearningRepository currently uses the global AIONBusinessPaths "
                 "layout; base_dir override is not supported in this version."
             )
+        self.records = BusinessOperationsRecordRepository("learning", operational_store=operational_store)
 
     def _learning_path(self, workspace_id: str, record_id: str) -> Path:
         return AIONBusinessPaths.learning_file(workspace_id, record_id)
 
     def save(self, record: LearningRecord, workspace_id: str) -> Path:
+        if self.records.enabled:
+            self.records.put(workspace_id, record.id, record.model_dump(mode="json"), actor_id="learning-repository")
+            return Path(f"/__tessaris_guardian_learning__/{workspace_id}/{record.id}")
         path = self._learning_path(workspace_id, record.id)
         path.write_text(
             json.dumps(record.model_dump(mode="json"), indent=2),
@@ -35,6 +40,11 @@ class LearningRepository:
         return path
 
     def load(self, workspace_id: str, record_id: str) -> LearningRecord:
+        if self.records.enabled:
+            record = self.records.get_optional(workspace_id, record_id)
+            if record is None:
+                raise FileNotFoundError(f"Learning record not found: {workspace_id}/{record_id}")
+            return LearningRecord(**record["payload"])
         path = self._learning_path(workspace_id, record_id)
         if not path.exists():
             raise FileNotFoundError(f"Learning record not found: {workspace_id}/{record_id}")
@@ -43,6 +53,8 @@ class LearningRepository:
         return LearningRecord(**data)
 
     def list_ids(self, workspace_id: str) -> List[str]:
+        if self.records.enabled:
+            return sorted(str(row["payload"]["id"]) for row in self.records.list_workspace(workspace_id))
         path = AIONBusinessPaths.learning_dir(workspace_id)
         return sorted(p.stem for p in path.glob("*.json"))
 

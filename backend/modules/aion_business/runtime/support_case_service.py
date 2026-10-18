@@ -10,6 +10,7 @@ import base64
 from pathlib import Path
 import re
 import secrets
+import sys
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -18,12 +19,21 @@ from email.utils import parseaddr
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.sales_revenue_service import SalesRevenueService
 from backend.modules.aion_business.runtime.finance_sales_service import FinanceSalesService
 from backend.modules.aion_business.runtime.sales_completion_service import SalesCompletionService
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_object_store import VaultObjectStore
 
 
 def _now() -> str:
@@ -86,12 +96,104 @@ DEFAULT_SUPPORT_SETUP = {
 
 
 class SupportCaseService:
-    def __init__(self, repository: BusinessContainerRepository | None = None) -> None:
-        self.repository = repository or BusinessContainerRepository()
+    def __init__(
+        self,
+        repository: BusinessContainerRepository | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+        object_store: VaultObjectStore | None = None,
+    ) -> None:
+        self.repository = repository or configured_business_container_repository()
+        self.domain_store = domain_store
+        self.object_store = object_store
+        if repository is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="support-runtime")
+            self.object_store = runtime.objects
         self.authority = OrganizationAuthorityService(self.repository)
-        self.sales = SalesRevenueService(self.repository, self.authority)
-        self.finance = FinanceSalesService(self.repository, self.authority)
-        self.completion = SalesCompletionService(self.repository)
+        self.sales = SalesRevenueService(
+            self.repository, self.authority,
+            domain_store=self.domain_store, object_store=self.object_store,
+        )
+        self.finance = FinanceSalesService(
+            self.repository, self.authority, domain_store=self.domain_store,
+        )
+        self.completion = SalesCompletionService(
+            self.repository, domain_store=self.domain_store,
+            object_store=self.object_store,
+        )
+
+    def capture_attachment(
+        self,
+        workspace_id: str,
+        case_id: str,
+        *,
+        filename: str,
+        content_type: str,
+        content: bytes,
+        captured_by_person_id: str,
+    ) -> dict[str, Any]:
+        self._require(workspace_id, captured_by_person_id, "support.manage")
+        case = self.load_case(workspace_id, case_id)
+        if not content or len(content) > 16 * 1024 * 1024:
+            raise ValueError("support_attachment_empty_or_too_large")
+        allowed = {
+            "image/jpeg", "image/png", "application/pdf", "text/plain", "text/csv",
+            "audio/mpeg", "audio/ogg", "audio/mp4",
+        }
+        content_type = str(content_type or "").split(";", 1)[0].strip().lower()
+        if content_type not in allowed:
+            raise ValueError("support_attachment_type_unsupported")
+        attachment_id = "support-attachment-" + secrets.token_hex(8)
+        digest = hashlib.sha256(content).hexdigest()
+        if self.object_store is None:
+            raise RuntimeError("support_attachment_guardian_object_store_required")
+        self._audit_file_access("put")
+        metadata = self.object_store.put_bytes(
+            object_id=attachment_id,
+            data=content,
+            original_name=Path(str(filename or "attachment")).name[:240],
+            content_type=content_type,
+            idempotency_key=f"support-attachment-{case_id}-{digest}",
+            actor_id=_safe(captured_by_person_id) or "support-runtime",
+            recorded_at=_now(),
+        )
+        record = {
+            "schema_version": "aion.support.attachment.v1",
+            "workspace_id": workspace_id,
+            "attachment_id": attachment_id,
+            "case_id": case_id,
+            "filename": Path(str(filename or "attachment")).name[:240],
+            "content_type": content_type,
+            "status": "captured_protected",
+            "size_bytes": len(content),
+            "sha256": digest,
+            "vault_object_id": attachment_id,
+            "vault_receipt_hash": metadata.get("receipt_hash"),
+            "captured_at": _now(),
+            "captured_by_person_id": captured_by_person_id,
+        }
+        self._rehash(record, "attachment_hash")
+        self._save(workspace_id, "attachment_metadata", attachment_id, record)
+        event = self._conversation_event(
+            case_id=case_id,
+            channel="internal",
+            direction="internal_note",
+            content="Protected attachment captured for human review.",
+            provider_thread_id=None,
+            provider_message_id=None,
+            evidence_references=[f"support-attachment:{attachment_id}"],
+            actor=captured_by_person_id,
+        )
+        case["conversation"].append(event)
+        case["updated_at"] = _now()
+        self._rehash(case, "case_hash")
+        self._save(workspace_id, "cases", case_id, case)
+        return record
+
+    @staticmethod
+    def _audit_file_access(operation: str) -> None:
+        sys.audit("tessaris.vault_domain_access", "support.files", operation)
 
     def workspace(self, workspace_id: str) -> dict[str, Any]:
         setup = self.ensure_setup(workspace_id)
@@ -122,9 +224,14 @@ class SupportCaseService:
         }
 
     def polling_config(self, workspace_id: str) -> dict[str, Any]:
-        path = self._root(workspace_id) / "polling.json"
-        if path.exists():
-            return self._load(path, workspace_id, "polling_hash")
+        if self.domain_store is not None:
+            existing = self._get_optional(workspace_id, "configuration", "polling", "polling_hash")
+            if existing is not None:
+                return existing
+        if self.domain_store is None:
+            path = self._root(workspace_id) / "polling.json"
+            if path.exists():
+                return self._load(path, workspace_id, "polling_hash")
         record = {
             "schema_version": "aion.support.polling.v1", "workspace_id": workspace_id,
             "enabled": False, "interval_seconds": 300,
@@ -133,7 +240,7 @@ class SupportCaseService:
             "actor_person_id": None, "last_poll_at": None, "next_poll_at": None,
             "last_result": None, "consecutive_failures": 0, "updated_at": _now(),
         }
-        self._rehash(record, "polling_hash"); self._write(path, record)
+        self._rehash(record, "polling_hash"); self._save_configuration(workspace_id, "polling", "polling.json", record)
         return record
 
     def configure_polling(self, workspace_id: str, *, expected_polling_hash: str,
@@ -157,7 +264,7 @@ class SupportCaseService:
             "next_poll_at": _now() if enabled else None,
         }
         self._rehash(configured, "polling_hash")
-        self._write(self._root(workspace_id) / "polling.json", configured)
+        self._save_configuration(workspace_id, "polling", "polling.json", configured)
         return configured
 
     def poll_sources(self, workspace_id: str, *, force: bool = False) -> dict[str, Any]:
@@ -198,7 +305,7 @@ class SupportCaseService:
                        "consecutive_failures": int(config.get("consecutive_failures") or 0) + 1 if errors and not results else 0,
                        "updated_at": _now()})
         self._rehash(config, "polling_hash")
-        self._write(self._root(workspace_id) / "polling.json", config)
+        self._save_configuration(workspace_id, "polling", "polling.json", config)
         imported = sum(int(row.get("imported") or row.get("accepted") or 0)
                        for row in results.values() if isinstance(row, dict))
         return {"ok": not bool(errors), "status": "completed_with_errors" if errors else "completed",
@@ -277,13 +384,18 @@ class SupportCaseService:
                 "token_notice": "Copy now. Tessaris stores only its SHA-256 digest."}
 
     def whatsapp_config(self, workspace_id: str) -> dict[str, Any]:
-        path = self._root(workspace_id) / "whatsapp.json"
-        if path.exists(): return self._load(path, workspace_id, "whatsapp_hash")
+        if self.domain_store is not None:
+            existing = self._get_optional(workspace_id, "configuration", "whatsapp", "whatsapp_hash")
+            if existing is not None:
+                return existing
+        if self.domain_store is None:
+            path = self._root(workspace_id) / "whatsapp.json"
+            if path.exists(): return self._load(path, workspace_id, "whatsapp_hash")
         record = {"schema_version": "aion.support.whatsapp.v1", "workspace_id": workspace_id,
                   "status": "configuration_required", "provider": "twilio_whatsapp",
                   "sender": None, "sender_verified": False, "live_send_enabled": False,
                   "endpoint_id": None, "token_sha256": None, "created_at": _now()}
-        self._rehash(record, "whatsapp_hash"); self._write(path, record); return record
+        self._rehash(record, "whatsapp_hash"); self._save_configuration(workspace_id, "whatsapp", "whatsapp.json", record); return record
 
     def configure_whatsapp(self, workspace_id: str, *, expected_whatsapp_hash: str,
                            sender: str | None, sender_verified: bool,
@@ -302,13 +414,13 @@ class SupportCaseService:
                       "token_sha256": current.get("token_sha256") or hashlib.sha256(str(token).encode()).hexdigest(),
                       "configured_at": _now(), "configured_by_person_id": configured_by_person_id,
                       "configuration_authority": access}
-        self._rehash(configured, "whatsapp_hash"); self._write(self._root(workspace_id) / "whatsapp.json", configured)
+        self._rehash(configured, "whatsapp_hash"); self._save_configuration(workspace_id, "whatsapp", "whatsapp.json", configured)
         setup = self.ensure_setup(workspace_id)
         if "whatsapp" not in (setup.get("supported_channels") or []):
             setup["supported_channels"] = [*(setup.get("supported_channels") or []), "whatsapp"]
             setup["version"] = int(setup.get("version") or 0) + 1
             setup["configured_at"] = _now(); setup["configured_by_person_id"] = configured_by_person_id
-            self._rehash(setup, "setup_hash"); self._write(self._root(workspace_id) / "agent_setup.json", setup)
+            self._rehash(setup, "setup_hash"); self._save_configuration(workspace_id, "agent_setup", "agent_setup.json", setup)
         public = self._public_whatsapp(configured)
         if token:
             public.update({"webhook_token": token,
@@ -454,15 +566,20 @@ class SupportCaseService:
                 "gmail_mutated": False, "reply_sent": False}
 
     def ensure_setup(self, workspace_id: str) -> dict[str, Any]:
-        path = self._root(workspace_id) / "agent_setup.json"
-        if path.exists():
-            return self._load(path, workspace_id, "setup_hash")
+        if self.domain_store is not None:
+            existing = self._get_optional(workspace_id, "configuration", "agent_setup", "setup_hash")
+            if existing is not None:
+                return existing
+        if self.domain_store is None:
+            path = self._root(workspace_id) / "agent_setup.json"
+            if path.exists():
+                return self._load(path, workspace_id, "setup_hash")
         setup = {
             "schema_version": "aion.support.agent_setup.v1", "workspace_id": workspace_id,
             "version": 1, "status": "draft_configuration_required",
             **json.loads(json.dumps(DEFAULT_SUPPORT_SETUP)), "created_at": _now(),
         }
-        self._rehash(setup, "setup_hash"); self._write(path, setup)
+        self._rehash(setup, "setup_hash"); self._save_configuration(workspace_id, "agent_setup", "agent_setup.json", setup)
         return setup
 
     def configure_agent(self, workspace_id: str, *, setup: dict[str, Any],
@@ -500,7 +617,7 @@ class SupportCaseService:
             "legal_policy": legal, "configured_at": _now(),
             "configured_by_person_id": configured_by_person_id, "configuration_authority": access,
         }
-        self._rehash(configured, "setup_hash"); self._write(self._root(workspace_id) / "agent_setup.json", configured)
+        self._rehash(configured, "setup_hash"); self._save_configuration(workspace_id, "agent_setup", "agent_setup.json", configured)
         return configured
 
     def add_knowledge(self, workspace_id: str, *, title: str, source_type: str,
@@ -957,12 +1074,26 @@ class SupportCaseService:
                 with urllib.request.urlopen(request, timeout=20) as response:
                     payload = response.read(16 * 1024 * 1024 + 1)
                 if len(payload) > 16 * 1024 * 1024: raise ValueError("media_too_large")
-                media_dir = self._dir(workspace_id, "attachments")
-                blob_path = media_dir / f"{attachment_id}.bin"
-                blob_path.write_bytes(payload)
-                record.update({"status": "captured_protected", "size_bytes": len(payload),
-                               "sha256": hashlib.sha256(payload).hexdigest(),
-                               "protected_path": str(blob_path)})
+                if self.object_store is not None:
+                    metadata = self.object_store.put_bytes(
+                        object_id=attachment_id, data=payload,
+                        original_name=f"{attachment_id}.bin", content_type=content_type,
+                        idempotency_key=f"support-media-{attachment_id}",
+                        actor_id="support-runtime", recorded_at=_now(),
+                    )
+                    record.update({
+                        "status": "captured_protected", "size_bytes": len(payload),
+                        "sha256": hashlib.sha256(payload).hexdigest(),
+                        "vault_object_id": attachment_id,
+                        "vault_receipt_hash": metadata.get("receipt_hash"),
+                    })
+                else:
+                    media_dir = self._dir(workspace_id, "attachments")
+                    blob_path = media_dir / f"{attachment_id}.bin"
+                    blob_path.write_bytes(payload)
+                    record.update({"status": "captured_protected", "size_bytes": len(payload),
+                                   "sha256": hashlib.sha256(payload).hexdigest(),
+                                   "protected_path": str(blob_path)})
             except Exception as exc:
                 record["failure_reason"] = str(exc)[:300]
         self._rehash(record, "attachment_hash")
@@ -1010,12 +1141,58 @@ class SupportCaseService:
         path = self._root(workspace_id) / _safe(collection); path.mkdir(parents=True, exist_ok=True); return path
 
     def _save(self, workspace_id: str, collection: str, record_id: str, record: dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            entity_id = f"{_safe(collection)}/{_safe(record_id)}"
+            current = self.domain_store.get_optional(
+                "support.records", workspace_id=workspace_id, entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "support.records", workspace_id=workspace_id, entity_id=entity_id,
+                payload=record, expected_version=int(current["version"]) if current else None,
+                actor_id="support-runtime",
+            )
+            return
         self._write(self._dir(workspace_id, collection) / f"{_safe(record_id)}.json", record)
 
+    def _save_configuration(
+        self, workspace_id: str, record_id: str, legacy_filename: str,
+        record: dict[str, Any],
+    ) -> None:
+        if self.domain_store is not None:
+            self._save(workspace_id, "configuration", record_id, record)
+            return
+        self._write(self._root(workspace_id) / legacy_filename, record)
+
     def _get(self, workspace_id: str, collection: str, record_id: str, hash_key: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            entity_id = f"{_safe(collection)}/{_safe(record_id)}"
+            try:
+                row = self.domain_store.get(
+                    "support.records", workspace_id=workspace_id, entity_id=entity_id,
+                )["payload"]
+            except KeyError as exc:
+                raise FileNotFoundError(record_id) from exc
+            return self._verify_record(dict(row), workspace_id, hash_key)
         return self._load(self._dir(workspace_id, collection) / f"{_safe(record_id)}.json", workspace_id, hash_key)
 
+    def _get_optional(self, workspace_id: str, collection: str, record_id: str, hash_key: str) -> dict[str, Any] | None:
+        try:
+            return self._get(workspace_id, collection, record_id, hash_key)
+        except FileNotFoundError:
+            return None
+
     def _list(self, workspace_id: str, collection: str, hash_key: str) -> list[dict[str, Any]]:
+        if self.domain_store is not None:
+            prefix = f"{_safe(collection)}/"
+            rows = []
+            for record in self.domain_store.list("support.records", workspace_id=workspace_id):
+                if not str(record.get("entity_id") or "").startswith(prefix):
+                    continue
+                try:
+                    rows.append(self._verify_record(dict(record["payload"]), workspace_id, hash_key))
+                except (ValueError, PermissionError):
+                    continue
+            return sorted(rows, key=lambda row: str(row.get("updated_at") or row.get("created_at") or ""), reverse=True)
         rows=[]
         for path in sorted(self._dir(workspace_id, collection).glob("*.json"), reverse=True):
             try: rows.append(self._load(path, workspace_id, hash_key))
@@ -1031,6 +1208,10 @@ class SupportCaseService:
     def _load(self, path: Path, workspace_id: str, hash_key: str) -> dict[str, Any]:
         if not path.exists(): raise FileNotFoundError(path.stem)
         row = json.loads(path.read_text(encoding="utf-8"))
+        return self._verify_record(row, workspace_id, hash_key)
+
+    @staticmethod
+    def _verify_record(row: dict[str, Any], workspace_id: str, hash_key: str) -> dict[str, Any]:
         try:
             same_workspace = canonical_business_id(row.get("workspace_id")) == canonical_business_id(workspace_id)
         except ValueError:

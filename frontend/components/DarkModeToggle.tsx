@@ -6,13 +6,13 @@ import { Moon, Sun } from 'lucide-react';
 export function DarkModeToggle() {
   const [dark, setDark] = useState(false);
 
-  // initialize from localStorage / system preference
+  // Theme is a content-free preference. Follow the operating-system setting
+  // on each launch without creating browser-authoritative state.
   useEffect(() => {
     const root = document.documentElement;
-    const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
 
-    const enableDark = saved ? saved === 'dark' : prefersDark;
+    const enableDark = Boolean(prefersDark);
     root.classList.toggle('dark', enableDark);
     setDark(enableDark);
   }, []);
@@ -22,7 +22,6 @@ export function DarkModeToggle() {
     setDark(next);
     const root = document.documentElement;
     root.classList.toggle('dark', next);
-    localStorage.setItem('theme', next ? 'dark' : 'light');
   }
 
   return (

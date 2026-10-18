@@ -9,17 +9,14 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 import json
-import os
-from pathlib import Path
 from typing import Any
 import urllib.error
 import urllib.request
 
 from backend.modules.aion_business.runtime.telephony_credentials import get_retell_api_key
+from backend.modules.aion_business.runtime.retell_deployment_store import RetellDeploymentStore
 
 
-ROOT = Path(__file__).resolve().parents[4]
-DEPLOYMENT_PATH = ROOT / "data" / "local_vault" / "retell_homefixed_agent.json"
 RETELL_API_BASE = "https://api.retellai.com"
 
 
@@ -265,18 +262,11 @@ class RetellAdminClient:
 
 
 def read_deployment() -> dict[str, Any]:
-    if not DEPLOYMENT_PATH.exists():
-        return {}
-    try:
-        return json.loads(DEPLOYMENT_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+    return RetellDeploymentStore().read("Home Fixed")
 
 
 def write_deployment(record: dict[str, Any]) -> None:
-    DEPLOYMENT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    DEPLOYMENT_PATH.write_text(json.dumps(record, indent=2, sort_keys=True), encoding="utf-8")
-    os.chmod(DEPLOYMENT_PATH, 0o600)
+    RetellDeploymentStore().write(record, "Home Fixed")
 
 
 def deploy_homefixed_agent(*, publish: bool = True) -> dict[str, Any]:

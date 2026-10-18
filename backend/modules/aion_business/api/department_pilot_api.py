@@ -18,6 +18,12 @@ from backend.modules.aion_business.contracts.department_pilot import (
 from backend.modules.aion_business.runtime.business_container_repository import (
     BusinessContainerRepository,
 )
+from backend.modules.aion_business.runtime.business_container_repository_factory import (
+    configured_business_container_repository,
+)
+from backend.modules.aion_business.runtime.guardian_business_container_repository import (
+    GuardianBusinessContainerRepository,
+)
 from backend.modules.aion_business.runtime.canonical_business_identity import (
     canonical_business_id,
 )
@@ -30,12 +36,15 @@ from backend.modules.aion_business.runtime.department_context_assembler import (
 )
 from backend.modules.aion_business.runtime.department_pilot_contracts import (
     approve_assignment_package,
+    create_approval_record,
     create_assignment_package,
     create_context_reference,
     create_provenance,
+    propose_tool_call,
 )
 from backend.modules.aion_business.runtime.department_pilot_profiles import (
     get_department_pilot_profile,
+    get_workspace_department_pilot_profile,
     list_department_pilot_profiles,
 )
 from backend.modules.aion_business.runtime.department_pilot_repository import (
@@ -100,8 +109,9 @@ def get_department_pilot_repository() -> DepartmentPilotRepository:
     return DepartmentPilotRepository()
 
 
-def get_business_container_repository() -> BusinessContainerRepository:
-    return BusinessContainerRepository()
+def get_business_container_repository(
+) -> BusinessContainerRepository | GuardianBusinessContainerRepository:
+    return configured_business_container_repository()
 
 
 @router.get("/{workspace_id}/finance/security-policy")
@@ -133,8 +143,14 @@ def _canonical_workspace(candidate: str) -> str:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-def _profile_or_404(department_id: str) -> dict[str, Any]:
-    profile = get_department_pilot_profile(department_id)
+def _profile_or_404(
+    department_id: str, workspace_id: str | None = None
+) -> dict[str, Any]:
+    profile = (
+        get_workspace_department_pilot_profile(workspace_id, department_id)
+        if workspace_id
+        else get_department_pilot_profile(department_id)
+    )
     if profile is None:
         raise HTTPException(status_code=404, detail=f"Unknown Department Pilot: {department_id}")
     return profile
@@ -254,6 +270,21 @@ class ConversationTurnRequest(BaseModel):
     created_at: Optional[str] = None
     actor_id: Optional[str] = None
     tool_call_id: Optional[str] = None
+
+
+class DepartmentActionApprovalRequest(BaseModel):
+    tool_call_id: str = Field(..., min_length=1, max_length=160)
+    approval_id: str = Field(..., min_length=1, max_length=160)
+    tool_name: str = Field(..., min_length=1, max_length=200)
+    provider: str = Field(default="internal", min_length=1, max_length=120)
+    payload: dict[str, Any] = Field(default_factory=dict)
+    rationale: str = Field(..., min_length=1, max_length=2_000)
+    requested_by: str = Field(..., min_length=1, max_length=160)
+    decided_by: str = Field(..., min_length=1, max_length=160)
+    approved: bool
+    proposed_at: Optional[str] = None
+    decided_at: Optional[str] = None
+    reason: Optional[str] = Field(default=None, max_length=2_000)
 
 
 class RetrieveContextRequest(BaseModel):
@@ -629,7 +660,7 @@ def list_department_queue(
     status: list[str] = Query(default=[]),
 ) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
-    profile = _profile_or_404(department_id)
+    profile = _profile_or_404(department_id, workspace_id)
     envelopes = get_department_pilot_repository().list_for_department(
         workspace_id,
         department_id,  # type: ignore[arg-type]
@@ -647,7 +678,7 @@ def list_department_queue(
 @router.get("/{workspace_id}/finance/conversation/session")
 def get_finance_conversation_session(workspace_id: str) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
-    _profile_or_404("finance")
+    _profile_or_404("finance", workspace_id)
     session = get_finance_pilot_conversation_service().get_session(workspace_id)
     return {
         "ok": True,
@@ -664,7 +695,7 @@ def plan_department_discovery_question(
     request: DepartmentDiscoveryQuestionRequest,
 ) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
-    _profile_or_404(department_id)
+    _profile_or_404(department_id, workspace_id)
     try:
         return get_department_discovery_planner_service().next_question(
             workspace_id,
@@ -685,7 +716,7 @@ def create_finance_conversation_turn(
     request: FinanceConversationRequest,
 ) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
-    profile = _profile_or_404("finance")
+    profile = _profile_or_404("finance", workspace_id)
     if profile.get("activation_state") != "enabled":
         raise HTTPException(status_code=409, detail="Finance Pilot is not enabled.")
     try:
@@ -709,7 +740,7 @@ def get_department_task(
     task_id: str,
 ) -> DepartmentPilotWorkEnvelope:
     workspace_id = _canonical_workspace(workspace_id)
-    _profile_or_404(department_id)
+    _profile_or_404(department_id, workspace_id)
     return _load_or_404(
         get_department_pilot_repository(), workspace_id, department_id, task_id
     )
@@ -723,7 +754,7 @@ def transition_department_task(
     request: TaskTransitionRequest,
 ) -> DepartmentPilotWorkEnvelope:
     workspace_id = _canonical_workspace(workspace_id)
-    profile = _profile_or_404(department_id)
+    profile = _profile_or_404(department_id, workspace_id)
     if profile.get("activation_state") != "enabled":
         raise HTTPException(status_code=409, detail="Department Pilot design is not approved.")
     runtime = DepartmentPilotRuntime(get_department_pilot_repository())
@@ -754,7 +785,7 @@ def append_department_conversation(
     request: ConversationTurnRequest,
 ) -> DepartmentPilotWorkEnvelope:
     workspace_id = _canonical_workspace(workspace_id)
-    profile = _profile_or_404(department_id)
+    profile = _profile_or_404(department_id, workspace_id)
     if profile.get("activation_state") != "enabled":
         raise HTTPException(status_code=409, detail="Department Pilot design is not approved.")
     runtime = DepartmentPilotRuntime(get_department_pilot_repository())
@@ -776,6 +807,75 @@ def append_department_conversation(
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
+@router.post("/{workspace_id}/{department_id}/{task_id}/action-approval")
+def decide_department_action(
+    workspace_id: str,
+    department_id: str,
+    task_id: str,
+    request: DepartmentActionApprovalRequest,
+) -> DepartmentPilotWorkEnvelope:
+    """Bind one exact action payload to a human decision without executing it."""
+
+    workspace_id = _canonical_workspace(workspace_id)
+    profile = _profile_or_404(department_id, workspace_id)
+    if profile.get("activation_state") != "enabled":
+        raise HTTPException(status_code=409, detail="Department Pilot design is not approved.")
+    repository = get_department_pilot_repository()
+    current = _load_or_404(repository, workspace_id, department_id, task_id)
+    if current.task.status != "waiting_approval":
+        raise HTTPException(
+            status_code=409,
+            detail=f"action_approval_not_allowed_from_status:{current.task.status}",
+        )
+    proposed_at = request.proposed_at or _now()
+    decided_at = request.decided_at or proposed_at
+    runtime = DepartmentPilotRuntime(repository)
+    try:
+        proposal = propose_tool_call(
+            tool_call_id=request.tool_call_id,
+            task_id=task_id,
+            department_id=department_id,
+            capability=current.task.capability,
+            tool_name=request.tool_name,
+            provider=request.provider,
+            tool_mode="staged_external",
+            payload=request.payload,
+            rationale=request.rationale,
+            external_side_effect=True,
+            approval_required=True,
+            proposed_at=proposed_at,
+            proposed_by=request.requested_by,
+        )
+        runtime.attach_proposed_tool_call(
+            workspace_id=workspace_id,
+            department_id=department_id,
+            task_id=task_id,
+            proposal=proposal,
+        )
+        approval = create_approval_record(
+            approval_id=request.approval_id,
+            task_id=task_id,
+            tool_call_id=request.tool_call_id,
+            department_id=department_id,
+            status="approved" if request.approved else "rejected",
+            requested_payload_hash=proposal.payload_hash,
+            decided_payload_hash=proposal.payload_hash if request.approved else None,
+            requested_by=request.requested_by,
+            requested_at=proposed_at,
+            decided_by=request.decided_by,
+            decided_at=decided_at,
+            reason=request.reason,
+        )
+        return runtime.attach_approval(
+            workspace_id=workspace_id,
+            department_id=department_id,
+            task_id=task_id,
+            approval=approval,
+        )
+    except (ValueError, DepartmentPilotConcurrencyError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
 @router.post("/{workspace_id}/{department_id}/{task_id}/retrieve-context")
 def retrieve_department_context(
     workspace_id: str,
@@ -784,7 +884,7 @@ def retrieve_department_context(
     request: RetrieveContextRequest,
 ) -> DepartmentPilotWorkEnvelope:
     workspace_id = _canonical_workspace(workspace_id)
-    profile = _profile_or_404(department_id)
+    profile = _profile_or_404(department_id, workspace_id)
     if profile.get("activation_state") != "enabled":
         raise HTTPException(status_code=409, detail="Department Pilot design is not approved.")
     repository = get_department_pilot_repository()
@@ -815,7 +915,7 @@ def execute_finance_task_read_only(
     """Run the approved Finance analysis and prepare its Boardroom handback."""
 
     workspace_id = _canonical_workspace(workspace_id)
-    profile = _profile_or_404("finance")
+    profile = _profile_or_404("finance", workspace_id)
     if profile.get("activation_state") != "enabled":
         raise HTTPException(status_code=409, detail="Finance Pilot is not enabled.")
     service = FinancePilotExecutionService(
@@ -886,7 +986,7 @@ def run_finance_scenario(
     """Run a read-only scenario without changing historical Finance truth."""
 
     workspace_id = _canonical_workspace(workspace_id)
-    profile = _profile_or_404("finance")
+    profile = _profile_or_404("finance", workspace_id)
     if profile.get("activation_state") != "enabled":
         raise HTTPException(status_code=409, detail="Finance Pilot is not enabled.")
     payload = request.model_dump(exclude={"scenario_name", "created_at", "created_by"})
@@ -1331,7 +1431,7 @@ def run_due_finance_recurring_schedules(workspace_id: str, request: FinanceRecur
 @router.get("/{workspace_id}/{department_id}/{task_id}/diagnostics")
 def get_department_task_diagnostics(workspace_id: str, department_id: str, task_id: str) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
-    _profile_or_404(department_id)
+    _profile_or_404(department_id, workspace_id)
     try:
         return DepartmentPilotRecoveryService(get_department_pilot_repository()).diagnostics(
             workspace_id, department_id, task_id
@@ -1345,7 +1445,7 @@ def get_department_task_diagnostics(workspace_id: str, department_id: str, task_
 @router.post("/{workspace_id}/{department_id}/{task_id}/retry")
 def retry_department_task(workspace_id: str, department_id: str, task_id: str, request: DepartmentTaskRecoveryRequest) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
-    _profile_or_404(department_id)
+    _profile_or_404(department_id, workspace_id)
     try:
         envelope = DepartmentPilotRecoveryService(get_department_pilot_repository()).retry(
             workspace_id, department_id, task_id, actor_id=request.actor_id,
@@ -1363,7 +1463,7 @@ def retry_department_task(workspace_id: str, department_id: str, task_id: str, r
 @router.post("/{workspace_id}/{department_id}/{task_id}/cancel")
 def cancel_department_task(workspace_id: str, department_id: str, task_id: str, request: DepartmentTaskRecoveryRequest) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
-    _profile_or_404(department_id)
+    _profile_or_404(department_id, workspace_id)
     try:
         envelope = DepartmentPilotRecoveryService(get_department_pilot_repository()).cancel(
             workspace_id, department_id, task_id, actor_id=request.actor_id,

@@ -10,6 +10,7 @@ from backend.modules.local_node.contracts_local_node import (
     ApprovalStatus,
     utc_now_iso,
 )
+from backend.modules.local_node.private_sqlite import connect_private_sqlite
 
 
 class LocalApprovalStore:
@@ -19,9 +20,7 @@ class LocalApprovalStore:
         self._init_db()
 
     def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self._db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
+        return connect_private_sqlite(self._db_path)
 
     def _init_db(self) -> None:
         with self._connect() as conn:

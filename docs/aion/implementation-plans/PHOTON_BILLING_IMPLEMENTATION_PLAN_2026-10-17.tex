@@ -1,0 +1,759 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{microtype}
+
+\definecolor{TessarisBlue}{HTML}{2F66E9}
+\definecolor{TessarisNavy}{HTML}{111827}
+\definecolor{TessarisGreen}{HTML}{14804A}
+\definecolor{TessarisGrey}{HTML}{64748B}
+\definecolor{TessarisPale}{HTML}{EEF4FF}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=TessarisBlue,
+  urlcolor=TessarisBlue,
+  pdftitle={Photon Billing and Usage Implementation Plan},
+  pdfauthor={Tessaris AI Limited}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{TessarisBlue}{TESSARIS}}
+\rhead{Photon Billing Plan}
+\cfoot{\thepage}
+\setlength{\headheight}{14pt}
+
+\titleformat{\section}{\Large\bfseries\color{TessarisNavy}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{TessarisNavy}}{\thesubsection}{0.65em}{}
+\setlist[itemize]{leftmargin=1.45em,itemsep=3pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=1.55em,itemsep=3pt,topsep=4pt}
+\renewcommand{\arraystretch}{1.25}
+\newcommand{\Photon}{\textbf{Photon}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\begin{center}
+  {\small\bfseries\color{TessarisBlue} TESSARIS COMMERCIAL ARCHITECTURE}\par
+  \vspace{8pt}
+  {\LARGE\bfseries Photon Billing and Usage Implementation Plan}\par
+  \vspace{7pt}
+  {\large Free local intelligence; paid, verifiable business orchestration}\par
+  \vspace{12pt}
+  {\color{TessarisGrey}Decision baseline \textbullet{} 17 October 2026 \textbullet{} Version 1.0}
+\end{center}
+
+\vspace{8pt}
+\noindent\colorbox{TessarisPale}{\parbox{0.96\linewidth}{
+\textbf{Agreed product decision.} Tessaris will not charge for a customer's local model, local tokens, local compute, private data, reading, reasoning, retries or failed work. Customers receive a generous balance of \Photon{} service credits. Photons are consumed only when AION completes a published, verifiable business operation. Revolut moves fiat money; the Photon ledger records service-credit entitlement and consumption; GlyphChain proves the integrity of receipts without receiving customer content.
+}}
+
+\tableofcontents
+\newpage
+
+\section{Executive decision}
+
+The implementation should use a hybrid subscription and usage model:
+
+\begin{enumerate}
+  \item Every business can download and use the local Tessaris foundation for free.
+  \item Local inference and customer-owned provider inference are never metered as Tessaris usage.
+  \item Each plan includes a monthly Photon allowance.
+  \item Photons are deducted only for successful AION business outcomes listed on a versioned rate card.
+  \item A customer may buy a higher plan, a Photon bundle or explicitly enable automatic top-ups.
+  \item Revolut Merchant services collect the fiat subscription or top-up payment.
+  \item Tessaris issues the corresponding Photon grant only after an authoritative Revolut payment event.
+  \item Every grant, reservation, capture, release, reversal and expiry produces an immutable, content-free ledger entry and signed receipt.
+  \item GlyphChain receives privacy-preserving batch commitments, not private business records and not customer-readable content.
+\end{enumerate}
+
+The customer-facing promise is:
+
+\begin{quote}
+\textbf{Your AI runs on your machine. Your data remains yours. Tessaris does not charge for local model usage. Photons are used only when AION completes managed business operations for you.}
+\end{quote}
+
+\section{Terminology and regulatory boundary}
+
+\subsection{Photon is the customer-facing name}
+
+The UI will display the credit as \Photon{} or \emph{Photons}. Internal identifiers should be explicit, for example \code{photon\_credit}, \code{photon\_wallet} and \code{photon\_work\_receipt}. Avoid the word ``token'' in billing screens because the customer is not being charged for model tokens.
+
+\subsection{Do not merge billing credits with transferable PHO currency}
+
+The attached Glyph material already defines PHO as a transferable monetary asset with wallets, offline credit, invoices, transfers, escrow and reconciliation. Tessaris billing credits have a different legal and commercial purpose. Therefore:
+
+\begin{itemize}
+  \item Photons used for Tessaris services must be non-transferable between customers.
+  \item They must not be withdrawable, exchange-traded, redeemable for cash or usable to buy third-party goods.
+  \item They must not share the spendable PHO account balance or PHO offline-credit limit.
+  \item The customer must not be able to send them to another wallet address.
+  \item Refund, expiry and promotional-credit rules must be stated plainly in the commercial terms.
+  \item A finance and legal review must confirm the accounting treatment of purchased, promotional and expired balances before launch.
+\end{itemize}
+
+The implementation may reuse the existing Photon bank's ledger concepts, wallet presentation, canonical serialization, device signatures, append-only receipts, reconciliation and proof machinery. It should do so under a separate asset namespace and separate ledger authority, such as \code{TESSARIS\_PHOTON\_CREDIT\_V1}.
+
+\subsection{Three-layer separation}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.24\linewidth} X X}
+\toprule
+Layer & Authority & Responsibility \\
+\midrule
+Revolut fiat layer & Revolut Merchant API & Subscription and top-up payment, refund and charge lifecycle \\
+Photon service ledger & Tessaris Billing Control Plane & Credit grants, reservations, captures, releases, reversals, expiry and entitlements \\
+GlyphChain proof layer & GlyphChain & Hash commitments, signed checkpoints, receipt inclusion and independent integrity verification \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+This follows the attached Glyph architecture: fiat moves money, AION executes work and GlyphChain proves what happened.
+
+\section{Commercial model and initial rate card}
+
+\subsection{Pilot plans}
+
+The exact prices and allowances remain pilot hypotheses. They should be calibrated with real businesses before they are marketed as final.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.18\linewidth} p{0.18\linewidth} p{0.22\linewidth} X}
+\toprule
+Plan & Indicative price & Included Photons & Intended use \\
+\midrule
+Free & \pounds 0 & 1,000 per month & One business, local models, manual workflows and a meaningful product trial \\
+Operator & \pounds 49--79/month & 5,000 per month & A founder or small team using scheduled automations \\
+Business & \pounds 149--199/month & 25,000--50,000 per month & Multiple active departments, approvals and connected operations \\
+Scale & \pounds 399--799/month & 100,000+ per month & Higher-volume, multi-site or multi-team operation \\
+Enterprise / Sovereign & Contract & Pooled or committed allowance & Private deployment, offline leases, assurance exports and contracted support \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The launch default should be \emph{no automatic overage}. A customer can opt into a Photon bundle or a capped automatic top-up after seeing the price. Usage alerts should be issued at 50\%, 75\%, 90\% and 100\%.
+
+\subsection{Version 1 rate card}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.32\linewidth} >{\centering\arraybackslash}p{0.13\linewidth} p{0.45\linewidth}}
+\toprule
+Successful AION outcome & Photons & Charging rule \\
+\midrule
+\endhead
+AION updates a business record & 1 & Charge only when the automated update is committed successfully; human/manual edits are free. \\
+Professional document ready for approval & 2 & Charge when the customer keeps or approves the completed draft; discarded drafts are free. \\
+Approved external communication sent & 3 & Charge only after the connected provider confirms acceptance of the send request. \\
+Appointment scheduled and confirmed & 3 & Charge once for the completed booking outcome, not once per calendar/API step. \\
+Payment or bank transaction reconciled & 5 & Charge only after a confirmed match updates the relevant records. \\
+Governed multi-step workflow completed & 5--10 & Use a published fixed price for the named workflow; do not bill every internal step as well. \\
+Lead qualified and successfully booked & 10 & Charge after the verified qualification and booking outcome exists. \\
+\bottomrule
+\end{longtable}
+
+Each rate-card item requires a stable \code{action\_type}, a fixed Photon price, a version, a success predicate and a human-readable explanation. The price must not change based on the local model, token count, prompt length or reasoning time.
+
+\subsection{Never bill these events}
+
+\begin{itemize}
+  \item local chat, reading, search, reasoning or model inference;
+  \item local or customer-provider model tokens;
+  \item user-authored manual changes;
+  \item triggers, polling, health checks, previews or deterministic validations;
+  \item failed actions, timeouts, provider rejections or automatic retries;
+  \item safety checks, approval checks, software updates, backup or restore;
+  \item duplicated delivery callbacks or replayed receipts;
+  \item a child step already included in a priced parent outcome; and
+  \item any result rolled back because Tessaris failed.
+\end{itemize}
+
+\subsection{Founder pricing control}
+
+Tessaris requires an internal, founder-authorised pricing console so the commercial price can move up or down as the market develops. This is a pricing control over the Photon service-credit economy; it must not be presented as a charge for the customer's local compute.
+
+The internal console should expose two separate controls:
+
+\begin{enumerate}
+  \item \textbf{Photon monetary price:} the fiat price used for additional Photon bundles or overage. The founder may, for example, move the price from \pounds 0.01 to \pounds 0.03 per Photon, or from \pounds 0.10 down to \pounds 0.05. Currency-specific prices are stored as exact decimal/minor-unit values, never floating point.
+  \item \textbf{Outcome rate multiplier:} an optional multiplier applied when publishing a new rate-card version. This changes how many Photons a future operation consumes without changing the monetary identity of previously purchased Photons.
+\end{enumerate}
+
+The recommended default is to adjust the monetary price first and keep the public outcome rate card stable. Stable action prices are easier for customers to understand. Change the Photon charge for an action only when the relative cost or value of that class of work has materially changed.
+
+The slider must be paired with an exact numeric field. A slider alone is too imprecise for pricing. The console should show a live preview of:
+
+\begin{itemize}
+  \item price per Photon and price per 1,000 Photons;
+  \item the resulting price of each bundle and plan overage;
+  \item the approximate monetary equivalent of every rate-card outcome;
+  \item gross revenue at representative monthly usage levels;
+  \item the number of existing customers affected at the proposed effective date; and
+  \item a comparison with the currently published catalogue.
+\end{itemize}
+
+Publishing a change requires an effective date, reason, affected currency/region/cohort and confirmation. It creates a new immutable \code{PHOTON\_PRICE\_BOOK\_V1} version and signed administrative receipt. The previous price book is retained permanently for invoice reconstruction and dispute handling.
+
+Pricing changes follow these protections:
+
+\begin{itemize}
+  \item no retroactive repricing of purchased Photons, completed work or existing reservations;
+  \item no mid-cycle change to an agreed subscription unless the customer explicitly accepts it or the contract permits a clearly notified renewal change;
+  \item new bundle purchases use the price displayed at checkout;
+  \item existing balances remain the same number of Photons after a price change;
+  \item scheduled changes may be cancelled before activation but never rewritten after activation;
+  \item regional or promotional prices require explicit eligibility rules and an expiry date;
+  \item minimum and maximum guardrails prevent an accidental zero, negative or extreme price;
+  \item a two-step preview and publish flow prevents a slider movement from becoming live immediately; and
+  \item every change is visible in the finance audit log and can be reconciled to the exact invoices it affected.
+\end{itemize}
+
+The product should call this surface \textbf{Photon Pricing} or \textbf{Commercial Pricing Control}. Avoid the customer-facing term ``market making'', which commonly describes providing liquidity in tradeable financial markets and could wrongly imply that Photons are transferable financial assets.
+
+\section{Product experience in Settings}
+
+\subsection{Navigation}
+
+Add a genuine \textbf{Settings} icon to the main sidebar and a canonical \code{settings} route. The first release should include the following Settings sections:
+
+\begin{itemize}
+  \item General;
+  \item Local AI and models;
+  \item Updates;
+  \item Privacy and data;
+  \item \textbf{Usage \& billing};
+  \item Security and devices; and
+  \item About Tessaris.
+\end{itemize}
+
+The existing Boardroom panel titled ``Departments, usage and value'' should be removed from Boardroom after the new Usage \& billing page reaches parity. Boardroom may show a compact value summary, but billing controls belong in Settings.
+
+\subsection{Usage and billing page}
+
+The page should use plain business language and contain five views.
+
+\paragraph{Overview.}
+Show current plan, available Photons, reserved Photons, used this cycle, included allowance, next refill date and projected end-of-cycle use. Repeat the sovereignty promise prominently.
+
+\paragraph{Usage.}
+Show a filterable list by date, department and operation. Each row displays the human-readable outcome, Photons used, status and receipt reference. It must not display private prompts or send them to Tessaris.
+
+\paragraph{Plan and payment.}
+Show the active plan, allowance, renewal date, Revolut payment status, downloadable invoices, available upgrades and one-off Photon bundles. The app opens provider-hosted Revolut checkout; it never collects card details.
+
+\paragraph{Limits.}
+Provide a monthly hard cap, department budgets, alerts and an opt-in automatic top-up. Automatic top-up must be off by default and require explicit confirmation of amount, trigger and monthly maximum.
+
+\paragraph{Receipts and privacy.}
+Provide work receipts, billing receipts, export, verification status, pending offline receipts and the exact content-free fields Tessaris receives.
+
+The founder pricing console is not part of this customer page. It belongs in the separately authenticated Tessaris operator/control-plane administration surface. Customer devices receive only the signed, currently applicable price book and any scheduled change notice relevant to that customer.
+
+\subsection{Wallet presentation}
+
+The wallet card should display:
+
+\begin{itemize}
+  \item \textbf{Available}: spendable Photons;
+  \item \textbf{Reserved}: held for an operation currently executing;
+  \item \textbf{Used this month}: successfully captured Photons;
+  \item \textbf{Included refill}: the next plan grant and date;
+  \item \textbf{Promotional}: optional balance with its own expiry; and
+  \item \textbf{Offline allowance}: a bounded, signed lease if the installation is disconnected.
+\end{itemize}
+
+The UI must not describe the balance as money, cash, an investment, a blockchain asset or a customer-owned transferable currency.
+
+\section{System architecture}
+
+\subsection{Local Tessaris application}
+
+The local application remains the authority for private business content. It will add:
+
+\begin{itemize}
+  \item an outcome classifier that maps completed AION work to a rate-card item;
+  \item a Photon reservation client;
+  \item a local signed work-receipt journal;
+  \item a durable, bounded receipt outbox with restart recovery;
+  \item a signed wallet mirror and offline lease cache;
+  \item the Settings / Usage \& billing interface; and
+  \item an export and verification interface.
+\end{itemize}
+
+The application must never decide its own permanent balance. Local files are a mirror and offline working allowance, not the authoritative commercial ledger.
+
+\subsection{Tessaris Billing Control Plane}
+
+A small hosted service is required even though customer intelligence stays local. It holds no prompts, documents or business records. Its responsibilities are:
+
+\begin{itemize}
+  \item tenant billing identity and device registration;
+  \item plans, rate-card versions and signed entitlements;
+  \item versioned Photon price books, scheduled commercial changes and cohort eligibility;
+  \item the authoritative double-entry Photon ledger;
+  \item credit reservations, captures, releases, reversals and expiry;
+  \item receipt ingestion, validation, deduplication and reconciliation;
+  \item Revolut order creation, webhook verification and refund processing;
+  \item monthly grants and explicitly authorised top-ups;
+  \item signed wallet snapshots and offline leases;
+  \item customer invoices and tax/accounting export; and
+  \item GlyphChain batch-root submission and proof retrieval.
+\end{itemize}
+
+This service should be independently deployable from the customer application and use an append-only database journal plus materialized balances. A relational database with transactional uniqueness constraints is the initial source of truth; GlyphChain is the proof rail, not the live balance database.
+
+\subsection{Double-entry Photon ledger}
+
+Every balance change must post balanced entries. Suggested ledger accounts are:
+
+\begin{itemize}
+  \item \code{customer.available};
+  \item \code{customer.reserved};
+  \item \code{tessaris.issued};
+  \item \code{tessaris.consumed};
+  \item \code{tessaris.expired}; and
+  \item \code{tessaris.adjustments}.
+\end{itemize}
+
+Never update a balance directly. Derive it from immutable entries and maintain a rebuildable materialized view for speed. Each entry carries a tenant, ledger account, quantity, reason, source receipt, rate-card version, timestamp and idempotency key.
+
+\section{Operation charging lifecycle}
+
+The charging lifecycle prevents surprise deductions and eliminates double charging:
+
+\begin{enumerate}
+  \item \textbf{Classify.} Resolve a proposed operation to a published rate-card item.
+  \item \textbf{Disclose.} Display the Photon cost before an unattended workflow is enabled. Interactive work may show the price beside the action.
+  \item \textbf{Reserve.} Place the required Photons in \code{customer.reserved}. If insufficient, pause safely and offer plan or bundle choices.
+  \item \textbf{Execute.} Perform the operation locally or through the approved connector.
+  \item \textbf{Verify.} Apply the rate-card success predicate using provider or local evidence.
+  \item \textbf{Capture.} Move reserved Photons to consumed exactly once and create the signed work receipt.
+  \item \textbf{Release.} If the operation fails, is rejected, is cancelled or times out, return the reservation automatically.
+  \item \textbf{Reconcile.} Upload the content-free receipt when connected and include it in the next proof batch.
+\end{enumerate}
+
+Nested workflow steps carry a \code{billing\_parent\_id}. When a parent outcome has a fixed price, included child steps are marked \code{included\_in\_parent} and consume zero additional Photons.
+
+\section{Receipt architecture}
+
+\subsection{Three receipt types}
+
+\begin{description}
+  \item[Work receipt:] proves that a priced business outcome completed and explains the Photon capture.
+  \item[Billing receipt:] links a Revolut payment or refund to a Photon grant, reversal or plan renewal.
+  \item[Checkpoint receipt:] commits an ordered batch of ledger/work receipt hashes to GlyphChain.
+\end{description}
+
+\subsection{Content-free work receipt}
+
+Suggested schema:
+
+\begin{verbatim}
+PHOTON_WORK_RECEIPT_V1 {
+  receipt_id
+  tenant_commitment
+  device_key_id
+  action_id
+  billing_parent_id | null
+  department
+  action_type
+  outcome_version
+  rate_card_version
+  photons_reserved
+  photons_captured
+  status: CAPTURED | RELEASED | REVERSED
+  evidence_commitment
+  occurred_at
+  app_version
+  previous_receipt_hash
+  idempotency_key
+  device_signature
+}
+\end{verbatim}
+
+\code{evidence\_commitment} is a hash of the private evidence retained locally. Names, prompts, document content, customer details, message bodies, financial values and provider secrets are not sent to the billing service or GlyphChain.
+
+\subsection{Billing receipt}
+
+\begin{verbatim}
+PHOTON_BILLING_RECEIPT_V1 {
+  receipt_id
+  tenant_id
+  revolut_order_id
+  merchant_order_ext_ref
+  payment_event
+  fiat_amount_minor
+  fiat_currency
+  plan_or_bundle_id
+  photons_granted_or_reversed
+  ledger_transaction_id
+  processed_at
+  webhook_event_hash
+  idempotency_key
+  control_plane_signature
+}
+\end{verbatim}
+
+The public/customer version should mask provider identifiers where appropriate. The internal version must preserve enough evidence for finance reconciliation and support.
+
+\subsection{GlyphChain checkpoint}
+
+Add a dedicated proof family rather than pretending the existing dry-run AION proof adapter is live:
+
+\begin{itemize}
+  \item \code{PHOTON\_WORK\_RECEIPT\_ROOT\_V1};
+  \item \code{PHOTON\_LEDGER\_CHECKPOINT\_V1}; and
+  \item optionally \code{PHOTON\_RATE\_CARD\_COMMITMENT\_V1}.
+\end{itemize}
+
+Commit a Merkle root for a batch of ordered receipt hashes. Do not put one chain transaction per business operation. Store only salted tenant commitments, batch identifiers, schema versions, roots, counts and time ranges. A portable receipt can later include the device signature, batch inclusion path, transaction reference and finality evidence.
+
+\section{Revolut billing integration}
+
+\subsection{Correct integration boundary}
+
+There are two different Revolut concepts in the product and they must remain separate:
+
+\begin{enumerate}
+  \item \textbf{Tessaris billing:} Tessaris AI Limited uses its own Revolut Merchant account to charge Tessaris customers for plans and Photon bundles. Customers do not connect their Revolut account to use this.
+  \item \textbf{Customer payment connection:} a business may separately connect Revolut to collect money from its own customers. This belongs in Connections and is unrelated to paying Tessaris.
+\end{enumerate}
+
+The current application mainly stores a hosted Revolut checkout link for the second use case. That is not a Tessaris subscription-billing implementation.
+
+\subsection{Checkout and grant flow}
+
+\begin{enumerate}
+  \item The app requests a signed checkout session from the Billing Control Plane.
+  \item The control plane creates a Revolut Merchant order with amount, currency and a unique external reference.
+  \item The app opens provider-hosted Revolut checkout in the normal browser.
+  \item The customer pays using an available Revolut checkout method.
+  \item Redirect success is shown only as a provisional user-interface result.
+  \item A verified server-to-server webhook is the authoritative payment event.
+  \item The control plane retrieves the order, verifies amount, currency, tenant, product and terminal status, then posts the Photon grant exactly once.
+  \item The control plane signs the new entitlement and wallet snapshot.
+  \item The local app refreshes and displays the Photons and downloadable receipt.
+\end{enumerate}
+
+Revolut's current Merchant documentation requires server-side order creation and treats webhooks as the authoritative source for critical fulfilment. It also warns that webhook events may arrive out of order. The handler must therefore be idempotent and state-based rather than sequence-dependent. See \href{https://developer.revolut.com/docs/guides/merchant/accept-payments/online-payments/revolut-pay/web}{Revolut Pay web integration} and \href{https://developer.revolut.com/docs/guides/merchant/monitor-and-observe/webhooks/using-webhooks}{Revolut webhook guidance}.
+
+\subsection{Secrets and webhook security}
+
+\begin{itemize}
+  \item The Revolut secret API key and webhook signing secret live only in the hosted control plane secret store.
+  \item They must never be packaged in the desktop app, stored in browser local storage or returned by an API.
+  \item Verify the Revolut signature and timestamp on the raw request body before parsing business fields.
+  \item Retrieve the order from Revolut before granting Photons.
+  \item Enforce a unique constraint on Revolut event/order identifiers and internal idempotency keys.
+  \item Accept duplicate and out-of-order webhook delivery safely.
+  \item Record refunds, reversals, failed payments and disputes as ledger adjustments rather than editing history.
+  \item Use separate sandbox and production accounts, keys, webhooks and databases.
+\end{itemize}
+
+Revolut requires a Business Merchant account and generated Merchant API keys. Current payment methods include Revolut Pay, cards, Apple Pay, Google Pay and Pay by Bank, subject to account and regional eligibility. See \href{https://developer.revolut.com/docs/guides/merchant/get-started}{Revolut Merchant setup} and \href{https://developer.revolut.com/docs/sdks/merchant-web-sdk/payment-methods/introduction}{Revolut payment methods}.
+
+\subsection{Recurring payment release gate}
+
+Do not promise automatic recurring renewal until the Tessaris Merchant account is approved for the required saved-payment or merchant-initiated flow. The first production slice may use provider-hosted renewal checkout plus reminders. Automatic renewal can be enabled only after live eligibility, consent wording, cancellation, refund and failed-payment recovery have been qualified.
+
+\section{Offline and sovereign installations}
+
+A fully local application cannot safely be allowed to invent unlimited billable credit. Use a bounded, signed offline Photon lease:
+
+\begin{itemize}
+  \item the control plane signs a maximum offline allowance, tenant, device, validity period and rate-card version;
+  \item the device maintains an append-only local receipt chain and may reserve/capture only within the lease;
+  \item the lease cannot be copied to another device because it is bound to the device key;
+  \item reconciliation uploads only content-free receipts;
+  \item duplicate action identifiers are rejected centrally;
+  \item expired leases pause paid automation safely but never block access to customer data, local AI, export or restoration; and
+  \item enterprise air-gapped deployments use prepaid annual leases with an agreed renewal/export process.
+\end{itemize}
+
+The existing PHO offline-credit policy is useful as a risk model, but a Photon service lease is not debt and must not borrow the PHO balance or emergency monetary rules.
+
+\section{Existing code audit and adaptation map}
+
+\begin{longtable}{p{0.34\linewidth} p{0.26\linewidth} p{0.32\linewidth}}
+\toprule
+Existing component & Assessment & Adaptation \\
+\midrule
+\endhead
+\code{commercial\_adoption\_service.py} & Strong foundation & Rename verified actions to Photon outcomes; add rate-card price, reservation/capture status, parent billing ID and stable idempotency. \\
+\code{commercial\_assurance\_service.py} & Strong foundation & Retain signed entitlements and content rejection; add signed plan/Photon limits and wallet snapshot verification. \\
+\code{commercial\_adoption\_api.py} & Partial API & Replace trial-only endpoints with plans, wallet, usage, limits, receipts, checkout and reconciliation endpoints. \\
+Boardroom commercial panel in desktop \code{app.js} & Prototype placement & Move commercial controls to Settings / Usage \& billing; keep only value evidence in Boardroom. \\
+\code{wallet\_routes.py} and \code{WalletPanel.tsx} & Development/demo only & Do not promote directly. Extract presentation concepts and replace mutable demo balances/transfers with the service-credit API. \\
+Photon Pay POS and receipt routes & Development/demo only & Reuse schema lessons, not monetary transfer behavior. Billing Photons are not customer-to-customer PHO. \\
+\code{legal\_document\_proof.py} & Best reusable proof pattern & Extract domain-separated canonical signing, durable outbox, retry, idempotency, Merkle inclusion and portable verification patterns. Use a distinct billing key purpose. \\
+\code{glyphchain\_proof\_commit.py} & Dry-run adapter & Add explicit Photon receipt/checkpoint proof types only after chain submission/finality is genuinely qualified. \\
+\code{business\_integration\_catalog.py} & Catalogue only & Keep Revolut as a customer payment provider, but do not mistake environment-key presence for a verified connection. \\
+\code{vault\_router.py} & Documentation/onboarding stub & Build a separate server-side Tessaris Billing Revolut adapter; keep secrets out of the local Vault. \\
+Business payment settings in desktop \code{app.js} & Customer-collection configuration & Keep separate from the customer's Tessaris subscription and Photon wallet. \\
+\bottomrule
+\end{longtable}
+
+\section{API and data contracts}
+
+Initial control-plane endpoints should include:
+
+\begin{itemize}
+  \item \code{GET /billing/catalogue} --- plans, bundles and signed rate card;
+  \item \code{GET /billing/wallet} --- signed balances, cycle and offline lease status;
+  \item \code{GET /billing/usage} --- paginated content-free receipts;
+  \item \code{POST /billing/reservations} --- reserve Photons for an action;
+  \item \code{POST /billing/reservations/\{id\}/capture} --- submit the signed success receipt;
+  \item \code{POST /billing/reservations/\{id\}/release} --- release a failed/cancelled action;
+  \item \code{POST /billing/receipts/batch} --- reconcile signed offline receipts;
+  \item \code{POST /billing/checkout} --- create a Revolut plan/bundle order;
+  \item \code{POST /billing/revolut/webhook} --- authenticated provider events;
+  \item \code{GET /billing/invoices} --- Tessaris billing invoices and receipts;
+  \item \code{PUT /billing/limits} --- caps, alerts and top-up consent; and
+  \item \code{GET /billing/proofs/\{receipt\_id\}} --- checkpoint inclusion and verification status.
+\end{itemize}
+
+Founder-only administration endpoints should be isolated from customer billing routes and include:
+
+\begin{itemize}
+  \item \code{POST /api/control-plane/photon/admin/pricing/current} --- active and scheduled pricing at an explicit instant;
+  \item \code{POST /api/control-plane/photon/admin/pricing/preview} --- calculate exact price-book effects without changing state;
+  \item \code{POST /api/control-plane/photon/admin/pricing/publish} --- create and sign a scheduled price-book version;
+  \item \code{POST /api/control-plane/photon/admin/pricing/cancel} --- append an immutable cancellation for a not-yet-active version; and
+  \item \code{POST /api/control-plane/photon/admin/pricing/history} --- immutable price-book and cancellation history.
+\end{itemize}
+
+These routes require founder/finance authority, strong authentication, re-authentication before publish and a separate audit trail. Production price publishing must never rely on a client-side role flag.
+
+All state-changing calls require tenant authentication, device authentication, nonce/replay protection and an idempotency key. Money and Photon quantities must use integers in their smallest units; never use binary floating point.
+
+\section{Delivery plan}
+
+\subsection{Phase 0 --- commercial and legal freeze}
+
+\textbf{Outcome:} approved definitions before engineering creates irreversible compatibility.
+
+\begin{itemize}
+  \item approve Photon service-credit terms, refund/expiry policy and customer wording;
+  \item approve the V1 plans, bundles and rate card;
+  \item approve the allowed price-per-Photon range, currencies, change-notice rules and founder publishing authority;
+  \item define taxable invoice treatment and accounting ledger mapping;
+  \item confirm Revolut Merchant eligibility and recurring-payment scope;
+  \item freeze public claims: local inference is free, successful orchestration uses Photons; and
+  \item define support treatment for failed or disputed deductions.
+\end{itemize}
+
+\subsection{Phase 1 --- contracts, ledger and proof extraction}
+
+\textbf{Outcome:} testable domain layer without payment or UI coupling.
+
+\begin{itemize}
+  \item introduce versioned plan, rate-card, wallet, ledger-entry and receipt schemas;
+  \item build the transactional double-entry Photon ledger;
+  \item extract a domain-separated signing/outbox library from the Legal proof implementation;
+  \item extend verified-action metering with reservation, capture, release and parent-outcome semantics;
+  \item preserve the hard rule that local and customer-provider tokens are non-billable; and
+  \item add property tests for balance conservation, idempotency and receipt-chain integrity.
+\end{itemize}
+
+\subsubsection*{Implementation evidence --- 17 October 2026}
+
+The first isolated Photon domain contracts are now implemented without coupling them to the existing transferable PHO wallet, payment-provider routes or customer business records.
+
+\begin{itemize}
+  \item The asset namespace is fixed as \code{TESSARIS\_PHOTON\_CREDIT\_V1}, keeping service credits legally and technically separate from transferable PHO currency.
+  \item A versioned price-book contract stores the monetary price as an integer number of fiat minor units per 1,000 Photons. It therefore supports the founder's slider and exact numeric field without binary floating-point arithmetic.
+  \item Price preview calculates the approximate fiat equivalent of every outcome while remaining explicitly unpublished. Publication envelopes are canonical and signed; tampering changes verification outcome.
+  \item Price-book records include effective time, region, cohort and reason, and state explicitly that pricing is not retroactive and does not bill local model tokens or local compute.
+  \item A durable founder publication store now requires a matching preview hash, strong re-authentication evidence, an exact confirmation phrase, a reason and a future effective time before it accepts a signed price-book version. Immutable database triggers preserve every historical version, and applicable-version selection is deterministic at checkout time.
+  \item An optional hosted-only Photon Pricing administration boundary now exposes strict preview, publish and history routes under \code{/api/control-plane/photon/admin/pricing}. It uses a separate Ed25519 administration trust root, a platform-administration tenant, an independently injected re-authentication verifier and a distinct price-book signing key. The normal customer control plane does not mount these routes, customer access and wallet keys cannot be reused, and the desktop renderer receives no publication authority.
+  \item Every founder pricing authorisation decision is written to a separate immutable, content-free audit store. Publishing still requires the exact previewed integer price per 1,000 Photons, effective time, region, cohort and action rates; changing a slider or numeric value after preview invalidates the preview hash and fails closed. Founder-only current and history views now distinguish active, scheduled and cancelled versions. Cancellation is a separately authenticated immutable record and is rejected after a price book becomes active; no signed price-book row is deleted or rewritten.
+  \item This is an integration boundary rather than evidence of a deployed founder console: the visual slider, production identity provider, hardware-backed key custody and live hosted deployment remain open release work.
+  \item A content-free double-entry ledger reducer rejects unbalanced transactions, zero rows, reused transaction identities and idempotency-key collisions. Replaying the identical operation returns the original transaction rather than granting or charging twice.
+  \item A durable SQLite control-plane adapter now posts validated transactions atomically, enforces unique tenant idempotency keys, rebuilds balances from entry rows and exposes an integrity report. Database triggers reject updates and deletions to both transactions and entries.
+  \item The durable ledger is explicitly declared as hosted commercial-account metadata, not customer Business Vault content. Its schema rejects customer-content flags and its tests prove identical replay, collision rejection, immutable rows, balance reconstruction and rejection before storage of unbalanced transactions.
+  \item A sandbox-safe Revolut fulfilment boundary now snapshots order, tenant, product, Photon quantity, exact amount, currency and price-book version before checkout. A paid callback cannot grant credits until the untouched raw webhook passes the official V1 HMAC/timestamp rule and a server-side order retrieval matches the stored identity, reference, amount and currency.
+  \item Automatic-capture fulfilment accepts only the authoritative \code{completed} order state. Pending or out-of-order events grant zero and can be retried later; completed-event replay returns the original fulfilment and the ledger idempotency key prevents a second grant even after an interrupted attempt.
+  \item The webhook contract now matches the current Merchant payload shape (event, order identifier and merchant reference) and derives a replay fingerprint from the signed raw payload rather than assuming a provider event identifier that Revolut does not supply.
+  \item An immutable refund-observation and resolution boundary now retrieves authoritative refund state, binds it to the original paid order and currency, rejects over-refunds, and turns completed full or partial refunds into proportional exact-once Photon ledger reversals. If the customer has already consumed the required Photons, the provider refund is retained as a manual-review obligation rather than silently creating a negative available balance; resolution can be retried after an approved recovery adjustment.
+  \item A separate immutable dispute/chargeback boundary now consumes a provider-adapter-normalized authoritative outcome: \code{pending}, \code{merchant\_won} or \code{merchant\_lost}. Pending and won disputes never debit the wallet. A final merchant loss produces an exact-once proportional Photon reversal. Refunds and disputes share a single cumulative order ceiling, so the same fiat payment cannot be reversed twice through different provider flows. If sufficient unspent Photons no longer exist, the final loss creates a derived commercial hold and manual-review obligation until an approved recovery allows resolution; it never drives the available wallet negative.
+  \item Tenant billing records and a scoped commercial-status endpoint expose only disputed minor units, dispute-reversed Photons, unresolved count and hold state. The Electron broker verifies the tenant binding and the complete hash-addressed billing record before showing a clear review warning in Settings; the renderer receives no bearer, provider payload or customer content. Provider-specific Revolut dispute-state mapping and live network/webhook qualification remain release gates.
+  \item Wallet balances can be rebuilt entirely from immutable transaction history and are checked for conservation.
+  \item The lifecycle proof now reserves the disclosed action price before work, captures it once after verified success, and releases the full reservation after failure. Insufficient balances stop before work begins.
+  \item A child outcome explicitly included in a priced parent reserves and consumes zero Photons, preventing nested automations from double-charging.
+  \item A V1 work-receipt builder records only bounded identifiers, Photon quantity, rate-card version, reservation, success-evidence code and receipt-chain hash. It contains no prompt, message, document, file path or customer content.
+  \item A bounded signed offline-lease contract now gives one approved Node a fixed Photon ceiling, validity window, sequence and price-book version. The local immutable journal captures successful named outcomes exactly once, rejects collision, exhaustion, expiry, tampering and use by another Node, and contains no local-model token count or customer content.
+  \item Hosted lease issuance now moves the lease ceiling from available balance into a lease-specific reserved account before offline use. Reconciliation verifies the Node signature, lease identity and sequence, exact price-book action rate, total cap and content-free flags before posting each successful outcome as an idempotent balanced capture. Invalid reports fail before any capture is posted.
+  \item The hosted ledger can now issue a short-lived signed wallet snapshot for one tenant. It carries a monotonic sequence, available/reserved/consumed aggregate balances, transaction count and a hash anchor over the tenant ledger; verification rejects tampering, expiry, the wrong tenant and rollback. It explicitly carries no customer content and no local model-token measurement.
+  \item A control-plane access authority now issues maximum-one-hour signed bearer credentials bound to one tenant, subject and exact scope set. The service derives tenant identity only from the verified principal, records immutable content-free access decisions and rejects expiry, replay, request-identity collisions and scope mismatch.
+  \item An injected HTTP router now exposes wallet-snapshot, bounded-activity and checkout-intent operations. Its request contracts forbid caller-supplied tenant fields; missing, tampered or under-scoped bearer credentials fail before any commercial operation. This is a tested composition boundary and does not yet constitute deployed production authentication, key custody or hosting.
+  \item An application composition factory now joins that router to separate durable ledger, wallet-snapshot, Revolut-fulfilment and immutable access-audit stores through an injected key-custody interface. It rejects a commercial state root that contains, or is contained by, any declared application or Business Vault root. It embeds no signing key and enables no live payment-provider network call.
+  \item At expiry, unused lease balance is released back to the customer's available account. Repeated closure returns the original release evidence rather than a misleading zero. Lease reservation accounts use an atomic non-negative ledger constraint, so reconciliation after closure or a concurrent close/reconcile race cannot create credit or drive the reserved account below zero.
+  \item Executable assertions pass for exact price preview, signed-envelope verification, immutable two-step price publication, in-memory and durable ledger conservation, replay idempotency, reserve/capture/release and content-free receipts. The focused Photon suites additionally pass signed bearer, tenant-isolation, replay/collision, HTTP scope enforcement, composition-root separation, raw-signature, expired-timestamp, tamper, amount mismatch, pending-then-completed and exact-once fulfilment cases. The expanded core Vault, Business Twin/Sales, Node/update and Photon suite contains 219 passing tests; 12 additional Legal/local-asset checks also pass. Property testing, sandbox API qualification and production database review remain required before release.
+\end{itemize}
+
+\noindent\textbf{Current commercial status:} domain proof only; no live charge is authorised. The isolated durable ledger, signed wallet view, tenant-scoped authentication, HTTP router and state-separated composition factory, outcome lifecycle, price-publication store, verified webhook grant/refund/dispute boundary and bounded offline reservation/reconciliation/closure path now exist. Verified fulfilments can be exposed as tenant-bound, content-free, hash-addressed billing records with exact paid/refunded/disputed amounts, Photon grants/reversals, commercial-hold state, price-book identity and ledger proof. These records are deliberately labelled payment receipts rather than statutory tax invoices. The desktop now contains the Settings / Usage \& Billing surface with Overview, Usage, Limits, Billing \& receipts and Privacy views. An Electron main-process broker keeps the bearer outside the renderer, requires a separately pinned Ed25519 authority key, enforces tenant binding and TLS, verifies current signed wallet snapshots, commercial status and every billing-record hash, and returns only a reduced content-free view. The default session store protects the bearer with operating-system-backed encryption, persists only an owner-readable ciphertext wrapper and rejects unavailable encryption or Linux's insecure \texttt{basic\_text} fallback. Verified receipt evidence can be exported through the native save dialog without exposing credentials. Production session provisioning, rotation/revocation, managed key custody, actual Revolut sandbox/network and provider-specific dispute mapping qualification, statutory invoice numbering/tax policy and GlyphChain checkpoint finality remain open release gates.
+
+The local Node now also has a durable bounded work-receipt outbox. Each successful-outcome receipt is bound to the tenant commitment and device, linked to the previous receipt hash, signed with the injected device key and stored with append-only delivery events. Restart recovery, idempotent events, terminal acknowledgement/rejection, capacity limits and fail-closed rejection of extra content or local-model token billing are covered by executable tests. Native device-key custody and hosted batch-ingestion integration remain open.
+
+\subsection{Phase 2 --- local wallet and Settings experience}
+
+\textbf{Outcome:} the user can understand, control and audit Photon use before paying.
+
+\begin{itemize}
+  \item retain the implemented Settings sidebar route and Usage \& billing page;
+  \item retain the implemented overview, usage, limits, receipts and privacy views;
+  \item retain the content-free commercial dashboard and verified main-process Photon broker connections;
+  \item show prices before workflows are enabled;
+  \item add insufficient-balance, reservation, release and reversal states; and
+  \item extend the implemented verified CSV receipt export with portable JSON proof download and independent verification.
+\end{itemize}
+
+\subsection{Phase 3 --- Revolut sandbox and hosted billing}
+
+\textbf{Outcome:} sandbox payment grants Photons exactly once.
+
+\begin{itemize}
+  \item deploy the Billing Control Plane with managed secrets and transactional storage;
+  \item create Revolut orders for plans and bundles;
+  \item integrate provider-hosted checkout;
+  \item implement signature-verified, state-based webhooks;
+  \item grant, refund and reverse Photons through immutable ledger entries;
+  \item generate Tessaris invoices and customer-visible billing receipts; and
+  \item test duplicate, delayed, out-of-order and forged events.
+\end{itemize}
+
+This phase also delivers the internal Photon Pricing console, preview calculations, signed price-book publication and scheduled activation. The checkout service must snapshot the exact price-book version into every Revolut order so a later slider change cannot alter an open order.
+
+\subsection{Phase 4 --- GlyphChain receipt proof}
+
+\textbf{Outcome:} independent integrity proof without business-content disclosure.
+
+\begin{itemize}
+  \item batch work and ledger receipt hashes into deterministic Merkle roots;
+  \item submit the new Photon checkpoint transaction type through the durable outbox;
+  \item add local pending, ledger committed and quorum-finalized states;
+  \item generate portable Photon receipt proofs; and
+  \item extend the offline verifier with domain-separated Photon schemas and trust roots.
+\end{itemize}
+
+\subsection{Phase 5 --- controlled pilot and calibration}
+
+\textbf{Outcome:} evidence that pricing is fair, comprehensible and commercially viable.
+
+\begin{itemize}
+  \item run 10--20 businesses on Free, Operator and Business trial configurations;
+  \item measure Photons per useful outcome, failed reservations, support disputes and plan exhaustion;
+  \item compare actual customer value with Photon consumption by department;
+  \item adjust the rate card rather than hiding excessive step-level consumption;
+  \item test the upgrade, cap, cancellation, refund and expired-payment experiences; and
+  \item obtain finance, privacy, security and commercial approval for production.
+\end{itemize}
+
+\section{Testing and release gates}
+
+\subsection*{Implementation checkpoint --- 18 October 2026}
+
+The local domain implementation has advanced, but live charging remains disabled.
+
+\begin{itemize}
+  \item The isolated Photon regression passes 103 Python tests plus six Electron main-process broker/session tests. This includes exact-once grants and reversals, balanced reserve/capture/release, tenant binding, signed snapshots, immutable receipts, commercial holds, offline leases and renderer redaction.
+  \item Property-based tests cover 150 generated price-conversion cases and 150 generated ledger/idempotency cases. Minor-unit conversion remains integer, non-negative and monotonic; generated postings conserve Photons and exact replay creates one transaction.
+  \item A server-side Revolut Merchant adapter now defaults to the official sandbox origin, pins the Merchant API version, obtains the secret only at call time, enforces HTTPS, bounds responses and excludes provider bodies and credentials from errors. Production origin use requires a separate explicit enablement.
+  \item A checkout coordinator accepts only a published bundle identifier. Photon quantity, fiat minor-unit amount and price-book version are resolved on the server and frozen into an immutable fulfilment intent before a hosted checkout token or URL is returned.
+  \item Webhook handling verifies the timestamp and HMAC over the raw body, tolerates multiple signatures, retrieves authoritative order state and applies completed, pending, refunded and disputed events idempotently even when events arrive out of order.
+  \item No real Revolut sandbox or production request has been made because this workspace has no deployed endpoint or deployment-owned provider secret. Hosted checkout rendering, real webhook delivery, provider IP/signing policy, managed KMS custody, reconciliation operations and external security review remain unqualified.
+  \item The broader product dependency gate remains closed for release-level assurance despite local remediation. Tailwind CSS, Ethers, the compatible Three.js/Drei stack and KaTeX have been migrated; the typography selector parser is constrained to its patched release. The optimized 67-route frontend build, math-macro render and typography-selector checks pass, and the frontend production audit now reports zero known vulnerabilities. The isolated Hardhat 3/Ethers 6 contract project compiles, deploys GLU and escrow on the simulated network and also reports zero dependency findings. Release-commit SBOM signing, provenance and independent assurance remain open.
+\end{itemize}
+
+No live billing release should occur until all of the following pass:
+
+\begin{itemize}
+  \item ledger entries always balance and a materialized wallet can be rebuilt from history;
+  \item the same action or webhook cannot charge or grant twice;
+  \item failed and retried operations consume zero Photons;
+  \item bundled workflows do not double-charge their child steps;
+  \item local and customer-provider model tokens remain non-billable in regression tests;
+  \item customer-content keys and values are rejected by receipt ingestion;
+  \item device-signature, replay, key-rotation and revoked-device tests pass;
+  \item offline leases cannot be copied, extended locally or overspent;
+  \item forged, duplicated, delayed and out-of-order Revolut webhooks are handled safely;
+  \item refunds and charge reversals preserve audit history;
+  \item rate-card changes affect only new disclosed operations;
+  \item price-book changes do not alter open orders, purchased balances, existing reservations or completed invoices;
+  \item slider and numeric-entry values produce identical exact minor-unit prices;
+  \item unauthorised users and customer devices cannot preview or publish founder pricing;
+  \item spending caps stop work safely without restricting data access;
+  \item the GlyphChain UI never claims finality while a proof is pending; and
+  \item an independent security review covers the control plane, desktop trust boundary and payment webhooks.
+\end{itemize}
+
+\section{Key risks and controls}
+
+\begin{longtable}{p{0.31\linewidth} p{0.59\linewidth}}
+\toprule
+Risk & Required control \\
+\midrule
+Customer believes Tessaris charges for their model & Repeat ``local intelligence is free'' and itemize the business outcome on every receipt. \\
+Wallet tampering on a local machine & Server-authoritative ledger, signed snapshots, bounded offline leases and replay-safe reconciliation. \\
+Photon confused with PHO currency & Separate asset namespace, accounts, APIs, UI and terms; no transfer, withdrawal or exchange. \\
+Unexpected bill & Hard cap by default, disclosed rates, alerts, top-up consent and immediate itemized receipts. \\
+Founder changes a price accidentally & Exact numeric input, bounded slider, impact preview, re-authentication, scheduled activation and an immutable signed price-book version. \\
+Open checkout is repriced & Snapshot price-book version, amount and product into the Revolut order; never recalculate an existing order after publication. \\
+Step-level revenue optimization harms users & Price completed outcomes; forbid child-step double charging and review the rate card openly. \\
+Private data leaves the device & Schema allowlist, content-key rejection, salted tenant commitment and evidence hashes only. \\
+Payment shown as successful before settlement & Treat redirects as provisional; grant only on verified authoritative Revolut state. \\
+Webhook replay or disorder & Signature/timestamp verification, order retrieval, unique constraints and state-based idempotent processing. \\
+GlyphChain used as live balance database & Keep transactional ledger in the control plane; use GlyphChain for batched proof commitments. \\
+Production claims exceed current GlyphChain status & Show pending/committed/finalized distinctly and retain existing external qualification gates. \\
+\bottomrule
+\end{longtable}
+
+\section{Definition of done for the first sellable release}
+
+The first release is commercially complete when a new business can:
+
+\begin{enumerate}
+  \item install Tessaris, select a local model and begin on the Free plan without entering payment details;
+  \item see a 1,000-Photon allowance and understand exactly what is free and what consumes Photons;
+  \item enable an automation only after seeing its fixed Photon price;
+  \item receive a signed receipt after a successful outcome and no charge after a failed one;
+  \item inspect every deduction in Settings without exposing private content to Tessaris;
+  \item set a hard cap and receive threshold warnings;
+  \item buy a plan or bundle through Revolut-hosted checkout;
+  \item receive the purchased Photons once, only after verified payment;
+  \item download the Tessaris invoice and billing receipt;
+  \item continue using local AI, data access and export if paid automation pauses; and
+  \item verify that the receipt ledger matches the displayed wallet balance.
+\end{enumerate}
+
+The founder can additionally preview and schedule a Photon price change, see its impact across plans and rate-card outcomes, publish it with an immutable receipt, and prove that it did not modify earlier customer transactions.
+
+\section{Recommended implementation order}
+
+The immediate engineering sequence is:
+
+\begin{enumerate}
+  \item freeze \code{PHOTON\_RATE\_CARD\_V1} and the service-credit terms;
+  \item freeze \code{PHOTON\_PRICE\_BOOK\_V1}, including the authorised slider range and change protections;
+  \item implement the authoritative double-entry ledger and content-free receipt contracts;
+  \item adapt verified-action metering to reserve/capture/release Photons;
+  \item complete native Photon session provisioning, rotation and revocation for the implemented Settings / Usage \& billing broker;
+  \item deploy the minimal Billing Control Plane;
+  \item complete Revolut sandbox checkout and webhook qualification;
+  \item enable Free-plan grants and paid bundles for an internal pilot;
+  \item add GlyphChain batch commitments after the ledger and payment paths are stable; and
+  \item calibrate prices from the pilot before public launch.
+\end{enumerate}
+
+\vfill
+\noindent\textcolor{TessarisGrey}{\small This plan treats the supplied LaTeX documents and Glyph material as architectural evidence, not executable instructions. It preserves their explicit separation between fiat payments, AION execution and GlyphChain proof.}
+
+\end{document}

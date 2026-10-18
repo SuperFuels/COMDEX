@@ -17,7 +17,16 @@
     last_error: null,
     conflict: null,
   };
+  const motherSyncByWorkspace = new Map();
   let syncQueue = Promise.resolve();
+  let runtimeDeviceId = null;
+
+  function queueFoundationPersistence(task) {
+    const previous = root.__aionFoundationPersistenceQueue || Promise.resolve();
+    const next = Promise.resolve(previous).catch(() => null).then(task);
+    root.__aionFoundationPersistenceQueue = next;
+    return next;
+  }
 
   function parseJson(value, fallback = null) {
     try { return value ? JSON.parse(value) : fallback; } catch { return fallback; }
@@ -31,21 +40,22 @@
   function workspaceId() {
     let candidate = '';
     try { candidate = root.AionBusinessContainerClient?.resolveBusinessId?.() || ''; } catch {}
-    candidate = candidate || root.state?.workspaceId || root.__AION_DESKTOP_STATE__?.workspaceId || 'home-fixed';
+    candidate = candidate || root.state?.workspaceId || root.__AION_DESKTOP_STATE__?.workspaceId || '';
     const normalized = String(candidate).trim().toLowerCase().replace(/_/g, '-').replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
     return normalized && !['global', 'root', 'tmp', 'business-not-registered'].includes(normalized)
       ? normalized
-      : 'home-fixed';
+      : '';
   }
 
   function deviceId() {
-    let value = '';
-    try { value = localStorage.getItem(DEVICE_KEY) || ''; } catch {}
-    if (!value) {
-      value = `boardroom_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-      try { localStorage.setItem(DEVICE_KEY, value); } catch {}
+    const nodeId = String(
+      root.__AION_DESKTOP_STATE__?.nodeId || root.state?.nodeId || '',
+    ).trim().replace(/[^A-Za-z0-9_.:-]+/g, '-').slice(0, 160);
+    if (nodeId) return `boardroom:${nodeId}`;
+    if (!runtimeDeviceId) {
+      runtimeDeviceId = `boardroom_runtime_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     }
-    return value;
+    return runtimeDeviceId;
   }
 
   function publishSyncState() {
@@ -72,22 +82,49 @@
     return body;
   }
 
-  function cacheMotherPacket(session = {}) {
+  function workspaceSyncSnapshot(id) {
+    const cached = motherSyncByWorkspace.get(id);
+    if (cached) return { ...cached };
+    if (motherSync.workspace_id === id) return { ...motherSync };
+    return {
+      status: 'not_started', revision: 0, workspace_id: id,
+      last_synced_at: null, last_error: null, conflict: null,
+    };
+  }
+
+  function cacheMotherPacket(session = {}, expectedWorkspaceId = '') {
+    const sessionWorkspaceId = String(
+      expectedWorkspaceId || session?.workspace_id || workspaceId(),
+    );
+    const snapshot = {
+      status: session?.packet ? 'synced' : session?.status === 'reset' ? 'reset' : 'not_started',
+      revision: Number(session?.revision || 0),
+      workspace_id: sessionWorkspaceId,
+      last_synced_at: session?.updated_at || new Date().toISOString(),
+      last_error: null,
+      conflict: null,
+    };
+    motherSyncByWorkspace.set(sessionWorkspaceId, snapshot);
+
+    // A Foundation answer can create a new canonical business id while older
+    // saves are still in flight. A response for the old workspace must never
+    // replace the active interview packet or its revision.
+    if (workspaceId() !== sessionWorkspaceId) {
+      return session?.packet || null;
+    }
+
     const packet = session?.packet;
-    motherSync.revision = Number(session?.revision || 0);
-    motherSync.workspace_id = session?.workspace_id || workspaceId();
-    motherSync.last_synced_at = session?.updated_at || new Date().toISOString();
-    motherSync.status = packet ? 'synced' : session?.status === 'reset' ? 'reset' : 'not_started';
-    motherSync.last_error = null;
-    motherSync.conflict = null;
+    Object.assign(motherSync, snapshot);
     if (packet && typeof packet === 'object') {
-      try { localStorage.setItem(PACKET_KEY, JSON.stringify(packet)); } catch {}
+      root.__aionFoundationPacket = packet;
       root.__aionBusinessFoundationVoiceDiscoveryPacket = packet;
       const complete = session.status === 'completed_pending_commit';
       if (complete) {
-        try { localStorage.setItem(COMPLETED_KEY, 'true'); } catch {}
         root.__aionBusinessFoundationCompletedPacket = packet;
       }
+      // PACKET_KEY is a legacy import source only.  Once Guardian has returned
+      // the session, the browser must not retain another durable business copy.
+      try { localStorage.removeItem(PACKET_KEY); } catch {}
     }
     publishSyncState();
     return packet || null;
@@ -95,13 +132,19 @@
 
   async function loadFoundationPacketFromMother() {
     const id = workspaceId();
+    if (!id) {
+      motherSync.status = 'awaiting_business_registration';
+      motherSync.workspace_id = null;
+      publishSyncState();
+      return getFoundationPacket();
+    }
     motherSync.status = 'loading';
     motherSync.workspace_id = id;
     publishSyncState();
     try {
       const body = await requestMother(`/api/aion/business/data/foundation-session/${encodeURIComponent(id)}`);
       const session = body?.session || {};
-      if (session.packet) return cacheMotherPacket(session);
+      if (session.packet) return cacheMotherPacket(session, id);
 
       motherSync.revision = Number(session.revision || 0);
       const cached = getFoundationPacket();
@@ -111,10 +154,10 @@
           migration: true,
         });
       }
-      cacheMotherPacket(session);
+      cacheMotherPacket(session, id);
       return null;
     } catch (error) {
-      motherSync.status = 'offline_cache';
+      motherSync.status = 'vault_unavailable_memory_only';
       motherSync.last_error = String(error?.message || error);
       publishSyncState();
       return getFoundationPacket();
@@ -122,44 +165,73 @@
   }
 
   async function persistFoundationPacketToMother(packet = {}, options = {}) {
-    const id = workspaceId();
-    motherSync.status = options.migration ? 'migrating' : 'saving';
-    motherSync.workspace_id = id;
-    publishSyncState();
-    try {
-      const body = await requestMother(`/api/aion/business/data/foundation-session/${encodeURIComponent(id)}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          packet,
-          expected_revision: Number(motherSync.revision || 0),
-          actor_id: 'local_owner',
-          device_id: deviceId(),
-          complete: options.complete === true,
-        }),
-      });
-      return cacheMotherPacket(body.session || {});
-    } catch (error) {
-      if (error?.status === 409) {
-        motherSync.status = 'conflict';
-        motherSync.conflict = error.payload?.detail || { reason: 'foundation_session_revision_conflict' };
-        motherSync.last_error = 'A newer foundation interview exists on another trusted surface.';
-        publishSyncState();
-        try {
-          const latest = await requestMother(`/api/aion/business/data/foundation-session/${encodeURIComponent(id)}`);
-          return cacheMotherPacket(latest.session || {});
-        } catch {}
-      }
-      motherSync.status = 'offline_cache';
-      motherSync.last_error = String(error?.message || error);
+    const id = String(options.workspace_id || workspaceId());
+    if (!id) {
+      motherSync.status = 'awaiting_business_registration';
+      motherSync.workspace_id = null;
       publishSyncState();
       return packet;
     }
+    const active = workspaceId() === id;
+    if (active) {
+      motherSync.status = options.migration ? 'migrating' : 'saving';
+      motherSync.workspace_id = id;
+      publishSyncState();
+    }
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const latestBody = await requestMother(
+          `/api/aion/business/data/foundation-session/${encodeURIComponent(id)}`,
+        );
+        const latestSession = latestBody?.session || {};
+        const latestPacket = latestSession.packet && typeof latestSession.packet === 'object'
+          ? latestSession.packet
+          : {};
+        // Preserve section data written by other trusted onboarding surfaces,
+        // while making the latest local interview packet authoritative for the
+        // fields it owns. This prevents a revision conflict from silently
+        // dropping the answer the founder just supplied.
+        const nextPacket = { ...latestPacket, ...packet };
+        const body = await requestMother(`/api/aion/business/data/foundation-session/${encodeURIComponent(id)}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            packet: nextPacket,
+            expected_revision: Number(latestSession.revision || 0),
+            actor_id: 'local_owner',
+            device_id: deviceId(),
+            complete: options.complete === true,
+          }),
+        });
+        return cacheMotherPacket(body.session || {}, id);
+      } catch (error) {
+        lastError = error;
+        if (error?.status !== 409) break;
+      }
+    }
+    if (lastError?.status === 409 && active) {
+      motherSync.status = 'conflict';
+      motherSync.conflict = lastError.payload?.detail || { reason: 'foundation_session_revision_conflict' };
+      motherSync.last_error = 'The latest Foundation answer could not be saved after three conflict retries.';
+      publishSyncState();
+    } else if (active) {
+      motherSync.status = 'vault_unavailable_memory_only';
+      motherSync.last_error = String(lastError?.message || lastError || 'foundation_session_save_failed');
+      publishSyncState();
+    }
+    return packet;
   }
 
   function queueMotherSave(packet = {}, options = {}) {
-    syncQueue = syncQueue.then(
-      () => persistFoundationPacketToMother(packet, options),
-      () => persistFoundationPacketToMother(packet, options),
+    const workspace_id = workspaceId();
+    if (!workspace_id) {
+      motherSync.status = 'awaiting_business_registration';
+      motherSync.workspace_id = null;
+      publishSyncState();
+      return Promise.resolve(packet);
+    }
+    syncQueue = queueFoundationPersistence(
+      () => persistFoundationPacketToMother(packet, { ...options, workspace_id }),
     );
     return syncQueue;
   }
@@ -171,22 +243,25 @@
       packet.next_question?.reason === 'finance_handoff_ready' ||
       packet.next_question?.action === 'route_finance_live_agent';
 
-    try {
-      localStorage.setItem(PACKET_KEY, JSON.stringify(packet));
-      if (complete) {
-        localStorage.setItem(COMPLETED_KEY, 'true');
-        localStorage.setItem(COMPLETED_AT_KEY, new Date().toISOString());
-      }
-    } catch {}
-
+    root.__aionFoundationPacket = packet;
     root.__aionBusinessFoundationVoiceDiscoveryPacket = packet;
-    if (complete) root.__aionBusinessFoundationCompletedPacket = packet;
+    if (complete) {
+      root.__aionBusinessFoundationCompletedPacket = packet;
+    }
     void queueMotherSave(packet, { ...options, complete });
     return packet;
   }
 
   function getFoundationPacket() {
-    return parseJson(localStorage.getItem(PACKET_KEY), null);
+    if (root.__aionFoundationPacket && typeof root.__aionFoundationPacket === 'object') {
+      return root.__aionFoundationPacket;
+    }
+    const legacy = parseJson(localStorage.getItem(PACKET_KEY), null);
+    if (legacy && typeof legacy === 'object') {
+      root.__aionFoundationPacket = legacy;
+      root.__aionBusinessFoundationVoiceDiscoveryPacket = legacy;
+    }
+    return legacy;
   }
 
   function migrateCompletedFoundationIfNeeded() {
@@ -221,9 +296,15 @@
   }
 
   function hasCompletedBusiness() {
-    if (localStorage.getItem(COMPLETED_KEY) !== 'true') return false;
     const packet = getFoundationPacket();
-    return Boolean(packet && typeof packet === 'object');
+    if (!packet || typeof packet !== 'object') return false;
+    return Boolean(
+      root.__aionBusinessFoundationCompletedPacket === packet ||
+      packet.status === 'foundation_ready_for_finance_handoff' ||
+      packet.next_question?.completion === true ||
+      packet.next_question?.reason === 'finance_handoff_ready' ||
+      packet.next_question?.action === 'route_finance_live_agent'
+    );
   }
 
   function restoreCompletedBusiness() {
@@ -236,15 +317,19 @@
     root.__aionO25UConversationOpen = false;
 
     try {
-      localStorage.setItem('aion.activeTab', 'live_agents');
-      localStorage.setItem('aion.activeTab.v1', 'live_agents');
-      localStorage.setItem('aion.lastActiveTab.v1', 'live_agents');
-      localStorage.setItem('aion.forcedMainTab.v2', 'live_agents');
-      localStorage.setItem('aionDesktop.activeTab', 'live_agents');
-      localStorage.setItem('aion.liveAgents.selectedDepartment.v1', 'finance');
-      localStorage.setItem('aion.liveAgents.selectedDepartment', 'finance');
-      localStorage.setItem('aion.selectedLiveDepartment', 'finance');
-      localStorage.setItem('aion.departmentPilot.selected', 'finance');
+      [
+        'aion.activeTab',
+        'aion.activeTab.v1',
+        'aion.lastActiveTab.v1',
+        'aion.forcedMainTab.v2',
+        'aionDesktop.activeTab',
+      ].forEach((key) => root.AionDesktopPreferences.set(key, 'live_agents'));
+      [
+        'aion.liveAgents.selectedDepartment.v1',
+        'aion.liveAgents.selectedDepartment',
+        'aion.selectedLiveDepartment',
+        'aion.departmentPilot.selected',
+      ].forEach((key) => root.AionDesktopPreferences.set(key, 'finance'));
     } catch {}
 
     return packet;
@@ -305,6 +390,7 @@
     try {
       root.__aionBusinessFoundationVoiceDiscoveryPacket = null;
       root.__aionBusinessFoundationCompletedPacket = null;
+      root.__aionFoundationPacket = null;
       root.__aionO25ABStartupRouteClaimed = false;
       root.__aionO25AYStartupRouteClaimed = false;
       root.__aionO25ABStartupRouteHold = false;
@@ -313,6 +399,10 @@
     } catch {}
 
     const id = workspaceId();
+    if (!id) {
+      root.location.reload();
+      return { ok: true };
+    }
     void requestMother(`/api/aion/business/data/foundation-session/${encodeURIComponent(id)}/reset`, {
       method: 'POST',
       keepalive: true,
@@ -331,6 +421,13 @@
     if (hasCompletedBusiness()) root.__aionBusinessFoundationCompletedPacket = storedPacket;
   }
   void loadFoundationPacketFromMother();
+  // Business identity is restored asynchronously from the Vault on a cold
+  // desktop start. Retry Foundation hydration when that authority boundary is
+  // established so the resumed Pilot has a current revision and can save
+  // safely, rather than remaining in an "awaiting registration" state.
+  root.addEventListener?.('aion:business-identity-established', () => {
+    void loadFoundationPacketFromMother();
+  });
 
   root.AionDevelopmentBusinessSession = Object.freeze({
     VERSION,

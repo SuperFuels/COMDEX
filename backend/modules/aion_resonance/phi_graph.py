@@ -1,83 +1,93 @@
-# File: backend/modules/aion_resonance/phi_graph.py
-# 🌐 AION Φ-Knowledge Graph
-# Stores and evolves resonance entanglements between Φ concepts.
+from __future__ import annotations
 
-import json, os, math, datetime
+import datetime
+import json
+from pathlib import Path
 
-GRAPH_PATH = "data/phi_graph.json"
+from backend.modules.aion_learning.vault_store import AionLearningVaultStore
+
+GRAPH_PATH = Path("data/phi_graph.json")
+
 
 class PhiGraph:
-    def __init__(self):
+    """Business-learned resonance relationship graph."""
+
+    ENTITY_ID = "phi_relationship_graph"
+
+    def __init__(self, *, vault_store=None, graph_path=None):
+        self.graph_path = Path(graph_path or GRAPH_PATH)
+        self.vault_store = vault_store or AionLearningVaultStore(
+            auto_configure=graph_path is None
+        )
         self.nodes = {}
         self.edges = {}
         self._load()
 
-    # --- Persistence ---
     def _load(self):
-        if os.path.exists(GRAPH_PATH):
-            with open(GRAPH_PATH, "r") as f:
-                data = json.load(f)
-                self.nodes = data.get("nodes", {})
-                self.edges = data.get("edges", {})
+        if self.vault_store.enabled:
+            data = self.vault_store.get_state(self.ENTITY_ID, {"nodes": {}, "edges": {}})
+        elif self.graph_path.is_file():
+            try:
+                data = json.loads(self.graph_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                data = {}
         else:
-            self.nodes, self.edges = {}, {}
+            data = {}
+        self.nodes = dict(data.get("nodes", {})) if isinstance(data, dict) else {}
+        self.edges = dict(data.get("edges", {})) if isinstance(data, dict) else {}
 
     def _save(self):
-        with open(GRAPH_PATH, "w") as f:
-            json.dump({"nodes": self.nodes, "edges": self.edges}, f, indent=2)
+        payload = self.snapshot()
+        if self.vault_store.enabled:
+            self.vault_store.put_state(self.ENTITY_ID, payload)
+            return
+        self.graph_path.parent.mkdir(parents=True, exist_ok=True)
+        self.graph_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
-    # --- Node Management ---
+    def snapshot(self):
+        return {"nodes": dict(self.nodes), "edges": dict(self.edges)}
+
     def add_node(self, term, phi_vector):
-        """Add or update a Φ node."""
         node = self.nodes.get(term, {})
         node.update(phi_vector)
-        node["updated"] = datetime.datetime.utcnow().isoformat()
+        node["updated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.nodes[term] = node
         self._save()
 
     def update_truth(self, term, delta):
-        """Adjust belief weight (truth_weight) based on resonance."""
         node = self.nodes.setdefault(term, {"truth_weight": 0.5})
         node["truth_weight"] = max(0.0, min(1.0, node["truth_weight"] + delta))
-        node["updated"] = datetime.datetime.utcnow().isoformat()
+        node["updated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.nodes[term] = node
         self._save()
 
-    # --- Edge / Entanglement Management ---
     def add_entanglement(self, a, b, relation, similarity):
-        """Link two Φ nodes with an entanglement edge."""
         key = f"{a}↔{b}"
         edge = self.edges.get(key, {"strength": 0.5, "history": []})
-        drift = similarity - 0.5
-        edge["strength"] = max(0.0, min(1.0, edge["strength"] + drift * 0.3))
+        edge["strength"] = max(0.0, min(1.0, edge["strength"] + (similarity - 0.5) * 0.3))
         edge["relation"] = relation
-        edge["updated"] = datetime.datetime.utcnow().isoformat()
+        edge["updated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         edge["history"].append({"similarity": similarity, "relation": relation})
         self.edges[key] = edge
         self._save()
 
-    # --- Query Interface ---
     def entangled_with(self, term):
-        """Return all nodes entangled with a given term."""
-        return {k: v for k, v in self.edges.items() if term in k.split("↔")}
+        return {key: value for key, value in self.edges.items() if term in key.split("↔")}
 
     def find_related(self, tone="harmonic", min_strength=0.5):
-        """Find all nodes of a given tone and sufficient coherence."""
         return {
-            t: n for t, n in self.nodes.items()
-            if n.get("Φ_coherence", 0) > min_strength and n.get("tone") == tone
+            term: node for term, node in self.nodes.items()
+            if node.get("Φ_coherence", 0) > min_strength and node.get("tone") == tone
         }
 
 
-# Singleton helper
 GRAPH = PhiGraph()
 
+
 def update_phi_graph(term_a, term_b, relation, similarity, phi_a, phi_b):
-    """High-level helper for auto-updating Φ graph."""
     GRAPH.add_node(term_a, phi_a)
     GRAPH.add_node(term_b, phi_b)
     GRAPH.add_entanglement(term_a, term_b, relation, similarity)
-
     delta_truth = (phi_a["Φ_coherence"] - phi_a["Φ_entropy"]) * 0.1
     GRAPH.update_truth(term_a, delta_truth)
     GRAPH.update_truth(term_b, -delta_truth / 2)

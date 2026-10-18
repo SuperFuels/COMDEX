@@ -36,6 +36,11 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 SCHEMA = "aion.cybersecurity.guard.v1"
@@ -84,7 +89,12 @@ class CybersecurityGuardService:
     def __init__(self, *, root: str | Path | None = None, command_timeout: float = 4.0,
                  trusted_feed_public_key: str | None = None,
                  allowed_scan_roots: list[str | Path] | None = None,
-                 response_executor: Any | None = None) -> None:
+                 response_executor: Any | None = None,
+                 domain_store: VaultDomainStore | None = None) -> None:
+        if root is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            domain_store = VaultDomainStore(runtime.guardian, actor_id="cybersecurity-guard-runtime")
+        self.domain_store = domain_store
         self.root = Path(root) if root else AIONBusinessPaths.ROOT / "cybersecurity_guard"
         self.command_timeout = max(0.5, min(float(command_timeout), 15.0))
         self.trusted_feed_public_key = str(
@@ -157,6 +167,8 @@ class CybersecurityGuardService:
         return {"state": state, "expires_at": payload["expires_at"]}
 
     def _workspace_dir(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_cybersecurity__") / _safe_id(workspace_id)
         path = self.root / _safe_id(workspace_id)
         path.mkdir(parents=True, exist_ok=True, mode=0o700)
         try:
@@ -204,6 +216,18 @@ class CybersecurityGuardService:
         }
 
     def load(self, workspace_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "security.records", workspace_id=workspace_id, entity_id="guard/state"
+            )
+            if record is None:
+                state = self._default_state(workspace_id)
+                self._write(workspace_id, state)
+            else:
+                state = record["payload"]
+            if state.get("workspace_id") != workspace_id:
+                raise RuntimeError("cybersecurity_workspace_mismatch")
+            return self._hydrate_runtime_state(workspace_id, state)
         path = self._state_path(workspace_id)
         if not path.exists():
             state = self._default_state(workspace_id)
@@ -213,6 +237,9 @@ class CybersecurityGuardService:
         state = json.loads(path.read_text(encoding="utf-8"))
         if state.get("workspace_id") != workspace_id:
             raise RuntimeError("cybersecurity_workspace_mismatch")
+        return self._hydrate_runtime_state(workspace_id, state)
+
+    def _hydrate_runtime_state(self, workspace_id: str, state: dict[str, Any]) -> dict[str, Any]:
         defaults = self._default_state(workspace_id)
         state.setdefault("capabilities", {})
         for key, value in defaults["capabilities"].items():
@@ -230,6 +257,15 @@ class CybersecurityGuardService:
 
     def _write(self, workspace_id: str, state: dict[str, Any]) -> None:
         state["updated_at"] = _now()
+        if self.domain_store is not None:
+            current = self.domain_store.get_optional(
+                "security.records", workspace_id=workspace_id, entity_id="guard/state"
+            )
+            self.domain_store.put(
+                "security.records", workspace_id=workspace_id, entity_id="guard/state",
+                payload=state, expected_version=int(current["version"]) if current else None,
+            )
+            return
         path = self._state_path(workspace_id)
         fd, temp_name = tempfile.mkstemp(prefix="state-", suffix=".json", dir=str(path.parent))
         try:
@@ -249,6 +285,12 @@ class CybersecurityGuardService:
             "workspace_id": workspace_id, "event_type": event_type,
             "actor_id": str(actor_id or "system")[:160], "payload_digest": _digest(payload),
         }
+        if self.domain_store is not None:
+            self.domain_store.put(
+                "security.audit", workspace_id=workspace_id,
+                entity_id=f"events/{event['event_id']}", payload=event,
+            )
+            return
         path = self._journal_path(workspace_id)
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(event, sort_keys=True, separators=(",", ":")) + "\n")
@@ -423,9 +465,15 @@ class CybersecurityGuardService:
             "entry_count": len(entries), "sha256": sha256(canonical).hexdigest(),
             "signature_verified": True, "imported_at": _now(),
         }
-        feed_path = self._workspace_dir(workspace_id) / "vulnerability-feed.json"
-        feed_path.write_text(json.dumps(feed, sort_keys=True, separators=(",", ":")), encoding="utf-8")
-        feed_path.chmod(0o600)
+        if self.domain_store is not None:
+            self.domain_store.put(
+                "security.records", workspace_id=workspace_id,
+                entity_id="guard/vulnerability-feed", payload=feed,
+            )
+        else:
+            feed_path = self._workspace_dir(workspace_id) / "vulnerability-feed.json"
+            feed_path.write_text(json.dumps(feed, sort_keys=True, separators=(",", ":")), encoding="utf-8")
+            feed_path.chmod(0o600)
         state = self.load(workspace_id)
         state["vulnerability_feed"] = descriptor
         state["capabilities"]["vulnerability_feed"] = "SIGNED_FEED_ACTIVE"
@@ -437,10 +485,13 @@ class CybersecurityGuardService:
     def assess_vulnerabilities(self, workspace_id: str, *, actor_id: str) -> dict[str, Any]:
         state = self.load(workspace_id)
         descriptor = state.get("vulnerability_feed")
+        feed_record = self.domain_store.get_optional(
+            "security.records", workspace_id=workspace_id, entity_id="guard/vulnerability-feed"
+        ) if self.domain_store is not None else None
         feed_path = self._workspace_dir(workspace_id) / "vulnerability-feed.json"
-        if not descriptor or not descriptor.get("signature_verified") or not feed_path.exists():
+        if not descriptor or not descriptor.get("signature_verified") or (feed_record is None and not feed_path.exists()):
             raise RuntimeError("signed_vulnerability_feed_required")
-        feed = json.loads(feed_path.read_text(encoding="utf-8"))
+        feed = feed_record["payload"] if feed_record is not None else json.loads(feed_path.read_text(encoding="utf-8"))
         installed: dict[tuple[str, str], dict[str, str]] = {}
         for asset in state.get("assets", []):
             for item in asset.get("software", []):
@@ -811,6 +862,30 @@ class CybersecurityGuardScheduler:
 
     def run_once(self) -> list[dict[str, Any]]:
         results: list[dict[str, Any]] = []
+        if self.service.domain_store is not None:
+            workspace_ids = sorted({
+                str(record.get("workspace_id") or "")
+                for record in self.service.domain_store.list_all("security.records")
+                if record.get("entity_id") == "guard/state"
+                and record.get("workspace_id")
+            })
+            for workspace_id in workspace_ids:
+                try:
+                    scan = self.service.run_safe_scan(
+                        workspace_id, actor_id="cybersecurity_guard_scheduler"
+                    )
+                    results.append({
+                        "workspace_id": workspace_id,
+                        "ok": True,
+                        "run_id": scan["scan_run"]["run_id"],
+                    })
+                except Exception as exc:
+                    results.append({
+                        "workspace_id": workspace_id,
+                        "ok": False,
+                        "error": type(exc).__name__,
+                    })
+            return results
         if not self.service.root.exists():
             return results
         for state_path in sorted(self.service.root.glob("*/state.json")):

@@ -9,6 +9,12 @@ from pathlib import Path
 from typing import Any, Dict
 
 from backend.modules.aion_business.runtime.sovereign_brain_setup import SovereignBrainSetup
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_fabric.canonical import canonical_hash, utc_now_iso
 from backend.modules.aion_fabric.identity import IdentityStore
 
@@ -16,10 +22,24 @@ from backend.modules.aion_fabric.identity import IdentityStore
 class SovereignMigrationOrchestrator:
     """Export, restore, verify and activate; the source remains recoverable throughout."""
 
-    def __init__(self, source_root: str | Path, journal_root: str | Path) -> None:
+    def __init__(
+        self, source_root: str | Path, journal_root: str | Path, *,
+        domain_store: VaultDomainStore | None = None, workspace_id: str | None = None,
+    ) -> None:
         self.source = SovereignBrainSetup(Path(source_root).resolve())
         self.journal_root = Path(journal_root).resolve()
-        self.journal_root.mkdir(parents=True, exist_ok=True)
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="sovereign-migration-orchestrator"
+            )
+        self.workspace_id = None
+        if self.domain_store is not None:
+            resolved = workspace_id or self.domain_store.guardian.business_stable_id
+            self.workspace_id = canonical_business_id(resolved)
+        else:
+            self.journal_root.mkdir(parents=True, exist_ok=True)
 
     def prepare(self, *, migration_id: str, target_kind: str, destination: str | Path,
                 passphrase: str, actor_id: str, approval_ref: str) -> Dict[str, Any]:
@@ -79,12 +99,50 @@ class SovereignMigrationOrchestrator:
         return record
 
     def _read(self, migration_id: str) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            assert self.workspace_id is not None
+            entity_id = f"sovereign-brain/migrations/{migration_id}"
+            current = self.domain_store.get_optional(
+                "vault.migration_receipts", workspace_id=self.workspace_id,
+                entity_id=entity_id,
+            )
+            if current is not None:
+                return dict(current["payload"])
+            legacy_path = self.journal_root / f"{migration_id}.json"
+            if legacy_path.is_file():
+                payload = json.loads(legacy_path.read_text(encoding="utf-8"))
+                self.domain_store.put(
+                    "vault.migration_receipts", workspace_id=self.workspace_id,
+                    entity_id=entity_id,
+                    payload={**payload, "legacy_journal_copy_verified": True,
+                             "legacy_journal_source_retained": True},
+                    expected_version=None,
+                    idempotency_key=f"sovereign-migration-import-{migration_id}",
+                )
+                return dict(self.domain_store.get(
+                    "vault.migration_receipts", workspace_id=self.workspace_id,
+                    entity_id=entity_id,
+                )["payload"])
+            raise KeyError("migration_not_found")
         path = self.journal_root / f"{migration_id}.json"
         if not path.exists():
             raise KeyError("migration_not_found")
         return json.loads(path.read_text(encoding="utf-8"))
 
     def _write(self, migration_id: str, record: Dict[str, Any]) -> None:
+        if self.domain_store is not None:
+            assert self.workspace_id is not None
+            entity_id = f"sovereign-brain/migrations/{migration_id}"
+            current = self.domain_store.get_optional(
+                "vault.migration_receipts", workspace_id=self.workspace_id,
+                entity_id=entity_id,
+            )
+            self.domain_store.put(
+                "vault.migration_receipts", workspace_id=self.workspace_id,
+                entity_id=entity_id, payload=record,
+                expected_version=int(current["version"]) if current else None,
+            )
+            return
         path = self.journal_root / f"{migration_id}.json"
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps(record, indent=2, sort_keys=True), encoding="utf-8")

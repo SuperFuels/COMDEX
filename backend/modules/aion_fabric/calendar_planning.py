@@ -10,8 +10,14 @@ from typing import Any, Callable, Dict
 from uuid import uuid4
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
-from .private_identity import ProductionPrivateIdentity
+from .private_identity import ProductionPrivateIdentity, configured_private_identity
 
 
 class GovernedCalendarPlanning:
@@ -20,10 +26,22 @@ class GovernedCalendarPlanning:
     _lock = threading.RLock()
     ACTIONS = {"create", "reschedule", "cancel"}
 
-    def __init__(self, runtime_dir: str | Path, *, identities: ProductionPrivateIdentity | None = None) -> None:
+    def __init__(
+        self,
+        runtime_dir: str | Path,
+        *,
+        identities: ProductionPrivateIdentity | None = None,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.root = Path(runtime_dir) / "calendar_planning"; self.path = self.root / "state.json"
-        self.root.mkdir(parents=True, exist_ok=True)
-        self.identities = identities or ProductionPrivateIdentity(runtime_dir)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_calendar_workspace_required")
+        self.identities = identities or configured_private_identity(runtime_dir)
         self.adapters: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {}
 
     @staticmethod
@@ -31,13 +49,35 @@ class GovernedCalendarPlanning:
         return {"schema_version": "pilot.calendar-planning.v2", "events": [], "proposals": [], "receipts": [], "idempotency": []}
 
     def _read(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "departments.operational_records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.calendar_planning",
+            )
+            return dict(result["payload"]) if result else self._initial()
         if not self.path.exists(): return self._initial()
         try:
             value = json.loads(self.path.read_text(encoding="utf-8")); return value if isinstance(value, dict) else self._initial()
         except (OSError, json.JSONDecodeError): return self._initial()
 
     def _write(self, state: Dict[str, Any]) -> None:
-        state["updated_at"] = utc_now_iso(); temporary = self.path.with_suffix(".tmp")
+        state["updated_at"] = utc_now_iso()
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "departments.operational_records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.calendar_planning",
+            )
+            self.domain_store.put(
+                "departments.operational_records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.calendar_planning",
+                payload=state,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
+        temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(state)); os.chmod(temporary, 0o600); os.replace(temporary, self.path)
 
     def _profile(self, persona_id: str) -> Dict[str, Any]:
@@ -199,3 +239,57 @@ class GovernedCalendarPlanning:
     def snapshot(self, *, persona_id: str) -> Dict[str, Any]:
         self._profile(persona_id); state = self._read()
         return {key: [dict(item) for item in state.get(key, []) if item.get("persona_id") == persona_id] for key in ("events", "proposals", "receipts")}
+
+
+def configured_calendar_planning(
+    runtime_dir: str | Path,
+    *,
+    identities: ProductionPrivateIdentity | None = None,
+) -> GovernedCalendarPlanning:
+    """Select encrypted calendar authority and retain verified legacy input."""
+
+    runtime_path = Path(runtime_dir)
+    selected_identities = identities or configured_private_identity(runtime_path)
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_calendar_workspace_required")
+        domains = VaultDomainStore(runtime.guardian, actor_id="aion-fabric-calendar")
+        selected = GovernedCalendarPlanning(
+            runtime_path,
+            identities=selected_identities,
+            domain_store=domains,
+            workspace_id=workspace_id,
+        )
+        source = runtime_path / "calendar_planning" / "state.json"
+        if source.exists() and domains.get_optional(
+            "departments.operational_records",
+            workspace_id=workspace_id,
+            entity_id="aion_fabric.calendar_planning",
+        ) is None:
+            legacy = GovernedCalendarPlanning(runtime_path, identities=selected_identities)
+            state = legacy._read()
+            selected._write(state)
+            if selected._read() != state or not source.exists():
+                raise RuntimeError("aion_fabric_calendar_migration_verification_failed")
+            from hashlib import sha256
+
+            source_hash = sha256(source.read_bytes()).hexdigest()
+            domains.put(
+                "departments.operational_audit",
+                workspace_id=workspace_id,
+                entity_id=f"aion_fabric.calendar_migration.{source_hash}",
+                payload={
+                    "schema_version": "aion.calendar-migration.v1",
+                    "source_sha256": source_hash,
+                    "source_retained": True,
+                    "copied_and_verified": True,
+                    "completed_at": utc_now_iso(),
+                },
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_calendar_required_in_production")
+    return GovernedCalendarPlanning(runtime_path, identities=selected_identities)

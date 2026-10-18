@@ -16,6 +16,12 @@ from uuid import uuid4
 from websockets.sync.client import ClientConnection, connect
 from websockets.exceptions import InvalidHandshake
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, utc_now_iso
 
 
@@ -93,6 +99,7 @@ class WebOsGateway:
     """Least-privilege LG webOS SSAP pairing and observe-only proof client."""
 
     MAX_MESSAGE_BYTES = 1024 * 1024
+    KEYRING_SERVICE = "com.tessaris.aion-fabric.webos-pairing.v1"
 
     @staticmethod
     def preferred_games_application(installed_ids: set[str]) -> tuple[str, str] | None:
@@ -105,7 +112,20 @@ class WebOsGateway:
 
     def __init__(self, pairing_dir: str | Path) -> None:
         self.pairing_dir = Path(pairing_dir)
-        self.pairing_dir.mkdir(parents=True, exist_ok=True)
+        self.workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        self.domain_store: VaultDomainStore | None = None
+        if guardian_mode_requested():
+            if not self.workspace_id:
+                raise RuntimeError("aion_fabric_webos_pairing_workspace_required")
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="aion-fabric-webos-pairing",
+            )
+        else:
+            mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+            if mode in {"production", "prod"}:
+                raise RuntimeError("aion_fabric_guardian_webos_pairing_required_in_production")
+            self.pairing_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def validate_host(host: str) -> str:
@@ -119,7 +139,118 @@ class WebOsGateway:
             raise ValueError("Pairing state requires a discovered Fabric node")
         return self.pairing_dir / f"{node_id}.json"
 
+    def _guardian_entity_id(self, node_id: str) -> str:
+        self._state_path(node_id)
+        return f"aion_fabric.webos_pairing.{node_id}"
+
+    def _keyring(self) -> Any:
+        try:
+            import keyring
+        except Exception as exc:
+            raise RuntimeError("aion_fabric_os_credential_store_unavailable") from exc
+        return keyring
+
+    def _keyring_account(self, node_id: str) -> str:
+        return f"{self.workspace_id}.{node_id}"
+
+    def _guardian_metadata(self, node_id: str) -> Dict[str, Any] | None:
+        if self.domain_store is None:
+            return None
+        result = self.domain_store.get_optional(
+            "security.records",
+            workspace_id=self.workspace_id,
+            entity_id=self._guardian_entity_id(node_id),
+        )
+        return dict(result["payload"]) if result else None
+
+    def _save_guardian_pairing(
+        self, node_id: str, host: str, client_key: str, *, paired_at: str | None = None,
+    ) -> None:
+        if self.domain_store is None:
+            raise RuntimeError("aion_fabric_guardian_webos_pairing_required")
+        keyring = self._keyring()
+        account = self._keyring_account(node_id)
+        try:
+            keyring.set_password(self.KEYRING_SERVICE, account, client_key)
+            if keyring.get_password(self.KEYRING_SERVICE, account) != client_key:
+                raise RuntimeError("aion_fabric_webos_key_custody_verification_failed")
+        except RuntimeError:
+            raise
+        except Exception as exc:
+            raise RuntimeError("aion_fabric_os_credential_store_unavailable") from exc
+        existing = self.domain_store.get_optional(
+            "security.records",
+            workspace_id=self.workspace_id,
+            entity_id=self._guardian_entity_id(node_id),
+        )
+        self.domain_store.put(
+            "security.records",
+            workspace_id=self.workspace_id,
+            entity_id=self._guardian_entity_id(node_id),
+            payload={
+                "schema_version": "aion.webos-pairing-metadata.v1",
+                "node_id": node_id,
+                "host": host,
+                "paired_at": paired_at or utc_now_iso(),
+                "key_custody": "operating_system_credential_store",
+                "client_key_in_guardian": False,
+            },
+            expected_version=int(existing["version"]) if existing else None,
+        )
+
+    def _migrate_legacy_pairing(self, node_id: str) -> None:
+        if self.domain_store is None or self._guardian_metadata(node_id) is not None:
+            return
+        path = self._state_path(node_id)
+        if not path.exists():
+            return
+        value = json.loads(path.read_text(encoding="utf-8"))
+        if value.get("node_id") != node_id or not value.get("host") or not value.get("client_key"):
+            raise RuntimeError("aion_fabric_webos_pairing_migration_source_invalid")
+        self._save_guardian_pairing(
+            node_id,
+            self.validate_host(str(value["host"])),
+            str(value["client_key"]),
+            paired_at=str(value.get("paired_at") or utc_now_iso()),
+        )
+        if self._guardian_metadata(node_id) is None or not path.exists():
+            raise RuntimeError("aion_fabric_webos_pairing_migration_verification_failed")
+        from hashlib import sha256
+
+        source_hash = sha256(path.read_bytes()).hexdigest()
+        entity_id = f"aion_fabric.webos_pairing_migration.{source_hash}"
+        if self.domain_store.get_optional(
+            "security.audit", workspace_id=self.workspace_id, entity_id=entity_id,
+        ) is None:
+            self.domain_store.put(
+                "security.audit",
+                workspace_id=self.workspace_id,
+                entity_id=entity_id,
+                payload={
+                    "schema_version": "aion.webos-pairing-migration.v1",
+                    "source_sha256": source_hash,
+                    "source_retained": True,
+                    "copied_to_os_credential_store": True,
+                    "client_key_copied_to_guardian": False,
+                    "completed_at": utc_now_iso(),
+                },
+            )
+
     def _load_key(self, node_id: str, host: str) -> str | None:
+        if self.domain_store is not None:
+            self._migrate_legacy_pairing(node_id)
+            metadata = self._guardian_metadata(node_id)
+            if metadata is None or metadata.get("host") != host:
+                return None
+            try:
+                value = self._keyring().get_password(
+                    self.KEYRING_SERVICE, self._keyring_account(node_id),
+                )
+            except Exception as exc:
+                raise RuntimeError("aion_fabric_os_credential_store_unavailable") from exc
+            if not value:
+                raise RuntimeError("aion_fabric_webos_pairing_key_missing")
+            return str(value)
         path = self._state_path(node_id)
         if not path.exists():
             return None
@@ -129,6 +260,12 @@ class WebOsGateway:
         return str(value.get("client_key") or "") or None
 
     def _save_key(self, node_id: str, host: str, client_key: str) -> None:
+        host = self.validate_host(host)
+        if not client_key:
+            raise ValueError("webOS pairing key is required")
+        if self.domain_store is not None:
+            self._save_guardian_pairing(node_id, host, client_key)
+            return
         path = self._state_path(node_id)
         temporary = path.with_suffix(".tmp")
         payload = {
@@ -147,6 +284,16 @@ class WebOsGateway:
         old_host = self.validate_host(old_host)
         new_host = self.validate_host(new_host)
         if old_host == new_host:
+            return
+        if self.domain_store is not None:
+            client_key = self._load_key(node_id, old_host)
+            if not client_key:
+                raise PermissionError("No saved webOS pairing is available to migrate")
+            metadata = self._guardian_metadata(node_id) or {}
+            self._save_guardian_pairing(
+                node_id, new_host, client_key,
+                paired_at=str(metadata.get("paired_at") or utc_now_iso()),
+            )
             return
         path = self._state_path(node_id)
         if not path.exists():

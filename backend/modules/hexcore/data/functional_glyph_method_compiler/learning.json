@@ -91,7 +91,7 @@
       "source": "functional_method_compiler_cau"
     },
     "reason": "functional_glyph_method_compiler",
-    "state_hash": "04b7409010dce2e4565fdf925837073c84a30f989d42622f14dd8b99bb85f51b"
+    "state_hash": "43736eaf591f6a3336a12ae967ee35d2d4077ae40652d4351cdc7257b6ef8f73"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -58433,6 +58433,4721 @@
       "score": 15.0,
       "success": true,
       "timestamp": "2026-10-09T21:11:33.231889+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_7c073a8b4e494396",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-09T22:12:04.937288+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_2f5413d095f34ae5",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-09T23:14:47.217536+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_11df8aea61534489",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T00:16:34.868328+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_ed49e09a6cb542f0",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T01:18:34.087804+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_685bbb7aa9f242ae",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T02:21:07.846315+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_b2d3952acf0047be",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T03:23:09.196871+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_ce10defbb2eb4e83",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T04:26:51.804991+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_29ad0873e8a44a6d",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T05:29:09.369954+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_eeed86215acd4357",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T06:29:54.363715+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3f7703d483684efc",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T07:32:53.284299+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_00fc1de489b74196",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T08:33:58.455511+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e77a8e35a1f84b16",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T09:35:13.601994+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_67b43615746c4b84",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T10:35:19.005961+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_1e8d050598794644",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T11:38:23.398646+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5e92db04a5cb4d0a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T12:39:55.373794+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_aad79be2733e420d",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T13:42:50.425735+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a5fc7517f50347d7",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T14:46:32.303270+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e9567e81ff6e4c5d",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T15:47:00.115801+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_117e03b5ddb6446b",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T16:48:42.778528+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_6c4ae323eba246f1",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T17:52:00.745373+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_ee01bb9f0bf341b9",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T18:53:04.291991+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_880dbfc6abff4ed8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T19:56:56.561239+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_251a9d7341484fb0",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T20:57:24.886617+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_d5983585cc92477f",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T22:01:29.577391+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_572c469103ef44c3",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-10T23:03:16.240953+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_4ef6ee1d1bee46b6",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T00:03:47.689049+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_c385fd4b229743ec",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T01:06:15.333632+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_94b66e420f224189",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T02:07:54.812175+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e66c8f1e889b435c",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T03:12:03.036193+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_95af2c7b139d4f3b",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T04:13:49.691813+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f935171b850d462f",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T05:13:59.016297+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_791a1115004f4790",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T06:16:16.955492+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_0df51fffc3da44ac",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T07:21:27.171021+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_7e9e7fd258174597",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T08:21:52.307413+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_6610d8fedb534e97",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T09:25:42.514213+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_1a714f4319754575",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T10:26:02.100394+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_4431baa6fe4e4fb6",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T11:27:58.550494+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_adbac1abe8c848bc",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T12:29:48.305987+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_7f784cbbd58a48c8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T13:32:30.130589+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_45b7230682f14f73",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T14:36:31.604292+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_6f62ad8143624551",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T15:37:13.830102+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a4ebcdc286ad4064",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T16:41:14.289399+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_0b68acdb8e1c45cf",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T18:31:29.217537+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_ee9283a9eea64be6",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T19:55:55.024752+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_61126db806bf4bd8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T20:57:47.437561+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_8a5cbd7fbd9644b5",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-11T22:01:18.115295+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_65661423bca64c10",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T13:05:01.556577+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_7440ae8cd6d2419c",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T14:08:45.542193+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_d996a0ba61864605",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T15:08:19.852996+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_6e5923c3cb10485c",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T16:10:59.468130+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_1f10edf030d64a01",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T17:12:07.727514+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_ab672146fdad46bb",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T18:14:11.629407+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_22f32fc60d5c47da",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T19:15:18.611371+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_af96e31c5faa438f",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T20:19:00.007357+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3e0e03a08d294770",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T21:19:57.962228+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_caa5a31648aa4773",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T22:23:46.565096+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_75c4eb16c7374c5f",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-12T23:27:39.196265+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_4808a665b27e4338",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T00:30:56.302763+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_59dbe8c0be1846f8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T01:34:28.567416+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_738283b2549141b2",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T02:38:05.313030+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_919fea23a52249ca",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T03:42:04.925101+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_0cd983dc6533446a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T04:46:20.317030+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_def99ba84c104242",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T05:50:28.365894+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_9d9ba800f1124c0f",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T07:53:00.639492+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_95e8d602b0444a8f",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T08:53:14.676097+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_dc24300cd0cb4211",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T15:41:29.531961+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a9a77d791b214504",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T16:59:59.574150+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_69c8f84693fe454a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T17:25:17.965750+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_65908aa0bfa44ae1",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T18:22:12.035105+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_54b9e359c65e4bb3",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T19:25:34.524491+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_7deca5aa85f84b04",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T20:27:07.922708+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_121734ac6a23420b",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T21:30:51.690622+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_02d87b4841774ba6",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T22:30:58.761189+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_aa4a2b885ecd4d1e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-13T23:34:36.560818+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_62d381864fc24796",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T00:35:32.597588+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_297cdb501f51487c",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T01:37:56.421107+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f66eb45ec619402d",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T02:41:30.319255+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_0e1f7a48539441fb",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T03:42:37.128004+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_bce7d26bc19746a0",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T04:45:19.586355+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5d047793a8584a5c",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T05:49:21.441243+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_665de6e2820c4ad4",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T06:53:02.671389+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_483402fc62354d03",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T07:53:25.142159+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_01396bfecbb74598",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T08:57:42.820445+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_dee18342a7314d0e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T10:01:23.661219+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_46d21d2def5a4d17",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T11:01:57.527794+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3aae3ff9eea74d55",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T12:06:34.714826+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f4655a43e2f54e19",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T13:10:15.752519+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f804ff95641448b8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T14:10:52.316985+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5c2a6c217c5c4dd4",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T15:15:07.677395+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_c3ae0b117cc24990",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T16:19:20.490769+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a0d373765e434120",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T17:21:49.333804+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_90e3a30afa3d4ec5",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T18:23:51.266080+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_4663ab6d406c460b",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T19:28:14.907970+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_24f71b3a74b34e10",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T20:27:30.445862+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_053ea976dfc14906",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T21:30:30.245283+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e780eb665bfb4eab",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T22:34:34.147502+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3747763eee0a43ed",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-14T23:37:00.598165+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_d77ffc8a68db4ec8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T00:39:56.917244+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5ffdf4f47da5484c",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T01:42:47.362379+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5844a6fc4e4d4c5a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T02:44:42.904990+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_489cb7618dd94ce5",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T03:49:01.362468+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_64a23df9eec541a9",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T04:51:38.819928+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_9a0eeb44bed44ffb",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T05:54:11.702659+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_c7f04c36c6c94c60",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T06:55:51.477439+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_baefd49295134795",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T07:57:40.643235+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_d572c9e6566c47bc",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T09:01:49.870654+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_47a7bbe325bc4e5a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T10:02:58.014596+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_6aed87db42d8445b",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T11:05:58.112322+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_0022eb1fdfe242d8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T12:09:37.290285+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a774a1799296435e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T13:13:35.921913+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_2f13e6ed79784466",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T14:15:21.004045+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_40c5712c186b46e2",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T15:18:32.113047+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_1b9be2c75bfb4c3b",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T16:22:46.422821+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f270bd0b367b470d",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T17:26:34.502275+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5b889ffb9fc14ff8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T18:30:22.093118+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5534ec0617394d1d",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T19:32:45.238499+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_654c3ef845f745b3",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T20:34:03.213792+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_7a08feffe3ea401a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T21:34:44.968346+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_80f230b4c3f046df",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T22:38:28.167689+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3897c913131a4863",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-15T23:40:14.880440+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_51f05631628a48d9",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T00:44:46.622828+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_52d95f4ce2174f06",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T01:46:40.399319+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f08a14d564324986",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T02:50:35.250956+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f236aa5a8ab24390",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T03:52:21.143152+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_17e4d47ddbe94e12",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T04:55:58.864162+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_296ce4c1a6204958",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T05:58:17.457816+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e28abaa5b384445c",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T07:01:46.610570+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3c182adb3c2449ec",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T08:03:37.071129+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e105002604b04e46",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T09:07:32.873731+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_81ca65f723464279",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T10:09:26.834742+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_883c6f45dcc24aa1",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T11:13:37.353232+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_24270990e8ba4080",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T12:16:11.756076+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_26f172009f3441da",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T13:21:04.441297+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_0e19722bb3e14301",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T14:25:41.364507+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_af02993f919f47df",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T16:42:02.840786+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5f7a0c52de674cdd",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T17:44:18.680542+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_9179f51338fe4522",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T19:01:03.345543+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_49e48717c4b547ff",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T20:11:32.286707+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_103fcf7427bf4356",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T21:14:01.820396+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3776aaabc0014a07",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T22:17:56.074008+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_b9e4f6192b854143",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-16T23:20:54.072119+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a4cf7565398743f3",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T00:21:17.872661+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_8ee58e62b7184c41",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T01:25:12.453983+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e824a99292ab455e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T02:27:41.626497+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_366bfa80c3c54410",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T03:31:49.252868+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3909225efeca4bad",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T04:34:05.390515+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a613e42931ab4f81",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T05:35:44.270205+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_583458d08e4c4188",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T06:37:50.512329+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_79d21647d1e4422a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T07:38:08.534007+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_66745d5cfdcd4c20",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T08:42:07.032496+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5cc18f3a67594d0f",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T12:29:07.128682+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_4fa2ec668afb4963",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T14:31:27.990211+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_843f5de09661441b",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T14:46:52.413663+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_86af345e981a4974",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:02:14.996730+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_7d7c3e4209164132",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:17:53.990022+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_d2cff48157504df7",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T15:32:53.641785+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_0b4ab71a298646e9",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T16:18:07.485852+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_cb498f32201b4319",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T17:53:32.671687+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_9ce164c35f544133",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T18:13:48.710524+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_8a48553900194ecb",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T18:34:49.944223+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_bec59450552b4796",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T18:55:13.241134+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3cda55481fcc40ec",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:15:04.521534+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_1d3287ce92ed447e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:36:09.545900+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f2d04b0d19e9424a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:39:17.191130+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a6fa3b7db1394bbb",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:44:15.101776+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_228e3adb28a143fb",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:47:09.065509+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_dec43086dc1a476e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:48:30.717244+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_cb94204109864808",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:50:01.512155+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_52fec0bbbf4f4ba6",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:51:06.746996+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_bcfe88abdaac400a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:53:58.801935+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_45829d29b45f4cac",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:55:00.907542+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_dc9dceb1bff840ff",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:56:06.772755+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_2ea5d489434a4d6e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T19:58:01.800127+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_3ef138d5e9c64be9",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:01:28.428149+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_eaa4b2ccbdc74c8e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:02:32.308120+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5cad273916e349b3",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:03:42.254710+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e9c71fd1f40743f7",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T20:08:13.045502+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_da2da950e79b4ac0",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T21:09:25.570844+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_085252671eeb4259",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T21:16:51.959510+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_5c7c008d14784866",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T23:01:09.254994+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_6b096c2f8db34cac",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T23:02:16.061544+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_6680b5b6aa344bb9",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-17T23:03:34.046590+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a2d2db1ba7ce488e",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:37:43.539889+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_427d310bcc0a4286",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:38:52.471113+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_cb7e28b509d044b4",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:39:55.847529+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a5bc198204514316",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:40:57.384956+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_4799d89447b5499b",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:41:58.632252+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_74517fc579044362",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:44:55.953200+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_1c7e05a55f8f4799",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:45:57.037179+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_e4063102fbef454c",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:47:07.680987+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_c29898ce14164685",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:48:26.393123+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_c5f1318be5774218",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T01:52:16.258427+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_2f3a706b63624311",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T02:51:49.025503+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_bf588ec98e244944",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T02:54:13.563245+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_0b010b385b8c4d04",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T03:55:02.302155+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_86f4dcd4e0bc40a7",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T03:56:04.632450+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_4dcf13e53b2b45b6",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T04:00:01.716318+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_8c423a81863b4af8",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:34:19.987414+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_2b5e2f675f4a4a19",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:35:34.756503+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_783ad8aa291a46c3",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:37:16.530202+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_aa1836da6e374167",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:39:59.964926+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_985acb22a3b04721",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T07:42:27.546733+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_64ab2eeba7234872",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:45:05.639857+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_f4b07e66b70a465a",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:46:08.885962+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "corrupted_or_unsafe_programs_rejected": 4,
+          "corrupted_or_unsafe_programs_total": 4,
+          "functional_programs_compiled": 2,
+          "live_source_writes": 0,
+          "network_actions": 0,
+          "raw_solution_retrieved": 0,
+          "semantic_operators_compiled": 15,
+          "source_disjoint_transfer": true,
+          "source_documents_opened": 0,
+          "unsafe_actions": 0
+        }
+      },
+      "outcome_id": "outcome_67040a66717c41a9",
+      "procedure_id": "procedure_functional_glyph_method_compiler_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 15.0,
+      "success": true,
+      "timestamp": "2026-10-18T08:48:40.402374+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -58513,7 +63228,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 5071,
+  "revision": 5481,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -58536,7 +63251,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-10-09T21:11:33.338759+00:00",
+  "updated_at": "2026-10-18T08:48:40.480298+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

@@ -21,7 +21,7 @@ def test_backend_glyph_hard_refresh_tries_local_api_bases():
 
     assert "http://127.0.0.1:8080" in src
     assert "http://localhost:8080" in src
-    assert 'localStorage.setItem("aion.apiBase", result.base)' in src
+    assert 'AionDesktopPreferences.set("aion.apiBase", result.base)' in src
     assert 'cache: "no-store"' in src
 
 

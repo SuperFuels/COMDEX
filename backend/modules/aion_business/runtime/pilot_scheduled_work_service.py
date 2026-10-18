@@ -10,10 +10,13 @@ from uuid import uuid4
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_knowledge_service import BusinessKnowledgeService
+from backend.modules.aion_business.runtime.business_vault_runtime import configured_business_vault_runtime, guardian_mode_requested
+from backend.modules.aion_business.runtime.department_operational_store import DepartmentOperationalStore
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.sales_completion_service import SalesCompletionService
 from backend.modules.aion_business.runtime.sales_revenue_service import SalesRevenueService
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 
 
 _LOCK = RLock()
@@ -57,15 +60,34 @@ class PilotScheduledWorkService:
         completion: SalesCompletionService | None = None,
         knowledge: BusinessKnowledgeService | None = None,
         gmail_fetcher: Callable[[str, int], list[dict[str, Any]]] | None = None,
+        domain_store: VaultDomainStore | None = None,
+        operational_store: DepartmentOperationalStore | None = None,
     ) -> None:
+        self.domain_store = domain_store
+        object_store = None
+        if base_dir is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(runtime.guardian, actor_id="pilot-scheduled-work-runtime")
+            object_store = runtime.objects
         self.base_dir = Path(base_dir) if base_dir else AIONBusinessPaths.BUSINESS_CONTAINERS
         self.authority = authority or OrganizationAuthorityService()
-        self.revenue = revenue or SalesRevenueService()
-        self.completion = completion or SalesCompletionService()
-        self.knowledge = knowledge or BusinessKnowledgeService(self.base_dir)
+        self.revenue = revenue or SalesRevenueService(
+            domain_store=self.domain_store, object_store=object_store,
+        )
+        self.completion = completion or SalesCompletionService(domain_store=self.domain_store)
+        self.knowledge = knowledge or BusinessKnowledgeService(
+            self.base_dir if self.domain_store is None else None,
+            domain_store=self.domain_store,
+            object_store=object_store,
+        )
         self.gmail_fetcher = gmail_fetcher
+        self.operational_store = operational_store or DepartmentOperationalStore(
+            domain_store=self.domain_store,
+        )
 
     def _root(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_pilot_scheduled_work__") / workspace_id
         root = self.base_dir / workspace_id / "pilot" / "scheduled_work"
         (root / "runs").mkdir(parents=True, exist_ok=True)
         (root / "artifacts").mkdir(parents=True, exist_ok=True)
@@ -75,6 +97,20 @@ class PilotScheduledWorkService:
         return self._root(workspace_id) / "schedules.json"
 
     def _load(self, workspace_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="scheduled_work/schedules",
+            )
+            if record is None:
+                return {"schema_version": "aion.pilot.scheduled_work.v1", "workspace_id": workspace_id,
+                        "revision": 0, "schedules": [], "updated_at": None}
+            payload = record["payload"]
+            expected = payload.get("index_hash")
+            stable = dict(payload); stable.pop("index_hash", None)
+            if not expected or canonical_contract_hash(stable) != expected:
+                raise ValueError("pilot_schedule_index_hash_mismatch")
+            return payload
         path = self._index_path(workspace_id)
         if not path.exists():
             return {"schema_version": "aion.pilot.scheduled_work.v1", "workspace_id": workspace_id,
@@ -91,6 +127,18 @@ class PilotScheduledWorkService:
         payload["updated_at"] = _now()
         stable = dict(payload); stable.pop("index_hash", None)
         payload["index_hash"] = canonical_contract_hash(stable)
+        if self.domain_store is not None:
+            current = self.domain_store.get_optional(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="scheduled_work/schedules",
+            )
+            self.domain_store.put(
+                "train_agent.automations", workspace_id=workspace_id,
+                entity_id="scheduled_work/schedules", payload=payload,
+                expected_version=int(current["version"]) if current else None,
+                actor_id="pilot-scheduled-work-runtime",
+            )
+            return payload
         path = self._index_path(workspace_id)
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -111,6 +159,38 @@ class PilotScheduledWorkService:
                 "enabled": sum(item.get("enabled") is True for item in schedules),
                 "awaiting_approval": sum(int(item.get("awaiting_approval_count") or 0) for item in schedules)}}
 
+    def list_runs(self, workspace_id: str, schedule_id: str) -> dict[str, Any]:
+        schedules = self._load(workspace_id).get("schedules") or []
+        if not any(item.get("schedule_id") == schedule_id for item in schedules):
+            raise FileNotFoundError(schedule_id)
+        if self.domain_store is not None:
+            rows = self.domain_store.list("train_agent.runs_and_audit", workspace_id=workspace_id)
+            runs = [
+                dict(row["payload"])
+                for row in rows
+                if str(row.get("entity_id") or "").startswith("scheduled_work/runs/")
+                and str((row.get("payload") or {}).get("schedule_id") or "") == schedule_id
+            ]
+        else:
+            runs = []
+            for path in (self._root(workspace_id) / "runs").glob("*.json"):
+                record = json.loads(path.read_text(encoding="utf-8"))
+                if str(record.get("schedule_id") or "") == schedule_id:
+                    runs.append(record)
+        runs.sort(key=lambda item: (str(item.get("started_at") or ""), str(item.get("run_id") or "")))
+        return {
+            "schema_version": "aion.pilot.scheduled_run_history.v1",
+            "workspace_id": workspace_id,
+            "schedule_id": schedule_id,
+            "runs": runs,
+            "summary": {
+                "total": len(runs),
+                "completed": sum(item.get("status") == "completed" for item in runs),
+                "failed": sum(item.get("status") == "failed" for item in runs),
+                "retries": sum(bool(item.get("retry_of_run_id")) for item in runs),
+            },
+        }
+
     def create(
         self,
         workspace_id: str,
@@ -124,6 +204,7 @@ class PilotScheduledWorkService:
         max_results: int = 10,
         enabled: bool = False,
         action_policy: str = "approval_required",
+        department_id: str = "business_operations",
     ) -> dict[str, Any]:
         authority = self._require_manage(workspace_id, created_by_person_id)
         job_type = str(job_type or "").strip()
@@ -135,6 +216,9 @@ class PilotScheduledWorkService:
         if cadence < 5 or cadence > 43_200:
             raise ValueError("pilot_schedule_cadence_must_be_between_5_minutes_and_30_days")
         created = _now_dt()
+        department_id = _safe(department_id)
+        if not department_id:
+            raise ValueError("pilot_schedule_department_id_required")
         schedule = {
             "schema_version": "aion.pilot.schedule.v1",
             "schedule_id": f"pilot_schedule_{uuid4().hex[:16]}",
@@ -147,6 +231,7 @@ class PilotScheduledWorkService:
             "cadence_minutes": cadence,
             "enabled": bool(enabled),
             "action_policy": action_policy,
+            "department_id": department_id,
             "next_run_at": (created + timedelta(minutes=cadence)).isoformat() if enabled else None,
             "last_run_at": None,
             "last_run_id": None,
@@ -163,6 +248,12 @@ class PilotScheduledWorkService:
             payload = self._load(workspace_id)
             payload["schedules"].append(schedule)
             self._save(workspace_id, payload)
+        self._append_operational_audit(
+            workspace_id, schedule,
+            event_type="automation_schedule_created",
+            event_id=f"created-{schedule['schedule_id']}",
+            details={"schedule_hash": schedule["schedule_hash"]},
+        )
         return schedule
 
     def set_enabled(self, workspace_id: str, schedule_id: str, *, enabled: bool,
@@ -188,7 +279,10 @@ class PilotScheduledWorkService:
                    if item.get("enabled") and _parse_time(item.get("next_run_at")) <= instant]
         return [self.run(workspace_id, schedule_id, due_at=instant) for schedule_id in due_ids]
 
-    def run(self, workspace_id: str, schedule_id: str, *, due_at: datetime | None = None) -> dict[str, Any]:
+    def run(
+        self, workspace_id: str, schedule_id: str, *, due_at: datetime | None = None,
+        retry_of_run_id: str | None = None, requested_by_person_id: str | None = None,
+    ) -> dict[str, Any]:
         with _LOCK:
             payload = self._load(workspace_id)
             schedule = next((item for item in payload["schedules"] if item.get("schedule_id") == schedule_id), None)
@@ -198,7 +292,11 @@ class PilotScheduledWorkService:
         started = (due_at or _now_dt()).astimezone(UTC)
         run = {"schema_version": "aion.pilot.scheduled_run.v1", "run_id": f"pilot_run_{uuid4().hex[:16]}",
                "workspace_id": workspace_id, "schedule_id": schedule_id, "job_type": schedule["job_type"],
+               "department_id": str(schedule.get("department_id") or "business_operations"),
                "started_at": started.isoformat(), "status": "running", "external_side_effects": []}
+        if retry_of_run_id:
+            run.update({"retry_of_run_id": retry_of_run_id, "trigger": "manual_retry",
+                        "requested_by_person_id": requested_by_person_id})
         try:
             if schedule["job_type"] == "sales_inbox_monitor":
                 result = self._run_sales_inbox(workspace_id, schedule_snapshot, run["run_id"])
@@ -211,8 +309,15 @@ class PilotScheduledWorkService:
             run.update({"status": "failed", "error": f"{type(exc).__name__}:{exc}", "result": {}})
         run["completed_at"] = _now()
         run["run_hash"] = canonical_contract_hash(run)
-        (self._root(workspace_id) / "runs" / f"{_safe(run['run_id'])}.json").write_text(
-            json.dumps(run, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        if self.domain_store is not None:
+            self.domain_store.put(
+                "train_agent.runs_and_audit", workspace_id=workspace_id,
+                entity_id=f"scheduled_work/runs/{_safe(run['run_id'])}", payload=run,
+                expected_version=None, actor_id="pilot-scheduled-work-runtime",
+            )
+        else:
+            (self._root(workspace_id) / "runs" / f"{_safe(run['run_id'])}.json").write_text(
+                json.dumps(run, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         with _LOCK:
             payload = self._load(workspace_id)
             current = next(item for item in payload["schedules"] if item.get("schedule_id") == schedule_id)
@@ -224,7 +329,65 @@ class PilotScheduledWorkService:
             current["next_run_at"] = (started + timedelta(minutes=int(current["cadence_minutes"]))).isoformat() if current.get("enabled") else None
             current.pop("schedule_hash", None); current["schedule_hash"] = canonical_contract_hash(current)
             self._save(workspace_id, payload)
+        self._append_operational_audit(
+            workspace_id, schedule_snapshot,
+            event_type="automation_run_completed" if run["status"] == "completed" else "automation_run_failed",
+            event_id=f"run-{run['run_id']}",
+            details={"run_id": run["run_id"], "run_hash": run["run_hash"],
+                     "status": run["status"], "retry_of_run_id": retry_of_run_id},
+        )
         return run
+
+    def _load_run(self, workspace_id: str, run_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "train_agent.runs_and_audit", workspace_id=workspace_id,
+                entity_id=f"scheduled_work/runs/{_safe(run_id)}",
+            )
+            if record is None:
+                raise FileNotFoundError(run_id)
+            return dict(record["payload"])
+        path = self._root(workspace_id) / "runs" / f"{_safe(run_id)}.json"
+        if not path.exists():
+            raise FileNotFoundError(run_id)
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def retry(
+        self, workspace_id: str, schedule_id: str, run_id: str, *,
+        requested_by_person_id: str,
+    ) -> dict[str, Any]:
+        self._require_manage(workspace_id, requested_by_person_id)
+        original = self._load_run(workspace_id, run_id)
+        if str(original.get("schedule_id") or "") != schedule_id:
+            raise ValueError("pilot_schedule_retry_run_mismatch")
+        if str(original.get("status") or "") not in {"completed", "failed"}:
+            raise ValueError("pilot_schedule_retry_requires_terminal_run")
+        return self.run(
+            workspace_id, schedule_id, retry_of_run_id=run_id,
+            requested_by_person_id=requested_by_person_id,
+        )
+
+    def _append_operational_audit(
+        self, workspace_id: str, schedule: dict[str, Any], *, event_type: str,
+        event_id: str, details: dict[str, Any],
+    ) -> None:
+        if self.operational_store.domain_store is None:
+            return
+        payload = {
+            "schema_version": "aion.train_agent.department_audit.v1",
+            "workspace_id": workspace_id,
+            "department_id": str(schedule.get("department_id") or "business_operations"),
+            "schedule_id": str(schedule.get("schedule_id") or ""),
+            "event_type": event_type,
+            "at": _now(),
+            **{key: value for key, value in details.items() if value is not None},
+        }
+        payload["event_hash"] = canonical_contract_hash(payload)
+        self.operational_store.append_audit(
+            workspace_id=workspace_id, department_id=payload["department_id"],
+            feature_id="train_agent_automations", event_id=event_id,
+            payload=payload, actor_id="pilot-scheduled-work-runtime",
+        )
 
     def _fetch_gmail(self, query: str, max_results: int) -> list[dict[str, Any]]:
         if self.gmail_fetcher:
@@ -283,6 +446,16 @@ class PilotScheduledWorkService:
                    "draft_message_id": message.get("message_id"), "draft_payload_hash": message.get("payload_hash"),
                    "status": "human_review_required", "created_at": _now()}
         payload["artifact_hash"] = canonical_contract_hash(payload)
-        path = self._root(workspace_id) / "artifacts" / f"{_safe(payload['opportunity_id'])}-{_safe(run_id)}.json"
-        path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        return {"local_path": str(path), "artifact_hash": payload["artifact_hash"], "status": payload["status"]}
+        entity_id = f"scheduled_work/artifacts/{_safe(payload['opportunity_id'])}-{_safe(run_id)}"
+        if self.domain_store is not None:
+            self.domain_store.put(
+                "train_agent.runs_and_audit", workspace_id=workspace_id,
+                entity_id=entity_id, payload=payload, expected_version=None,
+                actor_id="pilot-scheduled-work-runtime",
+            )
+            target = {"vault_domain_id": "train_agent.runs_and_audit", "vault_entity_id": entity_id}
+        else:
+            path = self._root(workspace_id) / "artifacts" / f"{_safe(payload['opportunity_id'])}-{_safe(run_id)}.json"
+            path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            target = {"local_path": str(path)}
+        return {**target, "artifact_hash": payload["artifact_hash"], "status": payload["status"]}

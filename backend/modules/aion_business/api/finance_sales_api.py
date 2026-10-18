@@ -53,6 +53,15 @@ class InvoicePostRequest(BaseModel):
     posted_by_person_id: str
 
 
+class VerifiedPaymentRequest(BaseModel):
+    provider: str
+    provider_event_id: str
+    provider_payment_reference: str
+    amount: float = Field(gt=0)
+    currency: str
+    occurred_at: str
+
+
 class ReminderPrepareRequest(BaseModel):
     tone: str = "friendly"
     prepared_by_person_id: str
@@ -137,6 +146,16 @@ def post_invoice(workspace_id: str, invoice_id: str,
     record = _call(sales.post_internal, _workspace(workspace_id), invoice_id,
                    **request.model_dump())
     return {"ok": True, "invoice": record, "external_write_performed": False}
+
+
+@router.post("/{workspace_id}/invoices/{invoice_id}/verified-payments")
+def record_verified_payment(workspace_id: str, invoice_id: str,
+                            request: VerifiedPaymentRequest) -> dict[str, Any]:
+    result = _call(
+        sales.record_verified_payment, _workspace(workspace_id), invoice_id,
+        **request.model_dump(),
+    )
+    return {"ok": True, **result, "external_write_performed": False}
 
 
 @router.post("/{workspace_id}/invoices/{invoice_id}/reminders/prepare")

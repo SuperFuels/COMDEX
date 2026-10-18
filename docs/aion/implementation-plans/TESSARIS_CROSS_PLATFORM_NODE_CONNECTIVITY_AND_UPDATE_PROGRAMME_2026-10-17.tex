@@ -1,0 +1,870 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.82in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{microtype}
+\usepackage{pifont}
+
+\definecolor{TessarisBlue}{HTML}{2F66E9}
+\definecolor{TessarisNavy}{HTML}{111827}
+\definecolor{TessarisGreen}{HTML}{14804A}
+\definecolor{TessarisRed}{HTML}{B42318}
+\definecolor{TessarisGrey}{HTML}{64748B}
+\definecolor{TessarisPale}{HTML}{EEF4FF}
+\definecolor{TessarisGreenPale}{HTML}{ECFDF3}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=TessarisBlue,
+  urlcolor=TessarisBlue,
+  pdftitle={Tessaris Cross-Platform Node, Connectivity and Update Programme},
+  pdfauthor={Tessaris AI Limited}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{TessarisBlue}{TESSARIS}}
+\rhead{Cross-Platform Node Programme}
+\cfoot{\thepage}
+\setlength{\headheight}{14pt}
+
+\titleformat{\section}{\Large\bfseries\color{TessarisNavy}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{TessarisNavy}}{\thesubsection}{0.65em}{}
+\setlist[itemize]{leftmargin=1.45em,itemsep=3pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=1.55em,itemsep=3pt,topsep=4pt}
+\renewcommand{\arraystretch}{1.22}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\yes}{\textcolor{TessarisGreen}{\ding{51}}}
+\newcommand{\no}{\textcolor{TessarisRed}{\ding{55}}}
+
+\begin{document}
+
+\begin{center}
+  {\small\bfseries\color{TessarisBlue} TESSARIS PRODUCT AND RELEASE ARCHITECTURE}\par
+  \vspace{8pt}
+  {\LARGE\bfseries Cross-Platform Node, Secure Connectivity and Update Programme}\par
+  \vspace{7pt}
+  {\large One sovereign business operating system across customer-owned machines, private cloud and dedicated hardware}\par
+  \vspace{12pt}
+  {\color{TessarisGrey}Decision baseline \textbullet{} 17 October 2026 \textbullet{} Version 1.0}
+\end{center}
+
+\vspace{8pt}
+\noindent\colorbox{TessarisPale}{\parbox{0.96\linewidth}{
+\textbf{Programme decision.} Tessaris will ship one common Node architecture across macOS, Windows, Linux, Mac mini/Tessaris Hub, customer racks and private cloud. Each Node owns its local Business Vault and initiates narrow outbound connections for signed updates, device coordination, content-free health, signed entitlements and Photon receipts. Tessaris will not install a permanent remote-control back door. Support access is off by default, founder-approved, time-limited, scoped and audited. Application updates remain physically and permission-separated from customer business data.
+}}
+
+\tableofcontents
+\newpage
+
+\section{Purpose and scope}
+
+This document defines the complete work required to make Tessaris downloadable, installable, continuously updateable and securely reachable across the deployment environments customers may choose:
+
+\begin{itemize}
+  \item ordinary MacBooks, iMacs and Mac minis;
+  \item Windows laptops, desktops and workstations;
+  \item Linux desktops and always-on Linux servers;
+  \item a dedicated Tessaris Hub or other small office computer;
+  \item a customer-owned private cloud virtual machine;
+  \item a Tessaris-managed isolated private Node; and
+  \item a customer rack or compute cluster attached to an authoritative Node.
+\end{itemize}
+
+It joins four previously separate concerns into one release programme:
+
+\begin{enumerate}
+  \item cross-platform packaging and qualification;
+  \item signed, staged and reversible software updates;
+  \item encrypted remote application access and narrowly governed support access;
+  \item commercial communication for Photon entitlements and content-free usage evidence without centralising business content.
+\end{enumerate}
+
+The Business Vault and Safe Update specification remains the data-protection authority. This programme must implement, not weaken, its updater/vault separation, Vault Guardian boundary, discovery manifest, backup and restore gates.
+
+\section{Confirmed current position}
+
+The supplied assessment was checked against the current COMDEX/Tessaris source. The honest baseline is:
+
+\begin{longtable}{>{\raggedright\arraybackslash\bfseries}p{0.23\linewidth} p{0.29\linewidth} p{0.38\linewidth}}
+\toprule
+Area & Evidence now present & Production gap \\
+\midrule
+\endhead
+macOS desktop & Electron desktop package exists and its build commands target macOS; it includes a native macOS Unity application & Developer ID signing, hardened runtime, notarisation/stapling, Intel/Apple Silicon qualification, production updater and clean-machine evidence \\
+Windows & An unsigned x64 developer archive and Windows Service bootstrap exist & Native production installer, trusted publisher signing, complete path/service adapters, update/rollback and clean-machine qualification \\
+Linux & An unsigned x64 systemd developer archive exists & Signed repositories/packages or signed OCI distribution, declared supported distributions, desktop packaging where offered and clean-machine qualification \\
+Mac mini / Hub & Present Mac build can be a development base & Always-on Node service, unattended recovery, headless management, power-loss testing, thermal/storage profile and hardware recovery image \\
+Private cloud / rack & Backend/container foundations and systemd preview exist & Production headless Node package, signed images, orchestration, backup volumes, health, customer ownership and operational runbooks \\
+Update engine & A signed package format, hash verification, staging, atomic pointer and health-based rollback are implemented in \code{SovereignUpdateService} & Production trust-root/key operations, platform installer integration, vault preflight, migration rehearsal, staged fleet rollout and qualification \\
+Secure reachability & Device pairing, signed authority, local TLS service, direct route concepts and opaque encrypted relay foundations exist & Hosted coordination/relay operations, native clients, network roaming, revocation, rate/abuse controls, availability and independent review \\
+Commercial controls & Signed entitlements, ownership invariants and content-rejecting usage records exist & Photon control plane, Revolut payment lifecycle, offline leases, reconciliation, customer UI and production operations \\
+Business data protection & Architecture requires an encrypted customer-owned vault and backup & Whole-product data discovery, Vault Guardian, storage migration, updater permissions, restore qualification and portable export \\
+\bottomrule
+\end{longtable}
+
+This is a strong architectural foundation, not yet evidence of public cross-platform readiness. Preview archives and passing unit tests must not be marketed as qualified installers.
+
+\section{Product topology}
+
+\subsection{Common architecture}
+
+Every deployment uses the same logical components:
+
+\begin{verbatim}
+Founder and authorised devices
+        |
+        | Tessaris Secure Link (direct encrypted path or opaque relay)
+        v
+Customer Tessaris Node
+  - AION and Pilots
+  - workflow/approval queues
+  - integration adapters
+  - local or customer-approved model routes
+  - Vault Guardian --> customer-owned Business Vault
+  - content-free health/update/entitlement agents
+        |
+        | outbound, mutually authenticated, minimum metadata
+        v
+Tessaris Control Plane
+  - release metadata and signed artifacts
+  - organisation/device public identity and revocation
+  - connection coordination and opaque relay
+  - generic notification broker
+  - entitlement and Photon ledger
+  - Revolut billing integration
+  - content-free fleet health and support-request broker
+\end{verbatim}
+
+The Node is the only routine writable authority for its business. Desktop and mobile clients are scoped views and command surfaces, not independent copies of the entire business database.
+
+\subsection{One Node contract, multiple hosts}
+
+The product must not fork into unrelated Mac, Windows and cloud implementations. The common core publishes stable contracts for:
+
+\begin{itemize}
+  \item Node health and lifecycle;
+  \item Vault Guardian read/write operations;
+  \item identity, membership, pairing and revocation;
+  \item AION/Pilot work, approvals and receipts;
+  \item capability/connector discovery;
+  \item signed update compatibility;
+  \item backup, export and recovery;
+  \item Photon reservation/capture/release and signed entitlement verification; and
+  \item Secure Link session establishment and route status.
+\end{itemize}
+
+Platform adapters handle service management, paths, key stores, notifications, permissions and installers. Business logic and data schemas remain common.
+
+\section{Deployment profiles}
+
+\begin{longtable}{>{\raggedright\arraybackslash\bfseries}p{0.18\linewidth} p{0.25\linewidth} p{0.25\linewidth} p{0.22\linewidth}}
+\toprule
+Profile & Runtime placement & Customer experience & Release method \\
+\midrule
+\endhead
+Use My Mac & Desktop client plus background Node on one Mac & Install Tessaris, create vault, leave device powered for continuous automation & Signed/notarised macOS application plus signed background service and managed update \\
+Use My Windows PC & Desktop client plus Windows service & Same product journey and interfaces as Mac & Trusted signed installer; Windows service; signed staged update \\
+Linux desktop & Desktop client plus systemd user/system service & For Linux-led businesses; parity where explicitly supported & Signed AppImage/desktop artifact plus signed DEB/RPM or declared package route \\
+Mac mini / Tessaris Hub & Always-on Node with optional local desktop display & Appliance-style setup, phone/desktop pairing, automatic restart and recovery & Signed macOS/Hub image; stable/LTS channel; hardware recovery media \\
+Customer-owned private cloud & Headless Node in customer's provider account & Region/provider selected in advanced setup; clients connect through Secure Link & Signed OCI images or system packages; immutable volume separation; orchestrated rollback \\
+Tessaris-managed private Node & One logically isolated Node per customer & Non-technical managed offering with customer export and approved support workflow & Controlled signed image rollout with canary, backup and audited operations \\
+Customer rack & One authoritative Node plus governed compute workers & Local models/accelerators join without becoming separate business databases & Signed Node package and signed worker/capability images; explicit compatibility matrix \\
+Sovereign offline & Headless or desktop Node without routine Tessaris connection & Core use, data, export and backup remain available; updates imported manually & Offline signed release bundle and signed prepaid/annual entitlement file \\
+\bottomrule
+\end{longtable}
+
+\subsection{Authority in multi-machine deployments}
+
+A rack may contain many GPUs or model servers, but only one promoted Node is writable authority for the Business Vault. Compute workers receive bounded tasks and minimum context, return results and hold no durable independent customer brain. High availability uses an explicit primary/standby promotion protocol with fencing; it must never allow two Nodes to accept conflicting writes.
+
+\section{Platform distribution matrix}
+
+\subsection{macOS}
+
+Initial production targets:
+
+\begin{itemize}
+  \item Apple Silicon arm64 and Intel x64, either as separate artifacts or a qualified universal build;
+  \item signed and notarised application, DMG/ZIP distribution, hardened runtime and stapled notarisation ticket;
+  \item signed launch daemon/agent for the Node and Vault Guardian using platform-appropriate least privilege;
+  \item Keychain-held device and wrapping keys;
+  \item explicit permissions for files, camera, microphone and notifications only when used; and
+  \item clean installation, upgrade, rollback, removal and recovery tests on supported macOS versions.
+\end{itemize}
+
+Apple states that directly distributed software should use Developer ID signing and notarisation, and that executables require valid signatures, hardened runtime and secure timestamps. The release pipeline must use current \code{notarytool}/Notary API workflows and examine the notary log, not merely receive a success status.
+
+\subsection{Windows}
+
+Initial production target is Windows 11 x64, followed by ARM64 after the shared runtime and native dependencies qualify. The package requires:
+
+\begin{itemize}
+  \item a signed installer and signed binaries, DLLs, scripts and uninstaller;
+  \item a Windows service for the Node/Guardian with a dedicated least-privilege service identity;
+  \item Windows Credential Manager, DPAPI or TPM-backed key protection as appropriate;
+  \item correct firewall rules with no public inbound application port;
+  \item install/repair/upgrade/rollback/uninstall behaviour that preserves the external vault; and
+  \item Smart App Control and enterprise App Control testing across all executable code paths.
+\end{itemize}
+
+Microsoft recommends trusted signing for public distribution and explains that unsigned/self-signed public packages may be blocked. Tessaris AI Limited requires a stable verified publisher identity before public Windows release.
+
+\subsection{Linux desktop}
+
+Linux support must declare distributions and versions rather than claiming all Linux systems. Recommended first targets are current Ubuntu LTS and Debian stable x64, followed by a selected RPM-based distribution and arm64 where dependencies pass.
+
+Use signed DEB/RPM repositories for managed production updates. An AppImage may be offered for portable desktop evaluation, but it must still verify Tessaris release metadata and may not silently install unverified packages. Electron's built-in updater does not provide Linux support; Linux package-manager behaviour and any \code{electron-updater} route require separate security qualification.
+
+\subsection{Headless Linux, private cloud and rack}
+
+Provide two supported routes:
+
+\begin{enumerate}
+  \item signed system packages managed by systemd for customer-owned single Nodes; and
+  \item signed OCI images for managed/private cloud and advanced rack deployments.
+\end{enumerate}
+
+Images are pinned by digest, signed and verified before start. Data volumes, Business Vault and backups are mounted separately and are never built into an image. Container signatures and attestations may use Cosign/Sigstore or an equivalent independently reviewed scheme; verification must check the expected Tessaris identity and artifact digest.
+
+\subsection{Hardware support classes}
+
+Each release publishes a hardware/architecture matrix:
+
+\begin{itemize}
+  \item CPU architecture and minimum instruction set;
+  \item RAM and free storage;
+  \item supported acceleration backend and driver range;
+  \item local model compatibility and measured capacity;
+  \item expected always-on suitability; and
+  \item whether the machine is qualified as desktop-only, Node-capable or compute-worker-capable.
+\end{itemize}
+
+The installer runs a non-destructive preflight and does not promise a model or continuous automation that the hardware cannot support.
+
+\section{Release artifact model}
+
+\subsection{Separately versioned components}
+
+Do not force every change into one monolithic installer. Publish compatibility-bound artifacts for:
+
+\begin{itemize}
+  \item desktop shell;
+  \item core Node runtime;
+  \item Vault Guardian;
+  \item AION capability packs;
+  \item integration/connector adapters;
+  \item mobile applications;
+  \item model catalogue metadata; and
+  \item optional local model packages.
+\end{itemize}
+
+Vault Guardian changes follow a slower, higher-assurance channel. Model weights are never silently downloaded or replaced: size, licence, hardware fit and behaviour changes require visible consent.
+
+\subsection{Canonical release manifest}
+
+Every release target has signed metadata containing at least:
+
+\begin{itemize}
+  \item product, component, semantic version and build identifier;
+  \item platform, distribution, CPU architecture and minimum OS;
+  \item artifact size, SHA-256 digest and signature identity;
+  \item source revision, dependency lock digest, SBOM and build provenance reference;
+  \item minimum/maximum Node, Guardian, vault format and API compatibility;
+  \item required data migration and rollback compatibility;
+  \item security severity and minimum permitted version;
+  \item channel, rollout cohort/percentage and expiry;
+  \item release notes, known limitations and support status;
+  \item health gates, observation window and rollback target; and
+  \item a digest-bound build change inventory whose feature and department sets exactly match the Vault data-classification declarations, so a new data-bearing surface cannot be omitted from release review; and
+  \item explicit statements that customer data and credentials are absent.
+\end{itemize}
+
+\subsection{Repository security}
+
+HTTPS is necessary but insufficient. Release metadata must resist arbitrary-package, rollback, fast-forward, freeze, mix-and-match and signing-key compromise attacks. Adopt TUF-style threshold/offline-root and expiring target/snapshot/timestamp roles, or a reviewed equivalent, around platform-native signatures. A device remembers the highest trusted version/metadata state and reports stale/frozen update views.
+
+\section{Build and software-supply-chain system}
+
+\subsection{Hermetic release pipeline}
+
+The release pipeline must build from a tagged, reviewed commit using pinned dependencies and controlled builders. It produces all platform artifacts, tests them, generates an SBOM and provenance, scans dependencies/artifacts, signs only passing outputs, publishes immutable artifacts and promotes metadata through channels.
+
+No developer laptop should hold the only production signing authority or manually alter a production package after signing.
+
+\subsection{Key hierarchy}
+
+Use separate authority for:
+
+\begin{itemize}
+  \item offline root/trust recovery;
+  \item macOS Developer ID/notarisation;
+  \item Windows trusted publisher signing;
+  \item Linux repository metadata;
+  \item OCI image signing/attestation;
+  \item online release targets and timestamps; and
+  \item entitlement/Photon signatures.
+\end{itemize}
+
+Keys live in managed hardware-backed/KMS facilities where practical, require least-privilege CI identity, rotate under written procedures and support emergency revocation. Compromise of a connector-pack signing key must not grant authority to sign Vault Guardian or desktop releases.
+
+\subsection{CI matrix}
+
+Every candidate runs at least:
+
+\begin{itemize}
+  \item unit, contract and integration tests on all architectures;
+  \item clean VM install and first-run onboarding;
+  \item upgrade from every supported previous version and current LTS;
+  \item failed download, signature, disk-full, power-loss, process-kill and rollback scenarios;
+  \item vault separation, backup and clean-machine restore gates;
+  \item provider adapters against authorised sandboxes;
+  \item Smart App Control/Gatekeeper/package signature checks; and
+  \item content-free telemetry and entitlement privacy tests.
+\end{itemize}
+
+\section{Safe update lifecycle}
+
+\subsection{Channels and rollout}
+
+Support Preview, Stable and LTS channels. Production promotion proceeds through internal Nodes, test businesses, a small opt-in canary, staged cohorts and then general availability. The release service can pause further rollout, but cannot issue arbitrary commands to customer Nodes.
+
+Security fixes may define a minimum safe version and deadline. Even then, the response is to pause vulnerable paid network capabilities or require an update where justified; it must never lock the founder out of the Business Vault, backup or export.
+
+\subsection{Node-side update state machine}
+
+\begin{enumerate}
+  \item Node initiates an update check over mutually authenticated transport.
+  \item It verifies fresh signed repository metadata and its assigned channel/cohort.
+  \item It downloads to a staging area outside both application and vault roots.
+  \item It verifies platform signature, Tessaris manifest signature, digest, size, compatibility and available space.
+  \item It creates and verifies the required Business Vault recovery point.
+  \item It rehearses schema changes against a clone and runs declared invariants.
+  \item It drains work to a safe boundary and activates the inactive application slot.
+  \item It observes health, Guardian errors and critical business invariants.
+  \item It commits the release only after the observation gate; otherwise it atomically returns to the known-good application.
+  \item It records a local signed update receipt and transmits only content-free status if the customer permits operations telemetry.
+\end{enumerate}
+
+The update agent must run with permission to replace application artifacts but without permission to open the Business Vault. Vault-format work is requested through Guardian's controlled migration interface after snapshot and clone rehearsal.
+
+\subsection{Partial and component updates}
+
+A connector/capability update cannot replace the Node or Guardian. Every component declares permissions, API range, data access, provider domains and reversible installation. Capability packs execute in a bounded sandbox and cannot introduce raw vault filesystem access.
+
+\subsection{Offline update}
+
+Sovereign offline customers receive a signed bundle plus offline verifier. The import UI shows publisher, version, digest, permissions, compatibility, migration requirement and recovery point before activation. Offline customers cannot receive immediate remote fixes; contracts and risk statements must make that explicit.
+
+\section{Secure reachability without a back door}
+
+\subsection{Four narrow channels}
+
+\begin{longtable}{>{\raggedright\arraybackslash\bfseries}p{0.20\linewidth} p{0.31\linewidth} p{0.39\linewidth}}
+\toprule
+Channel & Purpose & Boundary \\
+\midrule
+\endhead
+Update & Fetch signed release metadata and artifacts; return content-free install health & Node pulls; service cannot browse the machine or vault \\
+Control/entitlement & Device registration, revocation, plan, signed Photon balance/leases and policy metadata & Public identifiers and content-free commercial receipts only \\
+Secure Link & Founder/employee desktop and mobile access to authorised Node APIs & End-to-end device-bound session; direct path preferred, opaque relay fallback \\
+Support request & Customer asks Tessaris to diagnose or assist & Off by default; exact scope, time, operator, actions and evidence are founder-approved and audited \\
+\bottomrule
+\end{longtable}
+
+\subsection{Outbound-first networking}
+
+The Node opens outbound connections so customers do not expose router ports or public administration interfaces. Secure Link attempts a direct encrypted device-to-Node route; when network conditions prevent it, an operator-unreadable relay forwards end-to-end encrypted envelopes. Relay infrastructure stores bounded opaque packets and routing identifiers, not plaintext business content.
+
+A WireGuard-style or vetted mesh foundation is appropriate for an early implementation. Tailscale documents the relevant direct/relayed pattern: direct paths are preferred and relays forward end-to-end encrypted WireGuard traffic without decrypting it. Tessaris may use a managed dependency initially, but the customer experience, identity, policy and data boundary remain Tessaris product responsibilities.
+
+\subsection{Device and member trust}
+
+Each device generates its own non-exportable or platform-protected private key. Pairing requires a short-lived invitation, verification of Node identity/trust words, confirmation on an already trusted surface, named device, member role, scopes and expiry. The Node verifies device certificate, membership, request signature, nonce, expiry and least-privilege scope on every sensitive operation.
+
+Revocation takes effect without changing every other device key. Lost-device recovery and founder recovery are distinct from commercial login.
+
+\subsection{Support access workflow}
+
+Tessaris must be reachable when the customer requests help, but there is no standing Tessaris administrator session on customer laptops or Nodes.
+
+A support session requires:
+
+\begin{enumerate}
+  \item customer opens a support request and sees the requested diagnostics/action scope;
+  \item local redacted diagnostic preview before anything leaves the Node;
+  \item founder or authorised administrator re-authenticates and approves an exact duration;
+  \item named Tessaris operator uses a compliant managed device and strong authentication;
+  \item broker grants only the requested application capability, not unrestricted filesystem/root access;
+  \item actions and viewed resource classes are recorded locally and in a content-free support ledger;
+  \item customer can watch, pause or revoke the session immediately; and
+  \item lease expires automatically and cannot be silently renewed.
+\end{enumerate}
+
+Shell/root access is exceptional. On customer-owned devices it requires a separate explicit warning and should normally be replaced by purpose-built repair operations. Managed private Nodes may support audited break-glass access with two-person approval, customer notification, short expiry and incident review.
+
+\subsection{No impossible promise}
+
+If a Node is powered off, disconnected or deliberately isolated, Tessaris cannot reach it. The product must say ``last seen'' and provide offline recovery instructions rather than imply continuous control. Truly offline Nodes use manual signed updates and prepaid/contracted entitlement, not real-time support or metering.
+
+\section{Tessaris control plane}
+
+\subsection{Required services}
+
+\begin{itemize}
+  \item organisation and installation registry containing stable opaque IDs and public keys;
+  \item device/member public identity, invitation, revocation and key-rotation service;
+  \item signed release repository and staged rollout service;
+  \item Secure Link coordination plus bounded opaque relay;
+  \item generic notification broker;
+  \item content-free health/version registry and support-request broker;
+  \item authoritative Photon service ledger and signed entitlement/lease issuer;
+  \item Revolut Merchant payment, webhook and reconciliation service; and
+  \item security incident, key revocation and minimum-safe-version control.
+\end{itemize}
+
+Services should be independently deployable and least-privileged. Compromise of billing must not grant release signing, relay decryption or vault access.
+
+\subsection{Control-plane data allowlist}
+
+Allowed by default:
+
+\begin{itemize}
+  \item opaque organisation/installation/device IDs and public keys;
+  \item app/runtime/Guardian versions, platform class and update channel;
+  \item signed entitlement, Photon grant and content-free outcome receipt identifiers;
+  \item generic health state/error codes and last contact time;
+  \item relay routing identifiers and encrypted envelope metadata; and
+  \item commercial contact/invoice data separately required to provide the paid service.
+\end{itemize}
+
+Forbidden by default:
+
+\begin{itemize}
+  \item prompts, outputs, documents, emails, conversations or business-memory content;
+  \item customer/contact/job/employee data from the Business Vault;
+  \item raw local paths, file names where they reveal content, model context or embeddings;
+  \item API keys, OAuth refresh tokens, vault keys or device private keys; and
+  \item unrestricted diagnostic dumps.
+\end{itemize}
+
+\section{Photon and entitlement communication}
+
+The pasted assessment's Stripe/token approach is superseded by the agreed commercial model:
+
+\begin{itemize}
+  \item local inference and customer-owned provider tokens are not billed by Tessaris;
+  \item Photons pay for published, successfully completed business-orchestration outcomes;
+  \item Revolut Merchant moves fiat for plans and top-ups;
+  \item the Tessaris control plane maintains the authoritative service-credit ledger;
+  \item the Node reserves, captures, releases and reverses Photons using idempotent content-free receipts;
+  \item connected Nodes periodically reconcile and receive signed balance/entitlement state;
+  \item intermittently connected Nodes use bounded signed offline leases and reconcile later; and
+  \item sovereign offline Nodes use prepaid/annual signed capacity under contract.
+\end{itemize}
+
+Commercial expiry may pause paid automation and managed capabilities. It never removes access to business data, local chat, backup, restore, correction, export or migration.
+
+\section{Observability, fleet health and incident response}
+
+\subsection{Customer-visible health}
+
+Settings shows Node availability, platform, versions, update channel, last update, Secure Link route, paired devices, backup/restore status, entitlement sync and local component health. Detailed logs remain local by default.
+
+\subsection{Tessaris operations view}
+
+The content-free fleet view may show:
+
+\begin{itemize}
+  \item opaque installation and contracted customer support reference;
+  \item last seen, version, platform/architecture and rollout cohort;
+  \item healthy/degraded/offline, bounded error code and affected component;
+  \item signature/update/backup verification state without paths or content;
+  \item active customer-approved support lease; and
+  \item entitlement/Photon reconciliation state.
+\end{itemize}
+
+Customers can disable optional performance/availability telemetry. Security-critical signature/revocation checks and contracted service operations require a separately stated minimum metadata basis.
+
+\subsection{Incident controls}
+
+Prepare runbooks for compromised release key, malicious/incorrect release, control-plane outage, relay outage, provider compromise, customer Node compromise, lost device, failed migration and suspected vault corruption. The release service needs global pause, key revocation, safe-version metadata and customer notification. It must not have a remote ``delete installation'' command.
+
+\section{Onboarding and lifecycle experience}
+
+\subsection{Deployment selection}
+
+The founder chooses plain-language intent:
+
+\begin{itemize}
+  \item ``Use this Mac or PC'';
+  \item ``Keep Tessaris running on a private cloud computer'';
+  \item ``Use a Tessaris Hub in my office''; or
+  \item ``Advanced: use my own server or rack''.
+\end{itemize}
+
+Tessaris then performs platform/hardware preflight, creates the external Business Vault, configures recovery, installs the Node service, creates founder identity, selects update channel, pairs the first device, tests Secure Link and completes a backup/restore proof.
+
+\subsection{Moving and replacing machines}
+
+Moving a Node is a governed migration:
+
+\begin{enumerate}
+  \item verify current backup and portable export;
+  \item install and verify the new Node;
+  \item restore vault and secret recovery under founder authority;
+  \item compare manifest, counts, hashes and critical totals;
+  \item transfer the authoritative Node lease;
+  \item fence the old Node from writes; and
+  \item revoke or repurpose its device identity.
+\end{enumerate}
+
+No copy becomes authoritative merely because it starts first.
+
+\subsection{Removal}
+
+Uninstall offers separate choices: remove application only; remove application and local caches; or initiate governed business closure. Default removal preserves the Business Vault, encrypted backups and recovery instructions. Destruction is never bundled into a routine uninstaller checkbox.
+
+\section{Implementation workstreams}
+
+\subsection{Workstream A --- common Node and platform abstraction}
+
+\begin{itemize}
+  \item remove hard-coded macOS project paths and Application Support assumptions;
+  \item define a platform abstraction for paths, services, key stores, permissions, notifications and system capabilities;
+  \item split desktop client lifecycle from background Node lifecycle;
+  \item freeze common Node/Guardian APIs and compatibility negotiation;
+  \item make loopback ports dynamic/owned and authenticated rather than assumed global constants; and
+  \item define supported OS/architecture baselines.
+\end{itemize}
+
+\subsection{Workstream B --- Business Vault and Guardian}
+
+Execute the complete discovery programme, migrate authoritative writes, enforce updater/application/Guardian identities, implement snapshot/clone migration and deliver verified backup/export/recovery. This is a prerequisite for production automatic updates.
+
+\subsection{Workstream C --- release and supply chain}
+
+\begin{itemize}
+  \item build CI matrix and clean test environments;
+  \item acquire Apple and Windows publisher identities;
+  \item implement signing, notarisation, SBOM, provenance and immutable publishing;
+  \item adopt secure expiring release metadata and key hierarchy;
+  \item add channels, staged cohorts, pause and minimum-safe-version controls; and
+  \item connect the existing SovereignUpdateService concepts to platform installers and Guardian preflight.
+\end{itemize}
+
+\subsection{Workstream D --- platform packages}
+
+Deliver in this order:
+
+\begin{enumerate}
+  \item macOS Apple Silicon production package;
+  \item macOS Intel or universal qualification;
+  \item Windows 11 x64 package/service;
+  \item selected Linux x64 headless package;
+  \item Linux desktop package where market demand justifies it;
+  \item OCI/private-cloud package; and
+  \item arm64 Windows/Linux and Tessaris Hub recovery image.
+\end{enumerate}
+
+Each platform is complete only after clean install, update, rollback, vault preservation, restore and removal evidence.
+
+\subsection{Workstream E --- Secure Link and remote lifecycle}
+
+\begin{itemize}
+  \item productionise organisation/device identity and pairing;
+  \item deploy coordination and opaque relay with availability/abuse controls;
+  \item add native desktop/mobile route selection and roaming;
+  \item implement application-level scopes, revocation and replay protection;
+  \item build founder-approved support leases and redacted diagnostics; and
+  \item exercise internet loss, NAT/firewall variation, relay failure and device loss.
+\end{itemize}
+
+\subsection{Workstream F --- control plane, Photon and Revolut}
+
+Implement the minimal content-free control plane, authoritative Photon ledger, signed entitlement/offline lease, Revolut checkout/webhooks/reconciliation, Usage \& billing UI and pricing control already specified in the Photon Billing Plan.
+
+\subsection{Workstream G --- operations and assurance}
+
+Create service ownership, monitoring, incident response, vulnerability disclosure, support workflow, status communication, key ceremonies, disaster recovery, privacy/legal assessment and independent penetration/supply-chain review.
+
+\section{Phased delivery programme}
+
+\subsection{Phase 0 --- lock decisions and inventories}
+
+\textbf{Outcome:} one approved product contract and no new hidden platform/storage assumptions.
+
+\begin{itemize}
+  \item approve deployment profiles, supported versions and architecture order;
+  \item approve control-plane data allowlist and no-back-door support rule;
+  \item complete whole-product Business Vault discovery;
+  \item inventory native dependencies, hard-coded paths, ports and platform-specific binaries;
+  \item inventory all signing, DNS, hosting, relay, payment and store accounts required; and
+  \item freeze cross-platform API/release manifest v1.
+\end{itemize}
+
+\subsubsection*{Implementation evidence --- 17 October 2026}
+
+The first common Node contract is now implemented as an additive runtime module and is deliberately independent of Electron or any one installer.
+
+\begin{itemize}
+  \item A common capability schema normalises macOS, Windows and Linux identities plus x86-64 and ARM64 architecture names.
+  \item A common installation-layout contract now defines separate application, updater, Node-state and customer-vault roots for macOS, Windows and Linux. It rejects every containment overlap, requires three distinct application/updater/Guardian identities, prohibits updater access to the vault and Guardian writes to the application, and identifies Keychain, Windows Credential Manager/DPAPI or Linux Secret Service/systemd credentials as the platform key boundary.
+  \item A non-destructive probe reports logical CPU, memory when the operating system exposes it, available storage and operating-system release without collecting machine paths, usernames, files or business content.
+  \item Deterministic policy classifies a device as desktop-only, Node-capable or compute-worker-capable. Unsupported or undersized hardware is marked with explicit limitations rather than silently receiving an unrealistic promise.
+  \item A bounded Node-health schema reports only platform class, declared component versions, generic check states and stable/preview/offline channel. It is explicitly marked content-free and rejects unknown update channels.
+  \item A canonical Node release-manifest V1 example and fail-closed preflight are now present. Preflight rejects missing platform/architecture targets, unsigned or stale repository metadata, downgrade/replay, insufficient staging space, incompatible Guardian APIs, unreadable vault schemas and any release claiming to include customer data or credentials.
+  \item The preflight collects all rejection reasons for a useful local diagnosis while returning a single eligibility decision; it does not weaken signature verification or turn a warning into an install.
+  \item The existing signed updater now has a production mode that requires an eligible, version-matched release preflight before staging. It rejects package manifests carrying customer data or credentials, validates every configured vault against the application and update roots, and records whether preflight and vault-boundary enforcement were active in the signed local update receipt.
+  \item A minimal control-plane identity contract now issues founder-approved, authority-signed Node certificates with only health publishing, release reading and entitlement reading scopes. Vault, file, shell and remote-control scopes are explicitly prohibited.
+  \item Node health envelopes accept only fixed platform, architecture, channel, component-version and generic health fields. The Node signs each envelope, the registry binds it to the approved certificate and monotonically rejects replay; there is no command-return channel in this contract.
+  \item A signed offline Photon lease now binds one tenant, Node, sequence, price-book version, validity window and hard Photon ceiling. Its immutable local journal accepts only successful allowlisted outcome evidence, rejects replay collisions and stops at expiry or exhaustion; it does not meter local-model tokens.
+  \item Hosted lease issuance now reserves the finite allowance from the authoritative Photon balance before disconnection. On reconnection, a Node-signed content-free journal is identity-, sequence-, price-book-, action-rate- and total-checked before each spend becomes an exact-once balanced ledger capture.
+  \item Expired lease closure returns unused reserved Photons to the customer. Protected ledger accounts are checked for non-negative balance inside the posting transaction, preventing a late or concurrent reconciliation from spending credits after release.
+  \item The existing stage, signature, tamper, traversal, activation and rollback tests plus the new preflight, vault-overlap, installation-layout, certificate, content allowlist, heartbeat replay, Business Twin and Sales projection Guardian selection, signed Photon wallet/refund, tenant-scoped control-plane authentication/API/composition and offline entitlement/reconciliation tests pass in an isolated Python environment. The combined core suite contains 219 passing tests, followed by 12 successful Legal encryption/recovery and local creative-asset checks.
+  \item Cross-platform executable assertions pass for Windows x64, Linux ARM64 and macOS ARM64 examples, including degraded/unsupported hardware and bounded health output.
+  \item The Business Vault implementation now supplies the matching cross-platform default data-root policy and rejects overlap with application or updater roots. This establishes a shared boundary for later installers, but does not yet constitute operating-system permission separation.
+  \item A signed, content-free platform-qualification contract now binds clean-machine evidence to the exact release version, target, artifact digest and byte size, declared and observed operating system/architecture, deployment profile and named release-lab authority. It requires every install, first-run vault/recovery, reboot, bounded workflow, signed update, rollback, vault-preservation, clean-machine restore, authority-transfer/fencing, uninstall, reconnect, export and commercial-expiry ownership case; missing, failed or not-run cases cannot qualify a platform.
+  \item Platform trust evidence must affirm native artifact signing, separate service identity, native credential-store use and absence of a public inbound administration port. Vault evidence must affirm root separation, denial of updater vault access, denial of Guardian application writes and matching restore hashes/invariants. The signed record exposes only bounded status codes and evidence digests; customer names, paths, logs and business content are rejected by the schema.
+  \item Release manifest V1 now distinguishes internal preview, production candidate and production stages. Every production candidate/production target must carry the digest of its immutable signed qualification envelope, and production preflight verifies that envelope against the exact target and a separately supplied release-lab public key. A missing, forged, mismatched or ineligible report adds \code{release\_platform\_qualification\_unverified} and blocks installation.
+  \item A portable collector now runs on the target machine, verifies the exact artifact digest and size from the release manifest, hashes the local evidence file for every mandatory case and emits only the bounded unsigned qualification payload. It never exports evidence file paths or contents. The collector deliberately does not possess release-lab signing authority; the payload becomes production evidence only after separate review and signing. A fail-closed example evidence specification starts every case and trust assertion in a not-run/false state.
+  \item The installed read-only health service no longer assumes a globally fixed port. macOS, Windows and Linux request an operating-system-selected loopback port and publish only a bounded content-free locator (loopback host, port, PID, instance identifier and timestamp) into a separate owner-readable Node-state location. Public binds, invalid ports and locator paths inside the Business Vault are rejected. Shutdown removes only the record created by that exact service instance. The Linux unit provisions a private runtime directory; the Windows service and macOS LaunchAgent use the same dynamic contract. This is deliberately a health locator, not a remote administration channel.
+  \item The Windows developer installer now moves the installed service onto the dedicated \code{NT SERVICE\textbackslash TessarisPilotBrain} virtual account. That identity receives read/execute access to application files and modify access only to the Pilot Brain and separate Node-state directories. Linux already runs under the non-login \code{tessaris} identity with a read-only application tree and narrowly declared writable roots. These static controls remain unqualified until clean Windows/Linux runs produce native identity and ACL evidence.
+  \item The bootstrap package now includes the Guardian/Vault dependency closure imported by the Sovereign Brain boundary. The extracted archive can load and execute its setup entry point without borrowing missing modules from the development checkout. A 32-test package, cross-platform installer, macOS service, offline-bundle, capability-package and updater slice passes.
+\end{itemize}
+
+\noindent\textbf{Current platform status:} internal contract and release-gate proof only. The mechanism now cannot label a production target qualified without exact signed evidence, but no real Windows, Linux or clean macOS qualification envelope has been produced. Signed installers, native service/credential-store evidence, release repository metadata and production clean-machine runs remain open.
+
+\subsubsection*{Implementation evidence --- 18 October 2026}
+
+\begin{itemize}
+  \item The Business Vault discovery gate is complete across all 28 required journeys. The refreshed static inventory covers 4,626 files and 4,589 likely persistence operations; every operation is declared, with zero unknown writes and zero incomplete discovery sessions. The unused legacy frontend route that wrote symbolic customer containers into the application's public tree has now been retired without deleting existing customer files. This closes discovery only: 3,968 operations across 102 broader feature boundaries remain intentionally blocking pending migration or qualification.
+  \item A content-free Node certificate revocation contract is now authority-signed and fail closed. It binds the exact certificate fingerprint, tenant, Node, effective time and one bounded reason. The revoked certificate cannot publish another heartbeat, while a separately approved rotated certificate for the same Node may continue the monotonic sequence. Thirteen focused control-plane and notification tests pass.
+  \item Reproducible unsigned Windows and Linux candidates and an offline macOS candidate have been prepared with exact artifact manifests and static archive inspection. Each qualification workspace starts every mandatory case as \code{not-run}; no static inspection can promote a candidate to production.
+  \item The current host has no Developer ID Installer identity or notary profile and no available Windows/Linux clean native or virtual executor. Therefore distribution signing, notarisation, native credential-store/service evidence and clean-machine runs remain external fail-closed gates.
+  \item Local dependency assurance now passes Python requirement consistency and both the Electron and frontend production audits with zero known vulnerabilities. Controlled migrations moved Tailwind CSS to 4.3.3, the application signing paths to Ethers 6.17.0, the Three.js/Drei stack to 0.159.0/9.122.0 and KaTeX to 0.19.0; the typography build-time selector parser is constrained to patched 7.1.6 and unused Web3/OpenAI client packages were removed. The optimized 67-route frontend build, Tessaris math-macro render and nested typography-selector checks pass. Release-commit SBOM signing, provenance and independent assurance remain open.
+  \item The isolated smart-contract toolchain now uses Hardhat 3.20.0, Ethers 6.17.0 and OpenZeppelin 5.4.0. Both contracts compile, GLU and escrow deploy on the simulated network and the complete package audit reports zero findings. Fresh CycloneDX inventories bind the current frontend, contract and Electron graphs; release-commit regeneration, signing and independent supply-chain review remain open.
+  \item No hosted Secure Link relay or production control plane has been deployed. Roaming, NAT/firewall, operator-blindness, load, abuse, outage and independent-review evidence therefore remains open regardless of the passing local identity, heartbeat and revocation contracts.
+\end{itemize}
+
+\subsection{Phase 1 --- portable common Node proof}
+
+\textbf{Outcome:} the same headless Node and Guardian contracts run on clean Mac, Windows and Linux test machines.
+
+\begin{itemize}
+  \item implement platform abstraction and service wrappers;
+  \item remove developer-machine dependencies;
+  \item produce repeatable unsigned internal artifacts for all three systems;
+  \item execute one identical create/read/update/backup/restore business scenario; and
+  \item publish discrepancies rather than hiding platform gaps.
+\end{itemize}
+
+\subsection{Phase 2 --- vault-safe signed macOS release}
+
+\textbf{Outcome:} first production-quality customer package on Apple Silicon.
+
+\begin{itemize}
+  \item sign/notarise/staple every component;
+  \item install Node and Guardian with least privilege;
+  \item connect signed staged update, recovery point and rollback;
+  \item qualify onboarding, pairing, backup, export, removal and device replacement; and
+  \item run a small authorised founder field pilot.
+\end{itemize}
+
+\subsection{Phase 3 --- production Secure Link and control plane}
+
+\textbf{Outcome:} paired devices reach the Node securely away from the local network and Tessaris can deliver signed updates/entitlements without content access.
+
+\begin{itemize}
+  \item deploy device registry, coordination, relay and generic notifications;
+  \item implement direct/relay path status and roaming;
+  \item implement content-free fleet/update state and customer-approved support requests;
+  \item perform privacy, load, denial-of-service and relay-operator blindness tests; and
+  \item prove control-plane outage does not remove local business/data access.
+\end{itemize}
+
+\subsection{Phase 4 --- Windows production release}
+
+\textbf{Outcome:} signed Windows 11 x64 installer/service with parity for the release spine.
+
+\begin{itemize}
+  \item complete trusted publisher validation/signing;
+  \item implement service identity, credential storage, firewall and update adapters;
+  \item test Smart App Control, Defender and enterprise control environments;
+  \item qualify update/rollback across supported previous versions; and
+  \item run clean-machine and founder pilot evidence.
+\end{itemize}
+
+\subsection{Phase 5 --- headless Linux, private cloud and Hub}
+
+\textbf{Outcome:} always-on Nodes can run without a desktop session.
+
+\begin{itemize}
+  \item publish supported Linux packages and/or signed OCI images;
+  \item implement data-volume separation, service supervision, health and recovery;
+  \item provide advanced BYO private-cloud deployment;
+  \item create managed private-Node operational controls;
+  \item create Tessaris Hub provisioning and recovery media; and
+  \item qualify power loss, reboot, disk pressure, host migration and failover/fencing.
+\end{itemize}
+
+\subsection{Phase 6 --- Photon/Revolut commercial activation}
+
+\textbf{Outcome:} connected paid automation uses verifiable Photons without metering local model tokens or customer content.
+
+\begin{itemize}
+  \item complete ledger, receipts, signed entitlement and offline leases;
+  \item connect Revolut sandbox then live qualification;
+  \item implement limits, alerts, bundles, refund/reversal and pricing versions;
+  \item prove commercial expiry preserves ownership features; and
+  \item reconcile duplicate/delayed/out-of-order provider events.
+\end{itemize}
+
+\subsection{Phase 7 --- independent assurance and general release}
+
+\textbf{Outcome:} claims are supported by external and field evidence.
+
+\begin{itemize}
+  \item independent penetration and software-supply-chain review;
+  \item legal/privacy/AI/sector review for launch regions;
+  \item disaster recovery, key compromise and malicious-release exercises;
+  \item small-business and multi-unit field pilots; and
+  \item public support matrix, recovery guide, security contact and capability limits.
+\end{itemize}
+
+\section{Qualification matrix}
+
+\subsection{Platform tests}
+
+For every supported OS/architecture/profile:
+
+\begin{itemize}
+  \item clean install as a non-developer user;
+  \item first-run vault/recovery onboarding;
+  \item start/restart after reboot and power loss;
+  \item local and remote client use;
+  \item provider connection and one real bounded business workflow;
+  \item application update, Guardian-compatible update and schema migration;
+  \item automatic rollback and manual recovery;
+  \item backup and restoration on a different clean machine;
+  \item move authority to a replacement Node;
+  \item uninstall while preserving data, then reinstall/reconnect; and
+  \item full export and verification without an active entitlement.
+\end{itemize}
+
+\subsection{Network tests}
+
+Test home NAT, office firewall, IPv4-only, IPv6-only, mobile hotspot, Wi-Fi/mobile roaming, intermittent and high-latency networks, relay-only operation, coordination outage, relay-region outage, captive portal, revoked device, replay and expired session. No public inbound port is part of the expected setup.
+
+\subsection{Update adversarial tests}
+
+Reject wrong signer, altered bytes, expired metadata, older vulnerable metadata, impossible future version, wrong platform, wrong architecture, incompatible Guardian/vault schema, undeclared file, archive traversal, symlink escape, excessive package size, revoked key and mixed repository snapshot. Interrupt every activation stage and prove either old or new release remains coherent.
+
+\subsection{Support-access tests}
+
+Prove no session without customer approval, no scope expansion, immediate revoke, automatic expiry, operator-device policy, local audit receipt, redacted diagnostics, no credential export and no ability for the control plane to silently convert health communication into shell access.
+
+\section{Release gates}
+
+No platform is publicly supported until:
+
+\begin{itemize}
+  \item installer, application, native dependencies, services and uninstaller carry valid platform trust;
+  \item the package contains no developer paths, customer data, production secrets or unsigned executable payloads;
+  \item clean installation and every supported upgrade path pass;
+  \item updater cannot access the Business Vault and a failed release rolls back;
+  \item a clean-machine vault restoration passes with manifest/count/hash/invariant checks;
+  \item Secure Link works directly and through relay with revocation and no operator plaintext;
+  \item control-plane outage leaves local ownership features operational;
+  \item support access is absent by default and the approved workflow passes;
+  \item content-free diagnostics and Photon receipts reject private content;
+  \item commercial expiry does not restrict read/correct/export/backup/restore/migrate;
+  \item published hardware/OS limitations match tested evidence; and
+  \item independent security and supply-chain findings are resolved or explicitly accepted before general availability.
+\end{itemize}
+
+\section{Key risks and controls}
+
+\begin{longtable}{p{0.31\linewidth} p{0.59\linewidth}}
+\toprule
+Risk & Required control \\
+\midrule
+Update channel becomes remote code back door & Expiring threshold-signed metadata, separate keys/roles, immutable artifacts, staged cohorts, local verification and no arbitrary command endpoint \\
+Faulty update damages customer business & Updater/vault OS separation, Guardian boundary, snapshot, clone migration, invariants, A/B application slots and rollback \\
+Platform-specific behaviour forks the product & Common Node/Guardian contracts, narrow adapters and parity qualification suite \\
+Developer Mac assumptions ship to customers & Hard-coded path/port/native dependency inventory and clean isolated builders/VMs \\
+Unsigned Windows/Linux artifacts create warnings or blocks & Verified publisher identities, signed repositories/artifacts and OS-native enforcement tests \\
+Relay or control plane can read customer content & End-to-end device encryption, opaque bounded relay, allowlisted metadata, content-rejection tests and independent review \\
+Tessaris can silently enter customer machines & No standing support credential; founder-approved scoped expiring lease; no shell by default; local receipt and immediate revoke \\
+Node is off or offline when urgent update is required & Honest last-seen state, generic customer alert, offline signed bundle, contractual limitations and no false reachability claim \\
+Two Nodes write one business after migration/failover & Single authority lease, fencing token, promotion protocol and conflict tests \\
+Model update changes behaviour unexpectedly & Separate model catalogue/package, visible consent, compatibility/performance evidence and rollback \\
+Billing disables the customer's company records & Ownership features hard-coded subscription-independent; commercial controls apply only to paid automation \\
+Release key compromise & Offline threshold root, compartmentalised target roles, short-lived metadata, revocation and emergency safe-version process \\
+Linux scope becomes unbounded & Declare/test named distributions and architectures; unsupported environments receive no production claim \\
+Managed support creates data-controller exposure & Minimal diagnostics, customer approval, region/contract policy, audit, staff controls and privacy review \\
+\bottomrule
+\end{longtable}
+
+\section{Definition of done}
+
+The programme is complete for general release when:
+
+\begin{enumerate}
+  \item one reviewed source release produces signed, traceable artifacts for every declared platform/profile;
+  \item a non-technical founder can install on a supported Mac or Windows PC, create and recover a separate Business Vault, and pair a phone without developer tools;
+  \item a Linux/private-cloud/Hub Node can run headlessly, restart automatically and expose no public administration port;
+  \item authorised devices reach the same Node directly or through an opaque encrypted relay;
+  \item Tessaris can publish and stage a release without accessing business content;
+  \item every supported Node takes a verified recovery point, rehearses migration, updates and automatically rolls back on injected failure;
+  \item the founder can see and revoke every device and support lease;
+  \item content-free health and Photon/entitlement reconciliation operate without prompts, files or business memory leaving the Node;
+  \item a disconnected or expired installation retains local ownership, backup, restoration and export; and
+  \item independent and field evidence supports every public security, platform and recovery claim.
+\end{enumerate}
+
+\section{Immediate execution order}
+
+\begin{enumerate}
+  \item Complete the Business Vault touchpoint discovery and freeze undeclared storage.
+  \item Remove hard-coded Mac/developer paths and define the platform/runtime abstraction.
+  \item Freeze Node, Guardian, Secure Link and signed release-manifest v1 contracts.
+  \item Establish release key hierarchy, CI builders, SBOM/provenance and artifact repository.
+  \item Acquire/confirm Apple Developer ID and Windows publisher-signing capability.
+  \item Produce one portable headless Node proof across clean macOS, Windows and Linux machines.
+  \item Finish the vault-safe macOS Apple Silicon release first.
+  \item Deploy the minimum identity, update, relay and content-free health control plane.
+  \item Qualify Windows x64, then headless Linux/private cloud/Hub.
+  \item Activate Photon/Revolut only after entitlement, offline and ownership gates pass.
+  \item Run independent review and real-business pilots before general release.
+\end{enumerate}
+
+\section{Primary references}
+
+\begin{itemize}
+  \item Electron autoUpdater platform notices: \url{https://www.electronjs.org/docs/latest/api/auto-updater/}
+  \item electron-builder auto-update targets: \url{https://www.electron.build/docs/features/auto-update/}
+  \item Apple notarisation requirements: \url{https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution}
+  \item Microsoft Windows signing options: \url{https://learn.microsoft.com/windows/apps/package-and-deploy/code-signing-options}
+  \item Microsoft Smart App Control signing guidance: \url{https://learn.microsoft.com/windows/apps/develop/smart-app-control/code-signing-for-smart-app-control}
+  \item The Update Framework security model: \url{https://theupdateframework.io/docs/security/}
+  \item Sigstore/Cosign signature verification: \url{https://docs.sigstore.dev/cosign/verifying/verify/}
+  \item Tailscale direct and encrypted relay connection types: \url{https://tailscale.com/docs/reference/connection-types}
+  \item Tailscale least-privilege grants: \url{https://tailscale.com/docs/features/access-control/grants}
+\end{itemize}
+
+\vfill
+\noindent\colorbox{TessarisGreenPale}{\parbox{0.96\linewidth}{
+\textbf{Final operating rule.} Tessaris may know that a Node exists, whether it is healthy, which signed version it runs and whether its commercial entitlement is valid. It does not thereby gain the right or technical ability to browse the business, alter the Business Vault or enter the customer's machine. Updates, customer access, support and billing remain distinct, least-privilege channels.
+}}
+
+\end{document}

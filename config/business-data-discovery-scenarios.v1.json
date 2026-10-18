@@ -1,0 +1,258 @@
+{
+  "schema_version": "tessaris.business-data-discovery-scenarios.v1",
+  "privacy": "scenario identifiers, expected domains and assertions only; never record customer values",
+  "scenarios": [
+    {
+      "session_id": "business-onboarding",
+      "scenario_id": "create-business-through-onboarding-pilot",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["create a new business", "complete and resume the onboarding Pilot", "save brand and initial operating context"],
+      "expected_domains": ["business.identity", "business.structure", "business.map", "business.working_state", "departments.map", "departments.intelligence", "onboarding.foundation_session", "onboarding.receipts"],
+      "expected_external_classes": ["secret_store"],
+      "completion_assertions": ["restart restores the approved business and Pilot state", "no onboarding payload remains authoritative in browser storage"]
+    },
+    {
+      "session_id": "identity-access",
+      "scenario_id": "founder-role-device-and-recovery",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "electron_main"],
+      "journey_steps": ["create founder authority", "bind a device", "exercise lock and recovery metadata"],
+      "expected_domains": ["business.map", "business.structure", "business.working_state", "departments.map", "departments.intelligence", "departments.operational_records", "security.records", "security.audit"],
+      "expected_external_classes": ["secret_store"],
+      "completion_assertions": ["secrets remain outside the Vault", "identity and authority records restart from Guardian"]
+    },
+    {
+      "session_id": "settings-configuration",
+      "scenario_id": "edit-business-settings-and-add-future-department",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["edit business settings", "change a policy", "add an arbitrary new department introduced after installation"],
+      "expected_domains": ["business.identity", "business.map", "business.working_state", "departments.map", "departments.intelligence", "departments.operational_audit"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["new department survives restart", "new department uses wildcard Guardian domains", "setting history remains versioned"]
+    },
+    {
+      "session_id": "crm-customers",
+      "scenario_id": "create-edit-and-reopen-customer",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["create customer", "edit contact and service address", "reopen customer history"],
+      "expected_domains": ["business.map", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_records", "finance.integration_records", "finance.sales_records", "sales.audit", "sales.completion_records", "sales.records", "security.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["customer changes restart from Guardian", "quote and work views reuse the same customer identity"]
+    },
+    {
+      "session_id": "lead-booking-intake",
+      "scenario_id": "capture-and-convert-booking-intake",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "provider_sandbox"],
+      "journey_steps": ["capture an inbound lead", "review intake", "convert it into scheduled work"],
+      "expected_domains": ["business.map", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_records", "onboarding.foundation_session", "onboarding.receipts", "sales.audit", "sales.records", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["provider_api"],
+      "completion_assertions": ["source provenance is retained", "conversion does not duplicate the customer"]
+    },
+    {
+      "session_id": "work-schedule",
+      "scenario_id": "create-reschedule-and-complete-work",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["create work", "assign and reschedule it", "record completion"],
+      "expected_domains": ["business.working_state", "work_schedule.records", "work_schedule.files", "departments.operational_audit"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["calendar and board restart consistently", "status history and evidence remain linked"]
+    },
+    {
+      "session_id": "field-mobile",
+      "scenario_id": "mobile-field-update-and-evidence",
+      "execution_surfaces": ["mobile_companion", "desktop_backend"],
+      "journey_steps": ["open assigned work", "capture field update and photo", "synchronise to desktop"],
+      "expected_domains": ["work_schedule.records", "work_schedule.files", "departments.operational_audit"],
+      "expected_external_classes": ["notification_provider"],
+      "completion_assertions": ["original evidence is encrypted", "offline retry is idempotent"]
+    },
+    {
+      "session_id": "quotes-costing",
+      "scenario_id": "cost-price-generate-and-accept-quote",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["enter private costs", "generate branded quotation", "record acceptance"],
+      "expected_domains": ["business.map", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_records", "finance.bookkeeping_records", "finance.sales_records", "onboarding.foundation_session", "onboarding.receipts", "sales.audit", "sales.completion_records", "sales.files", "sales.records", "security.records", "work_schedule.files", "work_schedule.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["private costs do not enter the customer PDF", "numbered quote and acceptance evidence restart"]
+    },
+    {
+      "session_id": "invoices-payments",
+      "scenario_id": "invoice-payment-and-reconciliation",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "provider_sandbox"],
+      "journey_steps": ["create invoice from accepted quote", "send payment request", "reconcile payment"],
+      "expected_domains": ["business.map", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_records", "file_cabinet.tree", "finance.sales_records", "finance.bookkeeping_records", "finance.bookkeeping_journal", "finance.reconciliation_records", "onboarding.foundation_session", "onboarding.receipts", "security.records", "work_schedule.files", "work_schedule.records"],
+      "expected_external_classes": ["provider_api"],
+      "completion_assertions": ["invoice is branded and immutable once issued", "payment cannot be marked twice"]
+    },
+    {
+      "session_id": "files-documents",
+      "scenario_id": "whole-file-cabinet-original-and-generated-document",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "filesystem_import", "provider_sandbox"],
+      "journey_steps": ["upload an original", "file it in nested cabinets", "generate and reopen a document", "move and tombstone an entry"],
+      "expected_domains": ["business.knowledge", "business.knowledge_files", "business.map", "business.working_state", "departments.operational_records", "file_cabinet.tree", "file_cabinet.originals", "file_cabinet.governance", "onboarding.foundation_session", "onboarding.receipts", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["every cabinet branch survives restart", "every original resolves by Vault object identity", "no application path is authoritative"]
+    },
+    {
+      "session_id": "email-communications",
+      "scenario_id": "draft-send-receive-and-link-message",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "provider_sandbox"],
+      "journey_steps": ["prepare customer message", "send through connected provider", "capture delivery or reply evidence"],
+      "expected_domains": ["business.map", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_audit", "departments.operational_records", "finance.sales_records", "onboarding.foundation_session", "onboarding.receipts", "sales.audit", "sales.completion_records", "sales.records", "security.records", "support.records", "work_schedule.records"],
+      "expected_external_classes": ["provider_api", "secret_store"],
+      "completion_assertions": ["message evidence is linked without storing OAuth secrets", "provider replay is idempotent"]
+    },
+    {
+      "session_id": "notes-knowledge",
+      "scenario_id": "founder-note-and-knowledge-source",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "filesystem_import"],
+      "journey_steps": ["write founder note", "upload knowledge source", "approve a retrieved claim"],
+      "expected_domains": ["business.knowledge", "business.knowledge_audit", "business.knowledge_files", "business.map", "business.notes", "business.working_state", "departments.operational_records", "onboarding.foundation_session", "onboarding.receipts", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["note and source restart encrypted", "derived index is rebuildable from original"]
+    },
+    {
+      "session_id": "boardroom-business-maps",
+      "scenario_id": "board-meeting-business-map-and-every-department-map",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["record agenda and decision", "update whole-business map", "update each current department map", "add and map a future department"],
+      "expected_domains": ["business.map", "business.map_governance", "business.working_state", "departments.map", "departments.intelligence", "departments.operational_records", "departments.operational_audit", "onboarding.foundation_session", "onboarding.receipts", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["whole-business map and all department maps restart", "superseded map versions and board decisions remain auditable"]
+    },
+    {
+      "session_id": "aion-pilot-conversations",
+      "scenario_id": "department-pilot-conversation-task-and-audit",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["hold Pilot conversation", "create department task", "approve an action", "reopen history"],
+      "expected_domains": ["business.identity", "business.map", "business.working_state", "departments.intelligence", "departments.map", "departments.pilot_tasks", "departments.pilot_audit", "departments.operational_records", "departments.operational_audit", "onboarding.foundation_session", "onboarding.receipts", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["conversation and action history survive restart", "arbitrary department IDs are accepted"]
+    },
+    {
+      "session_id": "automations-schedules",
+      "scenario_id": "train-agent-build-run-retry-and-audit",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["build automation in Train Agent", "schedule and run it", "exercise retry and approval", "reopen run history"],
+      "expected_domains": ["business.knowledge", "business.map", "business.working_state", "departments.operational_audit", "departments.operational_records", "onboarding.foundation_session", "onboarding.receipts", "security.records", "train_agent.automations", "train_agent.runs_and_audit", "work_schedule.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["complete automation graph and schedule restart", "run evidence is append-only", "future departments use the same domains"]
+    },
+    {
+      "session_id": "sales-marketing",
+      "scenario_id": "campaign-opportunity-and-conversion",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "provider_sandbox"],
+      "journey_steps": ["create campaign", "capture opportunity", "record activity and conversion"],
+      "expected_domains": ["business.working_state", "departments.operational_records", "onboarding.foundation_session", "onboarding.receipts", "sales.audit", "sales.completion_records", "sales.files", "sales.records", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["provider_api", "secret_store"],
+      "completion_assertions": ["campaign and opportunity restart", "provider credentials remain outside Vault"]
+    },
+    {
+      "session_id": "finance-accounting",
+      "scenario_id": "finance-inbox-bookkeeping-month-end-and-export",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "provider_sandbox", "filesystem_import"],
+      "journey_steps": ["import finance evidence", "prepare and approve bookkeeping", "reconcile", "run month end and accounting export"],
+      "expected_domains": ["finance.sales_records", "finance.bookkeeping_records", "finance.bookkeeping_journal", "finance.recurring_records", "finance.reconciliation_records", "finance.ledger_records", "finance.integration_records", "finance.operations_records", "finance.inbox_files", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_records", "file_cabinet.tree", "onboarding.foundation_session", "onboarding.receipts", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["provider_api", "secret_store", "customer_export"],
+      "completion_assertions": ["original evidence remains encrypted", "journal evidence is append-only", "exports reproduce approved totals"]
+    },
+    {
+      "session_id": "people-hr",
+      "scenario_id": "people-role-policy-and-review",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["create person and role", "record policy acknowledgement", "complete review action"],
+      "expected_domains": ["business.structure", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_audit", "departments.operational_records", "onboarding.foundation_session", "onboarding.receipts", "security.audit", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["people records do not remain authoritative in browser storage", "role changes are auditable"]
+    },
+    {
+      "session_id": "operations-stock-suppliers",
+      "scenario_id": "supplier-stock-purchase-and-operational-handoff",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["create supplier", "adjust stock", "prepare purchase and operational handoff"],
+      "expected_domains": ["business.map", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_audit", "departments.operational_records", "file_cabinet.governance", "file_cabinet.originals", "file_cabinet.tree", "finance.bookkeeping_journal", "finance.bookkeeping_records", "onboarding.foundation_session", "onboarding.receipts", "security.records", "work_schedule.records"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["supplier and stock restart consistently", "financial handoff preserves provenance"]
+    },
+    {
+      "session_id": "support-legal-compliance",
+      "scenario_id": "support-case-legal-document-and-compliance-evidence",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "filesystem_import", "provider_sandbox"],
+      "journey_steps": ["open support case", "capture attachment", "prepare legal document", "record approval and compliance evidence"],
+      "expected_domains": ["business.map", "business.structure", "business.working_state", "departments.intelligence", "departments.map", "departments.operational_audit", "departments.operational_records", "file_cabinet.governance", "file_cabinet.originals", "file_cabinet.tree", "sales.records", "security.audit", "security.records", "support.files", "support.records", "work_schedule.records"],
+      "expected_external_classes": ["secret_store"],
+      "completion_assertions": ["attachments and legal originals are encrypted", "signing keys remain outside Vault", "case history restarts"]
+    },
+    {
+      "session_id": "provider-connections",
+      "scenario_id": "connect-refresh-revoke-and-reconnect-provider",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "provider_sandbox", "electron_main"],
+      "journey_steps": ["connect provider", "refresh access", "revoke connection", "reconnect"],
+      "expected_domains": ["business.map", "business.working_state", "departments.operational_records", "finance.integration_records", "security.audit"],
+      "expected_external_classes": ["provider_api", "secret_store"],
+      "completion_assertions": ["tokens never enter Vault or renderer", "connection metadata and receipts restart", "revocation removes usable authority"]
+    },
+    {
+      "session_id": "search-local-intelligence",
+      "scenario_id": "index-search-rebuild-and-cite-knowledge",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["index approved knowledge", "search and cite it", "delete derived index and rebuild"],
+      "expected_domains": ["business.knowledge", "business.knowledge_audit", "business.knowledge_files", "business.working_state"],
+      "expected_external_classes": ["none"],
+      "completion_assertions": ["search index is disposable", "approved original and provenance remain authoritative"]
+    },
+    {
+      "session_id": "notifications-remote-access",
+      "scenario_id": "notification-delivery-and-remote-session-revocation",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "provider_sandbox", "mobile_companion"],
+      "journey_steps": ["prepare notification", "deliver and retry", "open then revoke remote access"],
+      "expected_domains": ["business.map", "business.working_state", "support.records", "departments.operational_audit", "security.records", "security.audit"],
+      "expected_external_classes": ["notification_provider", "secret_store"],
+      "completion_assertions": ["delivery evidence is content-minimised", "revoked remote authority cannot reconnect"]
+    },
+    {
+      "session_id": "billing-photon",
+      "scenario_id": "photon-wallet-outcome-receipt-and-revolut-sandbox",
+      "execution_surfaces": ["desktop_renderer", "electron_main", "desktop_backend", "provider_sandbox"],
+      "journey_steps": ["view signed wallet", "reserve and capture verified outcome", "export receipt", "complete sandbox purchase and reversal"],
+      "expected_domains": ["business.map", "business.working_state", "finance.sales_records", "security.audit", "train_agent.runs_and_audit"],
+      "expected_external_classes": ["billing_control_plane", "provider_api", "secret_store", "customer_export"],
+      "completion_assertions": ["local model tokens are never billed", "renderer never receives bearer", "grant and reversal occur exactly once"]
+    },
+    {
+      "session_id": "import-export-migration",
+      "scenario_id": "legacy-import-whole-business-export-and-readback",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend", "filesystem_import"],
+      "journey_steps": ["dry-run legacy import", "copy verify and receipt", "export whole business", "read back manifest and originals"],
+      "expected_domains": ["vault.migration_receipts", "file_cabinet.tree", "file_cabinet.originals", "file_cabinet.governance", "business.map", "business.working_state", "departments.map", "train_agent.automations"],
+      "expected_external_classes": ["customer_export"],
+      "completion_assertions": ["legacy source remains untouched", "export includes all maps departments automations and originals"]
+    },
+    {
+      "session_id": "backup-recovery",
+      "scenario_id": "snapshot-corrupt-live-copy-and-restore-on-clean-node",
+      "execution_surfaces": ["desktop_backend", "filesystem_import"],
+      "journey_steps": ["create encrypted snapshot", "simulate live copy loss", "restore to separate clean root", "verify record and original counts"],
+      "expected_domains": ["vault.migration_receipts", "security.audit", "file_cabinet.originals", "business.map", "business.working_state", "departments.map", "train_agent.automations"],
+      "expected_external_classes": ["backup_destination", "secret_store"],
+      "completion_assertions": ["snapshot contains no plaintext", "restore never overwrites a live Vault", "counts and hashes match"]
+    },
+    {
+      "session_id": "logs-diagnostics-support",
+      "scenario_id": "diagnostic-bundle-redaction-and-support-handoff",
+      "execution_surfaces": ["desktop_renderer", "electron_main", "desktop_backend"],
+      "journey_steps": ["exercise failure", "build diagnostic manifest", "review and export support bundle"],
+      "expected_domains": ["business.working_state", "security.audit", "departments.operational_audit", "support.records"],
+      "expected_external_classes": ["customer_export"],
+      "completion_assertions": ["bundle excludes prompts documents secrets and raw paths", "customer approves any export"]
+    },
+    {
+      "session_id": "retention-closure",
+      "scenario_id": "retention-tombstone-export-and-business-closure",
+      "execution_surfaces": ["desktop_renderer", "desktop_backend"],
+      "journey_steps": ["apply retention policy", "tombstone governed record", "export before closure", "exercise closure preview without destruction"],
+      "expected_domains": ["file_cabinet.governance", "security.audit", "vault.migration_receipts", "business.identity", "business.map"],
+      "expected_external_classes": ["customer_export", "backup_destination"],
+      "completion_assertions": ["application update cannot destroy Vault", "closure requires separate re-authentication and evidence", "tombstoned history remains recoverable under policy"]
+    }
+  ]
+}

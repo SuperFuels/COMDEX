@@ -57,6 +57,7 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
     { key: "aion_chat", label: "AI Chat" },
     { key: "communications", label: "Communications" },
     { key: "work_schedule", label: "Work & Schedule" },
+    { key: "founder_notes", label: "Notes" },
     { key: "business_context", label: "Business" },
     { key: "live_agents", label: "Department Pilots" },
     {
@@ -65,6 +66,7 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
       description: "Train and test backend business automations",
     },
     { key: "vault", label: "Connections" },
+    { key: "settings", label: "Settings" },
   ];
 
   /*
@@ -106,6 +108,15 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
   window.desktopStore = desktopStore;
   window.state = state;
   window.__AION_DESKTOP_STATE__ = state;
+
+  window.addEventListener("aion:business-identity-established", (event) => {
+    const businessId = window.AionBusinessContainerClient?.canonicalBusinessId?.(
+      event?.detail?.business_id,
+    ) || "";
+    if (!businessId || state.workspaceId === businessId) return;
+    desktopStore.patch({ workspaceId: businessId });
+    requestRender();
+  });
 
   /* Canonical Business Twin identity must own every backend and cabinet scope. */
   const canonicalBusinessIdAtBoot =
@@ -159,8 +170,8 @@ if (typeof window !== "undefined") {
 
       try {
         return String(
-          window.localStorage.getItem("aion.businessEntryMode.v1") ||
-          window.localStorage.getItem("aion.business_entry_mode.v1") ||
+          window.AionBusinessContainerClient?.readBusinessWorkingStateString?.("aion.businessEntryMode.v1") ||
+          window.AionBusinessContainerClient?.readBusinessWorkingStateString?.("aion.business_entry_mode.v1") ||
           window.localStorage.getItem("aion.businessTwinSetup.entryRoute.v1") ||
           ""
         );
@@ -2199,7 +2210,7 @@ function runAionCooEvidenceSweepV1() {
     })),
   };
   try {
-    window.localStorage?.setItem(AION_COO_OPERATING_LEDGER_STORAGE_V1, JSON.stringify(record, null, 2));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_COO_OPERATING_LEDGER_STORAGE_V1, JSON.stringify(record, null, 2));
   } catch {}
   return record;
 }
@@ -2360,14 +2371,28 @@ function readAionBusinessFoundationStorage(storageKey) {
   const key = String(storageKey || "").trim();
   if (!key) return {};
 
+  const memory = /approved/i.test(key)
+    ? window.__aionApprovedSmallBusinessFoundation
+    : window.__aionBusinessContextFoundation;
+  if (memory && typeof memory === "object" && !Array.isArray(memory)) return memory;
+
   try {
     const raw = window.localStorage?.getItem(key);
     if (!raw) return {};
 
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? parsed
-      : {};
+    const legacy = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    if (Object.keys(legacy).length) {
+      if (/approved/i.test(key)) window.__aionApprovedSmallBusinessFoundation = legacy;
+      else window.__aionBusinessContextFoundation = legacy;
+      window.AionBusinessContainerClient?.saveFoundationSection?.(
+        /approved/i.test(key) ? "approved_business_context" : "business_context_draft",
+        legacy,
+        { complete: /approved/i.test(key) },
+      ).catch((error) => console.warn("[AION] Legacy business context Vault migration deferred", error));
+    }
+    try { window.localStorage?.removeItem(key); } catch {}
+    return legacy;
   } catch {
     return {};
   }
@@ -3311,7 +3336,24 @@ async function bindWorkspace(options = {}) {
   );
 }
 
+function shouldDeferOperationalHydrationForFoundationHandoff() {
+  try {
+    const completedBusiness =
+      window.AionDevelopmentBusinessSession?.restoreCompletedBusiness?.();
+    if (!completedBusiness) return false;
+    const financeState = window.AionFinancePilot?.load?.();
+    return !financeState || String(financeState.status || "data_sources") !== "complete";
+  } catch {
+    return false;
+  }
+}
+
 async function refreshAll() {
+  if (shouldDeferOperationalHydrationForFoundationHandoff()) {
+    desktopStore.patch({ loading: false });
+    requestRender();
+    return null;
+  }
   const value = await runtimeAdapter.refreshAll(
     getRuntimeAdapterDeps(),
   );
@@ -3350,15 +3392,30 @@ function setActiveTab(tabKey) {
 
   state.activeTab = nextTab;
 
+  /* Main navigation owns the whole page route. Publish the requested route to
+     every restore layer here as well as in the sidebar-specific router so a
+     stale Business sub-page cannot reclaim the screen after hydration. */
+  try {
+    window.__aionForcedMainTabV2 = nextTab;
+    window.__aionLastManualNavTabV2 = nextTab;
+    window.__aionActiveBusinessTab = nextTab;
+    [
+      "aion.activeTab",
+      "aion.activeTab.v1",
+      "aion.lastActiveTab.v1",
+      "aion.forcedMainTab.v2",
+      "aionDesktop.activeTab",
+    ].forEach((key) => window.AionDesktopPreferences.set(key, nextTab));
+    if (typeof safeAionDesktopPatch === "function") {
+      safeAionDesktopPatch({ activeTab: nextTab });
+    }
+  } catch {}
+
   /* Entering the Boardroom always starts from its compact presence strip.
      The founder can explicitly open the live Unity room from the header. */
   if (nextTab === "boardroom" && previousTabKey !== "boardroom") {
     window.__aionBoardroomFullRoomExpandedV2 = false;
   }
-
-  try {
-    window.localStorage?.setItem("aion.activeTab", nextTab);
-  } catch {}
 
   return nextTab;
 }
@@ -3424,7 +3481,7 @@ window.addEventListener("aion:open-organisation-workflow-canvas", (event) => {
     window.setAionSidebarActiveTabHardV1("operations_agents");
   } else {
     setActiveTab("operations_agents");
-    try { localStorage.setItem("aion.forcedMainTab.v2", "operations_agents"); } catch {}
+  try { window.AionDesktopPreferences.set("aion.forcedMainTab.v2", "operations_agents"); } catch {}
     if (typeof render === "function") render();
     else if (typeof requestRender === "function") requestRender();
   }
@@ -3452,16 +3509,18 @@ function renderGlobalStatusBanner() {
 
 function getAionMainSidebarIcon(tabKey) {
   return {
-    boardroom: "AI",
+    boardroom: "SI",
     aion_chat: "",
     communications: "✉",
     work_schedule: "◫",
+    founder_notes: "",
     business_context: "◆",
     marketing_stream: "✦",
     live_agents: "P",
     operations_agents: "⚙",
     file_cabinet: "≡",
     vault: "◈",
+    settings: "◎",
   }[String(tabKey || "")] || "•";
 }
 
@@ -3683,6 +3742,9 @@ function renderAppTabs() {
           const chatIcon = tab.key === "aion_chat"
             ? `<svg class="aion-sidebar-chat-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 5.5h13a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.8 3v-3H5.5A2.5 2.5 0 0 1 3 15V8a2.5 2.5 0 0 1 2.5-2.5Z"/><path d="m15.7 8.2.42 1.18 1.18.42-1.18.42-.42 1.18-.42-1.18-1.18-.42 1.18-.42.42-1.18Z"/></svg>`
             : "";
+          const notesIcon = tab.key === "founder_notes"
+            ? `<svg class="aion-sidebar-notes-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h9.75L20 7.25V20.5H6.5a2.5 2.5 0 0 1-2.5-2.5V6a2.5 2.5 0 0 1 2.5-2.5Z"/><path d="M16 3.75V7.5h3.75M8 11h8M8 14.5h8M8 18h5"/></svg>`
+            : "";
           return `
             <button
               class="aion-workflow-nav-btn app-tab ${activeClass} ${highlightClass}"
@@ -3693,7 +3755,7 @@ function renderAppTabs() {
               aria-label="${escapeHtml(tab.label)}"
               data-aion-sidebar-label="${escapeHtml(tab.label)}"
             >
-              <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon="${connectionIcon || chatIcon ? "" : escapeHtml(icon)}">${connectionIcon || chatIcon}</span>
+              <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon="${connectionIcon || chatIcon || notesIcon ? "" : escapeHtml(icon)}">${connectionIcon || chatIcon || notesIcon}</span>
               <span class="aion-workflow-nav-label">${escapeHtml(tab.label)}</span>
             </button>
           `;
@@ -3820,6 +3882,283 @@ if (!window.__aionDepartmentPilotFlyoutEventsV1Installed) {
 }
 
 
+
+const AION_FOUNDER_NOTES_STORAGE_KEY_V1 = "aion.founderNotes.v1";
+const AION_FOUNDER_NOTES_SELECTED_KEY_V1 = "aion.founderNotes.selected.v1";
+
+function readAionFounderNotesV1() {
+  if (Array.isArray(window.__aionFounderNotes)) {
+    return window.__aionFounderNotes
+      .filter((note) => note && typeof note === "object" && String(note.id || "").trim())
+      .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at)));
+  }
+  try {
+    const parsed = JSON.parse(window.localStorage?.getItem(AION_FOUNDER_NOTES_STORAGE_KEY_V1) || "[]");
+    if (!Array.isArray(parsed)) return [];
+    const notes = parsed
+      .filter((note) => note && typeof note === "object" && String(note.id || "").trim())
+      .map((note) => ({
+        id: String(note.id),
+        title: String(note.title || ""),
+        body: String(note.body || ""),
+        created_at: String(note.created_at || note.updated_at || new Date().toISOString()),
+        updated_at: String(note.updated_at || note.created_at || new Date().toISOString()),
+      }))
+      .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at)));
+    window.__aionFounderNotes = notes;
+    window.localStorage?.removeItem(AION_FOUNDER_NOTES_STORAGE_KEY_V1);
+    window.AionBusinessContainerClient?.saveFounderNotes?.(notes).catch((error) => {
+      console.warn("[AION] Legacy Founder Notes Vault import deferred", error);
+    });
+    return notes;
+  } catch (_) {
+    return [];
+  }
+}
+
+function writeAionFounderNotesV1(notes) {
+  const safeNotes = Array.isArray(notes) ? notes : [];
+  window.__aionFounderNotes = safeNotes;
+  try { window.localStorage?.removeItem(AION_FOUNDER_NOTES_STORAGE_KEY_V1); } catch (_) {}
+  window.AionBusinessContainerClient?.saveFounderNotes?.(safeNotes).catch((error) => {
+    console.warn("[AION] Founder Notes Vault save deferred", error);
+  });
+}
+
+window.addEventListener("aion:founder-notes-loaded", (event) => {
+  window.__aionFounderNotes = Array.isArray(event?.detail?.notes) ? event.detail.notes : [];
+  try { window.localStorage?.removeItem(AION_FOUNDER_NOTES_STORAGE_KEY_V1); } catch (_) {}
+  if (typeof window.requestRender === "function") window.requestRender();
+});
+
+function getSelectedAionFounderNoteIdV1() {
+  try {
+    return String(window.localStorage?.getItem(AION_FOUNDER_NOTES_SELECTED_KEY_V1) || "");
+  } catch (_) {
+    return "";
+  }
+}
+
+function selectAionFounderNoteV1(noteId) {
+  try {
+    window.AionDesktopPreferences.set(AION_FOUNDER_NOTES_SELECTED_KEY_V1, String(noteId || ""));
+  } catch (_) {}
+}
+
+function createAionFounderNoteV1() {
+  const now = new Date().toISOString();
+  const note = {
+    id: `note_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    title: "Untitled note",
+    body: "",
+    created_at: now,
+    updated_at: now,
+  };
+  const notes = readAionFounderNotesV1();
+  notes.unshift(note);
+  writeAionFounderNotesV1(notes);
+  selectAionFounderNoteV1(note.id);
+  return note;
+}
+
+function updateAionFounderNoteV1(noteId, field, value) {
+  if (!noteId || !["title", "body"].includes(field)) return null;
+  const notes = readAionFounderNotesV1();
+  const note = notes.find((item) => item.id === noteId);
+  if (!note) return null;
+  note[field] = String(value || "");
+  note.updated_at = new Date().toISOString();
+  writeAionFounderNotesV1(notes);
+  return note;
+}
+
+function deleteAionFounderNoteV1(noteId) {
+  const notes = readAionFounderNotesV1();
+  const nextNotes = notes.filter((note) => note.id !== noteId);
+  if (nextNotes.length === notes.length) return false;
+  writeAionFounderNotesV1(nextNotes);
+  selectAionFounderNoteV1(nextNotes[0]?.id || "");
+  return true;
+}
+
+function formatAionFounderNoteDateV1(value) {
+  const date = new Date(value || 0);
+  if (Number.isNaN(date.getTime())) return "Just now";
+  const today = new Date();
+  const sameDay = date.toDateString() === today.toDateString();
+  return new Intl.DateTimeFormat(undefined, sameDay
+    ? { hour: "2-digit", minute: "2-digit" }
+    : { day: "numeric", month: "short", year: date.getFullYear() === today.getFullYear() ? undefined : "numeric" }
+  ).format(date);
+}
+
+(function installAionFounderNotesStylesV1() {
+  if (document.getElementById("aion-founder-notes-styles-v1")) return;
+  const style = document.createElement("style");
+  style.id = "aion-founder-notes-styles-v1";
+  style.textContent = `
+    .aion-sidebar-notes-icon{width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .aion-founder-notes-surface{min-height:100vh;background:#f7f9fc;padding:42px 56px 80px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .aion-founder-notes-shell{max-width:1480px;margin:0 auto}
+    .aion-founder-notes-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:0 0 28px}
+    .aion-founder-notes-eyebrow{color:#2563eb;font-size:12px;font-weight:850;letter-spacing:.18em;text-transform:uppercase;margin-bottom:9px}
+    .aion-founder-notes-header h1{margin:0;color:#111827;font-size:46px;line-height:1;letter-spacing:-.045em}
+    .aion-founder-notes-header p{margin:12px 0 0;color:#64748b;font-size:16px}
+    .aion-founder-note-new{border:0;border-radius:13px;background:#2563eb;color:#fff;padding:14px 22px;font:800 15px/1 Inter,ui-sans-serif,system-ui;box-shadow:0 10px 24px rgba(37,99,235,.2);cursor:pointer}
+    .aion-founder-note-new:hover{background:#1d4ed8}
+    .aion-founder-notes-workspace{display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr);min-height:650px;background:#fff;border:1px solid #dbe4f0;border-radius:20px;overflow:hidden;box-shadow:0 18px 50px rgba(15,23,42,.07)}
+    .aion-founder-notes-list-pane{display:flex;flex-direction:column;border-right:1px solid #e2e8f0;background:#fbfcfe}
+    .aion-founder-notes-search-wrap{padding:20px;border-bottom:1px solid #e2e8f0}
+    .aion-founder-notes-search{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#0f172a;padding:12px 14px;font:650 14px/1.2 Inter,ui-sans-serif,system-ui;outline:none}
+    .aion-founder-notes-search:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+    .aion-founder-notes-list{padding:10px;overflow:auto}
+    .aion-founder-note-list-item{width:100%;display:block;text-align:left;border:1px solid transparent;border-radius:12px;background:transparent;padding:14px;cursor:pointer;color:#0f172a}
+    .aion-founder-note-list-item:hover{background:#f1f5f9}
+    .aion-founder-note-list-item.is-active{background:#eaf2ff;border-color:#bfd5ff}
+    .aion-founder-note-list-title{display:block;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .aion-founder-note-list-preview{display:block;margin-top:6px;color:#64748b;font-size:12px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .aion-founder-note-list-date{display:block;margin-top:9px;color:#94a3b8;font-size:11px;font-weight:700}
+    .aion-founder-notes-empty-list{padding:36px 18px;text-align:center;color:#94a3b8;font-size:13px;line-height:1.5}
+    .aion-founder-note-editor{display:flex;min-width:0;flex-direction:column;background:#fff}
+    .aion-founder-note-editor-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 26px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:700}
+    .aion-founder-note-editor-actions{display:flex;align-items:center;gap:14px}
+    .aion-founder-note-saved{color:#15803d}
+    .aion-founder-note-delete{border:0;background:transparent;color:#94a3b8;padding:4px;font:750 12px/1 Inter,ui-sans-serif,system-ui;cursor:pointer}
+    .aion-founder-note-delete:hover{color:#b91c1c;text-decoration:underline}
+    .aion-founder-note-title{width:100%;box-sizing:border-box;border:0;background:transparent;color:#0f172a;padding:34px 42px 12px;font:800 34px/1.15 Inter,ui-sans-serif,system-ui;letter-spacing:-.025em;outline:none}
+    .aion-founder-note-body{width:100%;min-height:510px;box-sizing:border-box;resize:none;border:0;background:transparent;color:#27364a;padding:12px 42px 44px;font:500 17px/1.75 Inter,ui-sans-serif,system-ui;outline:none}
+    .aion-founder-note-empty-editor{display:grid;place-items:center;min-height:650px;padding:40px;text-align:center;color:#64748b}
+    .aion-founder-note-empty-editor strong{display:block;color:#0f172a;font-size:22px;margin-bottom:8px}
+    @media(max-width:900px){.aion-founder-notes-surface{padding:28px 20px 60px}.aion-founder-notes-workspace{grid-template-columns:1fr}.aion-founder-notes-list-pane{max-height:310px;border-right:0;border-bottom:1px solid #e2e8f0}.aion-founder-notes-header{align-items:flex-start}.aion-founder-notes-header h1{font-size:38px}.aion-founder-note-title{padding:26px 24px 10px;font-size:28px}.aion-founder-note-body{padding:10px 24px 32px;min-height:420px}}
+  `;
+  document.head.appendChild(style);
+})();
+
+function renderAionFounderNotesSurfaceV1() {
+  void window.AionBusinessContainerClient?.hydrateFounderNotes?.().catch?.((error) => {
+    console.warn("[AION] Founder Notes Vault hydration deferred", error);
+  });
+  const notes = readAionFounderNotesV1();
+  const requestedId = getSelectedAionFounderNoteIdV1();
+  const selectedNote = notes.find((note) => note.id === requestedId) || notes[0] || null;
+  if (selectedNote && selectedNote.id !== requestedId) selectAionFounderNoteV1(selectedNote.id);
+  const searchQuery = String(window.__aionFounderNotesSearchV1 || "").trim();
+  const searchLower = searchQuery.toLowerCase();
+  const visibleNotes = searchLower
+    ? notes.filter((note) => `${note.title}\n${note.body}`.toLowerCase().includes(searchLower))
+    : notes;
+
+  const listMarkup = visibleNotes.length
+    ? visibleNotes.map((note) => {
+        const title = note.title.trim() || "Untitled note";
+        const preview = note.body.trim().replace(/\s+/g, " ") || "Start writing…";
+        return `
+          <button class="aion-founder-note-list-item ${selectedNote?.id === note.id ? "is-active" : ""}" data-aion-founder-note-select="${escapeHtml(note.id)}" type="button">
+            <span class="aion-founder-note-list-title" data-aion-founder-note-list-title="${escapeHtml(note.id)}">${escapeHtml(title)}</span>
+            <span class="aion-founder-note-list-preview">${escapeHtml(preview)}</span>
+            <span class="aion-founder-note-list-date">${escapeHtml(formatAionFounderNoteDateV1(note.updated_at))}</span>
+          </button>`;
+      }).join("")
+    : `<div class="aion-founder-notes-empty-list">${notes.length ? "No notes match your search." : "Your notes will appear here."}</div>`;
+
+  const editorMarkup = selectedNote
+    ? `
+      <section class="aion-founder-note-editor" aria-label="Note editor">
+        <div class="aion-founder-note-editor-toolbar">
+          <span>Updated ${escapeHtml(formatAionFounderNoteDateV1(selectedNote.updated_at))}</span>
+          <div class="aion-founder-note-editor-actions">
+            <span class="aion-founder-note-saved" data-aion-founder-note-save-status="true">Saved on this device</span>
+            <button class="aion-founder-note-delete" data-aion-founder-note-delete="${escapeHtml(selectedNote.id)}" type="button">Delete note</button>
+          </div>
+        </div>
+        <input class="aion-founder-note-title" data-aion-founder-note-field="title" data-note-id="${escapeHtml(selectedNote.id)}" value="${escapeHtml(selectedNote.title)}" placeholder="Note title" aria-label="Note title" />
+        <textarea class="aion-founder-note-body" data-aion-founder-note-field="body" data-note-id="${escapeHtml(selectedNote.id)}" placeholder="Write a thought, decision, idea or operating note…" aria-label="Note body">${escapeHtml(selectedNote.body)}</textarea>
+      </section>`
+    : `
+      <section class="aion-founder-note-empty-editor">
+        <div><strong>Start your first note</strong>Capture ideas, decisions and reminders while they are fresh.</div>
+      </section>`;
+
+  return `
+    <div class="surface-shell aion-founder-notes-surface" data-aion-founder-notes-surface="true">
+      ${renderAppTabs()}
+      <div class="aion-founder-notes-shell">
+        <header class="aion-founder-notes-header">
+          <div>
+            <div class="aion-founder-notes-eyebrow">Founder workspace</div>
+            <h1>Notes</h1>
+            <p>Capture decisions, ideas and operating notes without leaving Tessaris.</p>
+          </div>
+          <button class="aion-founder-note-new" data-aion-founder-note-new="true" type="button">+ New note</button>
+        </header>
+        <div class="aion-founder-notes-workspace">
+          <aside class="aion-founder-notes-list-pane" aria-label="Notes">
+            <div class="aion-founder-notes-search-wrap">
+              <input class="aion-founder-notes-search" data-aion-founder-notes-search="true" value="${escapeHtml(searchQuery)}" placeholder="Search notes" aria-label="Search notes" />
+            </div>
+            <div class="aion-founder-notes-list">${listMarkup}</div>
+          </aside>
+          ${editorMarkup}
+        </div>
+      </div>
+    </div>`;
+}
+
+if (!window.__aionFounderNotesEventsV1Installed) {
+  window.__aionFounderNotesEventsV1Installed = true;
+  document.addEventListener("click", (event) => {
+    const newButton = event.target?.closest?.("[data-aion-founder-note-new]");
+    if (newButton) {
+      createAionFounderNoteV1();
+      requestRender?.();
+      window.setTimeout(() => {
+        const titleInput = document.querySelector('[data-aion-founder-note-field="title"]');
+        titleInput?.focus?.();
+        titleInput?.select?.();
+      }, 0);
+      return;
+    }
+    const deleteButton = event.target?.closest?.("[data-aion-founder-note-delete]");
+    if (deleteButton) {
+      const noteId = String(deleteButton.getAttribute("data-aion-founder-note-delete") || "");
+      const accepted = window.confirm?.("Delete this note? This cannot be undone.");
+      if (accepted && deleteAionFounderNoteV1(noteId)) requestRender?.();
+      return;
+    }
+    const noteButton = event.target?.closest?.("[data-aion-founder-note-select]");
+    if (noteButton) {
+      selectAionFounderNoteV1(noteButton.getAttribute("data-aion-founder-note-select"));
+      requestRender?.();
+    }
+  }, true);
+
+  document.addEventListener("input", (event) => {
+    const searchInput = event.target?.closest?.("[data-aion-founder-notes-search]");
+    if (searchInput) {
+      window.__aionFounderNotesSearchV1 = String(searchInput.value || "");
+      const caret = searchInput.selectionStart;
+      requestRender?.();
+      window.setTimeout(() => {
+        const nextSearch = document.querySelector("[data-aion-founder-notes-search]");
+        nextSearch?.focus?.();
+        nextSearch?.setSelectionRange?.(caret, caret);
+      }, 0);
+      return;
+    }
+    const field = event.target?.closest?.("[data-aion-founder-note-field]");
+    if (!field) return;
+    const noteId = String(field.getAttribute("data-note-id") || "");
+    const fieldName = String(field.getAttribute("data-aion-founder-note-field") || "");
+    const note = updateAionFounderNoteV1(noteId, fieldName, field.value);
+    if (!note) return;
+    const status = document.querySelector("[data-aion-founder-note-save-status]");
+    if (status) status.textContent = "Saved just now";
+    if (fieldName === "title") {
+      const listTitle = document.querySelector(`[data-aion-founder-note-list-title="${CSS.escape(noteId)}"]`);
+      if (listTitle) listTitle.textContent = note.title.trim() || "Untitled note";
+    }
+  }, true);
+}
 
 function renderAionSitewideFileCabinetSurface() {
   return `
@@ -4982,7 +5321,7 @@ function renderAionSitewideFileCabinetSurface() {
   function rememberWorkspaceRoute() {
     const route = currentRoute();
     if (!validRoutes.has(route)) return;
-    try { window.localStorage?.setItem(LAST_ROUTE_KEY, route); } catch (_) {}
+    try { window.AionDesktopPreferences.set(LAST_ROUTE_KEY, route); } catch (_) {}
   }
 
   function restoreLegacyCabinetRoute() {
@@ -4998,11 +5337,11 @@ function renderAionSitewideFileCabinetSurface() {
       state.activeTab = route;
       window.__aionActiveBusinessTab = route;
       window.__aionForcedMainTabV2 = route;
-      window.localStorage?.setItem("aion.activeTab", route);
-      window.localStorage?.setItem("aion.activeTab.v1", route);
-      window.localStorage?.setItem("aion.lastActiveTab.v1", route);
-      window.localStorage?.setItem("aion.forcedMainTab.v2", route);
-      window.localStorage?.setItem("aionDesktop.activeTab", route);
+      window.AionDesktopPreferences.set("aion.activeTab", route);
+      window.AionDesktopPreferences.set("aion.activeTab.v1", route);
+      window.AionDesktopPreferences.set("aion.lastActiveTab.v1", route);
+      window.AionDesktopPreferences.set("aion.forcedMainTab.v2", route);
+      window.AionDesktopPreferences.set("aionDesktop.activeTab", route);
     } catch (_) {}
   }
 
@@ -5031,7 +5370,7 @@ function renderAionSitewideFileCabinetSurface() {
     window.__aionWorkflowFileCabinetOpen = open;
     window.__aionFileCabinetOpen = open;
     window.__aionWorkflowFileCabinetVisible = open;
-    try { window.localStorage?.setItem(OPEN_KEY, open ? "true" : "false"); } catch (_) {}
+    try { window.AionDesktopPreferences.set(OPEN_KEY, open ? "true" : "false"); } catch (_) {}
     applyOpenState({ resetScroll });
   }
 
@@ -5870,12 +6209,9 @@ function readAionExecutiveCoordinationV1() {
 }
 
 function readAionMarketingLegacyLedgerV1() {
-  try {
-    const value = JSON.parse(window.localStorage?.getItem("aion.departmentIntelligence.marketing") || "{}");
-    return value && typeof value === "object" ? value : {};
-  } catch {
-    return {};
-  }
+  return typeof getAionDepartmentLedgerEntry === "function"
+    ? getAionDepartmentLedgerEntry("marketing")
+    : {};
 }
 
 function getAionNestedValueV1(source, paths = []) {
@@ -6082,7 +6418,7 @@ function buildAionMarketingOperationsReviewV1() {
     updated_at: now,
   };
   try {
-    window.localStorage?.setItem(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2));
   } catch {}
   return { ok: true, record: ledger.marketing };
 }
@@ -6124,12 +6460,9 @@ function renderAionMarketingFunctionSnapshotV1(department) {
 }
 
 function readAionSalesLegacyLedgerV1() {
-  try {
-    const value = JSON.parse(window.localStorage?.getItem("aion.departmentIntelligence.sales") || "{}");
-    return value && typeof value === "object" ? value : {};
-  } catch {
-    return {};
-  }
+  return typeof getAionDepartmentLedgerEntry === "function"
+    ? getAionDepartmentLedgerEntry("sales")
+    : {};
 }
 
 function getAionSalesDashboardSnapshotV1(department = {}) {
@@ -6320,7 +6653,7 @@ function buildAionSalesOperationsReviewV1() {
     proposal: { status: hasBoardPlan && !gaps.length ? "decision_ready" : "blocked", summary: proposalSummary, live_external_execution: false, approval_required: true, created_at: now },
     updated_at: now,
   };
-  try { window.localStorage?.setItem(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2)); } catch {}
+  try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2)); } catch {}
   return { ok: true, record: ledger.sales };
 }
 
@@ -6369,12 +6702,9 @@ function renderAionSalesFunctionSnapshotV1(department) {
 }
 
 function readAionFinanceLegacyLedgerV1() {
-  try {
-    const value = JSON.parse(window.localStorage?.getItem("aion.departmentIntelligence.finance") || "{}");
-    return value && typeof value === "object" ? value : {};
-  } catch {
-    return {};
-  }
+  return typeof getAionDepartmentLedgerEntry === "function"
+    ? getAionDepartmentLedgerEntry("finance")
+    : {};
 }
 
 function buildAionFinanceCashRadarV1(source = {}, openingCashRaw) {
@@ -6694,7 +7024,7 @@ function buildAionFinanceCeoReviewV1() {
     proposal: { status: hasBoardPlan ? "decision_ready" : "blocked", summary: proposalSummary, live_external_execution: false, approval_required: true, created_at: now },
     updated_at: now,
   };
-  try { window.localStorage?.setItem(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2)); } catch {}
+  try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2)); } catch {}
   return { ok: true, record: ledger.finance };
 }
 
@@ -7182,7 +7512,7 @@ if (!window.__aionExecutiveDashboardNavigationV1Installed) {
         updated_at: new Date().toISOString(),
       };
       try {
-        window.localStorage?.setItem(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2));
+        window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2));
       } catch {}
       if (typeof safeAionDesktopPatch === "function") {
         safeAionDesktopPatch({
@@ -7250,7 +7580,7 @@ if (!window.__aionExecutiveDashboardNavigationV1Installed) {
         },
         updated_at: new Date().toISOString(),
       };
-      try { window.localStorage?.setItem(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2)); } catch {}
+      try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2)); } catch {}
       if (typeof safeAionDesktopPatch === "function") {
         safeAionDesktopPatch({
           message: status === "approved"
@@ -7298,7 +7628,7 @@ if (!window.__aionExecutiveDashboardNavigationV1Installed) {
         },
         updated_at: new Date().toISOString(),
       };
-      try { window.localStorage?.setItem(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2)); } catch {}
+      try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_EXECUTIVE_COORDINATION_STORAGE_V1, JSON.stringify(ledger, null, 2)); } catch {}
       if (typeof safeAionDesktopPatch === "function") {
         safeAionDesktopPatch({
           message: status === "approved"
@@ -11684,8 +12014,7 @@ function renderBoardroomDepartmentIntelligencePanel() {
     if (typeof getAionDepartmentIntelligence === "function") {
       ledger = getAionDepartmentIntelligence();
     } else {
-      const raw = localStorage.getItem("aion.departmentIntelligence.v1") || "{}";
-      ledger = JSON.parse(raw);
+      ledger = window.__aionDepartmentIntelligenceMemory || {};
     }
   } catch {
     ledger = {};
@@ -11711,7 +12040,7 @@ function renderBoardroomDepartmentIntelligencePanel() {
       <div class="surface-eyebrow">Department Intelligence</div>
       <div class="panel-title">Department Intelligence Ledger</div>
       <div class="helper-text">
-        Safe Boardroom fallback reading <code>aion.departmentIntelligence.v1</code>.
+        Safe Boardroom fallback reading the canonical Department Intelligence projection.
       </div>
       <div class="list-wrap" style="margin-top:10px;">
         ${rows}
@@ -11929,7 +12258,7 @@ if (!window.__aionBoardroomViewToggleAuthorityV1) {
     try {
       state.boardroomViewMode = mode;
       window.__aionBoardroomManualViewModeV1 = mode;
-      localStorage.setItem("aion.boardroomViewMode.v1", mode);
+    window.AionDesktopPreferences.set("aion.boardroomViewMode.v1", mode);
     } catch {}
 
     if (typeof requestRender === "function") requestRender();
@@ -11940,29 +12269,599 @@ if (!window.__aionBoardroomViewToggleAuthorityV1) {
 }
 
 
-function renderBoardroomSpatialView(snapshot) {
-  const fullRoomExpanded = window.__aionBoardroomFullRoomExpandedV2 === true;
+function normaliseAionBoardroomWorkspaceModeV1(value = "board") {
+  return String(value || "").trim().toLowerCase() === "executive" ? "executive" : "board";
+}
+
+function getAionBoardroomWorkspaceModeV1() {
+  const stored = window.__aionBoardroomWorkspaceModeV1 ||
+    window.localStorage?.getItem("aion.boardroom.workspaceMode.v1") ||
+    "board";
+  return normaliseAionBoardroomWorkspaceModeV1(stored);
+}
+
+async function syncAionBoardroomWorkspaceModeV1(mode = "board") {
+  const nextMode = normaliseAionBoardroomWorkspaceModeV1(mode);
+  window.__aionSpatialBoardroomTeamMode = nextMode;
+  try {
+    return await window.aionDesktop?.sendSpatialBoardroomEvent?.({
+      type: "team_mode",
+      mode: nextMode,
+    });
+  } catch (_) {
+    return null;
+  }
+}
+
+function setAionBoardroomWorkspaceModeV1(mode = "board") {
+  const nextMode = normaliseAionBoardroomWorkspaceModeV1(mode);
+  window.__aionBoardroomWorkspaceModeV1 = nextMode;
+  window.__aionSpatialBoardroomTeamMode = nextMode;
+  window.__aionBoardroomFullRoomExpandedV2 = false;
+  try { window.AionDesktopPreferences.set("aion.boardroom.workspaceMode.v1", nextMode); } catch {}
+  void syncAionBoardroomWorkspaceModeV1(nextMode);
+  if (typeof requestRender === "function") requestRender("boardroom-workspace-mode");
+  else if (typeof render === "function") render();
+  window.setTimeout(async () => {
+    await mountAionEmbeddedBoardroomV1(true);
+    await syncAionBoardroomWorkspaceModeV1(nextMode);
+  }, 260);
+  return nextMode;
+}
+
+window.setAionBoardroomWorkspaceModeV1 = setAionBoardroomWorkspaceModeV1;
+
+if (!window.__aionBoardroomWorkspaceModeControlsV1) {
+  window.__aionBoardroomWorkspaceModeControlsV1 = true;
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-boardroom-workspace-mode-control]");
+    if (!button) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setAionBoardroomWorkspaceModeV1(button.getAttribute("data-aion-boardroom-workspace-mode-control") || "board");
+  }, true);
+}
+
+function normaliseAionExecutiveBriefingItemsV1(items = []) {
+  const source = typeof items === "string" ? [items] : Array.isArray(items) ? items : [];
+  if (source.length >= 4 && source.every((item) => String(item ?? "").length <= 1)) {
+    const repaired = source.join("").trim();
+    if (!repaired) return [];
+    return ["Legacy operating record needs refresh. Close the operating day to regenerate it from current evidence."];
+  }
+  return source.map((item) => String(item || "").trim()).filter(Boolean);
+}
+
+function normaliseAionExecutiveActionsV1(items = []) {
+  return safeArray(items).filter((item) => String(item?.title || "").trim().length > 1);
+}
+
+function renderAionExecutiveBriefingListV1(items = [], emptyText = "Nothing recorded") {
+  const values = normaliseAionExecutiveBriefingItemsV1(items);
+  return values.length
+    ? `<ul>${values.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+    : `<p class="aion-executive-briefing-empty">${escapeHtml(emptyText)}</p>`;
+}
+
+function aionExecutiveStatusSignatureV2(status = {}) {
+  const latest = status.latest_briefing || {};
+  return JSON.stringify({
+    meeting_id: latest.meeting_id || "",
+    created_at: latest.created_at || "",
+    actions: safeArray(latest.executive_actions).length,
+    feedback: safeArray(latest.board_feedback).length,
+    channels: safeArray(status.channels).map((item) => [item.department_id, item.message_count, item.latest_at, item.open_action_count]),
+  });
+}
+
+function aionExecutiveDepartmentSignalV2(department = {}, channel = {}, actions = [], feedback = []) {
+  const key = String(department.key || channel.department_id || "department");
+  const plans = normaliseAionExecutiveBriefingItemsV1(department.today_plan);
+  const outstanding = normaliseAionExecutiveBriefingItemsV1(department.outstanding);
+  const results = normaliseAionExecutiveBriefingItemsV1(department.yesterday_results);
+  const departmentActions = actions.filter((item) => String(item?.department_id || "") === key);
+  const departmentFeedback = feedback.filter((item) => String(item?.department_id || "") === key);
+  const latestAt = channel.latest_at ? formatDateTime(channel.latest_at) : "Waiting for first verified event";
+  return {
+    key,
+    label: department.role?.name || department.display_name || channel.display_name || key.replaceAll("_", " "),
+    title: department.role?.title || `${department.display_name || channel.display_name || key} Pilot`,
+    status: channel.latest_at ? "reporting" : "listening",
+    headline: plans[0] || outstanding[0] || results[0] || department.summary || "Listening for verified business events.",
+    latestAt,
+    messageCount: Number(channel.message_count || 0),
+    actionCount: departmentActions.length || Number(channel.open_action_count || 0),
+    escalationCount: departmentFeedback.length,
+    evidenceCount: safeArray(department.source_ids).length,
+    summary: department.summary || "Listening for verified business activity.",
+    yesterdayResults: results,
+    todayPlan: plans,
+    outstanding,
+    risksAndVariance: [
+      ...normaliseAionExecutiveBriefingItemsV1(department.risks),
+      String(department.target_variance || "").trim(),
+    ].filter(Boolean),
+    decisionsNeeded: normaliseAionExecutiveBriefingItemsV1(department.decisions_needed),
+    actionsProposed: normaliseAionExecutiveBriefingItemsV1(department.actions),
+    accountableActions: departmentActions,
+    escalations: departmentFeedback,
+  };
+}
+
+function renderAionExecutiveTerminalReportLinesV2(label, items = [], emptyText = "Nothing recorded", tone = "signal") {
+  const values = normaliseAionExecutiveBriefingItemsV1(items);
+  const lines = values.length ? values : [emptyText];
+  return lines.map((item, index) => `
+    <p class="aion-live-terminal-line" data-tone="${escapeHtml(tone)}">
+      <b>${index === 0 ? `${escapeHtml(label)} &gt;` : "›"}</b><span>${escapeHtml(item)}</span>
+    </p>`).join("");
+}
+
+function getAionExecutiveMarketingChannelLinesV2(department = {}) {
+  if (typeof getAionMarketingDashboardSnapshotV1 !== "function") return { lines: [], hasRecordedOutcome: false };
+  const snapshot = getAionMarketingDashboardSnapshotV1(department) || {};
+  const lines = [];
+  const seen = new Set();
+  const addLine = (label, value) => {
+    const cleanLabel = String(label || "").trim();
+    const cleanValue = String(value ?? "").trim();
+    if (!cleanLabel || !cleanValue || cleanValue === "Not connected") return;
+    const signature = `${cleanLabel.toLowerCase()}::${cleanValue.toLowerCase()}`;
+    if (seen.has(signature)) return;
+    seen.add(signature);
+    lines.push(`${cleanLabel}: ${cleanValue}`);
+  };
+
+  const liveEnquiries = Array.isArray(window.__aionWebsiteEnquiryFeedRows)
+    ? window.__aionWebsiteEnquiryFeedRows
+    : [];
+  const gmailReadiness = typeof getAionPhase17GGmailVaultReadiness === "function"
+    ? (getAionPhase17GGmailVaultReadiness() || {})
+    : {};
+  addLine(
+    "Inbox & Email · new sales enquiries",
+    `${liveEnquiries.length} · ${gmailReadiness.connected === true ? "connected" : "intake available"}`,
+  );
+
+  if (!window.__aionAgentCommerceStatus && !window.__aionAgentCommerceLoading && typeof loadAionAgentCommerceStatus === "function") {
+    window.setTimeout(() => loadAionAgentCommerceStatus(false), 0);
+  }
+  const agentCommerce = window.__aionAgentCommerceStatus || {};
+  const agentCounts = agentCommerce.counts || {};
+  const agentChannelReady = Boolean(agentCommerce.channel || agentCommerce.protocol_version);
+  addLine(
+    "Agent-to-Agent · new sales requests",
+    agentChannelReady ? `${Number(agentCounts.open_tasks || 0)} · connected` : "checking connection",
+  );
+
+  if (typeof aionMarketingConnectionState !== "undefined" && !aionMarketingConnectionState.loaded && !aionMarketingConnectionState.loading && typeof loadAionMarketingConnections === "function") {
+    window.setTimeout(() => loadAionMarketingConnections(false), 0);
+  }
+  const socialConnections = typeof aionMarketingConnectionState !== "undefined"
+    ? safeArray(aionMarketingConnectionState.connections)
+    : [];
+  const connectedSocialAccounts = socialConnections.filter((item) => item?.connected && Object.keys(item?.selected_accounts || {}).length && item?.health === "healthy");
+  addLine(
+    "Social accounts",
+    typeof aionMarketingConnectionState !== "undefined" && aionMarketingConnectionState.loaded
+      ? (connectedSocialAccounts.length ? `${connectedSocialAccounts.length} connected` : "not connected")
+      : "checking connections",
+  );
+
+  const lab = typeof getAionMarketingCreativeLabState === "function"
+    ? (getAionMarketingCreativeLabState() || {})
+    : {};
+  const scheduledPosts = safeArray(lab?.plan?.campaign_schedule);
+  addLine("Scheduled posts", scheduledPosts.length);
+  const publicationPackage = lab.publicationPackage || {};
+  const livePublicationStatuses = new Set(["live", "published", "active", "running", "executed"]);
+  const advertsLive = String(lab.publicationMode || publicationPackage.mode || "").toLowerCase() === "paid"
+    && livePublicationStatuses.has(String(publicationPackage.status || "").toLowerCase())
+    ? 1
+    : 0;
+  addLine("Adverts live", advertsLive);
+
+  safeArray(snapshot.metrics).filter((metric) => metric?.available).forEach((metric) => {
+    addLine(metric.label, metric.value);
+  });
+
+  const ignoredPlatformFields = new Set([
+    "id", "name", "platform", "provider", "account", "account_id", "source", "source_id",
+    "updated_at", "created_at", "last_updated", "connected", "status", "currency",
+  ]);
+  safeArray(snapshot.platforms).forEach((platform, index) => {
+    const channelName = firstString(platform?.name, platform?.platform, platform?.provider, platform?.account)
+      || `Connected channel ${index + 1}`;
+    Object.entries(platform || {}).forEach(([key, value]) => {
+      if (ignoredPlatformFields.has(key) || value === undefined || value === null || value === "") return;
+      if (typeof value === "object") return;
+      const metricLabel = String(key).replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+      addLine(`${channelName} · ${metricLabel}`, formatAionMarketingMetricValueV1(value));
+    });
+  });
+  const hasRecordedOutcome = safeArray(snapshot.metrics).some((metric) => metric?.available)
+    || safeArray(snapshot.platforms).length > 0
+    || liveEnquiries.length > 0
+    || Number(agentCounts.open_tasks || 0) > 0
+    || scheduledPosts.length > 0
+    || advertsLive > 0;
+  return { lines, hasRecordedOutcome };
+}
+
+function getAionExecutiveCooReportsV2(terminalSignals = [], recordedAt = "") {
+  const signals = safeArray(terminalSignals);
+  const reportEvents = signals.map((signal) => {
+    const channelResults = safeArray(signal.channelResults);
+    const decisions = normaliseAionExecutiveBriefingItemsV1(signal.decisionsNeeded);
+    const risks = normaliseAionExecutiveBriefingItemsV1(signal.risksAndVariance);
+    const parts = [];
+    if (channelResults.length) parts.push(`Channels: ${channelResults.join(" · ")}`);
+    if (decisions.length) parts.push(`Decision requested: ${decisions.join(" ")}`);
+    else if (risks.length) parts.push(`Risk reported: ${risks.join(" ")}`);
+    else parts.push(`Operating status: ${signal.summary || "No verified department update was supplied."}`);
+    return {
+      at: recordedAt,
+      from: signal.label || signal.key || "Department",
+      to: "COO",
+      kind: "department-report",
+      department: signal.key,
+      priority: 60,
+      text: parts.join(" | "),
+    };
+  });
+
+  const marketing = signals.find((signal) => signal.key === "marketing");
+  const sales = signals.find((signal) => signal.key === "sales");
+  const marketingEvidence = [
+    marketing?.summary,
+    ...safeArray(marketing?.channelResults),
+    ...safeArray(marketing?.decisionsNeeded),
+    ...safeArray(marketing?.risksAndVariance),
+  ].filter(Boolean).join(" ");
+  const salesEvidence = [
+    sales?.summary,
+    ...safeArray(sales?.yesterdayResults),
+    ...safeArray(sales?.outstanding),
+    ...safeArray(sales?.decisionsNeeded),
+    ...safeArray(sales?.risksAndVariance),
+  ].filter(Boolean).join(" ");
+  const marketingBlocked = marketing?.channelRecordedOutcome !== true
+    && /not connected|no positive marketing outcome|scheduled posts:\s*0|adverts live:\s*0|insufficient evidence|needs_discovery/i.test(marketingEvidence);
+  const salesBlocked = /no sales activity|no new leads|no settled-sales|no deposits|no quotes|lack of sales activity/i.test(salesEvidence);
+  const bottleneck = marketingBlocked && salesBlocked
+    ? [{
+        at: recordedAt,
+        from: "COO",
+        to: "Executive Team",
+        kind: "bottleneck",
+        priority: 100,
+        text: "RED FLAG · COMMERCIAL BOTTLENECK: Marketing has no verified acquisition outcome and Sales has no recorded activity. Connected evidence shows the acquisition-to-sales flywheel is stalled. COO intervention is required to connect the missing channels, approve bounded execution instructions and restore Marketing → Sales → Cash flow.",
+      }]
+    : [];
+  return [...bottleneck, ...reportEvents];
+}
+
+function renderAionExecutiveTerminalV2(signal = {}, index = 0) {
+  const actionTotal = safeArray(signal.accountableActions).length + safeArray(signal.escalations).length;
+  const channelLines = safeArray(signal.channelResults);
+  const marketingHasNoOutcome = signal.key === "marketing" && signal.channelRecordedOutcome !== true;
+  const displayedActionTotal = actionTotal + (marketingHasNoOutcome ? 1 : 0);
   return `
-    <div class="dashboard-shell aion-boardroom-workspace" data-aion-spatial-boardroom-layout="embedded-unity">
-      <div
-        class="aion-boardroom-page-controls"
-        style="display:flex;justify-content:flex-end;align-items:center;gap:8px;box-sizing:border-box;"
-      >
-        <button
-          type="button"
-          class="secondary-btn"
-          data-aion-executive-header-action="toggle-boardroom-full-room"
-          data-aion-boardroom-return-full-room="true"
-          aria-expanded="${fullRoomExpanded ? "true" : "false"}"
-          aria-label="${fullRoomExpanded ? "Close full Boardroom" : "Expand full Boardroom"}"
-          title="${fullRoomExpanded ? "Close full Boardroom" : "Expand full Boardroom"}"
-          style="width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid #cbd6e5;border-radius:12px;background:#fff;color:#182942;font-size:22px;font-weight:700;box-shadow:0 4px 14px rgba(24,41,66,.05);"
-        >
-          ${fullRoomExpanded
-            ? `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 12h10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`
-            : `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M20 15v5h-5M4 15v5h5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
-        </button>
+    <article class="aion-live-terminal" data-aion-executive-terminal="${escapeHtml(signal.key)}">
+      <span class="aion-live-terminal-chrome">
+        <b>${escapeHtml(signal.label)} terminal</b>
+        <span class="aion-live-terminal-tabs" role="tablist" aria-label="${escapeHtml(signal.label)} terminal views">
+          <button type="button" class="is-active" data-aion-executive-terminal-tab="report" role="tab" aria-selected="true">Terminal</button>
+          <button type="button" data-aion-executive-terminal-tab="actions" role="tab" aria-selected="false">Actions</button>
+        </span>
+        <em><u></u>${escapeHtml(signal.status)}</em>
+      </span>
+      <div class="aion-live-terminal-report" data-aion-executive-terminal-panel="report" role="tabpanel">
+        <div class="aion-live-terminal-scroll">
+          <p class="aion-live-terminal-line" data-tone="meta"><b>record &gt;</b><span>${signal.evidenceCount} evidence source${signal.evidenceCount === 1 ? "" : "s"} · ${escapeHtml(signal.latestAt)}</span></p>
+          <p class="aion-live-terminal-line" data-tone="summary"><b>${escapeHtml(signal.label)} &gt;</b><span>${escapeHtml(signal.summary)}</span></p>
+          ${renderAionExecutiveTerminalReportLinesV2("yesterday", signal.yesterdayResults, "No evidenced result was supplied.")}
+          ${renderAionExecutiveTerminalReportLinesV2("today", signal.todayPlan, "No plan item was supplied.", "action")}
+          ${renderAionExecutiveTerminalReportLinesV2("outstanding", signal.outstanding, "No outstanding item was supplied.", "work")}
+          ${renderAionExecutiveTerminalReportLinesV2("risk", signal.risksAndVariance, "No evidenced variance was supplied.", "risk")}
+          ${renderAionExecutiveTerminalReportLinesV2("decision", signal.decisionsNeeded, "No founder decision is currently requested.", "decision")}
+          ${renderAionExecutiveTerminalReportLinesV2("action", signal.actionsProposed, "No bounded action was proposed.", "action")}
+          ${marketingHasNoOutcome ? `<p class="aion-live-terminal-line" data-tone="risk"><b>status &gt;</b><span>No positive Marketing outcome has been recorded across the available channels yet.</span></p>` : ""}
+          ${channelLines.map((item, channelIndex) => `<p class="aion-live-terminal-line" data-tone="channel"><b>${channelIndex === 0 ? "channels &gt;" : "›"}</b><span>${escapeHtml(item)}</span></p>`).join("")}
+          <p class="aion-live-terminal-awaiting"><span>›</span> awaiting new work<span class="aion-terminal-cursor">_</span></p>
+        </div>
       </div>
+      <div class="aion-live-terminal-report aion-live-terminal-actions" data-aion-executive-terminal-panel="actions" role="tabpanel" hidden>
+        <div class="aion-live-terminal-scroll">
+          <p class="aion-live-terminal-line" data-tone="meta"><b>queue &gt;</b><span>${displayedActionTotal} accountable item${displayedActionTotal === 1 ? "" : "s"}</span></p>
+          ${safeArray(signal.accountableActions).map((item) => `
+            <p class="aion-live-terminal-line" data-tone="action"><b>action &gt;</b><span>${escapeHtml(item?.title || "Accountable action recorded")} <i>${escapeHtml(String(item?.status || "open").replaceAll("_", " "))}</i></span></p>`).join("")}
+          ${safeArray(signal.escalations).map((item) => `
+            <p class="aion-live-terminal-line" data-tone="risk"><b>CEO / Board &gt;</b><span>${escapeHtml(item?.target_variance || safeArray(item?.risks)[0] || "Material review required")} <i>${escapeHtml(String(item?.status || "staged").replaceAll("_", " "))}</i></span></p>`).join("")}
+          ${marketingHasNoOutcome ? `<p class="aion-live-terminal-line" data-tone="risk"><b>flywheel &gt;</b><span>Generate the first measurable acquisition result through an available channel; connect Social before including it in performance reporting.</span></p>` : ""}
+          ${displayedActionTotal ? "" : `<p class="aion-live-terminal-line" data-tone="summary"><b>›</b><span>No accountable actions or CEO / Board escalations are currently recorded.</span></p>`}
+          <p class="aion-live-terminal-awaiting"><span>›</span> awaiting accountable work<span class="aion-terminal-cursor">_</span></p>
+        </div>
+      </div>
+    </article>`;
+}
+
+function renderAionExecutiveBriefingWorkspaceContentV1(status = {}) {
+  const latest = status.latest_briefing || null;
+  const departments = latest?.departments && typeof latest.departments === "object"
+    ? Object.entries(latest.departments).map(([key, value]) => ({ key, ...(value || {}) }))
+    : [];
+  const displayDepartments = departments.filter((item) => item.key !== "people");
+  const actions = normaliseAionExecutiveActionsV1(latest?.executive_actions);
+  const feedback = safeArray(latest?.board_feedback);
+  const channels = safeArray(status.channels);
+  const displayActions = actions.filter((item) => String(item?.department_id || "").toLowerCase() !== "people");
+  const displayFeedback = feedback.filter((item) => String(item?.department_id || "").toLowerCase() !== "people");
+  const displayChannels = channels.filter((item) => String(item?.department_id || "").toLowerCase() !== "people");
+  const channelMap = Object.fromEntries(channels.map((item) => [String(item?.department_id || ""), item || {}]));
+  const terminalOrder = new Map([["marketing", 0], ["sales", 1], ["finance", 2], ["support", 3]]);
+  const terminalSignals = displayDepartments.map((department) => {
+    const signal = aionExecutiveDepartmentSignalV2(department, channelMap[department.key] || {}, actions, feedback);
+    if (signal.key === "marketing") {
+      const channelStatus = getAionExecutiveMarketingChannelLinesV2(department);
+      signal.channelResults = channelStatus.lines;
+      signal.channelRecordedOutcome = channelStatus.hasRecordedOutcome;
+    }
+    return signal;
+  }).sort((left, right) => (terminalOrder.get(left.key) ?? 99) - (terminalOrder.get(right.key) ?? 99));
+  const channelMessages = displayChannels.reduce((total, item) => total + Number(item?.message_count || 0), 0);
+  const evidenceCount = displayDepartments.reduce((total, item) => total + safeArray(item?.source_ids).length, 0);
+  const cooDepartmentReports = getAionExecutiveCooReportsV2(terminalSignals, latest?.created_at || "");
+  const activityEvents = [
+    ...cooDepartmentReports,
+    {
+      at: latest?.created_at || "",
+      from: "COO system",
+      to: "Executive network",
+      kind: "signal",
+      priority: 20,
+      text: `${terminalSignals.length} terminals connected · ${channelMessages} messages retained · ${displayActions.length} accountable action${displayActions.length === 1 ? "" : "s"} in motion · ${displayFeedback.length} issue${displayFeedback.length === 1 ? "" : "s"} routed · ${evidenceCount} verified evidence source${evidenceCount === 1 ? "" : "s"} attached`,
+    },
+    ...displayActions.map((item) => ({
+      at: item.created_at || latest?.created_at || "",
+      from: item.department_id || "executive",
+      to: "COO",
+      kind: "action",
+      priority: 50,
+      text: item.title || "Accountable action recorded",
+    })),
+    ...displayFeedback.map((item) => ({
+      at: item.created_at || latest?.created_at || "",
+      from: item.department_id || "executive",
+      to: "COO",
+      kind: "issue",
+      priority: 50,
+      text: item.target_variance || safeArray(item.risks)[0] || "Material review required",
+    })),
+    ...displayChannels.filter((item) => item.latest_at).map((item) => ({
+      at: item.latest_at,
+      from: item.display_name || item.department_id,
+      to: "COO",
+      kind: "signal",
+      priority: 10,
+      text: ["morning_minutes", "daily_close_minutes"].includes(String(item.latest_type || ""))
+        ? "daily operating record"
+        : String(item.latest_type || "department update").replaceAll("_", " "),
+    })),
+  ].sort((a, b) => String(a.at).localeCompare(String(b.at)) || Number(a.priority || 0) - Number(b.priority || 0)).slice(-14);
+  return `
+    ${latest ? `
+      <section class="aion-executive-console-grid" aria-label="Live executive operations terminals">
+        <article class="aion-coo-terminal" data-aion-executive-terminal="coo">
+          <header class="aion-console-chrome">
+            <b>COO · central operating terminal</b>
+            <span class="aion-live-terminal-tabs" role="tablist" aria-label="COO terminal views">
+              <button type="button" class="is-active" data-aion-executive-terminal-tab="activity" role="tab" aria-selected="true">Terminal</button>
+              <button type="button" data-aion-executive-terminal-tab="actions" role="tab" aria-selected="false">Actions</button>
+            </span>
+            <button type="button" data-aion-executive-run-morning-briefing="true">Close operating day</button><em><u></u>live</em>
+          </header>
+          <div class="aion-coo-console-body" data-aion-executive-terminal-panel="activity" role="tabpanel">
+            <div class="aion-coo-terminal-stream aion-live-terminal-scroll">
+              ${activityEvents.map((item) => `
+                <p class="aion-coo-terminal-line" data-kind="${escapeHtml(item.kind)}"${item.department ? ` data-department="${escapeHtml(item.department)}"` : ""}>
+                  <b>${escapeHtml(item.from)} &gt;</b><span>${escapeHtml(item.text)}</span>${item.at ? `<time>${escapeHtml(formatDateTime(item.at))}</time>` : ""}
+                </p>`).join("")}
+              <p class="aion-coo-terminal-line aion-coo-awaiting" data-kind="listening">
+                <b>›</b><span>awaiting new work<span class="aion-terminal-cursor">_</span></span>
+              </p>
+            </div>
+          </div>
+          <div class="aion-live-terminal-report aion-coo-actions-body" data-aion-executive-terminal-panel="actions" role="tabpanel" hidden>
+            <div class="aion-live-terminal-scroll">
+              <p class="aion-live-terminal-line" data-tone="meta"><b>queue &gt;</b><span>${displayActions.length} accountable action${displayActions.length === 1 ? "" : "s"} · ${displayFeedback.length} CEO / Board escalation${displayFeedback.length === 1 ? "" : "s"}</span></p>
+              ${displayActions.map((item) => `<p class="aion-live-terminal-line" data-tone="action"><b>${escapeHtml(item?.department_id || "executive")} action &gt;</b><span>${escapeHtml(item?.title || "Accountable action recorded")} <i>${escapeHtml(String(item?.status || "open").replaceAll("_", " "))}</i></span></p>`).join("")}
+              ${displayFeedback.map((item) => `<p class="aion-live-terminal-line" data-tone="risk"><b>${escapeHtml(item?.department_id || "executive")} to CEO / Board &gt;</b><span>${escapeHtml(item?.target_variance || safeArray(item?.risks)[0] || "Material review required")} <i>${escapeHtml(String(item?.status || "staged").replaceAll("_", " "))}</i></span></p>`).join("")}
+              ${displayActions.length || displayFeedback.length ? "" : `<p class="aion-live-terminal-line" data-tone="summary"><b>›</b><span>No accountable actions or CEO / Board escalations are currently recorded.</span></p>`}
+              <p class="aion-live-terminal-awaiting"><span>›</span> awaiting accountable work<span class="aion-terminal-cursor">_</span></p>
+            </div>
+          </div>
+        </article>
+        <div class="aion-executive-terminal-bank">
+          ${terminalSignals.slice(0, 6).map((signal, index) => renderAionExecutiveTerminalV2(signal, index)).join("")}
+        </div>
+      </section>
+    ` : `
+      <section class="aion-executive-briefing-empty-state">
+        <strong>The executive operations network is listening.</strong>
+        <p>Verified sales, leads, payments, work results and issues will appear as connected systems publish them. Close the operating day to produce the first retained Executive review.</p>
+        <small>${channels.length} department channel${channels.length === 1 ? " is" : "s are"} ready · no external action will be executed.</small>
+      </section>
+    `}
+  `;
+}
+
+const AION_EXECUTIVE_STATUS_CACHE_KEY_V2 = "tessaris.aion.executive-status.v2";
+
+function readCachedAionExecutiveStatusV2() {
+  if (window.__aionExecutiveBriefingStatusV1) return window.__aionExecutiveBriefingStatusV1;
+  try {
+    const cached = JSON.parse(window.localStorage?.getItem(AION_EXECUTIVE_STATUS_CACHE_KEY_V2) || "null");
+    return cached && typeof cached === "object" ? cached : null;
+  } catch (_error) {
+    return null;
+  }
+}
+
+function cacheAionExecutiveStatusV2(status) {
+  if (!status || typeof status !== "object") return;
+  window.__aionExecutiveBriefingStatusV1 = status;
+  try {
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_EXECUTIVE_STATUS_CACHE_KEY_V2, JSON.stringify(status));
+  } catch (_error) {
+    // The in-memory copy still prevents a transitional repaint when storage is unavailable.
+  }
+}
+
+function renderAionExecutiveTerminalShellV2() {
+  const terminals = ["Marketing", "Sales", "Finance", "Support"];
+  return `
+    <section class="aion-executive-console-grid is-restoring" aria-label="Executive operations terminals">
+      <article class="aion-coo-terminal">
+        <header class="aion-console-chrome"><b>COO · central operating terminal</b><button type="button" data-aion-executive-run-morning-briefing="true">Close operating day</button><em><u></u>live</em></header>
+        <div class="aion-coo-console-body"></div>
+      </article>
+      <div class="aion-executive-terminal-bank">
+        ${terminals.map((terminal) => `<article class="aion-live-terminal"><span class="aion-live-terminal-chrome"><b>${terminal} terminal</b><em><u></u>connecting</em></span></article>`).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function scrollAionExecutiveTerminalsToLatestV2(root = document) {
+  const scope = root?.querySelectorAll ? root : document;
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      scope.querySelectorAll(".aion-live-terminal-scroll").forEach((history) => {
+        history.scrollTop = history.scrollHeight;
+      });
+    });
+  });
+}
+
+async function hydrateAionExecutiveMeetingWorkspaceV1(root, { autoRun = true } = {}) {
+  if (!root || root.dataset.loading === "true") return;
+  root.dataset.loading = "true";
+  try {
+    let status = await aionOperationsConversationRequest("executive-status", {});
+    if (autoRun && status.briefing_due) {
+      const run = await aionOperationsConversationRequest("morning-briefing", { force: false });
+      status = run.status || status;
+    }
+    const signature = aionExecutiveStatusSignatureV2(status);
+    if (root.dataset.statusSignature !== signature || !root.querySelector(".aion-executive-console-grid")) {
+      cacheAionExecutiveStatusV2(status);
+      root.dataset.statusSignature = signature;
+      root.innerHTML = renderAionExecutiveBriefingWorkspaceContentV1(status);
+      scrollAionExecutiveTerminalsToLatestV2(root);
+    }
+    if (window.__aionExecutiveNetworkRetryV2) {
+      window.clearTimeout(window.__aionExecutiveNetworkRetryV2);
+      window.__aionExecutiveNetworkRetryV2 = null;
+    }
+  } catch (error) {
+    root.dataset.lastRefreshError = String(error?.message || error);
+    if (!window.__aionExecutiveNetworkRetryV2) {
+      window.__aionExecutiveNetworkRetryV2 = window.setTimeout(() => {
+        window.__aionExecutiveNetworkRetryV2 = null;
+        const liveRoot = document.querySelector("[data-aion-executive-meeting-workspace='true']");
+        if (liveRoot) void hydrateAionExecutiveMeetingWorkspaceV1(liveRoot, { autoRun: false });
+      }, 1500);
+    }
+  } finally {
+    root.dataset.loading = "false";
+  }
+}
+
+function renderAionExecutiveMeetingWorkspaceV1() {
+  const cachedStatus = readCachedAionExecutiveStatusV2();
+  window.setTimeout?.(() => {
+    const root = document.querySelector("[data-aion-executive-meeting-workspace='true']");
+    if (root && cachedStatus) root.dataset.statusSignature = aionExecutiveStatusSignatureV2(cachedStatus);
+    if (root && cachedStatus) scrollAionExecutiveTerminalsToLatestV2(root);
+    hydrateAionExecutiveMeetingWorkspaceV1(root);
+    if (window.__aionExecutiveNetworkTimerV2) window.clearInterval(window.__aionExecutiveNetworkTimerV2);
+    window.__aionExecutiveNetworkTimerV2 = window.setInterval(() => {
+      const liveRoot = document.querySelector("[data-aion-executive-meeting-workspace='true']");
+      if (!liveRoot) {
+        window.clearInterval(window.__aionExecutiveNetworkTimerV2);
+        window.__aionExecutiveNetworkTimerV2 = null;
+        return;
+      }
+      hydrateAionExecutiveMeetingWorkspaceV1(liveRoot, { autoRun: false });
+    }, 15000);
+  }, 0);
+  return `
+    <section class="aion-executive-meeting-workspace" data-aion-executive-meeting-workspace="true">
+      ${cachedStatus ? renderAionExecutiveBriefingWorkspaceContentV1(cachedStatus) : renderAionExecutiveTerminalShellV2()}
+    </section>
+  `;
+}
+
+if (!window.__aionExecutiveMeetingWorkspaceControlsV1) {
+  window.__aionExecutiveMeetingWorkspaceControlsV1 = true;
+  document.addEventListener("click", (event) => {
+    const root = event.target?.closest?.("[data-aion-executive-meeting-workspace='true']");
+    const run = event.target?.closest?.("[data-aion-executive-run-morning-briefing]");
+    const refresh = event.target?.closest?.("[data-aion-executive-briefing-refresh]");
+    const terminalTab = event.target?.closest?.("[data-aion-executive-terminal-tab]");
+    const openOperations = event.target?.closest?.("[data-aion-executive-open-operations]");
+    if (!root && !openOperations) return;
+    if (terminalTab) {
+      event.preventDefault();
+      const terminal = terminalTab.closest("[data-aion-executive-terminal]");
+      const nextPanel = terminalTab.getAttribute("data-aion-executive-terminal-tab") || "report";
+      terminal?.querySelectorAll("[data-aion-executive-terminal-tab]").forEach((button) => {
+        const active = button === terminalTab;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      terminal?.querySelectorAll("[data-aion-executive-terminal-panel]").forEach((panel) => {
+        panel.hidden = panel.getAttribute("data-aion-executive-terminal-panel") !== nextPanel;
+      });
+      scrollAionExecutiveTerminalsToLatestV2(terminal);
+      return;
+    }
+    if (run) {
+      event.preventDefault();
+      run.disabled = true;
+      run.textContent = "Closing day…";
+      void (async () => {
+        try {
+          const result = await aionOperationsConversationRequest("morning-briefing", { force: true });
+          const status = result.status || await aionOperationsConversationRequest("executive-status", {});
+          cacheAionExecutiveStatusV2(status);
+          root.innerHTML = renderAionExecutiveBriefingWorkspaceContentV1(status);
+          scrollAionExecutiveTerminalsToLatestV2(root);
+        } catch (error) {
+          root.innerHTML = `<div class="aion-executive-briefing-error"><strong>The Executive briefing could not be completed.</strong><p>${escapeHtml(String(error?.message || error))}</p><button type="button" data-aion-executive-briefing-refresh="true">Try again</button></div>`;
+        }
+      })();
+      return;
+    }
+    if (refresh) {
+      event.preventDefault();
+      void hydrateAionExecutiveMeetingWorkspaceV1(root, { autoRun: false });
+      return;
+    }
+    if (openOperations) {
+      event.preventDefault();
+      openAionExecutiveDepartmentFromStickyHeaderV1?.("operations");
+    }
+  }, true);
+}
+
+function renderBoardroomSpatialView(snapshot, workspaceMode = "board") {
+  const fullRoomExpanded = window.__aionBoardroomFullRoomExpandedV2 === true;
+  const teamMode = normaliseAionBoardroomWorkspaceModeV1(workspaceMode);
+  const isBoardMode = teamMode === "board";
+  return `
+    <div class="dashboard-shell aion-boardroom-workspace" data-aion-spatial-boardroom-layout="embedded-unity" data-aion-boardroom-team-mode="${teamMode}">
       <div data-aion-boardroom-full-room-region="true" ${fullRoomExpanded ? "" : "hidden"}>
         <div
           class="panel large-panel"
@@ -12010,7 +12909,9 @@ function renderBoardroomSpatialView(snapshot) {
           box-sizing:border-box;
         "
       >
-        ${typeof renderBoardroomCouncilSessionTerminal === "function" ? renderBoardroomCouncilSessionTerminal() : ""}
+        ${isBoardMode
+          ? (typeof renderBoardroomCouncilSessionTerminal === "function" ? renderBoardroomCouncilSessionTerminal() : "")
+          : renderAionExecutiveMeetingWorkspaceV1()}
       </div>
     </div>
   `;
@@ -12237,6 +13138,7 @@ async function sendAionBoardMemberDirectLineV1(providerId = "", message = "") {
       body: JSON.stringify({
         business_id: packet.business_id || "home-fixed",
         session_type: "direct_board_line",
+        communication_style: getAionCommunicationStyleV1(),
         requested_providers: [cleanProviderId],
         objective: `Answer the founder directly and concisely. Question: ${cleanMessage}`,
         context_packet: {
@@ -12370,7 +13272,7 @@ function setAionBoardModelDisplayNameV1(providerId = "", displayName = "") {
   if (clean) names[key] = clean;
   else delete names[key];
   try {
-    window.localStorage?.setItem("aion.boardroom.model_display_names.v1", JSON.stringify(names));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.boardroom.model_display_names.v1", JSON.stringify(names));
   } catch {}
 }
 
@@ -12681,10 +13583,10 @@ function openAionExecutiveDepartmentFromStickyHeaderV1(departmentKey = "") {
     state.activeTab = "live_agents";
     state.activeZone = key;
 
-    localStorage.setItem("aion.liveAgents.selectedDepartment", key);
-    localStorage.setItem("aion.selectedLiveDepartment", key);
-    localStorage.setItem("aion.departmentPilot.selected", key);
-    localStorage.setItem("aion.forcedMainTab.v2", "live_agents");
+  window.AionDesktopPreferences.set("aion.liveAgents.selectedDepartment", key);
+  window.AionDesktopPreferences.set("aion.selectedLiveDepartment", key);
+  window.AionDesktopPreferences.set("aion.departmentPilot.selected", key);
+  window.AionDesktopPreferences.set("aion.forcedMainTab.v2", "live_agents");
 
     if (typeof window.setAionSidebarActiveTabHardV1 === "function") {
       window.setAionSidebarActiveTabHardV1("live_agents");
@@ -12941,12 +13843,28 @@ function renderAionProviderCouncilPanelSafeV1(...args) {
 
 
 function getAionSpatialBoardroomMembersV1() {
-  return getAionStickyBoardMembersV1(getBoardroomSnapshot()).map((member) => ({
-    id: member.key,
-    label: member.label,
-    role: member.key === "aion" ? "Pilot" : "AI Board member",
-    connected: member.connected !== false,
-  }));
+  const providers = safeArray(window.__aionOriginalBusinessMapStateV2?.providers);
+  const selectedIds = typeof getAionLiveSelectedBoardroomProviderIdsV2 === "function"
+    ? getAionLiveSelectedBoardroomProviderIdsV2()
+    : [];
+  const providerMembers = selectedIds.map((providerId) => {
+    const provider = providers.find((item) => String(item?.id || "") === providerId) || {};
+    const model = String(provider?.model || provider?.model_id || provider?.default_model || "").trim();
+    return {
+      id: providerId,
+      label: getAionBoardModelDisplayNameV1(
+        providerId,
+        model,
+        model ? formatAionBoardModelLabelV1(model) : (provider?.label || providerId),
+      ),
+      role: provider?.is_lead === true ? "Lead AI Board member" : "AI Board member",
+      connected: true,
+    };
+  });
+  return [
+    { id: "aion", label: "AION", role: "Pilot", connected: true },
+    ...providerMembers,
+  ];
 }
 
 async function syncAionConnectedModelsToBoardroomV1() {
@@ -13061,7 +13979,10 @@ async function mountAionEmbeddedBoardroomV1(force = false) {
   if (loading) loading.style.display = "grid";
   if (errorPanel) errorPanel.style.display = "none";
   try {
-    const result = await window.aionDesktop?.getSpatialBoardroomEmbed?.({ members: getAionSpatialBoardroomMembersV1() });
+    const result = await window.aionDesktop?.getSpatialBoardroomEmbed?.({
+      members: getAionSpatialBoardroomMembersV1(),
+      mode: getAionBoardroomWorkspaceModeV1(),
+    });
     window.__aionEmbeddedBoardroomV1 = result || { ok: false, error: "desktop_bridge_unavailable" };
     if (!result?.ok || !result?.url) throw new Error(result?.message || "Embedded Boardroom unavailable");
     frame.onload = () => {
@@ -13171,23 +14092,44 @@ function scheduleAionEmbeddedBoardroomMountV1() {
   window.setTimeout(() => {
     if (String(state?.activeTab || "") !== "boardroom") return;
     syncAionPersistentBoardroomHostV2();
-    mountAionEmbeddedBoardroomV1();
+    Promise.resolve(mountAionEmbeddedBoardroomV1())
+      .then(() => syncAionBoardroomWorkspaceModeV1(getAionBoardroomWorkspaceModeV1()))
+      .catch(() => null);
   }, 180);
 }
 
 
 function renderBoardroomSurface() {
   const snapshot = getBoardroomSnapshot();
+  const workspaceMode = getAionBoardroomWorkspaceModeV1();
+  const fullRoomExpanded = window.__aionBoardroomFullRoomExpandedV2 === true;
   scheduleAionEmbeddedBoardroomMountV1();
 
   return `
-    <div class="surface-shell aion-boardroom-surface" data-aion-boardroom-view-mode="boardroom">
+    <div class="surface-shell aion-boardroom-surface" data-aion-boardroom-view-mode="boardroom" data-aion-boardroom-workspace-mode="${workspaceMode}">
       ${renderAppTabs()}
       <header class="aion-boardroom-hero">
         <h1>Boardroom</h1>
+        <nav class="aion-boardroom-mode-switch" aria-label="Superintelligence meeting rooms">
+          <button type="button" class="${workspaceMode === "board" ? "is-active" : ""}" data-aion-boardroom-workspace-mode-control="board" aria-pressed="${workspaceMode === "board" ? "true" : "false"}">Si Board</button>
+          <button type="button" class="${workspaceMode === "executive" ? "is-active" : ""}" data-aion-boardroom-workspace-mode-control="executive" aria-pressed="${workspaceMode === "executive" ? "true" : "false"}">Si Executive Team</button>
+          <button
+            type="button"
+            class="aion-boardroom-header-expand"
+            data-aion-executive-header-action="toggle-boardroom-full-room"
+            data-aion-boardroom-return-full-room="true"
+            aria-expanded="${fullRoomExpanded ? "true" : "false"}"
+            aria-label="${fullRoomExpanded ? `Close full ${workspaceMode === "board" ? "Board" : "Executive Team"} room` : `Expand full ${workspaceMode === "board" ? "Board" : "Executive Team"} room`}"
+            title="${fullRoomExpanded ? `Close full ${workspaceMode === "board" ? "Board" : "Executive Team"} room` : `Expand full ${workspaceMode === "board" ? "Board" : "Executive Team"} room`}"
+          >
+            ${fullRoomExpanded
+              ? `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 12h10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`
+              : `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M20 15v5h-5M4 15v5h5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+          </button>
+        </nav>
       </header>
       <div data-aion-boardroom-current-meeting="true">
-        ${renderBoardroomSpatialView(snapshot)}
+        ${renderBoardroomSpatialView(snapshot, workspaceMode)}
       </div>
     </div>
   `;
@@ -13199,13 +14141,18 @@ function installAionBoardroomWorkspaceStyles() {
   style.id = "aion-boardroom-workspace-styles";
   style.textContent = `
     html body .surface-shell.aion-boardroom-surface[data-aion-boardroom-view-mode] { width:100% !important; max-width:none !important; min-height:100vh; margin:0 !important; padding:0 24px 48px 64px !important; box-sizing:border-box; background:#fff !important; color:#0f172a !important; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important; overflow-x:clip; }
-    .aion-boardroom-hero { width:calc(100% - 24px); min-height:54px; margin:0 0 0 24px; display:flex; align-items:center; box-sizing:border-box; padding:9px 32px 10px; border-top:4px solid #1687d9; border-bottom:1px solid #dbe6ef; background:#f8fafc; }
+    .aion-boardroom-hero { width:calc(100% - 24px); min-height:62px; margin:0 0 0 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; box-sizing:border-box; padding:9px 32px 10px; border-top:4px solid #1687d9; border-bottom:1px solid #dbe6ef; background:#f8fafc; }
     .aion-boardroom-hero h1 { margin:0; color:#0f172a !important; font-size:24px; line-height:1.08; letter-spacing:-.035em; }
-    .aion-boardroom-workspace { position:relative; width:calc(100% - 24px) !important; max-width:none !important; margin:0 0 0 24px !important; padding:6px 0 40px !important; box-sizing:border-box !important; background:#fff !important; }
-    .aion-boardroom-page-controls { position:absolute; top:12px; right:12px; z-index:80; width:auto !important; margin:0 !important; }
+    .aion-boardroom-mode-switch { display:flex; align-items:center; gap:6px; padding:4px; border:1px solid #d7e2ec; border-radius:10px; background:#eef3f8; }
+    .aion-boardroom-mode-switch button { min-height:36px; padding:8px 16px; border:1px solid transparent; border-radius:7px; background:transparent; color:#586a7d; font:800 12px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor:pointer; }
+    .aion-boardroom-mode-switch button:hover { color:#1d4ed8; background:#f8fbff; }
+    .aion-boardroom-mode-switch button.is-active { border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 4px 12px rgba(37,99,235,.18); }
+    .aion-boardroom-mode-switch .aion-boardroom-header-expand { display:grid; width:36px; min-width:36px; height:36px; padding:0; place-items:center; color:#586a7d; }
+    .aion-boardroom-mode-switch .aion-boardroom-header-expand:hover { color:#1d4ed8; }
+    .aion-boardroom-workspace { position:relative; width:calc(100% - 24px) !important; max-width:none !important; margin:0 0 0 24px !important; padding:2px 0 40px !important; box-sizing:border-box !important; background:#fff !important; }
     .aion-boardroom-workspace [data-aion-executive-page-header-bleed] { margin:0 0 18px !important; }
     .aion-boardroom-workspace [data-aion-spatial-boardroom-main-panel] { margin:0 !important; background:transparent !important; border:1px solid #dce7ef !important; border-radius:12px !important; box-shadow:0 8px 24px rgba(15,42,67,.04) !important; }
-    .aion-boardroom-workspace [data-aion-spatial-boardroom-terminal-dock] { max-width:none !important; margin:18px 0 0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; background:#fff !important; }
+    .aion-boardroom-workspace [data-aion-spatial-boardroom-terminal-dock] { max-width:none !important; margin:4px 0 0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; background:#fff !important; }
     .aion-boardroom-workspace [data-aion-council-session-terminal] { padding:0 !important; margin:0 !important; background:#fff !important; border:0 !important; }
     .aion-boardroom-workspace [data-aion-boardroom-business-connections] { margin:0 0 18px !important; padding:24px !important; border:1px solid #dce7ef !important; border-radius:12px !important; background:#fff !important; box-shadow:0 8px 24px rgba(15,42,67,.04) !important; }
     .aion-boardroom-business-connections-head { padding-bottom:18px; border-bottom:1px solid #e4ebf1; }
@@ -13228,6 +14175,181 @@ function installAionBoardroomWorkspaceStyles() {
     .aion-boardroom-workspace [data-aion-business-map-review-panel] { border-top:1px solid #e4ebf1 !important; }
     .aion-boardroom-workspace [data-aion-business-map-review-panel] article { border:1px solid #dce7ef !important; border-radius:9px !important; background:#f8fafc !important; }
     .aion-boardroom-workspace [data-aion-boardroom-meeting-controls], .aion-boardroom-workspace [data-aion-council-session-terminal-collapsed], .aion-boardroom-workspace [data-aion-council-session-terminal-log] { border-radius:12px !important; border-color:#dce7ef !important; box-shadow:0 8px 24px rgba(15,42,67,.04) !important; }
+    .aion-executive-meeting-placeholder { min-height:170px; padding:28px 30px; border:1px solid #dce7ef; border-radius:12px; background:#f8fafc; box-shadow:0 8px 24px rgba(15,42,67,.04); box-sizing:border-box; }
+    .aion-executive-meeting-placeholder h2 { margin:8px 0 6px; color:#0f172a; font-size:23px; letter-spacing:-.025em; }
+    .aion-executive-meeting-placeholder p { margin:0; max-width:760px; color:#64748b; line-height:1.55; }
+    .aion-executive-meeting-workspace { padding:0; color:#14213d; box-sizing:border-box; }
+    .aion-executive-briefing-loading,.aion-executive-briefing-error,.aion-executive-briefing-empty-state { min-height:170px; padding:30px; border:1px solid #dce7ef; border-radius:14px; background:#f8fafc; box-sizing:border-box; }
+    .aion-executive-briefing-loading strong,.aion-executive-briefing-error strong,.aion-executive-briefing-empty-state strong { display:block; margin-bottom:7px; color:#14213d; font-size:18px; }
+    .aion-executive-briefing-loading p,.aion-executive-briefing-error p,.aion-executive-briefing-empty-state p { max-width:800px; margin:0 0 12px; color:#64748b; line-height:1.55; }
+    .aion-executive-briefing-head { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:26px 28px 22px; border:1px solid #dce7ef; border-top:4px solid #2563eb; border-radius:14px 14px 0 0; background:#fff; }
+    .aion-executive-briefing-head h2 { margin:7px 0 6px; font-size:26px; letter-spacing:-.035em; }
+    .aion-executive-briefing-head p { max-width:760px; margin:0; color:#64748b; line-height:1.5; }
+    .aion-executive-briefing-head-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+    .aion-executive-briefing-head-actions>span { padding:8px 10px; border:1px solid #bbf7d0; border-radius:999px; background:#f0fdf4; color:#15803d; font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    .aion-executive-briefing-head-actions>span[data-tone="attention"] { border-color:#fde68a; background:#fffbeb; color:#a16207; }
+    .aion-executive-briefing-head-actions button { min-height:38px; padding:9px 13px; border-radius:9px; font-size:10px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; }
+    .aion-executive-briefing-head-actions .aion-soft-button { border:1px solid #d5dfeb; background:#fff; color:#526780; }
+    .aion-executive-briefing-head-actions .aion-primary-action { border:1px solid #2563eb; background:#2563eb; color:#fff; }
+    .aion-executive-briefing-meta { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); border:1px solid #dce7ef; border-top:0; background:#fff; }
+    .aion-executive-briefing-meta article { min-width:0; padding:17px 18px; border-right:1px solid #e4ebf1; }
+    .aion-executive-briefing-meta article:last-child { border-right:0; }
+    .aion-executive-briefing-meta span,.aion-executive-briefing-meta small { display:block; color:#718399; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .aion-executive-briefing-meta strong { display:block; margin:7px 0 5px; color:#14213d; font-size:16px; }
+    .aion-executive-briefing-summary { display:flex; justify-content:space-between; gap:20px; align-items:center; margin-top:18px; padding:20px 22px; border:1px solid #bfd2fb; border-left:4px solid #2563eb; border-radius:12px; background:#eef5ff; }
+    .aion-executive-briefing-summary span { color:#2563eb; font-size:9px; font-weight:950; letter-spacing:.14em; text-transform:uppercase; }
+    .aion-executive-briefing-summary strong { display:block; margin-top:6px; font-size:18px; }
+    .aion-executive-briefing-summary p { margin:7px 0 0; color:#526780; line-height:1.5; }
+    .aion-executive-briefing-summary button { flex:0 0 auto; padding:10px 13px; border:1px solid #2563eb; border-radius:9px; background:#fff; color:#1d4ed8; font-weight:850; cursor:pointer; }
+    .aion-executive-briefing-departments { display:flex; gap:7px; flex-wrap:wrap; margin:18px 0 10px; }
+    .aion-executive-briefing-departments button { padding:9px 13px; border:1px solid #d5dfeb; border-radius:9px; background:#fff; color:#64748b; font-weight:800; cursor:pointer; }
+    .aion-executive-briefing-departments button.is-active { border-color:#2563eb; background:#2563eb; color:#fff; }
+    .aion-executive-department-minutes { border:1px solid #dce7ef; border-radius:14px; background:#fff; overflow:hidden; }
+    .aion-executive-department-minutes>header { display:flex; justify-content:space-between; gap:18px; padding:19px 21px; border-bottom:1px solid #e4ebf1; }
+    .aion-executive-department-minutes>header span { color:#2563eb; font-size:9px; font-weight:950; letter-spacing:.12em; text-transform:uppercase; }
+    .aion-executive-department-minutes>header h3 { margin:6px 0 0; font-size:18px; }
+    .aion-executive-department-minutes>header em { color:#718399; font-size:11px; font-style:normal; }
+    .aion-executive-minutes-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .aion-executive-minutes-grid article { min-height:150px; padding:18px 20px; border-right:1px solid #e4ebf1; border-bottom:1px solid #e4ebf1; background:#fff; }
+    .aion-executive-minutes-grid article:nth-child(3n) { border-right:0; }
+    .aion-executive-minutes-grid article:nth-last-child(-n+3) { border-bottom:0; }
+    .aion-executive-minutes-grid article[data-tone="risk"] { background:#fffaf2; }
+    .aion-executive-minutes-grid article>span { color:#718399; font-size:9px; font-weight:950; letter-spacing:.1em; text-transform:uppercase; }
+    .aion-executive-minutes-grid ul { margin:12px 0 0; padding-left:18px; color:#334155; line-height:1.45; }
+    .aion-executive-minutes-grid li+li { margin-top:7px; }
+    .aion-executive-briefing-empty { margin:12px 0 0; color:#94a3b8; font-size:12px; line-height:1.5; }
+    .aion-executive-briefing-lower { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+    .aion-executive-briefing-lower>section { border:1px solid #dce7ef; border-radius:12px; overflow:hidden; background:#fff; }
+    .aion-executive-briefing-lower header { display:flex; justify-content:space-between; gap:16px; padding:14px 17px; border-bottom:1px solid #e4ebf1; background:#f8fafc; font-size:11px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+    .aion-executive-briefing-lower article { display:flex; justify-content:space-between; gap:14px; padding:13px 17px; border-bottom:1px solid #edf1f5; }
+    .aion-executive-briefing-lower article:last-child { border-bottom:0; }
+    .aion-executive-briefing-lower article span { min-width:0; }
+    .aion-executive-briefing-lower article b { display:block; color:#14213d; font-size:12px; }
+    .aion-executive-briefing-lower article small { display:block; margin-top:4px; color:#718399; font-size:10px; }
+    .aion-executive-briefing-lower article em { align-self:center; color:#2563eb; font-size:9px; font-style:normal; font-weight:900; text-transform:uppercase; }
+    .aion-executive-briefing-lower>section>p { margin:0; padding:18px; color:#718399; }
+    .aion-executive-briefing-governance { margin-top:16px; padding:12px 15px; border:1px solid #dce7ef; border-radius:10px; background:#f8fafc; color:#718399; font-size:10px; line-height:1.5; }
+    .aion-executive-live-badge { display:inline-flex!important; align-items:center; gap:7px; }
+    .aion-executive-live-badge i,.aion-executive-event-ledger header>em i { width:7px; height:7px; border-radius:50%; background:#22c55e; box-shadow:0 0 0 0 rgba(34,197,94,.55); animation:aionExecutivePulseV2 1.8s ease-out infinite; }
+    .aion-executive-live-network { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(300px,.75fr); gap:14px; margin-top:16px; }
+    .aion-executive-network-grid { position:relative; display:grid; grid-template-columns:minmax(190px,1fr) minmax(260px,1.15fr) minmax(190px,1fr); grid-template-rows:repeat(3,minmax(126px,auto)); gap:14px 54px; min-height:450px; padding:18px; overflow:hidden; border:1px solid #cbd9e7; border-radius:16px; background:radial-gradient(circle at 50% 50%,rgba(219,234,254,.94) 0 12%,rgba(248,251,255,.72) 39%,#f8fafc 72%),linear-gradient(rgba(37,99,235,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,.035) 1px,transparent 1px); background-size:auto,22px 22px,22px 22px; box-sizing:border-box; }
+    .aion-executive-network-grid:before { content:""; position:absolute; inset:11% 25%; border:1px solid rgba(37,99,235,.16); border-radius:50%; animation:aionExecutiveOrbitV2 18s linear infinite; }
+    .aion-executive-network-links { position:absolute; inset:0; pointer-events:none; }
+    .aion-executive-network-links span { position:absolute; left:15%; right:15%; top:50%; height:1px; overflow:hidden; background:repeating-linear-gradient(90deg,rgba(37,99,235,.52) 0 7px,transparent 7px 14px); animation:aionExecutiveDataLineV2 1.1s linear infinite; }
+    .aion-executive-network-links span:nth-child(2) { transform:rotate(25deg); }
+    .aion-executive-network-links span:nth-child(3) { transform:rotate(-25deg); }
+    .aion-boardroom-workspace button.aion-live-terminal { position:relative; z-index:2; grid-row:var(--terminal-row); min-width:0!important; min-height:0!important; padding:13px 14px!important; overflow:visible!important; border:1px solid #d4dfeb!important; border-radius:12px!important; background:rgba(255,255,255,.95)!important; color:#14213d!important; box-shadow:0 8px 22px rgba(29,78,216,.07)!important; text-align:left!important; cursor:pointer!important; }
+    .aion-boardroom-workspace button.aion-live-terminal--left { grid-column:1; }
+    .aion-boardroom-workspace button.aion-live-terminal--right { grid-column:3; }
+    .aion-boardroom-workspace button.aion-live-terminal:after { content:""; position:absolute; top:50%; width:54px; height:2px; background:linear-gradient(90deg,#bfdbfe,#2563eb,#bfdbfe); background-size:200% 100%; animation:aionExecutiveDataLineV2 1.2s linear infinite; }
+    .aion-boardroom-workspace button.aion-live-terminal--left:after { left:100%; }
+    .aion-boardroom-workspace button.aion-live-terminal--right:after { right:100%; }
+    .aion-boardroom-workspace button.aion-live-terminal:hover,.aion-boardroom-workspace button.aion-live-terminal.is-active { transform:translateY(-2px); border-color:#2563eb!important; background:#fff!important; box-shadow:0 12px 28px rgba(37,99,235,.15)!important; }
+    .aion-live-terminal-top { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+    .aion-live-terminal-top>b { overflow:hidden; color:#14213d; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+    .aion-live-terminal-top>i { display:inline-flex; align-items:center; gap:5px; color:#0f766e; font-size:8px; font-style:normal; font-weight:950; letter-spacing:.08em; text-transform:uppercase; }
+    .aion-live-terminal-top>i u { width:6px; height:6px; border-radius:50%; background:#22c55e; text-decoration:none; animation:aionExecutivePulseV2 1.8s ease-out infinite; }
+    .aion-live-terminal>strong { display:-webkit-box; min-height:34px; margin:12px 0 10px; overflow:hidden; color:#334155; font-size:11px; line-height:1.45; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+    .aion-terminal-cursor { display:inline-block; margin-right:5px; color:#2563eb; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:16px; animation:aionExecutiveCursorV2 1s steps(1,end) infinite; }
+    .aion-live-terminal-metrics { display:flex; gap:5px; flex-wrap:wrap; }
+    .aion-live-terminal-metrics em { padding:3px 5px; border-radius:5px; background:#eef5ff; color:#45617d; font-size:8px; font-style:normal; font-weight:800; }
+    .aion-live-terminal>small { display:block; margin-top:8px; overflow:hidden; color:#8a9bb0; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
+    .aion-coo-terminal { position:relative; z-index:3; grid-column:2; grid-row:1/4; align-self:center; display:flex; min-height:300px; padding:26px 22px; align-items:center; flex-direction:column; justify-content:center; border:1px solid #7aa8f8; border-radius:20px; background:linear-gradient(145deg,#fff,#eff6ff); box-shadow:0 20px 50px rgba(37,99,235,.18),inset 0 0 0 5px rgba(255,255,255,.75); text-align:center; }
+    .aion-coo-terminal-radar { position:relative; display:grid; width:82px; height:82px; place-items:center; margin-bottom:17px; }
+    .aion-coo-terminal-radar i { position:absolute; inset:0; border:1px solid rgba(37,99,235,.34); border-radius:50%; animation:aionExecutiveRadarV2 2.8s ease-out infinite; }
+    .aion-coo-terminal-radar i:nth-child(2) { animation-delay:.9s; }.aion-coo-terminal-radar i:nth-child(3) { animation-delay:1.8s; }
+    .aion-coo-terminal-radar b { position:relative; z-index:2; display:grid; width:58px; height:58px; place-items:center; border-radius:16px; background:#2563eb; color:#fff; box-shadow:0 10px 24px rgba(37,99,235,.3); font-size:16px; letter-spacing:.08em; }
+    .aion-coo-terminal>span { color:#2563eb; font-size:9px; font-weight:950; letter-spacing:.13em; text-transform:uppercase; }
+    .aion-coo-terminal h3 { margin:8px 0; color:#14213d; font-size:18px; line-height:1.25; letter-spacing:-.025em; }
+    .aion-coo-terminal p { margin:0; color:#526780; font-size:11px; line-height:1.5; }
+    .aion-coo-terminal>div:not(.aion-coo-terminal-radar) { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-top:15px; }
+    .aion-coo-terminal>div em { display:flex; align-items:center; gap:5px; color:#45617d; font-size:8px; font-style:normal; font-weight:850; text-transform:uppercase; }
+    .aion-coo-terminal>div em u { width:5px; height:5px; border-radius:50%; background:#22c55e; text-decoration:none; }
+    .aion-boardroom-workspace .aion-coo-terminal>button { margin-top:17px!important; border-color:#2563eb!important; background:#2563eb!important; color:#fff!important; }
+    .aion-executive-event-ledger { display:flex; min-height:450px; flex-direction:column; overflow:hidden; border:1px solid #d4dfeb; border-radius:16px; background:#fff; }
+    .aion-executive-event-ledger>header { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; padding:16px 17px; border-bottom:1px solid #e4ebf1; background:#f8fafc; }
+    .aion-executive-event-ledger header span { display:block; color:#2563eb; font-size:9px; font-weight:950; letter-spacing:.12em; text-transform:uppercase; }
+    .aion-executive-event-ledger header strong { display:block; margin-top:5px; color:#334155; font-size:11px; line-height:1.35; }
+    .aion-executive-event-ledger header>em { display:flex; align-items:center; gap:6px; color:#15803d; font-size:8px; font-style:normal; font-weight:950; text-transform:uppercase; }
+    .aion-executive-event-stream { flex:1; max-height:410px; overflow:auto; }
+    .aion-executive-event-stream article { position:relative; display:grid; grid-template-columns:86px minmax(100px,.55fr) minmax(0,1fr); gap:10px; padding:12px 15px 12px 19px; align-items:start; border-bottom:1px solid #edf1f5; }
+    .aion-executive-event-stream article:before { content:""; position:absolute; left:7px; top:17px; width:5px; height:5px; border-radius:50%; background:#2563eb; }
+    .aion-executive-event-stream article[data-kind="issue"]:before { background:#f59e0b; }.aion-executive-event-stream article[data-kind="action"]:before { background:#8b5cf6; }
+    .aion-executive-event-stream article[data-kind="bottleneck"] { background:#fff1f2; box-shadow:inset 3px 0 0 #dc2626; }
+    .aion-executive-event-stream article[data-kind="bottleneck"]:before { background:#dc2626; box-shadow:0 0 0 4px rgba(220,38,38,.12); }
+    .aion-executive-event-stream article[data-kind="bottleneck"] b,.aion-executive-event-stream article[data-kind="bottleneck"] span { color:#b91c1c!important; font-weight:800; }
+    .aion-executive-event-stream time { color:#8a9bb0; font-size:8px; line-height:1.35; }.aion-executive-event-stream b { color:#334155; font-size:9px; text-transform:capitalize; }.aion-executive-event-stream b i { color:#2563eb; font-style:normal; }.aion-executive-event-stream span { color:#526780; font-size:10px; line-height:1.4; }
+    .aion-executive-console-grid { display:grid; height:calc(100vh - 136px); min-height:590px; max-height:880px; grid-template-columns:minmax(340px,.95fr) minmax(560px,1.55fr); grid-template-rows:minmax(0,1fr); gap:10px; margin-top:0; padding:10px; border:1px solid #d9e2ec; border-radius:14px; box-sizing:border-box; background:#f4f7fb; box-shadow:0 18px 45px rgba(15,23,42,.1); }
+    .aion-console-chrome { min-height:40px; display:flex; align-items:center; gap:9px; padding:0 12px; border-bottom:1px solid #d9e2ec; background:#f8fafc; color:#172033; box-sizing:border-box; }
+    .aion-console-chrome>span { display:flex!important; gap:5px; flex:0 0 auto; }
+    .aion-console-chrome>span i { width:7px; height:7px; border-radius:50%; background:#ef4444; }.aion-console-chrome>span i:nth-child(2){background:#f59e0b}.aion-console-chrome>span i:nth-child(3){background:#22c55e}
+    .aion-console-chrome>b { min-width:0; overflow:hidden; color:#172033; font-size:10px; letter-spacing:.05em; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
+    .aion-boardroom-workspace .aion-console-chrome>button { min-width:0!important; min-height:24px!important; margin-left:auto!important; padding:4px 9px!important; border:1px solid #cbd8e5!important; border-radius:5px!important; background:#fff!important; color:#526780!important; box-shadow:none!important; font-size:8px!important; font-weight:900!important; letter-spacing:.06em!important; line-height:1!important; text-transform:uppercase!important; white-space:nowrap!important; }
+    .aion-boardroom-workspace .aion-console-chrome>button:hover { border-color:#60a5fa!important; background:#eef5ff!important; color:#1d4ed8!important; }
+    .aion-console-chrome>em { display:flex; align-items:center; gap:6px; color:#15803d; font-size:8px; font-style:normal; font-weight:900; letter-spacing:.09em; text-transform:uppercase; }.aion-console-chrome>em u{width:6px;height:6px;border-radius:50%;background:#22c55e;text-decoration:none;animation:aionExecutivePulseV2 1.8s ease-out infinite}
+    .aion-coo-terminal { grid-column:1!important; grid-row:1/3!important; align-self:stretch!important; align-items:stretch!important; min-height:590px!important; padding:0!important; overflow:hidden; border:1px solid #d9e2ec!important; border-radius:8px!important; background:#fff!important; box-shadow:none!important; text-align:left!important; }
+    .aion-coo-terminal>.aion-console-chrome { width:100%; }
+    .aion-coo-console-body { display:flex; width:100%; height:calc(100% - 40px); min-height:0; margin:0!important; padding:0; align-items:stretch; flex-direction:column; justify-content:flex-start!important; box-sizing:border-box; background:#fff; }
+    .aion-coo-console-body[hidden] { display:none!important; }
+    .aion-coo-actions-body { width:100%; height:calc(100% - 40px); padding:0; box-sizing:border-box; }
+    .aion-coo-console-body>span { color:#60a5fa; font:900 10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.16em; }
+    .aion-coo-console-body h3 { max-width:420px; margin:10px 0 22px; color:#f8fafc!important; font-size:25px; line-height:1.15; letter-spacing:-.035em; }
+    .aion-coo-console-log { display:grid; width:100%; flex:0 0 auto; min-height:0; margin:0!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px 14px; overflow:auto; padding:12px 14px; border:1px solid #243140; border-radius:7px; box-sizing:border-box; background:rgba(4,9,14,.7); box-shadow:inset 0 0 32px rgba(37,99,235,.055); }
+    .aion-coo-console-log p { margin:0!important; color:#a9bdd2!important; font:500 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace!important; }.aion-coo-console-log p b{color:#60a5fa}.aion-coo-console-log p[data-tone="attention"]{color:#fbbf24!important}.aion-coo-console-log .is-listening{margin-top:auto!important;color:#86efac!important}.aion-coo-console-log .is-listening span{animation:aionExecutiveCursorV2 1s steps(1,end) infinite}
+    .aion-executive-console-grid .aion-executive-event-ledger { grid-column:2; grid-row:1; min-height:270px; overflow:hidden; border:1px solid #d9e2ec; border-radius:8px; background:#fff; }
+    .aion-executive-console-grid .aion-executive-event-ledger>header { min-height:48px; padding:0 12px; border-bottom-color:#d9e2ec; background:#f8fafc; }
+    .aion-executive-console-grid .aion-executive-event-ledger header>div { min-width:0; }
+    .aion-executive-console-grid .aion-executive-event-ledger header>div b { display:block; color:#172033!important; font-size:10px; letter-spacing:.05em; text-transform:uppercase; }
+    .aion-executive-console-grid .aion-executive-event-ledger header>div strong { margin-top:2px; color:#66758a!important; font-size:9px; font-weight:600; }
+    .aion-executive-console-grid .aion-executive-event-stream { max-height:222px; background:#fff; }
+    .aion-executive-console-grid .aion-executive-event-stream article { grid-template-columns:104px minmax(100px,.4fr) minmax(0,1fr); padding:10px 14px 10px 20px; border-bottom-color:#e4ebf1; }
+    .aion-executive-console-grid .aion-executive-event-stream time { color:#8192a5!important; }.aion-executive-console-grid .aion-executive-event-stream b{color:#26384c!important}.aion-executive-console-grid .aion-executive-event-stream span{color:#526780!important}.aion-executive-console-grid .aion-executive-event-stream b i{color:#2563eb!important}
+    .aion-coo-console-body>.aion-executive-event-ledger { width:100%; min-height:0; margin:0; flex:1 1 auto; box-sizing:border-box; border:0; border-radius:0; background:transparent; }
+    .aion-coo-console-body>.aion-executive-event-ledger .aion-executive-event-stream { max-height:none; min-height:0; flex:1; }
+    .aion-coo-console-body>.aion-executive-event-ledger .aion-executive-event-stream article { grid-template-columns:82px minmax(82px,.38fr) minmax(0,1fr); padding:9px 12px 9px 19px; }
+    .aion-coo-terminal-stream { width:100%; padding:14px 16px 8px; box-sizing:border-box; background:#fff; color:#111827; font:500 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; text-align:left!important; }
+    .aion-coo-terminal-line { display:block; margin:0 0 8px!important; padding:0!important; border:0!important; background:transparent!important; color:#111827!important; text-align:left!important; overflow-wrap:anywhere; }
+    .aion-coo-terminal-line>b { display:inline; margin-right:8px; color:inherit!important; font-weight:800; }
+    .aion-coo-terminal-line>span { display:inline; color:inherit!important; }
+    .aion-coo-terminal-line>time { display:inline; margin-left:8px; color:inherit!important; font-size:9px; white-space:nowrap; }
+    .aion-coo-terminal-line[data-kind="signal"],.aion-coo-terminal-line[data-kind="action"],.aion-coo-terminal-line[data-kind="issue"] { color:#111827!important; }
+    .aion-coo-terminal-line[data-kind="department-report"][data-department="marketing"] { color:#7c3aed!important; }
+    .aion-coo-terminal-line[data-kind="department-report"][data-department="sales"] { color:#15803d!important; }
+    .aion-coo-terminal-line[data-kind="department-report"][data-department="finance"] { color:#2563eb!important; }
+    .aion-coo-terminal-line[data-kind="department-report"][data-department="support"] { color:#0284c7!important; }
+    .aion-coo-terminal-line[data-kind="bottleneck"] { color:#b91c1c!important; font-weight:800; }
+    .aion-coo-terminal-line.aion-coo-awaiting { margin-top:12px!important; color:#15803d!important; }
+    .aion-coo-terminal-line.aion-coo-awaiting>b { color:#2563eb!important; }
+    .aion-executive-terminal-bank { grid-column:2; grid-row:1/3; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(2,minmax(0,1fr)); gap:10px; min-height:0; }
+    .aion-boardroom-workspace .aion-executive-terminal-bank .aion-live-terminal { display:flex; min-width:0; min-height:145px!important; padding:0!important; flex-direction:column; overflow:hidden!important; border:1px solid #d9e2ec!important; border-radius:8px!important; background:#fff!important; box-shadow:none!important; }
+    .aion-live-terminal-chrome { display:flex; width:100%; min-height:38px; align-items:center; gap:5px; padding:0 10px; border-bottom:1px solid #d9e2ec; background:#f8fafc; box-sizing:border-box; }
+    .aion-live-terminal-chrome>b{min-width:0;overflow:hidden;color:#172033!important;font-size:10px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.aion-live-terminal-chrome>em{display:flex;align-items:center;gap:4px;color:#15803d!important;font-size:8px;font-style:normal;font-weight:900;text-transform:uppercase}.aion-live-terminal-chrome>em u{width:5px;height:5px;border-radius:50%;background:#22c55e;text-decoration:none}
+    .aion-live-terminal-tabs { display:flex; margin-left:auto; gap:2px; padding:2px; border:1px solid #cbd8e5; border-radius:5px; background:#eef3f8; }
+    .aion-boardroom-workspace .aion-live-terminal-tabs button { min-width:0!important; min-height:0!important; margin:0!important; padding:4px 7px!important; border:0!important; border-radius:3px!important; background:transparent!important; box-shadow:none!important; color:#71869b!important; font-size:8px!important; font-weight:850!important; line-height:1!important; text-transform:uppercase; }
+    .aion-boardroom-workspace .aion-live-terminal-tabs button:hover { color:#172033!important; }
+    .aion-boardroom-workspace .aion-live-terminal-tabs button.is-active { background:#dce9f7!important; color:#234c78!important; }
+    .aion-live-terminal-report { display:flex; min-height:0; padding:0; flex:1 1 auto; overflow:hidden; flex-direction:column; box-sizing:border-box; background:#fff!important; color:#526780!important; font:500 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:0; text-align:left!important; scrollbar-color:#cbd8e5 #fff; scrollbar-width:thin; }
+    .aion-live-terminal-report[hidden] { display:none!important; }
+    .aion-live-terminal-scroll { min-height:0; padding:12px 13px 5px; flex:1 1 auto; overflow:auto; box-sizing:border-box; text-align:left!important; }
+    .aion-live-terminal-line { display:block; margin:0 0 7px!important; border:0!important; background:transparent!important; color:#111827!important; text-align:left!important; overflow-wrap:anywhere; }
+    .aion-live-terminal-line>b { display:inline; margin-right:8px; color:#2563eb!important; font-weight:800; }
+    .aion-live-terminal-line>span { display:inline; min-width:0; color:inherit!important; }
+    .aion-live-terminal-line[data-tone="meta"]>b { color:#64748b!important; }
+    .aion-live-terminal-line[data-tone="summary"] { margin-bottom:9px!important; }
+    .aion-live-terminal-line[data-tone="summary"]>b { color:#2563eb!important; }
+    .aion-live-terminal-line[data-tone="action"]>b { color:#15803d!important; }
+    .aion-live-terminal-line[data-tone="work"]>b { color:#0284c7!important; }
+    .aion-live-terminal-line[data-tone="risk"]>b { color:#b77900!important; }
+    .aion-live-terminal-line[data-tone="decision"]>b { color:#7c3aed!important; }
+    .aion-live-terminal-line[data-tone="channel"]>b { color:#2563eb!important; }
+    .aion-live-terminal-line i { display:inline; margin-left:6px; color:#111827; opacity:.72; font-size:9px; font-style:normal; text-transform:uppercase; }
+    .aion-live-terminal-awaiting { margin:11px 0 0!important; padding:0 0 4px; border:0!important; background:transparent!important; color:#111827!important; font:600 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .aion-live-terminal-awaiting>span:first-child { margin-right:7px; color:#2563eb; }
+    @keyframes aionExecutivePulseV2 { 0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)} 70%{box-shadow:0 0 0 6px rgba(34,197,94,0)} 100%{box-shadow:0 0 0 0 rgba(34,197,94,0)} }
+    @keyframes aionExecutiveDataLineV2 { to{background-position:28px 0} }
+    @keyframes aionExecutiveCursorV2 { 0%,48%{opacity:1} 49%,100%{opacity:.15} }
+    @keyframes aionExecutiveRadarV2 { 0%{transform:scale(.55);opacity:.8} 100%{transform:scale(1.18);opacity:0} }
+    @keyframes aionExecutiveOrbitV2 { to{transform:rotate(360deg)} }
     .aion-board-meeting-archive { margin-top:18px; border:1px solid #dce7ef; border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 8px 24px rgba(15,42,67,.04); }
     .aion-board-meeting-archive-summary { min-height:74px; display:grid; grid-template-columns:minmax(190px,.7fr) minmax(280px,1.3fr) auto; align-items:center; gap:22px; padding:14px 18px; }
     .aion-board-meeting-archive-heading { display:flex; align-items:baseline; gap:10px; }.aion-board-meeting-archive-heading strong{font-size:15px;color:#0f172a}.aion-board-meeting-archive-heading span{font-size:11px;color:#718399}
@@ -13238,7 +14360,23 @@ function installAionBoardroomWorkspaceStyles() {
     .aion-board-meeting-archive-columns{position:sticky;top:0;z-index:2;padding:9px 18px;background:#f1f6fa;border-bottom:1px solid #dce7ef;color:#718399;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.12em}
     .aion-boardroom-workspace button.aion-board-meeting-row { min-height:49px!important; margin:0!important; padding:8px 18px!important; border:0!important; border-bottom:1px solid #e7eef4!important; border-radius:0!important; background:#fff!important; box-shadow:none!important; text-align:left!important; }
     .aion-boardroom-workspace button.aion-board-meeting-row:last-child{border-bottom:0!important}.aion-boardroom-workspace button.aion-board-meeting-row:hover{background:#f2f8fc!important}.aion-board-meeting-row>span{display:flex;align-items:center;gap:8px;min-width:0}.aion-board-meeting-row strong{font-size:12px;color:#172033;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aion-board-meeting-row small{padding:2px 6px;border-radius:999px;background:#e8f4ff;color:#1269a9;font-size:9px;font-weight:900;text-transform:uppercase}.aion-board-meeting-row time{font-size:11px;color:#52687d}.aion-board-meeting-row em{justify-self:end;color:#1687d9;font-size:11px;font-style:normal;font-weight:800}.aion-board-meeting-row em b{margin-left:4px}
-    @media (max-width:900px) { html body .surface-shell.aion-boardroom-surface[data-aion-boardroom-view-mode] { padding:0 14px 48px 64px !important; } .aion-boardroom-hero { width:calc(100% - 14px); margin-left:14px; padding:9px 24px 10px; } .aion-boardroom-workspace { width:calc(100% - 14px) !important; margin-left:14px !important; } .aion-boardroom-connection-row { grid-template-columns:1fr !important; gap:8px !important; } }
+    @media (max-width:1250px) { .aion-executive-live-network { grid-template-columns:1fr; } .aion-executive-event-ledger { min-height:0; } .aion-executive-event-stream { max-height:260px; } }
+    @media (max-width:1100px) { .aion-executive-briefing-meta { grid-template-columns:repeat(2,minmax(0,1fr)); } .aion-executive-briefing-meta article { border-bottom:1px solid #e4ebf1; } .aion-executive-network-grid { grid-template-columns:minmax(160px,1fr) minmax(230px,1.1fr) minmax(160px,1fr); gap:12px 34px; padding:12px; } .aion-boardroom-workspace button.aion-live-terminal:after { width:34px; } .aion-executive-minutes-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .aion-executive-minutes-grid article:nth-child(3n) { border-right:1px solid #e4ebf1; } .aion-executive-minutes-grid article:nth-child(2n) { border-right:0; } .aion-executive-minutes-grid article:nth-last-child(-n+3) { border-bottom:1px solid #e4ebf1; } .aion-executive-minutes-grid article:nth-last-child(-n+2) { border-bottom:0; } }
+    @media (max-width:900px) { html body .surface-shell.aion-boardroom-surface[data-aion-boardroom-view-mode] { padding:0 14px 48px 64px !important; } .aion-boardroom-hero { width:calc(100% - 14px); margin-left:14px; padding:9px 16px 10px; } .aion-boardroom-mode-switch button { padding:8px 10px; } .aion-boardroom-workspace { width:calc(100% - 14px) !important; margin-left:14px !important; } .aion-boardroom-connection-row { grid-template-columns:1fr !important; gap:8px !important; } .aion-executive-briefing-head,.aion-executive-briefing-summary { align-items:stretch; flex-direction:column; } .aion-executive-briefing-head-actions { justify-content:flex-start; } .aion-executive-network-grid { display:flex; flex-direction:column; min-height:0; } .aion-executive-network-grid:before,.aion-executive-network-links,.aion-boardroom-workspace button.aion-live-terminal:after { display:none; } .aion-coo-terminal { order:-1; min-height:250px; } .aion-executive-briefing-lower { grid-template-columns:1fr; } }
+    @media (max-width:1100px) {
+      .aion-executive-console-grid { height:auto; grid-template-columns:1fr; grid-template-rows:auto; }
+      .aion-executive-console-grid .aion-coo-terminal { grid-column:1!important; grid-row:auto!important; min-height:440px!important; }
+      .aion-executive-console-grid .aion-executive-event-ledger { grid-column:1; grid-row:auto; }
+      .aion-executive-terminal-bank { grid-column:1; grid-row:auto; grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:700px) {
+      .aion-executive-terminal-bank { grid-template-columns:1fr; }
+      .aion-executive-console-grid .aion-executive-event-stream article { grid-template-columns:86px minmax(0,1fr); }
+      .aion-executive-console-grid .aion-executive-event-stream article>span { grid-column:1/3; }
+      .aion-executive-minutes-grid { grid-template-columns:1fr; }
+      .aion-executive-minutes-grid article { border-right:0!important; border-bottom:1px solid #e4ebf1!important; }
+      .aion-executive-minutes-grid article:last-child { border-bottom:0!important; }
+    }
   `;
   document.head.appendChild(style);
 }
@@ -13250,8 +14388,9 @@ installAionBoardroomWorkspaceStyles();
 const AION_COMMUNICATIONS_TABS = [
   { key: "website", label: "Website" },
   { key: "inbox", label: "Inbox & Email" },
+  { key: "social_accounts", label: "Social Accounts" },
   { key: "agent_network", label: "Agent Network" },
-  { key: "phone_channels", label: "Phone & Channels" },
+  { key: "phone_channels", label: "Phone & Messaging" },
 ];
 
 function getAionCommunicationsWorkspaceState() {
@@ -13267,7 +14406,7 @@ function getAionCommunicationsWorkspaceState() {
 function setAionCommunicationsWorkspaceTab(nextTab = "website") {
   const allowed = new Set(AION_COMMUNICATIONS_TABS.map((item) => item.key));
   const selected = allowed.has(String(nextTab || "")) ? String(nextTab) : "website";
-  try { localStorage.setItem("aion.communications.activeTab.v1", selected); } catch {}
+    try { window.AionDesktopPreferences.set("aion.communications.activeTab.v1", selected); } catch {}
   try { render(); } catch (_) { try { requestRender?.(); } catch (_) {} }
   return selected;
 }
@@ -13291,8 +14430,8 @@ function openAionCommunicationsRoute(route = "live_agents", department = "") {
   try {
     state.activeTab = safeRoute;
     window.__aionForcedMainTabV2 = safeRoute;
-    localStorage.setItem("aion.forcedMainTab.v2", safeRoute);
-    localStorage.setItem("aion.activeTab.v1", safeRoute);
+      window.AionDesktopPreferences.set("aion.forcedMainTab.v2", safeRoute);
+      window.AionDesktopPreferences.set("aion.activeTab.v1", safeRoute);
     if (safeRoute === "live_agents" && department) {
       state.selectedLiveAgentDepartment = department;
       state.liveAgentsSelectedDepartment = department;
@@ -13542,6 +14681,62 @@ function renderAionCommunicationsAgentNetworkTab() {
   `;
 }
 
+function getAionConfiguredSocialAccountsV1() {
+  const foundation = typeof getApprovedSmallBusinessFoundationForBusinessTab === "function"
+    ? (getApprovedSmallBusinessFoundationForBusinessTab() || {})
+    : {};
+  const raw = foundation.social_accounts;
+  if (Array.isArray(raw)) return raw.map((item) => String(item || "").trim()).filter(Boolean);
+  if (raw && typeof raw === "object") {
+    return Object.entries(raw).map(([name, value]) => {
+      const detail = typeof value === "string" ? value.trim() : "";
+      return detail ? `${name}: ${detail}` : name;
+    }).filter(Boolean);
+  }
+  return String(raw || "")
+    .split(/\n|,|;/)
+    .map((item) => item.replace(/^[-•]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function renderAionCommunicationsSocialAccountsTab() {
+  const snapshot = typeof getAionMarketingDashboardSnapshotV1 === "function"
+    ? (getAionMarketingDashboardSnapshotV1({}) || {})
+    : {};
+  const configuredAccounts = getAionConfiguredSocialAccountsV1();
+  const evidencedPlatforms = safeArray(snapshot.platforms);
+  const evidencedNames = new Set(evidencedPlatforms.map((item) => String(firstString(item?.name, item?.platform, item?.provider, item?.account) || "").toLowerCase()).filter(Boolean));
+  const configuredOnly = configuredAccounts.filter((item) => !evidencedNames.has(item.toLowerCase()));
+  return `
+    <div class="aion-comms-stack" data-aion-communications-social-accounts="true">
+      <section class="panel large-panel aion-comms-section">
+        <div class="panel-header">
+          <div>
+            <div class="panel-kicker">Social channel evidence</div>
+            <h2>Social Accounts</h2>
+            <p class="muted">Track inbound and outbound results from this business's own connected accounts. Only supplied evidence is shown; unavailable metrics are never represented as zero.</p>
+          </div>
+          <div class="status-pill">${evidencedPlatforms.length} evidenced · ${configuredOnly.length} awaiting data</div>
+        </div>
+        ${evidencedPlatforms.length ? `
+          <div class="aion-social-account-grid">
+            ${evidencedPlatforms.map((platform, index) => {
+              const name = firstString(platform?.name, platform?.platform, platform?.provider, platform?.account) || `Connected account ${index + 1}`;
+              const ignored = new Set(["id", "name", "platform", "provider", "account", "account_id", "source", "source_id", "updated_at", "created_at", "last_updated", "connected", "status", "currency"]);
+              const metrics = Object.entries(platform || {}).filter(([key, value]) => !ignored.has(key) && value !== undefined && value !== null && value !== "" && typeof value !== "object");
+              return `<article class="aion-social-account-card"><header><strong>${escapeHtml(name)}</strong><span>Verified evidence</span></header>${metrics.length ? `<dl>${metrics.map(([key, value]) => `<div><dt>${escapeHtml(String(key).replaceAll("_", " "))}</dt><dd>${escapeHtml(formatAionMarketingMetricValueV1(value))}</dd></div>`).join("")}</dl>` : `<p>Connected, but no comparable result has been supplied yet.</p>`}</article>`;
+            }).join("")}
+          </div>` : `<div class="aion-comms-empty-evidence"><strong>No social performance evidence is connected.</strong><span>Add the business's real accounts or import an evidenced channel report before AION assesses results.</span></div>`}
+        ${configuredOnly.length ? `<div class="aion-social-configured-list"><strong>Configured accounts awaiting evidence</strong>${configuredOnly.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>` : ""}
+        <div class="aion-comms-action-row">
+          <button type="button" class="primary-btn" onclick="openAionCommunicationsRoute('vault')">Manage social connections</button>
+          <button type="button" class="secondary-btn" onclick="openAionCommunicationsRoute('live_agents', 'marketing')">Open Marketing</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
 function renderAionCommunicationsPhoneChannelsTab() {
   return `
     <div class="aion-comms-stack" data-aion-communications-phone-channels="true">
@@ -13577,6 +14772,8 @@ function renderAionCommunicationsSurface() {
   const { selected } = getAionCommunicationsWorkspaceState();
   const content = selected === "inbox"
     ? renderAionCommunicationsInboxTab()
+    : selected === "social_accounts"
+      ? renderAionCommunicationsSocialAccountsTab()
     : selected === "agent_network"
       ? renderAionCommunicationsAgentNetworkTab()
       : selected === "phone_channels"
@@ -13622,6 +14819,23 @@ function installAionCommunicationsWorkspaceStyles() {
       box-sizing:border-box;
       background:#fff;
     }
+    .aion-social-account-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:18px; }
+    .aion-social-account-card { border:1px solid #d9e2ec; border-radius:12px; background:#fff; overflow:hidden; }
+    .aion-social-account-card header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid #e4ebf1; }
+    .aion-social-account-card header strong { color:#172033; font-size:14px; }
+    .aion-social-account-card header span { color:#1687d9; font-size:9px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+    .aion-social-account-card dl { margin:0; }
+    .aion-social-account-card dl div { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px 16px; border-bottom:1px solid #eef2f6; }
+    .aion-social-account-card dl div:last-child { border-bottom:0; }
+    .aion-social-account-card dt { color:#66758a; text-transform:capitalize; }
+    .aion-social-account-card dd { margin:0; color:#172033; font-weight:900; }
+    .aion-social-account-card p,.aion-comms-empty-evidence { margin:0; padding:18px 16px; color:#66758a; }
+    .aion-comms-empty-evidence { display:grid; gap:5px; margin-top:18px; border:1px dashed #cbd8e5; border-radius:12px; background:#fbfdff; }
+    .aion-comms-empty-evidence strong { color:#172033; }
+    .aion-social-configured-list { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:14px; padding:13px 15px; border:1px solid #d9e2ec; border-radius:12px; background:#f7faff; }
+    .aion-social-configured-list strong { margin-right:4px; color:#172033; }
+    .aion-social-configured-list span { padding:5px 8px; border-radius:999px; background:#eaf2ff; color:#225ea8; font-size:10px; font-weight:800; }
+    @media (max-width:900px) { .aion-social-account-grid { grid-template-columns:1fr; } }
     .aion-comms-hero, .aion-comms-tabs, .aion-comms-content {
       width:100%;
       max-width:none;
@@ -14640,7 +15854,7 @@ function getAionPilotFrontendInteractionState() {
   const previousScope = window.__aionPilotLastInteractionStateKey;
   if (previousScope && window.__aionPilotFrontendInteractionStates[previousScope]) {
     try {
-      localStorage.setItem(
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(
         `aion.pilot.runtimeState.${previousScope}.v3`,
         JSON.stringify(window.__aionPilotFrontendInteractionStates[previousScope]),
       );
@@ -14653,7 +15867,7 @@ function getAionPilotFrontendInteractionState() {
       const storageKey = stateKey === scope
         ? `aion.pilot.runtimeState.${scope}.v3`
         : `aion.pilot.runtimeState.${stateKey}.v3`;
-      storedState = JSON.parse(localStorage.getItem(storageKey) || "null");
+      storedState = JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString(storageKey) || "null");
     } catch {}
     window.__aionPilotFrontendInteractionStates[stateKey] = storedState && typeof storedState === "object" ? storedState : {
       status: "idle",
@@ -15766,7 +16980,7 @@ function readAionCentralPilotStorageObject(storageKey = "") {
 
 function writeAionCentralPilotStorageObject(storageKey = "", value = {}) {
   try {
-    window.localStorage?.setItem(storageKey, JSON.stringify(value || {}));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(storageKey, JSON.stringify(value || {}));
   } catch (_error) {
     // Local preview storage only.
   }
@@ -25701,7 +26915,7 @@ function getAionPilotWorkspaceView() {
 function setAionPilotWorkspaceView(view = "work") {
   const allowed = ["work", "knowledge", "scheduled", "capabilities", "authority", "channels", "artifacts"];
   const next = allowed.includes(String(view)) ? String(view) : "work";
-  try { localStorage.setItem(AION_PILOT_WORKSPACE_VIEW_KEY, next); } catch {}
+  try { window.AionDesktopPreferences.set(AION_PILOT_WORKSPACE_VIEW_KEY, next); } catch {}
   if (next === "knowledge") window.setTimeout(() => loadAionPilotBusinessKnowledge(), 0);
   if (next === "scheduled") window.setTimeout(() => loadAionPilotScheduledWork(), 0);
   if (next === "authority") window.setTimeout(() => loadAionPilotAuthority(), 0);
@@ -25753,7 +26967,7 @@ function getAionPilotVoicePreferences() {
 function setAionPilotVoicePreference(key, value) {
   const prefs = getAionPilotVoicePreferences();
   prefs[key] = value === true;
-  try { localStorage.setItem(AION_PILOT_VOICE_PREFS_KEY, JSON.stringify(prefs)); } catch {}
+  try { window.AionDesktopPreferences.set(AION_PILOT_VOICE_PREFS_KEY, JSON.stringify(prefs)); } catch {}
   requestRender?.();
   return prefs;
 }
@@ -29340,7 +30554,7 @@ function getAionChatSelectedEngineV1(models = []) {
 function setAionChatSelectedEngineV1(engine = "") {
   const value = String(engine || "").trim();
   window.__aionChatSelectedEngineV1 = value;
-  try { localStorage.setItem("aion.chat.selected_engine.v1", value); } catch {}
+  try { window.AionDesktopPreferences.set("aion.chat.selected_engine.v1", value); } catch {}
   return value;
 }
 
@@ -29500,7 +30714,7 @@ function getAionBoardMeetingChatContextV1() {
     return window.__aionBoardMeetingChatContextV1;
   }
   try {
-    const stored = JSON.parse(sessionStorage.getItem("aion.chat.board_meeting_context.v1") || "null");
+    const stored = JSON.parse(window.AionBusinessContainerClient?.readBusinessWorkingStateString?.("aion.chat.board_meeting_context.v1") || "null");
     if (stored?.active === true) {
       window.__aionBoardMeetingChatContextV1 = stored;
       return stored;
@@ -29513,8 +30727,8 @@ function setAionBoardMeetingChatContextV1(context = null) {
   const next = context?.active === true ? context : null;
   window.__aionBoardMeetingChatContextV1 = next;
   try {
-    if (next) sessionStorage.setItem("aion.chat.board_meeting_context.v1", JSON.stringify(next));
-    else sessionStorage.removeItem("aion.chat.board_meeting_context.v1");
+    if (next) window.AionBusinessContainerClient?.writeBusinessWorkingStateString?.("aion.chat.board_meeting_context.v1", JSON.stringify(next));
+    else window.AionBusinessContainerClient?.clearBusinessWorkingState?.("aion.chat.board_meeting_context.v1");
   } catch {}
   return next;
 }
@@ -29614,7 +30828,7 @@ function getAionChatSessionStoreV3() {
   }
   let store = {};
   try {
-    const stored = JSON.parse(localStorage.getItem("aion.chat.sessions.v3") || "{}");
+    const stored = JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString("aion.chat.sessions.v3") || "{}");
     if (stored && typeof stored === "object" && !Array.isArray(stored)) store = stored;
   } catch {}
   window.__aionChatSessionStoreV3 = store;
@@ -29623,7 +30837,7 @@ function getAionChatSessionStoreV3() {
 
 function persistAionChatSessionStoreV3() {
   const store = getAionChatSessionStoreV3();
-  try { localStorage.setItem("aion.chat.sessions.v3", JSON.stringify(store)); } catch {}
+  try { window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.chat.sessions.v3", JSON.stringify(store)); } catch {}
   return store;
 }
 
@@ -29659,7 +30873,7 @@ function ensureAionChatModelWorkspaceV3(engine = "") {
     const migratedChat = createAionChatSessionRecordV3(legacyMessages);
     workspace = { active_chat_id: migratedChat.id, chats: [migratedChat] };
     store[key] = workspace;
-    try { localStorage.setItem("aion.chat.messages.v1.migrated", "true"); } catch {}
+    try { window.AionDesktopPreferences.set("aion.chat.messages.v1.migrated", "true"); } catch {}
     persistAionChatSessionStoreV3();
   }
   workspace.chats = workspace.chats.filter((chat) => chat && typeof chat === "object" && chat.id);
@@ -30522,27 +31736,34 @@ function getAionVaultAiProviderStatusState() {
 
 function getAionSelectedBoardroomProviderIdsV1(fallback = []) {
   const connected = safeArray(getAionVaultAiProviderStatusState().providers)
-    .filter((item) => item?.connected === true)
+    // An environment fallback is not a user-connected Board member.  Only
+    // providers saved through Connections are automatically seated.
+    .filter((item) => item?.connected === true && String(item?.source || "") !== "env")
     .map((item) => String(item.id || "").trim())
     .filter(Boolean);
   const selectedLocal = safeArray(getAionVaultLocalModelsStateV1?.().models)
     .some((model) => model?.selected === true && model?.selection_status === "selectable");
   if (selectedLocal) connected.push("local_model");
+  const leadProviderId = String(
+    getAionVaultAiProviderStatusState()?.lead_model?.provider_id ||
+    window.__aionOriginalBusinessMapStateV2?.leadModel?.provider_id ||
+    ""
+  ).trim();
   let stored = null;
   try {
     const raw = window.localStorage?.getItem("aion.boardroom.selected_provider_ids.v1");
     if (raw) stored = JSON.parse(raw);
   } catch {}
-  if (!Array.isArray(stored)) {
-    const safeDefault = connected.filter((id) => id !== "gemma");
-    return safeDefault.length ? safeDefault : safeArray(fallback).filter((id) => id !== "gemma");
-  }
-  return stored.filter((id) => connected.includes(id));
+  const selected = connected.length
+    ? [...connected]
+    : (Array.isArray(stored) ? stored : safeArray(fallback)).filter((id) => id !== "gemma");
+  if (leadProviderId && connected.includes(leadProviderId)) selected.unshift(leadProviderId);
+  return [...new Set(selected)];
 }
 
 function setAionSelectedBoardroomProviderIdsV1(ids = []) {
   const clean = [...new Set(safeArray(ids).map((item) => String(item || "").trim()).filter(Boolean))];
-  try { window.localStorage?.setItem("aion.boardroom.selected_provider_ids.v1", JSON.stringify(clean)); } catch {}
+  try { window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.boardroom.selected_provider_ids.v1", JSON.stringify(clean)); } catch {}
   return clean;
 }
 
@@ -30589,7 +31810,7 @@ async function refreshAionVaultAiProviderStatusV1({ render: shouldRender = true 
       lead_model: boardroomStatus?.lead_model || null,
     };
     providers.filter((provider) => provider?.connected === true).forEach((provider) => {
-      ensureAionChatModelStreamV2(String(provider.id || provider.provider || ""));
+      window.ensureAionChatModelStreamV2?.(String(provider.id || provider.provider || ""));
     });
     void syncAionConnectedModelsToBoardroomV1();
   } catch (error) {
@@ -30802,7 +32023,7 @@ async function refreshAionVaultLocalModelsV1({ render: shouldRender = true } = {
     if (!response.ok || payload?.ok === false) throw new Error(payload?.error || payload?.detail || "Local-model scan failed");
     window.__aionVaultLocalModels = { loading: false, loaded: true, error: "", ...payload };
     safeArray(payload.models).filter((model) => model?.selected === true && model?.selection_status === "selectable").forEach(() => {
-      ensureAionChatModelStreamV2("local_model");
+      window.ensureAionChatModelStreamV2?.("local_model");
     });
     void syncAionConnectedModelsToBoardroomV1();
   } catch (error) { window.__aionVaultLocalModels = { ...state, loading: false, loaded: true, error: error?.message || String(error) }; }
@@ -30824,7 +32045,7 @@ async function selectAionVaultLocalModelV1(modelId) {
     const selected = new Set(getAionSelectedBoardroomProviderIdsV1());
     selected.add("local_model");
     setAionSelectedBoardroomProviderIdsV1([...selected]);
-    ensureAionChatModelStreamV2("local_model");
+    window.ensureAionChatModelStreamV2?.("local_model");
     await refreshAionVaultLocalModelsV1();
     void syncAionConnectedModelsToBoardroomV1();
   } catch (error) {
@@ -30987,7 +32208,7 @@ if (!window.__aionVaultAiProviderHandlersInstalledV1) {
       if (member.checked) selected.add(provider); else selected.delete(provider);
       setAionSelectedBoardroomProviderIdsV1([...selected]);
       window.refreshVaultProvidersForBoardroomO15C?.();
-      if (member.checked) ensureAionChatModelStreamV2(provider);
+      if (member.checked) window.ensureAionChatModelStreamV2?.(provider);
       void syncAionConnectedModelsToBoardroomV1();
       requestRender?.();
       return;
@@ -31036,7 +32257,7 @@ if (!window.__aionVaultAiProviderHandlersInstalledV1) {
         const selected = new Set(getAionSelectedBoardroomProviderIdsV1());
         selected.add(provider);
         setAionSelectedBoardroomProviderIdsV1([...selected]);
-        ensureAionChatModelStreamV2(provider);
+        window.ensureAionChatModelStreamV2?.(provider);
         await refreshAionVaultAiProviderStatusV1();
         void syncAionConnectedModelsToBoardroomV1();
       } catch (error) {
@@ -31076,12 +32297,9 @@ if (!window.__aionVaultLocalModelsHandlersInstalledV1) {
   }, true);
 }
 
-/* Load the private-model selection for the shared Board header at desktop
-   startup. Previously this state existed only after somebody opened Vault. */
-if (!window.__aionVaultLocalModelsInitialRefreshV2) {
-  window.__aionVaultLocalModelsInitialRefreshV2 = true;
-  window.setTimeout(() => refreshAionVaultLocalModelsV1(), 900);
-}
+/* Private-model selection is Vault-owned business data. Hydrate it only when
+   somebody opens the relevant model/AI surface (or explicitly scans storage),
+   never merely because the desktop shell started. */
 
 
 /* AION PATCH: removed stale fake Finance 1:1 DOM room. Real Three.js renderer owns this surface. */
@@ -31240,8 +32458,8 @@ if (!window.__aionPhase24BSmallBusinessFoundationHandlersInstalled) {
        * Boardroom activation is treated as planning/delegation-ready.
        */
       try {
-        window.localStorage?.setItem("aion.smallBusinessFoundationBoardroomStarted", "false");
-        window.localStorage?.setItem("aion.business_twin.boardroom_activation_status.v1", "blocked_until_finance_and_operating_base_discovery");
+        window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.smallBusinessFoundationBoardroomStarted", "false");
+        window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.business_twin.boardroom_activation_status.v1", "blocked_until_finance_and_operating_base_discovery");
       } catch {}
 
       if (typeof routeAionBusinessTwinToLiveAgentsFinanceV1 === "function") {
@@ -31298,6 +32516,23 @@ if (!window.__aionPhase24EBusinessContextHandlersInstalled) {
   }, true);
 
   document.addEventListener("change", (event) => {
+    const logoInput = event.target?.closest?.("[data-aion-business-logo-upload]");
+    if (logoInput) {
+      const file = logoInput.files?.[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        if (typeof showToast === "function") showToast("Please choose a logo smaller than 2 MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const foundation = { ...getEditableBusinessContextFoundation(), quote_logo_data_url: String(reader.result || "") };
+        persistSmallBusinessFoundationContextO25BB(foundation, { approved:true, source:"business_logo_upload", allowEmptyFields:true });
+        if (typeof requestRender === "function") requestRender(); else if (typeof render === "function") render();
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
     const field = event.target?.closest?.("[data-aion-business-context-field]");
     if (!field) return;
 
@@ -31310,6 +32545,80 @@ if (!window.__aionPhase24EBusinessContextHandlersInstalled) {
   }, true);
 
   document.addEventListener("click", (event) => {
+    const rewriteQuoteEmail = event.target?.closest?.("[data-aion-rewrite-quote-email]");
+    if (rewriteQuoteEmail) {
+      event.preventDefault();
+      event.stopPropagation();
+      const field = document.querySelector('[data-aion-business-context-field="quote_email_body"]');
+      const status = document.querySelector("[data-aion-quote-email-rewrite-status]");
+      const source = String(field?.value || "").trim();
+      if (!source) {
+        if (status) { status.textContent = "Write a rough email template first, then choose Rewrite email professionally with SI."; status.style.color = "#b42318"; }
+        return;
+      }
+      const originalLabel = rewriteQuoteEmail.textContent;
+      rewriteQuoteEmail.disabled = true;
+      rewriteQuoteEmail.textContent = "Rewriting with the local model…";
+      if (status) { status.textContent = "Creating an editable professional draft. Your original remains unchanged until the rewrite succeeds."; status.style.color = "#475569"; }
+      const apiBase = String(
+        state.apiBase || state.desktopApiBase || window.AION_API_BASE || window.__AION_DESKTOP_STATE__?.apiBase || "http://127.0.0.1:8080",
+      ).replace(/\/+$/, "");
+      const workspaceId = String(window.AionBusinessContainerClient?.resolveBusinessId?.() || state.activeWorkspaceId || "home-fixed");
+      void fetch(`${apiBase}/api/aion/business/work-schedule/${encodeURIComponent(workspaceId)}/rewrite-quote-email-template`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: source }),
+      }).then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.detail || payload.error || "The email could not be rewritten");
+        const emailBody = String(payload.email_body || "").trim();
+        const currentField = document.querySelector('[data-aion-business-context-field="quote_email_body"]');
+        if (emailBody) {
+          const draft = getSmallBusinessFoundationDraft();
+          draft.quote_email_body = emailBody;
+          state.approvedSmallBusinessFoundation = { ...(state.approvedSmallBusinessFoundation || {}), ...draft };
+          state.businessContextFoundation = state.approvedSmallBusinessFoundation;
+          if (currentField) {
+            currentField.value = emailBody;
+            currentField.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        }
+        const currentStatus = document.querySelector("[data-aion-quote-email-rewrite-status]");
+        if (currentStatus) { currentStatus.textContent = "Professional draft added. Review and edit it, then choose Save terms when ready."; currentStatus.style.color = "#067647"; }
+      }).catch((error) => {
+        const currentStatus = document.querySelector("[data-aion-quote-email-rewrite-status]");
+        if (currentStatus) { currentStatus.textContent = String(error?.message || error); currentStatus.style.color = "#b42318"; }
+      }).finally(() => {
+        const currentButton = document.querySelector("[data-aion-rewrite-quote-email]");
+        if (currentButton) { currentButton.disabled = false; currentButton.textContent = originalLabel; }
+      });
+      return;
+    }
+    const paymentSettingsSave = event.target?.closest?.("[data-aion-payment-settings-save]");
+    if (paymentSettingsSave) {
+      event.preventDefault();
+      event.stopPropagation();
+      saveBusinessPaymentSettingsFromForm({ rerender: true });
+      return;
+    }
+    const stripeConnection = event.target?.closest?.("[data-aion-open-stripe-connection]");
+    if (stripeConnection) {
+      event.preventDefault();
+      event.stopPropagation();
+      saveBusinessPaymentSettingsFromForm({ rerender: false });
+      if (typeof setActiveTab === "function") setActiveTab("vault");
+      else state.activeTab = "vault";
+      if (typeof showToast === "function") showToast("Open Payments in Connections to link the business Stripe account. Stripe onboarding must use the business owner's own account.");
+      if (typeof requestRender === "function") requestRender(); else if (typeof render === "function") render();
+      return;
+    }
+    const removeLogo = event.target?.closest?.("[data-aion-business-logo-remove]");
+    if (removeLogo) {
+      event.preventDefault();
+      persistSmallBusinessFoundationContextO25BB({ ...getEditableBusinessContextFoundation(), quote_logo_data_url:"" }, { approved:true, source:"business_logo_remove", allowEmptyFields:true });
+      if (typeof requestRender === "function") requestRender(); else if (typeof render === "function") render();
+      return;
+    }
     const saveButton = event.target?.closest?.("[data-aion-business-context-save]");
     if (saveButton) {
       event.preventDefault();
@@ -31358,7 +32667,7 @@ function setAionBusinessContextSubtab(rawKey = "key_business_info") {
   } catch {}
 
   try {
-    window.localStorage?.setItem("aion.activeBusinessContextSubtab", key);
+    window.AionDesktopPreferences.set("aion.activeBusinessContextSubtab", key);
   } catch {}
 
   return key;
@@ -31366,6 +32675,49 @@ function setAionBusinessContextSubtab(rawKey = "key_business_info") {
 
 if (typeof window !== "undefined") {
   window.setAionBusinessContextSubtab = setAionBusinessContextSubtab;
+  window.openAionBusinessLogoSettings = function openAionBusinessLogoSettings() {
+    const value = setAionBusinessContextSubtab("key_business_info");
+    const nextTab = typeof setActiveTab === "function" ? setActiveTab("business_context") : "business_context";
+    try {
+      window.__aionForcedMainTabV2 = nextTab;
+      window.AionDesktopPreferences.set("aion.forcedMainTab.v2", nextTab);
+    } catch {}
+    if (typeof safeAionDesktopPatch === "function") safeAionDesktopPatch({ activeTab: nextTab, activeBusinessContextSubtab: value });
+    if (typeof requestRender === "function") requestRender();
+    else if (typeof render === "function") render();
+  };
+  window.openAionBusinessQuoteEmailSettings = function openAionBusinessQuoteEmailSettings() {
+    const value = setAionBusinessContextSubtab("terms_conditions");
+    const nextTab = typeof setActiveTab === "function" ? setActiveTab("business_context") : "business_context";
+    try {
+      window.__aionForcedMainTabV2 = nextTab;
+      window.AionDesktopPreferences.set("aion.forcedMainTab.v2", nextTab);
+    } catch {}
+    if (typeof safeAionDesktopPatch === "function") safeAionDesktopPatch({ activeTab: nextTab, activeBusinessContextSubtab: value });
+    if (typeof requestRender === "function") requestRender();
+    else if (typeof render === "function") render();
+  };
+  window.openAionBusinessFinancialSettings = function openAionBusinessFinancialSettings() {
+    const value = setAionBusinessContextSubtab("financial_information");
+    const nextTab = typeof setActiveTab === "function" ? setActiveTab("business_context") : "business_context";
+    try {
+      window.__aionForcedMainTabV2 = nextTab;
+      window.AionDesktopPreferences.set("aion.forcedMainTab.v2", nextTab);
+    } catch {}
+    if (typeof safeAionDesktopPatch === "function") safeAionDesktopPatch({ activeTab: nextTab, activeBusinessContextSubtab: value });
+    if (typeof requestRender === "function") requestRender();
+    else if (typeof render === "function") render();
+  };
+  window.openAionGmailConnectionSettings = function openAionGmailConnectionSettings() {
+    const nextTab = typeof setActiveTab === "function" ? setActiveTab("vault") : "vault";
+    try {
+      window.__aionForcedMainTabV2 = nextTab;
+      window.AionDesktopPreferences.set("aion.forcedMainTab.v2", nextTab);
+    } catch {}
+    if (typeof safeAionDesktopPatch === "function") safeAionDesktopPatch({ activeTab: nextTab });
+    if (typeof requestRender === "function") requestRender();
+    else if (typeof render === "function") render();
+  };
 }
 /* END AION O19F RESTORE BUSINESS CONTEXT SUBTAB SETTER LOCK */
 
@@ -31386,7 +32738,7 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
     const nextTab = typeof setActiveTab === "function" ? setActiveTab("business_context") : "business_context";
     try {
       window.__aionForcedMainTabV2 = nextTab;
-      window.localStorage?.setItem("aion.forcedMainTab.v2", nextTab);
+      window.AionDesktopPreferences.set("aion.forcedMainTab.v2", nextTab);
     } catch {}
     if (typeof safeAionDesktopPatch === "function") {
       safeAionDesktopPatch({ activeTab: nextTab, activeBusinessContextSubtab: value });
@@ -31411,9 +32763,8 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
       : {};
     drafts[departmentKey][fieldKey] = field.value || "";
 
-    try {
-      window.localStorage?.setItem("aion.businessDepartmentContextDraft", JSON.stringify(drafts));
-    } catch {}
+    // Kept in memory while typing; the Save action below commits the record to
+    // the canonical Department Intelligence container in the Business Vault.
   }, true);
 
   document.addEventListener("click", (event) => {
@@ -31436,12 +32787,37 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
       drafts[departmentKey][fieldKey] = field.value || "";
     });
 
-    try {
-      window.localStorage?.setItem("aion.businessDepartmentContextDraft", JSON.stringify(getBusinessDepartmentContextDraft()));
-    } catch {}
-
-    if (typeof render === "function") render();
+    const departmentValues = { ...(getBusinessDepartmentContextDraft()[departmentKey] || {}) };
+    const client = window.AionBusinessContainerClient;
+    if (!client?.saveDepartmentContext) {
+      if (typeof showToast === "function") showToast("Department context could not be saved because the local business service is unavailable.");
+      return;
+    }
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving…";
+    client.saveDepartmentContext(departmentKey, departmentValues)
+      .then((result) => {
+        const canonical = result?.payload?.departments || {};
+        Object.assign(getBusinessDepartmentContextDraft(), canonical);
+        if (typeof showToast === "function") showToast("Department context saved to the Business Vault.");
+        if (typeof render === "function") render();
+      })
+      .catch((error) => {
+        console.warn("[AION] Department context vault save failed", error);
+        saveButton.disabled = false;
+        saveButton.textContent = "Save context";
+        if (typeof showToast === "function") showToast("Department context was not saved. Please try again.");
+      });
   }, true);
+
+  window.addEventListener("aion:department-context-loaded", (event) => {
+    const departments = event?.detail?.departments;
+    if (!departments || typeof departments !== "object") return;
+    window.__aionDepartmentIntelligenceMemory = departments;
+    try { window.localStorage?.removeItem("aion.departmentIntelligence.v1"); } catch {}
+    Object.assign(getBusinessDepartmentContextDraft(), departments);
+    if (typeof requestRender === "function") requestRender();
+  });
 }
 
 
@@ -31648,59 +33024,60 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
  */
 function routeAionBusinessTwinToFinanceOnceV2() {
   try {
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.businessTwin.financeFirst.v1",
       "true"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.businessTwin.financeFirstRouted.v1",
       "true"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.liveAgents.selectedDepartment.v1",
       "finance"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.liveAgents.selectedDepartment",
       "finance"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.selectedLiveDepartment",
       "finance"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.departmentPilot.selected",
       "finance"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.activeTab",
       "live_agents"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.activeTab.v1",
       "live_agents"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.lastActiveTab.v1",
       "live_agents"
     );
 
-    localStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.forcedMainTab.v2",
       "live_agents"
     );
 
-    sessionStorage.setItem(
+    window.AionDesktopPreferences.set(
       "aion.businessTwin.financeHandoffActive.v1",
-      "true"
+      "true",
+      { session: true }
     );
 
     sessionStorage.removeItem(
@@ -32129,10 +33506,10 @@ function startAionO25ABSelectedTerminalVoice() {
       window.__aionO25ABStartupRouteHold = true;
       window.__aionO25UConversationOpen = true;
       window.__aionO20COpeningMode = "small_business_growth";
-      window.sessionStorage?.setItem("aion.o25u.current_terminal_open.v1", "true");
-      window.sessionStorage?.setItem("aion.o25f.intentionalConversationOpen.v1", "true");
-      window.localStorage?.setItem("aion.o20c.conversationMode", "small_business_growth");
-      window.localStorage?.setItem("aion.businessEntryMode.v1", "small_business_growth");
+      window.AionDesktopPreferences.set("aion.o25u.current_terminal_open.v1", "true", { session: true });
+      window.AionDesktopPreferences.set("aion.o25f.intentionalConversationOpen.v1", "true", { session: true });
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.o20c.conversationMode", "small_business_growth");
+      window.AionBusinessContainerClient?.writeBusinessWorkingStateString?.("aion.businessEntryMode.v1", "small_business_growth");
     } catch {}
 
     try {
@@ -32234,9 +33611,9 @@ function startAionO25ABSelectedTerminalVoice() {
       window.__aionO25UConversationOpen = true;
       window.__aionO20COpeningMode = "small_business_growth";
       window.__aionO25FDeferredAutomaticStartRequested = false;
-      window.sessionStorage?.setItem("aion.o25u.current_terminal_open.v1", "true");
-      window.sessionStorage?.setItem("aion.o25f.intentionalConversationOpen.v1", "true");
-      window.localStorage?.setItem("aion.o20c.conversationMode", "small_business_growth");
+      window.AionDesktopPreferences.set("aion.o25u.current_terminal_open.v1", "true", { session: true });
+      window.AionDesktopPreferences.set("aion.o25f.intentionalConversationOpen.v1", "true", { session: true });
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.o20c.conversationMode", "small_business_growth");
     } catch {}
 
     try {
@@ -32402,8 +33779,8 @@ function startAionO25ABSelectedTerminalVoice() {
     window.__aionO20COpeningMode = "small_business_growth";
 
     try {
-      window.sessionStorage?.setItem("aion.o25ad.terminal_open.v1", "true");
-      window.sessionStorage?.setItem("aion.o25u.current_terminal_open.v1", "true");
+      window.AionDesktopPreferences.set("aion.o25ad.terminal_open.v1", "true", { session: true });
+      window.AionDesktopPreferences.set("aion.o25u.current_terminal_open.v1", "true", { session: true });
     } catch {}
 
     try {
@@ -32627,9 +34004,9 @@ function aionOpenStartupSelectorO19F() {
   window.__aionLiveAgentsFocusDepartment = "";
 
   try {
-    window.localStorage?.setItem("aion.activeTab", "small_business_foundation");
-    window.localStorage?.setItem("aion.activeTab.v1", "small_business_foundation");
-    window.localStorage?.setItem("aion.forcedMainTab.v2", "small_business_foundation");
+    window.AionDesktopPreferences.set("aion.activeTab", "small_business_foundation");
+    window.AionDesktopPreferences.set("aion.activeTab.v1", "small_business_foundation");
+    window.AionDesktopPreferences.set("aion.forcedMainTab.v2", "small_business_foundation");
     window.__aionForcedMainTabV2 = "small_business_foundation";
     window.localStorage?.removeItem("aion.businessTwin.financeFirst.v1");
     window.localStorage?.removeItem("aion.businessTwin.financeFirstRouted.v1");
@@ -33080,7 +34457,7 @@ function renderMainSurface() {
       window.__aionForcedMainTabV2 = "boardroom";
       window.__aionLastManualNavTabV2 = "boardroom";
       ["aion.activeTab", "aion.activeTab.v1", "aion.lastActiveTab.v1", "aion.forcedMainTab.v2", "aionDesktop.activeTab"]
-        .forEach((key) => window.localStorage?.setItem(key, "boardroom"));
+        .forEach((key) => window.AionDesktopPreferences.set(key, "boardroom"));
     }
   } catch {}
 
@@ -33095,9 +34472,9 @@ function renderMainSurface() {
       window.__aionBusinessContextSubtab = "local_processing";
       window.__aionForcedMainTabV2 = "business_context";
       window.__aionLastManualNavTabV2 = "business_context";
-      window.localStorage?.setItem("aion.activeBusinessContextSubtab", "local_processing");
+      window.AionDesktopPreferences.set("aion.activeBusinessContextSubtab", "local_processing");
       ["aion.activeTab", "aion.activeTab.v1", "aion.lastActiveTab.v1", "aion.forcedMainTab.v2", "aionDesktop.activeTab"]
-        .forEach((key) => window.localStorage?.setItem(key, "business_context"));
+        .forEach((key) => window.AionDesktopPreferences.set(key, "business_context"));
     }
   } catch {}
 
@@ -33153,6 +34530,7 @@ function renderMainSurface() {
       "settings",
       "file_cabinet",
       "work_schedule",
+      "founder_notes",
       "brand_foundation",
       "business_context",
       "marketing_stream",
@@ -33190,7 +34568,7 @@ function renderMainSurface() {
         state.activeLiveAgentDepartment = "finance";
         state.liveAgentsWorkspaceMode = "finance";
 
-        localStorage.setItem(
+        window.AionDesktopPreferences.set(
           "aion.businessTwin.financeFirstRouted.v1",
           "true"
         );
@@ -33302,9 +34680,9 @@ state.activeTab = normaliseAionBusinessTabAlias(state.activeTab);
     try {
       window.__aionBusinessEntryMode = "small_business_growth";
       window.__aionBusinessEntryModeRecoveredO14H = true;
-      localStorage.setItem("aion.businessEntryMode.v1", "small_business_growth");
-      localStorage.setItem("aion.selectedBusinessEntryMode.v1", "small_business_growth");
-      localStorage.setItem("aion.business_entry_mode.v1", "small_business_growth");
+      window.AionBusinessContainerClient?.writeBusinessWorkingStateString?.("aion.businessEntryMode.v1", "small_business_growth");
+      window.AionBusinessContainerClient?.writeBusinessWorkingStateString?.("aion.selectedBusinessEntryMode.v1", "small_business_growth");
+      window.AionBusinessContainerClient?.writeBusinessWorkingStateString?.("aion.business_entry_mode.v1", "small_business_growth");
     } catch {}
   }
 
@@ -33332,6 +34710,15 @@ if (state.activeTab === "vault") {
   if (state.activeTab === "work_schedule") {
     return window.AionWorkScheduleWorkspace?.render?.(renderAppTabs)
       || `<div class="surface-shell"><section class="panel"><div class="surface-eyebrow">Work &amp; Schedule</div><div class="panel-title">Workspace unavailable</div></section></div>`;
+  }
+
+  if (state.activeTab === "founder_notes") {
+    return renderAionFounderNotesSurfaceV1();
+  }
+
+  if (state.activeTab === "settings") {
+    return window.AionUsageBillingWorkspace?.render?.(renderAppTabs)
+      || `<div class="surface-shell"><section class="panel"><div class="surface-eyebrow">Settings</div><div class="panel-title">Usage &amp; billing unavailable</div></section></div>`;
   }
 
   if (state.activeTab === "boardroom") {
@@ -33805,6 +35192,9 @@ function addStepBuilderStep(draft, type = "trigger") {
 }
 
 function renderOperationsAgentsSurface() {
+  void window.AionBusinessContainerClient?.hydrateTrainAgentWorkspaceState?.().catch?.((error) => {
+    console.warn("[AION] Train Agent workspace Vault hydration deferred", error);
+  });
   if (
     isAionOrganisationWorkflowTabActive() &&
     typeof window.AionHrPeopleWorkspace?.renderFullCanvas === "function"
@@ -37045,7 +38435,7 @@ function getAionWorkflowDraftState() {
   }
 
   try {
-    const raw = localStorage.getItem(AION_WORKFLOW_DRAFT_STORAGE_KEY);
+    const raw = window.AionBusinessContainerClient.readBusinessWorkingStateString(AION_WORKFLOW_DRAFT_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       window.__aionWorkflowMainGraph = stripAionWorkflowSyntheticChooseNode({
@@ -37224,7 +38614,7 @@ function persistAionWorkflowDraftState() {
   window.__aionWorkflowGraph = compactGraph;
 
   try {
-    localStorage.setItem(AION_WORKFLOW_DRAFT_STORAGE_KEY, JSON.stringify(compactGraph));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_WORKFLOW_DRAFT_STORAGE_KEY, JSON.stringify(compactGraph));
   } catch (error) {
     console.warn("[workflow] failed to save draft", error);
   }
@@ -37448,7 +38838,7 @@ function getAionWorkflowGlyphCapsuleRegistry() {
 function persistAionWorkflowGlyphCapsuleRegistry(items = []) {
   const safeItems = Array.isArray(items) ? items : [];
   try {
-    window.localStorage?.setItem(
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(
       AION_WORKFLOW_GLYPH_CAPSULE_REGISTRY_KEY,
       JSON.stringify(safeItems, null, 2),
     );
@@ -41188,7 +42578,7 @@ function setAionWorkflowFileCabinetOpen(open, { renderNow = true } = {}) {
   window.__aionFileCabinetOpen = nextOpen;
 
   try {
-    window.localStorage?.setItem(
+    window.AionDesktopPreferences.set(
       "aion.workflow_file_cabinet.open.v1",
       nextOpen ? "true" : "false",
     );
@@ -41263,6 +42653,19 @@ function getAionWorkflowFileCabinetItems() {
 
 
 const AION_FILE_CABINET_STORAGE_KEY = "aion.workflow_file_cabinet.v1";
+const AION_FILE_CABINET_LEGACY_STORAGE_KEYS = [
+  AION_FILE_CABINET_STORAGE_KEY,
+  "aion.workflow_file_cabinet.backup.v1",
+  "aion.workflow_file_cabinet.cache.v1",
+];
+
+function purgeAionFileCabinetLegacyBrowserStorage() {
+  for (const key of AION_FILE_CABINET_LEGACY_STORAGE_KEYS) {
+    try {
+      window.localStorage?.removeItem(key);
+    } catch (_) {}
+  }
+}
 
 function isAionDummyWorkflowRecordV1(node = {}) {
   const id = String(node.workflow_id || node.id || "").trim().toLowerCase();
@@ -41376,38 +42779,39 @@ function getDefaultAionFileCabinetTree() {
 }
 
 function saveAionFileCabinetTree(tree) {
-  try {
-    const payload = JSON.stringify(tree);
-    window.localStorage?.setItem(AION_FILE_CABINET_STORAGE_KEY, payload);
-    return tree;
-  } catch (error) {
-    try {
-      window.__aionFileCabinetLocalStorageQuotaExceeded = true;
-      window.localStorage?.removeItem(AION_FILE_CABINET_STORAGE_KEY);
-      window.localStorage?.removeItem("aion.workflow_file_cabinet.backup.v1");
-      window.localStorage?.removeItem("aion.workflow_file_cabinet.cache.v1");
-    } catch {}
-    if (!window.__aionFileCabinetQuotaWarnedV1) {
-      window.__aionFileCabinetQuotaWarnedV1 = true;
-      console.warn("[aion-file-cabinet] localStorage quota exceeded; using backend-authoritative tree only");
-    }
-    return tree;
-  }
+  // Customer cabinet state must never be durable inside the application/browser
+  // profile. The encrypted Business Vault backend is authoritative; this copy is
+  // memory-only so application updates cannot overwrite or strand business data.
+  window.__aionFileCabinetMemoryTree = tree;
+  purgeAionFileCabinetLegacyBrowserStorage();
+  return tree;
 }
 
 function getAionFileCabinetTree() {
+  if (
+    window.__aionFileCabinetMemoryTree &&
+    Array.isArray(window.__aionFileCabinetMemoryTree.folders)
+  ) {
+    return window.__aionFileCabinetMemoryTree;
+  }
+
+  // One-time compatibility read. The vault migration/backend sync captures this
+  // tree, after which the plaintext browser copy is immediately removed.
   try {
     const raw = window.localStorage?.getItem(AION_FILE_CABINET_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.folders)) {
         const sanitised = sanitiseAionFileCabinetTreeV1(parsed);
-        if (JSON.stringify(sanitised) !== JSON.stringify(parsed)) saveAionFileCabinetTree(sanitised);
+        window.__aionFileCabinetLegacyImportPending = true;
+        saveAionFileCabinetTree(sanitised);
         return sanitised;
       }
     }
   } catch (error) {
     console.warn("[aion-file-cabinet] load failed", error);
+  } finally {
+    purgeAionFileCabinetLegacyBrowserStorage();
   }
 
   const tree = getDefaultAionFileCabinetTree();
@@ -49625,12 +51029,29 @@ if (typeof window !== "undefined" && typeof window.normaliseAionDepartmentIntell
 
 /* AION PATCH: Department Intelligence bare helper function v3 */
 function getAionDepartmentIntelligence() {
+  if (
+    window.__aionDepartmentIntelligenceMemory &&
+    typeof window.__aionDepartmentIntelligenceMemory === "object" &&
+    !Array.isArray(window.__aionDepartmentIntelligenceMemory)
+  ) {
+    return window.__aionDepartmentIntelligenceMemory;
+  }
   try {
     const raw = localStorage.getItem("aion.departmentIntelligence.v1");
     const parsed = raw ? JSON.parse(raw) : {};
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    const legacy = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    window.__aionDepartmentIntelligenceMemory = legacy;
+    localStorage.removeItem("aion.departmentIntelligence.v1");
+    if (Object.keys(legacy).length) {
+      window.AionBusinessContainerClient?.saveDepartmentIntelligence?.(
+        { departments: legacy },
+        "desktop_legacy_department_intelligence_migration",
+      ).catch((error) => console.warn("[AION] Department intelligence migration deferred", error));
+    }
+    return legacy;
   } catch {
-    return {};
+    window.__aionDepartmentIntelligenceMemory = {};
+    return window.__aionDepartmentIntelligenceMemory;
   }
 }
 
@@ -49638,9 +51059,12 @@ function setAionDepartmentIntelligence(nextLedger) {
   const ledger = nextLedger && typeof nextLedger === "object" && !Array.isArray(nextLedger)
     ? nextLedger
     : {};
-  try {
-    localStorage.setItem("aion.departmentIntelligence.v1", JSON.stringify(ledger));
-  } catch {}
+  window.__aionDepartmentIntelligenceMemory = ledger;
+  try { localStorage.removeItem("aion.departmentIntelligence.v1"); } catch {}
+  window.AionBusinessContainerClient?.saveDepartmentIntelligence?.(
+    { departments: ledger },
+    "desktop_department_intelligence",
+  ).catch((error) => console.warn("[AION] Department intelligence Vault save failed", error));
   return ledger;
 }
 
@@ -49678,28 +51102,20 @@ if (typeof window !== "undefined") {
 /* AION PATCH: Department Intelligence early compatibility v1
  * ----------------------------------------------------------
  * Live Agents can render before later Phase 25 ledger helpers are defined.
- * These early helpers keep the route alive and use localStorage as the
- * temporary source of truth until the full Department Intelligence block loads.
+ * These early helpers keep the route alive in memory until the canonical
+ * Guardian-backed Department Intelligence block loads.
  */
 if (typeof window !== "undefined" && typeof window.getAionDepartmentIntelligence !== "function") {
   window.AION_DEPARTMENT_INTELLIGENCE_STORAGE_KEY =
     window.AION_DEPARTMENT_INTELLIGENCE_STORAGE_KEY || "aion.departmentIntelligence.v1";
 
   window.getAionDepartmentIntelligence = function getAionDepartmentIntelligenceEarlyCompatV1() {
-    try {
-      const raw = localStorage.getItem(window.AION_DEPARTMENT_INTELLIGENCE_STORAGE_KEY);
-      const parsed = raw ? JSON.parse(raw) : {};
-      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-    } catch {
-      return {};
-    }
+    return window.__aionDepartmentIntelligenceMemory || {};
   };
 
   window.setAionDepartmentIntelligence = function setAionDepartmentIntelligenceEarlyCompatV1(next) {
     const value = next && typeof next === "object" && !Array.isArray(next) ? next : {};
-    try {
-      localStorage.setItem(window.AION_DEPARTMENT_INTELLIGENCE_STORAGE_KEY, JSON.stringify(value));
-    } catch {}
+    window.__aionDepartmentIntelligenceMemory = value;
     return value;
   };
 
@@ -50292,7 +51708,7 @@ function getAionBoardroomNextMeetingDateV1() {
 function saveAionBoardroomNextMeetingDateV1(value = "") {
   const date = String(value || "");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
-  try { window.localStorage?.setItem(AION_BOARDROOM_NEXT_MEETING_STORAGE_KEY, date); } catch {}
+  try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_BOARDROOM_NEXT_MEETING_STORAGE_KEY, date); } catch {}
   return true;
 }
 
@@ -50332,7 +51748,7 @@ function readAionBoardroomSessionArtifacts() {
 function saveAionBoardroomSessionArtifacts(records = []) {
   const safeRecords = Array.isArray(records) ? records : [];
   try {
-    window.localStorage?.setItem(AION_BOARDROOM_SESSION_ARTIFACTS_STORAGE_KEY, JSON.stringify(safeRecords));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_BOARDROOM_SESSION_ARTIFACTS_STORAGE_KEY, JSON.stringify(safeRecords));
   } catch {}
   return safeRecords;
 }
@@ -50951,7 +52367,7 @@ function getAionCouncilUserContextEntries() {
 function saveAionCouncilUserContextEntries(entries = []) {
   const safeEntries = Array.isArray(entries) ? entries : [];
   try {
-    window.localStorage?.setItem(
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(
       AION_COUNCIL_USER_CONTEXT_STORAGE_KEY,
       JSON.stringify(safeEntries.slice(-50), null, 2),
     );
@@ -50994,16 +52410,32 @@ function formatAionCouncilPacketValue(value) {
 
 function getAionLiveSelectedBoardroomProviderIdsV2() {
   const providers = safeArray(window.__aionOriginalBusinessMapStateV2?.providers);
-  const connected = providers.filter((item) => item?.connected === true).map((item) => String(item.id || "")).filter(Boolean);
+  const connected = providers
+    .filter((item) => (
+      (item?.connected === true && String(item?.source || "") !== "env") ||
+      (item?.id === "local_model" && item?.installed === true && item?.workspace_selected === true)
+    ))
+    .map((item) => String(item.id || ""))
+    .filter(Boolean);
+  const leadProviderId = String(
+    window.__aionOriginalBusinessMapStateV2?.leadModel?.provider_id ||
+    getAionVaultAiProviderStatusState?.()?.lead_model?.provider_id ||
+    ""
+  ).trim();
   let stored = [];
   try { stored = JSON.parse(window.localStorage?.getItem("aion.boardroom.selected_provider_ids.v1") || "[]"); }
   catch { stored = []; }
-  const selected = safeArray(stored).map((item) => String(item || "")).filter((id) => connected.includes(id));
+  // Connections is the Board membership authority: every genuinely connected
+  // provider attends automatically.  The selected lead is ordered first.
+  const selected = [...connected];
+  if (leadProviderId && connected.includes(leadProviderId)) selected.unshift(leadProviderId);
   if (selected.length) return [...new Set(selected)];
   // First-use default: connected hosted providers. Local Gemma remains opt-in
   // because loading it can consume substantial memory on this Mac.
   const hosted = connected.filter((id) => id !== "gemma");
-  return hosted.length ? hosted : connected.slice(0, 1);
+  const initial = hosted.length ? hosted : connected.slice(0, 1);
+  if (leadProviderId && connected.includes(leadProviderId)) initial.unshift(leadProviderId);
+  return [...new Set(initial)];
 }
 
 function getAionLiveBoardroomContextV2() {
@@ -51382,6 +52814,42 @@ function renderAionBoardroomConsensusResultHtml() {
 
 /* AION PATCH: Visible Ask Board Result v1 */
 
+const AION_COMMUNICATION_STYLE_KEY_V1 = "aion.communicationStyle.v1";
+
+function getAionCommunicationStyleV1() {
+  try {
+    const raw = window.localStorage?.getItem(AION_COMMUNICATION_STYLE_KEY_V1);
+    if (!raw) return "plain";
+    try {
+      return JSON.parse(raw)?.style === "professional" ? "professional" : "plain";
+    } catch {
+      return raw === "professional" ? "professional" : "plain";
+    }
+  } catch {
+    return "plain";
+  }
+}
+
+function setAionCommunicationStyleV1(style = "plain") {
+  const selected = style === "professional" ? "professional" : "plain";
+  try {
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_COMMUNICATION_STYLE_KEY_V1, JSON.stringify({
+      style: selected,
+      label: selected === "professional" ? "Detailed and professional" : "Clear and simple",
+      updated_at: new Date().toISOString(),
+    }));
+  } catch {}
+  return selected;
+}
+
+window.getAionCommunicationStyleV1 = getAionCommunicationStyleV1;
+window.setAionCommunicationStyleV1 = setAionCommunicationStyleV1;
+try {
+  if (!window.localStorage?.getItem(AION_COMMUNICATION_STYLE_KEY_V1)) {
+    setAionCommunicationStyleV1("plain");
+  }
+} catch {}
+
 /* AION PATCH: Live Boardroom Ask backend bridge v1
  * Purpose:
  * - Replace fake/simulated Ask the Board output with backend provider fanout.
@@ -51412,7 +52880,7 @@ function normaliseAionLiveProviderResponseToCouncilV1(response = {}) {
       provider_id: response.provider_id || "",
       model_state: response.status || "unavailable",
       view: `Unavailable: ${response.reason || "not connected"}`,
-      action: "No response generated because this provider is not connected.",
+      action: "This adviser did not return a usable response in this round. The Board continued from the verified evidence available.",
       raw_provider_response: response,
       parsed_provider_response: null,
     };
@@ -51444,10 +52912,71 @@ function normaliseAionLiveProviderResponseToCouncilV1(response = {}) {
   };
 }
 
-function buildAionLiveConsensusFromProviderFanoutV1(payload = {}) {
+function describeAionBoardProviderFailureV1(item = {}) {
+  const reason = String(item.reason || item.status || "unavailable");
+  if (reason === "http_error_429") return "rate limit or quota reached; retried once";
+  if (reason.includes("resource_pressure")) return "local model paused by device resource protection; retried once";
+  if (reason.includes("runtime_unavailable")) return "local model runtime did not respond; retried once";
+  if (reason.includes("context_limit")) return "the meeting context exceeded this model's safe limit";
+  if (reason === "not_connected" || reason === "missing_api_key") return "not connected";
+  return reason.replaceAll("_", " ");
+}
+
+function buildAionEvidenceLimitedBoardFallbackV1(contextPacket = {}, unavailable = []) {
+  const businessLines = safeArray(contextPacket.business_context_lines)
+    .map((line) => String(line || "").replace(/^>\s*/, "").trim())
+    .filter(Boolean);
+  const departmentLines = safeArray(contextPacket.department_context_lines)
+    .map((line) => String(line || "").replace(/^>\s*/, "").trim())
+    .filter(Boolean);
+  const assessment = contextPacket.department_intelligence_packet?.assessment_feed || {};
+  const missingDepartments = safeArray(assessment?.coverage?.missing_departments).map(String).filter(Boolean);
+  const readyDepartments = safeArray(assessment?.coverage?.complete_departments).map(String).filter(Boolean);
+  const offerEvidence = businessLines.find((line) => /products?\s*\/\s*services?|offerings?|services?:/i.test(line));
+  const financialEvidence = businessLines.find((line) => /financial targets?|gross margin|cash reserve|campaign spend/i.test(line));
+  const identityEvidence = businessLines.find((line) => /business name|business type|website/i.test(line));
+  const knownEvidence = [identityEvidence, offerEvidence, financialEvidence].filter(Boolean).slice(0, 3);
+  const limitations = [
+    missingDepartments.length ? `Department evidence still incomplete: ${missingDepartments.join(", ")}.` : "Some operating evidence may still be incomplete.",
+    unavailable.length ? `Live adviser limitations: ${unavailable.map((item) => `${item.label || item.provider_id || "Adviser"} (${describeAionBoardProviderFailureV1(item)})`).join("; ")}.` : "No live adviser response was available.",
+  ];
+  const plan = [
+    "Founder and Board confirm one immediate priority offer, its target customer and operating area from the current Business Map; anything not evidenced remains a stated assumption.",
+    "Marketing prepares one approval-gated organic test draft to that brief. If social accounts or channel results are missing, record the limitation and keep the work as a draft until the founder approves publication.",
+    "Sales records who answers new leads, the response-time target, qualification questions, quote hand-off and conversion outcome before demand is scaled.",
+    financialEvidence
+      ? `Finance applies the recorded commercial guardrails to each quote. Variable jobs use their actual estimated materials, labour and external costs; the quote starts at the approved target margin and warns below the minimum margin. Current evidence: ${financialEvidence}`
+      : "Finance records the current cash position, revenue, direct costs, overdue invoices and minimum acceptable margin; until then, no profitability or spending claim is treated as verified.",
+    `Operations, Support and HR confirm capacity, customer issues and accountable owners for the first test${readyDepartments.length ? `; currently recorded as ready: ${readyDepartments.join(", ")}` : ""}.`,
+  ];
+  return {
+    summary: "The live advisers were temporarily unavailable, but the Board has produced a provisional first-meeting plan from the verified Business Map. It is suitable for founder feedback and further evidence, not yet a final adviser consensus.",
+    agreements: ["Proceed with an evidence-limited, approval-gated first plan instead of waiting for every department to be complete."],
+    open_questions: [
+      "Which recorded offer should be the immediate commercial priority?",
+      "Who is the first target customer and what geographic area can the business reliably serve now?",
+      "What measurable outcome should the first 30 days produce?",
+    ],
+    risks: [
+      ...limitations,
+      "Unknown figures and unconnected channels limit the Board's confidence; they do not justify invented conclusions.",
+    ],
+    plan,
+    known_evidence: knownEvidence,
+    unavailable_providers: unavailable.map((item) => `${item.label || item.provider_id}: ${describeAionBoardProviderFailureV1(item)}`),
+    evidence_limited: true,
+    decision: "provisional_evidence_plan_ready_for_founder_feedback",
+  };
+}
+
+function buildAionLiveConsensusFromProviderFanoutV1(payload = {}, contextPacket = {}) {
   const responses = safeArray(payload.responses);
   const succeeded = responses.filter((item) => item.status === "succeeded");
   const unavailable = responses.filter((item) => item.status !== "succeeded");
+
+  if (!succeeded.length) {
+    return buildAionEvidenceLimitedBoardFallbackV1(contextPacket, unavailable);
+  }
 
   const parsedSucceeded = succeeded
     .map((item) => parseAionProviderJsonContentV1(item.content || ""))
@@ -51473,29 +53002,64 @@ function buildAionLiveConsensusFromProviderFanoutV1(payload = {}) {
     return [];
   }).filter(Boolean);
 
-  const plan = planChanges.length
+  let plan = planChanges.length
     ? planChanges
     : recommendations.slice(0, 5);
+  if (!plan.length) {
+    plan = buildAionEvidenceLimitedBoardFallbackV1(contextPacket, unavailable).plan;
+  }
 
   return {
     summary:
       succeeded.length > 0
         ? `Live board fanout completed with ${succeeded.length} connected provider(s). Missing providers were marked unavailable and no fake responses were generated.`
-        : "No connected providers returned a live answer. Connect at least one provider or ensure local Gemma/Ollama is running.",
+        : "The Board produced a provisional plan from the available evidence while live advisers were unavailable.",
     agreements: recommendations.slice(0, 8),
     open_questions: missingInputs.slice(0, 8),
     risks,
     plan,
-    unavailable_providers: unavailable.map((item) => `${item.label || item.provider_id}: ${item.reason || item.status}`),
+    unavailable_providers: unavailable.map((item) => `${item.label || item.provider_id}: ${describeAionBoardProviderFailureV1(item)}`),
+    evidence_limited: false,
     decision:
       succeeded.length > 0
         ? "live_provider_review_ready_for_founder_feedback"
-        : "blocked_no_connected_provider_response",
+        : "provisional_evidence_plan_ready_for_founder_feedback",
   };
 }
 
 async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assessment", runId = "") {
   if (runId && !isAionBoardroomCurrentRunV1("ask", runId)) return null;
+
+  // The desktop can become interactive before the Python backend has finished
+  // loading the authoritative provider snapshot.  Do not validate the cached
+  // empty array and reject a meeting while the selected lead model is available.
+  // Refresh the Business Map bridge first, then fall back to the provider status
+  // endpoint directly so every live ask uses the same lead-model authority as
+  // Connections and the spatial Boardroom.
+  let requestedProviderIds = getAionLiveSelectedBoardroomProviderIdsV2();
+  if (!requestedProviderIds.length && typeof window.aionLoadOriginalBusinessMapV2 === "function") {
+    await window.aionLoadOriginalBusinessMapV2();
+    requestedProviderIds = getAionLiveSelectedBoardroomProviderIdsV2();
+  }
+  if (!requestedProviderIds.length) {
+    try {
+      const workspaceId = getAionBoardroomBusinessContainerId();
+      const providerResponse = await fetch(
+        `http://127.0.0.1:8080/api/boardroom/providers/status?workspace_id=${encodeURIComponent(workspaceId)}`,
+        { headers: { "Accept": "application/json" } },
+      );
+      if (providerResponse.ok) {
+        const providerPayload = await providerResponse.json().catch(() => ({}));
+        if (window.__aionOriginalBusinessMapStateV2) {
+          window.__aionOriginalBusinessMapStateV2.providers = safeArray(providerPayload?.providers);
+          window.__aionOriginalBusinessMapStateV2.leadModel = providerPayload?.lead_model || null;
+        }
+        requestedProviderIds = getAionLiveSelectedBoardroomProviderIdsV2();
+      }
+    } catch (error) {
+      console.warn("[AION] live Board adviser refresh failed", error);
+    }
+  }
 
   const packet =
     typeof buildAionBoardroomSessionPacket === "function"
@@ -51506,6 +53070,10 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
     typeof getAionAllFounderFeedbackForNextRoundV3 === "function"
       ? getAionAllFounderFeedbackForNextRoundV3()
       : {};
+  const liveBoardroomContext =
+    typeof getAionLiveBoardroomContextV2 === "function"
+      ? getAionLiveBoardroomContextV2()
+      : null;
 
   const userContext = safeArray(packet.user_added_context)
     .map((entry) => String(entry?.text || ""))
@@ -51514,15 +53082,18 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
   const payload = {
     business_id: packet.business_id || "home-fixed",
     session_type: sessionType,
-    requested_providers: getAionLiveSelectedBoardroomProviderIdsV2(),
+    communication_style: getAionCommunicationStyleV1(),
+    requested_providers: requestedProviderIds,
     objective: [
       `Run a live Boardroom ${sessionType} using only connected providers.`,
       packet.journey_stage === "baseline_first_meeting"
         ? "This is the founder's first baseline meeting. Deliver useful value from the evidence available now; do not reject, delay, or lecture the founder because departments are incomplete."
         : "This is an activation follow-up. Review progress since the baseline meeting and identify the next highest-value improvements.",
-      "Assess the business type, age, offerings, finances and operating evidence that actually exist. Separate known facts from assumptions and state confidence plainly.",
-      "Give a concise health view (healthy, mixed, at risk, or insufficient evidence), the three most useful actions now, and a paced department activation plan for the coming days.",
-      "Missing information must become optional routed tasks, not a long interrogation. Ask no more than three critical questions in this meeting and do not demand a complete marketing, sales, support, HR or automation plan during the baseline meeting.",
+      "Act as the enterprise Board, not as a department. Assess the business model, market, offers, audiences, locations, finances, cash, margins, invoices, capacity, marketing and sales channels, customer support and operating evidence that actually exist. Separate known facts from assumptions and state confidence plainly.",
+      "Diagnose what is healthy, broken, constrained or dangerous across the whole business. Give a concise health view, the three most useful actions now, and a paced department activation plan for the coming days.",
+      "The Board owns cross-business strategy. It must decide or explicitly retain for founder decision the priority offers, audiences, locations, channels, commercial guardrails and success measures. Do not ask Marketing, Sales, Finance or another Pilot to invent the enterprise strategy.",
+      "Missing information must become optional routed tasks, not a long interrogation. Ask no more than three critical questions in this meeting and do not demand a complete marketing, sales, finance, support, HR or automation plan before producing the first useful plan.",
+      "Always produce a provisional plan from what is known. Explain exactly which conclusions cannot yet be assessed because figures, department evidence, or channel connections are missing; lower confidence and invite founder feedback or more evidence instead of blocking the meeting.",
       `Recommend reconvening on ${packet.next_meeting_date || "the founder's chosen date"}; a completed department may request an earlier executive review.`,
       "Your response will also be used to create the governed Board meeting minutes. Keep it concise, factual and suitable for a permanent business record.",
       "Return structured JSON with position, recommendations, risks, missing_inputs, plan_changes and confidence. Do not add markdown or invent attendees, decisions, owners or dates.",
@@ -51589,7 +53160,7 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
     missing_or_unavailable: safeArray(backendPayload.missing_or_unavailable),
     backend_payload: backendPayload,
     council_responses: councilResponses,
-    consensus: buildAionLiveConsensusFromProviderFanoutV1(backendPayload),
+    consensus: buildAionLiveConsensusFromProviderFanoutV1(backendPayload, payload.context_packet),
     source_business_map_hash: packet.business_map_snapshot?.source_payload_hash || "",
     source_business_map_revision: packet.business_map_snapshot?.revision || 0,
     source_business_map_confirmation_hash: packet.business_map_confirmation?.confirmation_hash || "",
@@ -52138,6 +53709,9 @@ function renderAionFounderFeedbackGateResolutionHtmlV1(result = {}) {
   const answers = parseAionFounderFeedbackGateAnswersV1(feedbackText);
   const anyAnswered = ["operations", "sales", "finance"].some((dept) => answers[dept].answered.length);
   if (!anyAnswered) return "";
+  const anyRemaining = ["operations", "sales", "finance"].some(
+    (dept) => answers[dept].answered.length && answers[dept].remaining.length,
+  );
 
   return `
     <div
@@ -52177,7 +53751,9 @@ function renderAionFounderFeedbackGateResolutionHtmlV1(result = {}) {
       }).join("")}
 
       <div style="margin-top:12px;border-top:1px solid #bbf7d0;padding-top:12px;color:#166534;font-weight:750;">
-        Partially resolved: a draft micro-test can be planned, but live activity still requires the checks above and your approval.
+        ${anyRemaining
+          ? "Partially resolved: the Board can keep planning, but the remaining structured inputs must be completed before live activity."
+          : "Structured planning inputs are resolved. The Board can now produce its recommendation; any live external action still requires your approval."}
       </div>
     </div>
   `;
@@ -52196,6 +53772,24 @@ function buildAionBoardroomPushbackGateV1(result = {}) {
   const providerReconciliation = reconcileAionBoardroomRequirementLinesV1(providerMissingRaw);
   const providerMissing = providerReconciliation.missing;
 
+  // Connected advisers frequently phrase prudent follow-up checks as missing
+  // inputs. Once the canonical operating model contains explicit planning
+  // controls, these are activation validation tasks rather than reasons to
+  // suppress the Board's strategy and department briefs. They remain visible
+  // in the meeting questions and risk register, but do not create a yellow
+  // pre-launch information gate.
+  const validationOnly = (value = "") => {
+    const text = String(value || "").trim().toLowerCase();
+    return (
+      /detailed cost breakdowns?.*provisional cost assumptions?/.test(text) ||
+      /actual job-specific cost data.*offerings?/.test(text) ||
+      /current market demand validation/.test(text) ||
+      /current market demand and pricing trends?/.test(text) ||
+      /verification of historical (?:annual )?revenue/.test(text)
+    );
+  };
+  const providerBlockingInputs = providerMissing.filter((line) => !validationOnly(line));
+
   const providerRisks = uniqueAionLinesV1([
     ...parsed.flatMap((item) => safeArray(item.risks)),
     ...safeArray(consensus.risks),
@@ -52206,8 +53800,7 @@ function buildAionBoardroomPushbackGateV1(result = {}) {
   // operations and sales; scanning those used to recreate generic gates even
   // when the corresponding evidence was already loaded.
   const unresolvedText = [
-    JSON.stringify(providerMissing),
-    JSON.stringify(providerRisks),
+    JSON.stringify(providerBlockingInputs),
   ].join(" ").toLowerCase();
 
   const gates = [];
@@ -52294,12 +53887,12 @@ function buildAionBoardroomPushbackGateV1(result = {}) {
     });
   }
 
-  if (!gates.length && (providerMissing.length || providerRisks.length)) {
+  if (!gates.length && providerBlockingInputs.length) {
     gates.push({
       gate: "Board requires missing discovery before approval",
       challenge:
         "The connected providers raised missing inputs and risks. The board should resolve these before moving from planning into execution.",
-      required_inputs: providerMissing.slice(0, 8),
+      required_inputs: providerBlockingInputs.slice(0, 8),
       owner: "Boardroom",
       severity: "review_gate",
     });
@@ -52332,6 +53925,7 @@ function buildAionBoardroomPushbackGateV1(result = {}) {
     decision,
     gates: reconciledGates,
     provider_missing_inputs: providerMissing,
+    provider_validation_inputs: providerMissing.filter(validationOnly),
     resolved_business_map_inputs: [
       ...providerReconciliation.resolved,
       ...reconciledGates.flatMap((gate) => safeArray(gate.resolved_inputs)),
@@ -52444,7 +54038,7 @@ function inferAionDiscoveryDepartmentV1(text = "") {
 
 function getAionDiscoveryQuestionStoreV1() {
   try {
-    return JSON.parse(window.localStorage.getItem("aion.boardroom.discovery_answers.v1") || "{}") || {};
+    return JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString("aion.boardroom.discovery_answers.v1") || "{}") || {};
   } catch {
     return {};
   }
@@ -52452,7 +54046,7 @@ function getAionDiscoveryQuestionStoreV1() {
 
 function setAionDiscoveryQuestionStoreV1(store = {}) {
   try {
-    window.localStorage.setItem("aion.boardroom.discovery_answers.v1", JSON.stringify(store || {}, null, 2));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.boardroom.discovery_answers.v1", JSON.stringify(store || {}, null, 2));
   } catch {}
 }
 
@@ -52916,7 +54510,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
           state.selectedLiveAgentDepartment = destination;
           state.liveAgentsSelectedDepartment = destination;
           window.__aionLiveAgentsFocusDepartment = destination;
-          localStorage.setItem("aion.liveAgents.focusDepartment.v1", destination);
+  window.AionDesktopPreferences.set("aion.liveAgents.focusDepartment.v1", destination);
         } catch {}
         if (typeof requestRender === "function") requestRender();
         else if (typeof render === "function") render();
@@ -52989,6 +54583,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
 function renderAionVisibleAskBoardResultHtmlV1() {
   const result = window.__aionVisibleAskBoardResult;
   if (!result) return "";
+  const plainLanguage = getAionCommunicationStyleV1() !== "professional";
 
   const responses = safeArray(result.council_responses);
   const consensus = result.consensus || {};
@@ -53000,10 +54595,20 @@ function renderAionVisibleAskBoardResultHtmlV1() {
   const plan = safeArray(consensus.plan);
   const openQuestions = safeArray(consensus.open_questions);
   const risks = safeArray(consensus.risks);
+  const evidenceLimited = consensus.evidence_limited === true;
+  const responseBadgeStyle = succeededCount > 0
+    ? "border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;"
+    : "border:1px solid #fde68a;background:#fffbeb;color:#92400e;";
+  const documentLine = (value = "") => String(value || "")
+    .replace(/\*\*/g, "")
+    .replace(/^\s*[-•]\s*/, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
   return `
     <div
       data-aion-visible-ask-board-result="true"
+      class="aion-board-legal-document"
       style="
         margin-top:16px;
         border:1px solid #dbe3ee;
@@ -53019,25 +54624,26 @@ function renderAionVisibleAskBoardResultHtmlV1() {
     >
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;">
         <div>
-          <div style="font-size:11px;font-weight:900;color:#0f766e;letter-spacing:.16em;text-transform:uppercase;">Board meeting · Round 1</div>
-          <div style="margin-top:5px;font-size:25px;line-height:1.15;font-weight:900;color:#0f172a;">Board review complete</div>
+          <div style="font-size:11px;font-weight:900;color:#0f766e;letter-spacing:.16em;text-transform:uppercase;">Board meeting record · Round 1</div>
+          <div style="margin-top:5px;font-size:25px;line-height:1.15;font-weight:900;color:#0f172a;">${plainLanguage ? "What the Board found" : "Initial Board assessment"}</div>
           <div style="margin-top:6px;color:#64748b;">${escapeHtml(result.business_name || "Business review")} · ${escapeHtml(result.department || "Boardroom")}</div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <span style="border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;">${escapeHtml(String(succeededCount))} of ${escapeHtml(String(providerCount))} advisers responded</span>
+          <span style="${responseBadgeStyle}border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;">${escapeHtml(String(succeededCount))} of ${escapeHtml(String(providerCount))} advisers responded${evidenceLimited ? " · provisional plan retained" : ""}</span>
           <span style="border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;">Approval required</span>
         </div>
       </div>
 
-      <div style="margin-top:20px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff;padding:16px 18px;color:#1e3a5f;">
-        <div style="font-size:12px;font-weight:900;color:#1d4ed8;letter-spacing:.08em;text-transform:uppercase;">What happens next</div>
+      <div class="aion-board-document-next-step" style="margin-top:20px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff;padding:16px 18px;color:#1e3a5f;">
+        <div style="font-size:12px;font-weight:900;color:#1d4ed8;letter-spacing:.08em;text-transform:uppercase;">${plainLanguage ? "What happens next" : "Procedure"}</div>
         <div style="margin-top:5px;font-weight:750;">Review the Board's conclusion, answer only the important missing questions, then choose <strong>Debate Plan</strong>.</div>
         <div style="margin-top:4px;color:#5b6f8d;font-size:13px;">Restart Board Analysis begins a fresh Round 1; use it only when the business evidence has changed.</div>
       </div>
 
-      <section style="margin-top:20px;border:1px solid #e2e8f0;border-radius:14px;padding:18px;">
-        <div style="font-size:11px;font-weight:900;color:#64748b;letter-spacing:.14em;text-transform:uppercase;">Board conclusion</div>
+      <section class="aion-board-document-conclusion" style="margin-top:20px;border:1px solid #e2e8f0;border-radius:14px;padding:18px;">
+        <div style="font-size:11px;font-weight:900;color:#64748b;letter-spacing:.14em;text-transform:uppercase;">1. ${plainLanguage ? "What the Board thinks" : "Board conclusion"}</div>
         <div style="margin-top:7px;font-size:17px;line-height:1.5;font-weight:750;color:#0f172a;">${escapeHtml(consensus.summary || "The Board has completed its initial review.")}</div>
+        ${evidenceLimited ? `<div style="margin-top:10px;border:1px solid #fde68a;border-radius:10px;background:#fffbeb;padding:10px 12px;color:#713f12;">This is an evidence-limited working plan. Add founder feedback or more business evidence, then rerun the advisers to strengthen it. Missing information reduces confidence but does not stop the first meeting.</div>` : ""}
         <div style="margin-top:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;background:#f1f5f9;color:#334155;padding:7px 11px;font-size:12px;font-weight:800;">
           <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></span>${escapeHtml(decisionLabel)}
         </div>
@@ -53047,35 +54653,35 @@ function renderAionVisibleAskBoardResultHtmlV1() {
       ${typeof renderAionFounderFeedbackGateResolutionHtmlV1 === "function" ? renderAionFounderFeedbackGateResolutionHtmlV1(result) : ""}
       ${typeof renderAionDiscoveryQuestionInboxHtmlV1 === "function" ? renderAionDiscoveryQuestionInboxHtmlV1(result, "ask_board") : ""}
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:16px;">
+      <div class="aion-board-document-sections" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:16px;">
         <section style="border:1px solid #bbf7d0;border-radius:14px;background:#f0fdf4;padding:16px;">
-          <div style="font-size:11px;font-weight:900;color:#15803d;letter-spacing:.12em;text-transform:uppercase;">Recommended plan</div>
-          ${plan.length ? `<ol style="margin:10px 0 0;padding-left:20px;color:#14532d;">${plan.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(line)}</li>`).join("")}</ol>` : `<div style="margin-top:8px;color:#64748b;">No plan items were agreed in this round.</div>`}
+          <div style="font-size:11px;font-weight:900;color:#15803d;letter-spacing:.12em;text-transform:uppercase;">2. ${plainLanguage ? "What to do next" : "Recommended actions"}</div>
+          ${plan.length ? `<ol style="margin:10px 0 0;padding-left:20px;color:#14532d;">${plan.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(documentLine(line))}</li>`).join("")}</ol>` : `<div style="margin-top:8px;color:#64748b;">No plan items were agreed in this round.</div>`}
         </section>
         <section style="border:1px solid #fde68a;border-radius:14px;background:#fffbeb;padding:16px;">
-          <div style="font-size:11px;font-weight:900;color:#a16207;letter-spacing:.12em;text-transform:uppercase;">Questions to resolve</div>
-          ${openQuestions.length ? `<ul style="margin:10px 0 0;padding-left:20px;color:#713f12;">${openQuestions.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(line)}</li>`).join("")}</ul>` : `<div style="margin-top:8px;color:#64748b;">No open questions.</div>`}
+          <div style="font-size:11px;font-weight:900;color:#a16207;letter-spacing:.12em;text-transform:uppercase;">3. ${plainLanguage ? "What we still need to know" : "Information required"}</div>
+          ${openQuestions.length ? `<ul style="margin:10px 0 0;padding-left:20px;color:#713f12;">${openQuestions.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(documentLine(line))}</li>`).join("")}</ul>` : `<div style="margin-top:8px;color:#64748b;">No open questions.</div>`}
         </section>
         <section style="border:1px solid #fecdd3;border-radius:14px;background:#fff1f2;padding:16px;">
-          <div style="font-size:11px;font-weight:900;color:#be123c;letter-spacing:.12em;text-transform:uppercase;">Risks to watch</div>
-          ${risks.length ? `<ul style="margin:10px 0 0;padding-left:20px;color:#881337;">${risks.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(line)}</li>`).join("")}</ul>` : `<div style="margin-top:8px;color:#64748b;">No material risks were raised.</div>`}
+          <div style="font-size:11px;font-weight:900;color:#be123c;letter-spacing:.12em;text-transform:uppercase;">4. ${plainLanguage ? "What could go wrong" : "Risks and qualifications"}</div>
+          ${risks.length ? `<ul style="margin:10px 0 0;padding-left:20px;color:#881337;">${risks.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(documentLine(line))}</li>`).join("")}</ul>` : `<div style="margin-top:8px;color:#64748b;">No material risks were raised.</div>`}
         </section>
       </div>
 
-      <details style="margin-top:16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;padding:12px 14px;">
-        <summary style="cursor:pointer;color:#334155;font-weight:850;">View adviser responses and technical meeting details</summary>
+      <section data-aion-board-appendix="true" class="aion-board-document-appendix" style="margin-top:16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;padding:12px 14px;">
+        <div class="aion-board-document-appendix-heading" style="color:#334155;font-weight:850;">${plainLanguage ? "Extra detail — adviser replies and technical information" : "Appendix A — Adviser responses and technical record"}</div>
         <div style="margin-top:14px;display:grid;gap:12px;">
           ${responses.map((item) => `
             <div style="border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:13px;">
               <div style="font-weight:900;color:#0f172a;">${escapeHtml(item.member || "Board adviser")}</div>
-              <div style="margin-top:5px;color:#475569;">${escapeHtml(item.view || "No response supplied.")}</div>
-              ${item.action ? `<div style="margin-top:7px;color:#166534;font-weight:750;">Suggested action: ${escapeHtml(item.action)}</div>` : ""}
+              <div style="margin-top:5px;color:#475569;">${escapeHtml(documentLine(item.view || "No response supplied."))}</div>
+              ${item.action ? `<div style="margin-top:7px;color:#166534;font-weight:750;"><strong>Suggested action:</strong> ${escapeHtml(documentLine(item.action))}</div>` : ""}
             </div>
           `).join("")}
-          ${safeArray(result.missing_or_unavailable).length ? `<div style="color:#92400e;"><strong>Unavailable advisers:</strong> ${safeArray(result.missing_or_unavailable).map((item) => `${escapeHtml(item.label || item.provider_id || "Provider")} — ${escapeHtml(item.reason || item.status || "unavailable")}`).join("; ")}</div>` : ""}
+          ${safeArray(result.missing_or_unavailable).length ? `<div style="color:#92400e;"><strong>Unavailable advisers:</strong> ${safeArray(result.missing_or_unavailable).map((item) => `${escapeHtml(item.label || item.provider_id || "Provider")} — ${escapeHtml(describeAionBoardProviderFailureV1(item))}${Number(item.attempt_count || 0) > 1 ? ` · ${escapeHtml(String(item.attempt_count))} attempts` : ""}`).join("; ")}</div>` : ""}
           <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#64748b;overflow-wrap:anywhere;">Session ${escapeHtml(result.session_id || "")} · ${escapeHtml(result.execution_boundary || "Approval gated")} · ${escapeHtml(result.result_hash || "")}</div>
         </div>
-      </details>
+      </section>
       ${typeof renderAionFounderFeedbackBoxV3 === "function" ? renderAionFounderFeedbackBoxV3(
         "ask_board",
         "after Round 1 consensus",
@@ -53647,6 +55253,57 @@ function getAionCurrentLiveRoundOneResultV1() {
   );
 }
 
+function compactAionBoardroomRoundOneForProviderV1(sourceResult = {}, plan = []) {
+  const consensus = sourceResult?.consensus || {};
+  return {
+    session_id: sourceResult?.session_id || null,
+    business_name: sourceResult?.business_name || "Business status pending verification",
+    department: sourceResult?.department || "boardroom",
+    conclusion: String(sourceResult?.conclusion || consensus?.consensus_summary || "").slice(0, 2400),
+    plan_items: safeArray(plan).map(String).slice(0, 12),
+    questions_to_resolve: safeArray(
+      consensus?.questions_to_resolve || consensus?.questions || sourceResult?.questions_to_resolve
+    ).map(String).slice(0, 16),
+    risks: safeArray(consensus?.risks || sourceResult?.risks).map(String).slice(0, 16),
+    founder_answers_applied: sourceResult?.founder_answers_applied || sourceResult?.discovery_answers || {},
+    evidence_summary: safeArray(sourceResult?.council_responses)
+      .filter((item) => !String(item?.view || "").startsWith("Unavailable:"))
+      .map((item) => ({
+        provider: item?.member || item?.provider_id || "Provider",
+        position: String(item?.view || "").slice(0, 1800),
+        recommended_action: String(item?.action || "").slice(0, 900),
+      }))
+      .slice(0, 4),
+    execution_boundary: sourceResult?.execution_boundary || sourceResult?.approval_boundary || "Approval gated; no external execution.",
+  };
+}
+
+function compactAionDebateForProviderV1(debate = {}) {
+  return {
+    source_session_id: debate?.source_session_id || null,
+    business_name: debate?.business_name || "Business status pending verification",
+    status: debate?.status || "needs_more_debate",
+    consensus_score: debate?.consensus_score ?? null,
+    debate_items: safeArray(debate?.debate_items).map((item) => ({
+      item_index: item?.item_index,
+      department: item?.department || "boardroom",
+      plan_item: String(item?.plan_item || "").slice(0, 1600),
+      positions: safeArray(item?.positions).map((position) => ({
+        member: position?.member || position?.provider_id || "Provider",
+        view: String(position?.view || "").slice(0, 1200),
+      })).slice(0, 4),
+      concerns: safeArray(item?.concerns).map(String).slice(0, 10),
+      required_inputs: safeArray(item?.required_inputs).map(String).slice(0, 12),
+      verdict: item?.verdict || "",
+      next_action: String(item?.next_action || "").slice(0, 800),
+    })).slice(0, 12),
+    missing_inputs: safeArray(debate?.missing_inputs).map(String).slice(0, 30),
+    unresolved: safeArray(debate?.unresolved).map(String).slice(0, 20),
+    board_strategy: debate?.board_strategy || null,
+    approval_boundary: debate?.approval_boundary || "Approval gated; no external execution.",
+  };
+}
+
 function pickAionLiveProviderViewForPlanItemV1(parsed = {}, raw = {}, index = 0) {
   const recommendations = safeArray(parsed?.recommendations);
   const risks = safeArray(parsed?.risks);
@@ -53786,6 +55443,10 @@ async function runAionLiveDebatePlanRoundV1(runId = "") {
     typeof getAionAllFounderFeedbackForNextRoundV3 === "function"
       ? getAionAllFounderFeedbackForNextRoundV3()
       : {};
+  const liveBoardroomContext =
+    typeof getAionLiveBoardroomContextV2 === "function"
+      ? getAionLiveBoardroomContextV2()
+      : null;
 
   const payload = {
     business_id:
@@ -53793,24 +55454,52 @@ async function runAionLiveDebatePlanRoundV1(runId = "") {
         ? getAionBoardroomBusinessContainerId()
         : "home-fixed",
     session_type: "debate_plan",
-    requested_providers: getAionSelectedBoardroomProviderIdsV1(["openai", "gemini", "claude", "grok", "kimi", "meta", "mistral", "deepseek"]),
+    communication_style: getAionCommunicationStyleV1(),
+    requested_providers: getAionLiveSelectedBoardroomProviderIdsV2(),
     objective: [
       "Round 2 Boardroom Debate Plan.",
-      "Debate the actual Round 1 provider consensus and plan items.",
-      "Challenge weak assumptions, identify missing owner/input/output/metric boundaries, and return JSON only.",
+      "Debate the actual Round 1 evidence and produce the whole-business diagnosis and strategy before any work is delegated.",
+      "The Board—not Marketing or another function—must decide the business objective, priority offers, target audiences, target locations, channel direction, commercial constraints and success measures supported by the evidence.",
+      "Challenge weak assumptions and distinguish missing facts from missing decisions. Missing facts may become tightly scoped evidence requests; missing strategic decisions must remain with the Board or founder and must not be offloaded to a department as discovery.",
+      "Create exactly one bounded execution brief for each function: Marketing, Sales, Finance, Operations, Support, and HR, even if the Board concludes a function needs no immediate action. Marketing creates content and campaigns to the Board brief; Sales runs the conversion process; Finance verifies and reports against Board guardrails; Operations delivers capacity and service readiness; Support runs the customer process; HR supplies people and authority. Pilots do not redefine enterprise strategy.",
+      "Clearly label assumptions and do not invent facts.",
       "Do not create fake provider opinions.",
-      "Return keys: position, recommendations, risks, missing_inputs, plan_changes, confidence."
+      "Return the mandatory keys position, recommendations, risks, missing_inputs, plan_changes, confidence and board_strategy. board_strategy must include business_diagnosis, strategic_objective, priority_offers, target_audiences, target_locations, channels, commercial_constraints and department_briefs. Each department brief must report the Board assessment, mandate, rationale, audiences, locations, timing, deliverables, metrics, constraints and dependencies."
     ].join(" "),
     context_packet: {
       round: 2,
-      source_round_1_result: sourceResult,
+      current_date: new Date().toISOString(),
+      source_round_1_result: compactAionBoardroomRoundOneForProviderV1(sourceResult, plan),
       source_session_id: sourceResult.session_id || null,
       plan_items: plan,
       existing_consensus: sourceResult.consensus || {},
-      provider_responses_round_1: safeArray(sourceResult.backend_payload?.responses),
       missing_or_unavailable_round_1: safeArray(sourceResult.missing_or_unavailable),
+      business_context_lines:
+        typeof getAionCouncilBusinessContextPacketLines === "function"
+          ? getAionCouncilBusinessContextPacketLines()
+          : [],
+      department_context_lines:
+        typeof getAionCouncilDepartmentContextPacketLines === "function"
+          ? getAionCouncilDepartmentContextPacketLines()
+          : [],
+      canonical_context_envelope: liveBoardroomContext ? {
+        business_id:
+          liveBoardroomContext.business_id ||
+          (typeof getAionBoardroomBusinessContainerId === "function"
+            ? getAionBoardroomBusinessContainerId()
+            : "home-fixed"),
+        generated_at: liveBoardroomContext.generated_at,
+        persistent_truth_source: liveBoardroomContext.persistent_truth_source,
+        source_revisions: liveBoardroomContext.source_revisions,
+        business_identity: liveBoardroomContext.business_identity,
+        brand_foundation: liveBoardroomContext.brand_foundation,
+        business_map_projection: liveBoardroomContext.business_map_projection,
+        function_models: liveBoardroomContext.function_models,
+        operating_model: liveBoardroomContext.operating_model,
+        department_intelligence: liveBoardroomContext.department_intelligence,
+      } : null,
       instruction:
-        "Debate each plan item using live provider reasoning. Focus on whether it is actionable, owned by a department, safe, measurable, and approval-gated.",
+        "Debate each plan item using live provider reasoning, decide the cross-business strategy at Board level, then issue safe, measurable, approval-gated execution briefs to departments.",
     },
     founder_feedback: founderFeedback,
   };
@@ -53860,9 +55549,22 @@ async function runAionLiveDebatePlanRoundV1(runId = "") {
     debateItems.flatMap((item) => safeArray(item.required_inputs)).filter(Boolean)
   ));
 
+  const boardStrategy = providerResponses
+    .filter((response) => response.status === "succeeded")
+    .map((response) => (extractAionLiveProviderStructuredJsonV1(response) || {}).board_strategy)
+    .find((strategy) => strategy && typeof strategy === "object") || null;
+  const boardStrategyDepartments = new Set(
+    safeArray(boardStrategy?.department_briefs).map((brief) => normaliseAionDepartmentKeyV1(brief?.department || ""))
+  );
+  const strategyComplete = ["marketing", "sales", "finance", "operations", "support", "hr"]
+    .every((department) => boardStrategyDepartments.has(department));
+
   const succeededCount = Number(backendPayload.succeeded_count || providerResponses.filter((r) => r.status === "succeeded").length || 0);
   const providerCount = Number(backendPayload.provider_count || providerResponses.length || 0);
-  const consensusScore = providerCount ? Math.max(0.35, Math.min(0.92, 0.48 + (succeededCount / providerCount) * 0.34 - Math.min(0.18, missingInputs.length * 0.01))) : 0.35;
+  const consensusScore = succeededCount
+    ? Math.max(0.55, Math.min(0.92, 0.82 - Math.min(0.18, missingInputs.length * 0.01)))
+    : 0.35;
+  const reportReady = succeededCount > 0 && strategyComplete;
 
   const result = {
     schema_version: "aion.boardroom_debate_round.live.v1",
@@ -53877,20 +55579,21 @@ async function runAionLiveDebatePlanRoundV1(runId = "") {
     succeeded_count: succeededCount,
     provider_count: providerCount,
     backend_payload: backendPayload,
-    status: consensusScore >= 0.70 ? "ready_for_task_build" : "needs_more_debate",
+    status: reportReady ? "ready_for_founder_signoff" : "needs_more_debate",
     consensus_score: Number(consensusScore.toFixed(2)),
     debate_items: debateItems,
+    board_strategy: boardStrategy,
     missing_inputs: missingInputs,
     unresolved: [
       ...openQuestions.slice(0, 10).map((q) => `open_question: ${q}`),
       ...risks.slice(0, 10).map((r) => `risk: ${r}`),
     ],
     missing_or_unavailable: safeArray(backendPayload.missing_or_unavailable),
-    next_round: consensusScore >= 0.70 ? "build_department_tasks" : "focused_live_debate_or_founder_clarification",
+    next_round: reportReady ? "founder_signoff" : "focused_live_debate_or_founder_clarification",
     founder_question:
-      consensusScore >= 0.70
+      reportReady
         ? ""
-        : "The live providers still raised unresolved inputs or risks. Should the board continue debating, reduce scope, or ask the founder to choose?",
+        : "The Board report is incomplete or still has unresolved inputs or risks. Add founder feedback or run another debate before sign-off.",
     approval_boundary:
       "Live provider debate round only. No live adverts, bookings, payments, customer messages, or external execution.",
     founder_feedback: founderFeedback,
@@ -53940,6 +55643,10 @@ function runAionDebatePlanRoundV2() {
 function renderAionDebatePlanRoundHtmlV2() {
   const result = window.__aionBoardroomDebateRound;
   if (!result) return "";
+  const founderRatification =
+    typeof window.aionGetBoardroomFounderRatificationV1 === "function"
+      ? window.aionGetBoardroomFounderRatificationV1()
+      : { valid: false };
 
   if (result.status === "blocked") {
     return `
@@ -53986,7 +55693,34 @@ function renderAionDebatePlanRoundHtmlV2() {
         ${safeArray(result.founder_feedback_applied).map((line) => `<div style="color:#f3e8ff;">&gt; ${escapeHtml(line)}</div>`).join("")}
       ` : ""}
 
-      ${typeof renderAionDiscoveryQuestionInboxHtmlV1 === "function" ? renderAionDiscoveryQuestionInboxHtmlV1(debate, "debate_plan") : ""}
+      ${typeof renderAionDiscoveryQuestionInboxHtmlV1 === "function" ? renderAionDiscoveryQuestionInboxHtmlV1(result, "debate_plan") : ""}
+
+      ${result.board_strategy ? `
+        <div style="margin-top:12px;padding:10px;border:1px solid rgba(34,197,94,0.35);background:#071b12;">
+          <div style="color:#86efac;font-weight:900;">&gt; Board-owned strategy</div>
+          <div>&gt; diagnosis: ${escapeHtml(result.board_strategy.business_diagnosis || "")}</div>
+          <div>&gt; objective: ${escapeHtml(result.board_strategy.strategic_objective || "")}</div>
+          <div>&gt; offers: ${escapeHtml(safeArray(result.board_strategy.priority_offers).join(" · ") || "not yet evidenced")}</div>
+          <div>&gt; audiences: ${escapeHtml(safeArray(result.board_strategy.target_audiences).join(" · ") || "not yet evidenced")}</div>
+          <div>&gt; locations: ${escapeHtml(safeArray(result.board_strategy.target_locations).join(" · ") || "not yet evidenced")}</div>
+          <div>&gt; channels: ${escapeHtml(safeArray(result.board_strategy.channels).join(" · ") || "not yet evidenced")}</div>
+          <div>&gt; commercial constraints: ${escapeHtml(safeArray(result.board_strategy.commercial_constraints).join(" · ") || "none recorded")}</div>
+          ${safeArray(result.board_strategy.department_briefs).map((brief) => `
+            <div style="margin-top:7px;border-top:1px solid rgba(134,239,172,0.18);padding-top:6px;">
+              <div style="color:#ffffff;font-weight:900;">&gt; ${escapeHtml(brief.department || "Department")} execution brief</div>
+              <div>&gt; Board assessment: ${escapeHtml(brief.assessment || "")}</div>
+              <div>&gt; mandate: ${escapeHtml(brief.mandate || "")}</div>
+              <div>&gt; why: ${escapeHtml(brief.rationale || "")}</div>
+              <div>&gt; who: ${escapeHtml(safeArray(brief.audiences).join(" · ") || "not applicable / not evidenced")}</div>
+              <div>&gt; where: ${escapeHtml(safeArray(brief.locations).join(" · ") || "not applicable / not evidenced")}</div>
+              <div>&gt; when: ${escapeHtml(brief.timing || "not yet set")}</div>
+              <div>&gt; deliverables: ${escapeHtml(safeArray(brief.deliverables).join(" · "))}</div>
+              <div>&gt; metrics: ${escapeHtml(safeArray(brief.metrics).join(" · "))}</div>
+              <div>&gt; constraints: ${escapeHtml(safeArray(brief.constraints).join(" · ") || "none recorded")}</div>
+            </div>
+          `).join("")}
+        </div>
+      ` : `<div style="margin-top:10px;color:#fbbf24;">&gt; Board strategy was not returned; do not delegate department work yet.</div>`}
 
       <div style="margin-top:10px;color:#ffffff;font-weight:900;">&gt; Item-by-item debate</div>
       ${items.map((item) => `
@@ -54014,8 +55748,15 @@ function renderAionDebatePlanRoundHtmlV2() {
       ${typeof renderAionFounderFeedbackBoxV3 === "function" ? renderAionFounderFeedbackBoxV3(
         "debate_plan",
         "after Round 2 debate",
-        "Comment on individual task logic, reject a workstream, add constraints, or clarify missing inputs before building department tasks.",
-        `<button
+        "Add evidence, correct the Board's diagnosis, change a strategic choice, reject a workstream, or add constraints. Saved feedback returns the report to the Board for a revised debate before sign-off.",
+        `${founderRatification.valid ? "" : `<button
+          type="button"
+          class="aion-council-session-action"
+          data-aion-ratify-board-direction="true"
+          style="border-color:rgba(14,165,233,0.75);background:#082f49;color:#e0f2fe;margin-right:8px;"
+        >
+          Sign off Board Report
+        </button>`}<button
           type="button"
           class="aion-council-session-action"
           data-aion-council-session-build-tasks="true"
@@ -54058,6 +55799,7 @@ function inferAionDepartmentFromTextV3(value = "") {
     finance: 0,
     operations: 0,
     support: 0,
+    hr: 0,
     boardroom: 0,
   };
 
@@ -54101,6 +55843,11 @@ function inferAionDepartmentFromTextV3(value = "") {
     "response protocol", "customer protocols", "customer communication"
   ]);
 
+  add("hr", 6, [
+    "hr", "people", "personnel", "work email", "role owner",
+    "responsibility", "authority", "system access", "access boundary"
+  ]);
+
   add("boardroom", 4, [
     "boardroom", "follow up boardroom", "cross department", "cross departmental",
     "coordination framework", "assign owner", "department owner", "governance",
@@ -54108,7 +55855,7 @@ function inferAionDepartmentFromTextV3(value = "") {
   ]);
 
   // Strong override: explicit department names should win.
-  const explicit = ["finance", "operations", "support", "sales", "marketing", "boardroom"];
+  const explicit = ["finance", "operations", "support", "sales", "marketing", "hr", "boardroom"];
   for (const dept of explicit) {
     if (new RegExp(`\\b${dept}\\b`, "i").test(text)) scores[dept] += 8;
   }
@@ -54120,11 +55867,11 @@ function inferAionDepartmentFromTextV3(value = "") {
 function getAionDepartmentDefaultInputsV1(department = "") {
   const key = String(department || "").toLowerCase();
   if (key === "finance") return [
-    "engineer hourly or daily rate",
-    "material/subcontractor cost assumptions",
-    "gross margin and target margin",
-    "minimum profitable job value",
-    "campaign spend limit"
+    "approved Board commercial guardrails",
+    "verified ledger and bank evidence",
+    "invoice and aged-debt records",
+    "offering cost records",
+    "reporting period"
   ];
   if (key === "operations") return [
     "engineer availability by week",
@@ -54134,18 +55881,18 @@ function getAionDepartmentDefaultInputsV1(department = "") {
     "scheduling constraints"
   ];
   if (key === "sales") return [
-    "who replies to leads",
-    "target response time",
-    "lead qualification questions",
-    "quote handoff process",
-    "conversion tracking"
+    "approved Board offer, audience and territory brief",
+    "assigned lead-response owner",
+    "connected sales ledger or CRM access",
+    "approved response and quotation rules",
+    "conversion-event definitions"
   ];
   if (key === "marketing") return [
-    "priority services",
-    "target towns",
-    "proof assets / before-after photos",
-    "offer details",
-    "starter budget"
+    "approved Board marketing brief",
+    "brand assets and tone rules",
+    "approved proof assets / before-after photos",
+    "connected social channel access",
+    "content production constraints"
   ];
   if (key === "support") return [
     "customer update process",
@@ -54154,16 +55901,24 @@ function getAionDepartmentDefaultInputsV1(department = "") {
     "response-time target",
     "feedback/complaint process"
   ];
+  if (key === "hr") return [
+    "named owner for each department workstream",
+    "work email for each active person",
+    "decision and approval authority",
+    "system access required by role",
+    "capacity or responsibility gaps"
+  ];
   return ["department owner", "approval boundary", "success metric"];
 }
 
 function getAionDepartmentOutputRequiredV1(department = "") {
   const key = String(department || "").toLowerCase();
-  if (key === "finance") return "Finance discovery pack: pricing, costs, margin, engineer rate, minimum job value and spend limits.";
-  if (key === "operations") return "Operations discovery pack: engineer capacity, coverage boundary, scheduling limit and job-size boundary.";
-  if (key === "sales") return "Sales discovery pack: qualification script, response owner, response-time target, quote handoff and conversion tracking.";
-  if (key === "marketing") return "Marketing draft pack: founder-reviewable campaign structure, offer, audience, proof assets and draft copy. No live publishing.";
-  if (key === "support") return "Support discovery pack: customer handover, update cadence, support channel and issue escalation process.";
+  if (key === "finance") return "Finance execution report: verified cash, margin, liabilities, receivables and performance against the Board's commercial guardrails.";
+  if (key === "operations") return "Operations readiness report and delivery plan against the Board's offer, territory and timing brief.";
+  if (key === "sales") return "Sales execution pack: lead workflow, qualification script, response ownership, quotation handoff and conversion reporting aligned to the Board brief.";
+  if (key === "marketing") return "Marketing execution pack: channel-ready content and campaign drafts for the Board-selected offer, audience, location and timing. No live publishing.";
+  if (key === "support") return "Support execution pack: customer handover, update cadence, response workflow and issue escalation aligned to the Board brief.";
+  if (key === "hr") return "People and authority pack: accountable owners, work identities, approval boundaries and required system access.";
   return "Boardroom governance pack: owner, measurable output, approval boundary and next decision.";
 }
 
@@ -54173,19 +55928,22 @@ function getAionDepartmentObjectiveV1(department = "", planItem = "", nextAction
   const key = String(department || "").toLowerCase();
 
   if (key === "finance") {
-    return `Verify whether the proposed growth/marketing plan is financially safe by discovering true costs, engineer rate, margins, pricing and spend limits. Source item: ${item}`;
+    return `Execute the Board's finance brief: verify the evidence, report performance against the approved commercial guardrails, and flag exceptions without redefining strategy. Source item: ${item}`;
   }
   if (key === "operations") {
-    return `Verify whether the current business can operationally absorb more leads by discovering engineer capacity, scheduling limits, coverage radius and job-size boundaries. Source item: ${item}`;
+    return `Execute the Board's operations brief and return a capacity and delivery-readiness report against its selected offer, territory and timing. Source item: ${item}`;
   }
   if (key === "sales") {
-    return `Define how new leads will be qualified, replied to, quoted and tracked before campaign volume increases. Source item: ${item}`;
+    return `Execute the Board's sales brief by implementing the approved lead qualification, response, quotation and conversion workflow. Source item: ${item}`;
   }
   if (key === "marketing") {
-    return `Prepare founder-reviewable marketing output only after required finance, sales and operations gates are understood. Source item: ${item}`;
+    return `Execute the Board's marketing brief by creating founder-reviewable content for its selected offer, audience, location, channel and timing. Do not redefine the business strategy. Source item: ${item}`;
   }
   if (key === "support") {
-    return `Define the customer communication and aftercare process required to protect trust as enquiries increase. Source item: ${item}`;
+    return `Execute the Board's support brief by preparing the approved customer communication, handover and aftercare workflow. Source item: ${item}`;
+  }
+  if (key === "hr") {
+    return `Confirm accountable owners, work identities, approval authority and access boundaries required to execute the Board plan. Source item: ${item}`;
   }
   return action || `Assign an owner and approval boundary for this boardroom item: ${item}`;
 }
@@ -54201,6 +55959,7 @@ function filterAionLinesForDepartmentOrItemV1(lines = [], department = "", itemT
     sales: ["sales", "lead", "qualification", "conversion", "pipeline", "crm", "quote", "response"],
     marketing: ["marketing", "campaign", "facebook", "ad", "advert", "creative", "copy", "audience", "offer"],
     support: ["support", "customer", "handover", "aftercare", "feedback", "complaint", "updates"],
+    hr: ["hr", "people", "personnel", "owner", "email", "authority", "access", "responsibility"],
     boardroom: ["owner", "governance", "approval", "coordination", "cross"]
   }[dept] || [];
 
@@ -54358,20 +56117,87 @@ function normaliseAionLiveTaskDraftV1(task = {}, index = 0) {
     department,
     owner,
     task_title: String(title || "").trim(),
+    board_brief: String(task.board_brief || task.mandate || "").trim(),
+    decision_refs: safeArray(task.decision_refs || task.board_decisions || []),
     objective: String(objective || "").trim(),
+    source_plan_item: String(task.source_plan_item || task.plan_item || "").trim(),
     inputs_needed: safeArray(task.inputs_needed || task.required_inputs || task.inputs || []),
     blockers: safeArray(task.blockers || task.risks || task.concerns || []),
     output_required: String(task.output_required || task.required_output || task.deliverable || "Founder-reviewable draft output.").trim(),
     success_metric: String(task.success_metric || task.metric || "Founder can approve, reject, or request revision before live execution.").trim(),
     approval_required: true,
     live_external_side_effects_performed: false,
-    provider_mode: "live_provider_fanout",
+    provider_mode: task.source_provider ? "live_provider_fanout" : "board_evidence_fallback",
     source_provider: task.source_provider || "",
     source_provider_label: task.source_provider_label || "",
-    routing_explanation:
-      "Task content came from live provider output. Code only normalised schema, routed department, and enforced approval boundary.",
+    routing_explanation: task.routing_explanation || (task.source_provider
+      ? "Task content came from live provider output. Code only normalised schema, routed department, and enforced approval boundary."
+      : "Task was derived from the ratified Board direction and unresolved evidence gaps because no live provider task draft was returned."),
     status: "draft_task_ready_for_founder_review",
   };
+}
+
+function ensureAionDepartmentTaskCoverageV1(drafts = [], debate = {}) {
+  const departments = ["marketing", "sales", "finance", "operations", "support", "hr"];
+  const items = safeArray(debate.debate_items);
+  const briefs = safeArray(debate?.board_strategy?.department_briefs);
+
+  safeArray(drafts).forEach((task) => {
+    const department = inferAionDepartmentFromTaskDraftV1(task);
+    const brief = briefs.find((item) => normaliseAionDepartmentKeyV1(item?.department || "") === department);
+    if (!brief) return;
+    task.board_brief = String(brief.mandate || "").trim();
+    task.decision_refs = uniqueAionLinesV1([
+      ...safeArray(debate?.board_strategy?.priority_offers),
+      ...safeArray(brief.audiences),
+      ...safeArray(brief.locations),
+      String(brief.timing || "").trim(),
+    ]).filter(Boolean);
+    task.objective = String(brief.mandate || task.objective || "").trim();
+    task.inputs_needed = uniqueAionLinesV1([
+      ...safeArray(brief.dependencies),
+      ...getAionDepartmentDefaultInputsV1(department),
+    ]).slice(0, 8);
+    task.blockers = uniqueAionLinesV1([...safeArray(brief.constraints), ...safeArray(task.blockers)]);
+    task.output_required = safeArray(brief.deliverables).join("; ") || task.output_required;
+    task.success_metric = safeArray(brief.metrics).join("; ") || task.success_metric;
+  });
+
+  const present = new Set(safeArray(drafts).map((task) => inferAionDepartmentFromTaskDraftV1(task)));
+
+  departments.forEach((department) => {
+    if (present.has(department)) return;
+    const sourceItem = items.find((item) =>
+      new RegExp(`\\b${department}\\b`, "i").test(String(item?.plan_item || ""))
+    ) || items.find((item) => String(item?.department || "").toLowerCase() === department) || {};
+    const brief = briefs.find((item) => normaliseAionDepartmentKeyV1(item?.department || "") === department) || {};
+    const planItem = String(sourceItem.plan_item || `Board direction for ${department}`).trim();
+    drafts.push({
+      department,
+      owner: `${department.charAt(0).toUpperCase()}${department.slice(1)} Pilot`,
+      title: `${department.charAt(0).toUpperCase()}${department.slice(1)} execution brief`,
+      board_brief: String(brief.mandate || "").trim(),
+      decision_refs: uniqueAionLinesV1([
+        ...safeArray(debate?.board_strategy?.priority_offers),
+        ...safeArray(brief.audiences),
+        ...safeArray(brief.locations),
+        String(brief.timing || "").trim(),
+      ]).filter(Boolean),
+      objective: String(brief.mandate || "").trim() || getAionDepartmentObjectiveV1(department, planItem, sourceItem.next_action),
+      source_plan_item: planItem,
+      inputs_needed: uniqueAionLinesV1([
+        ...safeArray(brief.dependencies),
+        ...getAionDepartmentDefaultInputsV1(department),
+      ]).slice(0, 8),
+      blockers: uniqueAionLinesV1([...safeArray(brief.constraints), ...safeArray(sourceItem.concerns)]),
+      output_required: safeArray(brief.deliverables).join("; ") || getAionDepartmentOutputRequiredV1(department),
+      success_metric: safeArray(brief.metrics).join("; ") || "The Pilot returns an evidence-linked execution output against the signed-off Board brief and explicit approval boundary.",
+      source_provider: "",
+      source_provider_label: "Ratified Board evidence",
+      routing_explanation: "Execution task derived from the founder-signed Board strategy; the Pilot is not authorised to redefine enterprise strategy.",
+    });
+  });
+  return drafts;
 }
 
 function buildAionGenericTaskStagingPackV1({ tasks = [], debate = {}, backendPayload = {} } = {}) {
@@ -54464,11 +56290,11 @@ async function buildAionLiveDepartmentTasksFromDebateV1(runId = "") {
   if (runId && !isAionBoardroomCurrentRunV1("build", runId)) return null;
 
   const debate = window.__aionBoardroomDebateRound;
-  if (!debate || !safeArray(debate.debate_items).length) {
+  if (!debate || !safeArray(debate.debate_items).length || !debate.board_strategy) {
     const blocked = {
       schema_version: "aion.department_task_build.live.v1",
       status: "blocked",
-      reason: "No Debate Plan round found. Run Debate Plan first.",
+      reason: "No complete Board strategy report found. Run Debate Plan and sign off the report first.",
       generated_at: new Date().toISOString(),
       provider_mode: "live_provider_fanout",
       live_provider_fanout: false,
@@ -54485,23 +56311,26 @@ async function buildAionLiveDepartmentTasksFromDebateV1(runId = "") {
         ? getAionBoardroomBusinessContainerId()
         : "home-fixed",
     session_type: "build_department_tasks",
-    requested_providers: getAionSelectedBoardroomProviderIdsV1(["openai", "gemini", "claude", "grok", "kimi", "meta", "mistral", "deepseek"]),
+    communication_style: getAionCommunicationStyleV1(),
+    requested_providers: getAionLiveSelectedBoardroomProviderIdsV2(),
     objective: [
       "Round 3 Build Department Tasks.",
-      "Use the live Debate Plan output and founder feedback to produce department-owned task drafts.",
+      "Use only the founder-signed Board strategy and its department briefs to produce department-owned execution tasks.",
       "Do not use template tasks. Do not invent business-specific facts.",
-      "Return JSON only.",
-      "Required JSON shape: { task_drafts: [{ department, owner, title, objective, inputs_needed, blockers, output_required, success_metric }], risks: [], missing_inputs: [], confidence }.",
+      "The Board has already made the enterprise strategic choices. Do not ask a Pilot to choose the priority offer, market, audience, location, channel allocation, timing, margin target, budget boundary or business strategy.",
+      "A Pilot may request missing operational evidence, access or assets needed to execute its brief, but strategic gaps stay with the Board or founder.",
+      "Return a complete execution package for every relevant function: Marketing, Sales, Finance, Operations, Support, and HR. Each package must preserve the Board mandate, decision references, evidence inputs, deliverable, measurement and remaining approval boundary.",
+      "Return concise JSON only and keep one task draft per function.",
+      "Required JSON shape: { position: string, recommendations: [string], risks: [string], missing_inputs: [string], plan_changes: [string], confidence: number, task_drafts: [{ department, owner, title, board_brief, decision_refs, objective, inputs_needed, blockers, output_required, success_metric }] }.",
+      "The standard position/recommendations/risks/missing_inputs/plan_changes/confidence fields are mandatory because the Board provider gateway validates them; task_drafts is the additional department package used by Round 3.",
       "Each task must be approval-gated and must not execute adverts, bookings, payments, customer messages, or external side effects."
     ].join(" "),
     context_packet: {
       round: 3,
-      source_debate_round: debate,
-      debate_items: safeArray(debate.debate_items),
-      missing_inputs: safeArray(debate.missing_inputs),
-      unresolved: safeArray(debate.unresolved),
+      source_debate_round: compactAionDebateForProviderV1(debate),
+      required_functions: ["marketing", "sales", "finance", "operations", "support", "hr"],
       instruction:
-        "Convert the live debated items into clear department tasks with owner, objective, inputs needed, blockers, output required, success metric, and approval boundary.",
+        "Convert the founder-signed Board department briefs into execution tasks. Preserve Board decisions verbatim enough that each Pilot can execute without redoing enterprise discovery or strategy.",
     },
     founder_feedback:
       typeof getAionAllFounderFeedbackForNextRoundV3 === "function"
@@ -54563,7 +56392,12 @@ async function buildAionLiveDepartmentTasksFromDebateV1(runId = "") {
         source_provider_label: "Debate item fallback",
       }));
 
-  const tasks = [...providerTaskDrafts, ...fallbackDrafts].map((task, index) =>
+  const completeDrafts = ensureAionDepartmentTaskCoverageV1(
+    [...providerTaskDrafts, ...fallbackDrafts],
+    debate
+  );
+
+  const tasks = completeDrafts.map((task, index) =>
     normaliseAionLiveTaskDraftV1(task, index)
   );
 
@@ -55332,7 +57166,7 @@ if (!window.__aionCouncilSessionTerminalControlsInstalled) {
         }
 
         if (result.journey_stage === "baseline_first_meeting") {
-          try { window.localStorage?.setItem(AION_BOARDROOM_BASELINE_COMPLETE_STORAGE_KEY, "true"); } catch {}
+          try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(AION_BOARDROOM_BASELINE_COMPLETE_STORAGE_KEY, "true"); } catch {}
         }
 
         safeAionDesktopPatch?.({
@@ -56960,7 +58794,7 @@ function renderAionRealFinance121BoardroomPanelV2() {
 
 function getAionFinanceStagedDataPointsV2() {
   try {
-    return JSON.parse(window.localStorage.getItem("aion.finance.data_points.v1") || "[]") || [];
+    return JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString("aion.finance.data_points.v1") || "[]") || [];
   } catch {
     return [];
   }
@@ -56968,7 +58802,7 @@ function getAionFinanceStagedDataPointsV2() {
 
 function setAionFinanceStagedDataPointsV2(items) {
   try {
-    window.localStorage.setItem("aion.finance.data_points.v1", JSON.stringify(Array.isArray(items) ? items : []));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.finance.data_points.v1", JSON.stringify(Array.isArray(items) ? items : []));
   } catch {}
 }
 
@@ -57779,7 +59613,7 @@ async function hydrateAionOperationsDepartmentChannel(centre, departmentId, opti
       thread.scrollTop = thread.scrollHeight;
       setAionOperationsChannelState(centre, `${turns.length} recorded message${turns.length === 1 ? "" : "s"} · persistent business record`);
     } else {
-      thread.innerHTML = `<div style="border:1px dashed #cbd5e1;background:#f8fafc;padding:16px;color:#64748b;line-height:1.5;"><strong style="display:block;color:#334155;margin-bottom:5px;">No COO instructions or department updates yet.</strong>Run the morning briefing or message this Department Pilot. Missing evidence will be shown as unknown, never filled with generic conversation.</div>`;
+      thread.innerHTML = `<div style="border:1px dashed #cbd5e1;background:#f8fafc;padding:16px;color:#64748b;line-height:1.5;"><strong style="display:block;color:#334155;margin-bottom:5px;">No COO instructions or department updates yet.</strong>Close the operating day or message this Department Pilot. Missing evidence will be shown as unknown, never filled with generic conversation.</div>`;
       setAionOperationsChannelState(centre, "Ready · no messages recorded yet");
     }
   } catch (error) {
@@ -57797,14 +59631,14 @@ async function hydrateAionOperationsExecutiveStatus(centre, { autoRun = true } =
     let result = await aionOperationsConversationRequest("executive-status", {});
     if (autoRun && result.briefing_due && centre.dataset.morningAutoRun !== result.today) {
       centre.dataset.morningAutoRun = result.today;
-      setAionOperationsChannelState(centre, "The executive morning briefing is running across the Department Pilots…", "working");
+      setAionOperationsChannelState(centre, "The executive operating close is gathering verified results across the Department Pilots…", "working");
       const run = await aionOperationsConversationRequest("morning-briefing", { force: false });
       result = run.status || result;
     }
     const schedule = result.schedule || {};
     const scheduleNode = centre.querySelector("[data-aion-operations-briefing-schedule]");
     const modeNode = centre.querySelector("[data-aion-operations-briefing-mode]");
-    if (scheduleNode) scheduleNode.textContent = `${schedule.enabled === false ? "Paused" : "Daily"} · ${schedule.local_time || "08:00"} · ${schedule.timezone || "local time"}`;
+    if (scheduleNode) scheduleNode.textContent = `${schedule.enabled === false ? "Daily close paused" : "Always on · daily close"} · ${schedule.local_time || "18:00"} · ${schedule.timezone || "local time"}`;
     if (modeNode) {
       const mode = String(result.latest_briefing?.reasoning_mode || "");
       modeNode.textContent = mode === "two_model_challenge" ? "Two-model executive challenge" : "Vault model · role-separated departments";
@@ -57850,7 +59684,7 @@ document.addEventListener("click", (event) => {
     event.stopPropagation();
     const department = String(openKpiBoardroom.dataset.aionDepartmentKpiBoardroom || "").trim();
     window.__aionBoardroomKpiDepartmentV1 = department;
-    try { localStorage.setItem("aion.boardroom.kpiDepartment.v1", department); } catch {}
+  try { window.AionDesktopPreferences.set("aion.boardroom.kpiDepartment.v1", department); } catch {}
     if (typeof window.setAionSidebarActiveTabHardV1 === "function") {
       window.setAionSidebarActiveTabHardV1("boardroom");
     } else {
@@ -57870,7 +59704,7 @@ document.addEventListener("click", (event) => {
         ...(window.__aionDepartmentFunctionalSectionsV1 || {}),
         [department]: section,
       };
-      try { localStorage.setItem(`aion.${department}.functionalSection.v1`, section); } catch {}
+  try { window.AionDesktopPreferences.set(`aion.${department}.functionalSection.v1`, section); } catch {}
       if (typeof requestRender === "function") requestRender();
       else if (typeof render === "function") render();
     }
@@ -57881,7 +59715,7 @@ document.addEventListener("click", (event) => {
     event.stopPropagation();
     const section = String(financeFunctionalSection.dataset.aionFinanceFunctionalSection || "overview");
     window.__aionFinanceFunctionalSectionV1 = section;
-    try { localStorage.setItem("aion.finance.functionalSection.v1", section); } catch {}
+  try { window.AionDesktopPreferences.set("aion.finance.functionalSection.v1", section); } catch {}
     if (typeof requestRender === "function") requestRender();
     else if (typeof render === "function") render();
     return;
@@ -57895,8 +59729,8 @@ document.addEventListener("click", (event) => {
     } else {
       state.activeTab = "operations_flow";
       window.__aionForcedMainTabV2 = "operations_flow";
-      localStorage.setItem("aion.forcedMainTab.v2", "operations_flow");
-      localStorage.setItem("aion.activeTab", "operations_flow");
+    window.AionDesktopPreferences.set("aion.forcedMainTab.v2", "operations_flow");
+    window.AionDesktopPreferences.set("aion.activeTab", "operations_flow");
       if (typeof render === "function") render();
       else if (typeof requestRender === "function") requestRender();
     }
@@ -57995,7 +59829,7 @@ document.addEventListener("click", (event) => {
     const centre = runBriefing.closest("[data-aion-operations-command-centre]");
     if (!centre || runBriefing.disabled) return;
     runBriefing.disabled = true;
-    runBriefing.textContent = "Meeting running…";
+    runBriefing.textContent = "Closing day…";
     setAionOperationsChannelState(centre, "The Department Pilots are reviewing evidence and Board mandates…", "working");
     void (async () => {
       try {
@@ -58008,7 +59842,7 @@ document.addEventListener("click", (event) => {
         setAionOperationsChannelState(centre, String(error?.message || error), "error");
       } finally {
         runBriefing.disabled = false;
-        runBriefing.textContent = "Run morning briefing";
+        runBriefing.textContent = "Close operating day";
       }
     })();
     return;
@@ -58791,8 +60625,12 @@ document.addEventListener("keydown", (event) => {
 });
 
 function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
-  const financeWorkspace =
-    typeof window.renderAionDepartmentPilotRuntime === "function"
+  const financeSetupState = window.AionFinancePilot?.load?.() || null;
+  const financeSetupPending =
+    !financeSetupState || String(financeSetupState.status || "data_sources") !== "complete";
+  const financeWorkspace = financeSetupPending && typeof window.AionFinancePilot?.render === "function"
+    ? window.AionFinancePilot.render()
+    : typeof window.renderAionDepartmentPilotRuntime === "function"
       ? window.renderAionDepartmentPilotRuntime("finance")
       : window.AionFinancePilot && typeof window.AionFinancePilot.render === "function"
         ? window.AionFinancePilot.render()
@@ -58802,6 +60640,29 @@ function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
       ${renderFinancePilotCommandCentre(financeWorkspace)}
     </div>
   `;
+}
+
+/* Optional Finance records are loaded only after a deliberate department click.
+ * The automatic Foundation handoff must not hydrate unrelated operational data. */
+if (!window.__aionOptionalWorkspaceVaultHydrationInstalledV1) {
+  window.__aionOptionalWorkspaceVaultHydrationInstalledV1 = true;
+  document.addEventListener("click", (event) => {
+    const target = event.target?.closest?.(
+      "[data-department-key], [data-live-agents-department], [data-aion-live-agents-department], [data-aion-department], [data-department]"
+    );
+    if (!target) return;
+    const department = [
+      target.getAttribute?.("data-department-key"),
+      target.getAttribute?.("data-live-agents-department"),
+      target.getAttribute?.("data-aion-live-agents-department"),
+      target.getAttribute?.("data-aion-department"),
+      target.getAttribute?.("data-department"),
+    ].map((value) => String(value || "").trim().toLowerCase()).find(Boolean);
+    if (department !== "finance") return;
+    void window.AionBusinessContainerClient?.hydrateFinanceState?.().catch?.((error) => {
+      console.warn("[AION] Finance Vault hydration deferred", error);
+    });
+  }, true);
 }
 
 function getAionFinanceFunctionalSectionV1() {
@@ -59577,8 +61438,8 @@ function renderOperationsCommandCentre() {
           ${renderAionDepartmentFunctionalTabsV1("operations", "Operations workspace")}
           <div data-aion-operations-functional-workspace="true" style="padding:20px;min-height:0;flex:1;display:${functionalSection === "workspace" ? "flex" : "none"};flex-direction:column;overflow:hidden;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-            <div><div style="color:#2563eb;font-size:10px;letter-spacing:.18em;font-weight:950;">LIVE EXECUTIVE CHANNELS</div><h3 style="margin:7px 0 5px;color:#14213d;font-size:20px;">COO ↔ Department Pilots</h3><div data-aion-operations-briefing-schedule="true" style="font-size:11px;color:#66758a;">Daily · 08:00 · local time</div><div data-aion-operations-briefing-mode="true" style="font-size:10px;color:#66758a;margin-top:3px;">Vault model · role-separated departments</div></div>
-            <button class="aion-primary-action" type="button" data-aion-operations-run-briefing="true" style="--aion-action-accent:#2563eb;">Run morning briefing</button>
+            <div><div style="color:#2563eb;font-size:10px;letter-spacing:.18em;font-weight:950;">LIVE EXECUTIVE CHANNELS</div><h3 style="margin:7px 0 5px;color:#14213d;font-size:20px;">COO ↔ Department Pilots</h3><div data-aion-operations-briefing-schedule="true" style="font-size:11px;color:#66758a;">Always on · daily close at 18:00 · local time</div><div data-aion-operations-briefing-mode="true" style="font-size:10px;color:#66758a;margin-top:3px;">Vault model · role-separated departments</div></div>
+            <button class="aion-primary-action" type="button" data-aion-operations-run-briefing="true" style="--aion-action-accent:#2563eb;">Close operating day</button>
           </div>
           <div role="tablist" data-aion-operations-channel-list="true" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;">${channels.map((name, index) => `<button class="aion-soft-button" type="button" data-aion-operations-channel="${name.toLowerCase()}" data-aion-operations-channel-label="${name}" aria-selected="${index === 0 ? "true" : "false"}" style="border-color:${index === 0 ? "#2563eb" : "#d9e2ec"}!important;background:${index === 0 ? "#eef5ff" : "#fff"}!important;color:${index === 0 ? "#2563eb" : "#66758a"};padding:8px 12px;font-size:10px;font-weight:800;letter-spacing:.04em;cursor:pointer;">${name}</button>`).join("")}</div>
           <div data-aion-operations-channel-panel="true" style="border:1px solid #d9e2ec;background:#fff;border-radius:16px;padding:18px;min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.03);"><div data-aion-operations-channel-title="true" style="font-weight:900;color:#14213d;font-size:17px;">Sales channel</div><p data-aion-operations-channel-summary="true" style="color:#66758a;line-height:1.45;margin:7px 0 10px;font-size:12px;">Persistent instructions, updates, decisions and evidence between Operations Pilot and Sales Pilot.</p><div data-aion-operations-channel-thread="true" style="flex:1;min-height:220px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:10px 2px;border-top:1px solid #d9e2ec;border-bottom:1px solid #d9e2ec;"></div><div data-aion-operations-channel-state="true" style="font-size:10px;color:#66758a;margin:8px 0;">Loading protected department record…</div><form class="aion-department-composer" data-aion-operations-channel-form="true" style="--aion-department-accent:#2563eb;"><textarea data-aion-operations-channel-input="true" rows="2" placeholder="Message Sales Pilot as COO…"></textarea><div class="aion-composer-actions"><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form></div>
@@ -60711,8 +62572,8 @@ function setAionMarketingCanvasDurablyCleared(cleared) {
     const key = aionMarketingCanvasClearStorageKey();
     const globalKey = aionMarketingCanvasGlobalClearStorageKey();
     if (cleared) {
-      localStorage.setItem(key, "true");
-      localStorage.setItem(globalKey, "true");
+      window.AionDesktopPreferences.set(key, "true");
+      window.AionDesktopPreferences.set(globalKey, "true");
     } else {
       localStorage.removeItem(key);
       localStorage.removeItem(globalKey);
@@ -61046,8 +62907,9 @@ function renderAionMarketingCreativeLab() {
 }
 
 const aionMarketingConnectionState = {
-  workspaceId: "", connections: [], loading: false, loaded: false, error: "", tiers: {}, messages: {}, polling: null,
+  workspaceId: "", connections: [], loading: false, loaded: false, refreshedAt: 0, error: "", tiers: {}, messages: {}, polling: null,
 };
+window.__aionMarketingConnectionStateV1 = aionMarketingConnectionState;
 
 async function loadAionMarketingConnections(force = false) {
   const workspaceId = String(getActiveWorkspaceId() || "workspace");
@@ -61056,29 +62918,207 @@ async function loadAionMarketingConnections(force = false) {
   try {
     const result = await apiGet(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}`);
     aionMarketingConnectionState.connections = result.connections || [];
-    aionMarketingConnectionState.loaded = true; aionMarketingConnectionState.error = "";
+    aionMarketingConnectionState.loaded = true; aionMarketingConnectionState.refreshedAt = Date.now(); aionMarketingConnectionState.error = "";
   } catch (error) { aionMarketingConnectionState.error = String(error?.message || error); }
   finally { aionMarketingConnectionState.loading = false; if (typeof render === "function") render(); }
+}
+window.__aionLoadMarketingConnectionsV1 = loadAionMarketingConnections;
+
+function getAionMarketingProviderPresentation(provider, fallbackLabel = "") {
+  const normalizedProvider = String(provider || "").trim();
+  const presentations = {
+    meta: { label: "Meta", account: "Facebook and Instagram business accounts" },
+    linkedin: { label: "LinkedIn", account: "LinkedIn Company Page" },
+    youtube: { label: "YouTube", account: "YouTube channel" },
+    tiktok: { label: "TikTok", account: "TikTok account" },
+    x: { label: "X", account: "X account" },
+    pinterest: { label: "Pinterest", account: "Pinterest business account" },
+    google_business: { label: "Google Business Profile", account: "Google Business Profile" },
+    google_ads: { label: "Google Ads", account: "Google Ads account" },
+    microsoft_ads: { label: "Microsoft Advertising", account: "Microsoft Advertising account" },
+  };
+  const presentation = presentations[normalizedProvider] || {};
+  const label = String(presentation.label || fallbackLabel || normalizedProvider || "Provider").trim();
+  return { label, account: String(presentation.account || `${label} account`).trim() };
+}
+
+function getAionMarketingProviderTileCopy(provider, connection = {}, fallbackLabel = "", permissionTier = "analytics") {
+  const presentation = getAionMarketingProviderPresentation(provider, fallbackLabel);
+  if (permissionTier === "advertising") {
+    const advertising = connection?.advertising || {};
+    const advertisingAccount = `${presentation.label} advertising account`;
+    const state = String(advertising.state || "platform_setup_required");
+    if (state === "ready") return {
+      detail: "Ad account connected · tested · reporting",
+      actionLabel: `Change the ${advertisingAccount} connected to Tessaris`,
+    };
+    if (state === "test_required") return {
+      detail: "Ad account connected · read-only test required",
+      actionLabel: `Test the ${advertisingAccount} connected to Tessaris`,
+    };
+    if (state === "authorization_required") return {
+      detail: `Connect Tessaris to your ${advertisingAccount}`,
+      actionLabel: `Connect Tessaris to your ${advertisingAccount}`,
+    };
+    if (state === "provider_approval_required") return {
+      detail: `${presentation.label} Advertising API approval required`,
+      actionLabel: `${presentation.label} must approve Advertising API access before customers can connect`,
+    };
+    if (state === "separate_ads_api_required") return {
+      detail: `${presentation.label} Ads API setup required · social login is separate`,
+      actionLabel: `${presentation.label} advertising requires a separate Ads API application`,
+    };
+    return {
+      detail: "Advertising provider setup required before users can connect",
+      actionLabel: `${presentation.label} advertising setup is required before users can connect`,
+    };
+  }
+  const ready = connection?.connected === true
+    && Object.keys(connection?.selected_accounts || {}).length > 0
+    && connection?.health === "healthy";
+  const account = presentation.account;
+  if (ready) return {
+    detail: "Connected to Tessaris · tested · reporting",
+    actionLabel: `Change the ${account} connected to Tessaris`,
+  };
+  if (connection?.connected === true) return {
+    detail: "Connected to Tessaris · click to change account",
+    actionLabel: `Change the ${account} connected to Tessaris`,
+  };
+  if (connection?.configured === true) return {
+    detail: `Connect Tessaris to your ${account}`,
+    actionLabel: `Connect Tessaris to your ${account}`,
+  };
+  if (String(provider) === "pinterest") return {
+    detail: "Pinterest approval pending · available after app review",
+    actionLabel: "Pinterest connection is awaiting developer approval",
+  };
+  return {
+    detail: "Provider setup required before users can connect",
+    actionLabel: `${presentation.label} setup is required before users can connect`,
+  };
+}
+
+async function getAionMarketingActingPersonId() {
+  const activeActor = window.AionSalesRevenue?.getActiveActor?.() || null;
+  const actorId = String(activeActor?.person_id || activeActor?.id || "").trim();
+  if (actorId) return actorId;
+
+  const workspaceId = String(getActiveWorkspaceId() || "workspace");
+  try {
+    const result = await apiGet(`/api/aion/business/organisation/${encodeURIComponent(workspaceId)}`);
+    const people = Array.isArray(result?.model?.people) ? result.model.people : [];
+    const activePeople = people.filter((person) => person?.status === "active" && person?.id);
+    const desktopIdentity = window.__AION_CURRENT_USER__ || window.__AION_DESKTOP_STATE__?.currentUser || window.__AION_DESKTOP_STATE__?.current_user || {};
+    const directId = String(desktopIdentity.person_id || desktopIdentity.personId || desktopIdentity.id || "").trim();
+    const direct = activePeople.find((person) => String(person.id) === directId);
+    if (direct) return String(direct.id);
+    const identityName = String(desktopIdentity.name || desktopIdentity.display_name || "").trim().toLowerCase();
+    const named = identityName
+      ? activePeople.find((person) => String(person.name || "").trim().toLowerCase() === identityName)
+      : null;
+    if (named) return String(named.id);
+    const owners = activePeople.filter((person) => Array.isArray(person.role_ids) && person.role_ids.includes("role.owner_director"));
+    if (owners.length === 1) return String(owners[0].id);
+  } catch (_) {
+    // The API still performs the final authority check. This fallback only
+    // supports a brand-new single-user workspace with no people records yet.
+  }
+  return "desktop_user";
 }
 
 async function connectAionMarketingProvider(provider) {
   const workspaceId = String(getActiveWorkspaceId() || "workspace");
   const permission_tier = aionMarketingConnectionState.tiers[provider] || "analytics";
+  const connection = aionMarketingConnectionState.connections.find((item) => item?.provider === provider) || {};
+  const presentation = getAionMarketingProviderPresentation(provider, connection?.label);
   try {
-    const result = await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${encodeURIComponent(provider)}/connect`, { acting_person_id: "desktop_user", permission_tier });
+    const acting_person_id = await getAionMarketingActingPersonId();
+    const result = await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${encodeURIComponent(provider)}/connect`, { acting_person_id, permission_tier });
     if (result.authorization_url) {
-      aionMarketingConnectionState.messages[provider] = "Authorisation opened in your browser. Complete it there; Tessaris will detect the connection automatically.";
+      const account = permission_tier === "advertising" ? `${presentation.label} advertising account` : presentation.account;
+      const instruction = `Sign in to ${presentation.label} and approve “Connect Tessaris” to link your ${account}.`;
+      aionMarketingConnectionState.messages[provider] = instruction;
       const opened = await window.aionDesktop?.openExternalUrl?.(result.authorization_url);
-      if (!opened) window.open(result.authorization_url, "_blank", "noopener,noreferrer");
-      showToast("Authorize the account in your browser, then return and press Refresh.");
+      if (!(opened === true || opened?.ok === true)) window.open(result.authorization_url, "_blank", "noopener,noreferrer");
+      showToast(instruction);
       startAionMarketingConnectionPolling(provider);
     } else {
       const missing = (result.missing || []).join(", ");
-      aionMarketingConnectionState.messages[provider] = `This channel is not activated in Tessaris yet. Platform setup still required: ${missing}.`;
-      showToast(`Platform setup required: ${missing}`);
+      const unavailableMessage = provider === "pinterest"
+        ? "Pinterest is awaiting developer approval. Once Pinterest enables the App Secret, users can click this tile and approve “Connect Tessaris”."
+        : `${presentation.label} is not available to users yet. Platform setup still required: ${missing}.`;
+      aionMarketingConnectionState.messages[provider] = unavailableMessage;
+      showToast(unavailableMessage);
       requestRender();
     }
   } catch (error) { aionMarketingConnectionState.messages[provider] = String(error?.message || error); showToast(aionMarketingConnectionState.messages[provider]); requestRender(); }
+}
+
+async function activateAionMarketingProviderTile(provider, requestedTier = "analytics") {
+  const normalizedProvider = String(provider || "").trim();
+  if (!normalizedProvider) return;
+  const normalizedTier = String(requestedTier || "analytics").trim() || "analytics";
+  aionMarketingConnectionState.tiers[normalizedProvider] = normalizedTier;
+  // The provider tile is the customer's onboarding/re-authorisation action.
+  // Always open the provider consent flow, including when another account is
+  // already connected, so a user can see and approve "Connect to Tessaris".
+  await connectAionMarketingProvider(normalizedProvider);
+}
+
+// Connection cards can be rendered outside the Marketing workspace, whose
+// legacy delegated click handler also owns many unrelated creative controls.
+// Capture provider-card clicks here so the card has one reliable job: begin
+// the provider OAuth flow. Status refresh, testing and syncing remain separate.
+if (!window.__aionMarketingProviderTileOAuthHandlerV1) {
+  window.__aionMarketingProviderTileOAuthHandlerV1 = true;
+  window.addEventListener("click", (event) => {
+    const tile = event.target?.closest?.("[data-aion-connect-marketing-provider]");
+    if (!tile) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    const provider = String(tile.dataset.aionConnectMarketingProvider || "").trim();
+    const requestedTier = String(tile.dataset.aionMarketingPermissionTier || "analytics").trim() || "analytics";
+    void activateAionMarketingProviderTile(provider, requestedTier);
+  }, true);
+}
+
+async function saveAionMarketingPlatformCredentials(provider) {
+  const workspaceId = String(getActiveWorkspaceId() || "workspace");
+  const scope = document.querySelector(`[data-aion-platform-credentials="${CSS.escape(provider)}"]`);
+  const client_id = String(scope?.querySelector("[data-aion-platform-client-id]")?.value || "").trim();
+  const client_secret = String(scope?.querySelector("[data-aion-platform-client-secret]")?.value || "").trim();
+  if (!client_id || !client_secret) {
+    showToast("Enter the platform App ID and App Secret first.");
+    return;
+  }
+  try {
+    const acting_person_id = await getAionMarketingActingPersonId();
+    await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/platform/${encodeURIComponent(provider)}`, {
+      acting_person_id, client_id, client_secret,
+    });
+    if (scope?.querySelector("[data-aion-platform-client-secret]")) scope.querySelector("[data-aion-platform-client-secret]").value = "";
+    showToast("Platform application saved securely. You can now connect the business account.");
+    await loadAionMarketingConnections(true);
+  } catch (error) {
+    showToast(String(error?.message || error));
+  }
+}
+
+async function syncAionMarketingMetrics(provider, days = 28) {
+  const workspaceId = String(getActiveWorkspaceId() || "workspace");
+  try {
+    const acting_person_id = await getAionMarketingActingPersonId();
+    const result = await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${encodeURIComponent(provider)}/metrics/sync`, {
+      acting_person_id, days,
+    });
+    const summary = result?.summary || {};
+    showToast(`Statistics updated: ${Number(summary.facebook_posts || 0) + Number(summary.instagram_posts || 0)} posts · ${Number(summary.organic_interactions || 0)} interactions.`);
+    await loadAionMarketingConnections(true);
+  } catch (error) {
+    showToast(String(error?.message || error));
+  }
 }
 
 function startAionMarketingConnectionPolling(provider) {
@@ -61097,14 +63137,14 @@ function startAionMarketingConnectionPolling(provider) {
 
 async function examAionMarketingProvider(provider) {
   const workspaceId = String(getActiveWorkspaceId() || "workspace");
-  try { const result = await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}/exam`, { acting_person_id: "desktop_user" }); showToast(`Read-only exam ${result.status}. No publishing or spend occurred.`); await loadAionMarketingConnections(true); }
+  try { const acting_person_id = await getAionMarketingActingPersonId(); const result = await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}/exam`, { acting_person_id }); showToast(`Read-only exam ${result.status}. No publishing or spend occurred.`); await loadAionMarketingConnections(true); }
   catch (error) { showToast(String(error?.message || error)); }
 }
 
 async function disconnectAionMarketingProvider(provider) {
   if (!window.confirm("Disconnect this business account? No content will be deleted from the platform.")) return;
   const workspaceId = String(getActiveWorkspaceId() || "workspace");
-  try { await apiDelete(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}?acting_person_id=desktop_user`); await loadAionMarketingConnections(true); }
+  try { const acting_person_id = await getAionMarketingActingPersonId(); await apiDelete(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}?acting_person_id=${encodeURIComponent(acting_person_id)}`); await loadAionMarketingConnections(true); }
   catch (error) { showToast(String(error?.message || error)); }
 }
 
@@ -61113,7 +63153,7 @@ async function selectAionMarketingAccount(provider, kind, accountId) {
   const workspaceId = String(getActiveWorkspaceId() || "workspace");
   const connection = aionMarketingConnectionState.connections.find((item) => item.provider === provider) || {};
   const selected_accounts = { ...(connection.selected_accounts || {}), [kind]: accountId };
-  try { await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}/select`, { acting_person_id: "desktop_user", selected_accounts }); await loadAionMarketingConnections(true); }
+  try { const acting_person_id = await getAionMarketingActingPersonId(); await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}/select`, { acting_person_id, selected_accounts }); await loadAionMarketingConnections(true); }
   catch (error) { showToast(String(error?.message || error)); }
 }
 
@@ -61123,13 +63163,14 @@ function renderAionMarketingConnectionsCentre() {
     const tier = aionMarketingConnectionState.tiers[item.provider] || item.permission_tier || "analytics";
     const accountKinds = [...new Set((item.accounts || []).map((account) => account.kind || "primary"))];
     const ready = item.connected && Object.keys(item.selected_accounts || {}).length && item.health === "healthy";
+    const connectCopy = getAionMarketingProviderTileCopy(item.provider, item, item.label, tier);
     return `<article style="border:1px solid ${ready ? "#86efac" : "#cbd5e1"};padding:14px;background:#fff;display:grid;gap:10px;min-height:245px;">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:start;"><div style="display:flex;gap:10px;align-items:center;"><div style="width:38px;height:38px;border-radius:10px;background:#eff6ff;color:#1d4ed8;display:grid;place-items:center;font-weight:950;font-size:16px;">${escapeHtml(item.label.slice(0,1))}</div><div><strong>${escapeHtml(item.label)}</strong><div class="helper-text">${ready ? "Ready to use" : item.connected ? "Connected · finish setup" : item.configured ? "Available to connect" : "Not activated in Tessaris yet"}</div></div></div><span class="badge">${ready ? "READY" : item.connected ? "SETUP" : "OFF"}</span></div>
       <div style="font-size:11px;color:#475569;">${item.connected ? "Step 2 of 3: choose the account, then test it." : item.configured ? "Step 1 of 3: securely authorise your business account." : "The Tessaris platform application must be activated before customers can connect."}</div>
       <label class="field-label">What should Tessaris be allowed to do?<select class="input" data-aion-connection-tier="${item.provider}"><option value="analytics" ${tier === "analytics" ? "selected" : ""}>Measure results only</option><option value="organic" ${tier === "organic" ? "selected" : ""}>Measure + publish approved posts</option><option value="advertising" ${tier === "advertising" ? "selected" : ""}>Measure + approved posts + ads</option></select></label>
       ${item.connected && item.accounts?.length ? accountKinds.map((kind) => `<label class="field-label">Choose ${escapeHtml(String(kind).replaceAll("_", " "))}<select class="input" data-aion-connection-account-provider="${item.provider}" data-aion-connection-account-kind="${escapeHtml(kind)}"><option value="">Select account…</option>${item.accounts.filter((account) => (account.kind || "primary") === kind).map((account) => `<option value="${escapeHtml(account.id)}" ${String(item.selected_accounts?.[kind] || "") === String(account.id) ? "selected" : ""}>${escapeHtml(account.name || account.id)}</option>`).join("")}</select></label>`).join("") : ""}
       ${aionMarketingConnectionState.messages[item.provider] ? `<div style="font-size:11px;padding:9px;background:#f8fafc;border-left:3px solid #2563eb;">${escapeHtml(aionMarketingConnectionState.messages[item.provider])}</div>` : ""}
-      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:auto;"><button class="secondary-btn" type="button" data-aion-connect-marketing-provider="${item.provider}">${item.connected ? "Change access" : item.configured ? "Connect account" : "Why unavailable?"}</button>${item.connected ? `<button class="secondary-btn" type="button" data-aion-exam-marketing-provider="${item.provider}">Test connection</button><button class="secondary-btn" type="button" data-aion-disconnect-marketing-provider="${item.provider}">Disconnect</button>` : ""}</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:auto;"><button class="secondary-btn" type="button" data-aion-connect-marketing-provider="${item.provider}" data-aion-marketing-permission-tier="${escapeHtml(tier)}" aria-label="${escapeHtml(connectCopy.actionLabel)}" title="${escapeHtml(connectCopy.actionLabel)}">${item.connected ? "Change connected account" : item.configured ? "Connect to Tessaris" : "Why unavailable?"}</button>${item.connected ? `<button class="secondary-btn" type="button" data-aion-exam-marketing-provider="${item.provider}">Test connection</button><button class="secondary-btn" type="button" data-aion-disconnect-marketing-provider="${item.provider}">Disconnect</button>` : ""}</div>
     </article>`;
   }).join("");
   const readyCount = (aionMarketingConnectionState.connections || []).filter((item) => item.connected && Object.keys(item.selected_accounts || {}).length && item.health === "healthy").length;
@@ -63229,7 +65270,26 @@ if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
       return;
     }
     const connectProvider = event.target?.closest?.("[data-aion-connect-marketing-provider]");
-    if (connectProvider) { event.preventDefault(); event.stopPropagation(); void connectAionMarketingProvider(connectProvider.dataset.aionConnectMarketingProvider); return; }
+    if (connectProvider) {
+      event.preventDefault(); event.stopPropagation();
+      const provider = connectProvider.dataset.aionConnectMarketingProvider;
+      const requestedTier = String(connectProvider.dataset.aionMarketingPermissionTier || "");
+      if (requestedTier) void activateAionMarketingProviderTile(provider, requestedTier);
+      else void connectAionMarketingProvider(provider);
+      return;
+    }
+    const savePlatformCredentials = event.target?.closest?.("[data-aion-save-platform-credentials]");
+    if (savePlatformCredentials) {
+      event.preventDefault(); event.stopPropagation();
+      void saveAionMarketingPlatformCredentials(savePlatformCredentials.dataset.aionSavePlatformCredentials);
+      return;
+    }
+    const syncMarketingMetrics = event.target?.closest?.("[data-aion-sync-marketing-metrics]");
+    if (syncMarketingMetrics) {
+      event.preventDefault(); event.stopPropagation();
+      void syncAionMarketingMetrics(syncMarketingMetrics.dataset.aionSyncMarketingMetrics, 28);
+      return;
+    }
     const examProvider = event.target?.closest?.("[data-aion-exam-marketing-provider]");
     if (examProvider) { event.preventDefault(); event.stopPropagation(); void examAionMarketingProvider(examProvider.dataset.aionExamMarketingProvider); return; }
     const disconnectProvider = event.target?.closest?.("[data-aion-disconnect-marketing-provider]");
@@ -64595,13 +66655,13 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
       if (requestedTab === "local_node") {
         state.activeBusinessContextSubtab = "local_processing";
         window.__aionBusinessContextSubtab = "local_processing";
-        localStorage.setItem("aion.activeBusinessContextSubtab", "local_processing");
+    window.AionDesktopPreferences.set("aion.activeBusinessContextSubtab", "local_processing");
       }
 
       if (tab === "boardroom") {
         state.boardroomViewMode = "spatial";
         window.__aionBoardroomManualViewModeV1 = "spatial";
-        localStorage.setItem("aion.boardroomViewMode.v1", "spatial");
+    window.AionDesktopPreferences.set("aion.boardroomViewMode.v1", "spatial");
       }
 
       state.sidebarExpanded = false;
@@ -64613,17 +66673,17 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
     } catch {}
 
     try {
-      localStorage.setItem("aion.activeTab", tab);
-      localStorage.setItem("aion.activeTab.v1", tab);
-      localStorage.setItem("aion.lastActiveTab.v1", tab);
-      localStorage.setItem("aion.forcedMainTab.v2", tab);
+    window.AionDesktopPreferences.set("aion.activeTab", tab);
+    window.AionDesktopPreferences.set("aion.activeTab.v1", tab);
+    window.AionDesktopPreferences.set("aion.lastActiveTab.v1", tab);
+    window.AionDesktopPreferences.set("aion.forcedMainTab.v2", tab);
 
       /*
        * desktop-cache.js restores this canonical key during hydration.
        * Keep it aligned with the manual sidebar route so a later
        * backend refresh cannot restore the startup page over the user.
        */
-      localStorage.setItem("aionDesktop.activeTab", tab);
+      window.AionDesktopPreferences.set("aionDesktop.activeTab", tab);
     } catch {}
 
     try {
@@ -64631,6 +66691,9 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
       window.__aionO25ABStartupRouteClaimed = true;
       window.__aionO25AYStartupRouteClaimed = true;
       window.__aionManualSidebarRouteClaimedV1 = tab;
+      if (typeof safeAionDesktopPatch === "function") {
+        safeAionDesktopPatch({ activeTab: tab });
+      }
     } catch {}
 
     try {
@@ -64661,7 +66724,7 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
     return true;
   }
 
-  document.addEventListener("click", (event) => {
+  function claimAionCanonicalSidebarRouteV3(event) {
     const candidate = event.target?.closest?.(
       [
         ".aion-main-sidebar [data-tab]",
@@ -64689,7 +66752,13 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
     }
 
     setAionSidebarActiveTabHardV1(route);
-  }, true);
+  }
+
+  /* Claim pointer navigation at window capture before legacy department
+     authorities can keep their old workspace mounted while only changing the
+     sidebar highlight. Keep click support for keyboard activation. */
+  window.addEventListener("pointerdown", claimAionCanonicalSidebarRouteV3, true);
+  document.addEventListener("click", claimAionCanonicalSidebarRouteV3, true);
 
   window.setAionSidebarActiveTabHardV1 = setAionSidebarActiveTabHardV1;
   window.normaliseAionCanonicalRouteV3 = normaliseAionCanonicalRouteV3;
@@ -65604,7 +67673,9 @@ if (!window.__aionO17EMarketingCockpitHandlersInstalled) {
       };
 
       window.__aionO17EMarketingPilotCockpitLastAction = record;
-      window.localStorage?.setItem("aion.departmentIntelligence.marketing", JSON.stringify(record, null, 2));
+      if (typeof updateAionDepartmentIntelligence === "function") {
+        updateAionDepartmentIntelligence("marketing", record);
+      }
     } catch {}
 
     if (typeof safeAionDesktopPatch === "function") {
@@ -76935,6 +79006,7 @@ function setupBackendStatusListener() {
 
       if (firstReady) {
         void (async () => {
+          await window.AionBusinessContainerClient?.whenReady?.();
           await bindWorkspace({
             skipInitialRefresh: true,
             preserveMessage: true,
@@ -76971,17 +79043,53 @@ async function hydrateRecoveredDesktopState() {
   }
 
   try {
+    const canonicalWorkspaceId =
+      window.AionBusinessContainerClient?.resolveBusinessId?.() || "";
+    if (!canonicalWorkspaceId) {
+      desktopStore.patch({
+        workspaceId: "business-not-registered",
+        loading: false,
+      });
+      requestRender();
+      return;
+    }
+    if (shouldDeferOperationalHydrationForFoundationHandoff()) {
+      desktopStore.patch({
+        workspaceId: canonicalWorkspaceId,
+        loading: false,
+      });
+      requestRender();
+      return;
+    }
     const recovery = await loadDesktopRecovery();
     const recoveryPayload =
       recovery && typeof recovery === "object" ? recovery : null;
-
-    const canonicalWorkspaceId = getActiveWorkspaceId();
     const recoveredWorkspaceId = encodeURIComponent(
       typeof getAionBackendBusinessEndpointId === "function"
         ? getAionBackendBusinessEndpointId(canonicalWorkspaceId)
         : canonicalWorkspaceId,
     );
 
+    const discoveryMode = window.aionDesktop?.businessDataDiscoveryEnabled === true;
+    const passiveNodeRequests = discoveryMode
+      ? [
+          Promise.resolve(null),
+          Promise.resolve(null),
+          Promise.resolve(state.status),
+          Promise.resolve({ items: state.runs || [] }),
+          Promise.resolve({ items: state.approvals || [] }),
+          Promise.resolve({ items: state.audit || [] }),
+          Promise.resolve(state.scheduler),
+        ]
+      : [
+          apiGetOptional("/api/local-node/dashboard/summary", null),
+          apiGetOptional("/api/local-node/marketing/stream", null),
+          apiGetOptional("/api/local-node/status", null),
+          apiGetOptional(`/api/local-node/runs?limit=50&compact=true&workspace_id=${recoveredWorkspaceId}`, { items: [] }),
+          apiGetOptional(`/api/local-node/approvals?workspace_id=${recoveredWorkspaceId}`, { items: [] }),
+          apiGetOptional("/api/local-node/audit", { items: [] }),
+          apiGetOptional("/api/local-node/scheduler/status", null),
+        ];
     const requests = await Promise.allSettled([
       apiGetOptional(
         `/api/aion/business/brand-foundation/${recoveredWorkspaceId}`,
@@ -76995,13 +79103,7 @@ async function hydrateRecoveredDesktopState() {
         `/api/aion/business/container-bindings/${recoveredWorkspaceId}`,
         { items: [] },
       ),
-      apiGetOptional("/api/local-node/dashboard/summary", null),
-      apiGetOptional("/api/local-node/marketing/stream", null),
-      apiGetOptional("/api/local-node/status", null),
-      apiGetOptional(`/api/local-node/runs?limit=50&compact=true&workspace_id=${recoveredWorkspaceId}`, { items: [] }),
-      apiGetOptional(`/api/local-node/approvals?workspace_id=${recoveredWorkspaceId}`, { items: [] }),
-      apiGetOptional("/api/local-node/audit", { items: [] }),
-      apiGetOptional("/api/local-node/scheduler/status", null),
+      ...passiveNodeRequests,
     ]);
 
     const [
@@ -77211,6 +79313,23 @@ async function hydrateRecoveredDesktopState() {
     try {
       desktopStore.loadFromStorage();
 
+      if (
+        window.aionDesktop &&
+        typeof window.aionDesktop.getRuntimeInfo === "function"
+      ) {
+        try {
+          const runtime = await window.aionDesktop.getRuntimeInfo();
+          const runtimeApiBase = String(
+            runtime?.apiBase || window.aionDesktop.backendApiBase || "",
+          ).replace(/\/+$/, "");
+          if (/^http:\/\/(?:127\.0\.0\.1|localhost):\d{1,5}$/.test(runtimeApiBase)) {
+            safeAionDesktopPatch({ apiBase: runtimeApiBase });
+          }
+        } catch (_) {
+          // Backend status handling below remains the source of user-visible truth.
+        }
+      }
+
       if (!state.brandFoundationState || !state.brandFoundationState.updatedAt) {
         desktopStore.syncBrandFoundationFromMarketingForm();
         desktopStore.persistCache();
@@ -77238,6 +79357,7 @@ async function hydrateRecoveredDesktopState() {
             ensureLiveAgentSelection();
             requestRender();
 
+            await window.AionBusinessContainerClient?.whenReady?.();
             await bindWorkspace({
               skipInitialRefresh: true,
               preserveMessage: true,
@@ -77523,7 +79643,7 @@ async function hydrateRecoveredDesktopState() {
     };
 
     try {
-      window.localStorage?.setItem(
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(
         "aion.workflow_capsule.autonomy_state.v1",
         JSON.stringify(window.__aionWorkflowCapsuleAutonomyState),
       );
@@ -77550,7 +79670,7 @@ async function hydrateRecoveredDesktopState() {
     };
 
     try {
-      window.localStorage?.setItem(
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(
         "aion.workflow_capsule.autonomy_state.v1",
         JSON.stringify(window.__aionWorkflowCapsuleAutonomyState),
       );
@@ -77979,7 +80099,7 @@ async function hydrateRecoveredDesktopState() {
     document.body.classList.toggle("aion-workflow-dark-glass", Boolean(enabled));
 
     try {
-      localStorage.setItem("aion.workflow.dark_mode.enabled", enabled ? "1" : "0");
+    window.AionDesktopPreferences.set("aion.workflow.dark_mode.enabled", enabled ? "1" : "0");
     } catch (_) {}
 
     document
@@ -82576,7 +84696,7 @@ function safeAionDesktopPatch(payload) {
    The old right-side picker remains in source as a fallback/reference,
    but normal users now use the unified Add Step modal.
    To re-enable old drawer for debugging:
-   localStorage.setItem("aion_dev_legacy_drawers", "1"); location.reload();
+      window.AionDesktopPreferences.set("aion_dev_legacy_drawers", "1"); location.reload();
 */
 (function installAionLegacyDrawerGate() {
   const STYLE_ID = "aion-legacy-drawer-gate";
@@ -82609,7 +84729,7 @@ function safeAionDesktopPatch(payload) {
   document.head.appendChild(style);
 
   window.enableAionLegacyDrawers = function enableAionLegacyDrawers() {
-    window.localStorage?.setItem("aion_dev_legacy_drawers", "1");
+    window.AionDesktopPreferences.set("aion_dev_legacy_drawers", "1");
     document.body?.classList?.add("aion-show-legacy-drawers");
     if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   };
@@ -89978,7 +92098,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     } catch (_) {}
 
     try {
-      window.localStorage?.setItem(
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(
         "aion.workflow.draft.v1",
         JSON.stringify(graph),
       );
@@ -91504,9 +93624,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return;
     }
 
-    try {
-      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
-    } catch (_) {}
+    window.__aionFileCabinetMemoryTree = tree;
   }
 
   function walk(nodes, fn, parent = null) {
@@ -91817,8 +93935,8 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       state.activeTab = "operations_flow";
       window.__aionWorkflowFileCabinetOpen = false;
       window.__aionFileCabinetOpen = false;
-      localStorage.setItem("aion.activeTab", "operations_flow");
-      localStorage.setItem("aionDesktop.activeTab", "operations_flow");
+          window.AionDesktopPreferences.set("aion.activeTab", "operations_flow");
+          window.AionDesktopPreferences.set("aionDesktop.activeTab", "operations_flow");
     } catch (_) {}
     safeMessage(`Loaded workflow: ${graph.name}`, "success");
   }
@@ -91978,12 +94096,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
   function getTree() {
     if (typeof getAionFileCabinetTree === "function") return getAionFileCabinetTree();
 
-    try {
-      const raw = window.localStorage?.getItem("aion.workflow_file_cabinet.v1");
-      return raw ? JSON.parse(raw) : null;
-    } catch (_) {
-      return null;
-    }
+    return window.__aionFileCabinetMemoryTree || null;
   }
 
   function saveTree(tree) {
@@ -91992,9 +94105,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return;
     }
 
-    try {
-      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
-    } catch (_) {}
+    window.__aionFileCabinetMemoryTree = tree;
   }
 
   function walk(nodes, fn, parent = null) {
@@ -92227,12 +94338,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return getAionFileCabinetTree();
     }
 
-    try {
-      const raw = window.localStorage?.getItem("aion.workflow_file_cabinet.v1");
-      return raw ? JSON.parse(raw) : null;
-    } catch (_) {
-      return null;
-    }
+    return window.__aionFileCabinetMemoryTree || null;
   }
 
   function saveTree(tree) {
@@ -92241,9 +94347,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return;
     }
 
-    try {
-      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
-    } catch (_) {}
+    window.__aionFileCabinetMemoryTree = tree;
   }
 
   function walk(nodes, fn, parent = null) {
@@ -92672,12 +94776,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return getAionFileCabinetTree();
     }
 
-    try {
-      const raw = window.localStorage?.getItem("aion.workflow_file_cabinet.v1");
-      return raw ? JSON.parse(raw) : null;
-    } catch (_) {
-      return null;
-    }
+    return window.__aionFileCabinetMemoryTree || null;
   }
 
   function saveTree(tree) {
@@ -92686,9 +94785,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return;
     }
 
-    try {
-      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
-    } catch (_) {}
+    window.__aionFileCabinetMemoryTree = tree;
   }
 
   function walk(nodes, fn, parent = null) {
@@ -92987,12 +95084,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return getAionFileCabinetTree();
     }
 
-    try {
-      const raw = window.localStorage?.getItem("aion.workflow_file_cabinet.v1");
-      return raw ? JSON.parse(raw) : { folders: [] };
-    } catch (_) {
-      return { folders: [] };
-    }
+    return window.__aionFileCabinetMemoryTree || { folders: [] };
   }
 
   function saveTree(tree) {
@@ -93001,9 +95093,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return;
     }
 
-    try {
-      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
-    } catch (_) {}
+    window.__aionFileCabinetMemoryTree = tree;
   }
 
   function createTopFolderWithoutPrompt() {
@@ -93198,21 +95288,16 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
   }
 
   function getWorkspaceId() {
-    const stateWorkspace =
-      window.__AION_DESKTOP_STATE__?.workspaceId ||
-      window.__aionDesktopState?.workspaceId ||
-      window.state?.workspaceId;
-
-    const inputWorkspace =
-      document.querySelector("[data-workspace-id]")?.value ||
-      document.querySelector("#workspaceId")?.value ||
-      document.querySelector('input[name="workspaceId"]')?.value;
-
-    return String(stateWorkspace || inputWorkspace || getAionWorkflowBusinessContainerId()).trim() || getAionWorkflowBusinessContainerId();
+    return String(
+      window.AionBusinessContainerClient?.resolveBusinessId?.() || "",
+    ).trim();
   }
 
   function endpoint() {
-    return `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(getWorkspaceId())}`;
+    const workspaceId = getWorkspaceId();
+    return workspaceId
+      ? `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(workspaceId)}`
+      : "";
   }
 
   function installWhenReady() {
@@ -93235,10 +95320,17 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
     async function hydrateFromBackend() {
       if (backendHydrated || backendHydrating) return;
+      const activeTab = String(window.__AION_DESKTOP_STATE__?.activeTab || window.state?.activeTab || "");
+      const cabinetVisible = activeTab === "file_cabinet" || Boolean(
+        document.querySelector(".aion-workflow-file-cabinet.open, body.aion-file-cabinet-drawer-open-v16")
+      );
+      if (!cabinetVisible) return;
+      const url = endpoint();
+      if (!url) return;
       backendHydrating = true;
 
       try {
-        const res = await fetch(endpoint(), {
+        const res = await fetch(url, {
           method: "GET",
           headers: { Accept: "application/json" },
         });
@@ -93248,6 +95340,28 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
         }
 
         const tree = await res.json();
+
+        const pendingLegacyTree = window.__aionFileCabinetLegacyImportPending
+          ? originalGetTree()
+          : null;
+        const pendingLegacyChildren = pendingLegacyTree?.folders || pendingLegacyTree?.root?.children || [];
+        const backendChildren = tree?.folders || tree?.root?.children || [];
+        if (
+          pendingLegacyTree &&
+          pendingLegacyChildren.length > 0 &&
+          backendChildren.length === 0
+        ) {
+          await persistToBackend(pendingLegacyTree);
+          window.__aionFileCabinetLegacyImportPending = false;
+          backendHydrated = true;
+          window.dispatchEvent(
+            new CustomEvent("aion:workflow-file-cabinet:legacy-migrated", {
+              detail: pendingLegacyTree,
+            }),
+          );
+          return;
+        }
+        window.__aionFileCabinetLegacyImportPending = false;
 
         if (tree && typeof tree === "object" && tree.root && typeof tree.root === "object") {
           originalSaveTree(tree);
@@ -93267,8 +95381,10 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     }
 
     async function persistToBackend(tree) {
+      const url = endpoint();
+      if (!url) return null;
       try {
-        const res = await fetch(endpoint(), {
+        const res = await fetch(url, {
           method: "POST",
           headers: {
             Accept: "application/json",
@@ -93569,13 +95685,8 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
   function getWorkspaceId() {
     return String(
-      window.__AION_DESKTOP_STATE__?.workspaceId ||
-      window.__aionDesktopState?.workspaceId ||
-      window.state?.workspaceId ||
-      document.querySelector("[data-workspace-id]")?.value ||
-      document.querySelector("#workspaceId")?.value ||
-      getAionWorkflowBusinessContainerId()
-    ).trim() || getAionWorkflowBusinessContainerId();
+      window.AionBusinessContainerClient?.resolveBusinessId?.() || "",
+    ).trim();
   }
 
   function normalise(tree) {
@@ -93610,8 +95721,10 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       throw new Error("Workflow file cabinet API not ready");
     }
 
+    const workspaceId = getWorkspaceId();
+    if (!workspaceId) return null;
     const payload = normalise(api.getTree());
-    const url = `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(getWorkspaceId())}`;
+    const url = `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(workspaceId)}`;
 
     console.log("[AION CABINET FINAL SAVE V5] posting live tree", {
       url,
@@ -93867,13 +95980,8 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
   function getWorkspaceId() {
     return String(
-      window.__AION_DESKTOP_STATE__?.workspaceId ||
-      window.__aionDesktopState?.workspaceId ||
-      window.state?.workspaceId ||
-      document.querySelector("[data-workspace-id]")?.value ||
-      document.querySelector("#workspaceId")?.value ||
-      getAionWorkflowBusinessContainerId()
-    ).trim() || getAionWorkflowBusinessContainerId();
+      window.AionBusinessContainerClient?.resolveBusinessId?.() || "",
+    ).trim();
   }
 
   function normalise(tree) {
@@ -93906,7 +96014,15 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     const api = window.__aionWorkflowFileCabinetApi;
     if (!api || typeof api.saveTree !== "function") return null;
 
-    const url = `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(getWorkspaceId())}`;
+    const activeTab = String(window.__AION_DESKTOP_STATE__?.activeTab || window.state?.activeTab || "");
+    const cabinetVisible = activeTab === "file_cabinet" || Boolean(
+      document.querySelector(".aion-workflow-file-cabinet.open, body.aion-file-cabinet-drawer-open-v16")
+    );
+    if (!cabinetVisible) return null;
+
+    const workspaceId = getWorkspaceId();
+    if (!workspaceId) return null;
+    const url = `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(workspaceId)}`;
 
     const res = await fetch(url, {
       method: "GET",
@@ -93917,7 +96033,39 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       throw new Error(`Workflow cabinet hydrate failed ${res.status}: ${await res.text()}`);
     }
 
-    const backendTree = normalise(await res.json());
+    let backendTree = normalise(await res.json());
+    const pendingLegacyTree = window.__aionFileCabinetLegacyImportPending
+      ? window.__aionFileCabinetMemoryTree
+      : null;
+    const pendingLegacyChildren = pendingLegacyTree?.folders || pendingLegacyTree?.root?.children || [];
+    const backendChildren = backendTree?.folders || backendTree?.root?.children || [];
+
+    if (
+      pendingLegacyTree &&
+      pendingLegacyChildren.length > 0 &&
+      backendChildren.length === 0
+    ) {
+      const migrationResponse = await fetch(url, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(normalise(pendingLegacyTree)),
+      });
+      if (!migrationResponse.ok) {
+        throw new Error(
+          `Workflow cabinet legacy migration failed ${migrationResponse.status}: ${await migrationResponse.text()}`,
+        );
+      }
+      backendTree = normalise(await migrationResponse.json());
+      window.dispatchEvent(
+        new CustomEvent("aion:workflow-file-cabinet:legacy-migrated", {
+          detail: backendTree,
+        }),
+      );
+    }
+    window.__aionFileCabinetLegacyImportPending = false;
 
     api.saveTree(backendTree);
     window.__aionWorkflowFileCabinetBackendTree = backendTree;
@@ -93954,11 +96102,14 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     api.hydrateBackendAuthoritative = hydrateBackendAuthoritative;
     window.__hydrateAionWorkflowCabinetFromBackend = hydrateBackendAuthoritative;
 
-    window.setTimeout(() => {
-      hydrateBackendAuthoritative().catch((err) => {
-        console.warn("[AION] Workflow file cabinet backend-authoritative hydrate v8 failed:", err);
-      });
-    }, 250);
+    document.addEventListener("click", (event) => {
+      if (!event.target?.closest?.('[data-tab="file_cabinet"], [data-aion-sitewide-file-cabinet-tab="true"]')) return;
+      window.setTimeout(() => {
+        hydrateBackendAuthoritative().catch((err) => {
+          console.warn("[AION] Workflow file cabinet backend-authoritative hydrate v8 failed:", err);
+        });
+      }, 0);
+    }, true);
   }
 
   installWhenReady();
@@ -102055,8 +104206,6 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     glyphs: window.__aionBackendWorkflowGlyphs,
   });
 
-  window.setTimeout(() => refreshBackendGlyphs({ silent: true }), 500);
-
   console.log("[AION] Master Glyph Library Backend API Bridge v1 installed");
 })();
 
@@ -104167,8 +106316,8 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
         if (result.base) {
           try {
-            localStorage.setItem("aion.apiBase", result.base);
-            localStorage.setItem("aion.api_base", result.base);
+            window.AionDesktopPreferences.set("aion.apiBase", result.base);
+            window.AionDesktopPreferences.set("aion.api_base", result.base);
           } catch (_) {}
         }
 
@@ -104231,9 +106380,6 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
         : [],
     };
   };
-
-  window.setTimeout(() => hardRefreshBackendGlyphs({ silent: true }), 300);
-  window.setTimeout(() => hardRefreshBackendGlyphs({ silent: true }), 1200);
 
   console.log("[AION] Backend Glyph API Hard Refresh v2 installed");
 })();
@@ -105691,8 +107837,8 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   function forceLocalApiBase() {
     const preferred = cleanBase(localStorage.getItem("aion.apiBase")) || LOCAL_BASES[0];
 
-    localStorage.setItem("aion.apiBase", preferred);
-    localStorage.setItem("aion.api_base", preferred);
+    window.AionDesktopPreferences.set("aion.apiBase", preferred);
+    window.AionDesktopPreferences.set("aion.api_base", preferred);
 
     window.__AION_API_BASE__ = preferred;
     window.__aionApiBase = preferred;
@@ -105770,8 +107916,8 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
           glyph_codes: window.__aionBackendWorkflowGlyphs.map((g) => g.glyph_code),
         };
 
-        localStorage.setItem("aion.apiBase", result.base);
-        localStorage.setItem("aion.api_base", result.base);
+        window.AionDesktopPreferences.set("aion.apiBase", result.base);
+        window.AionDesktopPreferences.set("aion.api_base", result.base);
         window.__AION_API_BASE__ = result.base;
         window.__aionApiBase = result.base;
         window.apiBase = result.base;
@@ -105932,8 +108078,8 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   function forceApiBase() {
     const base = "http://127.0.0.1:8080";
     try {
-      localStorage.setItem("aion.apiBase", base);
-      localStorage.setItem("aion.api_base", base);
+      window.AionDesktopPreferences.set("aion.apiBase", base);
+      window.AionDesktopPreferences.set("aion.api_base", base);
     } catch (_) {}
 
     window.__AION_API_BASE__ = base;
@@ -110938,16 +113084,16 @@ function renderAionMasterGlyphCanvasPanel() {
     const id = String(tabId || "").trim();
     if (!id) return;
     try {
-      const parsed = JSON.parse(localStorage.getItem(CLOSED_TABS_KEY) || "[]");
+      const parsed = JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString(CLOSED_TABS_KEY) || "[]");
       const ids = new Set(Array.isArray(parsed) ? parsed.map(String) : []);
       ids.add(id);
-      localStorage.setItem(CLOSED_TABS_KEY, JSON.stringify([...ids]));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(CLOSED_TABS_KEY, JSON.stringify([...ids]));
     } catch (_) {}
   }
 
   function recentWorkflowTabs() {
     try {
-      const parsed = JSON.parse(localStorage.getItem(RECENT_TABS_KEY) || "[]");
+      const parsed = JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString(RECENT_TABS_KEY) || "[]");
       return Array.isArray(parsed) ? parsed.filter(Boolean).slice(0, 5) : [];
     } catch (_) {
       return [];
@@ -110964,17 +113110,17 @@ function renderAionMasterGlyphCanvasPanel() {
       graph: clone(tab.graph || {}),
       closed_at: new Date().toISOString(),
     });
-    try { localStorage.setItem(RECENT_TABS_KEY, JSON.stringify(recent.slice(0, 5))); } catch (_) {}
+    try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(RECENT_TABS_KEY, JSON.stringify(recent.slice(0, 5))); } catch (_) {}
   }
 
   function forgetClosedTab(tabId) {
     const id = String(tabId || "").trim();
     if (!id) return;
     try {
-      const parsed = JSON.parse(localStorage.getItem(CLOSED_TABS_KEY) || "[]");
+      const parsed = JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString(CLOSED_TABS_KEY) || "[]");
       const ids = new Set(Array.isArray(parsed) ? parsed.map(String) : []);
       ids.delete(id);
-      localStorage.setItem(CLOSED_TABS_KEY, JSON.stringify([...ids]));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(CLOSED_TABS_KEY, JSON.stringify([...ids]));
     } catch (_) {}
   }
 
@@ -111025,7 +113171,7 @@ function renderAionMasterGlyphCanvasPanel() {
     }));
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      window.AionBusinessContainerClient.writeTrainAgentWorkflowTabsString(JSON.stringify({
         active_id: window.__aionActiveWorkflowTabId || tabs[0]?.id || "",
         tabs,
         allow_empty: window.__aionWorkflowTabsAllowEmpty === true && tabs.length === 0,
@@ -111044,7 +113190,7 @@ function renderAionMasterGlyphCanvasPanel() {
     }
 
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = window.AionBusinessContainerClient.readTrainAgentWorkflowTabsString();
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed.tabs)) {
@@ -116383,7 +118529,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
   function readAionGoalEngineMultiAgentReplayHistoryV1() {
     try {
       if (typeof window === "undefined" || !window.localStorage) return [];
-      const raw = window.localStorage.getItem(AION_GOAL_ENGINE_MULTI_AGENT_REPLAY_HISTORY_V1);
+      const raw = window.AionBusinessContainerClient.readBusinessWorkingStateString(AION_GOAL_ENGINE_MULTI_AGENT_REPLAY_HISTORY_V1);
       const parsed = raw ? JSON.parse(raw) : [];
       return Array.isArray(parsed) ? parsed : [];
     } catch (_err) {
@@ -116395,7 +118541,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
     try {
       if (typeof window === "undefined" || !window.localStorage) return false;
       const safeHistory = Array.isArray(history) ? history.slice(0, 25) : [];
-      window.localStorage.setItem(
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(
         AION_GOAL_ENGINE_MULTI_AGENT_REPLAY_HISTORY_V1,
         JSON.stringify(safeHistory),
       );
@@ -121614,7 +123760,13 @@ async function openAionPhase17KGmailOAuth() {
     if (typeof render === "function") render();
 
     if (connectUrl) {
-      window.open(connectUrl, "_blank");
+      // Google passkeys and password managers are unreliable inside an Electron
+      // child window. Open OAuth in the user's normal browser so the complete
+      // Google sign-in flow (passkey, password, phone prompt, etc.) is available.
+      const opened = await window.aionDesktop?.openExternalUrl?.(connectUrl);
+      if (!(opened === true || opened?.ok === true)) {
+        window.open(connectUrl, "_blank", "noopener,noreferrer");
+      }
       pollGmailConnectedAfterOAuth();
     }
 
@@ -129133,7 +131285,7 @@ html body .aion-pilot-tracked-change-strip ul {
         });
       }
 
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = window.AionBusinessContainerClient.readTrainAgentWorkflowTabsString();
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed.tabs)) {
@@ -129141,7 +131293,7 @@ html body .aion-pilot-tracked-change-strip ul {
             ...tab,
             closable: true,
           }));
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+          window.AionBusinessContainerClient.writeTrainAgentWorkflowTabsString(JSON.stringify(parsed));
         }
       }
 
@@ -129229,7 +131381,7 @@ html body .aion-pilot-tracked-change-strip ul {
   function persistTabs() {
     try {
       const tabs = Array.isArray(window.__aionWorkflowTabs) ? window.__aionWorkflowTabs : [];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      window.AionBusinessContainerClient.writeTrainAgentWorkflowTabsString(JSON.stringify({
         active_id: window.__aionActiveWorkflowTabId || tabs[0]?.id || "",
         tabs: tabs.map((tab) => ({
           id: tab.id,
@@ -131028,6 +133180,7 @@ function renderAionVaultBusinessIntegrationsV1() {
     ["marketing", "Marketing campaigns", "Audience management and bulk campaigns."],
     ["transactional_email", "Customer messages", "Reliable confirmations, reminders, job updates and documents."],
     ["sms", "SMS", "Short, time-sensitive customer and field-team messages."],
+    ["payments", "Payments", "Card, wallet, point-of-sale and Direct Debit providers for invoice payment requests."],
     ["routing", "Routes and travel", "Travel time, route matrices and multi-stop planning."],
     ["accounting", "Accounting ledgers", "Approved invoice and payment posting; tax remains accountant-controlled."],
     ["crm", "Sales CRM", "Contacts, organisations, opportunities and customer history."],
@@ -131045,20 +133198,22 @@ function renderAionVaultBusinessIntegrationsV1() {
       ? "Connected"
       : selected.configured
         ? "Configured · verify"
+        : selected.category === "payments"
+          ? "Developer setup required"
         : selected.implementation === "adapter_ready"
           ? "Ready to connect"
           : "Planned";
-    const canConnectHere = selected.provider_id === "gmail" || selected.provider_id === "hubspot";
+    const canConnectHere = selected.provider_id === "gmail" || selected.provider_id === "hubspot" || selected.category === "payments";
     const action = selected.connected
       ? `<button type="button" class="secondary-btn" disabled>Connected</button>`
       : canConnectHere
-        ? `<button type="button" class="primary-btn" data-aion-vault-integration-connect-provider="${escapeHtml(selected.provider_id)}">Connect</button>`
+        ? `<button type="button" class="primary-btn" data-aion-vault-integration-connect-provider="${escapeHtml(selected.provider_id)}">${selected.category === "payments" && !selected.configured ? "Developer setup" : "Connect"}</button>`
         : selected.available_to_connect
           ? `<button type="button" class="secondary-btn" disabled title="Provider setup is not installed on the Connections page yet">Connect</button>`
           : `<button type="button" class="secondary-btn" disabled>Planned</button>`;
     return `<article class="aion-vault-integration-group" data-aion-vault-integration-category="${escapeHtml(id)}"><header><strong>${escapeHtml(title)}</strong><p>${escapeHtml(note)}</p></header><div class="aion-vault-integration-picker"><label><span>Provider</span><select data-aion-vault-integration-provider-select="${escapeHtml(id)}">${items.map((provider) => `<option value="${escapeHtml(provider.provider_id)}" ${provider.provider_id === selected.provider_id ? "selected" : ""}>${escapeHtml(provider.label)}${provider.connected ? " · Connected" : provider.recommended ? " · Recommended" : ""}</option>`).join("")}</select></label><div class="aion-vault-integration-selection"><strong>${escapeHtml(selected.label)}</strong><span class="badge">${escapeHtml(status)}</span><p>${escapeHtml(selected.purpose)}</p></div><div class="aion-vault-integration-action">${action}</div></div></article>`;
   }).join("");
-  return `<section class="operations-agents-card aion-vault-canonical-panel aion-vault-business-integrations" data-aion-vault-business-integrations="true"><div class="operations-agents-card-head"><div><div class="eyebrow">Business connections</div><h2>Choose services by purpose</h2><p class="muted">Mailbox, marketing and transactional delivery are separate jobs. Tessaris only calls a provider after its secure connection and approval boundary are verified.</p></div><button type="button" class="secondary-btn" data-aion-vault-integrations-refresh="true">${state.loading ? "Checking…" : "Refresh"}</button></div>${state.error ? `<div class="marketing-error">${escapeHtml(state.error)}</div>` : ""}<div class="aion-vault-integration-groups">${groups || `<p class="muted">${state.loading ? "Loading provider catalogue…" : "No provider catalogue is available."}</p>`}</div><div class="aion-vault-integration-boundary"><strong>Payments remain deferred.</strong><span>Connecting an app does not enable live sends, ledger writes or customer notifications. Those actions still require explicit authority and a provider receipt.</span></div></section>`;
+  return `<section class="operations-agents-card aion-vault-canonical-panel aion-vault-business-integrations" data-aion-vault-business-integrations="true"><div class="operations-agents-card-head"><div><div class="eyebrow">Business connections</div><h2>Choose services by purpose</h2><p class="muted">Mailbox, marketing, customer delivery and payment providers are separate jobs. Tessaris only calls a provider after its secure connection and approval boundary are verified.</p></div><button type="button" class="secondary-btn" data-aion-vault-integrations-refresh="true">${state.loading ? "Checking…" : "Refresh"}</button></div>${state.error ? `<div class="marketing-error">${escapeHtml(state.error)}</div>` : ""}<div class="aion-vault-integration-groups">${groups || `<p class="muted">${state.loading ? "Loading provider catalogue…" : "No provider catalogue is available."}</p>`}</div><div class="aion-vault-integration-boundary"><strong>Provider-owned checkout.</strong><span>Tessaris creates or links to provider-hosted payment pages and never stores customer card details. Payment is marked received only after a verified provider event or bank reconciliation.</span></div></section>`;
 }
 
 if (!window.__aionVaultBusinessIntegrationsHandlersV1) {
@@ -131073,7 +133228,7 @@ if (!window.__aionVaultBusinessIntegrationsHandlersV1) {
     };
     requestRender?.();
   }, true);
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", async (event) => {
     const refresh = event.target?.closest?.('[data-aion-vault-integrations-refresh="true"]');
     if (refresh) {
       event.preventDefault();
@@ -131088,25 +133243,31 @@ if (!window.__aionVaultBusinessIntegrationsHandlersV1) {
       if (typeof openAionPhase17KGmailOAuth === "function") void openAionPhase17KGmailOAuth();
       return;
     }
-    if (providerId === "hubspot") void connectAionVaultHubSpotV1();
+    if (providerId === "hubspot") { void connectAionVaultHubSpotV1(); return; }
+    if (["stripe", "paypal", "square", "gocardless", "revolut", "sumup", "mollie", "braintree", "worldpay", "adyen", "checkout_com"].includes(providerId)) {
+      try {
+        const response = await fetch(`${getAionPhase17KApiBase()}/api/vault/payment-providers/${encodeURIComponent(providerId)}/connect-url`, { headers: { Accept: "application/json" } });
+        const payload = await response.json().catch(() => ({}));
+        if (payload.connect_url) {
+          const opened = await window.aionDesktop?.openExternalUrl?.(payload.connect_url);
+          if (!opened) window.open(payload.connect_url, "_blank", "noopener,noreferrer");
+          return;
+        }
+        if (payload.docs_url) {
+          const opened = await window.aionDesktop?.openExternalUrl?.(payload.docs_url);
+          if (!opened) window.open(payload.docs_url, "_blank", "noopener,noreferrer");
+        }
+        showToast?.(payload.reason === "paypal_partner_referral_required" ? "PayPal requires Tessaris partner approval before seller onboarding can be enabled." : "Developer credentials are required before this provider can be connected.");
+      } catch (error) {
+        showToast?.(error?.message || "The payment connection could not be opened.");
+      }
+    }
   }, true);
 }
 
 function renderVaultCredentialsSurface() {
   return `
     <div class="operations-agents-page vault-classic-page aion-vault-canonical-page aion-connections-page">
-      <div class="operations-agents-hero aion-vault-canonical-hero">
-        <div>
-          <div class="eyebrow">Tessaris · Connections</div>
-          <h1>Connections</h1>
-          <p class="muted">Connect the AI models and business services Tessaris is allowed to use. Credentials remain securely protected in the local Vault.</p>
-        </div>
-        <div class="aion-vault-hero-status" aria-label="Connection operating boundaries">
-          <span>Local-first</span>
-          <span>Approval gated</span>
-        </div>
-      </div>
-
       ${renderAppTabs()}
 
       ${typeof window.aionRenderOriginalBusinessMapGovernanceV2 === "function"
@@ -131250,6 +133411,21 @@ function renderBusinessContextEditableSelect(name, label, value, options = []) {
   `;
 }
 
+function saveBusinessPaymentSettingsFromForm({ rerender = true } = {}) {
+  let current = {};
+  try { current = JSON.parse(window.localStorage?.getItem("tessaris.businessPaymentSettings.v1") || "{}") || {}; } catch { current = {}; }
+  document.querySelectorAll("[data-aion-payment-setting-field]").forEach((field) => {
+    const key = String(field.getAttribute("data-aion-payment-setting-field") || "").trim();
+    if (key) current[key] = String(field.value || "").trim();
+  });
+  current.default_deposit_percent_explicit = true;
+  current.updated_at = new Date().toISOString();
+  window.AionBusinessContainerClient.writeBusinessWorkingStateString("tessaris.businessPaymentSettings.v1", JSON.stringify(current));
+  if (typeof showToast === "function") showToast("Payment settings saved on this device and kept out of Board analysis.");
+  if (rerender) { if (typeof requestRender === "function") requestRender(); else if (typeof render === "function") render(); }
+  return current;
+}
+
 
 /* AION SURGICAL RESTORE 20260629: getAionBusinessContextSubtab */
 function getAionBusinessContextSubtab() {
@@ -131265,7 +133441,7 @@ function getAionBusinessContextSubtab() {
     try {
       window.__aionBusinessContextSubtab = normalised;
       state.activeBusinessContextSubtab = normalised;
-      window.localStorage?.setItem("aion.activeBusinessContextSubtab", normalised);
+      window.AionDesktopPreferences.set("aion.activeBusinessContextSubtab", normalised);
     } catch {}
   }
   return normalised;
@@ -131277,6 +133453,8 @@ function renderBusinessContextSubtabs() {
   const active = getAionBusinessContextSubtab();
   const tabs = [
     ["key_business_info", "Key Business Info"],
+    ["financial_information", "Financial Information"],
+    ["terms_conditions", "Terms & Conditions"],
     ["brand_foundation", "Brand Foundation"],
     ["audience", "Audience"],
     ["design_system", "Business Design System"],
@@ -132215,6 +134393,21 @@ if (!window.__aionBusinessAudienceHandlersInstalled) {
 /* AION SURGICAL RESTORE 20260629: renderBusinessContextSurface */
 function renderBusinessContextSurface() {
   const foundation = getEditableBusinessContextFoundation();
+  let paymentSettings = {};
+  try { paymentSettings = JSON.parse(window.localStorage?.getItem("tessaris.businessPaymentSettings.v1") || "{}") || {}; } catch { paymentSettings = {}; }
+  /* Earlier builds silently seeded 50%. Clear that legacy assumption once.
+     A percentage is retained only after the user explicitly saves the field. */
+  if (
+    String(paymentSettings.default_deposit_percent || "").trim() === "50" &&
+    paymentSettings.default_deposit_percent_explicit !== true &&
+    paymentSettings.default_deposit_percent_explicit !== "true"
+  ) {
+    paymentSettings.default_deposit_percent = "";
+    paymentSettings.legacy_default_deposit_cleared = true;
+    try {
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("tessaris.businessPaymentSettings.v1", JSON.stringify(paymentSettings));
+    } catch {}
+  }
   const businessName = foundation.business_name || "Business";
   const businessId = normaliseAionBusinessId(businessName);
   const activeSubtab = getAionBusinessContextSubtab();
@@ -132223,6 +134416,90 @@ function renderBusinessContextSurface() {
 
   if (activeSubtab === "local_processing") {
     subtabHtml = renderBusinessLocalProcessingSubtabContent();
+  } else if (activeSubtab === "financial_information") {
+    const paymentControl = (html) => html.replaceAll("data-aion-business-context-field", "data-aion-payment-setting-field");
+    const paymentProviders = [
+      ["stripe", "Stripe", "Cards, Apple Pay and Google Pay"],
+      ["paypal", "PayPal", "PayPal wallet and eligible cards"],
+      ["square", "Square", "Online checkout and point of sale"],
+      ["gocardless", "GoCardless", "Direct Debit and Pay by Bank"],
+      ["revolut", "Revolut Business", "Cards, Revolut Pay, wallets and Pay by Bank"],
+      ["sumup", "SumUp", "Online card payments for SumUp businesses"],
+      ["mollie", "Mollie", "European cards, bank methods and payment links"],
+      ["braintree", "Braintree", "Cards, PayPal and digital wallets"],
+      ["worldpay", "Worldpay", "Hosted cards, wallets and alternative payments"],
+      ["adyen", "Adyen", "Enterprise and multi-region payments"],
+      ["checkout_com", "Checkout.com", "Enterprise cards and local payment methods"],
+    ];
+    subtabHtml = `
+      <section class="panel large-panel aion-business-panel" data-aion-business-financial-information="true">
+        <div class="aion-business-section-head" style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;">
+          <div>
+            <div class="panel-kicker">PAYMENTS</div>
+            <div class="panel-title">Financial information</div>
+            <p class="muted" style="margin-top:6px;max-width:800px;">Save how customers can pay. Bank details are placed on approved customer documents only when bank transfer is selected.</p>
+          </div>
+          <button type="button" class="primary-btn" data-aion-payment-settings-save>Save payment settings</button>
+        </div>
+        <div class="aion-business-form-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px;">
+          ${paymentControl(renderBusinessContextEditableSelect("default_payment_method", "Default payment method", paymentSettings.default_payment_method || "bank_transfer", [["bank_transfer","Bank transfer"],["stripe","Stripe"],["paypal","PayPal"],["square","Square"],["gocardless","GoCardless"],["revolut","Revolut Business"],["sumup","SumUp"],["mollie","Mollie"],["braintree","Braintree"],["worldpay","Worldpay"],["adyen","Adyen"],["checkout_com","Checkout.com"],["customer_choice","Let the customer choose"]]))}
+          ${paymentControl(renderBusinessContextEditableInput("payment_currency", "Payment currency", paymentSettings.payment_currency || "EUR", "EUR"))}
+          ${paymentControl(renderBusinessContextEditableInput("bank_account_name", "Account name", paymentSettings.bank_account_name, "Name on the bank account"))}
+          ${paymentControl(renderBusinessContextEditableInput("bank_name", "Bank name", paymentSettings.bank_name, "Bank name"))}
+          ${paymentControl(renderBusinessContextEditableInput("bank_sort_code", "Sort code / routing number", paymentSettings.bank_sort_code, "Sort code or routing number"))}
+          ${paymentControl(renderBusinessContextEditableInput("bank_account_number", "Account number", paymentSettings.bank_account_number, "Account number"))}
+          ${paymentControl(renderBusinessContextEditableInput("bank_iban", "IBAN", paymentSettings.bank_iban, "IBAN for international transfers"))}
+          ${paymentControl(renderBusinessContextEditableInput("bank_bic_swift", "BIC / SWIFT", paymentSettings.bank_bic_swift, "BIC or SWIFT code"))}
+          ${paymentControl(renderBusinessContextEditableInput("payment_reference_template", "Payment reference", paymentSettings.payment_reference_template || "{quote_number}", "{quote_number}"))}
+          ${paymentControl(renderBusinessContextEditableInput("default_deposit_percent", "Default deposit %", paymentSettings.default_deposit_percent || "", "e.g. 25"))}
+          ${paymentControl(renderBusinessContextEditableInput("stripe_payment_link", "Stripe checkout link", paymentSettings.stripe_payment_link || "", "https://buy.stripe.com/..."))}
+          ${paymentControl(renderBusinessContextEditableInput("paypal_payment_link", "PayPal checkout link", paymentSettings.paypal_payment_link || "", "PayPal checkout or payment link"))}
+          ${paymentControl(renderBusinessContextEditableInput("square_payment_link", "Square checkout link", paymentSettings.square_payment_link || "", "https://square.link/..."))}
+          ${paymentControl(renderBusinessContextEditableInput("gocardless_payment_link", "GoCardless payment link", paymentSettings.gocardless_payment_link || "", "GoCardless Billing Request link"))}
+          ${paymentControl(renderBusinessContextEditableInput("revolut_payment_link", "Revolut checkout link", paymentSettings.revolut_payment_link || "", "Revolut hosted checkout link"))}
+          ${paymentControl(renderBusinessContextEditableInput("sumup_payment_link", "SumUp checkout link", paymentSettings.sumup_payment_link || "", "SumUp hosted checkout link"))}
+          ${paymentControl(renderBusinessContextEditableInput("mollie_payment_link", "Mollie payment link", paymentSettings.mollie_payment_link || "", "Mollie hosted payment link"))}
+          ${paymentControl(renderBusinessContextEditableInput("braintree_payment_link", "Braintree checkout link", paymentSettings.braintree_payment_link || "", "Braintree hosted checkout link"))}
+          ${paymentControl(renderBusinessContextEditableInput("worldpay_payment_link", "Worldpay payment link", paymentSettings.worldpay_payment_link || "", "Worldpay hosted payment page"))}
+          ${paymentControl(renderBusinessContextEditableInput("adyen_payment_link", "Adyen payment link", paymentSettings.adyen_payment_link || "", "Adyen Pay by Link URL"))}
+          ${paymentControl(renderBusinessContextEditableInput("checkout_com_payment_link", "Checkout.com payment link", paymentSettings.checkout_com_payment_link || "", "Checkout.com hosted payment link"))}
+        </div>
+        <div class="notice" style="margin-top:16px;"><strong>Automatic reference:</strong> use <code>{quote_number}</code> and Tessaris will replace it with the numbered quotation, such as Q-2026-0001.</div>
+        <section style="margin-top:20px;padding:18px;border:1px solid rgba(17,17,17,.14);background:#fff;">
+          <div class="panel-kicker">ONLINE PAYMENT CONNECTIONS</div>
+          <div class="panel-title" style="font-size:20px;">Choose the providers this business uses</div>
+          <p class="muted" style="margin-top:6px;">Connect providers centrally under Connections. A saved hosted-payment link can be used while full OAuth and webhook setup is being completed.</p>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;">
+            ${paymentProviders.map(([id, label, note]) => { const linked = Boolean(paymentSettings[`${id}_payment_link`]); return `<article style="padding:14px;border:1px solid #d9e2ec;border-left:4px solid ${linked ? "#14804a" : "#2563eb"};display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;"><div><strong>${label}</strong><p class="muted" style="margin:4px 0 0;">${note}</p><small>${linked ? "Payment link saved" : "Not connected"}</small></div><button type="button" class="secondary-btn" data-aion-open-stripe-connection>${linked ? "Manage" : "Connect"}</button></article>`; }).join("")}
+          </div>
+          <small style="display:block;margin-top:12px;">Tessaris never stores customer card details. Payment is confirmed by the provider or by bank reconciliation.</small>
+        </section>
+      </section>`;
+  } else if (activeSubtab === "terms_conditions") {
+    subtabHtml = `
+      <section class="panel large-panel aion-business-panel" data-aion-business-terms="true">
+        <div class="aion-business-section-head" style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;">
+          <div>
+            <div class="panel-kicker">CUSTOMER DOCUMENTS</div>
+            <div class="panel-title">Terms &amp; Conditions</div>
+            <p class="muted" style="margin-top:6px;max-width:780px;">Save the standard wording Tessaris may place on draft quotations and invoices. It remains editable on an individual document before anything is sent.</p>
+          </div>
+          <button type="button" class="primary-btn" data-aion-business-context-save>Save terms</button>
+        </div>
+        <div class="aion-business-form-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px;">
+          ${renderBusinessContextEditableSelect("include_terms_on_quotes", "Include terms on new quotes", foundation.include_terms_on_quotes || "yes", [["yes","Yes — include by default"],["no","No — add when needed"]])}
+          ${renderBusinessContextEditableInput("quote_valid_days", "Default quote validity", foundation.quote_valid_days || "30", "Days")}
+          ${renderBusinessContextEditableTextarea("quotation_terms", "Quotation terms", foundation.quotation_terms, "Scope changes require a revised written quotation. State deposits, validity, exclusions, cancellation and acceptance terms here.")}
+          ${renderBusinessContextEditableTextarea("invoice_terms", "Invoice and payment terms", foundation.invoice_terms, "Payment due dates, accepted methods, late-payment wording and billing contacts.")}
+          ${renderBusinessContextEditableInput("quote_email_subject", "Quote email subject", foundation.quote_email_subject || "Your quotation {quote_number}", "Your quotation {quote_number}")}
+          <div class="aion-quote-email-template-editor" style="display:grid;gap:9px;">
+            ${renderBusinessContextEditableTextarea("quote_email_body", "Quote email message", String(foundation.quote_email_body || "Hi {customer_name},\n\nPlease see attached your quotation {quote_number}.\n\nKind regards,\n{business_name}").replace(/^\*\*([\s\S]*)\*\*$/, "$1"), "Write your rough email here. Spelling and wording do not need to be perfect.")}
+            <button type="button" class="secondary-btn" data-aion-rewrite-quote-email style="justify-self:start;min-height:42px;padding:9px 14px;border-color:#2f66e9;color:#1746aa;background:#eef4ff;">Rewrite email professionally with SI</button>
+            <small class="muted" data-aion-quote-email-rewrite-status>Uses the selected local model. It keeps your template placeholders and leaves the result editable. Nothing is saved until you choose Save terms.</small>
+          </div>
+        </div>
+        <div class="notice" style="margin-top:16px;">These are reusable defaults, not locked text. Use <code>{customer_name}</code>, <code>{quote_number}</code> and <code>{business_name}</code> in the email template. The person preparing a quote can edit everything before creating an email draft.</div>
+      </section>`;
   } else if (activeSubtab === "brand_foundation") {
     subtabHtml = renderBusinessBrandFoundationSubtabContent();
   } else if (activeSubtab === "audience") {
@@ -132246,6 +134523,13 @@ function renderBusinessContextSurface() {
             data-aion-business-context-save
             style="min-height:42px;"
           >Save Business Context</button>
+        </div>
+
+        <div class="aion-business-logo-upload" style="display:flex;align-items:center;gap:16px;margin-top:18px;padding:16px;border:1px solid rgba(17,17,17,.14);border-radius:12px;background:#fff;">
+          ${foundation.quote_logo_data_url ? `<img src="${escapeHtml(foundation.quote_logo_data_url)}" alt="Business logo" style="width:88px;height:72px;object-fit:contain;border:1px solid rgba(17,17,17,.12);">` : `<div style="width:88px;height:72px;border:1px dashed #2f66e9;background:#f8fbff;"></div>`}
+          <div style="display:grid;gap:5px;flex:1;"><strong>Quotation logo</strong><span class="muted">Shown on quotations and customer documents. If it is blank, no placeholder logo is shown.</span></div>
+          <label class="secondary-btn" style="position:relative;overflow:hidden;cursor:pointer;">${foundation.quote_logo_data_url ? "Replace logo" : "Upload logo"}<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" data-aion-business-logo-upload style="position:absolute;inset:0;opacity:0;cursor:pointer;"></label>
+          ${foundation.quote_logo_data_url ? `<button type="button" class="secondary-btn" data-aion-business-logo-remove>Remove</button>` : ""}
         </div>
 
         <div class="aion-business-form-grid" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
@@ -132394,6 +134678,25 @@ function normaliseSmallBusinessFoundationDraft(raw = {}) {
     pricing_notes: String(draft.pricing_notes || "").trim(),
     brand_notes: String(draft.brand_notes || "").trim(),
     reviews_or_proof: String(draft.reviews_or_proof || "").trim(),
+    quote_logo_data_url: String(draft.quote_logo_data_url || "").trim(),
+    default_payment_method: String(draft.default_payment_method || "bank_transfer").trim().toLowerCase(),
+    payment_currency: String(draft.payment_currency || "EUR").trim().toUpperCase(),
+    bank_account_name: String(draft.bank_account_name || "").trim(),
+    bank_name: String(draft.bank_name || "").trim(),
+    bank_sort_code: String(draft.bank_sort_code || "").trim(),
+    bank_account_number: String(draft.bank_account_number || "").trim(),
+    bank_iban: String(draft.bank_iban || "").trim(),
+    bank_bic_swift: String(draft.bank_bic_swift || "").trim(),
+    payment_reference_template: String(draft.payment_reference_template || "{quote_number}").trim(),
+    default_deposit_percent: String(draft.default_deposit_percent || "").trim(),
+    stripe_connection_status: String(draft.stripe_connection_status || "not_connected").trim().toLowerCase(),
+    stripe_account_label: String(draft.stripe_account_label || "").trim(),
+    include_terms_on_quotes: String(draft.include_terms_on_quotes || "yes").trim().toLowerCase(),
+    quote_valid_days: String(draft.quote_valid_days || "30").trim(),
+    quotation_terms: String(draft.quotation_terms || "").trim(),
+    invoice_terms: String(draft.invoice_terms || "").trim(),
+    quote_email_subject: String(draft.quote_email_subject || "").trim(),
+    quote_email_body: String(draft.quote_email_body || "").trim(),
     extra_notes: String(draft.extra_notes || "").trim(),
   };
 }
@@ -132457,6 +134760,15 @@ function getApprovedSmallBusinessFoundationContext() {
    * reference bare `state`. Use window.state/localStorage only and never throw.
    */
   try {
+    for (const memory of [
+      window.__aionApprovedSmallBusinessFoundation,
+      window.__aionBusinessContextFoundation,
+      window.__aionFoundationPacket?.approved_business_context,
+      window.__aionFoundationPacket?.business_context_draft,
+      window.__aionFoundationPacket?.foundation_draft,
+    ]) {
+      if (memory && typeof memory === "object" && Object.keys(memory).length) return memory;
+    }
     const appState =
       typeof window !== "undefined" && window.state && typeof window.state === "object"
         ? window.state
@@ -132492,6 +134804,13 @@ function getApprovedSmallBusinessFoundationContext() {
 
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object" && Object.keys(parsed).length) {
+        window.__aionBusinessContextFoundation = parsed;
+        window.AionBusinessContainerClient?.saveFoundationSection?.(
+          key.includes("approved") ? "approved_business_context" : "business_context_draft",
+          parsed,
+          { complete: key.includes("approved") },
+        ).catch((error) => console.warn("[AION] Legacy foundation Vault migration deferred", error));
+        try { localStorage.removeItem(key); } catch {}
         return parsed;
       }
     }
@@ -132504,6 +134823,8 @@ function getApprovedSmallBusinessFoundationContext() {
 /* AION SURGICAL RESTORE 20260629: dependency normaliseAionBusinessContextSubtabKey */
 const AION_BUSINESS_CONTEXT_SUBTABS = new Set([
   "key_business_info",
+  "financial_information",
+  "terms_conditions",
   "brand_foundation",
   "audience",
   "design_system",
@@ -132528,6 +134849,14 @@ function normaliseAionBusinessContextSubtabKey(rawKey) {
     key === "brand"
   ) {
     return "brand_foundation";
+  }
+
+  if (key === "terms_conditions" || key === "terms" || key === "t_and_c") {
+    return "terms_conditions";
+  }
+
+  if (key === "financial_information" || key === "payments" || key === "banking") {
+    return "financial_information";
   }
 
   if (key === "design_system" || key === "brand_design" || key === "brand_bible") {
@@ -132594,24 +134923,41 @@ function persistSmallBusinessFoundationContextO25BB(
       appState.smallBusinessFoundationApprovedAt || new Date().toISOString();
   }
 
-  try {
-    const serialised = JSON.stringify(foundation);
-    [
-      "aion.smallBusinessFoundationDraft",
-      "aion.businessContextFoundation",
-      "aion.smallBusinessFoundation.draft.v1",
-      "aion.smallBusinessFoundation.context.v1",
-      "aion.businessFoundation.context.v1",
-      "aion.businessContext.v1",
-    ].forEach((key) => window.localStorage?.setItem(key, serialised));
+  window.__aionBusinessContextFoundation = { ...foundation };
+  if (approved) window.__aionApprovedSmallBusinessFoundation = { ...foundation };
+  const foundationPacket = {
+    ...(
+      window.__aionFoundationPacket && typeof window.__aionFoundationPacket === "object"
+        ? window.__aionFoundationPacket
+        : {}
+    ),
+    foundation_draft: { ...foundation },
+    business_id: foundation.business_id || window.AionBusinessContainerClient?.resolveBusinessId?.(),
+    business_name: foundation.business_name,
+    foundation_status: approved ? "approved" : "draft",
+    foundation_updated_at: new Date().toISOString(),
+  };
+  window.__aionFoundationPacket = foundationPacket;
+  window.AionBusinessContainerClient?.commitFoundationPacket?.(foundationPacket)
+    .catch((error) => console.warn("[AION] Business foundation Vault commit deferred", error));
+  window.AionBusinessContainerClient?.saveFoundationSection?.(
+    approved ? "approved_business_context" : "business_context_draft",
+    foundation,
+    { complete: approved },
+  ).catch((error) => console.warn("[AION] Business context Vault save deferred", error));
 
-    if (approved) {
-      [
-        "aion.approvedSmallBusinessFoundation",
-        "aion.smallBusinessFoundation.approvedContext.v1",
-      ].forEach((key) => window.localStorage?.setItem(key, serialised));
-    }
-  } catch {}
+  [
+    "aion.smallBusinessFoundationDraft",
+    "aion.businessContextFoundation",
+    "aion.smallBusinessFoundation.draft.v1",
+    "aion.smallBusinessFoundation.context.v1",
+    "aion.businessFoundation.context.v1",
+    "aion.businessContext.v1",
+    "aion.approvedSmallBusinessFoundation",
+    "aion.smallBusinessFoundation.approvedContext.v1",
+  ].forEach((key) => {
+    try { window.localStorage?.removeItem(key); } catch {}
+  });
 
   window.__aionO25BBLastBusinessContextWriteback = {
     source,
@@ -135618,7 +137964,7 @@ Preview only. Nothing executed.`);
     window.clearTimeout(window.__aionO12BWorkflowStatusTimer);
     window.__aionO12BWorkflowStatusTimer = null;
     try {
-      window.localStorage.setItem(WORKFLOW_STATUS_DISMISS_KEY, "1");
+      window.AionDesktopPreferences.set(WORKFLOW_STATUS_DISMISS_KEY, "1");
     } catch (_) {}
     document.getElementById("aion-o12b-workflow-status")?.setAttribute("data-visible", "false");
   }
@@ -142559,7 +144905,7 @@ Preview only. Nothing executed.`);
 
   function closedTabIdsO13L() {
     try {
-      const parsed = JSON.parse(localStorage.getItem(CLOSED_TABS_KEY) || "[]");
+      const parsed = JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString(CLOSED_TABS_KEY) || "[]");
       return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
     } catch (_) {
       return new Set();
@@ -142575,7 +144921,7 @@ Preview only. Nothing executed.`);
     if (!id) return;
     const ids = closedTabIdsO13L();
     ids.delete(id);
-    try { localStorage.setItem(CLOSED_TABS_KEY, JSON.stringify([...ids])); } catch (_) {}
+    try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(CLOSED_TABS_KEY, JSON.stringify([...ids])); } catch (_) {}
     window.__aionWorkflowTabsAllowEmpty = false;
   }
 
@@ -142670,7 +145016,7 @@ Preview only. Nothing executed.`);
   function persistTinyTabsO13L() {
     try {
       const tabs = ensureTabsO13L();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      window.AionBusinessContainerClient.writeTrainAgentWorkflowTabsString(JSON.stringify({
         active_id: window.__aionActiveWorkflowTabId || tabs[0]?.id || "",
         tabs: tabs.map(compactTabO13L),
         allow_empty: window.__aionWorkflowTabsAllowEmpty === true && tabs.length === 0,
@@ -143189,10 +145535,10 @@ Preview only. Nothing executed.`);
     const id = String(tabId || "").trim();
     if (!id) return;
     try {
-      const parsed = JSON.parse(localStorage.getItem(CLOSED_TABS_KEY) || "[]");
+      const parsed = JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString(CLOSED_TABS_KEY) || "[]");
       const ids = new Set(Array.isArray(parsed) ? parsed.map(String) : []);
       ids.add(id);
-      localStorage.setItem(CLOSED_TABS_KEY, JSON.stringify([...ids]));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(CLOSED_TABS_KEY, JSON.stringify([...ids]));
     } catch (_) {}
   }
 
@@ -143355,7 +145701,7 @@ Preview only. Nothing executed.`);
           : tab.graph,
       }));
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      window.AionBusinessContainerClient.writeTrainAgentWorkflowTabsString(JSON.stringify({
         active_id: window.__aionActiveWorkflowTabId || tinyTabs[0]?.id || "",
         tabs: tinyTabs,
         allow_empty: window.__aionWorkflowTabsAllowEmpty === true && tinyTabs.length === 0,
@@ -145034,7 +147380,7 @@ Preview only. Nothing executed.`);
   if (window.__aionO14ABoardroomPackageToDepartmentPilotInboxInstalled === true) return;
   window.__aionO14ABoardroomPackageToDepartmentPilotInboxInstalled = true;
 
-  const DEPARTMENTS = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENTS = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_PURPOSE = {
     marketing: "Create demand, campaign direction, lead capture and proof-led marketing assets.",
@@ -148174,10 +150520,10 @@ Preview only. Nothing executed.`);
     clearFinanceTrapO14M(key);
 
     try {
-      localStorage.setItem("aion.liveAgents.focusDepartment.v1", key);
-      localStorage.setItem("aion.liveAgents.selectedDepartment", key);
-      localStorage.setItem("aion.selectedLiveDepartment", key);
-      localStorage.setItem("aion.departmentPilot.selected", key);
+      window.AionDesktopPreferences.set("aion.liveAgents.focusDepartment.v1", key);
+      window.AionDesktopPreferences.set("aion.liveAgents.selectedDepartment", key);
+      window.AionDesktopPreferences.set("aion.selectedLiveDepartment", key);
+      window.AionDesktopPreferences.set("aion.departmentPilot.selected", key);
     } catch {}
 
     try {
@@ -148556,10 +150902,10 @@ Preview only. Nothing executed.`);
       {};
 
     return safeArray(status.providers)
+      .filter((provider) => String(provider?.source || "") !== "env")
       .map((provider) => asProviderCouncilMemberO15B(provider))
       .filter(Boolean)
-      .filter((provider) => provider.connected === true)
-      .filter((provider) => getAionSelectedBoardroomProviderIdsV1().includes(provider.id));
+      .filter((provider) => provider.connected === true);
   }
 
   function getCouncilStateConnectedProvidersO15B() {
@@ -148574,8 +150920,7 @@ Preview only. Nothing executed.`);
     return safeArray(raw)
       .map((provider) => asProviderCouncilMemberO15B(provider))
       .filter(Boolean)
-      .filter((provider) => provider.connected === true || provider.status === "always_on" || provider.visible_in_council === true)
-      .filter((provider) => getAionSelectedBoardroomProviderIdsV1().includes(provider.id));
+      .filter((provider) => provider.connected === true || provider.status === "always_on" || provider.visible_in_council === true);
   }
 
   function getLiveResultConnectedProvidersO15B() {
@@ -148632,9 +150977,9 @@ Preview only. Nothing executed.`);
       },
     ];
 
+    const vaultConnected = getVaultConnectedProvidersO15B();
     const connected = uniqueProvidersO15B([
-      ...getCouncilStateConnectedProvidersO15B(),
-      ...getVaultConnectedProvidersO15B(),
+      ...(vaultConnected.length ? vaultConnected : getCouncilStateConnectedProvidersO15B()),
       ...getLiveResultConnectedProvidersO15B(),
     ]);
 
@@ -148643,7 +150988,9 @@ Preview only. Nothing executed.`);
      * even if Vault only reports external providers.
      */
     const hasGemma = connected.some((provider) => provider.id === "gemma");
-    if (!hasGemma && getAionSelectedBoardroomProviderIdsV1().includes("gemma")) {
+    const gemmaIsConnected = safeArray((window.__aionVaultAiProviderStatus || {}).providers)
+      .some((provider) => provider?.id === "gemma" && provider?.connected === true);
+    if (!hasGemma && gemmaIsConnected) {
       connected.unshift(asProviderCouncilMemberO15B({
         id: "gemma",
         label: "Gemma",
@@ -148894,6 +151241,7 @@ Preview only. Nothing executed.`);
   function connectedVaultProvidersO15C() {
     const status = window.__aionVaultAiProviderStatus || {};
     const hosted = safeArrayO15C(status.providers)
+      .filter((provider) => String(provider?.source || "") !== "env")
       .map((provider) => {
         const id = normaliseProviderIdO15C(provider.id || provider.provider_id || provider.provider || provider.label);
         if (!id) return null;
@@ -148921,8 +151269,7 @@ Preview only. Nothing executed.`);
         };
       })
       .filter(Boolean)
-      .filter((provider) => provider.connected === true)
-      .filter((provider) => getAionSelectedBoardroomProviderIdsV1().includes(provider.id));
+      .filter((provider) => provider.connected === true);
 
     const localState = typeof getAionVaultLocalModelsStateV1 === "function"
       ? getAionVaultLocalModelsStateV1()
@@ -148930,7 +151277,7 @@ Preview only. Nothing executed.`);
     const localModel = safeArrayO15C(localState.models).find((model) =>
       model?.selected === true && model?.selection_status === "selectable"
     );
-    if (!localModel || !getAionSelectedBoardroomProviderIdsV1().includes("local_model")) return hosted;
+    if (!localModel) return hosted;
 
     return [
       ...hosted,
@@ -148970,12 +151317,8 @@ Preview only. Nothing executed.`);
   function mergeConnectedProvidersIntoSnapshotO15C(snapshot = {}) {
     const safeSnapshot = snapshot && typeof snapshot === "object" ? snapshot : {};
     const existingSeats = safeArrayO15C(safeSnapshot.seats);
-    const existingProviderSeats = existingSeats.filter((seat) => String(seat.seat_type || "").toLowerCase() === "provider");
-    const existingProviderIds = new Set(
-      existingProviderSeats
-        .map((seat) => normaliseProviderIdO15C(seat.provider_id || seat.key || seat.id || seat.label))
-        .filter(Boolean)
-    );
+    const isProviderSeat = (seat) => ["provider", "connected_provider"].includes(String(seat?.seat_type || "").toLowerCase());
+    const nonProviderSeats = existingSeats.filter((seat) => !isProviderSeat(seat));
 
     const vaultProviders = connectedVaultProvidersO15C();
 
@@ -149005,9 +151348,8 @@ Preview only. Nothing executed.`);
       };
     });
 
-    const missingProviderSeats = providerMembers
-      .filter((provider) => !existingProviderIds.has(normaliseProviderIdO15C(provider.provider_id || provider.id || provider.key)))
-      .map((provider, index) => buildProviderSeatO15C(provider, existingProviderSeats.length + index, providerMembers.length))
+    const providerSeats = providerMembers
+      .map((provider, index) => buildProviderSeatO15C(provider, index, providerMembers.length))
       .filter(Boolean);
 
     const founderSeats = [
@@ -149043,8 +151385,8 @@ Preview only. Nothing executed.`);
 
     const allSeats = uniqueByProviderO15C([
       ...founderSeats,
-      ...existingSeats,
-      ...missingProviderSeats,
+      ...nonProviderSeats,
+      ...providerSeats,
     ]).map((seat) => {
       const id = normaliseProviderIdO15C(seat.provider_id || seat.key || seat.id || seat.label);
       return {
@@ -149197,8 +151539,6 @@ Preview only. Nothing executed.`);
 
   window.mergeConnectedProvidersIntoSnapshotO15C = mergeConnectedProvidersIntoSnapshotO15C;
   window.refreshVaultProvidersForBoardroomO15C = refreshVaultProvidersForBoardroomO15C;
-
-  window.setTimeout(() => refreshVaultProvidersForBoardroomO15C(), 0);
 
   console.info("[AION] O15C Boardroom Vault provider snapshot refresh installed");
 })();
@@ -149569,10 +151909,10 @@ Preview only. Nothing executed.`);
     } catch {}
 
     try {
-      window.localStorage?.setItem?.("aion.liveAgents.selectedDepartment", departmentKey);
-      window.localStorage?.setItem?.("aion.liveAgents.focusDepartment.v1", departmentKey);
-      window.localStorage?.setItem?.("aion.selectedLiveDepartment", departmentKey);
-      window.localStorage?.setItem?.("aion.departmentPilot.selected", departmentKey);
+      window.AionDesktopPreferences.set("aion.liveAgents.selectedDepartment", departmentKey);
+      window.AionDesktopPreferences.set("aion.liveAgents.focusDepartment.v1", departmentKey);
+      window.AionDesktopPreferences.set("aion.selectedLiveDepartment", departmentKey);
+      window.AionDesktopPreferences.set("aion.departmentPilot.selected", departmentKey);
     } catch {}
 
     if (typeof window.setAionBoardroomSelectedDepartmentPulseKey === "function") {
@@ -149738,8 +152078,6 @@ Preview only. Nothing executed.`);
   if (window.__aionO17CMarketingPilotCockpitInstalled === true) return;
   window.__aionO17CMarketingPilotCockpitInstalled = true;
 
-  const STORAGE_KEY = "aion.departmentIntelligence.v1";
-  const TRANSCRIPT_KEY = "aion.marketingPilotCockpit.transcript.o17c.v1";
   const STYLE_ID = "aion-o17c-marketing-pilot-cockpit-style";
 
   function escO17C(value) {
@@ -149770,12 +152108,7 @@ Preview only. Nothing executed.`);
       }
     } catch {}
 
-    try {
-      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-    } catch {
-      return {};
-    }
+    return window.__aionDepartmentIntelligenceMemory || {};
   }
 
   function writeMarketingLedgerO17C(patch = {}) {
@@ -149804,12 +152137,10 @@ Preview only. Nothing executed.`);
       } else if (typeof setAionDepartmentIntelligence === "function") {
         setAionDepartmentIntelligence(ledger);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(ledger));
+        window.__aionDepartmentIntelligenceMemory = ledger;
       }
     } catch {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(ledger));
-      } catch {}
+      window.__aionDepartmentIntelligenceMemory = ledger;
     }
 
     return next;
@@ -149823,19 +152154,13 @@ Preview only. Nothing executed.`);
   }
 
   function readTranscriptO17C() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(TRANSCRIPT_KEY) || "[]");
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+    const transcript = readMarketingEntryO17C().cockpit_transcript;
+    return Array.isArray(transcript) ? transcript : [];
   }
 
   function writeTranscriptO17C(items) {
     const safeItems = safeArrayO17C(items).slice(-80);
-    try {
-      localStorage.setItem(TRANSCRIPT_KEY, JSON.stringify(safeItems));
-    } catch {}
+    writeMarketingLedgerO17C({ cockpit_transcript: safeItems });
     return safeItems;
   }
 
@@ -152966,10 +155291,10 @@ Preview only. Nothing executed.`);
     event.preventDefault();
 
     try {
-      localStorage.setItem("aion.departmentPilot.package.selected", "marketing_pilot");
-      localStorage.setItem("aion.departmentPilot.package.source", "boardroom_goal_sheet");
-      localStorage.setItem("aion.departmentPilot.package.status", "discovery_required");
-      localStorage.setItem("aion.departmentPilot.package.openedAt", new Date().toISOString());
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.selected", "marketing_pilot");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.source", "boardroom_goal_sheet");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.status", "discovery_required");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.openedAt", new Date().toISOString());
     } catch (error) {
       console.warn("[AION] O18T package state write failed", error);
     }
@@ -153108,10 +155433,10 @@ Preview only. Nothing executed.`);
     event.preventDefault();
 
     try {
-      localStorage.setItem("aion.departmentPilot.package.selected", "marketing_pilot");
-      localStorage.setItem("aion.departmentPilot.package.source", "boardroom_goal_sheet");
-      localStorage.setItem("aion.departmentPilot.package.status", "discovery_required");
-      localStorage.setItem("aion.departmentPilot.package.openedAt", new Date().toISOString());
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.selected", "marketing_pilot");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.source", "boardroom_goal_sheet");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.status", "discovery_required");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.openedAt", new Date().toISOString());
     } catch (error) {
       console.warn("[AION] O18U package state write failed", error);
     }
@@ -153491,10 +155816,10 @@ Preview only. Nothing executed.`);
     const nextExpanded = pkg?.getAttribute("data-aion-o18v-expanded") !== "true";
 
     try {
-      localStorage.setItem("aion.departmentPilot.package.expanded.marketing", nextExpanded ? "true" : "false");
-      localStorage.setItem("aion.departmentPilot.package.selected", "marketing_pilot");
-      localStorage.setItem("aion.departmentPilot.package.source", "boardroom_goal_sheet");
-      localStorage.setItem("aion.departmentPilot.package.status", "discovery_required");
+      window.AionDesktopPreferences.set("aion.departmentPilot.package.expanded.marketing", nextExpanded ? "true" : "false");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.selected", "marketing_pilot");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.source", "boardroom_goal_sheet");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.departmentPilot.package.status", "discovery_required");
     } catch (error) {
       console.warn("[AION] O18V package state write failed", error);
     }
@@ -153691,19 +156016,24 @@ Preview only. Nothing executed.`);
   }
 
   function readStoreO18X() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      return [];
-    }
+    const entry = typeof getAionDepartmentLedgerEntry === "function"
+      ? getAionDepartmentLedgerEntry("marketing")
+      : {};
+    return Array.isArray(entry.conversation_terminal) ? entry.conversation_terminal : [];
   }
 
   function writeStoreO18X(entries) {
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify(Array.isArray(entries) ? entries.slice(-120) : []));
-    } catch (error) {
-      console.warn("[AION] O18X transcript write failed", error);
+    const transcript = Array.isArray(entries) ? entries.slice(-120) : [];
+    if (typeof updateAionDepartmentIntelligence === "function") {
+      updateAionDepartmentIntelligence("marketing", { conversation_terminal: transcript });
+    } else {
+      window.__aionDepartmentIntelligenceMemory = {
+        ...(window.__aionDepartmentIntelligenceMemory || {}),
+        marketing: {
+          ...(window.__aionDepartmentIntelligenceMemory?.marketing || {}),
+          conversation_terminal: transcript,
+        },
+      };
     }
   }
 
@@ -153722,7 +156052,7 @@ Preview only. Nothing executed.`);
 
   function isLiveO18X() {
     try {
-      return localStorage.getItem(LIVE_KEY) === "true";
+      return window.AionBusinessContainerClient.readBusinessWorkingStateString(LIVE_KEY) === "true";
     } catch (error) {
       return false;
     }
@@ -153730,7 +156060,7 @@ Preview only. Nothing executed.`);
 
   function setLiveO18X(value) {
     try {
-      localStorage.setItem(LIVE_KEY, value ? "true" : "false");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(LIVE_KEY, value ? "true" : "false");
     } catch (error) {
       console.warn("[AION] O18X live state write failed", error);
     }
@@ -153738,7 +156068,7 @@ Preview only. Nothing executed.`);
 
   function getQuestionIndexO18X() {
     try {
-      const raw = Number(localStorage.getItem(INDEX_KEY) || "0");
+      const raw = Number(window.AionBusinessContainerClient.readBusinessWorkingStateString(INDEX_KEY) || "0");
       return Number.isFinite(raw) ? Math.max(0, Math.min(QUESTIONS.length, raw)) : 0;
     } catch (error) {
       return 0;
@@ -153747,7 +156077,7 @@ Preview only. Nothing executed.`);
 
   function setQuestionIndexO18X(index) {
     try {
-      localStorage.setItem(INDEX_KEY, String(Math.max(0, Math.min(QUESTIONS.length, Number(index) || 0))));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(INDEX_KEY, String(Math.max(0, Math.min(QUESTIONS.length, Number(index) || 0))));
     } catch (error) {
       console.warn("[AION] O18X question index write failed", error);
     }
@@ -154148,7 +156478,9 @@ Preview only. Nothing executed.`);
 
     if (question) {
       try {
-        const ledger = JSON.parse(localStorage.getItem("aion.departmentIntelligence.marketing") || "{}");
+        const ledger = typeof getAionDepartmentLedgerEntry === "function"
+          ? { ...getAionDepartmentLedgerEntry("marketing") }
+          : {};
         const discovery = ledger.discovery || {};
         discovery[question.field] = clean;
         ledger.discovery = discovery;
@@ -154156,7 +156488,9 @@ Preview only. Nothing executed.`);
         ledger.source = "o18x_marketing_conversation_terminal";
         ledger.live_external_actions_blocked = true;
         ledger.execution_boundary = "approval_gated";
-        localStorage.setItem("aion.departmentIntelligence.marketing", JSON.stringify(ledger));
+        if (typeof updateAionDepartmentIntelligence === "function") {
+          updateAionDepartmentIntelligence("marketing", ledger);
+        }
       } catch (error) {
         console.warn("[AION] O18X marketing ledger write failed", error);
       }
@@ -154374,17 +156708,19 @@ Preview only. Nothing executed.`);
     } catch (error) {}
 
     try {
-      const key = "aion.marketingPilot.conversationTerminal.v1";
-      const existing = JSON.parse(localStorage.getItem(key) || "[]");
-      existing.push({
-        id: `o18y_voice_${Date.now().toString(36)}`,
-        ts: new Date().toISOString(),
-        role: "system",
-        text
+      const ledger = window.getAionDepartmentIntelligence?.() || {};
+      const marketing = ledger.marketing && typeof ledger.marketing === "object" ? ledger.marketing : {};
+      const existing = Array.isArray(marketing.conversation_terminal) ? marketing.conversation_terminal : [];
+      window.updateAionDepartmentIntelligence?.("marketing", {
+        conversation_terminal: existing.concat({
+          id: `o18y_voice_${Date.now().toString(36)}`,
+          ts: new Date().toISOString(),
+          role: "system",
+          text
+        }).slice(-120)
       });
-      localStorage.setItem(key, JSON.stringify(existing.slice(-120)));
     } catch (error) {
-      console.warn("[AION] O18Y transcript fallback failed", error);
+      console.warn("[AION] O18Y Vault transcript fallback failed", error);
     }
   }
 
@@ -155153,7 +157489,7 @@ Preview only. Nothing executed.`);
     try {
       const store = typeof getAionDiscoveryQuestionStoreV1 === "function"
         ? getAionDiscoveryQuestionStoreV1()
-        : JSON.parse(localStorage.getItem("aion.boardroom.discovery_answers.v1") || "{}");
+        : JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString("aion.boardroom.discovery_answers.v1") || "{}");
       store[fact.id] = {
         question_id: fact.id,
         question: fact.question,
@@ -155167,7 +157503,7 @@ Preview only. Nothing executed.`);
         source: fact.source,
       };
       if (typeof setAionDiscoveryQuestionStoreV1 === "function") setAionDiscoveryQuestionStoreV1(store);
-      else localStorage.setItem("aion.boardroom.discovery_answers.v1", JSON.stringify(store));
+      else window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.boardroom.discovery_answers.v1", JSON.stringify(store));
     } catch (error) {
       console.warn("[AION] Pilot fact could not update Boardroom discovery context", error);
     }
@@ -155479,7 +157815,7 @@ Preview only. Nothing executed.`);
 
   function getStoreO18AA(key) {
     try {
-      const raw = localStorage.getItem(STORE_PREFIX + key);
+      const raw = window.AionBusinessContainerClient.readBusinessWorkingStateString(STORE_PREFIX + key);
       const parsed = raw ? JSON.parse(raw) : {};
       return parsed && typeof parsed === "object" ? parsed : {};
     } catch (error) {
@@ -155489,7 +157825,7 @@ Preview only. Nothing executed.`);
 
   function saveStoreO18AA(key, next) {
     try {
-      localStorage.setItem(STORE_PREFIX + key, JSON.stringify(next));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(STORE_PREFIX + key, JSON.stringify(next));
     } catch (error) {
       console.warn("[AION] O18AA store save failed", error);
     }
@@ -156036,10 +158372,10 @@ Preview only. Nothing executed.`);
     try {
       const boardStore = typeof getAionDiscoveryQuestionStoreV1 === "function"
         ? getAionDiscoveryQuestionStoreV1()
-        : JSON.parse(localStorage.getItem("aion.boardroom.discovery_answers.v1") || "{}");
+        : JSON.parse(window.AionBusinessContainerClient.readBusinessWorkingStateString("aion.boardroom.discovery_answers.v1") || "{}");
       boardStore[gap.id] = gap;
       if (typeof setAionDiscoveryQuestionStoreV1 === "function") setAionDiscoveryQuestionStoreV1(boardStore);
-      else localStorage.setItem("aion.boardroom.discovery_answers.v1", JSON.stringify(boardStore));
+      else window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.boardroom.discovery_answers.v1", JSON.stringify(boardStore));
     } catch {}
     return gap;
   }
@@ -156620,7 +158956,7 @@ Preview only. Nothing executed.`);
 
   function getStateO18AC(dept) {
     try {
-      const raw = localStorage.getItem(`aion.${dept}.conversationTerminal.v1`);
+      const raw = window.AionBusinessContainerClient.readBusinessWorkingStateString(`aion.${dept}.conversationTerminal.v1`);
       if (raw) return JSON.parse(raw) || {};
     } catch (_) {}
     return { answers:{}, transcript:[] };
@@ -156628,7 +158964,7 @@ Preview only. Nothing executed.`);
 
   function saveStateO18AC(dept, state) {
     try {
-      localStorage.setItem(`aion.${dept}.conversationTerminal.v1`, JSON.stringify(state || {}));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(`aion.${dept}.conversationTerminal.v1`, JSON.stringify(state || {}));
     } catch (_) {}
   }
 
@@ -157317,14 +159653,14 @@ console.info("[AION] O18AD direct department branch rewrite installed");
 
   function writeJson(key, value) {
     try {
-      window.localStorage?.setItem(key, JSON.stringify(value));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(key, JSON.stringify(value));
     } catch {}
   }
 
   function setStarted(value) {
     try {
-      if (value) window.localStorage?.setItem(STARTED_KEY, "true");
-      else window.localStorage?.removeItem(STARTED_KEY);
+      if (value) window.AionBusinessContainerClient.writeBusinessWorkingStateString(STARTED_KEY, "true");
+      else window.AionBusinessContainerClient.clearBusinessWorkingState(STARTED_KEY);
     } catch {}
   }
 
@@ -157341,6 +159677,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
       schema_version: "aion.voice_onboarding.o19i.v1",
       user_name: "",
       stage: "startup_intro",
+      communication_style: getAionCommunicationStyleV1(),
       transcript: [],
       updated_at: new Date().toISOString(),
     };
@@ -158002,7 +160339,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   function writeState(state) {
     try {
       state.updated_at = new Date().toISOString();
-      window.localStorage?.setItem(STATE_KEY, JSON.stringify(state));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(STATE_KEY, JSON.stringify(state));
     } catch {}
   }
 
@@ -158025,7 +160362,11 @@ console.info("[AION] O18AD direct department branch rewrite installed");
     const cleanStage = normaliseStage(stage);
 
     if (cleanStage === "startup_intro") {
-      return "Welcome to Tessaris. Think of this less like software, and more like a digital headquarters for your company. You are setting up your AI Boardroom: a programmable operating system that maps your business, links goals to execution, and coordinates dedicated AI agents across your departments. But I do not guess how you operate. Before any agent works safely, we build your Business Twin from your real workflows, pricing, customers, tools and targets. We will do it together as a simple conversation. First, what should I call you?";
+      return "Welcome to Tessaris. I will help you set up your business and your AI team. We will do this as a simple conversation, and I will show you what I have understood before anything is approved. First, what should I call you?";
+    }
+
+    if (cleanStage === "communication_style") {
+      return "Before we start, how would you like Tessaris to explain things? Choose Clear and simple for short sentences and everyday words. Or choose Detailed and professional for more formal business language. You can change this later.";
     }
 
     if (cleanStage === "startup_choice") {
@@ -158069,8 +160410,17 @@ console.info("[AION] O18AD direct department branch rewrite installed");
 
       if (name) {
         state.user_name = name.charAt(0).toUpperCase() + name.slice(1);
-        state.stage = "startup_choice";
+        state.stage = "communication_style";
       }
+    }
+
+    if (speaker === "user" && currentStage === "communication_style") {
+      const lower = clean.toLowerCase();
+      const style = /professional|formal|detailed|executive|advanced/.test(lower)
+        ? "professional"
+        : "plain";
+      state.communication_style = setAionCommunicationStyleV1(style);
+      state.stage = "startup_choice";
     }
 
     writeState(state);
@@ -158124,6 +160474,41 @@ console.info("[AION] O18AD direct department branch rewrite installed");
           outline: 2px solid rgba(34,211,238,0.32) !important;
           box-shadow: 0 0 0 8px rgba(34,211,238,0.10) !important;
         }
+
+        html body .aion-language-style-choices {
+          display: grid !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          gap: 10px !important;
+          margin-top: 16px !important;
+        }
+
+        html body .aion-language-style-choices button {
+          display: grid !important;
+          gap: 5px !important;
+          min-height: 82px !important;
+          padding: 14px 16px !important;
+          border: 1px solid rgba(15,23,42,0.18) !important;
+          border-radius: 14px !important;
+          background: #ffffff !important;
+          color: #111111 !important;
+          text-align: left !important;
+          cursor: pointer !important;
+        }
+
+        html body .aion-language-style-choices button:first-child {
+          border-color: #2563eb !important;
+          background: #eff6ff !important;
+        }
+
+        html body .aion-language-style-choices strong {
+          font-size: 14px !important;
+        }
+
+        html body .aion-language-style-choices span {
+          font-size: 12px !important;
+          line-height: 1.4 !important;
+          color: #475569 !important;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -158136,6 +160521,29 @@ console.info("[AION] O18AD direct department branch rewrite installed");
           <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
         </div>`
       );
+    }
+
+    const state = readState();
+    const existingChoices = panel.querySelector("[data-aion-language-style-choices]");
+    if (normaliseStage(state.stage) === "communication_style") {
+      if (!existingChoices) {
+        const copy = panel.querySelector(".aion-o19m-active-copy") || panel;
+        copy.insertAdjacentHTML(
+          "beforeend",
+          `<div class="aion-language-style-choices" data-aion-language-style-choices="true" aria-label="Choose how Tessaris writes">
+            <button type="button" data-aion-language-style="plain">
+              <strong>Clear and simple</strong>
+              <span>Everyday words, short sentences and clear next steps.</span>
+            </button>
+            <button type="button" data-aion-language-style="professional">
+              <strong>Detailed and professional</strong>
+              <span>More formal business language with fuller detail.</span>
+            </button>
+          </div>`
+        );
+      }
+    } else if (existingChoices) {
+      existingChoices.remove();
     }
   }
 
@@ -158236,13 +160644,14 @@ console.info("[AION] O18AD direct department branch rewrite installed");
 
   function startSequence() {
     try {
-      window.localStorage?.setItem(STARTED_KEY, "true");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(STARTED_KEY, "true");
     } catch {}
 
     const fresh = {
       schema_version: "aion.voice_onboarding.o19i.v1",
       user_name: "",
       stage: "startup_intro",
+      communication_style: getAionCommunicationStyleV1(),
       transcript: [],
       updated_at: new Date().toISOString(),
     };
@@ -158264,6 +160673,17 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   }
 
   document.addEventListener("click", (event) => {
+    const languageChoice = event.target?.closest?.("[data-aion-language-style]");
+    if (languageChoice) {
+      event.preventDefault();
+      event.stopPropagation();
+      const selected = languageChoice.getAttribute("data-aion-language-style") === "professional"
+        ? "Detailed and professional"
+        : "Clear and simple";
+      handleUserAnswer(selected);
+      return;
+    }
+
     const start = event.target?.closest?.("[data-aion-o19m-start]");
     if (start) {
       event.preventDefault();
@@ -158382,7 +160802,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
     };
 
     try {
-      window.localStorage?.setItem(STATE_KEY, JSON.stringify(fresh));
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString(STATE_KEY, JSON.stringify(fresh));
     } catch {}
 
     return fresh;
@@ -158454,7 +160874,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
 
   function startAuthoritativeOpening() {
     try {
-      window.localStorage?.setItem("aion.voiceOnboarding.o19m.started.v1", "true");
+      window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.voiceOnboarding.o19m.started.v1", "true");
     } catch {}
 
     writeFreshState();
@@ -159186,7 +161606,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   const MODE_KEY = "aion.o20c.conversationMode";
 
   function safeSet(key, value) {
-    try { window.localStorage?.setItem(key, value); } catch {}
+    try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(key, value); } catch {}
   }
 
   function safeRemove(key) {
@@ -159828,15 +162248,46 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   }
 
   function getSessionsO19A() {
+    if (
+      window.__aionVoiceDiscoverySessionsMemory &&
+      typeof window.__aionVoiceDiscoverySessionsMemory === "object" &&
+      !Array.isArray(window.__aionVoiceDiscoverySessionsMemory)
+    ) {
+      return window.__aionVoiceDiscoverySessionsMemory;
+    }
     const raw = window.localStorage?.getItem(STORAGE_KEY);
     const parsed = safeParseO19A(raw, {});
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    const sessions = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    window.__aionVoiceDiscoverySessionsMemory = sessions;
+    try { window.localStorage?.removeItem(STORAGE_KEY); } catch (_) {}
+    if (Object.keys(sessions).length) saveSessionsO19A(sessions);
+    return sessions;
   }
 
   function saveSessionsO19A(sessions) {
-    window.localStorage?.setItem(STORAGE_KEY, JSON.stringify(sessions || {}, null, 2));
-    return sessions || {};
+    const value = sessions || {};
+    window.__aionVoiceDiscoverySessionsMemory = value;
+    try { window.localStorage?.removeItem(STORAGE_KEY); } catch (_) {}
+    window.AionBusinessContainerClient?.saveFoundationSection?.(
+      "voice_discovery",
+      {
+        sessions: value,
+        active_session_id: window.localStorage?.getItem(ACTIVE_KEY) || null,
+      },
+    ).catch((error) => console.warn("[AION] Voice discovery Vault save deferred", error));
+    return value;
   }
+
+  window.addEventListener("aion:foundation-session-loaded", (event) => {
+    const saved = event?.detail?.packet?.voice_discovery;
+    if (!saved || typeof saved !== "object") return;
+    if (saved.sessions && typeof saved.sessions === "object") {
+      window.__aionVoiceDiscoverySessionsMemory = saved.sessions;
+    }
+    if (saved.active_session_id) {
+      try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(ACTIVE_KEY, saved.active_session_id); } catch (_) {}
+    }
+  });
 
   function getActiveSessionO19A() {
     const id = window.localStorage?.getItem(ACTIVE_KEY) || "";
@@ -159941,8 +162392,8 @@ console.info("[AION] O18AD direct department branch rewrite installed");
 
     const sessions = getSessionsO19A();
     sessions[session.session_id] = session;
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(ACTIVE_KEY, session.session_id);
     saveSessionsO19A(sessions);
-    window.localStorage?.setItem(ACTIVE_KEY, session.session_id);
     window.__aionO19AActiveVoiceDiscoverySession = session;
     return session;
   }
@@ -160212,16 +162663,19 @@ console.info("[AION] O18AD direct department branch rewrite installed");
       updated_at: ts
     };
 
-    try {
-      window.localStorage?.setItem("aion.approvedSmallBusinessFoundation", JSON.stringify(confirmedFoundation, null, 2));
-      window.localStorage?.setItem("aion.businessContextFoundation", JSON.stringify(confirmedFoundation, null, 2));
-    } catch (_) {}
+    window.__aionApprovedSmallBusinessFoundation = confirmedFoundation;
+    window.__aionBusinessContextFoundation = confirmedFoundation;
+    window.AionBusinessContainerClient?.saveFoundationSection?.(
+      "confirmed_foundation",
+      confirmedFoundation,
+      { complete: true },
+    ).catch((error) => console.warn("[AION] Confirmed foundation Vault save deferred", error));
 
     try {
       const existing =
         typeof getAionDepartmentIntelligence === "function"
           ? getAionDepartmentIntelligence()
-          : safeParseO19A(window.localStorage?.getItem("aion.departmentIntelligence"), {});
+          : (window.__aionDepartmentIntelligenceMemory || {});
       const patch = session.department_ledger_patch?.departments || {};
       const next = { ...(existing || {}) };
       Object.entries(patch).forEach(([department, entry]) => {
@@ -160235,28 +162689,18 @@ console.info("[AION] O18AD direct department branch rewrite installed");
       if (typeof setAionDepartmentIntelligence === "function") {
         setAionDepartmentIntelligence(next);
       } else {
-        window.localStorage?.setItem("aion.departmentIntelligence", JSON.stringify(next, null, 2));
+        window.__aionDepartmentIntelligenceMemory = next;
       }
     } catch (_) {}
 
-    try {
-      window.localStorage?.setItem("aion.boardroomReadiness.voiceDiscovery", JSON.stringify(session.boardroom_readiness_patch || {}, null, 2));
-      window.localStorage?.setItem("aion.discoveryBacklog.voiceDiscovery", JSON.stringify(session.discovery_backlog_patch || [], null, 2));
-      window.localStorage?.setItem(`aion.voiceDiscovery.confirmationReceipt.${session.session_id}`, JSON.stringify({
-        receipt_id: `voice_discovery_confirmation_${Date.now().toString(36)}`,
-        session_id: session.session_id,
-        source: "voice_discovery",
-        confirmed_at: ts,
-        no_live_external_actions: true,
-        writes: [
-          "aion.approvedSmallBusinessFoundation",
-          "aion.businessContextFoundation",
-          "aion.departmentIntelligence",
-          "aion.boardroomReadiness.voiceDiscovery",
-          "aion.discoveryBacklog.voiceDiscovery"
-        ]
-      }, null, 2));
-    } catch (_) {}
+    session.confirmation_receipt = {
+      receipt_id: `voice_discovery_confirmation_${Date.now().toString(36)}`,
+      session_id: session.session_id,
+      source: "voice_discovery",
+      confirmed_at: ts,
+      no_live_external_actions: true,
+      vault_domains: ["onboarding.foundation_session", "onboarding.receipts", "departments.intelligence"],
+    };
 
     sessions[session.session_id] = session;
     saveSessionsO19A(sessions);
@@ -162002,6 +164446,18 @@ setTimeout(() => {
         </div>
 
         <footer class="aion-o25e-footer" data-aion-o25e-footer="true">
+          ${conversation.awaiting_communication_style === true ? `
+            <div class="aion-o25e-language-style" data-aion-o25e-language-style="true" aria-label="Choose how Tessaris writes">
+              <button type="button" data-aion-o25e-language-choice="plain">
+                <strong>Clear and simple</strong>
+                <span>Everyday words, short sentences and clear next steps.</span>
+              </button>
+              <button type="button" data-aion-o25e-language-choice="professional">
+                <strong>Detailed and professional</strong>
+                <span>More formal business language with fuller detail.</span>
+              </button>
+            </div>
+          ` : ""}
           <div class="aion-o25e-voice-controls" data-aion-o25e-voice-controls="true">
             <button
               type="button"
@@ -163230,7 +165686,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
       const mode = normaliseAionO25DEntryMode(modeButton.getAttribute("data-aion-o25d-entry-mode") || "");
       try {
         window.__aionO20COpeningMode = mode;
-        window.localStorage?.setItem(ENTRY_MODE_KEY, mode);
+        window.AionBusinessContainerClient.writeBusinessWorkingStateString(ENTRY_MODE_KEY, mode);
         window.localStorage?.removeItem("aion.businessTwinSetup.entryRoute.v1");
       } catch {}
 
@@ -163332,7 +165788,8 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   if (window.__aionO25AJRealVoiceTurnStateBridgeInstalled) return;
   window.__aionO25AJRealVoiceTurnStateBridgeInstalled = true;
 
-  const AION_O25AJ_OPENING = "Hi, I’m AION, your AI business partner. I’ll ask you a few focused questions so I can build a clear understanding of your business, the stage it’s at, and how it operates. From there, I can start mapping key functions such as sales, marketing, finance, operations and customer support, identify what could be automated, and show how your AI Boardroom can help you run the business and improve the metrics that matter. Please keep your answers direct and accurate. If either of us gets something wrong, you can edit the answer before your Business Foundation is finalised. Before we start, what should I call you?";
+  const AION_O25AJ_OPENING = "Hi, I’m AION, your AI business partner. Before we start, choose how you want Tessaris to explain things. Choose Clear and simple for everyday words and short steps. Or choose Detailed and professional for more formal business language. You can change this later.";
+  const AION_O25AJ_NAME_QUESTION = "Thanks. I will use that writing style. What should I call you?";
 
   function cleanO25AJ(value) {
     return String(value || "").replace(/\s+/g, " ").trim();
@@ -163349,6 +165806,8 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
         last_user_answer: null,
         last_packet: null,
         last_error: null,
+        awaiting_communication_style: true,
+        communication_style: getAionCommunicationStyleV1(),
         external_actions_allowed: false,
         live_execution_allowed: false,
       };
@@ -163850,6 +166309,17 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
       nextQuestion.action ===
         "route_finance_live_agent";
 
+    if (isFinanceHandoff) {
+      const routed = routeFoundationToFinanceO25AJ(packet);
+      window.__aionO25AJFinanceHandoffResult = {
+        routed: routed !== false,
+        at: new Date().toISOString(),
+        packet_status: packet?.status || null,
+        reason: nextQuestion.reason || null,
+        action: nextQuestion.action || null,
+      };
+    }
+
     const result = await speakLocalO25AJ(
       question,
       isFinanceHandoff
@@ -163864,17 +166334,6 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
             "aion.o25aj.frontend_schema_prompt_fallback",
       }
     );
-
-    if (isFinanceHandoff) {
-      const routed = routeFoundationToFinanceO25AJ(packet);
-      window.__aionO25AJFinanceHandoffResult = {
-        routed: routed !== false,
-        at: new Date().toISOString(),
-        packet_status: packet?.status || null,
-        reason: nextQuestion.reason || null,
-        action: nextQuestion.action || null,
-      };
-    }
 
     return result;
   }
@@ -163941,6 +166400,30 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   window.handleAionO25EUserAnswerTurn = async function handleAionO25EUserAnswerTurn(text, meta = {}) {
     const clean = cleanO25AJ(text);
     if (!clean) return null;
+
+    const conversationState = getStateO25AJ();
+    if (conversationState.awaiting_communication_style === true) {
+      const style = /professional|formal|detailed|executive|advanced/.test(clean.toLowerCase())
+        ? "professional"
+        : "plain";
+      conversationState.communication_style = setAionCommunicationStyleV1(style);
+      conversationState.awaiting_communication_style = false;
+      appendRowO25AJ({
+        speaker: "You",
+        source: meta.source || meta.provider || "communication_style_choice",
+        text: style === "professional" ? "Detailed and professional" : "Clear and simple",
+      });
+      syncTerminalO25AJ(0);
+      await speakLocalO25AJ(AION_O25AJ_NAME_QUESTION, "communication_style_saved", {
+        schema_driven: true,
+        fallback: false,
+      });
+      syncTerminalO25AJ(0);
+      return {
+        communication_style: style,
+        next_question: { question: AION_O25AJ_NAME_QUESTION, target_field: "contact_name" },
+      };
+    }
 
     const existingPacket =
       window.__aionBusinessFoundationVoiceDiscoveryPacket ||
@@ -164065,6 +166548,22 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
     return packet;
   };
 
+  document.addEventListener("click", (event) => {
+    const choice = event.target?.closest?.("[data-aion-o25e-language-choice]");
+    if (!choice) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const style = choice.getAttribute("data-aion-o25e-language-choice") === "professional"
+      ? "Detailed and professional"
+      : "Clear and simple";
+    Promise.resolve(window.handleAionO25EUserAnswerTurn(style, {
+      source: "communication_style_button",
+      provider: "onboarding_choice",
+    })).catch((error) => {
+      window.__aionO25AJLanguageStyleError = String(error?.message || error);
+    });
+  }, true);
+
   const previousAppend = window.appendAionO21ETranscript;
   if (typeof previousAppend === "function" && !window.__aionO25AJAppendWrapped) {
     window.__aionO25AJAppendWrapped = true;
@@ -164134,6 +166633,8 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
       text_preview: AION_O25AJ_OPENING.slice(0, 160),
       source: "o25aj_terminal_opening",
     };
+    state.awaiting_communication_style = true;
+    state.communication_style = getAionCommunicationStyleV1();
 
     try {
       const rawEntryMode = cleanO25AJ(
@@ -164810,7 +167311,11 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
       typeof getAionBoardroomBusinessContainerId === "function"
         ? getAionBoardroomBusinessContainerId()
         : "home-fixed";
-    const departmentKeys = ["marketing", "sales", "finance", "operations", "support", "hr"];
+    const departmentKeys = Array.from(new Set([
+      "marketing", "sales", "finance", "operations", "support", "hr",
+      ...Object.keys(ledger || {}),
+      ...Object.keys(departmentDrafts || {}),
+    ])).filter(Boolean).sort();
     const departments = {};
 
     departmentKeys.forEach((key) => {
@@ -164821,12 +167326,12 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
     });
 
     const sourceRecords = {
-      foundation_packet: readJsonStorage("aion.businessTwin.foundationPacket.v1", {}),
-      finance_discovery: readJsonStorage("aion.financePilot.discoveryState.v1", {}),
-      financial_model: readJsonStorage("aion.financePilot.businessFinancialModel.v1", {}),
-      finance_boardroom_packet: readJsonStorage("aion.businessTwin.financePacket.v1", {}),
+      foundation_packet: window.__aionFoundationPacket || {},
+      finance_discovery: window.__aionFinancePilotDiscoveryState || {},
+      financial_model: window.__aionFinanceBusinessModel || {},
+      finance_boardroom_packet: window.__aionFinanceBoardroomPacket || {},
       products_services_operating_model: readJsonStorage("aion.businessOperatingModel.draft.v1", {}),
-      organisation_authority: readJsonStorage(`aion.organizationAuthority.summary.${businessId}`, {}),
+      organisation_authority: window.__aionOrganisationAuthoritySummary || {},
     };
 
     const essentialFields = [
@@ -164922,7 +167427,7 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
           ? stableAionHash({ business_id: map.business_id, map_hash: map.map_hash, confirmed: true })
           : `sha256:business_map_confirmation_${Date.now()}`,
     };
-    try { window.localStorage?.setItem(CONFIRMATION_KEY, JSON.stringify(record)); } catch {}
+    try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(CONFIRMATION_KEY, JSON.stringify(record)); } catch {}
 
     // A newly confirmed baseline invalidates conclusions made against an older map.
     window.__aionVisibleAskBoardResult = null;
@@ -164946,7 +167451,9 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   function ratifyBoardDirection() {
     const confirmation = getConfirmation();
     const debate = window.__aionBoardroomDebateRound || null;
-    if (!confirmation.valid || !debate?.result_hash) return null;
+    const briefDepartments = new Set(safeArray(debate?.board_strategy?.department_briefs).map((brief) => normaliseAionDepartmentKeyV1(brief?.department || "")));
+    const completeReport = ["marketing", "sales", "finance", "operations", "support", "hr"].every((department) => briefDepartments.has(department));
+    if (!confirmation.valid || !debate?.result_hash || !debate?.board_strategy || !completeReport) return null;
     const record = {
       schema_version: "aion.board_direction_ratification.v1",
       ratified: true,
@@ -164960,7 +167467,7 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
       typeof stableAionHash === "function"
         ? stableAionHash(record)
         : `sha256:founder_ratification_${Date.now()}`;
-    try { window.localStorage?.setItem(RATIFICATION_KEY, JSON.stringify(record)); } catch {}
+    try { window.AionBusinessContainerClient.writeBusinessWorkingStateString(RATIFICATION_KEY, JSON.stringify(record)); } catch {}
     return record;
   }
 
@@ -164979,6 +167486,11 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   }
 
   function renderGovernancePanel() {
+    const marketingConnectionState = window.__aionMarketingConnectionStateV1 || {};
+    const connectionStatusIsStale = Date.now() - Number(marketingConnectionState.refreshedAt || 0) > 15000;
+    if ((!marketingConnectionState.loaded || connectionStatusIsStale) && !marketingConnectionState.loading && typeof window.__aionLoadMarketingConnectionsV1 === "function") {
+      window.setTimeout(() => window.__aionLoadMarketingConnectionsV1(connectionStatusIsStale), 0);
+    }
     const confirmation = getConfirmation();
     const ratification = getRatification();
     const map = confirmation.map;
@@ -165021,7 +167533,7 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
           <button type="button" class="primary-btn" data-aion-confirm-canonical-business-map="true">
             ${confirmation.valid ? "Business map confirmed" : confirmation.stale ? "Reconfirm updated business map" : "Confirm business map"}
           </button>
-          ${ratifyReady && !ratification.valid ? `<button type="button" class="primary-btn" data-aion-ratify-board-direction="true">Ratify Board direction</button>` : ""}
+          ${ratifyReady && !ratification.valid ? `<button type="button" class="primary-btn" data-aion-ratify-board-direction="true">Sign off Board report</button>` : ""}
         </div>
       </section>
     `;
@@ -165078,8 +167590,30 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
       event.stopPropagation();
       event.stopImmediatePropagation();
       const record = ratifyBoardDirection();
-      safeAionDesktopPatch?.({ message: record ? "Board direction ratified. Department task packages may now be built." : "Ratification is not available until a live Board debate is complete.", messageTone: record ? "success" : "warning" });
+      safeAionDesktopPatch?.({ message: record ? "Board report signed off. Creating the six department execution packages now…" : "Sign-off is not available until the live Board report contains complete Marketing, Sales, Finance, Operations, Support and HR sections.", messageTone: record ? "success" : "warning" });
       requestRender?.();
+      if (record && typeof buildAionLiveDepartmentTasksFromDebateV1 === "function") {
+        const runId = startAionBoardroomRunV1(
+          "build",
+          "Creating department execution packages from the signed Board report."
+        );
+        buildAionLiveDepartmentTasksFromDebateV1(runId)
+          .then((result) => {
+            if (!isAionBoardroomCurrentRunV1("build", runId)) return;
+            safeAionDesktopPatch?.({
+              message: result?.status === "blocked"
+                ? String(result.reason || "Department execution packages could not be created.")
+                : `Board report signed off and ${safeArray(result?.tasks).length} department execution package(s) created for review.`,
+              messageTone: result?.status === "blocked" ? "warning" : "success",
+            });
+            requestRender?.();
+          })
+          .catch((error) => {
+            setAionBoardroomLiveRunStatusV1("build", `Department package build failed: ${error?.message || error}`, "error", runId);
+            safeAionDesktopPatch?.({ message: `Board report is signed off, but package creation failed: ${error?.message || error}`, messageTone: "error" });
+            requestRender?.();
+          });
+      }
       return;
     }
 
@@ -165141,10 +167675,11 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   };
   let loadInFlight = null;
   let managerOpen = false;
+  let activeConnectionCategory = "apps";
 
   function shouldRenderOriginalBusinessMap() {
     const activeTab = String(window.__AION_DESKTOP_STATE__?.activeTab || "");
-    return activeTab === "vault" || Boolean(document.querySelector(
+    return ["vault", "boardroom"].includes(activeTab) || Boolean(document.querySelector(
       ".aion-vault-canonical-page, [data-aion-connections-business-map='true']"
     ));
   }
@@ -165155,9 +167690,10 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   }
 
   function businessId() {
-    return typeof getAionBoardroomBusinessContainerId === "function"
-      ? getAionBoardroomBusinessContainerId()
-      : window.AionBusinessContainerClient?.resolveBusinessId?.() || "home-fixed";
+    return window.AionBusinessContainerClient?.resolveBusinessId?.()
+      || (typeof getAionBoardroomBusinessContainerId === "function"
+        ? getAionBoardroomBusinessContainerId()
+        : "home-fixed");
   }
 
   function projectOriginalMap(payload = {}) {
@@ -165192,6 +167728,10 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
           });
       state.payload = projectOriginalMap(response.payload || {});
       state.receipt = response.receipt || {};
+      if (!shouldRenderOriginalBusinessMap()) {
+        state.loaded_at = new Date().toISOString();
+        return state;
+      }
       try {
         state.queues = await fetch(`http://127.0.0.1:8080/api/aion/business/data/business-map/${encodeURIComponent(businessId())}/governance/queues`, { headers: { Accept: "application/json" } }).then((item) => {
           if (!item.ok) throw new Error(`Business Map queues failed ${item.status}`);
@@ -165283,7 +167823,7 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
     record.confirmation_hash = typeof stableAionHash === "function"
       ? stableAionHash(record)
       : `sha256:business_map_confirmation_${Date.now()}`;
-    window.localStorage?.setItem(CONFIRMATION_KEY, JSON.stringify(record));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(CONFIRMATION_KEY, JSON.stringify(record));
     window.localStorage?.removeItem(RATIFICATION_KEY);
     window.__aionVisibleAskBoardResult = null;
     window.__aionBoardroomDebateRound = null;
@@ -165299,8 +167839,11 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
 
   function ratifyBoardDirection() {
     const confirmation = getConfirmation();
-    const debateHash = String(window.__aionBoardroomDebateRound?.result_hash || "");
-    if (!confirmation.valid || !debateHash) return null;
+    const debate = window.__aionBoardroomDebateRound || null;
+    const debateHash = String(debate?.result_hash || "");
+    const briefDepartments = new Set(safeArray(debate?.board_strategy?.department_briefs).map((brief) => normaliseAionDepartmentKeyV1(brief?.department || "")));
+    const completeReport = ["marketing", "sales", "finance", "operations", "support", "hr"].every((department) => briefDepartments.has(department));
+    if (!confirmation.valid || !debateHash || !debate?.board_strategy || !completeReport) return null;
     const record = {
       schema_version: "aion.board_direction_ratification.v2",
       ratified: true,
@@ -165312,7 +167855,7 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
       ratified_at: new Date().toISOString(),
     };
     record.ratification_hash = typeof stableAionHash === "function" ? stableAionHash(record) : `sha256:founder_ratification_${Date.now()}`;
-    window.localStorage?.setItem(RATIFICATION_KEY, JSON.stringify(record));
+    window.AionBusinessContainerClient.writeBusinessWorkingStateString(RATIFICATION_KEY, JSON.stringify(record));
     return record;
   }
 
@@ -165449,9 +167992,31 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   }
 
   function renderGovernancePanel() {
+    const marketingConnectionState = window.__aionMarketingConnectionStateV1 || {};
+    const connectionStatusIsStale = Date.now() - Number(marketingConnectionState.refreshedAt || 0) > 15000;
+    if ((!marketingConnectionState.loaded || connectionStatusIsStale) && !marketingConnectionState.loading && typeof window.__aionLoadMarketingConnectionsV1 === "function") {
+      window.setTimeout(() => window.__aionLoadMarketingConnectionsV1(connectionStatusIsStale), 0);
+    }
     const confirmation = getConfirmation();
     const map = confirmation.map;
-    const cards = safeArray(state.connectors?.cards);
+    const liveConnectorCards = safeArray(state.connectors?.cards);
+    const businessAppCatalogue = [
+      { connector_id: "crm_sales", label: "HubSpot", detail: "Sales and customer evidence", status_unknown: true },
+      { connector_id: "xero", label: "Xero", detail: "Accounting evidence", status_unknown: true },
+      { connector_id: "gmail", label: "Gmail", detail: "Business email", status_unknown: true },
+      { connector_id: "calendar", label: "Google Calendar", detail: "Business calendar", status_unknown: true },
+    ];
+    const liveConnectorCardsById = new Map(liveConnectorCards.map((card) => [String(card?.connector_id || ""), card]));
+    const businessAppIds = new Set(businessAppCatalogue.map((card) => card.connector_id));
+    // The catalogue owns visibility; connector status only enriches a tile.
+    // A slow status request must never make the actual business apps vanish.
+    const cards = [
+      ...businessAppCatalogue.map((card) => {
+        const live = liveConnectorCardsById.get(card.connector_id);
+        return live ? { ...card, status_unknown: false, ...live } : card;
+      }),
+      ...liveConnectorCards.filter((card) => !businessAppIds.has(String(card?.connector_id || ""))),
+    ];
     const byId = (id) => cards.find((card) => String(card?.connector_id || "") === id) || null;
     const files = byId("files");
     const fileSummary = files ? connectorSummary(files) : "Available through the governed file store";
@@ -165476,12 +168041,27 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
     const connectionMark = ({ id = "", label = "", kind = "app" } = {}) => {
       const logo = connectorLogo(id);
       if (logo) return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border:1px solid #dbe4ea;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:0 3px 10px rgba(20,40,55,.08);flex:0 0 auto;"><img src="${logo}" alt="" style="width:25px;height:25px;object-fit:contain;"></span>`;
+      const socialMarks = {
+        meta: { glyph: "∞", background: "#0866ff", color: "#fff" },
+        linkedin: { glyph: "in", background: "#0a66c2", color: "#fff" },
+        youtube: { glyph: "▶", background: "#ff0033", color: "#fff" },
+        tiktok: { glyph: "♪", background: "#111827", color: "#fff" },
+        x: { glyph: "X", background: "#000", color: "#fff" },
+        pinterest: { glyph: "P", background: "#e60023", color: "#fff" },
+        google_business: { glyph: "G", background: "#4285f4", color: "#fff" },
+        google_ads: { glyph: "A", background: "#f8fafc", color: "#2563eb" },
+        microsoft_ads: { glyph: "M", background: "#f3f4f6", color: "#2563eb" },
+      };
+      if (kind === "social" && socialMarks[id]) {
+        const mark = socialMarks[id];
+        return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border:1px solid #dbe4ea;border-radius:50%;display:grid;place-items:center;background:${mark.background};color:${mark.color};box-shadow:0 3px 10px rgba(20,40,55,.08);flex:0 0 auto;font-size:${id === "linkedin" ? "15px" : "18px"};font-weight:950;letter-spacing:-.04em;">${mark.glyph}</span>`;
+      }
       if (kind === "files") return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#e7f6f4;color:#147d78;border:1px solid #bfe3df;flex:0 0 auto;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.8A1.8 1.8 0 0 1 5.8 3h4.1l2 2H18a2 2 0 0 1 2 2v10.2A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2Z"/><path d="M4 8h16"/></svg></span>`;
       if (kind === "mcp") return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#edf0fb;color:#5552a6;border:1px solid #d7daf1;flex:0 0 auto;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="7" r="2.2"/><circle cx="12" cy="17" r="2.2"/><path d="M8 8.1l2.8 6.6M16 8.1l-2.8 6.6M8.3 7h7.4"/></svg></span>`;
       const initials = id === "openai" ? "AI" : id === "local_model" ? "Q" : String(label || id || "AI").split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
       return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:${id === "openai" ? "#111827" : "#153b58"};color:#fff;border:1px solid #dbe4ea;font-weight:900;font-size:${initials.length > 1 ? "12px" : "16px"};letter-spacing:.04em;flex:0 0 auto;">${escapeHtml(initials)}</span>`;
     };
-    const connectionTile = ({ id = "", label = "", detail = "", status = "", kind = "app", suggested = false, files = false, healthy = true, availableProvider = "" } = {}) => `<button type="button" class="aion-boardroom-connection-tile${suggested ? " is-suggested" : ""}${availableProvider ? " is-available-integration" : ""}" ${availableProvider ? `data-aion-available-accounting-provider="${escapeHtml(availableProvider)}"` : files ? 'data-aion-business-connector="files"' : 'data-aion-open-vault-connections="true"'} style="appearance:none;text-align:left;border:0;background:${suggested ? "#f8fafc" : "transparent"};padding:6px 4px;min-width:190px;display:flex;align-items:center;gap:11px;cursor:pointer;font:inherit;color:inherit;box-shadow:none;">
+    const connectionTile = ({ id = "", label = "", detail = "", status = "", actionLabel = "", kind = "app", suggested = false, files = false, healthy = true, availableProvider = "", marketingProvider = "", marketingPermissionTier = "", disabled = false } = {}) => `<button type="button" class="aion-boardroom-connection-tile${suggested ? " is-suggested" : ""}${availableProvider ? " is-available-integration" : ""}" ${actionLabel ? `aria-label="${escapeHtml(actionLabel)}" title="${escapeHtml(actionLabel)}"` : ""} ${disabled ? "disabled" : marketingProvider ? `data-aion-connect-marketing-provider="${escapeHtml(marketingProvider)}"${marketingPermissionTier ? ` data-aion-marketing-permission-tier="${escapeHtml(marketingPermissionTier)}"` : ""}` : availableProvider ? `data-aion-available-accounting-provider="${escapeHtml(availableProvider)}"` : files ? 'data-aion-business-connector="files"' : 'data-aion-open-vault-connections="true"'} style="appearance:none;text-align:left;border:0;background:${suggested ? "#f8fafc" : "transparent"};padding:6px 4px;min-width:190px;display:flex;align-items:center;gap:11px;cursor:${disabled ? "not-allowed" : "pointer"};opacity:${disabled ? ".72" : "1"};font:inherit;color:inherit;box-shadow:none;">
       ${connectionMark({ id, label, kind })}
       <span style="min-width:0;display:block;">
         <span style="display:flex;align-items:center;gap:7px;"><strong style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(label)}</strong>${suggested ? '<span aria-hidden="true" style="width:17px;height:17px;border-radius:50%;display:grid;place-items:center;background:#eef0f8;color:#5552a6;font-weight:900;font-size:13px;">+</span>' : `<span aria-hidden="true" style="width:7px;height:7px;border-radius:50%;background:${healthy ? "#22a77a" : "#e09400"};"></span>`}</span>
@@ -165494,15 +168074,61 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
     const availableAccountingApps = safeArray(window.AionFinanceDiscoverySchema?.accountingPlatforms)
       .filter((provider) => provider && !["other", "none"].includes(String(provider.id || "").trim().toLowerCase()))
       .filter((provider) => !connectedAppIds.has(String(provider.id || "").trim().toLowerCase()));
-    const connectedModels = safeArray(state.providers).filter((provider) => provider?.connected === true || provider?.id === "local_model");
-    const modelTile = (provider) => `<div style="display:flex;align-items:center;gap:5px;border:1px solid ${provider?.is_lead ? "#2f67e8" : "transparent"};border-radius:12px;padding:2px 5px;">
-      ${connectionTile({ id: provider.id, label: modelName(provider), detail: provider.id === "local_model" ? (provider.connected === true ? "Private local model · live" : "Installed · not responding") : String(provider.model || "AI model"), kind: "model", healthy: provider.connected === true })}
-      ${provider.connected === true ? `<button type="button" class="secondary-btn" data-aion-set-lead-model="${escapeHtml(provider.id)}" style="white-space:nowrap;padding:7px 9px;font-size:11px;" ${provider.is_lead ? "disabled" : ""}>${provider.is_lead ? "Lead model" : "Use as lead"}</button>` : ""}
-    </div>`;
-    const iconRow = (title, items, emptyText = "Nothing connected yet") => `<div class="aion-boardroom-connection-row" style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center;padding:12px 0;border-top:1px solid #e3e9ee;">
-      <div><div class="card-label">${escapeHtml(title)}</div></div>
-      <div class="aion-boardroom-connection-items" style="display:flex;gap:9px;align-items:center;overflow-x:auto;padding:2px 1px 4px;">${items || `<span class="muted" style="font-size:12px;">${escapeHtml(emptyText)}</span>`}</div>
-    </div>`;
+    const socialProviderCatalogue = [
+      { provider: "meta", label: "Meta · Facebook & Instagram" },
+      { provider: "linkedin", label: "LinkedIn" },
+      { provider: "youtube", label: "YouTube" },
+      { provider: "tiktok", label: "TikTok" },
+      { provider: "x", label: "X" },
+      { provider: "pinterest", label: "Pinterest" },
+      { provider: "google_business", label: "Google Business Profile" },
+    ];
+    const liveSocialConnections = new Map(
+      safeArray(marketingConnectionState.connections)
+        .filter((connection) => socialProviderCatalogue.some((provider) => provider.provider === connection?.provider))
+        .map((connection) => [connection.provider, connection]),
+    );
+    // Keep the connection choices visible even while the status request is
+    // loading or temporarily unavailable. Live connection data enriches the
+    // fixed catalogue; it must never control whether the platform logo exists.
+    const socialConnections = socialProviderCatalogue.map((provider) => ({
+      ...provider,
+      ...(liveSocialConnections.get(provider.provider) || {}),
+    }));
+    const marketingConnectionsByProvider = new Map(safeArray(marketingConnectionState.connections).map((connection) => [connection?.provider, connection]));
+    const advertisingPlatforms = [
+      { provider: "google_ads", label: "Google Ads", icon: "google_ads" },
+      { provider: "meta", label: "Meta Ads", icon: "meta" },
+      { provider: "microsoft_ads", label: "Microsoft Advertising", icon: "microsoft_ads" },
+      { provider: "linkedin", label: "LinkedIn Ads", icon: "linkedin" },
+      { provider: "tiktok", label: "TikTok Ads", icon: "tiktok" },
+      { provider: "pinterest", label: "Pinterest Ads", icon: "pinterest" },
+      { provider: "x", label: "X Ads", icon: "x" },
+    ];
+    const liveModels = safeArray(state.providers);
+    const modelProviderCatalogue = [
+      { id: "openai", label: "OpenAI", model: "AI model", status_unknown: true },
+      { id: "gemini", label: "Gemini", model: "AI model", status_unknown: true },
+      { id: "local_model", label: "Qwen local", model: "Private local model", status_unknown: true },
+    ];
+    const liveModelsById = new Map(liveModels.map((provider) => [String(provider?.id || ""), provider]));
+    const modelProviderIds = new Set(modelProviderCatalogue.map((provider) => provider.id));
+    const connectedModels = [
+      ...modelProviderCatalogue.map((provider) => {
+        const live = liveModelsById.get(provider.id);
+        return live ? { ...provider, status_unknown: false, ...live } : provider;
+      }),
+      ...liveModels.filter((provider) => provider?.connected === true && !modelProviderIds.has(String(provider?.id || ""))),
+    ];
+    const modelTile = (provider) => {
+      const connectionPending = provider.status_unknown === true && provider.connected !== true;
+      const canChooseLead = provider.connected === true || connectionPending || (provider.id === "local_model" && provider.installed === true && provider.workspace_selected === true);
+      const leadActionLabel = provider.is_lead ? "Lead model" : canChooseLead ? "Use as lead" : "Connect first";
+      return `<div style="display:flex;align-items:center;gap:5px;border:1px solid ${provider?.is_lead ? "#2f67e8" : "transparent"};border-radius:12px;padding:2px 5px;">
+        ${connectionTile({ id: provider.id, label: modelName(provider), detail: connectionPending ? "Checking connection…" : provider.id === "local_model" ? (provider.connected === true ? "Private local model · live" : "Installed · not responding") : String(provider.model || "AI model"), kind: "model", healthy: provider.connected === true })}
+        <button type="button" class="secondary-btn" data-aion-set-lead-model="${escapeHtml(provider.id)}" style="white-space:nowrap;padding:7px 9px;font-size:11px;" ${provider.is_lead || !canChooseLead ? "disabled" : ""}>${leadActionLabel}</button>
+      </div>`;
+    };
     const reviewQueueCount = Object.values(state.queues?.counts || {}).reduce((sum, value) => sum + Number(value || 0), 0);
     const mapStatus = state.loading
       ? "Preparing meeting context"
@@ -165511,22 +168137,136 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
         : confirmation.valid
           ? `Business Map r${Number(map?.revision || 0)} ready`
           : "Business Map will be confirmed when the meeting starts";
+    const appTiles = [
+      ...connectedApps.map((card) => connectionTile({ id: card.connector_id, label: connectorName(card), detail: card.detail || (card.connector_id === "xero" ? "Accounting evidence" : "Sales and customer evidence") })),
+      ...suggestedApps.map((card) => connectionTile({ id: card.connector_id, label: connectorName(card), detail: card.status_unknown ? "Checking connection…" : card.detail || (card.connector_id === "calendar" ? "Suggested calendar" : "Suggested business email"), suggested: true })),
+    ].join("");
+    const marketingAccountKindLabel = (provider, kind) => {
+      const labels = {
+        "meta:page": "Facebook Page",
+        "meta:instagram": "Instagram profile",
+        "meta:ad_account": "Ad account",
+        "linkedin:organization": "Company Page",
+        "youtube:channel": "YouTube channel",
+        "tiktok:creator": "TikTok account",
+        "x:account": "X account",
+        "pinterest:account": "Pinterest account",
+        "google_business:location": "Business profile",
+      };
+      return labels[`${provider}:${kind}`] || String(kind || "account").replaceAll("_", " ");
+    };
+    const socialConnectLabels = {
+      meta: "Facebook & Instagram",
+      linkedin: "LinkedIn",
+      youtube: "YouTube",
+      tiktok: "TikTok",
+      x: "X",
+      pinterest: "Pinterest",
+      google_business: "Google Business",
+    };
+    const socialConnectionRows = `<section data-aion-social-connection-list="true" style="grid-column:1/-1;border:1px solid #dbe4ea;border-radius:14px;background:#fff;overflow:hidden;">
+      ${socialConnections.map((connection, index) => {
+        const provider = String(connection?.provider || "");
+        const platformLabel = socialConnectLabels[provider] || connection?.label || provider;
+        const accounts = safeArray(connection?.accounts);
+        const kinds = [...new Set(accounts.map((account) => String(account?.kind || "primary")))];
+        const selectedCount = Object.keys(connection?.selected_accounts || {}).length;
+        const connected = connection?.connected === true;
+        const ready = connected && selectedCount > 0 && connection?.health === "healthy";
+        const copy = getAionMarketingProviderTileCopy(provider, connection, platformLabel, "analytics");
+        const status = connected
+          ? (ready ? "Connected and ready" : selectedCount ? "Connected · ready to test" : "Connected · choose an account")
+          : (connection?.configured === true ? "Ready to connect" : "Setup required");
+        const accountSelectors = connected && kinds.length
+          ? kinds.map((kind) => `<label style="display:flex;align-items:center;gap:6px;min-width:0;flex:1 1 170px;max-width:240px;"><span style="font-size:9px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:#66798d;white-space:nowrap;">${escapeHtml(marketingAccountKindLabel(provider, kind))}</span><select class="input" aria-label="${escapeHtml(marketingAccountKindLabel(provider, kind))}" data-aion-connection-account-provider="${escapeHtml(provider)}" data-aion-connection-account-kind="${escapeHtml(kind)}" style="height:34px;min-width:110px;padding:5px 28px 5px 8px;font-size:11px;background:#fff;"><option value="">Select…</option>${accounts.filter((account) => String(account?.kind || "primary") === kind).map((account) => `<option value="${escapeHtml(account.id)}" ${String(connection.selected_accounts?.[kind] || "") === String(account.id) ? "selected" : ""}>${escapeHtml(account.name || account.id)}</option>`).join("")}</select></label>`).join("")
+          : `<span class="muted" style="font-size:11px;">${connected ? "No business account returned" : "Connect to choose a handle or business profile"}</span>`;
+        return `<div data-aion-social-connection-row="${escapeHtml(provider)}" style="display:grid;grid-template-columns:46px minmax(150px,210px) minmax(220px,1fr) auto;gap:12px;align-items:center;padding:12px 14px;${index ? "border-top:1px solid #e3e9ee;" : ""}">
+          ${connectionMark({ id: provider, label: platformLabel, kind: "social" })}
+          <div style="min-width:0;">
+            <button type="button" class="secondary-btn" data-aion-connect-marketing-provider="${escapeHtml(provider)}" data-aion-marketing-permission-tier="analytics" aria-label="${escapeHtml(copy.actionLabel || `Connect ${platformLabel}`)}" title="${escapeHtml(copy.actionLabel || `Connect ${platformLabel}`)}" style="width:100%;padding:8px 10px;text-align:left;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Connect ${escapeHtml(platformLabel)}</button>
+            <span class="muted" style="display:block;margin-top:4px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(status)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;">${accountSelectors}</div>
+          <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;"><button type="button" class="secondary-btn" data-aion-exam-marketing-provider="${escapeHtml(provider)}" style="padding:8px 10px;font-size:11px;" ${connected ? "" : "disabled"}>Test</button><button type="button" class="secondary-btn" data-aion-sync-marketing-metrics="${escapeHtml(provider)}" style="padding:8px 10px;font-size:11px;" ${connected && selectedCount ? "" : "disabled"}>Sync</button></div>
+        </div>`;
+      }).join("")}
+    </section>`;
+    const advertisingTiles = advertisingPlatforms.map((platform) => {
+      const connection = marketingConnectionsByProvider.get(platform.provider) || {};
+      const advertising = connection?.advertising || {};
+      const ready = advertising?.ready === true;
+      const canAuthorize = advertising?.can_authorize === true;
+      const copy = getAionMarketingProviderTileCopy(platform.provider, connection, platform.label, "advertising");
+      return connectionTile({ id: platform.icon, label: platform.label, detail: copy.detail, actionLabel: copy.actionLabel, kind: "social", suggested: !ready, healthy: ready, disabled: !canAuthorize, marketingProvider: canAuthorize ? platform.provider : "", marketingPermissionTier: canAuthorize ? "advertising" : "" });
+    }).join("");
+    const metaConnection = marketingConnectionsByProvider.get("meta") || {};
+    const metaSetupPanel = marketingConnectionState.loaded && !metaConnection.configured ? `
+      <div data-aion-platform-credentials="meta" style="grid-column:1/-1;border:1px solid #dbe4ea;border-radius:12px;background:#f8fafc;padding:14px;display:grid;gap:10px;">
+        <div><strong>Activate Facebook and Instagram connections</strong><div class="muted" style="margin-top:3px;">Create one Meta Business app, add the callback URL below, then save its App ID and App Secret securely in this Mac's Keychain.</div></div>
+        <div style="display:grid;grid-template-columns:minmax(180px,1fr) minmax(220px,1fr);gap:10px;">
+          <label class="field-label">META APP ID<input class="input" data-aion-platform-client-id autocomplete="off" placeholder="App ID"></label>
+          <label class="field-label">META APP SECRET<input class="input" data-aion-platform-client-secret type="password" autocomplete="new-password" placeholder="Stored only in Keychain"></label>
+        </div>
+        <label class="field-label">VALID OAUTH REDIRECT URI<input class="input" readonly value="http://127.0.0.1:8080/api/aion/marketing/connections/meta/callback"></label>
+        <div><button type="button" class="secondary-btn" data-aion-save-platform-credentials="meta">Save Meta app setup</button></div>
+      </div>` : "";
+    const linkedinConnection = marketingConnectionsByProvider.get("linkedin") || {};
+    const linkedinSetupPanel = marketingConnectionState.loaded && !linkedinConnection.configured ? `
+      <div data-aion-platform-credentials="linkedin" style="grid-column:1/-1;border:1px solid #dbe4ea;border-radius:12px;background:#f8fafc;padding:14px;display:grid;gap:10px;">
+        <div><strong>Activate LinkedIn company connections</strong><div class="muted" style="margin-top:3px;">Save the dedicated LinkedIn Community Management app once. Customers will then click LinkedIn, sign in on LinkedIn, approve Tessaris and return with their administered Company Pages.</div></div>
+        <div style="display:grid;grid-template-columns:minmax(180px,1fr) minmax(220px,1fr);gap:10px;">
+          <label class="field-label">LINKEDIN CLIENT ID<input class="input" data-aion-platform-client-id autocomplete="off" placeholder="Client ID"></label>
+          <label class="field-label">LINKEDIN CLIENT SECRET<input class="input" data-aion-platform-client-secret type="password" autocomplete="new-password" placeholder="Stored only in Keychain"></label>
+        </div>
+        <label class="field-label">AUTHORIZED REDIRECT URL<input class="input" readonly value="http://127.0.0.1:8080/api/aion/marketing/connections/linkedin/callback"></label>
+        <div><button type="button" class="secondary-btn" data-aion-save-platform-credentials="linkedin">Save LinkedIn app setup</button></div>
+      </div>` : "";
+    const tiktokConnection = marketingConnectionsByProvider.get("tiktok") || {};
+    const tiktokSetupPanel = marketingConnectionState.loaded && !tiktokConnection.configured ? `
+      <div data-aion-platform-credentials="tiktok" style="grid-column:1/-1;border:1px solid #dbe4ea;border-radius:12px;background:#f8fafc;padding:14px;display:grid;gap:10px;">
+        <div><strong>Activate TikTok connections</strong><div class="muted" style="margin-top:3px;">Save the Tessaris TikTok developer app once. Customers can then click TikTok, approve read-only profile and video access, and return to Tessaris.</div></div>
+        <div style="display:grid;grid-template-columns:minmax(180px,1fr) minmax(220px,1fr);gap:10px;">
+          <label class="field-label">TIKTOK CLIENT KEY<input class="input" data-aion-platform-client-id autocomplete="off" placeholder="Client key"></label>
+          <label class="field-label">TIKTOK CLIENT SECRET<input class="input" data-aion-platform-client-secret type="password" autocomplete="new-password" placeholder="Stored only in Keychain"></label>
+        </div>
+        <label class="field-label">AUTHORIZED REDIRECT URL<input class="input" readonly value="http://127.0.0.1:8080/api/aion/marketing/connections/tiktok/callback"></label>
+        <div><button type="button" class="secondary-btn" data-aion-save-platform-credentials="tiktok">Save TikTok app setup</button></div>
+      </div>` : "";
+    const accountingTiles = availableAccountingApps.map((provider) => connectionTile({ id: provider.id, label: provider.label, detail: `${provider.description} · Not connected`, suggested: true, availableProvider: provider.id })).join("");
+    const connectionCategories = [
+      { id: "apps", label: "Business apps", title: "Business apps", description: "Connected and suggested services for customer, email and calendar evidence.", items: appTiles, empty: "No business apps available" },
+      { id: "social", label: "Social media", title: "Social media", description: "Connect business social channels for verified performance reporting. Publishing access is added separately when it is actually needed.", items: `${socialConnectionRows}${metaSetupPanel}${linkedinSetupPanel}${tiktokSetupPanel}`, empty: marketingConnectionState.loading ? "Loading social connections…" : "Social connection status unavailable" },
+      { id: "advertising", label: "Advertising", title: "Advertising", description: "Connect paid-media accounts for campaign reporting. Creating campaigns and spending money remain separately approval-gated.", items: advertisingTiles, empty: marketingConnectionState.loading ? "Loading advertising connections…" : "Advertising connection status unavailable" },
+      { id: "accounting", label: "Accounting", title: "Accounting", description: "Finance and bookkeeping services available to the governed business record.", items: accountingTiles, empty: "No additional accounting integrations available" },
+      { id: "files", label: "Files", title: "Business files", description: "Documents and protected records available as governed business evidence.", items: connectionTile({ id: "files", label: "Business files", detail: fileSummary, kind: "files", files: true }), empty: "No file connection available" },
+      { id: "mcp", label: "MCP tools", title: "MCP connections", description: "Managed tool connections made available securely through Connections.", items: connectionTile({ id: "mcp", label: "MCP tools", detail: "Managed securely in Connections", kind: "mcp" }), empty: "No MCP connections available" },
+      { id: "models", label: "AI models", title: "AI models", description: "Connected intelligence providers and the model currently leading this workspace.", items: connectedModels.map(modelTile).join(""), empty: "Connect an AI model, then choose its lead role" },
+    ];
+    const activeCategory = connectionCategories.find((category) => category.id === activeConnectionCategory) || connectionCategories[0];
     return `
       <section data-aion-connections-business-map="true" data-aion-boardroom-business-connections="true" style="margin:0 0 14px;border:1px solid #dbe4ea;background:#fff;padding:22px 24px;">
         <div class="aion-boardroom-business-connections-head" style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;">
           <div>
             <div class="panel-kicker" style="color:#167d79;">Business connections</div>
             <div class="panel-title" style="margin-top:4px;">Your Board works from connected business evidence</div>
-            <p class="muted" style="margin:7px 0 0;max-width:820px;">Files, business systems and approved agent connections are managed securely in Connections. Board meetings use their governed evidence automatically.</p>
+            <p class="muted" style="margin:7px 0 0;max-width:920px;">Connect the AI models, files and business services Tessaris is allowed to use. Credentials remain protected in the local Vault, and Board meetings use their governed evidence automatically.</p>
+          </div>
+          <div class="aion-vault-hero-status" aria-label="Connection operating boundaries" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span>Local-first</span>
+            <span>Approval gated</span>
           </div>
         </div>
-        <div class="aion-boardroom-business-connections-list" style="margin-top:18px;border-bottom:1px solid #e3e9ee;">
-          ${iconRow("Connected apps", connectedApps.map((card) => connectionTile({ id: card.connector_id, label: connectorName(card), detail: card.connector_id === "xero" ? "Accounting evidence" : "Sales and customer evidence" })).join(""), "Connect an app in Connections")}
-          ${iconRow("Connect new", suggestedApps.map((card) => connectionTile({ id: card.connector_id, label: connectorName(card), detail: card.connector_id === "calendar" ? "Suggested calendar" : "Suggested business email", suggested: true })).join(""), "No suggested apps")}
-          ${iconRow("Available integrations", availableAccountingApps.map((provider) => connectionTile({ id: provider.id, label: provider.label, detail: `${provider.description} · Not connected`, suggested: true, availableProvider: provider.id })).join(""), "No additional accounting integrations available")}
-          ${iconRow("Files", connectionTile({ id: "files", label: "Business files", detail: fileSummary, kind: "files", files: true }))}
-          ${iconRow("MCP connections", connectionTile({ id: "mcp", label: "MCP tools", detail: "Managed securely in Connections", kind: "mcp" }))}
-          ${iconRow("AI models", connectedModels.map(modelTile).join(""), "Connect an AI model, then choose its lead role")}
+        <div class="aion-boardroom-business-connections-list" style="display:grid;grid-template-columns:190px minmax(0,1fr);margin-top:18px;border:1px solid #dbe4ea;border-radius:16px;overflow:hidden;min-height:310px;">
+          <nav aria-label="Connection categories" style="display:flex;flex-direction:column;gap:5px;padding:14px;background:#f5f8fc;border-right:1px solid #dbe4ea;">
+            ${connectionCategories.map((category) => `<button type="button" data-aion-connection-category="${escapeHtml(category.id)}" aria-current="${category.id === activeCategory.id ? "page" : "false"}" style="appearance:none;border:${category.id === activeCategory.id ? "1px solid #b7cce8" : "1px solid transparent"};border-radius:10px;background:${category.id === activeCategory.id ? "#fff" : "transparent"};color:${category.id === activeCategory.id ? "#173a64" : "#526579"};padding:11px 12px;text-align:left;font:inherit;font-size:13px;font-weight:${category.id === activeCategory.id ? "850" : "700"};cursor:pointer;box-shadow:${category.id === activeCategory.id ? "0 2px 8px rgba(30,64,100,.07)" : "none"};">${escapeHtml(category.label)}</button>`).join("")}
+          </nav>
+          <section data-aion-connection-category-panel="${escapeHtml(activeCategory.id)}" style="min-width:0;padding:22px 24px;background:#fff;">
+            <div class="card-label">${escapeHtml(activeCategory.title)}</div>
+            <p class="muted" style="margin:6px 0 18px;max-width:760px;">${escapeHtml(activeCategory.description)}</p>
+            <div class="aion-boardroom-connection-items" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;align-items:start;">
+              ${activeCategory.items || `<span class="muted" style="font-size:12px;">${escapeHtml(activeCategory.empty)}</span>`}
+            </div>
+          </section>
         </div>
         <div class="aion-connections-map-status" style="display:flex;align-items:center;gap:9px;margin-top:14px;color:#526579;font-size:12px;">
           <span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:#22a77a;"></span>
@@ -165574,24 +168314,53 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   window.aionRenderOriginalBusinessMapGovernanceV2 = renderGovernancePanel;
 
   window.addEventListener("click", async (event) => {
+    const connectionCategory = event.target?.closest?.("[data-aion-connection-category]");
+    if (connectionCategory) {
+      event.preventDefault();
+      event.stopPropagation();
+      const categoryId = String(connectionCategory.dataset.aionConnectionCategory || "apps");
+      if (["apps", "social", "advertising", "accounting", "files", "mcp", "models"].includes(categoryId)) {
+        activeConnectionCategory = categoryId;
+        requestRender?.();
+      }
+      return;
+    }
     const setLeadModel = event.target?.closest?.("[data-aion-set-lead-model]");
     if (setLeadModel) {
       event.preventDefault();
       event.stopPropagation();
+      const providerId = String(setLeadModel.dataset.aionSetLeadModel || "");
+      const originalLabel = setLeadModel.textContent;
       setLeadModel.disabled = true;
+      setLeadModel.textContent = "Selecting…";
       try {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 12000);
         const response = await fetch("http://127.0.0.1:8080/api/boardroom/providers/lead", {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ workspace_id: businessId(), provider_id: String(setLeadModel.dataset.aionSetLeadModel || "") }),
+          body: JSON.stringify({ workspace_id: businessId(), provider_id: providerId }),
+          signal: controller.signal,
         });
+        window.clearTimeout(timeout);
         const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(String(body?.detail || "That model is not live yet."));
+        const selectedLead = body?.lead_model || { workspace_id: businessId(), provider_id: providerId };
+        state.leadModel = selectedLead;
+        state.providers = safeArray(state.providers).map((provider) => ({
+          ...provider,
+          is_lead: String(provider?.id || "") === providerId,
+        }));
+        window.dispatchEvent(new CustomEvent("tessaris-lead-model-changed", { detail: selectedLead }));
         safeAionDesktopPatch?.({ message: "Lead AI model updated for this workspace.", messageTone: "success" });
-        await loadOriginalBusinessMap();
         requestRender?.();
+        void loadOriginalBusinessMap();
       } catch (error) {
-        safeAionDesktopPatch?.({ message: String(error?.message || error), messageTone: "warning" });
+        const message = error?.name === "AbortError"
+          ? "Tessaris could not save the lead model because the local service did not respond."
+          : String(error?.message || error);
+        safeAionDesktopPatch?.({ message, messageTone: "warning" });
+        setLeadModel.textContent = originalLabel;
         setLeadModel.disabled = false;
       }
       return;
@@ -165607,7 +168376,7 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
         ...(window.__aionVaultIntegrationSelectionsV2 || {}),
         accounting: providerId,
       };
-      try { window.localStorage?.setItem("aion.finance.preferred.accounting_provider", providerId); } catch {}
+      try { window.AionBusinessContainerClient.writeBusinessWorkingStateString("aion.finance.preferred.accounting_provider", providerId); } catch {}
       requestRender?.();
       window.setTimeout(() => {
         document.querySelector('[data-aion-vault-business-integrations="true"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });

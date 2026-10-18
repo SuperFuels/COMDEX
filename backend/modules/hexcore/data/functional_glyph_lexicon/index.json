@@ -1,9 +1,9 @@
 {
-  "created_at": "2026-10-09T21:11:32.852283+00:00",
+  "created_at": "2026-10-18T08:48:40.063039+00:00",
   "gate": {
     "accepted": true,
     "complete_procedures": 2,
-    "compressed_bytes": 3453,
+    "compressed_bytes": 3447,
     "corrupted_capsules_rejected": 1,
     "edge_endpoints_resolve": true,
     "edges": 13,
@@ -21,11 +21,11 @@
     "raw_answers_stored": 0,
     "relation_types": 11,
     "source_documents_opened_during_reconstruction": 0,
-    "store_sha256": "b11a35e0207b62fb5a71a2492b0a1c29346060b4487eeac73dd52418ef5494da",
+    "store_sha256": "aead5bd1133f59940f550e791433d8ca651faac0662e7f37fc39968fc91f81b6",
     "uncompressed_bytes": 10953,
     "unsafe_actions": 0
   },
   "schema_version": "aion.functional_glyph_lexicon.v2",
   "store": "backend/modules/hexcore/data/functional_glyph_lexicon/lexicon.json.gz",
-  "store_sha256": "b11a35e0207b62fb5a71a2492b0a1c29346060b4487eeac73dd52418ef5494da"
+  "store_sha256": "aead5bd1133f59940f550e791433d8ca651faac0662e7f37fc39968fc91f81b6"
 }

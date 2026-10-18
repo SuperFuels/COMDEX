@@ -15,6 +15,7 @@ import sqlite3
 import time
 from typing import Any, Mapping, Sequence
 
+from backend.modules.aion_cognition.sqlite_connection import connect as sqlite_connect
 from backend.modules.aion_cognition.native_lexical_intelligence import NativeLexicalIntelligence
 
 
@@ -83,7 +84,7 @@ class NativeEnglishTransfer:
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.database_path, timeout=30)
+        connection = sqlite_connect(self.database_path, timeout=30)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA busy_timeout=30000")
         return connection
@@ -908,13 +909,13 @@ class NativeEnglishTransfer:
     def _sealed_target_surface_answer(
         self, parsed: Mapping[str, Any], question: str, target_concept_id: str,
     ) -> tuple[str | None, dict[str, Any] | None]:
-        """Select a learned target word from arbitrary material by its meaning.
+        """Select a learned word from arbitrary material by its meaning.
 
-        This is used only for sealed academy challenges whose question asks for
-        the word/action/property itself. It does not see the expected answer.
+        A sealed academy may constrain the search to its target concept.  An
+        authentic reading test deliberately omits that hint, forcing Aion to
+        rank every acquired word in the sentence by semantic overlap.  Neither
+        path sees the expected answer.
         """
-        if not target_concept_id:
-            return None, None
         lowered = question.lower()
         surface_intent = any(phrase in lowered for phrase in (
             "which word", "what word", "which term", "what term",
@@ -936,7 +937,10 @@ class NativeEnglishTransfer:
         question_terms = self._question_semantic_terms(question)
         candidates: list[tuple[int, dict[str, Any], set[str]]] = []
         for token in parsed.get("tokens") or []:
-            if str(token.get("concept_id") or "") != target_concept_id:
+            token_concept_id = str(token.get("concept_id") or "")
+            if str(token.get("source") or "") != "acquired_concept" or not token_concept_id:
+                continue
+            if target_concept_id and token_concept_id != target_concept_id:
                 continue
             pos = str(token.get("pos") or "")
             if asks_action and pos != "v":
@@ -1072,19 +1076,23 @@ class NativeEnglishTransfer:
         answer: str | None = None
         evidence_role = ""
         semantic_receipt: dict[str, Any] | None = None
-        answer, evidence_role = self._direct_clause_role_answer(parsed, question)
-        if answer:
-            parsed["direct_role_resolution"] = {
-                "role": evidence_role, "answer": answer, "model_used": False,
-            }
-        if not answer:
-            answer, semantic_receipt = self._sealed_target_surface_answer(
-                parsed, question, target_concept_id,
-            )
+        # Resolve an acquired meaning question before generic role retrieval.
+        # Otherwise a contextual prompt such as "Which action is associated
+        # with satisfied?" returns the action lemma (please) instead of the
+        # exact word Aion encountered in the text (pleased).
+        answer, semantic_receipt = self._sealed_target_surface_answer(
+            parsed, question, target_concept_id,
+        )
         if answer:
             if semantic_receipt:
                 evidence_role = "semantic_target_surface"
                 parsed["semantic_inferences"] = [semantic_receipt]
+        if not answer:
+            answer, evidence_role = self._direct_clause_role_answer(parsed, question)
+            if answer:
+                parsed["direct_role_resolution"] = {
+                    "role": evidence_role, "answer": answer, "model_used": False,
+                }
         # Meaning questions take precedence over shallow wh-word role rules.
         # Otherwise "Who was cleared of blame?" would incorrectly return the
         # grammatical agent merely because it begins with "who".

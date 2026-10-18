@@ -22,6 +22,8 @@
   const list = (key) => Array.isArray(state.model[key]) ? state.model[key] : (state.model[key] = []);
   const money = (value) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: state.model.currency || 'EUR', maximumFractionDigits: 2 }).format(Number(value || 0));
   const localId = (prefix) => `${prefix}.draft.${Date.now().toString(36)}.${Math.random().toString(36).slice(2,7)}`;
+  let draftSaveTimer = null;
+  let draftSaveChain = Promise.resolve();
 
   function ensureRelationshipIds() {
     [['offerings','offering'],['labour_resources','labour'],['jobs','job']].forEach(([key,prefix]) => {
@@ -29,7 +31,23 @@
     });
   }
 
-  function persistDraft() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.model)); } catch {} }
+  function persistDraft() {
+    global.__aionOperatingModelDraft = state.model;
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    if (!global.AionBusinessContainerClient?.saveOperatingModel) return;
+    clearTimeout(draftSaveTimer);
+    draftSaveTimer = setTimeout(() => {
+      draftSaveChain = draftSaveChain.catch(() => null).then(async () => {
+        const expected = Number(state.model.revision || 0) || null;
+        const result = await global.AionBusinessContainerClient.saveOperatingModel(state.model, expected);
+        if (result?.payload) state.model = { ...state.model, ...result.payload };
+        global.__aionOperatingModelDraft = state.model;
+        return result;
+      }).catch((error) => {
+        state.error = `Draft Vault sync is pending: ${String(error?.message || error)}`;
+      });
+    }, 650);
+  }
   function rerender() { if (typeof global.requestRender === 'function') global.requestRender(); }
 
   let conversationPersistTimer = null;
@@ -112,7 +130,7 @@
       persistDraft();
       global.dispatchEvent(new CustomEvent('aion:operating-model-conversation-fact-saved', { detail: { count: facts.length } }));
     } catch (error) {
-      state.error = `Conversation fact is saved locally; Business Container sync is pending: ${String(error?.message || error)}`;
+      state.error = `Conversation fact remains in memory; Business Vault sync is pending: ${String(error?.message || error)}`;
       persistDraft();
     }
   }
@@ -163,7 +181,14 @@
       retryAfterStartup = true;
       try {
         const draft = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-        if (draft) state.model = { ...state.model, ...draft };
+        if (draft) {
+          state.model = { ...state.model, ...draft };
+          global.__aionOperatingModelDraft = state.model;
+          localStorage.removeItem(STORAGE_KEY);
+          persistDraft();
+        } else if (global.__aionOperatingModelDraft) {
+          state.model = { ...state.model, ...global.__aionOperatingModelDraft };
+        }
       } catch {}
     } finally {
       state.loading = false; state.loaded = true; rerender();
@@ -180,6 +205,8 @@
   async function save() {
     state.saving = true; state.error = ''; rerender();
     try {
+      clearTimeout(draftSaveTimer);
+      await draftSaveChain.catch(() => null);
       // Quoted work is costed on the individual quote/job. Persist the same
       // classification shown in the UI so Boardroom does not ask the owner to
       // fill catalogue cost cells that deliberately do not apply.
@@ -473,8 +500,15 @@
     </section>`;
   }
 
+  function quotePricingRules() {
+    const rows = list('pricing_rules');
+    const categories = [['all','All quote costs'],['materials','Materials'],['labour','Labour'],['supplier_subcontractor','Subcontractors / external costs'],['other','Other costs']];
+    return `<div class="om-section-head"><div><h3>Default quote pricing rules</h3><p>Use these rules when a job has variable costs. Tessaris applies them to the actual materials, labour and external costs entered on each quote. The suggested price stays editable and the minimum margin remains visible.</p></div><button class="om-add" data-om-add="pricing_rules">+ Add pricing rule</button></div>
+      ${rows.length ? `<div class="om-table-wrap"><table><thead><tr><th>Applies to</th><th>Method</th><th>Percentage</th><th>Notes</th><th></th></tr></thead><tbody>${rows.map((row,i)=>{ const method = row.rule_type || (row.target_margin_percent != null ? 'target_margin' : 'cost_plus'); const percentField = method === 'cost_plus' ? 'markup_percent' : 'target_margin_percent'; return `<tr><td>${select('pricing_rules',i,'category',row.category || row.applies_to || 'all',categories)}</td><td>${select('pricing_rules',i,'rule_type',method,[['target_margin','Protect gross margin'],['cost_plus','Add markup to cost']])}</td><td>${input('pricing_rules',i,percentField,row[percentField],'number','0')}</td><td>${input('pricing_rules',i,'notes',row.notes,'text','Approved by founder / Board')}</td><td>${remove('pricing_rules',i)}</td></tr>`; }).join('')}</tbody></table></div>` : empty('No category-specific rules are saved. Quotes will use the agreed overall target gross margin until you add one.')}`;
+  }
+
   function finance(options = {}) {
-    return renderedConversationFacts('finance', 'targets') + marginDecisionCard(options) + simpleTable('payment_terms','Default and customer payment terms','Set the normal deposit and balance timing once. Add another row only when a customer has an agreed exception.',[['name','Customer / default'],['deposit_percent','Deposit %','number'],['balance_due_days','Balance due days','number'],['notes','Plain-language terms']], 'Add the default terms once, then only record genuine customer exceptions.') +
+    return renderedConversationFacts('finance', 'targets') + marginDecisionCard(options) + quotePricingRules() + simpleTable('payment_terms','Default and customer payment terms','Set the normal deposit and balance timing once. Add another row only when a customer has an agreed exception.',[['name','Customer / default'],['deposit_percent','Deposit %','number'],['balance_due_days','Balance due days','number'],['notes','Plain-language terms']], 'Add the default terms once, then only record genuine customer exceptions.') +
       simpleTable('overheads','Monthly overheads','Recurring business costs that are not tied to one sale or job. Confirm accounting imports and add only costs that are missing.',[['name','Cost'],['monthly_amount','Monthly amount','number'],['category','Type'],['source','Source / evidence']], 'Examples include software, vehicles, premises, insurance and professional fees. Do not repeat direct materials or subcontractor costs.') +
       simpleTable('debt_commitments','Borrowing and finance commitments','Add one row for each loan, card, lease or vehicle finance agreement so Finance can see the monthly cash commitment.',[['name','Lender / facility'],['balance','Balance remaining','number'],['monthly_repayment','Monthly payment','number'],['interest_rate','Interest %','number'],['remaining_months','Months left','number'],['security','Security / guarantee']], 'Leave this empty when the business has no borrowing or finance agreements.') +
       simpleTable('financial_targets','Agreed 12-month financial targets','Record only targets you already know or have agreed with the Finance Pilot or Board. Historical results are evidence, not automatic targets.',[['name','Target'],['target_value','Value','number'],['unit','€ / % / days'],['deadline','Review date','date']], 'No targets have been agreed yet. Ask the Finance Pilot for a recommendation rather than guessing.');
@@ -507,6 +541,7 @@
     inventory_items: { name:'', stock_class:'raw_material', unit:'units', quantity_on_hand:'', quantity_reserved:'', unit_cost:'', reorder_point:'', target_stock:'', lead_time_days:'' },
     procurement_queue: { name:'', quantity:'', unit:'units', supplier_name:'', required_date:'', estimated_cash_required:'', lead_time_days:'', status:'draft', requires_approval:true },
     payment_terms: { name:'Default', deposit_percent:'', balance_due_days:'', notes:'' }, overheads:{ name:'', monthly_amount:'', category:'', source:'manual' },
+    pricing_rules: { name:'Quote pricing rule', category:'all', rule_type:'target_margin', target_margin_percent:'', markup_percent:'', notes:'', approval_status:'draft' },
     debt_commitments:{ name:'', balance:'', monthly_repayment:'', interest_rate:'', remaining_months:'', security:'' }, financial_targets:{ name:'', target_value:'', unit:'EUR', deadline:'' },
   };
 

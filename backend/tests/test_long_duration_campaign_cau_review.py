@@ -3,7 +3,10 @@ import json
 from pathlib import Path
 
 from backend.modules.hexcore.long_duration_campaign_cau_review import review
-from backend.modules.hexcore.long_duration_real_outcome_campaign import PROCEDURE_ID
+from backend.modules.hexcore.long_duration_real_outcome_campaign import (
+    PROCEDURE_ID,
+    _transaction_outcome,
+)
 
 
 def _hash(body):
@@ -37,3 +40,14 @@ def test_review_rereads_and_promotes_only_exact_wall_clock_campaign(tmp_path: Pa
     assert result["passed"] is True
     assert result["gate"]["exact_commitment_and_outcome_rows"] == 12
     assert json.loads(state_path.read_text())["status"] == "INTERNALLY_PROMOTED_BY_CAU"
+
+
+def test_campaign_transaction_probe_is_memory_only(tmp_path: Path) -> None:
+    result = _transaction_outcome(7)
+
+    assert result == {
+        "authority": "sqlite_transaction_commit",
+        "passed": True,
+        "cycle": 7,
+    }
+    assert not list(tmp_path.rglob("*.sqlite3"))

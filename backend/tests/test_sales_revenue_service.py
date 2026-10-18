@@ -131,6 +131,8 @@ def test_customer_relationship_is_native_signed_and_shared_with_the_work_feed(mo
         preferred_channel="whatsapp", next_action="Collect the remaining 50%",
         next_action_due="2026-09-01", tags=["Roofing", "Repeat customer", "roofing"],
         owner_person_id="person.owner", address="12 Example Street, Almeria",
+        contact_name="Jamie Customer Updated", email="jamie.updated@example.test",
+        phone="+34 600 999 888",
         updated_by_person_id="person.owner",
     )
 
@@ -141,9 +143,14 @@ def test_customer_relationship_is_native_signed_and_shared_with_the_work_feed(mo
     assert updated["relationship"]["tags"] == ["Roofing", "Repeat customer"]
     assert updated["relationship"]["updated_by_person_id"] == "person.owner"
     assert updated["contact"]["address"] == "12 Example Street, Almeria"
+    assert updated["contact"]["name"] == "Jamie Customer Updated"
+    assert updated["contact"]["email"] == "jamie.updated@example.test"
+    assert updated["contact"]["phone"] == "+34600999888"
     assert updated["work_feed"]["events"][-1]["title"] == "Relationship details updated"
     assert updated["work_feed"]["events"][-1]["recorded_by_person_id"] == "person.owner"
-    assert sales.list_contacts("acme")[0]["address"] == "12 Example Street, Almeria"
+    persisted_contact = sales.list_contacts("acme")[0]
+    assert persisted_contact["address"] == "12 Example Street, Almeria"
+    assert persisted_contact["email"] == "jamie.updated@example.test"
     assert sales.workspace("acme")["today_queue"][0]["next_action"] == "Collect the remaining 50%"
 
 
@@ -280,6 +287,38 @@ def test_customer_work_feed_carries_the_job_from_enquiry_to_receipted_action(mon
     ]
 
 
+def test_provider_message_delivery_is_exactly_once_and_conflicts_fail_closed(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    opportunity = enquiry(sales)["opportunity"]
+    opportunity_id = opportunity["opportunity_id"]
+    draft = sales.append_work_event(
+        "acme", opportunity_id, kind="outbound_draft", lifecycle_stage=None,
+        title="Customer update", summary="Reviewed customer email is ready.",
+        details={"recipient": "jamie@example.test"}, source="communications",
+        provider="tessaris", source_reference="draft-1", attachments=[],
+        action={"status": "approved", "external_action_performed": False},
+        recorded_by_person_id="person.owner",
+    )["event"]
+    payload = dict(
+        provider="provider-sandbox", provider_message_id="provider-message-1",
+        provider_thread_id="provider-thread-1", channel="email",
+        recipient="jamie@example.test", subject="Your customer update",
+        content_sha256="a" * 64, delivery_status="delivered",
+        linked_draft_event_id=draft["event_id"], sent_at="2026-10-18T01:00:00+00:00",
+        recorded_by_person_id="person.owner",
+    )
+    first = sales.record_message_delivery("acme", opportunity_id, **payload)
+    replay = sales.record_message_delivery("acme", opportunity_id, **payload)
+    assert first["deduplicated"] is False
+    assert replay["deduplicated"] is True
+    assert replay["event"]["event_id"] == first["event"]["event_id"]
+    assert len([row for row in replay["work_feed"]["events"]
+                if row["kind"] == "outbound_message"]) == 1
+    with pytest.raises(ValueError, match="message_delivery_receipt_conflict"):
+        sales.record_message_delivery(
+            "acme", opportunity_id, **{**payload, "content_sha256": "b" * 64})
+
+
 def test_customer_work_feed_preserves_generic_business_files(monkeypatch, tmp_path):
     sales, _ = service(monkeypatch, tmp_path)
     created = enquiry(sales)
@@ -352,6 +391,7 @@ def test_secured_website_intake_authenticates_deduplicates_and_preserves_attribu
         "event_id": "submission-001", "name": "Pat Prospect", "email": "pat@example.test",
         "enquiry": "Need a heat pump quote", "utm_source": "google",
         "utm_campaign": "heat-pump", "landing_page": "/heat-pumps",
+        "address": "12 Prospect Street",
     }
     with pytest.raises(PermissionError, match="token_invalid"):
         sales.ingest_website_enquiry("acme", endpoint["endpoint_id"], token="wrong", payload=payload)
@@ -362,6 +402,7 @@ def test_secured_website_intake_authenticates_deduplicates_and_preserves_attribu
     assert first["opportunity"]["attribution"] == {
         "landing_page": "/heat-pumps", "utm_source": "google", "utm_campaign": "heat-pump"}
     assert first["intake_evidence"]["authenticated"] is True
+    assert first["contact"]["address"] == "12 Prospect Street"
     assert second["duplicate_reason"] == "source_reference"
     public_endpoint = sales.list_intake_endpoints("acme")[0]
     assert "token_sha256" not in public_endpoint

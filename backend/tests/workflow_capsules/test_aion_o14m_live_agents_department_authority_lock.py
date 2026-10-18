@@ -12,7 +12,8 @@ def test_o14m_department_authority_lock_installed():
 def test_o14m_finance_guard_is_one_shot_not_permanent_trap():
     assert "financeFirstRouted.v1" in APP
     assert "const forced = (financeFirst && !alreadyRouted) || explicitFinance;" in APP
-    assert 'localStorage.setItem("aion.businessTwin.financeFirstRouted.v1", "true");' in APP
+    assert 'window.AionDesktopPreferences.set(' in APP
+    assert '"aion.businessTwin.financeFirstRouted.v1"' in APP
 
 
 def test_o14m_non_finance_department_clears_finance_trap():

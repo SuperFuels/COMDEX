@@ -1052,8 +1052,8 @@ class KnowledgeGraphWriter:
         into the ledger so /api/kg/events → applyEvents can
         materialize a kg_edge row with kind='ENTANGLEMENT'.
 
-        For now, if no higher-level append_event/append_events helper
-        exists, we also write directly into kg_events + kg_edge via SQLite.
+        A governed event helper is mandatory.  This method never falls back to
+        an undeclared application-local SQLite database.
         """
         print("💥 DEBUG: write_entanglement_entry CALLED")
         print(f"🧠 KG: Entangled {container_a} ↔ {container_b}")
@@ -1074,7 +1074,6 @@ class KnowledgeGraphWriter:
         try:
             import json
             import time
-            import sqlite3
 
             # Payload shape that applyEvents() expects:
             #   payload.metadata.from / payload.metadata.to
@@ -1133,96 +1132,11 @@ class KnowledgeGraphWriter:
                 ])
 
             else:
-                # Fallback: write directly into kg_events *and* symmetric kg_edge rows
-                db_path = getattr(self, "db_path", "server/data/kg.db")
-                print(f"💥 DEBUG: entanglement fallback → SQLite @ {db_path}")
-                conn = sqlite3.connect(db_path)
-                try:
-                    cur = conn.cursor()
-
-                    # 1) kg_events row (journal the entanglement)
-                    cur.execute(
-                        """
-                        INSERT INTO kg_events
-                          (id, kg, owner_wa, thread_id, topic_wa,
-                           type, kind, ts, size, sha256, payload)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """,
-                        (
-                            event_id,
-                            kg,
-                            owner_wa,
-                            thread_id,
-                            topic_wa,
-                            "entanglement",
-                            None,
-                            ts_ms,
-                            None,
-                            None,
-                            json.dumps(payload),
-                        ),
-                    )
-
-                    # 2) Idempotent symmetric edges in kg_edge with kind='ENTANGLEMENT'
-                    def edge_exists(src: str, dst: str) -> bool:
-                        cur.execute(
-                            """
-                            SELECT 1 FROM kg_edge
-                            WHERE kg = ?
-                              AND kind = 'ENTANGLEMENT'
-                              AND src_type = 'container_ref'
-                              AND dst_type = 'container_ref'
-                              AND src_id = ?
-                              AND dst_id = ?
-                            """,
-                            (kg, src, dst),
-                        )
-                        return cur.fetchone() is not None
-
-                    # A → B
-                    if not edge_exists(container_a, container_b):
-                        cur.execute(
-                            """
-                            INSERT INTO kg_edge
-                              (kg, kind, src_type, src_id, dst_type, dst_id, created_ts)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
-                            """,
-                            (
-                                kg,
-                                "ENTANGLEMENT",
-                                "container_ref",
-                                container_a,
-                                "container_ref",
-                                container_b,
-                                ts_ms,
-                            ),
-                        )
-
-                    # B → A (symmetric entanglement)
-                    if container_a != container_b and not edge_exists(container_b, container_a):
-                        cur.execute(
-                            """
-                            INSERT INTO kg_edge
-                              (kg, kind, src_type, src_id, dst_type, dst_id, created_ts)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
-                            """,
-                            (
-                                kg,
-                                "ENTANGLEMENT",
-                                "container_ref",
-                                container_b,
-                                "container_ref",
-                                container_a,
-                                ts_ms,
-                            ),
-                        )
-
-                    conn.commit()
-                    print("💥 DEBUG: entanglement edges A↔B inserted via fallback (idempotent)")
-                finally:
-                    conn.close()
+                raise RuntimeError("knowledge_graph_event_authority_required")
 
         except Exception as e:
+            if str(e) == "knowledge_graph_event_authority_required":
+                raise
             print(f"[KGWriter] ⚠️ entanglement event/edge journaling failed: {e}")
 
         # 🔁 ALSO: journal as a glyph so it becomes a KG glyph entry (for the index)

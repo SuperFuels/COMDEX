@@ -6,13 +6,23 @@ import io
 import json
 from pathlib import Path
 import re
+import sys
 from threading import RLock
 from typing import Any, Iterable
 from uuid import uuid4
 from xml.etree import ElementTree
 from zipfile import BadZipFile, ZipFile
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.guardian_business_container_repository import (
+    GuardianBusinessContainerRepository,
+)
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+from backend.modules.aion_business.runtime.vault_object_store import VaultObjectStore
 
 
 ALLOWED_SCOPES = {
@@ -187,10 +197,24 @@ def _claim_fragments(text: str) -> list[str]:
 class BusinessKnowledgeService:
     """Local, provenance-preserving business knowledge with owner promotion gates."""
 
-    def __init__(self, base_dir: str | Path | None = None) -> None:
+    def __init__(
+        self,
+        base_dir: str | Path | None = None,
+        *,
+        domain_store: VaultDomainStore | None = None,
+        object_store: VaultObjectStore | None = None,
+    ) -> None:
+        if base_dir is None and domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            domain_store = VaultDomainStore(runtime.guardian, actor_id="business-knowledge-runtime")
+            object_store = runtime.objects
         self.base_dir = Path(base_dir) if base_dir else AIONBusinessPaths.BUSINESS_CONTAINERS
+        self.domain_store = domain_store
+        self.object_store = object_store
 
     def _root(self, business_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_business_knowledge__") / business_id
         root = self.base_dir / business_id / "business_knowledge"
         (root / "raw").mkdir(parents=True, exist_ok=True)
         return root
@@ -199,6 +223,22 @@ class BusinessKnowledgeService:
         return self._root(business_id) / "index.json"
 
     def _load(self, business_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            record = self.domain_store.get_optional(
+                "business.knowledge", workspace_id=business_id, entity_id="index"
+            )
+            if record is None:
+                return {
+                    "schema_version": "aion.business_knowledge.v1",
+                    "business_id": business_id,
+                    "revision": 0,
+                    "sources": [],
+                    "claims": [],
+                    "entity_links": [],
+                    "retrieval_receipts": [],
+                    "updated_at": None,
+                }
+            return record["payload"]
         path = self._index_path(business_id)
         if not path.exists():
             return {
@@ -218,6 +258,18 @@ class BusinessKnowledgeService:
         index["updated_at"] = _now()
         stable = {key: value for key, value in index.items() if key != "index_hash"}
         index["index_hash"] = _sha256_json(stable)
+        if self.domain_store is not None:
+            current = self.domain_store.get_optional(
+                "business.knowledge", workspace_id=business_id, entity_id="index"
+            )
+            self.domain_store.put(
+                "business.knowledge",
+                workspace_id=business_id,
+                entity_id="index",
+                payload=index,
+                expected_version=int(current["version"]) if current is not None else None,
+            )
+            return index
         path = self._index_path(business_id)
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps(index, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -307,17 +359,39 @@ class BusinessKnowledgeService:
             if existing:
                 return {"duplicate": True, "source": existing, "claims_created": 0, "summary": self.summary(business_id)}
             source_id = f"bks_{uuid4().hex[:16]}"
-            raw_name = f"{source_id}{Path(filename).suffix.lower() if filename else '.txt'}"
-            raw_path = self._root(business_id) / "raw" / raw_name
-            raw_path.write_bytes(raw_bytes)
             created_at = _now()
+            raw_name = f"{source_id}{Path(filename).suffix.lower() if filename else '.txt'}"
+            source_storage: dict[str, Any]
+            if self.domain_store is not None:
+                if self.object_store is None:
+                    raise RuntimeError("business_knowledge_object_store_required")
+                sys.audit("tessaris.vault_domain_access", "business.knowledge_files", "put")
+                object_id = f"business-knowledge-{source_id}"
+                metadata = self.object_store.put_bytes(
+                    object_id=object_id,
+                    data=raw_bytes,
+                    original_name=filename or raw_name,
+                    content_type="text/plain" if filename is None else "application/octet-stream",
+                    idempotency_key=f"business-knowledge-{source_hash.removeprefix('sha256:')}",
+                    actor_id="business-knowledge-runtime",
+                    recorded_at=created_at,
+                )
+                source_storage = {
+                    "vault_object_id": object_id,
+                    "vault_object_version": metadata["version"],
+                    "vault_reference": f"vault://business.knowledge_files/{business_id}/{object_id}",
+                }
+            else:
+                raw_path = self._root(business_id) / "raw" / raw_name
+                raw_path.write_bytes(raw_bytes)
+                source_storage = {"raw_local_path": str(raw_path)}
             source = {
                 "source_id": source_id,
                 "title": str(title).strip()[:240],
                 "filename": filename,
                 "source_type": source_type,
                 "source_hash": source_hash,
-                "raw_local_path": str(raw_path),
+                **source_storage,
                 "byte_size": len(raw_bytes),
                 "scopes": clean_scopes,
                 "confidentiality": clean_confidentiality,
@@ -355,6 +429,8 @@ class BusinessKnowledgeService:
             for claim in index["claims"]:
                 if claim.get("claim_id") not in requested:
                     continue
+                if claim.get("status") == "approved":
+                    continue
                 claim["status"] = "approved"
                 claim["verification_status"] = "owner_attested"
                 claim["approved_by"] = actor
@@ -368,7 +444,27 @@ class BusinessKnowledgeService:
                     source["status"] = "partially_approved"
             if approved:
                 self._save(business_id, index)
-            return {"approved": approved, "approved_count": len(approved), "summary": self.summary(business_id)}
+            receipts = []
+            for source_id in sorted({str(claim.get("source_id") or "") for claim in approved}):
+                source_claim_ids = sorted(
+                    str(claim["claim_id"])
+                    for claim in approved
+                    if str(claim.get("source_id") or "") == source_id
+                )
+                receipts.append(self._governance_receipt(
+                    business_id,
+                    "claims_owner_approved",
+                    source_id,
+                    actor,
+                    {"claim_ids": source_claim_ids},
+                ))
+            return {
+                "approved": approved,
+                "approved_count": len(approved),
+                "receipts": receipts,
+                "idempotent_replay": bool(requested) and not approved,
+                "summary": self.summary(business_id),
+            }
 
     def _visible(self, claim: dict[str, Any], actor_scope: str) -> bool:
         scopes = set(claim.get("scopes") or ["all"])
@@ -436,15 +532,100 @@ class BusinessKnowledgeService:
             self._save(business_id, index)
             return {"matches": matches, "match_count": len(matches), "receipt": receipt}
 
+    def rebuild_search_index(
+        self, business_id: str, *, actor: str = "business_owner"
+    ) -> dict[str, Any]:
+        """Prove that local search can be rebuilt from authoritative Vault records.
+
+        The searchable projection is deliberately assembled in memory and is
+        never persisted.  Every source contributing an approved claim must
+        still have an original whose digest matches its recorded provenance.
+        """
+        actor_id = str(actor or "").strip()
+        if not actor_id:
+            raise ValueError("search index rebuild actor is required")
+        with _LOCK:
+            index = self._load(business_id)
+            approved = [
+                claim for claim in index.get("claims") or []
+                if claim.get("status") == "approved"
+            ]
+            source_ids = sorted({str(claim.get("source_id") or "") for claim in approved})
+            source_by_id = {
+                str(source.get("source_id") or ""): source
+                for source in index.get("sources") or []
+            }
+            verified_sources: list[dict[str, Any]] = []
+            for source_id in source_ids:
+                source = source_by_id.get(source_id)
+                if source is None or source.get("status") == "revoked":
+                    raise RuntimeError("approved_knowledge_source_unavailable")
+                if self.domain_store is not None:
+                    object_id = str(source.get("vault_object_id") or "")
+                    if not object_id or self.object_store is None:
+                        raise RuntimeError("approved_knowledge_original_unavailable")
+                    sys.audit("tessaris.vault_domain_access", "business.knowledge_files", "get")
+                    _metadata, original = self.object_store.get_bytes(object_id=object_id)
+                else:
+                    raw_path = Path(str(source.get("raw_local_path") or ""))
+                    if not raw_path.is_file():
+                        raise RuntimeError("approved_knowledge_original_unavailable")
+                    original = raw_path.read_bytes()
+                if _sha256_bytes(original) != source.get("source_hash"):
+                    raise RuntimeError("approved_knowledge_original_digest_mismatch")
+                verified_sources.append({
+                    "source_id": source_id,
+                    "source_hash": source.get("source_hash"),
+                    "original_verified": True,
+                })
+
+            projection = [
+                {
+                    "claim_id": str(claim.get("claim_id") or ""),
+                    "source_id": str(claim.get("source_id") or ""),
+                    "source_hash": str(claim.get("source_hash") or ""),
+                    "terms": sorted(_search_terms(str(claim.get("text") or ""))),
+                }
+                for claim in approved
+            ]
+            index_fingerprint = _sha256_json(projection)
+            receipt = self._governance_receipt(
+                business_id,
+                "search_index_rebuilt_from_authoritative_sources",
+                "approved_knowledge",
+                actor_id,
+                {
+                    "approved_claim_count": len(projection),
+                    "verified_source_count": len(verified_sources),
+                    "index_fingerprint": index_fingerprint,
+                    "derived_index_persisted": False,
+                },
+            )
+            return {
+                "business_id": business_id,
+                "approved_claim_count": len(projection),
+                "verified_source_count": len(verified_sources),
+                "verified_sources": verified_sources,
+                "index_fingerprint": index_fingerprint,
+                "index_location": "memory_only",
+                "derived_index_persisted": False,
+                "receipt": receipt,
+            }
+
     def rebuild_entity_links(self, business_id: str, *, actor: str = "business_owner") -> dict[str, Any]:
         """Link approved claims to explicit Boardroom entities without model inference."""
         actor_id = str(actor or "").strip()
         if not actor_id:
             raise ValueError("entity link actor is required")
-        identity_path = self.base_dir / business_id / "business_identity.json"
-        structure_path = self.base_dir / business_id / "business_structure.json"
-        identity = json.loads(identity_path.read_text(encoding="utf-8")) if identity_path.exists() else {}
-        structure = json.loads(structure_path.read_text(encoding="utf-8")) if structure_path.exists() else {}
+        if self.domain_store is not None:
+            containers = GuardianBusinessContainerRepository(self.domain_store.guardian)
+            identity = containers.load_optional_dict(business_id, "business_identity") or {}
+            structure = containers.load_optional_dict(business_id, "business_structure") or {}
+        else:
+            identity_path = self.base_dir / business_id / "business_identity.json"
+            structure_path = self.base_dir / business_id / "business_structure.json"
+            identity = json.loads(identity_path.read_text(encoding="utf-8")) if identity_path.exists() else {}
+            structure = json.loads(structure_path.read_text(encoding="utf-8")) if structure_path.exists() else {}
         catalogue: list[dict[str, str]] = []
 
         def add(entity_id: Any, entity_type: str, name: Any) -> None:
@@ -556,15 +737,29 @@ class BusinessKnowledgeService:
                     claim["revoked_at"] = now
                     revoked_claim_ids.add(claim.get("claim_id"))
             index["entity_links"] = [item for item in index.get("entity_links") or [] if item.get("claim_id") not in revoked_claim_ids]
-            raw_path = Path(str(source.get("raw_local_path") or ""))
-            raw_root = (self._root(business_id) / "raw").resolve()
-            try:
-                resolved = raw_path.resolve()
-                if resolved.is_relative_to(raw_root) and resolved.is_file():
-                    resolved.unlink()
+            if self.domain_store is not None:
+                object_id = str(source.get("vault_object_id") or "")
+                version = int(source.get("vault_object_version") or 0)
+                if object_id and version and self.object_store is not None:
+                    self.object_store.tombstone(
+                        object_id=object_id,
+                        expected_version=version,
+                        reason_code="business_knowledge_source_revoked",
+                        idempotency_key=f"revoke-{source_id}",
+                        actor_id=actor_id,
+                        recorded_at=now,
+                    )
                     source["raw_material_deleted"] = True
-            except (OSError, RuntimeError):
-                source["raw_material_deleted"] = False
+            else:
+                raw_path = Path(str(source.get("raw_local_path") or ""))
+                raw_root = (self._root(business_id) / "raw").resolve()
+                try:
+                    resolved = raw_path.resolve()
+                    if resolved.is_relative_to(raw_root) and resolved.is_file():
+                        resolved.unlink()
+                        source["raw_material_deleted"] = True
+                except (OSError, RuntimeError):
+                    source["raw_material_deleted"] = False
             self._save(business_id, index)
             receipt = self._governance_receipt(business_id, "source_revoked", source_id, actor_id, {"claim_ids": sorted(str(item) for item in revoked_claim_ids), "reason": source["revocation_reason"]})
             return {"source": source, "revoked_claim_count": len(revoked_claim_ids), "idempotent_replay": False, "receipt": receipt, "summary": self.summary(business_id)}
@@ -587,6 +782,14 @@ class BusinessKnowledgeService:
 
     def _governance_receipt(self, business_id: str, action: str, source_id: str, actor: str, evidence: dict[str, Any]) -> dict[str, Any]:
         receipt = {"receipt_id": f"bkg_{uuid4().hex[:16]}", "business_id": business_id, "action": action, "source_id": source_id, "actor": actor, "evidence_hash": _sha256_json(evidence), "created_at": _now()}
+        if self.domain_store is not None:
+            self.domain_store.put(
+                "business.knowledge_audit",
+                workspace_id=business_id,
+                entity_id=f"governance_receipts/{receipt['receipt_id']}",
+                payload=receipt,
+            )
+            return receipt
         path = self._root(business_id) / "governance_receipts.jsonl"
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(receipt, sort_keys=True, ensure_ascii=False) + "\n")

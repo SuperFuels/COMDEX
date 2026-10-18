@@ -38,6 +38,10 @@ def test_bootstrap_package_has_three_launchers_and_verified_contents(tmp_path, m
             "sovereign_migration_orchestrator.py",
             "sovereign_installed_service.py",
             "sovereign_windows_service.py",
+            "business_vault_runtime.py",
+            "vault_domain_store.py",
+            "vault_guardian.py",
+            "vault_object_store.py",
         ):
             assert any(name.endswith(f"backend/modules/aion_business/runtime/{runtime_source}") for name in names)
         integrity = json.loads(archive.read(f"{root}/integrity-manifest.json"))
@@ -92,3 +96,15 @@ def test_bootstrap_package_has_three_launchers_and_verified_contents(tmp_path, m
     assert status["ok"] is True
     assert status["provider_keys_required"] is False
     assert status["demo_data_installed"] is False
+
+
+def test_bootstrap_package_is_reproducible(tmp_path, monkeypatch):
+    import scripts.build_aion_sovereign_brain_bootstrap as builder
+
+    first_dist = tmp_path / "first"
+    monkeypatch.setattr(builder, "DIST", first_dist)
+    first = builder.build().read_bytes()
+    second_dist = tmp_path / "second"
+    monkeypatch.setattr(builder, "DIST", second_dist)
+    second = builder.build().read_bytes()
+    assert hashlib.sha256(first).digest() == hashlib.sha256(second).digest()

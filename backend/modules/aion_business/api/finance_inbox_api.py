@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
@@ -130,15 +130,17 @@ async def upload_finance_document(
 
 
 @router.get("/{workspace_id}/documents/{document_id}/file")
-def get_finance_document_file(workspace_id: str, document_id: str) -> FileResponse:
+def get_finance_document_file(workspace_id: str, document_id: str) -> Response:
     key = _workspace(workspace_id)
     try:
-        path, document = FinanceInboxService().file_path(key, document_id)
-    except (ValueError, FileNotFoundError, KeyError) as error:
+        content, document = FinanceInboxService().file_bytes(key, document_id)
+    except (ValueError, RuntimeError, FileNotFoundError, KeyError) as error:
         raise _http_error(error) from error
-    return FileResponse(
-        path, media_type=document.get("source", {}).get("mime_type") or "application/octet-stream",
-        filename=document.get("source", {}).get("filename") or path.name,
+    filename = str(document.get("source", {}).get("filename") or "document")
+    return Response(
+        content=content,
+        media_type=document.get("source", {}).get("mime_type") or "application/octet-stream",
+        headers={"Content-Disposition": f'inline; filename="{filename.replace(chr(34), "")}"'},
     )
 
 

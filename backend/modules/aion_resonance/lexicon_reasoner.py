@@ -1,18 +1,13 @@
 # File: backend/modules/aion_resonance/lexicon_reasoner.py
 # 🧩 AION Lexicon Reasoner - Semantic comparison and relation analysis between Φ-fields
 
-import json
-import os
 import math
 
-BOOT_PATH = "backend/modules/aion_resonance/boot_config.json"
+from backend.modules.aion_resonance.resonance_lexicon_store import RESONANCE_LEXICON
 
 def load_lexicon():
-    """Load the Φ lexicon from disk."""
-    if not os.path.exists(BOOT_PATH):
-        return {}
-    with open(BOOT_PATH, "r") as f:
-        return json.load(f)
+    """Load the product base lexicon plus this business's Vault overrides."""
+    return RESONANCE_LEXICON.load()
 
 def tone(vec):
     """Compute tone descriptor for a Φ signature."""

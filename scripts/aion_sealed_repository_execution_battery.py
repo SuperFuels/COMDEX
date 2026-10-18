@@ -13,6 +13,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import textwrap
@@ -34,8 +35,6 @@ from backend.modules.hexcore.open_mission_compounding_governor import (  # noqa:
     frozen_campaign_contract,
 )
 
-OUT_ROOT = REPO / "results/immutable/aion_sealed_repository_execution_battery"
-REPORT = REPO / "docs/aion/AION_SEALED_REPOSITORY_EXECUTION_BATTERY_2026-08-12.md"
 AUTHORITY = "sealed_hidden_python_test_authority_v1"
 ACTION_BUDGET = 2
 TOOL_HASH = hashlib.sha256(b"python3-stdlib|ollama-gemma3|write-solution-only|v1").hexdigest()
@@ -49,6 +48,61 @@ def digest(value: Any) -> str:
 def write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n")
+
+
+def _overlaps(left: Path, right: Path) -> bool:
+    left_value = left.expanduser().resolve(strict=False)
+    right_value = right.expanduser().resolve(strict=False)
+    try:
+        left_value.relative_to(right_value)
+        return True
+    except ValueError:
+        pass
+    try:
+        right_value.relative_to(left_value)
+        return True
+    except ValueError:
+        return False
+
+
+def protected_execution_roots() -> tuple[Path, ...]:
+    roots = [Path(os.environ.get("TESSARIS_APPLICATION_ROOT") or REPO)]
+    for variable in (
+        "TESSARIS_UPDATE_ROOT",
+        "TESSARIS_BUSINESS_VAULT_ROOT",
+        "TESSARIS_DATA_ROOT",
+    ):
+        value = str(os.environ.get(variable) or "").strip()
+        if value:
+            roots.append(Path(value))
+    for value in str(os.environ.get("TESSARIS_CUSTOMER_SOURCE_ROOTS") or "").split(os.pathsep):
+        if value.strip():
+            roots.append(Path(value.strip()))
+    return tuple(roots)
+
+
+def validate_execution_evidence_root(
+    root: str | Path,
+    *,
+    protected_roots: tuple[Path, ...] | None = None,
+) -> Path:
+    candidate = Path(root).expanduser().resolve(strict=False)
+    for protected in protected_roots or protected_execution_roots():
+        if _overlaps(candidate, protected):
+            raise ValueError("sealed_battery_root_overlaps_protected_root")
+    return candidate
+
+
+def safe_run_id(value: str) -> str:
+    candidate = str(value or "").strip()
+    if (
+        not candidate
+        or candidate in {".", ".."}
+        or len(candidate) > 120
+        or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", candidate) is None
+    ):
+        raise ValueError("sealed_battery_run_id_invalid")
+    return candidate
 
 
 TEST_PREAMBLE = """
@@ -332,20 +386,6 @@ def _load_openai_key() -> str:
     configured = valid_key(os.environ.get("OPENAI_API_KEY", ""))
     if configured:
         return configured
-    for path in (REPO / ".env.local", REPO / "backend" / ".env.local", REPO / ".env"):
-        if not path.exists():
-            continue
-        for raw_line in path.read_text().splitlines():
-            line = raw_line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if line.startswith("export "):
-                line = line[7:].strip()
-            key, separator, value = line.partition("=")
-            if separator and key.strip() == "OPENAI_API_KEY":
-                configured = valid_key(value)
-                if configured:
-                    return configured
     return ""
 
 
@@ -577,10 +617,24 @@ def main() -> int:
     parser.add_argument("--suite", choices=("baseline", "frontier", "signature"), default="baseline")
     parser.add_argument("--mission-limit", type=int, default=None)
     parser.add_argument("--run-id")
+    parser.add_argument(
+        "--output-root",
+        required=True,
+        help="External engineering-evidence directory, separate from the app, updater, Vault and customer sources.",
+    )
+    parser.add_argument(
+        "--report",
+        help="Optional external Markdown report path; defaults below --output-root.",
+    )
     args = parser.parse_args()
     now = datetime.now(timezone.utc)
-    run_id = args.run_id or f"sealed_repo_{now.strftime('%Y%m%dT%H%M%SZ')}"
-    run_dir = OUT_ROOT / run_id
+    run_id = safe_run_id(
+        args.run_id or f"sealed_repo_{now.strftime('%Y%m%dT%H%M%SZ')}"
+    )
+    output_root = validate_execution_evidence_root(args.output_root)
+    report = Path(args.report).expanduser().resolve(strict=False) if args.report else output_root / f"{run_id}.md"
+    validate_execution_evidence_root(report.parent)
+    run_dir = output_root / run_id
     authority_dir = run_dir / "authority"
     authority_dir.mkdir(parents=True, exist_ok=False)
     if args.suite == "frontier":
@@ -712,7 +766,7 @@ def main() -> int:
     ]
     write_json(run_dir / "summary.json", summary)
     write_json(run_dir / "all_receipts.json", results)
-    REPORT.parent.mkdir(parents=True, exist_ok=True)
+    report.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         "# AION Sealed Repository-Execution Battery — 12 August 2026", "",
         f"Run: `{run_id}`", f"Proposer: `{proposer_id}`", "",
@@ -729,7 +783,7 @@ def main() -> int:
         *[f"- {item}" for item in summary["limitations"]],
         "", "The 10x claim remains closed. This is an architecture test, not evidence of subjective awareness.", "",
     ]
-    REPORT.write_text("\n".join(lines))
+    report.write_text("\n".join(lines))
     print(json.dumps(summary, indent=2, sort_keys=True))
     return 0
 

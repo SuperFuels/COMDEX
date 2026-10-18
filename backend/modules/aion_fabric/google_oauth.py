@@ -13,8 +13,14 @@ from pathlib import Path
 from typing import Any, Callable, Dict
 from uuid import uuid4
 
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
+
 from .canonical import canonical_bytes, canonical_hash, utc_now_iso
-from .private_identity import ProductionPrivateIdentity
+from .private_identity import ProductionPrivateIdentity, configured_private_identity
 
 
 class PersonaGoogleOAuth:
@@ -32,22 +38,57 @@ class PersonaGoogleOAuth:
         "email_read": {"https://www.googleapis.com/auth/gmail.readonly"},
     }
 
-    def __init__(self, runtime_dir: str | Path, *, identities: ProductionPrivateIdentity | None = None) -> None:
+    def __init__(
+        self,
+        runtime_dir: str | Path,
+        *,
+        identities: ProductionPrivateIdentity | None = None,
+        domain_store: VaultDomainStore | None = None,
+        workspace_id: str | None = None,
+    ) -> None:
         self.root = Path(runtime_dir) / "provider_accounts"; self.path = self.root / "google.json"
-        self.root.mkdir(parents=True, exist_ok=True); self.identities = identities or ProductionPrivateIdentity(runtime_dir)
+        self.domain_store = domain_store
+        self.workspace_id = str(workspace_id or "").strip()
+        if self.domain_store is None:
+            self.root.mkdir(parents=True, exist_ok=True)
+        elif not self.workspace_id:
+            raise ValueError("aion_fabric_google_oauth_workspace_required")
+        self.identities = identities or configured_private_identity(runtime_dir)
 
     @staticmethod
     def _initial() -> Dict[str, Any]:
         return {"schema_version": "pilot.google-oauth.v1", "pending": [], "bindings": [], "revocations": []}
 
     def _read(self) -> Dict[str, Any]:
+        if self.domain_store is not None:
+            result = self.domain_store.get_optional(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.google_oauth",
+            )
+            return dict(result["payload"]) if result else self._initial()
         if not self.path.exists(): return self._initial()
         try:
             value = json.loads(self.path.read_text(encoding="utf-8")); return value if isinstance(value, dict) else self._initial()
         except (OSError, json.JSONDecodeError): return self._initial()
 
     def _write(self, state: Dict[str, Any]) -> None:
-        state["updated_at"] = utc_now_iso(); temporary = self.path.with_suffix(".tmp")
+        state["updated_at"] = utc_now_iso()
+        if self.domain_store is not None:
+            existing = self.domain_store.get_optional(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.google_oauth",
+            )
+            self.domain_store.put(
+                "security.records",
+                workspace_id=self.workspace_id,
+                entity_id="aion_fabric.google_oauth",
+                payload=state,
+                expected_version=int(existing["version"]) if existing else None,
+            )
+            return
+        temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(canonical_bytes(state)); os.chmod(temporary, 0o600); os.replace(temporary, self.path)
 
     def _known(self, persona_id: str) -> None:
@@ -149,3 +190,56 @@ class PersonaGoogleOAuth:
         if not reference.startswith("vault://"):
             raise RuntimeError("The Google authorization is not stored in the protected vault")
         return dict(binding)
+
+
+def configured_google_oauth(
+    runtime_dir: str | Path,
+    *,
+    identities: ProductionPrivateIdentity | None = None,
+) -> PersonaGoogleOAuth:
+    """Protect OAuth workflow metadata while raw tokens remain in key custody."""
+
+    runtime_path = Path(runtime_dir)
+    if guardian_mode_requested():
+        runtime = configured_business_vault_runtime()
+        workspace_id = str(os.environ.get("TESSARIS_BUSINESS_STABLE_ID") or "").strip()
+        if not workspace_id:
+            raise RuntimeError("aion_fabric_google_oauth_workspace_required")
+        domains = VaultDomainStore(runtime.guardian, actor_id="aion-fabric-google-oauth")
+        selected = PersonaGoogleOAuth(
+            runtime_path,
+            identities=identities,
+            domain_store=domains,
+            workspace_id=workspace_id,
+        )
+        source = runtime_path / "provider_accounts" / "google.json"
+        if source.exists() and domains.get_optional(
+            "security.records",
+            workspace_id=workspace_id,
+            entity_id="aion_fabric.google_oauth",
+        ) is None:
+            state = PersonaGoogleOAuth(runtime_path, identities=identities)._read()
+            selected._write(state)
+            if selected._read() != state or not source.exists():
+                raise RuntimeError("aion_fabric_google_oauth_migration_verification_failed")
+            from hashlib import sha256
+
+            source_hash = sha256(source.read_bytes()).hexdigest()
+            domains.put(
+                "security.audit",
+                workspace_id=workspace_id,
+                entity_id=f"aion_fabric.google_oauth_migration.{source_hash}",
+                payload={
+                    "schema_version": "aion.google-oauth-migration.v1",
+                    "source_sha256": source_hash,
+                    "source_retained": True,
+                    "copied_and_verified": True,
+                    "completed_at": utc_now_iso(),
+                    "raw_provider_tokens_copied": False,
+                },
+            )
+        return selected
+    mode = str(os.environ.get("TESSARIS_RUNTIME_MODE") or "development").lower()
+    if mode in {"production", "prod"}:
+        raise RuntimeError("aion_fabric_guardian_google_oauth_required_in_production")
+    return PersonaGoogleOAuth(runtime_path, identities=identities)

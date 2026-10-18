@@ -6,6 +6,21 @@ import json
 import sqlite3
 
 from backend.modules.local_node.contracts_local_node import utc_now_iso
+from backend.modules.local_node.private_sqlite import connect_private_sqlite
+from backend.modules.local_node.content_free_state import (
+    safe_error_code,
+    safe_fingerprint,
+    safe_timestamp,
+)
+
+
+_ALLOWED_CURSOR_KEYS = {
+    "cloud_push",
+    "cloud_pull",
+    "cloud_ack",
+    "cloud_success",
+    "cloud_error",
+}
 
 
 class SyncCursorStore:
@@ -13,11 +28,10 @@ class SyncCursorStore:
         self._db_path = Path(base_dir) / "sync_cursor.sqlite3"
         self._db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
+        self._scrub_legacy_content()
 
     def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self._db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
+        return connect_private_sqlite(self._db_path)
 
     def _init_db(self) -> None:
         with self._connect() as conn:
@@ -32,7 +46,51 @@ class SyncCursorStore:
             )
             conn.commit()
 
+    def _sanitize_payload(self, cursor_key: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        if cursor_key == "cloud_push":
+            return {"last_push_at": safe_timestamp(payload.get("last_push_at"))}
+        if cursor_key == "cloud_pull":
+            return {"last_pull_at": safe_timestamp(payload.get("last_pull_at"))}
+        if cursor_key == "cloud_success":
+            return {"last_success_at": safe_timestamp(payload.get("last_success_at"))}
+        if cursor_key == "cloud_ack":
+            token = payload.get("last_ack_token")
+            return {"last_ack_token": str(token)[:512] if isinstance(token, str) else None}
+        error = payload.get("last_error")
+        return {
+            "last_error": safe_error_code(error),
+            "last_error_fingerprint": safe_fingerprint(
+                payload.get("last_error_fingerprint"), fallback_value=error,
+            ),
+            "updated_at": safe_timestamp(payload.get("updated_at")) or utc_now_iso(),
+        }
+
+    def _scrub_legacy_content(self) -> None:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT cursor_key, payload_json FROM sync_cursors"
+            ).fetchall()
+            for row in rows:
+                key = str(row["cursor_key"])
+                if key not in _ALLOWED_CURSOR_KEYS:
+                    conn.execute("DELETE FROM sync_cursors WHERE cursor_key = ?", (key,))
+                    continue
+                try:
+                    raw = json.loads(row["payload_json"])
+                except Exception:
+                    raw = {}
+                raw = raw if isinstance(raw, dict) else {}
+                conn.execute(
+                    "UPDATE sync_cursors SET payload_json = ?, updated_at = ? WHERE cursor_key = ?",
+                    (json.dumps(self._sanitize_payload(key, raw)), utc_now_iso(), key),
+                )
+            conn.commit()
+            conn.execute("VACUUM")
+
     def upsert(self, cursor_key: str, payload: Dict[str, Any]) -> None:
+        if cursor_key not in _ALLOWED_CURSOR_KEYS:
+            raise ValueError(f"unsupported_sync_cursor_key:{cursor_key}")
+        payload = self._sanitize_payload(cursor_key, payload)
         now = utc_now_iso()
         with self._connect() as conn:
             conn.execute(
@@ -145,10 +203,7 @@ class SyncCursorStore:
         return error if isinstance(error, str) else None
 
     def set_last_error(self, error: str) -> None:
-        payload = self.get("cloud_error")
-        payload["last_error"] = error
-        payload["updated_at"] = utc_now_iso()
-        self.upsert("cloud_error", payload)
+        self.upsert("cloud_error", {"last_error": error, "updated_at": utc_now_iso()})
 
     def clear_last_error(self) -> None:
         payload = self.get("cloud_error")

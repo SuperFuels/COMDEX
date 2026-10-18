@@ -13,7 +13,12 @@ from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
+from backend.modules.aion_business.runtime.business_vault_runtime import (
+    configured_business_vault_runtime,
+    guardian_mode_requested,
+)
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.vault_domain_store import VaultDomainStore
 from backend.modules.aion_business.runtime.telephony_credentials import (
     get_retell_api_key,
     retell_api_key_present,
@@ -38,15 +43,32 @@ E164_RE = re.compile(r"^\+[1-9][0-9]{7,14}$")
 class TelephonyVaultService:
     """Connect both provider accounts while keeping every secret in Keychain."""
 
+    def __init__(self, *, domain_store: VaultDomainStore | None = None) -> None:
+        self.domain_store = domain_store
+        if domain_store is None and guardian_mode_requested():
+            runtime = configured_business_vault_runtime()
+            self.domain_store = VaultDomainStore(
+                runtime.guardian, actor_id="telephony-vault-runtime"
+            )
+
     def _workspace(self, workspace_id: str) -> str:
         return canonical_business_id(workspace_id)
 
     def _status_path(self, workspace_id: str) -> Path:
+        if self.domain_store is not None:
+            return Path("/__tessaris_guardian_telephony__") / workspace_id / "sales_telephony.json"
         directory = AIONBusinessPaths.business_container_dir(self._workspace(workspace_id)) / "integrations"
         directory.mkdir(parents=True, exist_ok=True)
         return directory / "sales_telephony.json"
 
     def _metadata(self, workspace_id: str) -> dict[str, Any]:
+        if self.domain_store is not None:
+            row = self.domain_store.get_optional(
+                "departments.operational_records",
+                workspace_id=self._workspace(workspace_id),
+                entity_id="sales/integrations/telephony",
+            )
+            return dict(row["payload"]) if row is not None else {}
         path = self._status_path(workspace_id)
         if not path.exists():
             return {}
@@ -57,12 +79,24 @@ class TelephonyVaultService:
             return {}
 
     def _write_metadata(self, workspace_id: str, data: dict[str, Any]) -> None:
-        path = self._status_path(workspace_id)
         safe = {
             key: value
             for key, value in data.items()
             if key not in {"api_key", "api_key_secret", "sip_password", "auth_token"}
         }
+        if self.domain_store is not None:
+            workspace = self._workspace(workspace_id)
+            current = self.domain_store.get_optional(
+                "departments.operational_records", workspace_id=workspace,
+                entity_id="sales/integrations/telephony",
+            )
+            self.domain_store.put(
+                "departments.operational_records", workspace_id=workspace,
+                entity_id="sales/integrations/telephony", payload=safe,
+                expected_version=int(current["version"]) if current else None,
+            )
+            return
+        path = self._status_path(workspace_id)
         path.write_text(json.dumps(safe, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         try:
             path.chmod(0o600)

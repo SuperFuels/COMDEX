@@ -12,6 +12,8 @@
     stream: null,
     chunks: [],
     busy: false,
+    vaultRevision: 0,
+    saveChain: Promise.resolve(),
   };
 
   const departmentCopy = {
@@ -99,17 +101,77 @@
     return `tessaris.boardroom.conversation.${clean(session.seat?.teamMode)}.${seatKey()}`;
   }
 
-  function loadHistory() {
+  function workspaceId() {
+    return clean(
+      global.desktopStore?.state?.workspaceId ||
+      global.AionBusinessContainerClient?.resolveBusinessId?.() ||
+      "home-fixed"
+    );
+  }
+
+  function conversationUrl() {
+    return `${API_BASE}/api/aion/business/boardroom/${encodeURIComponent(workspaceId())}/conversations`;
+  }
+
+  async function loadHistory() {
+    const targetStorageKey = storageKey();
+    const targetUrl = conversationUrl();
+    const targetTeamMode = clean(session.seat?.teamMode) || "board";
+    const targetSeatKey = seatKey() || "aion";
+    let legacy = [];
     try {
-      const parsed = JSON.parse(localStorage.getItem(storageKey()) || "[]");
-      session.messages = Array.isArray(parsed) ? parsed.slice(-30) : [];
-    } catch {
-      session.messages = [];
+      const parsed = JSON.parse(localStorage.getItem(targetStorageKey) || "[]");
+      legacy = Array.isArray(parsed) ? parsed.slice(-30) : [];
+    } catch {}
+    try {
+      const response = await fetch(
+        `${targetUrl}/${encodeURIComponent(targetTeamMode)}/${encodeURIComponent(targetSeatKey)}`,
+        { headers: { Accept: "application/json" } },
+      );
+      if (!response.ok) throw new Error(`boardroom_history_${response.status}`);
+      const payload = await response.json();
+      session.messages = Array.isArray(payload?.messages) ? payload.messages.slice(-30) : [];
+      session.vaultRevision = Number(payload?.revision || 0);
+      if (!session.messages.length && legacy.length) {
+        session.messages = legacy;
+        const saved = await saveHistory();
+        if (saved) localStorage.removeItem(targetStorageKey);
+      } else if (legacy.length) {
+        localStorage.removeItem(targetStorageKey);
+      }
+    } catch (error) {
+      session.messages = legacy;
+      session.vaultRevision = 0;
+      console.warn("[AION] Boardroom history is memory-only until the Business Vault is available", error);
     }
   }
 
   function saveHistory() {
-    try { localStorage.setItem(storageKey(), JSON.stringify(session.messages.slice(-30))); } catch {}
+    const snapshot = session.messages.slice(-30).map((item) => ({ ...item }));
+    const targetUrl = conversationUrl();
+    const targetTeamMode = clean(session.seat?.teamMode) || "board";
+    const targetSeatKey = seatKey() || "aion";
+    session.saveChain = session.saveChain.then(async () => {
+      try {
+        const response = await fetch(targetUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            team_mode: targetTeamMode,
+            seat_key: targetSeatKey,
+            messages: snapshot,
+          }),
+        });
+        if (!response.ok) throw new Error(`boardroom_history_${response.status}`);
+        const payload = await response.json();
+        session.vaultRevision = Number(payload?.revision || session.vaultRevision || 0);
+        return true;
+      } catch (error) {
+        console.warn("[AION] Boardroom history remains memory-only; Vault save failed", error);
+        return false;
+      }
+    });
+    return session.saveChain;
   }
 
   async function speak(text) {
@@ -407,13 +469,16 @@
     }
   }
 
-  function open(seat = {}) {
+  async function open(seat = {}) {
+    await session.saveChain;
     session.seat = { ...seat };
-    loadHistory();
+    session.messages = [];
+    session.vaultRevision = 0;
+    await loadHistory();
     const profile = seatProfile(seat);
     if (!session.messages.length) {
       session.messages.push({ role: "assistant", text: profile.greeting, at: new Date().toISOString() });
-      saveHistory();
+      void saveHistory();
     }
     render();
     void speak(profile.greeting);
