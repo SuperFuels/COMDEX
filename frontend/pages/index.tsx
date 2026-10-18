@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
@@ -107,6 +107,43 @@ function Eyebrow({ children, dark = false }: { children: ReactNode; dark?: boole
   );
 }
 
+function AutoHeightIframe({ title, src, className }: { title: string; src: string; className: string }) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+
+    let observer: ResizeObserver | undefined;
+    const syncHeight = () => {
+      const document = frame.contentDocument;
+      if (!document) return;
+      const height = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight ?? 0);
+      if (height > 0 && frame.style.height !== `${height}px`) frame.style.height = `${height}px`;
+    };
+    const observeContent = () => {
+      observer?.disconnect();
+      syncHeight();
+      const document = frame.contentDocument;
+      if (!document) return;
+      observer = new ResizeObserver(syncHeight);
+      observer.observe(document.documentElement);
+      if (document.body) observer.observe(document.body);
+    };
+
+    frame.addEventListener("load", observeContent);
+    if (frame.contentDocument?.readyState === "complete") observeContent();
+    window.addEventListener("resize", syncHeight);
+    return () => {
+      frame.removeEventListener("load", observeContent);
+      window.removeEventListener("resize", syncHeight);
+      observer?.disconnect();
+    };
+  }, []);
+
+  return <iframe ref={frameRef} title={title} src={src} className={className} loading="lazy" scrolling="no" />;
+}
+
 export default function HomePage() {
   return (
     <>
@@ -132,6 +169,16 @@ export default function HomePage() {
                   sizes="(max-width: 768px) 100vw, 1380px"
                   className="object-cover object-center"
                 />
+                <div className="absolute inset-x-3 top-4 z-10 flex justify-center sm:top-6">
+                  <div className="max-w-[680px] rounded-2xl border border-white/70 bg-[#071329]/88 px-5 py-3 text-center text-white shadow-xl backdrop-blur-md sm:px-8 sm:py-4">
+                    <div className="text-[9px] font-black uppercase tracking-[.2em] text-blue-200 sm:text-[11px]">The intelligence boardroom</div>
+                    <div className="mt-1 text-sm font-black sm:text-xl">Your board of superintelligent AI advisers</div>
+                  </div>
+                </div>
+                <div className="absolute left-[9%] top-[43%] z-10 -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">Si</div>
+                <div className="absolute left-[41.5%] top-[39%] z-10 -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">DeepSeek</div>
+                <div className="absolute left-[58%] top-[39%] z-10 -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">Gemini</div>
+                <div className="absolute left-[90%] top-[43%] z-10 -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">Qwen</div>
               </div>
 
               <div className="relative z-10 mx-auto -mt-2 max-w-[1060px] rounded-[30px] border border-slate-200 bg-white px-6 py-10 text-center shadow-[0_24px_70px_rgba(7,19,41,.10)] sm:-mt-10 sm:px-12 sm:py-14 lg:-mt-16">
@@ -173,11 +220,10 @@ export default function HomePage() {
 
           <section aria-label="Interactive business automation story" className="border-b border-slate-200 bg-white px-2 py-12 sm:px-5 lg:py-16">
             <div className="mx-auto max-w-[1380px] overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_22px_70px_rgba(7,19,41,.08)]">
-              <iframe
+              <AutoHeightIframe
                 title="Tessaris business automation demonstration"
                 src="/concepts/business-automation/index.html"
                 className="block h-[1480px] w-full border-0 sm:h-[1040px] lg:h-[840px]"
-                loading="lazy"
               />
             </div>
           </section>
@@ -207,11 +253,10 @@ export default function HomePage() {
 
           <section aria-label="Meet your AI company" className="border-y border-slate-200 bg-white px-2 py-12 sm:px-5 lg:py-16">
             <div className="mx-auto max-w-[1380px] overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_22px_70px_rgba(7,19,41,.08)]">
-              <iframe
+              <AutoHeightIframe
                 title="Meet your Tessaris AI company"
                 src="/concepts/business-automation/team.html"
                 className="block h-[1780px] w-full border-0 sm:h-[1320px] lg:h-[980px]"
-                loading="lazy"
               />
             </div>
           </section>
