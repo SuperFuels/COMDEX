@@ -50,7 +50,7 @@ export default function WaitlistPage() {
         <meta name="description" content="Join the Tessaris launch waitlist and tell us a little about your business." />
       </Head>
 
-      <main className="min-h-[calc(100vh-72px)] bg-[#f7faff] px-5 py-12 text-[#071329] sm:px-8 sm:py-20">
+      <main className="h-[calc(100vh-72px)] min-h-[calc(100vh-72px)] overflow-y-auto overscroll-y-contain bg-[#f7faff] px-5 py-12 text-[#071329] sm:px-8 sm:py-20">
         <div className="mx-auto grid max-w-[1120px] overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_28px_80px_rgba(7,19,41,.10)] lg:grid-cols-[.82fr_1.18fr]">
           <section className="bg-[#071329] px-7 py-10 text-white sm:px-10 sm:py-14">
             <div className="text-[11px] font-black uppercase tracking-[.2em] text-blue-300">Tessaris launch</div>
