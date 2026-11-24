@@ -5,11 +5,22 @@ export function placeLaunch(s,owner,side,price,shares){
  if(s.accounts[owner]<price*shares)throw Error('Not enough available demo IQ in this trader’s balance.');
  s.accounts[owner]-=price*shares;
  const order={id:s.next++,owner,side,price,original:shares,left:shares,status:'Waiting'};
- const candidates=s.orders.filter(o=>o.left>0&&o.owner!==owner&&o.side!==side&&o.price+price>=100).sort((a,b)=>b.price-a.price||a.id-b.id);
- for(const other of candidates){if(!order.left)break;const n=Math.min(order.left,other.left),paid=100-other.price;
-  order.left-=n;other.left-=n;s.accounts[owner]+=(price-paid)*n;s.collateral+=n*100;
-  for(const [who,outcome,cost] of [[owner,side,paid*n],[other.owner,other.side,other.price*n]]){let h=s.holdings.find(h=>h.owner===who&&h.side===outcome);if(!h){h={owner:who,side:outcome,shares:0,cost:0};s.holdings.push(h)}h.shares+=n;h.cost+=cost;}
-  other.status=other.left?'Partly filled':'Filled';s.fills.unshift({id:s.next++,shares:n,yes:side==='YES'?paid:other.price,no:side==='NO'?paid:other.price,buyerYes:side==='YES'?owner:other.owner,buyerNo:side==='NO'?owner:other.owner});
+ const bids=s.orders.filter(o=>o.left>0&&o.owner!==owner&&o.side!==side&&o.price+price>=100).map(o=>({o,paid:100-o.price,kind:'pair'}));
+ const asks=(s.asks||[]).filter(o=>o.left>0&&o.owner!==owner&&o.side===side&&o.price<=price).map(o=>({o,paid:o.price,kind:'sale'}));
+ const candidates=[...bids,...asks].sort((a,b)=>a.paid-b.paid||(a.kind===b.kind?0:a.kind==='sale'?-1:1)||a.o.id-b.o.id);
+ for(const match of candidates){if(!order.left)break;const other=match.o,paid=match.paid,n=Math.min(order.left,other.left);
+  order.left-=n;other.left-=n;s.accounts[owner]+=(price-paid)*n;
+  if(match.kind==='sale'){
+   const seller=s.holdings.find(h=>h.owner===other.owner&&h.side===side),cost=n===seller.shares?seller.cost:Math.round(seller.cost*n/seller.shares);
+   seller.shares-=n;seller.cost-=cost;s.accounts[other.owner]+=paid*n;s.realized??={};s.realized[other.owner]=(s.realized[other.owner]||0)+paid*n-cost;
+   let buyer=s.holdings.find(h=>h.owner===owner&&h.side===side);if(!buyer){buyer={owner,side,shares:0,cost:0};s.holdings.push(buyer)}buyer.shares+=n;buyer.cost+=paid*n;
+   s.secondaryTrades??=[];s.secondaryTrades.unshift({id:s.next++,time:Date.now(),seller:other.owner,buyer:owner,side,shares:n,price:paid,value:paid*n,cost,profit:paid*n-cost});
+  }else{
+   s.collateral+=n*100;
+   for(const [who,outcome,cost] of [[owner,side,paid*n],[other.owner,other.side,other.price*n]]){let h=s.holdings.find(h=>h.owner===who&&h.side===outcome);if(!h){h={owner:who,side:outcome,shares:0,cost:0};s.holdings.push(h)}h.shares+=n;h.cost+=cost;}
+   s.fills.unshift({id:s.next++,shares:n,yes:side==='YES'?paid:other.price,no:side==='NO'?paid:other.price,buyerYes:side==='YES'?owner:other.owner,buyerNo:side==='NO'?owner:other.owner});
+  }
+  s.lastTradeYes=side==='YES'?paid:100-paid;other.status=other.left?'Partly filled':'Filled';
  }
  order.status=order.left===shares?'Waiting':order.left?'Partly filled':'Filled';s.orders.push(order);return order;
 }
