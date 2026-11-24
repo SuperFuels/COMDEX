@@ -5,7 +5,7 @@ import {markets,tasks,initial,buy,sell,cancel,fill,settle,submit,review} from '.
 const $=s=>document.querySelector(s),money=n=>(n/100).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}),escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let state=initial(),sector='All',search='',watchOnly=false,side='YES',marketTab='overview',orderType='market',pending=null,toastTimer;
 try{const s=JSON.parse(localStorage.getItem('intuition-exchange-demo-v1'));if(s?.version===1&&Number.isInteger(s.cash)&&s.cash>=0&&Array.isArray(s.positions)&&Array.isArray(s.history))state=s;}catch{}
-function persist(){try{localStorage.setItem('intuition-exchange-demo-v1',JSON.stringify(state))}catch{toast('Browser storage unavailable. This session will reset when you leave.')}updateChrome();}
+function persist(){let stored=true;try{localStorage.setItem('intuition-exchange-demo-v1',JSON.stringify(state))}catch{stored=false;toast('Browser storage unavailable. This session will reset when you leave.')}updateChrome();return stored;}
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),4000);}
 const action=(name,label,cls='button',extra='')=>`<button class="${cls}" data-action="${name}" ${extra}>${label}</button>`;
 const link=(url,label,cls='button')=>`<a class="${cls}" href="#${url}">${label}</a>`;
