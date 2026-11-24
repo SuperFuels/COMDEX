@@ -44,3 +44,4 @@ html[data-theme] .segmented :is([data-side],[data-depth-side]).active{outline:no
 html[data-theme] .iq-unit{font-size:max(.55em,10px)!important}
 html[data-theme] .segmented{background:transparent!important;border:0;gap:12px}
 html[data-theme] .quick-amounts button{white-space:nowrap;font-size:14px;padding-inline:6px}
+.summary dd{white-space:nowrap;flex-shrink:0}.summary dt{margin-right:10px}
