@@ -25,3 +25,22 @@ html[data-theme] [data-depth="review"]:disabled{background:#8993a5!important;bor
 html[data-theme] [data-action="sell"],html[data-theme] [data-depth="confirm"]{background:#2454ed;color:white;border-color:#2454ed;font-weight:800;box-shadow:0 4px 0 #1739b6;min-height:48px}
 @media(prefers-reduced-motion:reduce){html[data-theme] :is(.card-choices button,.segmented [data-side],.segmented [data-depth-side]){transition:none}html[data-theme] :is(.card-choices button,.segmented [data-side],.segmented [data-depth-side],[data-depth="review"]):hover{transform:none}}
 html[data-theme] .card-choices button{font-size:15px;padding:15px 10px;gap:6px;align-items:center;white-space:nowrap}.card-choices button b{font-size:18px;white-space:nowrap}
+/* Reference-style outcomes: tinted discovery, flat selected outcome, blue action. */
+html[data-theme] :is(.card-choices button,.segmented [data-side],.segmented [data-depth-side]){box-shadow:none!important;transform:none!important;outline:none;border-radius:12px;font-weight:700}
+html[data-theme=light] .card-choices .choice-yes{background:#e1f2e4!important;color:#008f2b!important;border-color:transparent!important}
+html[data-theme=light] .card-choices .choice-no{background:#fdebec!important;color:#ed1717!important;border-color:transparent!important}
+html[data-theme=dark] .card-choices .choice-yes{background:#0d2418!important;color:#45d875!important;border-color:transparent!important}
+html[data-theme=dark] .card-choices .choice-no{background:#390400!important;color:#ff7464!important;border-color:transparent!important}
+html[data-theme] .card-choices button b{color:inherit}
+html[data-theme] .segmented :is([data-side],[data-depth-side]){background:transparent!important;color:#8d929a!important;border:1px solid var(--line)!important;flex-direction:row;align-items:center;justify-content:center;gap:5px;min-height:66px;padding:14px 8px}
+html[data-theme] .segmented :is([data-side=YES],[data-depth-side=YES]).active,html[data-theme] .card-choices .choice-yes:hover{background:#008322!important;color:white!important;border-color:transparent!important}
+html[data-theme] .segmented :is([data-side=NO],[data-depth-side=NO]).active,html[data-theme] .card-choices .choice-no:hover{background:#ed080c!important;color:white!important;border-color:transparent!important}
+html[data-theme] .segmented [data-depth-side] strong{font-size:21px;white-space:nowrap}.segmented [data-depth-side] span{font-size:15px}
+html[data-theme] [data-depth=review],html[data-theme] [data-depth=confirm],html[data-theme] [data-action=sell]{background:#315bff!important;border-color:#315bff!important;color:white!important;box-shadow:0 5px 0 #2141bd!important;transform:none!important}
+html[data-theme] [data-depth=review]:disabled{background:#8993a5!important;box-shadow:none!important}
+html[data-theme] .iq-unit{font-size:.55em!important;font-weight:600!important;letter-spacing:0;display:inline!important;color:inherit!important;white-space:nowrap}
+html[data-theme] :is(.card-choices button,.segmented button):focus-visible{outline:2px solid #315bff;outline-offset:3px}
+html[data-theme] .segmented :is([data-side],[data-depth-side]).active{outline:none!important;box-shadow:none!important}
+html[data-theme] .iq-unit{font-size:max(.55em,10px)!important}
+html[data-theme] .segmented{background:transparent!important;border:0;gap:12px}
+html[data-theme] .quick-amounts button{white-space:nowrap;font-size:14px;padding-inline:6px}
