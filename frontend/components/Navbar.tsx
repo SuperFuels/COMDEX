@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 export default function TessarisNavbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[72px] max-w-[1240px] items-center justify-between gap-5 px-5 sm:px-8">
+      <div className="mx-auto flex flex-wrap min-h-[72px] max-w-[1240px] items-center justify-between gap-3 px-4 sm:gap-5 sm:px-8">
         <Link
           href="/"
           aria-label="Si by Tessaris home"
@@ -33,17 +33,20 @@ export default function TessarisNavbar() {
           </span>
         </Link>
 
-        <nav aria-label="Primary navigation" className="flex items-center gap-1 sm:gap-3">
-          <Link href="/market" className="hidden !border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5] md:inline-flex">
+        <nav aria-label="Primary navigation" className="flex flex-wrap items-center gap-0 sm:gap-3">
+          <Link href="/market" className="hidden !border-0 !bg-transparent px-2 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5] md:inline-flex">
             Market
           </Link>
-          <Link href="/pricing" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
+          <a href="/exchange" className="!border-0 !bg-transparent px-2 py-2 text-sm font-bold !text-[#1748e5] transition hover:!text-[#1039bc] sm:px-3">
+            Exchange
+          </a>
+          <Link href="/pricing" className="!border-0 !bg-transparent px-2 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
             Pricing
           </Link>
-          <Link href="/aion" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
+          <Link href="/aion" className="!border-0 !bg-transparent px-2 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
             Si
           </Link>
-          <Link href="/articles" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
+          <Link href="/articles" className="!border-0 !bg-transparent px-2 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
             Articles
           </Link>
           <Link

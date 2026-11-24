@@ -50,9 +50,11 @@ const nextConfig = {
       ""
     ).replace(/\/+$/, "");
 
-    if (!fastapiOrigin) return [];
+    const exchangeRoutes = [{ source: "/exchange", destination: "/exchange/index.html" }];
+    if (!fastapiOrigin) return exchangeRoutes;
 
     return [
+      ...exchangeRoutes,
       {
         source: "/api/wirepack/:path*",
         destination: `${fastapiOrigin}/api/wirepack/:path*`,
