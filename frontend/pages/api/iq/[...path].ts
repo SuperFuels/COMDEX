@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       signal: AbortSignal.timeout(15000),
       headers: {
         Accept: 'application/json', 'Content-Type': 'application/json',
-        'X-IQ-Proxy-Key': key, 'X-IQ-Client-IP': clientIP,
+        'X-IQ-Proxy-Key': key, 'X-IQ-Client-IP': clientIP, 'User-Agent': String(req.headers['user-agent'] || '').slice(0,512),
         ...(req.method === 'GET' ? {} : { Origin: publicOrigin }),
         ...(cookie && /^[a-zA-Z0-9_-]+$/.test(cookie) ? { Cookie: `__Host-iq_demo=${cookie}` } : {}),
       },
