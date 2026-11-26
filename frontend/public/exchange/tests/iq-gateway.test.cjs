@@ -22,3 +22,7 @@ test('gateway gates configuration, origin, paths and forwards only the IQ cookie
   process.env.IQ_BACKEND_URL='not a url';res=response();await handler(req,res);assert.equal(res.statusCode,503);
  }finally{global.fetch=oldFetch;for(const k of vars){if(original[k]===undefined)delete process.env[k];else process.env[k]=original[k];}}
 });
+test('legacy API rewrite excludes the shared IQ gateway',async()=>{
+ const old=process.env.FASTAPI_ORIGIN;process.env.FASTAPI_ORIGIN='https://legacy.example';
+ try{const config=require('../../../next.config.js');const routes=await config.rewrites();const legacy=routes.find(r=>r.destination==='https://legacy.example/api/:path*');const {pathToRegexp}=require('next/dist/compiled/path-to-regexp');const pattern=pathToRegexp(legacy.source);assert.equal(pattern.test('/api/iq/wallet'),false);assert.equal(pattern.test('/api/iq/session'),false);assert.equal(pattern.test('/api/iq-connection'),false);assert.equal(pattern.test('/api/other/test'),true);}finally{if(old===undefined)delete process.env.FASTAPI_ORIGIN;else process.env.FASTAPI_ORIGIN=old;}
+});

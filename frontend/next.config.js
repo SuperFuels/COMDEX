@@ -60,7 +60,8 @@ const nextConfig = {
         destination: `${fastapiOrigin}/api/wirepack/:path*`,
       },
       {
-        source: "/api/:path*",
+        // IQ is handled by the authenticated Next.js gateway.
+        source: "/api/:path((?!iq/|iq$|iq-connection$).*)",
         destination: `${fastapiOrigin}/api/:path*`,
       },
     ];
